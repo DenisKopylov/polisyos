@@ -1,0 +1,35 @@
+"""Read current distribution metadata; do not install or import numerical packages."""
+from __future__ import annotations
+import argparse
+import hashlib
+import importlib.metadata as md
+import json
+import sys
+import time
+from pathlib import Path
+
+p = argparse.ArgumentParser()
+p.add_argument('--output', type=Path, required=True)
+args = p.parse_args()
+protected_names = ('numpy', 'scipy', 'jax', 'jaxlib', 'SALib', 'pytest', 'pydantic', 'policy-engine')
+distributions = []
+for dist in md.distributions():
+    name = dist.metadata.get('Name', '')
+    record = {'name': name, 'version': dist.version, 'metadata_path': str(dist._path),
+              'entry_points': sorted([{'group': e.group, 'name': e.name, 'value': e.value} for e in dist.entry_points], key=lambda e: (e['group'], e['name'], e['value']))}
+    if name.lower().replace('_', '-') in {n.lower().replace('_', '-') for n in protected_names}:
+        record['metadata_files'] = []
+        for path in sorted(Path(dist._path).rglob('*')):
+            if path.is_file():
+                data = path.read_bytes()
+                record['metadata_files'].append({'relative_path': str(path.relative_to(Path(dist._path))), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
+        record['declared_requires'] = dist.requires
+    distributions.append(record)
+distributions.sort(key=lambda d: (d['name'].casefold(), d['version'], d['metadata_path']))
+result = {'schema': 'policyos.e02.existing_environment_distribution_snapshot.v1', 'observed_unix': time.time(),
+          'executable': sys.executable, 'prefix': sys.prefix, 'base_prefix': sys.base_prefix, 'python': sys.version,
+          'distribution_count': len(distributions), 'protected_names': protected_names, 'distributions': distributions,
+          'measurement': 'Complete importlib.metadata distributions and declared entry points visible to this existing interpreter. Protected dist-info metadata files include RECORD/METADATA/WHEEL hashes. This snapshot does not claim independent hashing of every numerical binary.'}
+with args.output.open('x') as handle:
+    handle.write(json.dumps(result, ensure_ascii=False, indent=2) + '\n')
+print(json.dumps({'output': str(args.output), 'distributions': len(distributions), 'protected_versions': {n: md.version(n) for n in protected_names}}, indent=2))

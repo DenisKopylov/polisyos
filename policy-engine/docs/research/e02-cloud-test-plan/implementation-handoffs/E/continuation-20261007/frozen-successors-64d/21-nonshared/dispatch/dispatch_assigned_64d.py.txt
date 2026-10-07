@@ -1,0 +1,60 @@
+"""Dispatch assigned frozen selectors through the existing reviewed run_check capturer."""
+from __future__ import annotations
+import asyncio,hashlib,json,os,subprocess,time
+from pathlib import Path
+
+REPO=Path('/workspace/e02-E-continuation-20261006')
+SHA='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+BASE=Path('/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007')
+PLAN=BASE/'dispatch-plan-64d7444a18c5-frozen-final.json'
+EXPECTED_PLAN='f0f00bef93befbca83a1bdbb59c1d895ac0a43cc50db602de18629ef0ccb86e6'
+plan_bytes=PLAN.read_bytes()
+if hashlib.sha256(plan_bytes).hexdigest()!=EXPECTED_PLAN:raise RuntimeError('exact dispatch plan bytes differ')
+plan=json.loads(plan_bytes)
+if not plan['root_FREEZE_received'] or plan['prepared_against_sha']!=SHA or plan['prepared_against_tree']!=TREE:raise RuntimeError('freeze source identity differs')
+def git(*args):return subprocess.check_output(['git','-C',str(REPO),*args],text=True).strip()
+if git('rev-parse','HEAD')!=SHA or git('rev-parse','HEAD^{tree}')!=TREE or git('status','--porcelain','--untracked-files=no'):raise RuntimeError('clean frozen HEAD required')
+for binding in plan['required_source_bindings']:
+ data=(REPO/binding['repo_path']).read_bytes()
+ exact=subprocess.check_output(['git','-C',str(REPO),'show',SHA+':'+binding['repo_path']])
+ if data!=exact or len(data)!=binding['bytes'] or hashlib.sha256(data).hexdigest()!=binding['sha256']:raise RuntimeError('source admission failed '+binding['repo_path'])
+for ref in (plan['full_input_inventory'],plan['freeze_receipt']):
+ data=Path(ref['path']).read_bytes()
+ if len(data)!=ref['bytes'] or hashlib.sha256(data).hexdigest()!=ref['sha256']:raise RuntimeError('input receipt bytes differ')
+selected=[r for r in plan['rows'] if r['code'] in plan['proposed_parallel_nonshared_logic_assignments']]
+if len(selected)!=21:raise RuntimeError('actual assigned selector denominator differs')
+for row in selected:
+ for name,path in row['unique_paths'].items():
+  if name=='default_relative_CAS_if_runtime_checker':continue
+  p=Path(path)
+  if p.exists() or p.is_symlink():raise RuntimeError('fresh stage path already exists '+path)
+ if len(row['capture_via_existing_run_check'])!=1:raise RuntimeError('assigned nonshared stage is not single canonical selector')
+run_root=Path(plan['rows'][0]['unique_paths']['root']).parent
+start=BASE/'successor-21-started-64d.json'
+if start.exists():raise RuntimeError('never repeat started21 selectors')
+start.write_text(json.dumps({'candidate':SHA,'tree':TREE,'plan_sha256':EXPECTED_PLAN,'source_input_admitted':True,'assigned':[r['code'] for r in selected],'started_unix':time.time(),'limits':'No process/thread/CPU caps; all21 ready selectors launch concurrently.','common_workflow_outcomes':'Remain separately reported; no UNRUN overwritten.'},indent=2)+'\n')
+async def run(row):
+ root=Path(row['unique_paths']['root']);root.mkdir(parents=True,exist_ok=False)
+ temp=Path(row['unique_paths']['tmp']);temp.mkdir(exist_ok=False)
+ capture=row['capture_via_existing_run_check'][0]
+ env=dict(os.environ)
+ env.update({k:v for k,v in capture['environment'].items() if v is not None})
+ for name in capture['environment_remove']:env.pop(name,None)
+ stdout=root/'capture.stdout.txt';stderr=root/'capture.stderr.txt'
+ began=time.time()
+ with stdout.open('xb') as out,stderr.open('xb') as err:
+  proc=await asyncio.create_subprocess_exec(*capture['argv'],cwd=capture['cwd'],env=env,stdout=out,stderr=err)
+  code=await proc.wait()
+ record={'code':row['code'],'capturer_exit_code':code,'argv':capture['argv'],'cwd':capture['cwd'],'started_unix':began,'wall_seconds':time.time()-began,'complete_capturer_stdout':str(stdout),'complete_capturer_stderr':str(stderr),'candidate':SHA,'tree':TREE,'actual_receipt':str(Path(row['unique_paths']['output'])/('standalone-'+row['code']+'.json')),'canonical_scope_result':'Read canonical umbrella receipt separately; independent outcome does not replace it.','finding_closure':False}
+ (root/'dispatch-observation.json').write_text(json.dumps(record,indent=2)+'\n')
+ print(json.dumps({'finished':row['code'],'capturer_exit':code,'wall_seconds':record['wall_seconds'],'receipt':record['actual_receipt']}),flush=True)
+ return record
+async def main():
+ records=await asyncio.gather(*(run(row) for row in selected))
+ output=BASE/'successor-21-complete-64d.json'
+ if output.exists():raise RuntimeError('never overwrite successor completion')
+ output.write_text(json.dumps({'candidate':SHA,'tree':TREE,'records':records,'ending_HEAD':git('rev-parse','HEAD'),'ending_tracked_status':git('status','--porcelain','--untracked-files=no'),'finding_closure':False,'full_inventory_ignored':plan['full_input_inventory']},indent=2)+'\n')
+ print(json.dumps({'complete':str(output),'selector_count':len(records),'capturer_return_codes':[r['capturer_exit_code'] for r in records]}),flush=True)
+ return 0
+raise SystemExit(asyncio.run(main()))

@@ -1,0 +1,23 @@
+"""Freeze explicit native assets after all original builder captures have closed."""
+from pathlib import Path
+import hashlib
+import json
+
+base = Path('/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007')
+original = base / 'publication-selection.json'
+selection = json.loads(original.read_text())
+selection['historical_selection_observer_error'] = {'path': str(original), 'bytes': original.stat().st_size, 'sha256': hashlib.sha256(original.read_bytes()).hexdigest(), 'meaning': 'Retained immutable prior membership record, with one then-open builder stdout hash. Full corrective record is selected below; native command/env/source/counts unchanged.'}
+for record in selection['files']:
+    data = Path(record['path']).read_bytes()
+    record['bytes'] = len(data)
+    record['sha256'] = hashlib.sha256(data).hexdigest()
+for filename in ['publication-selection-attempt1-open-capture-error.json', 'close_publication_selection.py']:
+    path = base / filename
+    data = path.read_bytes()
+    selection['files'].append({'path': str(path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest(), 'destination': filename + ('.txt' if filename.endswith('.py') else ''), 'role': 'closed corrective publication observer provenance; no native/source re-execution'})
+selection['asset_count'] = len(selection['files'])
+selection['asset_bytes'] = sum(r['bytes'] for r in selection['files'])
+final = base / 'publication-selection-v2.json'
+with final.open('x') as handle:
+    handle.write(json.dumps(selection, indent=2) + '\n')
+print(json.dumps({'selection': str(final), 'bytes': final.stat().st_size, 'sha256': hashlib.sha256(final.read_bytes()).hexdigest(), 'asset_count': selection['asset_count'], 'asset_bytes': selection['asset_bytes']}))

@@ -1,0 +1,490 @@
+{
+  "schema": "policyos.e02.native_ci08_alternate_existing_environment.v1",
+  "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "canonical_CommandSpec": {
+    "label": "check extension example installability",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+      "run",
+      "python",
+      "tools/quality/validation/check_extension_examples.py"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "env": {}
+  },
+  "effective_command": [
+    "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+    "tools/quality/validation/check_extension_examples.py"
+  ],
+  "capture_argv": [
+    "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "--repo",
+    "/workspace/e02-E-continuation-20261006",
+    "--candidate",
+    "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "--cwd",
+    "/workspace/e02-E-continuation-20261006/policy-engine",
+    "--output",
+    "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/checks/native-ci08-existing-doe-environment",
+    "--name",
+    "native-ci08-existing-doe-environment",
+    "--junit",
+    "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/checks/native-ci08-existing-doe-environment/pytest.xml",
+    "--",
+    "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+    "tools/quality/validation/check_extension_examples.py"
+  ],
+  "capture_cwd": "/workspace/e02-E-continuation-20261006",
+  "effective_cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+  "environment_add": {
+    "UV_NO_SYNC": "1",
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-doe-20261006/policy-engine/.venv",
+    "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/environment-tmp",
+    "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/ruff-cache",
+    "PATH": "/workspace/.polisyos-environment/uv/bin:/run/codex-environment/codex-home/tmp/arg0/codex-arg01gKa79:/opt/codex/codex-path:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "PYTEST_ADDOPTS": "--basetemp=/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/pytest-base -o cache_dir=/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/pytest-cache --benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/benchmarks --junitxml=/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/checks/native-ci08-existing-doe-environment/pytest.xml"
+  },
+  "environment_remove": [
+    "OMP_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "NUMEXPR_NUM_THREADS",
+    "VECLIB_MAXIMUM_THREADS",
+    "BLIS_NUM_THREADS",
+    "POLISYOS_PYTEST_WORKERS"
+  ],
+  "inactivity": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/environment-inactivity-before-v2.json",
+    "bytes": 11706,
+    "sha256": "1427e9edd78b2fbf1ca33798ad121bffe2a57e617c69c7af69d8ece507b455b6"
+  },
+  "doe_environment_before": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/doe-environment-before.json",
+    "bytes": 93571,
+    "sha256": "3956445d4210b69a97bb033c5667fa2232efdea2d6bc9a64802bbce7983a6dc2"
+  },
+  "root_environment_before": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/root-environment-before.json",
+    "bytes": 109549,
+    "sha256": "0f09cc62cb1103c6c31d30b55a103509fac27380534344717c70102d49587f88"
+  },
+  "complete_declared_source_bindings": [
+    {
+      "source_path": "AGENTS.md",
+      "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+      "bytes": 22656,
+      "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50"
+    },
+    {
+      "source_path": "policy-engine/CONTRIBUTING.md",
+      "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+      "bytes": 10553,
+      "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783"
+    },
+    {
+      "source_path": "policy-engine/architecture/extension_points.toml",
+      "git_blob": "6adaa81a021c1725bdccf4e51f3d7a35e449eb01",
+      "bytes": 15144,
+      "sha256": "007791692e7c5532fd80a01e11a875aeeb5365779f3ea11c668c92663c29dab3"
+    },
+    {
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "git_blob": "423b1ba6187047fd852be570dde28bd63ddcdd57",
+      "bytes": 12609,
+      "sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/README.md",
+      "git_blob": "d78cd68e490daa6a87c3a633fadbafbb3718d05d",
+      "bytes": 1730,
+      "sha256": "4eb5725cae1cd966681f2d18cc311b3802aa6cb0ac6372893dfcb6fafc10c9af"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/data_forge_domain/README.md",
+      "git_blob": "efd811612c582a938cd7246147512d89ca8dd81e",
+      "bytes": 374,
+      "sha256": "1b71684d0effb9ea55fc3515bf4d896305d044344e0066678b2b108bccb3415d"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/data_forge_domain/pyproject.toml",
+      "git_blob": "d81751f6ecbb132ae5c465dcb330ceea0b237144",
+      "bytes": 521,
+      "sha256": "92c7b495cf79dd372acca0933db37fa27d99120bbfa45e91b6b44d116e8808c6"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/data_forge_domain/src/polisyos_data_forge_domain_example/__init__.py",
+      "git_blob": "34934462ad6497953abdc259aef87d47df050817",
+      "bytes": 184,
+      "sha256": "618bb3a1a85ed990eb3e1557ca25b0f520cfbba178d63c6a8f8fb2eb960e3e53"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/data_forge_domain/src/polisyos_data_forge_domain_example/components.py",
+      "git_blob": "8281bb00da035c60122af5bfa63bbddaf2110838",
+      "bytes": 215,
+      "sha256": "a7878230a58d0d65a58d01810c32bd54ba85fa0b59aca4a4c47e2ad05b43207e"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/data_forge_domain/src/polisyos_data_forge_domain_example/domain.py",
+      "git_blob": "76228dcdc6d033be463da8e0e2b74c8c108c27e4",
+      "bytes": 1615,
+      "sha256": "b5b82f4638db9d0a906236c4d9c046f50cd7e38d21c571717bbf31cb05a77661"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/data_forge_domain/tests/test_smoke.py",
+      "git_blob": "34c25783bf7f8d73e7089b0c0071e38bc4af718c",
+      "bytes": 789,
+      "sha256": "1c912563c408877f1e0552cb16183541a113303df515df9d49deb3c682359954"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/fabric_connector/README.md",
+      "git_blob": "4e5c1808cbf24442beeab71bfebb67e17dcfd070",
+      "bytes": 376,
+      "sha256": "cf498e1b588a7b2e8e5acdbcfd04f2e9715065b68914e7573e9a6d101f382d2d"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/fabric_connector/pyproject.toml",
+      "git_blob": "b6fd6130b4b7aa239a0a93656d1c3ba914a7a04f",
+      "bytes": 517,
+      "sha256": "816c630c4b0d0d430cae3c2de5fe83707053312949ced89236d96c63537f4f51"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/fabric_connector/src/polisyos_fabric_connector_example/__init__.py",
+      "git_blob": "3f5116a51c7aecc3ed7166824f49d333e384efef",
+      "bytes": 198,
+      "sha256": "3f1ef056625182013769be6f6fbb29591465bd017c7b3a6a7bbc8c1472571917"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/fabric_connector/src/polisyos_fabric_connector_example/components.py",
+      "git_blob": "41c245e1dc8fbd84da97a23e520a0f8b297a2d3e",
+      "bytes": 221,
+      "sha256": "4cb2cd9ef70fef22109c92fa7bf82e9e4036d288fb11486b378c91eccb112c94"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/fabric_connector/src/polisyos_fabric_connector_example/connector.py",
+      "git_blob": "cfe25b78f261e3ed74bc2966484b69a827bcf972",
+      "bytes": 1627,
+      "sha256": "48c77af54ff40d04ff4ae0171e9852e2554aa1e6157e7fd41bd8acb9086d8c6c"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/fabric_connector/tests/test_smoke.py",
+      "git_blob": "1b62bea7ea96516f1c2c2699648df89bcdbbb45c",
+      "bytes": 847,
+      "sha256": "b0ba42e3012f095018d08dbc8e924b84972847a899d57065ab9d311e1c6c00db"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/foundry_method/README.md",
+      "git_blob": "67dbef6a3d8640e7aae65d5825cbef4da9d9a68f",
+      "bytes": 748,
+      "sha256": "80a2a1252acf48269727e86a2e54fbf720b857dcdee6ddf56827609d8928103c"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/foundry_method/pyproject.toml",
+      "git_blob": "1dc71b4554be8aa3d087ad7cd0321b73fdcded30",
+      "bytes": 506,
+      "sha256": "835eac63c0cae452f9a70e203fda03679d284c9d9bc1afce02e66a7ddcffa09f"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/foundry_method/src/polisyos_foundry_method_example/__init__.py",
+      "git_blob": "f3a93502a36410a3b345aba2b34616e9e8a4aa73",
+      "bytes": 182,
+      "sha256": "5d148afb7aec6a40e9e663c277b5c2e1b18c71a4b5688c2238a34caee017f060"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/foundry_method/src/polisyos_foundry_method_example/components.py",
+      "git_blob": "fd685437d51b3a7a49972f3877457f17e0bfcc45",
+      "bytes": 203,
+      "sha256": "72b032c80bb638d5ef8302f7b869b85ec5e6cd66415acf15cdbf8cd895c56dce"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/foundry_method/src/polisyos_foundry_method_example/methods.py",
+      "git_blob": "44197dab58159c25285ee10b2ad2d263e6449da6",
+      "bytes": 2486,
+      "sha256": "357a70ad2ad2b0b43aba8472d85ec516f8f1614b074c8b09bf51b3c469351d55"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/foundry_method/tests/test_smoke.py",
+      "git_blob": "5b6d08e0d38fa88da1673d5fa2f5fe877015338f",
+      "bytes": 659,
+      "sha256": "b4b91367fc79c59fdd0cfa93bea2e43b3cd202c0a1dffae2ff7c188175d9b1dd"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/lex_normpack/README.md",
+      "git_blob": "5bd1f257b7a7c49a3e754116d8864651463d81a9",
+      "bytes": 349,
+      "sha256": "5a4cc1336a5910ee8931738f8561edd2271865fce814d86b2b387113a91f9fa0"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/lex_normpack/pyproject.toml",
+      "git_blob": "9a7ae912bcf72dadc6dc6afc6949d9527bb79c66",
+      "bytes": 509,
+      "sha256": "76e41f3c7ba69f3e5fdfdda95d0764755e106f3ef00b856148c42769d0fb28b3"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/lex_normpack/src/polisyos_lex_normpack_example/__init__.py",
+      "git_blob": "62f3deb30a796ecd6d0556a69cd2c4a92aefce28",
+      "bytes": 218,
+      "sha256": "f0d89f64eca2a8e977df2b7edce602c954587bfa68cc2c1dd94e2adfe8b7143e"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/lex_normpack/src/polisyos_lex_normpack_example/components.py",
+      "git_blob": "eeea3d0dc268ec96d810a014526597aa218355ee",
+      "bytes": 227,
+      "sha256": "b6745f770580d4e0a1c6cbd0ae129564a44630a2deae1509e6aea52cae967086"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/lex_normpack/src/polisyos_lex_normpack_example/provider.py",
+      "git_blob": "fe4d1d532482896cba0bce8e83fc5b51866b0fc3",
+      "bytes": 2216,
+      "sha256": "fa5a5c5c94b41a5b8a2514f43d27dfb5d1529496f59c76daa01e9a7478244300"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/lex_normpack/tests/test_smoke.py",
+      "git_blob": "57c4fa7e8c1e968d44aa76ae5484dd251a55972d",
+      "bytes": 954,
+      "sha256": "d82f95b57e95e35cd6e7f1803387eeb713a1f3a9ccfd5c6c824135dc171a4b9a"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/runtime_middleware/README.md",
+      "git_blob": "b65afa2d5f2f1f3d5434e6e9d3514180d430b58e",
+      "bytes": 371,
+      "sha256": "3203ceddd95a212d357767ccea8a40501e4397417cfb65d4a20284e27a106157"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/runtime_middleware/pyproject.toml",
+      "git_blob": "32b68c6304740b43adc6a722023106ea8843aa5d",
+      "bytes": 538,
+      "sha256": "b8566c1ed47d026afc2c6c0bcbf6ef1a5ce7955335f9324473f0e9509855255e"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/runtime_middleware/src/polisyos_runtime_middleware_example/__init__.py",
+      "git_blob": "de2f77299e72fac1472ab74f2bcb3420b8520970",
+      "bytes": 219,
+      "sha256": "223b1a0ce8dae75ee4b8fd9241ed21d85017213163aee303b523db06b827743f"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/runtime_middleware/src/polisyos_runtime_middleware_example/components.py",
+      "git_blob": "6b51f328b4effb5fc6fb037819f4e4cdff340ba2",
+      "bytes": 236,
+      "sha256": "f87e596e9362686814dc6a0f0499dc548a8cb5826823ac9be805da8b2a039d54"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/runtime_middleware/src/polisyos_runtime_middleware_example/middleware.py",
+      "git_blob": "55a7923abb885439d9d45ea00c09f18935291d83",
+      "bytes": 2353,
+      "sha256": "a92873869973b2f1d0a948af29a7b18be90b7d6c3e81e745363c12954161031f"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/runtime_middleware/tests/test_smoke.py",
+      "git_blob": "a0eeb61e0759fd897f48141d731e0514409c66eb",
+      "bytes": 1562,
+      "sha256": "fc099c34799fa9629e270c4282c4af3edf762ae4ffb6029f140e82a85412542e"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/scientist_governance_pass/README.md",
+      "git_blob": "8002eaee3fdfbe33dbf10c7ae633e547c45fe70c",
+      "bytes": 647,
+      "sha256": "805b3be5b52303e48c8dcd2644cdbf67e1ac68e0b912153b838e85d014abcb07"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/scientist_governance_pass/pyproject.toml",
+      "git_blob": "8a87d2b0e55efd10293c19c104cbb54f89d59554",
+      "bytes": 560,
+      "sha256": "f03e68eb59ba26b194863c77645d24359ee15b31d9d52043401ca78d19fa835a"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/scientist_governance_pass/src/polisyos_scientist_governance_pass_example/__init__.py",
+      "git_blob": "207c469b954266f193069196780be965cb8bb1a0",
+      "bytes": 212,
+      "sha256": "f49b649e4a8422d51bfeb5e36638ddcd9296d29e1255eb4c8738c9762f949d99"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/scientist_governance_pass/src/polisyos_scientist_governance_pass_example/governance.py",
+      "git_blob": "30566af51b826ded707b05f5d0fa40637456be89",
+      "bytes": 1350,
+      "sha256": "0acb793b89604b6fdf54dc76b75697ce549144577ac104361ddf88fce8962f0b"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/scientist_governance_pass/tests/test_smoke.py",
+      "git_blob": "40437622fa1d903f96dbb01fa438cfc1f48b63a2",
+      "bytes": 1023,
+      "sha256": "2870df87b729127beb566742109009d7f8afc3867757a7c52b302952bd4220df"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/scientist_node/README.md",
+      "git_blob": "533096b5a81241d696c9af64842aa8b7bd136aad",
+      "bytes": 391,
+      "sha256": "1e6665b7a09b08c6a0c29aa43b6745788c7ddb90960836e01a7098d1430995e7"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/scientist_node/pyproject.toml",
+      "git_blob": "00d3fdbee6c75742f25b3b9098a54591091c477f",
+      "bytes": 510,
+      "sha256": "17f954c88372599f06244cd27958a86b84a9bf413eb3d6bd85f6e99c8280ca68"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/scientist_node/src/polisyos_scientist_node_example/__init__.py",
+      "git_blob": "e53f5de37e947f0bd069fac4ab58590f5e3fdcfc",
+      "bytes": 183,
+      "sha256": "f3aa37d55d968724dc25ed8b527636a47bf9101ab84a7722cbe51aaca2587f0a"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/scientist_node/src/polisyos_scientist_node_example/components.py",
+      "git_blob": "1b74d05c687a38a99087163c0145ed7e8ce86838",
+      "bytes": 212,
+      "sha256": "89e34397adde6053ecc7a0e3beae288dc93f1cff2b09657f3d2dcd963e9007bd"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/scientist_node/src/polisyos_scientist_node_example/node.py",
+      "git_blob": "adc1a0a8b4f9ae56f4355b5260f9cd67950ce9b8",
+      "bytes": 2072,
+      "sha256": "daeab17d1111b87d0e0b67914f6379b0e0fe4f82e761455e69bc4848e6533b35"
+    },
+    {
+      "source_path": "policy-engine/examples/extensions/scientist_node/tests/test_smoke.py",
+      "git_blob": "9acedb8d1055bc5f7f0522bf53d67374a18db859",
+      "bytes": 913,
+      "sha256": "f1cb63ede515d4fe18eb22f6087822abf080c356cbde1521855b02e37c6aea30"
+    },
+    {
+      "source_path": "policy-engine/pyproject.toml",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    },
+    {
+      "source_path": "policy-engine/tools/devx/workspace/ci_parity.py",
+      "git_blob": "26b66d48e7ce4d28a92389842213fd51acf53f34",
+      "bytes": 11939,
+      "sha256": "8ee3abda4668c4bbc24c58412b11eda51eaae9c046b98ad80ff5b17705e26619"
+    },
+    {
+      "source_path": "policy-engine/tools/lib/imports.py",
+      "git_blob": "2d41d47837fdc6083d8a02bb46debddf303fb1af",
+      "bytes": 1623,
+      "sha256": "f04010c5a61accc638d01ffcb0eceb788730eea4b1d74d015eadeed413951f95"
+    },
+    {
+      "source_path": "policy-engine/tools/quality/validation/check_extension_examples.py",
+      "git_blob": "3de29e47e42614bc0bc080c7ff9f69cc5faf62bc",
+      "bytes": 17431,
+      "sha256": "ff61698d5cd82893d79d1199fb60e4bc7ccdcaa0d0cdb10c52d7965b6cef3c58"
+    },
+    {
+      "source_path": "policy-engine/uv.lock",
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    }
+  ],
+  "actual_examples": [
+    {
+      "slug": "fabric_connector",
+      "path": "examples/extensions/fabric_connector",
+      "group": "polisyos.fabric_connectors",
+      "entry_point": "example.local_rows",
+      "probe": "fabric_connector",
+      "component_id": "example.fabric_connector.local_rows@1.0.0",
+      "kind": "fabric_connector",
+      "abi_key": "fabric_connectors_api",
+      "distribution_name": "polisyos-fabric-connector-example",
+      "distribution_version": "0.1.0"
+    },
+    {
+      "slug": "foundry_method",
+      "path": "examples/extensions/foundry_method",
+      "group": "polisyos.foundry_methods",
+      "entry_point": "example.weighted_average",
+      "probe": "foundry_method",
+      "component_id": "example.summary.weighted_average@1.0.0",
+      "kind": "foundry_method",
+      "abi_key": "foundry_methods_api",
+      "distribution_name": "polisyos-foundry-method-example",
+      "distribution_version": "0.1.0"
+    },
+    {
+      "slug": "scientist_governance_pass",
+      "path": "examples/extensions/scientist_governance_pass",
+      "group": "polisyos.scientist_governance_passes",
+      "entry_point": "example.audit_marker",
+      "probe": "scientist_governance_pass",
+      "pass_id": "example_audit_marker",
+      "distribution_name": "polisyos-scientist-governance-pass-example",
+      "distribution_version": "0.1.0"
+    },
+    {
+      "slug": "scientist_node",
+      "path": "examples/extensions/scientist_node",
+      "group": "polisyos.scientist_nodes",
+      "entry_point": "example.annotate_state",
+      "probe": "scientist_node",
+      "component_id": "example.scientist_node.annotate_state@1.0.0",
+      "kind": "scientist_node",
+      "abi_key": "scientist_nodes_api",
+      "distribution_name": "polisyos-scientist-node-example",
+      "distribution_version": "0.1.0"
+    },
+    {
+      "slug": "data_forge_domain",
+      "path": "examples/extensions/data_forge_domain",
+      "group": "polisyos.data_forge_domains",
+      "entry_point": "example.city_budget",
+      "probe": "data_forge_domain",
+      "component_id": "example.data_forge_domain.city_budget@1.0.0",
+      "kind": "data_forge_domain",
+      "abi_key": "data_forge_domain_api",
+      "distribution_name": "polisyos-data-forge-domain-example",
+      "distribution_version": "0.1.0"
+    },
+    {
+      "slug": "lex_normpack",
+      "path": "examples/extensions/lex_normpack",
+      "group": "polisyos.lex_normpacks",
+      "entry_point": "example.minimum_wage",
+      "probe": "lex_normpack",
+      "component_id": "example.lex_normpack.minimum_wage@1.0.0",
+      "kind": "norm_pack_provider",
+      "abi_key": "ir_abi",
+      "distribution_name": "polisyos-lex-normpack-example",
+      "distribution_version": "0.1.0"
+    },
+    {
+      "slug": "runtime_middleware",
+      "path": "examples/extensions/runtime_middleware",
+      "group": "polisyos.runtime_middlewares",
+      "entry_point": "example.response_header",
+      "probe": "runtime_middleware",
+      "component_id": "example.runtime_middleware.response_header@1.0.0",
+      "kind": "runtime_middleware",
+      "abi_key": "runtime_middleware_api",
+      "distribution_name": "polisyos-runtime-middleware-example",
+      "distribution_version": "0.1.0"
+    }
+  ],
+  "actual_example_count": 7,
+  "existing_runner": {
+    "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "bytes": 12609,
+    "sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec"
+  },
+  "unchanged_checker": {
+    "path": "/workspace/e02-E-continuation-20261006/policy-engine/tools/quality/validation/check_extension_examples.py",
+    "bytes": 17431,
+    "sha256": "ff61698d5cd82893d79d1199fb60e4bc7ccdcaa0d0cdb10c52d7965b6cef3c58"
+  },
+  "operation_started_unix": 1791368811.382127,
+  "original_root_env_invocation": "Deferred/UNRUN root-env CI08 remains historical. This is the same full selector observed in a distinct already-existing admitted DoE environment.",
+  "operational_differences": [
+    "Existing DoE interpreter/prefix replaces root interpreter; no newenv or lock synchronization.",
+    "Canonical checker still chooses native pip or uv installer and targets sys.executable; seven --no-deps editable installs, no manual entry points.",
+    "Only output/tmp/pytest-cache/basetime/JUnit/benchmark locations isolated via environment; complete seven-example scope unchanged.",
+    "All cap variables removed; no worker/thread/process/CPU quotas. No default root API/port mutation."
+  ],
+  "shared_mutable_seams": [
+    "Existing DoE site-packages editable installs run serially in canonical installer loop under exclusive lease. Root environment remains protected. Native smoke pytest gets distinct output/cache/temp; root HTTP uses its own paths."
+  ],
+  "finding_closure": false
+}

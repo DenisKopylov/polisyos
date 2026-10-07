@@ -1,0 +1,14 @@
+{
+  "output": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/root-environment-after.json",
+  "distributions": 203,
+  "protected_versions": {
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "jax": "0.8.2",
+    "jaxlib": "0.8.2",
+    "SALib": "1.5.2",
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5",
+    "policy-engine": "0.1.0"
+  }
+}

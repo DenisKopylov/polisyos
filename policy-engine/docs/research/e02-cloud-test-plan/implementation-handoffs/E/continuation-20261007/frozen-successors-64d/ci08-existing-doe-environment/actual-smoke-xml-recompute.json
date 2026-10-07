@@ -1,0 +1,73 @@
+{
+  "schema": "policyos.e02.native_ci08_xml_recompute.v1",
+  "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "actual_canonical_junit_counts": {
+    "cases": 8,
+    "passed": 8,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "actual_testcases": [
+    {
+      "classname": "examples.extensions.fabric_connector.tests.test_smoke",
+      "name": "test_local_rows_connector_component_creates_offline_connector",
+      "time": "0.001",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "examples.extensions.foundry_method.tests.test_smoke",
+      "name": "test_weighted_average_plugin_registers_and_runs",
+      "time": "0.037",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "examples.extensions.scientist_governance_pass.tests.test_smoke",
+      "name": "test_audit_marker_pass_factory_returns_validator_pass",
+      "time": "0.000",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "examples.extensions.scientist_governance_pass.tests.test_smoke",
+      "name": "test_audit_marker_pass_accepts_approved_context",
+      "time": "0.000",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "examples.extensions.scientist_node.tests.test_smoke",
+      "name": "test_annotate_state_node_component_runs_node",
+      "time": "0.000",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "examples.extensions.data_forge_domain.tests.test_smoke",
+      "name": "test_city_budget_domain_component_materializes_fixture",
+      "time": "0.000",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "examples.extensions.lex_normpack.tests.test_smoke",
+      "name": "test_minimum_wage_normpack_component_returns_static_pack",
+      "time": "0.000",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "examples.extensions.runtime_middleware.tests.test_smoke",
+      "name": "test_response_header_middleware_component_wraps_asgi_app",
+      "time": "0.001",
+      "outcome": "PASS"
+    }
+  ],
+  "canonical_reader_source": {
+    "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "bytes": 12609,
+    "sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec"
+  },
+  "xml": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/checks/native-ci08-existing-doe-environment/pytest.xml",
+    "bytes": 1471,
+    "sha256": "703d04c3916e7a7ff6979f8742dbd4aa605a9192605ea61450a68106e7996ac6"
+  },
+  "receipt_counts_equal": true,
+  "limits": "This recomputes actual native8smoke cases. It does not reinterpret original root-env deferred invocation or the full CI parity outcome."
+}

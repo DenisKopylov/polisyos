@@ -1,0 +1,1 @@
+{"command": ["/workspace/.polisyos-environment/uv/bin/uv", "run", "--no-sync", "python", "tools/quality/validation/check_substrate_drift.py", "--repo-root", ".", "--require-passing"], "exit_code": 1, "outcome": "FAIL", "counts": null, "wall_seconds": 82.81642532348633, "source_immutable": true}

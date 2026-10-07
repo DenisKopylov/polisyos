@@ -1,0 +1,1 @@
+{"command": ["/workspace/.polisyos-environment/uv/bin/uv", "run", "--no-sync", "--extra", "docs", "python", "tools/quality/validation/check_docs_accuracy.py", "--repo-root", "."], "exit_code": 1, "outcome": "FAIL", "counts": null, "wall_seconds": 27.58562183380127, "source_immutable": true}

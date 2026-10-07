@@ -1,0 +1,3150 @@
+{
+  "baseline_inventory": "architecture/baselines/repository_best_in_class_phase0_4/verification_inventory.json",
+  "contract": "architecture/tests/ratchets.toml",
+  "generated_at": "2026-10-07T09:13:49+00:00",
+  "packages": [
+    {
+      "first_target_ratio": null,
+      "floor_delta": 0.0,
+      "integration_decision": "not_required",
+      "integration_path": null,
+      "loose_name_mirror_ratio": 0.3846,
+      "loose_name_mirror_ratio_baseline": 0.3846,
+      "loose_name_mirror_ratio_delta": 0.0,
+      "loose_name_mirrored_source_count": 10,
+      "mirror_status": "explicit_exception",
+      "package": "berl",
+      "package_mode": "explicit_exception",
+      "property_decision": "not_required",
+      "property_path": "tests/property/berl",
+      "property_status": "not_required",
+      "property_test_file_count": 0,
+      "property_test_file_count_baseline": 0,
+      "property_test_file_count_delta": 0,
+      "property_test_file_count_floor": null,
+      "ratchet_floor": 0.3846,
+      "source_module_count": 26,
+      "source_module_count_baseline": 26,
+      "status": "explicit_exception",
+      "strict_mirror_status": "no_regression",
+      "strict_mirrored_source_count": 1,
+      "strict_module_mirror_ratio": 0.0385,
+      "strict_module_mirror_ratio_baseline": 0.0385,
+      "strict_module_mirror_ratio_delta": 0.0,
+      "target_gap": null
+    },
+    {
+      "first_target_ratio": null,
+      "floor_delta": 0.0357,
+      "integration_decision": "not_required",
+      "integration_path": null,
+      "loose_name_mirror_ratio": 0.75,
+      "loose_name_mirror_ratio_baseline": 0.7143,
+      "loose_name_mirror_ratio_delta": 0.0357,
+      "loose_name_mirrored_source_count": 6,
+      "mirror_status": "explicit_exception",
+      "package": "calibration",
+      "package_mode": "explicit_exception",
+      "property_decision": "not_required",
+      "property_path": "tests/property/calibration",
+      "property_status": "not_required",
+      "property_test_file_count": 0,
+      "property_test_file_count_baseline": 0,
+      "property_test_file_count_delta": 0,
+      "property_test_file_count_floor": null,
+      "ratchet_floor": 0.7143,
+      "source_module_count": 8,
+      "source_module_count_baseline": 7,
+      "status": "explicit_exception",
+      "strict_mirror_status": "no_regression",
+      "strict_mirrored_source_count": 6,
+      "strict_module_mirror_ratio": 0.75,
+      "strict_module_mirror_ratio_baseline": 0.7143,
+      "strict_module_mirror_ratio_delta": 0.0357,
+      "target_gap": null
+    },
+    {
+      "first_target_ratio": null,
+      "floor_delta": -0.1624,
+      "integration_decision": "not_required",
+      "integration_path": null,
+      "loose_name_mirror_ratio": 0.6154,
+      "loose_name_mirror_ratio_baseline": 0.7778,
+      "loose_name_mirror_ratio_delta": -0.1624,
+      "loose_name_mirrored_source_count": 8,
+      "mirror_status": "floor_regression",
+      "package": "common",
+      "package_mode": "explicit_exception",
+      "property_decision": "required",
+      "property_path": "tests/property/common",
+      "property_status": "required_present",
+      "property_test_file_count": 1,
+      "property_test_file_count_baseline": 1,
+      "property_test_file_count_delta": 0,
+      "property_test_file_count_floor": null,
+      "ratchet_floor": 0.7778,
+      "source_module_count": 13,
+      "source_module_count_baseline": 9,
+      "status": "floor_regression",
+      "strict_mirror_status": "strict_regression",
+      "strict_mirrored_source_count": 4,
+      "strict_module_mirror_ratio": 0.3077,
+      "strict_module_mirror_ratio_baseline": 0.3333,
+      "strict_module_mirror_ratio_delta": -0.0256,
+      "target_gap": null
+    },
+    {
+      "first_target_ratio": 0.7,
+      "floor_delta": 0.0204,
+      "integration_decision": "not_required",
+      "integration_path": null,
+      "loose_name_mirror_ratio": 0.5028,
+      "loose_name_mirror_ratio_baseline": 0.4824,
+      "loose_name_mirror_ratio_delta": 0.0204,
+      "loose_name_mirrored_source_count": 90,
+      "mirror_status": "below_first_target_tracking",
+      "package": "core",
+      "package_mode": "critical_target",
+      "property_decision": "not_required",
+      "property_path": "tests/property/core",
+      "property_status": "not_required",
+      "property_test_file_count": 0,
+      "property_test_file_count_baseline": 0,
+      "property_test_file_count_delta": 0,
+      "property_test_file_count_floor": null,
+      "ratchet_floor": 0.4824,
+      "source_module_count": 179,
+      "source_module_count_baseline": 170,
+      "status": "below_first_target_tracking",
+      "strict_mirror_status": "no_regression",
+      "strict_mirrored_source_count": 34,
+      "strict_module_mirror_ratio": 0.1899,
+      "strict_module_mirror_ratio_baseline": 0.1471,
+      "strict_module_mirror_ratio_delta": 0.0428,
+      "target_gap": 0.1972
+    },
+    {
+      "first_target_ratio": 0.7,
+      "floor_delta": 0.0031,
+      "integration_decision": "not_required",
+      "integration_path": null,
+      "loose_name_mirror_ratio": 0.6154,
+      "loose_name_mirror_ratio_baseline": 0.6123,
+      "loose_name_mirror_ratio_delta": 0.0031,
+      "loose_name_mirrored_source_count": 152,
+      "mirror_status": "below_first_target_tracking",
+      "package": "data_forge",
+      "package_mode": "critical_target",
+      "property_decision": "required",
+      "property_path": "tests/property/data_forge",
+      "property_status": "required_present",
+      "property_test_file_count": 1,
+      "property_test_file_count_baseline": 1,
+      "property_test_file_count_delta": 0,
+      "property_test_file_count_floor": 1,
+      "ratchet_floor": 0.6123,
+      "source_module_count": 247,
+      "source_module_count_baseline": 227,
+      "status": "below_first_target_tracking",
+      "strict_mirror_status": "no_regression",
+      "strict_mirrored_source_count": 67,
+      "strict_module_mirror_ratio": 0.2713,
+      "strict_module_mirror_ratio_baseline": 0.2291,
+      "strict_module_mirror_ratio_delta": 0.0422,
+      "target_gap": 0.0846
+    },
+    {
+      "first_target_ratio": null,
+      "floor_delta": -0.0238,
+      "integration_decision": "not_required",
+      "integration_path": null,
+      "loose_name_mirror_ratio": 0.6429,
+      "loose_name_mirror_ratio_baseline": 0.6667,
+      "loose_name_mirror_ratio_delta": -0.0238,
+      "loose_name_mirrored_source_count": 9,
+      "mirror_status": "floor_regression",
+      "package": "ddm",
+      "package_mode": "explicit_exception",
+      "property_decision": "not_required",
+      "property_path": "tests/property/ddm",
+      "property_status": "not_required",
+      "property_test_file_count": 0,
+      "property_test_file_count_baseline": 0,
+      "property_test_file_count_delta": 0,
+      "property_test_file_count_floor": null,
+      "ratchet_floor": 0.6667,
+      "source_module_count": 14,
+      "source_module_count_baseline": 12,
+      "status": "floor_regression",
+      "strict_mirror_status": "no_regression",
+      "strict_mirrored_source_count": 0,
+      "strict_module_mirror_ratio": 0.0,
+      "strict_module_mirror_ratio_baseline": 0.0,
+      "strict_module_mirror_ratio_delta": 0.0,
+      "target_gap": null
+    },
+    {
+      "first_target_ratio": 0.7,
+      "floor_delta": 0.0019,
+      "integration_decision": "not_required",
+      "integration_path": null,
+      "loose_name_mirror_ratio": 0.5039,
+      "loose_name_mirror_ratio_baseline": 0.502,
+      "loose_name_mirror_ratio_delta": 0.0019,
+      "loose_name_mirrored_source_count": 130,
+      "mirror_status": "below_first_target_tracking",
+      "package": "fabric",
+      "package_mode": "critical_target",
+      "property_decision": "required",
+      "property_path": "tests/property/fabric",
+      "property_status": "required_present",
+      "property_test_file_count": 1,
+      "property_test_file_count_baseline": 1,
+      "property_test_file_count_delta": 0,
+      "property_test_file_count_floor": 1,
+      "ratchet_floor": 0.502,
+      "source_module_count": 258,
+      "source_module_count_baseline": 251,
+      "status": "below_first_target_tracking",
+      "strict_mirror_status": "no_regression",
+      "strict_mirrored_source_count": 19,
+      "strict_module_mirror_ratio": 0.0736,
+      "strict_module_mirror_ratio_baseline": 0.0717,
+      "strict_module_mirror_ratio_delta": 0.0019,
+      "target_gap": 0.1961
+    },
+    {
+      "first_target_ratio": 0.7,
+      "floor_delta": -0.0022,
+      "integration_decision": "not_required",
+      "integration_path": null,
+      "loose_name_mirror_ratio": 0.7154,
+      "loose_name_mirror_ratio_baseline": 0.7176,
+      "loose_name_mirror_ratio_delta": -0.0022,
+      "loose_name_mirrored_source_count": 382,
+      "mirror_status": "floor_regression_exception",
+      "package": "foundry",
+      "package_mode": "critical_target",
+      "property_decision": "required",
+      "property_path": "tests/property/foundry",
+      "property_status": "required_present",
+      "property_test_file_count": 28,
+      "property_test_file_count_baseline": 28,
+      "property_test_file_count_delta": 0,
+      "property_test_file_count_floor": null,
+      "ratchet_floor": 0.7176,
+      "source_module_count": 534,
+      "source_module_count_baseline": 524,
+      "status": "floor_regression_exception",
+      "strict_mirror_status": "strict_regression_exception",
+      "strict_mirrored_source_count": 188,
+      "strict_module_mirror_ratio": 0.3521,
+      "strict_module_mirror_ratio_baseline": 0.3531,
+      "strict_module_mirror_ratio_delta": -0.001,
+      "target_gap": null
+    },
+    {
+      "first_target_ratio": 0.7,
+      "floor_delta": 0.0022,
+      "integration_decision": "not_required",
+      "integration_path": null,
+      "loose_name_mirror_ratio": 0.6034,
+      "loose_name_mirror_ratio_baseline": 0.6012,
+      "loose_name_mirror_ratio_delta": 0.0022,
+      "loose_name_mirrored_source_count": 105,
+      "mirror_status": "below_first_target_tracking",
+      "package": "ir",
+      "package_mode": "critical_target",
+      "property_decision": "required",
+      "property_path": "tests/property/ir",
+      "property_status": "required_present",
+      "property_test_file_count": 1,
+      "property_test_file_count_baseline": 1,
+      "property_test_file_count_delta": 0,
+      "property_test_file_count_floor": null,
+      "ratchet_floor": 0.6012,
+      "source_module_count": 174,
+      "source_module_count_baseline": 173,
+      "status": "below_first_target_tracking",
+      "strict_mirror_status": "no_regression",
+      "strict_mirrored_source_count": 23,
+      "strict_module_mirror_ratio": 0.1322,
+      "strict_module_mirror_ratio_baseline": 0.1272,
+      "strict_module_mirror_ratio_delta": 0.005,
+      "target_gap": 0.0966
+    },
+    {
+      "first_target_ratio": null,
+      "floor_delta": 0.1088,
+      "integration_decision": "not_required",
+      "integration_path": null,
+      "loose_name_mirror_ratio": 0.55,
+      "loose_name_mirror_ratio_baseline": 0.4412,
+      "loose_name_mirror_ratio_delta": 0.1088,
+      "loose_name_mirrored_source_count": 22,
+      "mirror_status": "explicit_exception",
+      "package": "lex",
+      "package_mode": "explicit_exception",
+      "property_decision": "required",
+      "property_path": "tests/property/lex",
+      "property_status": "required_present",
+      "property_test_file_count": 1,
+      "property_test_file_count_baseline": 1,
+      "property_test_file_count_delta": 0,
+      "property_test_file_count_floor": 1,
+      "ratchet_floor": 0.4412,
+      "source_module_count": 40,
+      "source_module_count_baseline": 34,
+      "status": "explicit_exception",
+      "strict_mirror_status": "no_regression",
+      "strict_mirrored_source_count": 11,
+      "strict_module_mirror_ratio": 0.275,
+      "strict_module_mirror_ratio_baseline": 0.2059,
+      "strict_module_mirror_ratio_delta": 0.0691,
+      "target_gap": null
+    },
+    {
+      "first_target_ratio": 0.7,
+      "floor_delta": -0.1185,
+      "integration_decision": "required",
+      "integration_path": "tests/unit/runtime/http",
+      "loose_name_mirror_ratio": 0.5967,
+      "loose_name_mirror_ratio_baseline": 0.6766,
+      "loose_name_mirror_ratio_delta": -0.0799,
+      "loose_name_mirrored_source_count": 182,
+      "mirror_status": "floor_regression_exception",
+      "package": "runtime",
+      "package_mode": "critical_target",
+      "property_decision": "required",
+      "property_path": "tests/property/runtime",
+      "property_status": "required_present",
+      "property_test_file_count": 1,
+      "property_test_file_count_baseline": 1,
+      "property_test_file_count_delta": 0,
+      "property_test_file_count_floor": null,
+      "ratchet_floor": 0.7152,
+      "source_module_count": 305,
+      "source_module_count_baseline": 167,
+      "status": "floor_regression_exception",
+      "strict_mirror_status": "no_regression",
+      "strict_mirrored_source_count": 122,
+      "strict_module_mirror_ratio": 0.4,
+      "strict_module_mirror_ratio_baseline": 0.3892,
+      "strict_module_mirror_ratio_delta": 0.0108,
+      "target_gap": 0.1033
+    },
+    {
+      "first_target_ratio": null,
+      "floor_delta": -0.02,
+      "integration_decision": "not_required",
+      "integration_path": null,
+      "loose_name_mirror_ratio": 0.4583,
+      "loose_name_mirror_ratio_baseline": 0.4783,
+      "loose_name_mirror_ratio_delta": -0.02,
+      "loose_name_mirrored_source_count": 11,
+      "mirror_status": "floor_regression",
+      "package": "scholar",
+      "package_mode": "explicit_exception",
+      "property_decision": "not_required",
+      "property_path": "tests/property/scholar",
+      "property_status": "not_required",
+      "property_test_file_count": 0,
+      "property_test_file_count_baseline": 0,
+      "property_test_file_count_delta": 0,
+      "property_test_file_count_floor": null,
+      "ratchet_floor": 0.4783,
+      "source_module_count": 24,
+      "source_module_count_baseline": 23,
+      "status": "floor_regression",
+      "strict_mirror_status": "strict_regression",
+      "strict_mirrored_source_count": 4,
+      "strict_module_mirror_ratio": 0.1667,
+      "strict_module_mirror_ratio_baseline": 0.1739,
+      "strict_module_mirror_ratio_delta": -0.0072,
+      "target_gap": null
+    },
+    {
+      "first_target_ratio": 0.7,
+      "floor_delta": -0.0002,
+      "integration_decision": "required",
+      "integration_path": "tests/integration/scientist",
+      "loose_name_mirror_ratio": 0.7097,
+      "loose_name_mirror_ratio_baseline": 0.7099,
+      "loose_name_mirror_ratio_delta": -0.0002,
+      "loose_name_mirrored_source_count": 379,
+      "mirror_status": "floor_regression",
+      "package": "scientist",
+      "package_mode": "critical_target",
+      "property_decision": "required",
+      "property_path": "tests/property/scientist",
+      "property_status": "required_present",
+      "property_test_file_count": 5,
+      "property_test_file_count_baseline": 5,
+      "property_test_file_count_delta": 0,
+      "property_test_file_count_floor": null,
+      "ratchet_floor": 0.7099,
+      "source_module_count": 534,
+      "source_module_count_baseline": 517,
+      "status": "floor_regression",
+      "strict_mirror_status": "no_regression",
+      "strict_mirrored_source_count": 225,
+      "strict_module_mirror_ratio": 0.4213,
+      "strict_module_mirror_ratio_baseline": 0.412,
+      "strict_module_mirror_ratio_delta": 0.0093,
+      "target_gap": null
+    }
+  ],
+  "ratchet_mode": "active",
+  "ratchet_policy": {
+    "fail_closed_threshold_policy": "No package may receive a fail-closed mirror floor above its measured baseline until a newer baseline is committed.",
+    "first_critical_target_ratio": 0.7,
+    "mirror_presence_metric": "loose_name_mirror_ratio",
+    "new_package_move_policy": "New package moves must include characterization, mirror, or explicit cross-layer behavior-test mapping in this contract before merging.",
+    "no_regression_rule": "Fail when an observed loose mirror ratio falls below ratchet_floor, a strict mirror ratio falls below baseline, or required property tests fall below floor unless the package has an explicit mirror_regression_exception or strict_mirror_regression_exception.",
+    "ratchet_floor_source": "measured_baseline",
+    "ratchet_mode": "fail_closed_no_regression",
+    "runtime_over_coverage_policy": "Normalize runtime over-coverage through module mappings or declared cross-module behavior tests; raw test-file count does not satisfy module mirror presence.",
+    "strict_mirror_metric": "strict_module_mirror_ratio"
+  },
+  "summary": {
+    "below_first_target_tracking": 4,
+    "explicit_exceptions": 3,
+    "floor_regressions": 4,
+    "loose_mirror_ratio_delta_total": -0.1164,
+    "mirror_floor_regression_exceptions": 2,
+    "mirror_floor_regressions": 4,
+    "packages": 13,
+    "property_file_delta_total": 0,
+    "property_regressions": 0,
+    "property_required_packages": 8,
+    "strict_mirror_ratio_delta_total": 0.183,
+    "strict_mirror_regression_exceptions": 1,
+    "strict_mirror_regressions": 2,
+    "test_helper_topology_count_regressions": 2,
+    "test_helper_topology_status": "regression"
+  },
+  "test_helper_topology": {
+    "baseline": "architecture/baselines/repository_best_in_class_last_mile/test_helper_topology.json",
+    "baseline_summary": {
+      "duplicated_fixture_factories": 1,
+      "forbidden_reverse_imports": 0,
+      "layer_local_conftest_files": 27,
+      "shared_helper_files": 10,
+      "unused_helpers": 0
+    },
+    "contract": "architecture/tests/ratchets.toml",
+    "count_regressions": {
+      "forbidden_reverse_imports": {
+        "actual": 9,
+        "baseline": 0
+      },
+      "shared_helper_files": {
+        "actual": 22,
+        "baseline": 10
+      }
+    },
+    "duplicated_fixture_factories": [
+      {
+        "factory_hash": "b034b816108d",
+        "fixture": "cas_store",
+        "id": "cas_store:b034b816108d",
+        "instances": [
+          {
+            "fixture": "cas_store",
+            "line": 13,
+            "path": "tests/unit/scientist/governance/conftest.py"
+          },
+          {
+            "fixture": "cas_store",
+            "line": 14,
+            "path": "tests/unit/scientist/nodes/conftest.py"
+          }
+        ]
+      }
+    ],
+    "forbidden_reverse_imports": [
+      {
+        "line": 30,
+        "module": "tests.unit.data_forge.domains.catalog.knowledge.test_acquisition_authority",
+        "path": "tests/_helpers/acquisition_chain.py"
+      },
+      {
+        "line": 35,
+        "module": "tests.unit.runtime.quality.test_live_acquisition_executor",
+        "path": "tests/_helpers/acquisition_chain.py"
+      },
+      {
+        "line": 157,
+        "module": "tests.unit.runtime.quality.test_generation_cycle",
+        "path": "tests/_helpers/acquisition_chain.py"
+      },
+      {
+        "line": 18,
+        "module": "tests.unit.runtime.quality.test_live_acquisition_executor",
+        "path": "tests/_helpers/acquisition_epoch_production.py"
+      },
+      {
+        "line": 37,
+        "module": "tests.unit.runtime.quality",
+        "path": "tests/_helpers/acquisition_production.py"
+      },
+      {
+        "line": 365,
+        "module": "tests.unit.runtime.quality.test_live_acquisition_executor",
+        "path": "tests/_helpers/acquisition_production.py"
+      },
+      {
+        "line": 12,
+        "module": "tests.unit.runtime.http.test_control_service_di",
+        "path": "tests/_helpers/acquisition_supplier.py"
+      },
+      {
+        "line": 119,
+        "module": "tests.unit.runtime.quality.test_generation_cycle",
+        "path": "tests/_helpers/controlled_candidate_profile.py"
+      },
+      {
+        "line": 27,
+        "module": "tests.unit.runtime.quality.test_acquisition_executor",
+        "path": "tests/_helpers/semantic_epoch_native.py"
+      }
+    ],
+    "helper_usages": {
+      "tests/_helpers/acquisition_chain.py": [
+        {
+          "line": 7,
+          "module": "tests._helpers.acquisition_chain",
+          "path": "tests/_helpers/acquisition_supplier.py"
+        },
+        {
+          "line": 588,
+          "module": "tests._helpers.acquisition_chain",
+          "path": "tests/integration/core_runtime/test_acquisition_authority_served.py"
+        },
+        {
+          "line": 36,
+          "module": "tests._helpers.acquisition_chain",
+          "path": "tests/integration/core_runtime/test_acquisition_world_growth_chain.py"
+        }
+      ],
+      "tests/_helpers/acquisition_epoch_production.py": [
+        {
+          "line": 27,
+          "module": "tests._helpers.acquisition_epoch_production",
+          "path": "tests/_helpers/acquisition_chain.py"
+        },
+        {
+          "line": 112,
+          "module": "tests._helpers.acquisition_epoch_production",
+          "path": "tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py"
+        }
+      ],
+      "tests/_helpers/acquisition_human_decision.py": [
+        {
+          "line": 589,
+          "module": "tests._helpers.acquisition_human_decision",
+          "path": "tests/integration/core_runtime/test_acquisition_authority_served.py"
+        }
+      ],
+      "tests/_helpers/acquisition_movement.py": [
+        {
+          "line": 11,
+          "module": "tests._helpers.acquisition_movement",
+          "path": "tests/unit/runtime/quality/test_acquisition_movement_positive.py"
+        }
+      ],
+      "tests/_helpers/acquisition_production.py": [
+        {
+          "line": 28,
+          "module": "tests._helpers.acquisition_production",
+          "path": "tests/_helpers/acquisition_chain.py"
+        },
+        {
+          "line": 8,
+          "module": "tests._helpers.acquisition_production",
+          "path": "tests/_helpers/acquisition_supplier.py"
+        },
+        {
+          "line": 33,
+          "module": "tests._helpers.acquisition_production",
+          "path": "tests/integration/core_runtime/test_acquisition_authority_served.py"
+        },
+        {
+          "line": 37,
+          "module": "tests._helpers.acquisition_production",
+          "path": "tests/integration/core_runtime/test_acquisition_world_growth_chain.py"
+        },
+        {
+          "line": 30,
+          "module": "tests._helpers.acquisition_production",
+          "path": "tests/unit/runtime/http/test_acquisition_control_worker.py"
+        }
+      ],
+      "tests/_helpers/acquisition_supplier.py": [
+        {
+          "line": 43,
+          "module": "tests._helpers.acquisition_supplier",
+          "path": "tests/unit/runtime/quality/test_acquisition_movement_positive.py"
+        }
+      ],
+      "tests/_helpers/artifacts.py": [
+        {
+          "line": 17,
+          "module": "_helpers.artifacts",
+          "path": "tests/_helpers/runtime_http.py"
+        },
+        {
+          "line": 33,
+          "module": "_helpers.artifacts",
+          "path": "tests/conftest.py"
+        },
+        {
+          "line": 8,
+          "module": "_helpers.artifacts",
+          "path": "tests/integration/foundry_scientist/test_method_node_bridge.py"
+        },
+        {
+          "line": 9,
+          "module": "_helpers.artifacts",
+          "path": "tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py"
+        },
+        {
+          "line": 22,
+          "module": "tests._helpers.artifacts",
+          "path": "tests/unit/runtime/http/test_normative_generation_bridge.py"
+        },
+        {
+          "line": 24,
+          "module": "tests._helpers.artifacts",
+          "path": "tests/unit/runtime/http/test_public_decision_verification.py"
+        },
+        {
+          "line": 14,
+          "module": "tests._helpers.artifacts",
+          "path": "tests/unit/runtime/http/test_public_decision_verification_routes.py"
+        },
+        {
+          "line": 54,
+          "module": "tests._helpers.artifacts",
+          "path": "tests/unit/runtime/http/test_public_export.py"
+        },
+        {
+          "line": 14,
+          "module": "tests._helpers.artifacts",
+          "path": "tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py"
+        },
+        {
+          "line": 12,
+          "module": "tests._helpers.artifacts",
+          "path": "tests/unit/scientist/governance/continuous/test_published_signature_custody.py"
+        },
+        {
+          "line": 18,
+          "module": "tests._helpers.artifacts",
+          "path": "tests/unit/scientist/methods/doe/test_analysis_receipt.py"
+        },
+        {
+          "line": 22,
+          "module": "tests._helpers.artifacts",
+          "path": "tests/unit/scientist/methods/doe/test_morris_analysis_admission.py"
+        }
+      ],
+      "tests/_helpers/c7_synthetic_data.py": [
+        {
+          "line": 11,
+          "module": "_helpers.c7_synthetic_data",
+          "path": "tests/integration/test_c7_synthetic_full_pipeline.py"
+        },
+        {
+          "line": 8,
+          "module": "_helpers.c7_synthetic_data",
+          "path": "tests/unit/scientist/methods/test_advanced.py"
+        }
+      ],
+      "tests/_helpers/causal_scm_fixtures.py": [
+        {
+          "line": 12,
+          "module": "_helpers.causal_scm_fixtures",
+          "path": "tests/unit/foundry/methods/test_sl5_fixture_coverage.py"
+        }
+      ],
+      "tests/_helpers/chronology_qualification.py": [
+        {
+          "line": 17,
+          "module": "tests._helpers.chronology_qualification",
+          "path": "tests/integration/runtime_quality/test_chronology_protocol_conformance.py"
+        },
+        {
+          "line": 691,
+          "module": "tests._helpers.chronology_qualification",
+          "path": "tests/unit/core/security/test_chronology_anchor.py"
+        },
+        {
+          "line": 93,
+          "module": "tests._helpers.chronology_qualification",
+          "path": "tests/unit/runtime/quality/test_chronology_custody.py"
+        },
+        {
+          "line": 11,
+          "module": "tests._helpers.chronology_qualification",
+          "path": "tests/unit/runtime/quality/test_chronology_projection_custody.py"
+        },
+        {
+          "line": 32,
+          "module": "tests._helpers.chronology_qualification",
+          "path": "tests/unit/runtime/quality/test_chronology_proof.py"
+        },
+        {
+          "line": 15,
+          "module": "tests._helpers.chronology_qualification",
+          "path": "tests/unit/runtime/quality/test_chronology_qualification.py"
+        },
+        {
+          "line": 354,
+          "module": "tests._helpers.chronology_qualification",
+          "path": "tests/unit/runtime/quality/test_epoch_deployment.py"
+        }
+      ],
+      "tests/_helpers/control_worker.py": [
+        {
+          "line": 34,
+          "module": "tests._helpers.control_worker",
+          "path": "tests/integration/core_runtime/test_acquisition_authority_served.py"
+        },
+        {
+          "line": 127,
+          "module": "tests._helpers.control_worker",
+          "path": "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py"
+        },
+        {
+          "line": 25,
+          "module": "tests._helpers.control_worker",
+          "path": "tests/integration/runtime_quality/test_evaluation_safety_admission.py"
+        },
+        {
+          "line": 18,
+          "module": "tests._helpers.control_worker",
+          "path": "tests/integration/runtime_quality/test_evaluation_safety_promotion_bridge.py"
+        },
+        {
+          "line": 37,
+          "module": "tests._helpers.control_worker",
+          "path": "tests/unit/remediation/test_cyc_05.py"
+        },
+        {
+          "line": 34,
+          "module": "tests._helpers.control_worker",
+          "path": "tests/unit/runtime/http/test_acquisition_control_worker.py"
+        },
+        {
+          "line": 46,
+          "module": "tests._helpers.control_worker",
+          "path": "tests/unit/runtime/http/test_control_api.py"
+        },
+        {
+          "line": 25,
+          "module": "tests._helpers.control_worker",
+          "path": "tests/unit/runtime/http/test_control_job_execution_intent.py"
+        },
+        {
+          "line": 57,
+          "module": "tests._helpers.control_worker",
+          "path": "tests/unit/runtime/http/test_control_service_di.py"
+        },
+        {
+          "line": 9,
+          "module": "tests._helpers.control_worker",
+          "path": "tests/unit/runtime/http/test_served_unknown_target_scope.py"
+        },
+        {
+          "line": 27,
+          "module": "tests._helpers.control_worker",
+          "path": "tests/unit/runtime/http/test_workspace_loop_transition.py"
+        }
+      ],
+      "tests/_helpers/controlled_candidate_profile.py": [
+        {
+          "line": 9,
+          "module": "tests._helpers.controlled_candidate_profile",
+          "path": "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py"
+        },
+        {
+          "line": 1836,
+          "module": "tests._helpers.controlled_candidate_profile",
+          "path": "tests/unit/runtime/http/test_control_service_di.py"
+        }
+      ],
+      "tests/_helpers/custody_markdown.py": [
+        {
+          "line": 7,
+          "module": "_helpers.custody_markdown",
+          "path": "tests/repo_quality/tools/test_custody_markdown.py"
+        },
+        {
+          "line": 8,
+          "module": "_helpers.custody_markdown",
+          "path": "tests/repo_quality/tools/test_trust_posture_measurement.py"
+        },
+        {
+          "line": 6,
+          "module": "_helpers.custody_markdown",
+          "path": "tests/unit/scientist/evidence/claims/test_posture_markdown.py"
+        }
+      ],
+      "tests/_helpers/forecast.py": [
+        {
+          "line": 25,
+          "module": "tests._helpers.forecast",
+          "path": "tests/unit/remediation/test_frc_01.py"
+        },
+        {
+          "line": 25,
+          "module": "tests._helpers.forecast",
+          "path": "tests/unit/scientist/methods/backtesting/test_forecast_owner.py"
+        }
+      ],
+      "tests/_helpers/hds_quality.py": [
+        {
+          "line": 24,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/repo_quality/tools/test_cost_gate_and_fmea_smoke.py"
+        },
+        {
+          "line": 8,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/repo_quality/tools/test_evidence_bundle_inspection.py"
+        },
+        {
+          "line": 6,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/repo_quality/tools/test_honest_diagnostics_substrate_red_controls.py"
+        },
+        {
+          "line": 17,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/repo_quality/tools/test_policyos_production_quality_best_in_class.py"
+        },
+        {
+          "line": 6,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/repo_quality/tools/test_wave4_operational_closeout.py"
+        },
+        {
+          "line": 23,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/evidence/portfolio/test_effective_independence_graph.py"
+        },
+        {
+          "line": 15,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_argument_graph.py"
+        },
+        {
+          "line": 23,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_assurance_case.py"
+        },
+        {
+          "line": 7,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_authority_envelope_contract.py"
+        },
+        {
+          "line": 21,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_authority_profile_mapping.py"
+        },
+        {
+          "line": 11,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_authority_spoofing.py"
+        },
+        {
+          "line": 12,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_berl_warrant_reliability.py"
+        },
+        {
+          "line": 25,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_claim_argument.py"
+        },
+        {
+          "line": 14,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_complexity_governance.py"
+        },
+        {
+          "line": 31,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_compression_loss_ledger.py"
+        },
+        {
+          "line": 12,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_cost_degradation.py"
+        },
+        {
+          "line": 24,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_cost_gate.py"
+        },
+        {
+          "line": 40,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_crash_retry_partial_state.py"
+        },
+        {
+          "line": 23,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_degradation.py"
+        },
+        {
+          "line": 19,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_diagnostic_event_contract.py"
+        },
+        {
+          "line": 28,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_disconfirming_evidence.py"
+        },
+        {
+          "line": 31,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_evidence_independence_map.py"
+        },
+        {
+          "line": 19,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_evidence_line_model.py"
+        },
+        {
+          "line": 17,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_evidence_portfolio_design.py"
+        },
+        {
+          "line": 18,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_evidence_synthesis_report.py"
+        },
+        {
+          "line": 12,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_external_client_surface.py"
+        },
+        {
+          "line": 16,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_legacy_payload_migration_audit.py"
+        },
+        {
+          "line": 13,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_lex_legal_authority_surface.py"
+        },
+        {
+          "line": 14,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_multi_tenant_shared_cas.py"
+        },
+        {
+          "line": 16,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_multiverse_specification_curve.py"
+        },
+        {
+          "line": 17,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_policy_benchmarking.py"
+        },
+        {
+          "line": 24,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_policy_design_case_concept_spine.py"
+        },
+        {
+          "line": 14,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_policy_design_case_false_passes.py"
+        },
+        {
+          "line": 15,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_policy_design_jurisdiction_spine.py"
+        },
+        {
+          "line": 17,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_policy_intent_envelope.py"
+        },
+        {
+          "line": 12,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_prompt_tool_ledger.py"
+        },
+        {
+          "line": 19,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_prompt_tool_ledger_fmea.py"
+        },
+        {
+          "line": 34,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_public_export.py"
+        },
+        {
+          "line": 18,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_run_cost_proportionality.py"
+        },
+        {
+          "line": 28,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_scholar_academic_evidence.py"
+        },
+        {
+          "line": 35,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_scorecard.py"
+        },
+        {
+          "line": 10,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_scorecard_diagnostic_slos.py"
+        },
+        {
+          "line": 17,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_semantic_binding.py"
+        },
+        {
+          "line": 15,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_skip_blockers.py"
+        },
+        {
+          "line": 14,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_soft_gate_telemetry.py"
+        },
+        {
+          "line": 29,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/runtime/quality/test_workspace_composition.py"
+        },
+        {
+          "line": 6,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/tools/test_canary_assurance_and_slos.py"
+        },
+        {
+          "line": 16,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/tools/test_canary_evidence.py"
+        },
+        {
+          "line": 7,
+          "module": "tests._helpers.hds_quality",
+          "path": "tests/unit/tools/test_canary_evidence_authority.py"
+        }
+      ],
+      "tests/_helpers/mirror_contracts.py": [
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/berl/mirror_contracts/test__linear.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/berl/mirror_contracts/test__utils.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/berl/mirror_contracts/test_ale.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/berl/mirror_contracts/test_ebm.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/berl/mirror_contracts/test_gradients.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/berl/mirror_contracts/test_lime.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/berl/mirror_contracts/test_permutation.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/berl/mirror_contracts/test_protocol.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/berl/mirror_contracts/test_shap_kernel.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/common/mirror_contracts/test_base.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/common/mirror_contracts/test_config.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/common/mirror_contracts/test_env_parsing.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/common/mirror_contracts/test_jax_env.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test__assembler_archive.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test__assembler_core.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test__assembler_errors.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test__assembler_provenance.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test__assembler_slsa.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test__atomic_write.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test__env_capture.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test__env_comparison.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test__env_models.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test__env_utils.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test__integrity_ops.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test__layout.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test__manifest_lifecycle.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test__signature_ops.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test__transfer_ops.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test_assembler.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test_base.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test_environment.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test_environment_parts.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test_graph.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test_ids.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test_manifest.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test_models.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test_protocol.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test_protocols.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test_prov_json.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test_report.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test_retry.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test_standalone_verifier_template.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test_store.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/core/mirror_contracts/test_write_contract.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test__version.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_article_extractor.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_assets.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_boundary_conditions.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_causal_claims.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_claim_adjudication.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_claim_ids.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_config.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_context_extraction.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_contracts.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_demand_harvest.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_edge_synthesize.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_embedder.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_empirical_parameters.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_harvester.py"
+        },
+        {
+          "line": 15,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_llm_extractor.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_mechanisms.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_moderator_extraction.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_numeric_extract.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_paper_classification.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_quality.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_schemas.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_screening.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_search.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_shadow.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/data_forge/mirror_contracts/test_ua.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ddm/mirror_contracts/test_audit.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ddm/mirror_contracts/test_calibrate.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ddm/mirror_contracts/test_data_quality_monitor.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ddm/mirror_contracts/test_events.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ddm/mirror_contracts/test_multiple_testing.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ddm/mirror_contracts/test_performance_estimator.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ddm/mirror_contracts/test_realized_performance_monitor.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ddm/mirror_contracts/test_track_2_2_shift_adapter.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test__inference_config.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test__inference_engine.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test__inference_result.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test__inference_validation.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test__registry_errors.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test__registry_lifecycle.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test__registry_models.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test__schema_core.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test__schema_errors.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test__schema_field.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test__store_core.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test__store_index.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test__store_models.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test__store_serialization.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_api.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_base.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_binding.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_builtin_profiles.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_canonicalize.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_capabilities.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_citations.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_compatibility.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_components.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_config.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_contract.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_detect.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_discovery.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_errors.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_evidence.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_explicit_lines_v1.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_extraction.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_extractor_registry.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_finite.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_ingestion.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_invalidation.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_key.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_lex_norm_regex_v1.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_models.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_normalize.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_observability.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_persist.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_policies.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_policy.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_prefetch.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_providers.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_proxy.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_regex_numeric_v1.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_resolve.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_resolver.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_resolver_fast_lane.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_schema_aware.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_score_claims.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_score_docs.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_search.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_semantic.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_source_bindings.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_store.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_temporal.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_types.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_uncertainty_adapter.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_validate.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_validator.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/fabric/mirror_contracts/test_world_events.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test__facade.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test__graph.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test__lowering.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test__quickstart.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test__registry.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test__registry_boot.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_abm_kernel.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_actor_critic.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_agent_metrics.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_agents.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_api.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_artifact.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_bayesian.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_benchmark_hooks.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_bounds.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_calibration.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_causal.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_common.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_compat.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_config.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_consensus.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_contracts.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_core.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_coupler.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_credit_assignment.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_cross_sectional.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_dashboard.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_demographics.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_deprecation.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_distribution_executor.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_distribution_mechanisms.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_econometrics.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_executors.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_experiment.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_forecasting.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_government_policy.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_graph_executor.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_graph_observations.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_graphs.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_hot_reload.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_identification.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_interventions.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_io.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_mechanism.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_merge_engine.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_metrics.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_ml.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_models.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_modes.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_mpc.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_observability.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_panel_dynamic.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_patch_vm.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_plots.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_policy.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_population_executor.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_population_mechanisms.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_prng.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_regression.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_report.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_resolution.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_rewards.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_rl.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_robust_set_selector.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_sampling.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_schema.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_seeds.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_sensitivity.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_slot_schema.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_spatio_temporal.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_specialization.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_specs.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_state.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_survey.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_survey_repeated_cs.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_temporal.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_temporal_executor.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_temporal_mechanisms.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_training_config.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_truth_api.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_uncertainty.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_uncertainty_adapter.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_utils.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_vfi.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_visualization.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/foundry/mirror_contracts/test_world.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test__truthfulness.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_abm_bridge.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_abstraction.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_actual_causality.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_administrative_missingness.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_applicability.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_backtest.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_base.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_calibration.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_calibration_diagnostics.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_causal.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_causal_capabilities.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_causal_discovery.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_causal_ensemble.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_causal_graph.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_causal_queries.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_causal_rl.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_causal_run_snapshot.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_certified_tightening.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_context.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_covariate_balance.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_cross_graph.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_data_fusion.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_data_views.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_decision_layer.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_dependence_structure.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_dependent_sensitivity.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_distributional.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_dp_robustness.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_dual_certificate.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_dynamic_causal_semantics.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_dynamic_regime.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_ecosystem_bridges.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_estimand.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_experiment_plan.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_fairness.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_fairness_audit_report.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_falsification_report.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_frontier.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_hte.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_interference.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_interventions.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_invariance.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_kernel_causal.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_knowledge_base.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_literature.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_local_independence.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_mgraph.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_microsim_calibration.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_mobility.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_ncm.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_network_embedding.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_normative_arbitration.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_parameters.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_path_specific_identification.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_phase4_dynamics.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_privacy_transportability.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_proof_composability.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_proximal.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_quality_report.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_trust.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_types.py"
+        },
+        {
+          "line": 6,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_units.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/ir/mirror_contracts/test_validation.py"
+        },
+        {
+          "line": 9,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/lex/mirror_contracts/test_factlog.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_access_audit.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_analysis.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_api.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_app.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_artifact_inspector.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_artifacts.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_attractors.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_auth.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_authz_middleware.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_bureaucratic_rendering.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_cell_router_middleware.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_compliance.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_container.py"
+        },
+        {
+          "line": 5,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_control.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_core_run.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_csrf.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_debug.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_dependencies.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_dev_identity_middleware.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_errors.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_execution_policy.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_fabric.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_fail_closed_middleware.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_health.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_jwt_auth_middleware.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_lineage.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_mobility.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_mutation_policy.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_openapi_contract.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_resilience.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_response_policies.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_review.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_runs.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_scenarios.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_security.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/runtime/mirror_contracts/test_temporal.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scholar/mirror_contracts/test_api.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scholar/mirror_contracts/test_bundle.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scholar/mirror_contracts/test_errors.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scholar/mirror_contracts/test_freshness_store.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scholar/mirror_contracts/test_http_fetch.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scholar/mirror_contracts/test_local_files.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scholar/mirror_contracts/test_manual.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test__activity_worker.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_abstraction_suite.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_analysis.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_base.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_budget_ledger.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_calibration.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_cheap_stage.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_claim_adjudication.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_cli.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_compensation.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_context.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_critic.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_decision_validity.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_designs.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_emit_artifact.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_errors.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_evaluator.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_execution_plan.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_executor.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_latent_producers.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_local_pool.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_local_runner.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_lock_protocol.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_metrics.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_metrics_otel.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_noop.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_plan.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_prompts.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_protocol.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_publisher.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_reflexion.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_registry.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_service.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_set_state.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_state.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_strategic_suite.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_stress_report.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_trust_scorer.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_validators.py"
+        },
+        {
+          "line": 1,
+          "module": "tests._helpers.mirror_contracts",
+          "path": "tests/unit/scientist/mirror_contracts/test_validity.py"
+        }
+      ],
+      "tests/_helpers/observability.py": [
+        {
+          "line": 33,
+          "module": "_helpers.observability",
+          "path": "tests/conftest.py"
+        }
+      ],
+      "tests/_helpers/policy_design_case_projection.py": [
+        {
+          "line": 17,
+          "module": "tests._helpers.policy_design_case_projection",
+          "path": "tests/unit/pdc/test_runtime_policy_design_case_compiler.py"
+        },
+        {
+          "line": 29,
+          "module": "tests._helpers.policy_design_case_projection",
+          "path": "tests/unit/runtime/http/test_control_plane_store.py"
+        },
+        {
+          "line": 20,
+          "module": "tests._helpers.policy_design_case_projection",
+          "path": "tests/unit/runtime/quality/test_design_axes_graded_outcomes.py"
+        },
+        {
+          "line": 19,
+          "module": "tests._helpers.policy_design_case_projection",
+          "path": "tests/unit/runtime/quality/test_external_audit.py"
+        },
+        {
+          "line": 37,
+          "module": "tests._helpers.policy_design_case_projection",
+          "path": "tests/unit/runtime/quality/test_policy_design_case_projection_semantics.py"
+        },
+        {
+          "line": 35,
+          "module": "tests._helpers.policy_design_case_projection",
+          "path": "tests/unit/runtime/quality/test_public_export.py"
+        },
+        {
+          "line": 15,
+          "module": "tests._helpers.policy_design_case_projection",
+          "path": "tests/unit/scientist/artifacts/test_decision_compiler.py"
+        }
+      ],
+      "tests/_helpers/runtime_http.py": [
+        {
+          "line": 6,
+          "module": "_helpers.runtime_http",
+          "path": "tests/integration/core_runtime/test_config_security_startup_bridge.py"
+        },
+        {
+          "line": 13,
+          "module": "_helpers.runtime_http",
+          "path": "tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py"
+        },
+        {
+          "line": 19,
+          "module": "_helpers.runtime_http",
+          "path": "tests/integration/runtime_frontend/test_capability_discovery_free_growth.py"
+        },
+        {
+          "line": 177,
+          "module": "_helpers.runtime_http",
+          "path": "tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py"
+        },
+        {
+          "line": 8,
+          "module": "_helpers.runtime_http",
+          "path": "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py"
+        },
+        {
+          "line": 16,
+          "module": "_helpers.runtime_http",
+          "path": "tests/integration/runtime_quality/test_data_state_substrate.py"
+        },
+        {
+          "line": 9,
+          "module": "_helpers.runtime_http",
+          "path": "tests/performance/test_runtime_hot_paths.py"
+        },
+        {
+          "line": 1,
+          "module": "_helpers.runtime_http",
+          "path": "tests/unit/runtime/http/conftest.py"
+        },
+        {
+          "line": 99,
+          "module": "tests._helpers.runtime_http",
+          "path": "tests/unit/runtime/http/test_cycle_board_historical_availability.py"
+        },
+        {
+          "line": 44,
+          "module": "tests._helpers.runtime_http",
+          "path": "tests/unit/runtime/http/test_r13_ingestion_tenant_custody.py"
+        },
+        {
+          "line": 7,
+          "module": "_helpers.runtime_http",
+          "path": "tests/unit/runtime/http/test_scenarios_api.py"
+        }
+      ],
+      "tests/_helpers/scientist_runtime.py": [
+        {
+          "line": 9,
+          "module": "_helpers.scientist_runtime",
+          "path": "tests/integration/foundry_scientist/test_method_node_bridge.py"
+        },
+        {
+          "line": 6,
+          "module": "_helpers.scientist_runtime",
+          "path": "tests/integration/scientist/test_workflow_reliability_scenarios.py"
+        },
+        {
+          "line": 37,
+          "module": "_helpers.scientist_runtime",
+          "path": "tests/performance/test_scientist_runtime_paths.py"
+        }
+      ],
+      "tests/_helpers/search_strategies.py": [
+        {
+          "line": 1,
+          "module": "_helpers.search_strategies",
+          "path": "tests/unit/scientist/search/strategies/conftest.py"
+        }
+      ],
+      "tests/_helpers/semantic_epoch_native.py": [
+        {
+          "line": 29,
+          "module": "tests._helpers.semantic_epoch_native",
+          "path": "tests/_helpers/acquisition_chain.py"
+        },
+        {
+          "line": 17,
+          "module": "tests._helpers.semantic_epoch_native",
+          "path": "tests/_helpers/acquisition_epoch_production.py"
+        },
+        {
+          "line": 12,
+          "module": "tests._helpers.semantic_epoch_native",
+          "path": "tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py"
+        }
+      ]
+    },
+    "layer_local_conftest_files": [
+      "tests/contract/conftest.py",
+      "tests/property/foundry/methods/conftest.py",
+      "tests/repo_quality/conftest.py",
+      "tests/unit/berl/conftest.py",
+      "tests/unit/calibration/conftest.py",
+      "tests/unit/common/conftest.py",
+      "tests/unit/core/conftest.py",
+      "tests/unit/data_forge/conftest.py",
+      "tests/unit/ddm/conftest.py",
+      "tests/unit/fabric/conftest.py",
+      "tests/unit/fabric/connectors/conftest.py",
+      "tests/unit/foundry/agent_sim/conftest.py",
+      "tests/unit/foundry/calibration/conftest.py",
+      "tests/unit/foundry/conftest.py",
+      "tests/unit/foundry/method_regression/conftest.py",
+      "tests/unit/foundry/methods/conftest.py",
+      "tests/unit/ir/conftest.py",
+      "tests/unit/lex/conftest.py",
+      "tests/unit/runtime/conftest.py",
+      "tests/unit/runtime/http/conftest.py",
+      "tests/unit/scholar/conftest.py",
+      "tests/unit/scientist/conftest.py",
+      "tests/unit/scientist/governance/conftest.py",
+      "tests/unit/scientist/nodes/conftest.py",
+      "tests/unit/scientist/orchestration/kernel/conftest.py",
+      "tests/unit/scientist/search/conftest.py",
+      "tests/unit/scientist/search/strategies/conftest.py"
+    ],
+    "registered_duplicate_fixture_factories": [
+      {
+        "fixture": "cas_store",
+        "id": "scientist-cas-store-local-fixture",
+        "owner": "team-scientist",
+        "paths": [
+          "tests/unit/scientist/governance/conftest.py",
+          "tests/unit/scientist/nodes/conftest.py"
+        ],
+        "reason": "Both Scientist slices intentionally keep a tiny local FileSystemCAS fixture next to slice-specific context factories; registered until a shared Scientist helper can replace both without broad fixture shadowing."
+      }
+    ],
+    "shared_helper_files": [
+      "tests/_helpers/acquisition_chain.py",
+      "tests/_helpers/acquisition_epoch_production.py",
+      "tests/_helpers/acquisition_human_decision.py",
+      "tests/_helpers/acquisition_movement.py",
+      "tests/_helpers/acquisition_production.py",
+      "tests/_helpers/acquisition_supplier.py",
+      "tests/_helpers/artifacts.py",
+      "tests/_helpers/c7_synthetic_data.py",
+      "tests/_helpers/causal_scm_fixtures.py",
+      "tests/_helpers/chronology_qualification.py",
+      "tests/_helpers/control_worker.py",
+      "tests/_helpers/controlled_candidate_profile.py",
+      "tests/_helpers/custody_markdown.py",
+      "tests/_helpers/forecast.py",
+      "tests/_helpers/hds_quality.py",
+      "tests/_helpers/mirror_contracts.py",
+      "tests/_helpers/observability.py",
+      "tests/_helpers/policy_design_case_projection.py",
+      "tests/_helpers/runtime_http.py",
+      "tests/_helpers/scientist_runtime.py",
+      "tests/_helpers/search_strategies.py",
+      "tests/_helpers/semantic_epoch_native.py"
+    ],
+    "stale_duplicate_fixture_registrations": [],
+    "status": "regression",
+    "summary": {
+      "duplicated_fixture_factories": 1,
+      "forbidden_reverse_imports": 9,
+      "layer_local_conftest_files": 27,
+      "shared_helper_files": 22,
+      "unused_helpers": 0
+    },
+    "unregistered_duplicate_fixture_factories": [],
+    "unused_helpers": []
+  }
+}

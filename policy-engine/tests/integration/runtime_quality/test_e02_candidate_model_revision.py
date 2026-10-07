@@ -74,7 +74,7 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
     from polisyos.runtime.http.services.control import (
         generation_cycle as generation_cycle_service,
     )
-    from polisyos.runtime.quality import substrate_registry
+    from polisyos.runtime.quality import design_generation, substrate_registry
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationContextHandoff,
         CandidateSimulationContextOffer,
@@ -193,6 +193,19 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
         llm_factory,
         "create_traced_gateway_client",
         lambda **_kwargs: controlled_recording,
+    )
+
+    # This candidate-only model-revision witness does not need the factual
+    # credal/LEX reference. Keep the existing N4 path and exact recorded model
+    # responses, while exercising N4's typed unavailable-reference limitation.
+    def bounded_candidate_reference_unavailable(*args: Any, **kwargs: Any) -> Any:
+        del args, kwargs
+        raise ValueError("candidate_model_revision_fixture_has_no_credal_reference")
+
+    monkeypatch.setattr(
+        design_generation,
+        "build_credal_reference",
+        bounded_candidate_reference_unavailable,
     )
 
     def with_execution_ids(values: dict[str, str]) -> Any:
@@ -691,11 +704,12 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
         accepted = response.json()
         assert accepted["status"] == "accepted"
         service = app.state._control_service
-        assert dispatch_one_control_job(
-            store=service._control_store,
-            handler=service._process_control_job,
-            expected_job_id=accepted["job_id"],
-        ) == accepted["job_id"]
+        with n4_contract._recorded_runtime_environment(recording):
+            assert dispatch_one_control_job(
+                store=service._control_store,
+                handler=service._process_control_job,
+                expected_job_id=accepted["job_id"],
+            ) == accepted["job_id"]
         completed = service._control_store.get_job(accepted["job_id"])
         assert completed is not None and completed.state == "completed"
         assert len(compiled_problems) == 1

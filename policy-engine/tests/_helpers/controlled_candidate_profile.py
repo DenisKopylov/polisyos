@@ -89,6 +89,7 @@ def _candidate_only_procurement_intervention_bundle():
     the synthetic candidate profile's single write slot.
     """
 
+    from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY, build_slot_family_manifest
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.quality.intervention_substrate import (
         replace_intervention_substrate_bundle,
@@ -100,52 +101,43 @@ def _candidate_only_procurement_intervention_bundle():
         "operator_kind": "procurement_shock_intensity",
         "target_world_slot": "cells.distress_score",
     }
+    owner_manifest_path = (
+        REPO_ROOT
+        / "architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json"
+    )
+    owner_manifest = json.loads(owner_manifest_path.read_text(encoding="utf-8"))
+    owner_mechanism = owner_manifest["world_mechanism_manifest"]["mechanisms"][
+        "procurement_shock_intensity"
+    ]
+    candidate_slot_registry = DEFAULT_SLOT_REGISTRY.model_copy(
+        update={
+            "slots": {
+                "cells.distress_score": DEFAULT_SLOT_REGISTRY.slots[
+                    "cells.distress_score"
+                ]
+            }
+        }
+    )
     fixture_payloads = {
         "knob_dictionary": {
             "procurement_shock_intensity": {
                 "type": "float",
-                "default": 0.5,
-                "min": 0.0,
+                "default": 0.0,
+                "min": -1.0,
                 "max": 1.0,
                 "mechanism_id": "procurement_shock_intensity",
                 "param_path": "params.intensity",
             }
         },
         "world_mechanism_manifest": {
-            "mechanisms": {
-                "procurement_shock_intensity": {
-                    "mechanism_id": "procurement_shock_intensity",
-                    "params": {
-                        "intensity": {
-                            "param_id": "intensity",
-                            "required": True,
-                            "value_type": "decimal",
-                            "min_value": 0,
-                            "max_value": 1,
-                            "unit_id": "synthetic_score",
-                        }
-                    },
-                    "reads_slots": [],
-                    "writes_slots": ["cells.distress_score"],
-                    "default_merge": {"cells.distress_score": "override"},
-                    "description": (
-                        "Test-only declared candidate mechanism; no empirical or "
-                        "production authority is implied."
-                    ),
-                }
-            }
+            "schema_version": owner_manifest["world_mechanism_manifest"][
+                "schema_version"
+            ],
+            "mechanisms": {"procurement_shock_intensity": owner_mechanism},
         },
-        "slot_family_manifest": {
-            "schema_version": "1.0",
-            "families": {
-                "cells": {
-                    "scope": "per_cell",
-                    "state_prefix": "cells",
-                    "entity_size_key": "n_cells",
-                    "slots": ["cells.distress_score"],
-                }
-            },
-        },
+        "slot_family_manifest": build_slot_family_manifest(
+            candidate_slot_registry
+        ).model_dump(mode="json"),
     }
     source_names = {
         "knob_dictionary": "candidate_knob",

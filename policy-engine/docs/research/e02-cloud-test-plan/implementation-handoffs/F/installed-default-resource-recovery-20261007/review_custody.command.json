@@ -1,0 +1,26 @@
+{
+  "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/review_custody.py"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519",
+  "environment": {
+    "PYTHONPATH": "absent",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "exit_code": 0,
+  "seconds": 7.8633419340185355,
+  "scope": "Read-only saved-byte evidence recheck, not native suite or scientific estimator replay.",
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/review_custody.stdout.txt",
+    "bytes": 7155,
+    "sha256": "0fcc484ffca12c7d28d3d307ef96139c0ef81a1a948f223a032c868ccb05366e"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/review_custody.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

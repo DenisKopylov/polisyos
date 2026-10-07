@@ -1,0 +1,156 @@
+{
+  "schema": "e02.F.independent.complete_transfer_selection.v1",
+  "frozen": true,
+  "review_candidate_sha": "cbfc2647b63b7b43e608532abb2159d3785bab42",
+  "main_receipt_sha": "b300da2e134a67fbd6f585a21ab42286c356fe7e",
+  "scope": "Completed independent structural materialization review only; no new scientific wave.",
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-b300-first.execution.json",
+      "bytes": 1368,
+      "sha256": "34aa16b7f94866b8552f4c9058091efcce29c10bf58496121e12aa6e48bbe864",
+      "role": "Complete actual execution capture or unaltered stdout/stderr, including canonical harness ERROR attempts."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-b300-first.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Complete actual execution capture or unaltered stdout/stderr, including canonical harness ERROR attempts."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-b300-first.stdout.json",
+      "bytes": 111,
+      "sha256": "464d955038bb5fef4c3f834dbcfe0312ff88dc389cb0b935cb6728a4f7bb68c4",
+      "role": "Complete actual execution capture or unaltered stdout/stderr, including canonical harness ERROR attempts."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-cbfc-declared-bridge.execution.json",
+      "bytes": 1454,
+      "sha256": "35c5a66c7a87165dc109af25265cc85d85efc6a56e3b3a7b36c8c106fc96ee5b",
+      "role": "Complete actual execution capture or unaltered stdout/stderr, including canonical harness ERROR attempts."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-cbfc-declared-bridge.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Complete actual execution capture or unaltered stdout/stderr, including canonical harness ERROR attempts."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-cbfc-declared-bridge.stdout.json",
+      "bytes": 62,
+      "sha256": "fe403d2a06b6fb9f02ee2962670e57bc3b0f09f2792391a4a92cd79e71266d8b",
+      "role": "Complete actual execution capture or unaltered stdout/stderr, including canonical harness ERROR attempts."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-cbfc-items-adapter.execution.json",
+      "bytes": 1454,
+      "sha256": "8e5f72407437f9774326674695567e658d2689d4fc6edcdad82f3dfdb246e747",
+      "role": "Complete actual execution capture or unaltered stdout/stderr, including canonical harness ERROR attempts."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-cbfc-items-adapter.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Complete actual execution capture or unaltered stdout/stderr, including canonical harness ERROR attempts."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-cbfc-items-adapter.stdout.json",
+      "bytes": 835801,
+      "sha256": "3361143897ee9ce88b53f833b433aefc2627087285ea5b09bd5cebd0f3287d95",
+      "role": "Complete actual execution capture or unaltered stdout/stderr, including canonical harness ERROR attempts."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/build_review_packet.py",
+      "bytes": 14560,
+      "sha256": "1322548dfc23e64a3aa53b9776bb19fd5a875fa6cd3abf1d83bed3faed7ee1db",
+      "role": "Exact review packet assembler; only reads frozen Git metadata and already completed outputs."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/execution-input-bindings.json",
+      "bytes": 7819,
+      "sha256": "a2f7ea3d754e5edf9d3b67537b799ef609fd8b28e37caafba050fb212b50b070",
+      "role": "Exact historical executed script/config snapshots mapped to captured argv/hash identities."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/final-metadata-inspection.json",
+      "bytes": 4706,
+      "sha256": "c87a5d221df94dea0be8563020887895aa38ad33182e3ca0d058e03fbecefd18",
+      "role": "Complete additional frozen metadata command hashes, recommendation counts and CAU adapter provenance."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/frozen-config-b300.json",
+      "bytes": 916,
+      "sha256": "2cd2cdb865c43e5e62d1d915032695373b8c8068fa3dda755849e173f88c552c",
+      "role": "Exact first executed b300 config snapshot."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/frozen-config.json",
+      "bytes": 1153,
+      "sha256": "ebac165e86721db5cc97cda5907dd36123ad97d6ee7e9a5a6e6d8cfb3e5fe5fb",
+      "role": "Exact second and final executed cbfc config, byte-identical for both runs."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/historical-assumptions.json",
+      "bytes": 1003,
+      "sha256": "c860bd70fc1453a2ab7f71ae1365d9b14e06f5055a7419ee9cdc4dd2bfa132bb",
+      "role": "Original prepared-only assumptions, retained unchanged."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/negative-control-inputs.json",
+      "bytes": 2471,
+      "sha256": "bf8e393fe83caa16c8e2243fcd0958cac6fb1c9172b317fed62a50145eb235a4",
+      "role": "Four exception-control mutations and full observed refusal reasons; no fabricated subprocess exits."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/review.json",
+      "bytes": 15610,
+      "sha256": "8e97e5325233cac3f778c647faeb4f38ea02e8bf6ec51243f9ed2534fcd1eaba",
+      "role": "Bounded final reviewer decision with full source roles and limitations."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/verify_final_root.py",
+      "bytes": 21982,
+      "sha256": "0d869472ed4e4bcdfba9bc9d4abc268789d20299bb1dd1c5b8f3b16fa935a2ee",
+      "role": "Exact final deciding read-only verifier."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/verify_final_root_direct_locator.py",
+      "bytes": 18065,
+      "sha256": "30a312dccecfcc35c831922b9955e28be21161e3a3830739417a44860e110761",
+      "role": "Exact first executed helper snapshot, canonical harness ERROR rawexit1."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/verify_final_root_initial.py",
+      "bytes": 11725,
+      "sha256": "62b90343a4295366b2baef145c156a160212e852d6c5d006fde583c4ea930566",
+      "role": "Historical prepared-only helper, actual root verification UNRUN."
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/verify_final_root_pre_items_adapter.py",
+      "bytes": 21527,
+      "sha256": "e81d64d7cd74ed1a68010725a751f21d5f0db4c2b940f0e9a080d87e918758f0",
+      "role": "Exact second executed helper snapshot, canonical harness ERROR rawexit1."
+    }
+  ],
+  "counts": {
+    "complete_files": 21,
+    "bytes": 961787
+  },
+  "already_Git_bound_input": {
+    "git_ref": "b300da2e134a67fbd6f585a21ab42286c356fe7e",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/root-recovery/final-primary-template-ready.json",
+    "bytes": 114462,
+    "sha256": "107f9b5b1d59556b062f0e2ff417d8fb7d78cbdf2f653bd77d4d56908d2a657d",
+    "role": "Historical prepared template already transported in immutable main body; do not duplicate it."
+  },
+  "executed_assembler": {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/build_review_packet.py"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review",
+    "Python": "3.12.14",
+    "product_imports": false
+  },
+  "transport_policy": "Retain every selected body once or via exact-byte alias. Large actual stdout may be losslessly gzip-transported with explicit stored/decoded hashes; do not overwrite the raw deciding output."
+}

@@ -1,0 +1,315 @@
+{
+  "schema": "e02.F.independent.materialized_transport_review.v1",
+  "outcome": "PASS",
+  "decision": "GO",
+  "scope": "Bounded immutable transport custody and original35 bookkeeping. Scientific provider properties and product acceptance are not independently re-adjudicated here.",
+  "reviewer": "/root/foundry",
+  "candidate_sha": "cbfc2647b63b7b43e608532abb2159d3785bab42",
+  "candidate_tree": "37e88297463ae4084c5812ba20fddfc65d373d3d",
+  "main_receipt_sha": "b300da2e134a67fbd6f585a21ab42286c356fe7e",
+  "main_receipt_tree": "396e5e0998c9e0cc11ba7372dcce6773200dd7bf",
+  "ledger_candidate_sha": "cdf61b4500e355a27db14260e80ce673ddf8869e",
+  "ledger_candidate_tree": "a08083a193d4621a5d5c59bf31a94916e8323a0a",
+  "product_source": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "recovered_existing_object": true,
+    "published_existing_original_topic": true,
+    "ancestry_not_lost": true,
+    "role": "Exact native wheel91/rebuilt-sdist91 and six retained-marker controls source; earlier component numeric sources retained separately."
+  },
+  "actual_completed_verifier": {
+    "actual_capture": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-cbfc-items-adapter.execution.json",
+      "bytes": 1454,
+      "sha256": "8e5f72407437f9774326674695567e658d2689d4fc6edcdad82f3dfdb246e747"
+    },
+    "actual_argv_as_captured": [
+      "python3",
+      "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/verify_final_root.py",
+      "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/frozen-config.json",
+      "--controls"
+    ],
+    "executed_script_snapshot": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/verify_final_root.py",
+      "bytes": 21982,
+      "sha256": "0d869472ed4e4bcdfba9bc9d4abc268789d20299bb1dd1c5b8f3b16fa935a2ee"
+    },
+    "executed_config_snapshot": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/frozen-config.json",
+      "bytes": 1153,
+      "sha256": "ebac165e86721db5cc97cda5907dd36123ad97d6ee7e9a5a6e6d8cfb3e5fe5fb"
+    },
+    "snapshot_locator_note": "Captured argv paths were reused during adaptation; these exact version snapshots match the executed hashes and preserve original input bytes.",
+    "canonical_outcome": "PASS",
+    "raw_process_exit_code": 0,
+    "wall_seconds": 25.83082636099425,
+    "reason": "Full stored/decoded/Git/35-row/main-and-late verification completed after strictly typed declared adapters.",
+    "environment": {
+      "Python": "3.12.14",
+      "cwd": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review",
+      "PYTHONPATH": null,
+      "scope": "stdlib/Git metadata only; no product/scientific imports, installations or cleanup"
+    },
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-cbfc-items-adapter.stdout.json",
+      "bytes": 835801,
+      "sha256": "3361143897ee9ce88b53f833b433aefc2627087285ea5b09bd5cebd0f3287d95"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-cbfc-items-adapter.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "complete_deciding_output": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-cbfc-items-adapter.stdout.json",
+    "bytes": 835801,
+    "sha256": "3361143897ee9ce88b53f833b433aefc2627087285ea5b09bd5cebd0f3287d95"
+  },
+  "summary": {
+    "outcome": "PASS",
+    "scope": "Structural immutable root transport, content custody and original35 bookkeeping only; no scientific rerun/re-adjudication.",
+    "candidate_sha": "cbfc2647b63b7b43e608532abb2159d3785bab42",
+    "candidate_tree": "37e88297463ae4084c5812ba20fddfc65d373d3d",
+    "IDs": 35,
+    "original_bindings": 36,
+    "bundles": 17,
+    "F_finding_counts": {
+      "closed": 33,
+      "limited": 2
+    },
+    "check_counts": {
+      "PASS": 34,
+      "UNRUN": 1
+    },
+    "unique_stored_blobs_read": 1318,
+    "unique_decoded_bindings_checked": 1057,
+    "formal_G_closures": 0,
+    "transport_counts": {
+      "logical_files": 1775,
+      "transported_files": 1058,
+      "aliases": 675,
+      "existing_git_files": 42,
+      "stored_bytes": 33982604,
+      "decoded_unique_bytes": 233146476
+    },
+    "primary_typed_command_kinds": {
+      "argv_or_recorded_command_sequence": 11,
+      "pinned_or_prose_string": 4,
+      "bounded_UNRUN_null": 4
+    },
+    "actual_receipt_footprint_count": 1060,
+    "own_implementation_footprint_count": 44,
+    "late_sidecar": {
+      "outcome": "PASS",
+      "late_carrier_sha": "cbfc2647b63b7b43e608532abb2159d3785bab42",
+      "main_receipt_sha": "b300da2e134a67fbd6f585a21ab42286c356fe7e",
+      "new_late_Git_paths": 15,
+      "complete_capture_files": 14,
+      "counts": {
+        "complete_late_capture_files": 14,
+        "stored_bytes": 31934,
+        "decoded_bytes": 31934
+      },
+      "no_main_mutation": true
+    }
+  },
+  "checked_reference_records": 1571,
+  "F_technical_recommendations": {
+    "closed": 33,
+    "limited": 2
+  },
+  "F_finding_outcomes": {
+    "closed": 33,
+    "limited": 2
+  },
+  "stored_decoded_count_note": "decoded_unique_bytes is the sum over distinct stored custody objects; distinct gzip containers can carry equal decoded payloads. Streaming hashes do not create another 171MB output copy.",
+  "strict_locator_adapter": {
+    "outcome": "PASS",
+    "declared_bridge_count": 6,
+    "rule": "Only explicit original_raw_path in transported frozen owner selections; exact stored/codec/decoded identity must equal the main manifest canonical binding. No arbitrary suffix inference; unknown or ambiguous binding refuses.",
+    "complete_provenance_in_output": "declared_raw_locator_bridges",
+    "CAU_typed_selection_provenance": [
+      {
+        "git_ref": "cbfc2647b63b7b43e608532abb2159d3785bab42",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/cau/root-current35-review/transfer-selection.json",
+        "bytes": 14194,
+        "sha256": "43062579642103b223a6e71d0589079aa6e8d99539230cef18b6d123884a2194",
+        "declared_files_scalar_count": 38,
+        "actual_items_list_count": 38,
+        "adapter": "Read exact items list only when files is an integer equal to its length; do not coerce or alter owner selection."
+      },
+      {
+        "git_ref": "cbfc2647b63b7b43e608532abb2159d3785bab42",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/cau/ledger-recovery-review/final-review-transfer-selection.json",
+        "bytes": 164923,
+        "sha256": "58885bdbb9bd1c366dedf1b1cce0695e4505ee3f07f6e53bbc9405a09d747ee7",
+        "declared_files_scalar_count": 563,
+        "actual_items_list_count": 563,
+        "adapter": "Read exact items list only when files is an integer equal to its length; do not coerce or alter owner selection."
+      }
+    ]
+  },
+  "typed_check_contract": {
+    "checks": 19,
+    "actual_command_kinds": {
+      "argv_or_recorded_command_sequence": 11,
+      "pinned_or_prose_string": 4,
+      "bounded_UNRUN_null": 4
+    },
+    "null_policy": "Allowed only for genuine bounded UNRUN, not_executed true, precise nonempty scope, bound output, environment and input closure; never fabricate an executable command."
+  },
+  "historical_harness_attempts": [
+    {
+      "actual_capture": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-b300-first.execution.json",
+        "bytes": 1368,
+        "sha256": "34aa16b7f94866b8552f4c9058091efcce29c10bf58496121e12aa6e48bbe864"
+      },
+      "actual_argv_as_captured": [
+        "python3",
+        "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/verify_final_root.py",
+        "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/frozen-config.json",
+        "--controls"
+      ],
+      "executed_script_snapshot": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/verify_final_root_direct_locator.py",
+        "bytes": 18065,
+        "sha256": "30a312dccecfcc35c831922b9955e28be21161e3a3830739417a44860e110761"
+      },
+      "executed_config_snapshot": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/frozen-config-b300.json",
+        "bytes": 916,
+        "sha256": "2cd2cdb865c43e5e62d1d915032695373b8c8068fa3dda755849e173f88c552c"
+      },
+      "snapshot_locator_note": "Captured argv paths were reused during adaptation; these exact version snapshots match the executed hashes and preserve original input bytes.",
+      "canonical_outcome": "ERROR",
+      "raw_process_exit_code": 1,
+      "wall_seconds": 8.073183301021345,
+      "reason": "Direct-locator-only reviewer missed an existing explicit original_raw_path compressed-owner binding; root bodies were present.",
+      "environment": {
+        "Python": "3.12.14",
+        "cwd": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review",
+        "PYTHONPATH": null,
+        "scope": "stdlib/Git metadata only; no product/scientific imports, installations or cleanup"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-b300-first.stdout.json",
+        "bytes": 111,
+        "sha256": "464d955038bb5fef4c3f834dbcfe0312ff88dc389cb0b935cb6728a4f7bb68c4"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-b300-first.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "actual_capture": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-cbfc-declared-bridge.execution.json",
+        "bytes": 1454,
+        "sha256": "35c5a66c7a87165dc109af25265cc85d85efc6a56e3b3a7b36c8c106fc96ee5b"
+      },
+      "actual_argv_as_captured": [
+        "python3",
+        "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/verify_final_root.py",
+        "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/frozen-config.json",
+        "--controls"
+      ],
+      "executed_script_snapshot": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/verify_final_root_pre_items_adapter.py",
+        "bytes": 21527,
+        "sha256": "e81d64d7cd74ed1a68010725a751f21d5f0db4c2b940f0e9a080d87e918758f0"
+      },
+      "executed_config_snapshot": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/frozen-config.json",
+        "bytes": 1153,
+        "sha256": "ebac165e86721db5cc97cda5907dd36123ad97d6ee7e9a5a6e6d8cfb3e5fe5fb"
+      },
+      "snapshot_locator_note": "Captured argv paths were reused during adaptation; these exact version snapshots match the executed hashes and preserve original input bytes.",
+      "canonical_outcome": "ERROR",
+      "raw_process_exit_code": 1,
+      "wall_seconds": 8.035660799010657,
+      "reason": "Reviewer assumed files is a list; actual frozen CAU owner selection has an integer count and the complete items list.",
+      "environment": {
+        "Python": "3.12.14",
+        "cwd": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review",
+        "PYTHONPATH": null,
+        "scope": "stdlib/Git metadata only; no product/scientific imports, installations or cleanup"
+      },
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-cbfc-declared-bridge.stdout.json",
+        "bytes": 62,
+        "sha256": "fe403d2a06b6fb9f02ee2962670e57bc3b0f09f2792391a4a92cd79e71266d8b"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-cbfc-declared-bridge.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "negative_controls": {
+    "count": 4,
+    "all_expected_refusals": "PASS",
+    "observed_failures": [
+      {
+        "control": "future_SHA",
+        "expected_refusal": "PASS",
+        "actual_outcome": "FAIL",
+        "reason": "Git missing/invalid object: cat-file -t 0000000000000000000000000000000000000000 fatal: git cat-file: could not get object info\n"
+      },
+      {
+        "control": "missing_output",
+        "expected_refusal": "PASS",
+        "actual_outcome": "FAIL",
+        "reason": "Git missing/invalid object: rev-parse cbfc2647b63b7b43e608532abb2159d3785bab42:policy-engine/__independent_missing_deciding_output__.json fatal: path 'policy-engine/__independent_missing_deciding_output__.json' does not exist in 'cbfc2647b63b7b43e608532abb2159d3785bab42'\n"
+      },
+      {
+        "control": "duplicate_ID",
+        "expected_refusal": "PASS",
+        "actual_outcome": "FAIL",
+        "reason": "35-row duplicate/missing/unknown ID"
+      },
+      {
+        "control": "malformed_JSON",
+        "expected_refusal": "PASS",
+        "actual_outcome": "FAIL",
+        "reason": "malformed JSON: Expecting value: line 1 column 11 (char 10)"
+      }
+    ],
+    "mechanism": "Caught Invalid exceptions in-process; aggregate CLI exit0. No claimed four raw subprocess exit1s.",
+    "inputs": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/negative-control-inputs.json",
+      "bytes": 2471,
+      "sha256": "bf8e393fe83caa16c8e2243fcd0958cac6fb1c9172b317fed62a50145eb235a4"
+    }
+  },
+  "initial_assumption_history": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/historical-assumptions.json",
+    "bytes": 1003,
+    "sha256": "c860bd70fc1453a2ab7f71ae1365d9b14e06f5055a7419ee9cdc4dd2bfa132bb"
+  },
+  "executed_input_version_map": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/execution-input-bindings.json",
+    "bytes": 7819,
+    "sha256": "a2f7ea3d754e5edf9d3b67537b799ef609fd8b28e37caafba050fb212b50b070"
+  },
+  "additional_metadata_inspection": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/final-metadata-inspection.json",
+    "bytes": 4706,
+    "sha256": "c87a5d221df94dea0be8563020887895aa38ad33182e3ca0d058e03fbecefd18"
+  },
+  "limits": [
+    "No scientific/numerical rerun; this GO establishes transport bytes, pinned source relationships, footprint and recorded 35-row semantics.",
+    "Original PASS34/UNRUN1 and both F axes33closed/2limited are preserved; formal G closures0 and G product/code acceptance remain unissued.",
+    "Production Runtime authority, statistical identification positive and admitted B56 workload remain independently missing/UNRUN, not inferred from custody.",
+    "Primary retained FAIL/ERROR/UNRUN, excluded Python3.14 backend profile and historical unavailable provenance are not promoted to PASS.",
+    "Existing six CAU metadata CLI refusal exits and six installed native property-removal FAILs belong to their source-bound records; they are distinct from this review's four exception controls.",
+    "Review covers local immutable b300/cbfc Git objects; root publication/readback is a later action and no future publication SHA is invented."
+  ],
+  "product_or_root_mutations": false,
+  "cleanup": false,
+  "scientific_tests_executed": false
+}

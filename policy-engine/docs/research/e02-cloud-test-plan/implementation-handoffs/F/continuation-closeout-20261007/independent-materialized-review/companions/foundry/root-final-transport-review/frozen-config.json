@@ -1,0 +1,13 @@
+{
+  "repository": "/workspace/e02-F-closeout-20261006",
+  "candidate_sha": "cbfc2647b63b7b43e608532abb2159d3785bab42",
+  "candidate_tree": "37e88297463ae4084c5812ba20fddfc65d373d3d",
+  "primary_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007.json",
+  "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+  "index_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/index.json",
+  "audit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/full-audit.json",
+  "finding_owners_path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+  "scratch_window": "/tmp/e02-F-continuation-20261007",
+  "main_receipt_sha": "b300da2e134a67fbd6f585a21ab42286c356fe7e",
+  "late_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/late-transport-validation/outputs.json"
+}

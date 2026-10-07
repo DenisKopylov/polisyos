@@ -1,0 +1,210 @@
+{
+  "source": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+  "tree": "8cba7977f54ed1c7e6d0f66b3c7e83a98011ab6e",
+  "python_optimization": false,
+  "controls": [
+    {
+      "name": "healthy complete source-derived packet",
+      "outcome": "PASS"
+    },
+    {
+      "name": "unsafe Git class preflight",
+      "outcome": "PASS",
+      "argv": [
+        "show",
+        "--output=/tmp/forbidden"
+      ],
+      "callback_count": 0,
+      "actual_refusal": "exact read-only Git classes"
+    },
+    {
+      "name": "unsafe Git class preflight",
+      "outcome": "PASS",
+      "argv": [
+        "ls-tree",
+        "-rz",
+        "--output=forbidden"
+      ],
+      "callback_count": 0,
+      "actual_refusal": "exact read-only Git classes"
+    },
+    {
+      "name": "unsafe Git class preflight",
+      "outcome": "PASS",
+      "argv": [
+        "cat-file",
+        "--batch"
+      ],
+      "callback_count": 0,
+      "actual_refusal": "Git batch objects"
+    },
+    {
+      "name": "unsafe Git class preflight",
+      "outcome": "PASS",
+      "argv": [
+        "status",
+        "-sb\u0000bad"
+      ],
+      "callback_count": 0,
+      "actual_refusal": "Git argv types"
+    },
+    {
+      "name": "actual canonical private-loader route and collector removal",
+      "outcome": "PASS",
+      "healthy_private_edges": 1,
+      "removed_collector_edges": 0,
+      "removal_property_outcome": "FAIL",
+      "global_architecture_gate_claim": false
+    },
+    {
+      "name": "omit original12 edge preserving retotals",
+      "outcome": "PASS",
+      "actual_refusal": "actual source original12 membership/routes"
+    },
+    {
+      "name": "fake repaired unresolved forecast loader",
+      "outcome": "PASS",
+      "actual_refusal": "actual source original12 membership/routes"
+    },
+    {
+      "name": "bool repaired count",
+      "outcome": "PASS",
+      "actual_refusal": "disposition counts"
+    },
+    {
+      "name": "wrong whole Python denominator",
+      "outcome": "PASS",
+      "actual_refusal": "full current denominator"
+    },
+    {
+      "name": "wrong source digest",
+      "outcome": "PASS",
+      "actual_refusal": "actual source original12 membership/routes"
+    },
+    {
+      "name": "new private IR artifacts entrypoint fake admission",
+      "outcome": "PASS",
+      "actual_refusal": "canonical policy admission"
+    },
+    {
+      "name": "CanonSpec promoted into historical12",
+      "outcome": "PASS",
+      "actual_refusal": "actual owner/lease/nominal boundaries"
+    },
+    {
+      "name": "B201 semantic appointment grants generic export lease",
+      "outcome": "PASS",
+      "actual_refusal": "actual owner/lease/nominal boundaries"
+    },
+    {
+      "name": "caller input bytes boolean",
+      "outcome": "PASS",
+      "actual_refusal": "content count type"
+    },
+    {
+      "name": "actual canonical collector count fake",
+      "outcome": "PASS",
+      "actual_refusal": "complete source-derived field admission: actual_isolated_canonical_static_collector_control"
+    },
+    {
+      "name": "BKT execute public lease invented",
+      "outcome": "PASS",
+      "actual_refusal": "complete source-derived field admission: additional_exact_current_BKT_API_owner_boundary"
+    },
+    {
+      "name": "full owner TSV row omission",
+      "outcome": "PASS",
+      "actual_refusal": "complete source-derived field admission: full_owner_TSV_inputs"
+    },
+    {
+      "name": "remove ONLY exact original12 member/source predicate",
+      "outcome": "PASS",
+      "property_outcome": "FAIL",
+      "omission_actually_readmitted": true,
+      "all_other_identity_denominator_owner_context_guards_active": true,
+      "original_guard_AST_sha256": "d589bbd0e43024a4cd456bd7e12f7753bba21d317c03e73a7f6c3da9408d0367"
+    },
+    {
+      "name": "static and aliased literal dynamic plus relative/root fixtures",
+      "outcome": "PASS",
+      "actual_fixture_rows": {
+        "rows": [
+          {
+            "source_path": "policy-engine/src/polisyos/scientist/probe.py",
+            "source_module": "polisyos.scientist.probe",
+            "source_root": "scientist",
+            "target_module": "polisyos.core",
+            "target_root": "core",
+            "line": 3,
+            "symbols": [
+              "canon"
+            ],
+            "kind": "static-from",
+            "canonical_collect_deep_import_edges_scope": true,
+            "cross_root": true
+          },
+          {
+            "source_path": "policy-engine/src/polisyos/scientist/probe.py",
+            "source_module": "polisyos.scientist.probe",
+            "source_root": "scientist",
+            "target_module": "polisyos.ir.model_layer.canon",
+            "target_root": "ir",
+            "line": 4,
+            "symbols": [
+              "CanonSpec"
+            ],
+            "kind": "static-from",
+            "canonical_collect_deep_import_edges_scope": true,
+            "cross_root": true
+          },
+          {
+            "source_path": "policy-engine/src/polisyos/scientist/probe.py",
+            "source_module": "polisyos.scientist.probe",
+            "source_root": "scientist",
+            "target_module": "polisyos.ir.analytics",
+            "target_root": "ir",
+            "line": 5,
+            "symbols": [],
+            "kind": "literal-dynamic",
+            "canonical_collect_deep_import_edges_scope": false,
+            "cross_root": true
+          },
+          {
+            "source_path": "policy-engine/src/polisyos/scientist/probe.py",
+            "source_module": "polisyos.scientist.probe",
+            "source_root": "scientist",
+            "target_module": "polisyos.foundry.uncertainty",
+            "target_root": "foundry",
+            "line": 6,
+            "symbols": [],
+            "kind": "literal-dynamic",
+            "canonical_collect_deep_import_edges_scope": false,
+            "cross_root": true
+          },
+          {
+            "source_path": "policy-engine/src/polisyos/scientist/probe.py",
+            "source_module": "polisyos.scientist.probe",
+            "source_root": "scientist",
+            "target_module": "polisyos.ir.artifacts",
+            "target_root": "ir",
+            "line": 7,
+            "symbols": [],
+            "kind": "literal-dynamic",
+            "canonical_collect_deep_import_edges_scope": false,
+            "cross_root": true
+          }
+        ],
+        "unresolved": [
+          {
+            "source_path": "policy-engine/src/polisyos/scientist/probe.py",
+            "line": 8,
+            "kind": "recognized-dynamic-nonliteral",
+            "expression": "im(variable_name)",
+            "status": "not_established"
+          }
+        ]
+      }
+    }
+  ],
+  "count": 20
+}

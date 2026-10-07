@@ -1,0 +1,64 @@
+--- c229-reviewed-functions.py.txt
++++ r5-registered-functions.py.txt
+@@ -1,4 +1,4 @@
+-def passive(family, name, body):
++def _original_passive(family, name, body):
+     if not isinstance(name, str) or not name or Path(name).is_absolute() or any(part in ('', '.', '..') for part in name.split('/')) or '\\' in name or any(ord(c) < 32 for c in name):
+         raise ValueError('canonical relative passive route')
+     if name.endswith('.py'):
+@@ -10,7 +10,55 @@
+             name = name[:-5] + '.txt'
+     return family + '/' + name
+ 
++def passive(family, name, body):
++    route = _original_passive(family, name, body)
++    try:
++        decoded = body.decode('utf-8')
++        binary = any((ord(character) < 32 and character not in '\t\n\r' for character in decoded))
++    except UnicodeDecodeError:
++        binary = True
++    if binary and route.endswith(('.txt', '.json')):
++        route = route.rsplit('.', 1)[0] + '.bin'
++    return route
++
++def expand_registered(entry, document, lookup=None):
++    schema = 'policyos.e02.final3.moderate_literal_selection.v1'
++    if document.get('schema') != schema or entry['member_class'] != 'assets':
++        raise ValueError('registered exact moderate selector schema')
++    raw_rows = document.get('assets')
++    if not isinstance(raw_rows, list) or len(raw_rows) != entry['members']:
++        raise ValueError('complete registered encoded member denominator')
++    admitted = []
++    for raw in raw_rows:
++        if not isinstance(raw, dict) or set(raw) != {'logical_name', 'original_path', 'portable_path', 'bytes', 'sha256', 'encoding', 'decoded_bytes', 'decoded_sha256'}:
++            raise ValueError('whole registered encoded member shape')
++        route = raw['portable_path']
++        if not isinstance(route, str) or not route or Path(route).is_absolute() or any((part in ('', '.', '..') for part in route.split('/'))) or ('\\' in route) or any((ord(c) < 32 for c in route)):
++            raise ValueError('pure full relative encoded source context')
++        logical_name = raw['logical_name']
++        if not isinstance(logical_name, str) or not logical_name or Path(logical_name).is_absolute() or any((part in ('', '.', '..') for part in logical_name.split('/'))) or ('\\' in logical_name) or any((ord(c) < 32 for c in logical_name)):
++            raise ValueError('pure full relative logical member context')
++        if raw['encoding'] not in ('literal', 'gzip'):
++            raise ValueError('unsupported registered evidence encoding')
++        original = identity({'path': raw['original_path'], 'bytes': raw['decoded_bytes'], 'sha256': raw['decoded_sha256']})
++        if '\\' in original['path'] or any((ord(c) < 32 for c in original['path'])) or any((part in ('.', '..') for part in original['path'].split('/'))):
++            raise ValueError('pure full absolute original source context')
++        stored = identity({'path': str(Path(entry['path']).parent / route), 'bytes': raw['bytes'], 'sha256': raw['sha256']})
++        admitted.append((raw, route, original, stored))
++    result = []
++    for raw, route, original, stored in admitted:
++        body = admit_body(stored, lookup)
++        decoded = body if raw['encoding'] == 'literal' else gzip.decompress(body)
++        if len(decoded) != original['bytes'] or sha(decoded) != original['sha256']:
++            raise ValueError('complete decoded original byte identity')
++        if lookup is None:
++            admit_body(original, None)
++        result.append({'family': entry['family'], 'selection_source_path': entry['path'], 'member_class': 'assets', 'original': original, 'stored': stored, 'storage_mode': 'literal' if raw['encoding'] == 'literal' else 'gzip_literal_archive', 'logical_destination': passive(entry['family'], route, body), 'selected_record': raw})
++    return result
++
+ def expand(spec, doc, lookup=None):
++    if spec.get('member_schema') == 'policyos.e02.final3.moderate_literal_selection.v1':
++        return expand_registered(spec, doc, lookup)
+     family, selector_path = spec['family'], spec['path']
+     kind = spec['member_class']
+     rows = [] if kind == 'none' else doc[kind]

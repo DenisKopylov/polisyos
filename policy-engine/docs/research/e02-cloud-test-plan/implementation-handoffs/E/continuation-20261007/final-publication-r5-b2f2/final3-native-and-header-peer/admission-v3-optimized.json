@@ -1,0 +1,252 @@
+{
+  "P37": {
+    "P41_and_finding_authority": "not_established",
+    "literal_native_body_and_reuse": "recomputed",
+    "peer_typed_property_controls": "independently_reconciled"
+  },
+  "case_count": 17,
+  "current_validator": {
+    "bytes": 16801,
+    "path": "/tmp/e02-E-final3-validate-publication-b2f2f65e-20261007-v3r2.py.txt",
+    "sha256": "369644231e53e2837124b69d8d46320418b51ba19e88ec9c44740784536187ab"
+  },
+  "disposition": "GO current V3 complete typed semantic root-header admission with native/custody fixed observations retained",
+  "finding_or_G_authority": false,
+  "historical_V2_header_escape_preserved": true,
+  "native_or_gates_rerun": false,
+  "old_functions_reused": [
+    "sha",
+    "strict_equal",
+    "token",
+    "trusted",
+    "admit_mandatory_members",
+    "physical",
+    "derive_trusted_claims",
+    "admit_claims",
+    "validate",
+    "retotal",
+    "remove_actual_guard"
+  ],
+  "old_validator": {
+    "bytes": 14456,
+    "path": "/tmp/e02-E-final3-validate-publication-b2f2f65e-20261007-v2.py.txt",
+    "sha256": "b8e931237172eb2c46ca899398c74d8b699a50fd2913a7268759bec119c18d7c"
+  },
+  "optimization_mode": true,
+  "reused_actual23controls": [
+    {
+      "bytes": 11115,
+      "path": "/tmp/e02-E-final3-independent-b2-20261007/admission-v2-normal.json",
+      "sha256": "c24c047e5ec70c85160446e3ec305c35e8690dd22198f3518e9385f43abbf458"
+    },
+    {
+      "bytes": 11118,
+      "path": "/tmp/e02-E-final3-independent-b2-20261007/admission-v2-optimized.json",
+      "sha256": "cf1a256fdc512375fa2bb3d6512bd236beccd21b122b29a8c95bcc2ca9f7fd6a"
+    }
+  ],
+  "rows": [
+    {
+      "case": "healthy_current_immutable_full73",
+      "result": {
+        "finding_closure": false,
+        "logical_count": 73,
+        "native_outcomes": {
+          "architecture": "FAIL",
+          "runtime-api-contract": "FAIL",
+          "static-invocation": "FAIL"
+        },
+        "native_runtime_execution": false,
+        "state": "GO",
+        "unique_count": 52
+      },
+      "state": "GO"
+    },
+    {
+      "carrier_IO_calls": 0,
+      "case": "typed_header_tree",
+      "reason": "typed_complete_immutable_semantic_header_drift",
+      "state": "REFUSED"
+    },
+    {
+      "carrier_IO_calls": 0,
+      "case": "typed_header_native_outcomes",
+      "reason": "typed_complete_immutable_semantic_header_drift",
+      "state": "REFUSED"
+    },
+    {
+      "carrier_IO_calls": 0,
+      "case": "typed_header_P41",
+      "reason": "typed_complete_immutable_semantic_header_drift",
+      "state": "REFUSED"
+    },
+    {
+      "carrier_IO_calls": 0,
+      "case": "typed_header_schema",
+      "reason": "typed_complete_immutable_semantic_header_drift",
+      "state": "REFUSED"
+    },
+    {
+      "carrier_IO_calls": 0,
+      "case": "typed_header_scope",
+      "reason": "typed_complete_immutable_semantic_header_drift",
+      "state": "REFUSED"
+    },
+    {
+      "carrier_IO_calls": 0,
+      "case": "typed_header_large_raw_static_graph",
+      "reason": "typed_complete_immutable_semantic_header_drift",
+      "state": "REFUSED"
+    },
+    {
+      "carrier_IO_calls": 0,
+      "case": "typed_header_private_git_configuration",
+      "reason": "typed_complete_immutable_semantic_header_drift",
+      "state": "REFUSED"
+    },
+    {
+      "carrier_IO_calls": 0,
+      "case": "typed_header_finding_closure",
+      "reason": "typed_complete_immutable_semantic_header_drift",
+      "state": "REFUSED"
+    },
+    {
+      "carrier_IO_calls": 0,
+      "case": "typed_header_unexpected_authority",
+      "reason": "typed_complete_immutable_semantic_header_drift",
+      "state": "REFUSED"
+    },
+    {
+      "case": "actual_single_header_If_removed_tree",
+      "full73_members_native_receipts_kept": true,
+      "result": {
+        "finding_closure": false,
+        "logical_count": 73,
+        "native_outcomes": {
+          "architecture": "FAIL",
+          "runtime-api-contract": "FAIL",
+          "static-invocation": "FAIL"
+        },
+        "native_runtime_execution": false,
+        "state": "GO",
+        "unique_count": 52
+      },
+      "state": "ADMITTED_PROPERTY_FAIL"
+    },
+    {
+      "case": "actual_single_header_If_removed_native_outcomes",
+      "full73_members_native_receipts_kept": true,
+      "result": {
+        "finding_closure": false,
+        "logical_count": 73,
+        "native_outcomes": {
+          "architecture": "FAIL",
+          "runtime-api-contract": "FAIL",
+          "static-invocation": "FAIL"
+        },
+        "native_runtime_execution": false,
+        "state": "GO",
+        "unique_count": 52
+      },
+      "state": "ADMITTED_PROPERTY_FAIL"
+    },
+    {
+      "case": "actual_single_header_If_removed_P41",
+      "full73_members_native_receipts_kept": true,
+      "result": {
+        "finding_closure": false,
+        "logical_count": 73,
+        "native_outcomes": {
+          "architecture": "FAIL",
+          "runtime-api-contract": "FAIL",
+          "static-invocation": "FAIL"
+        },
+        "native_runtime_execution": false,
+        "state": "GO",
+        "unique_count": 52
+      },
+      "state": "ADMITTED_PROPERTY_FAIL"
+    },
+    {
+      "case": "actual_single_header_If_removed_schema",
+      "full73_members_native_receipts_kept": true,
+      "result": {
+        "finding_closure": false,
+        "logical_count": 73,
+        "native_outcomes": {
+          "architecture": "FAIL",
+          "runtime-api-contract": "FAIL",
+          "static-invocation": "FAIL"
+        },
+        "native_runtime_execution": false,
+        "state": "GO",
+        "unique_count": 52
+      },
+      "state": "ADMITTED_PROPERTY_FAIL"
+    },
+    {
+      "case": "actual_single_header_If_removed_scope",
+      "full73_members_native_receipts_kept": true,
+      "result": {
+        "finding_closure": false,
+        "logical_count": 73,
+        "native_outcomes": {
+          "architecture": "FAIL",
+          "runtime-api-contract": "FAIL",
+          "static-invocation": "FAIL"
+        },
+        "native_runtime_execution": false,
+        "state": "GO",
+        "unique_count": 52
+      },
+      "state": "ADMITTED_PROPERTY_FAIL"
+    },
+    {
+      "case": "actual_single_header_If_removed_large_raw_static_graph",
+      "full73_members_native_receipts_kept": true,
+      "result": {
+        "finding_closure": false,
+        "logical_count": 73,
+        "native_outcomes": {
+          "architecture": "FAIL",
+          "runtime-api-contract": "FAIL",
+          "static-invocation": "FAIL"
+        },
+        "native_runtime_execution": false,
+        "state": "GO",
+        "unique_count": 52
+      },
+      "state": "ADMITTED_PROPERTY_FAIL"
+    },
+    {
+      "case": "actual_single_header_If_removed_private_git_configuration",
+      "full73_members_native_receipts_kept": true,
+      "result": {
+        "finding_closure": false,
+        "logical_count": 73,
+        "native_outcomes": {
+          "architecture": "FAIL",
+          "runtime-api-contract": "FAIL",
+          "static-invocation": "FAIL"
+        },
+        "native_runtime_execution": false,
+        "state": "GO",
+        "unique_count": 52
+      },
+      "state": "ADMITTED_PROPERTY_FAIL"
+    }
+  ],
+  "schema": "policyos.e02.independent.final3.header_delta.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "source_guard_after": {
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "tracked_status": "",
+    "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7"
+  },
+  "source_guard_before": {
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "tracked_status": "",
+    "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7"
+  },
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7"
+}

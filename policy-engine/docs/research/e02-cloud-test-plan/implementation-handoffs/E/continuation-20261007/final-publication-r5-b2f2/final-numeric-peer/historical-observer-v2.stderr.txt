@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/recompute.py", line 183, in <module>
+    main()
+  File "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/recompute.py", line 132, in main
+    need(failures == failure_index['failures'] and len(failures) == failure_index['failure_count'] == 8, 'all8 complete failure messages/traces')
+  File "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/recompute.py", line 21, in need
+    raise ValueError(why)
+ValueError: all8 complete failure messages/traces

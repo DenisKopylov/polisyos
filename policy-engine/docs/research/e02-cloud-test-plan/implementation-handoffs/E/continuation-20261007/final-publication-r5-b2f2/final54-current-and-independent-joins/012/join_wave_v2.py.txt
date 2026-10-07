@@ -1,0 +1,424 @@
+"""Join terminal native wave observations to fixed original E owner decisions.
+
+JUnit is decoded from literal receipts; selector matches are navigation only.
+This utility never executes product code or changes the historical ledger.
+"""
+
+from __future__ import annotations
+
+import argparse
+import ast
+import copy
+import hashlib
+import json
+import re
+import runpy
+import sys
+import xml.etree.ElementTree as ET
+from collections import Counter
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+BASE = Path("/tmp/e02-E-final54-b2f2-preparation-20261007")  # noqa: S108 -- fixed existing immutable receipt input
+WAVE = Path("/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z")  # noqa: S108 -- fixed existing immutable receipt input
+PREPARED = Path("/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z")  # noqa: S108 -- fixed existing immutable receipt input
+COLLECTION = Path("/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007")  # noqa: S108 -- fixed existing immutable receipt input
+PINNED = {
+    "prepared": (
+        BASE / "prepared-v4r2-normal.json",
+        "929c6f325797b41947f096a022bfdab58975fbbe6a87b4903b1b86456cfbfa4a",
+    ),
+    "collector": (
+        COLLECTION / "publication-receipt.json",
+        "abe1b4b2f94aaf5d0682a99f1a4fc98995ad16b2ba5799f1b84b6f710cb4321f",
+    ),
+    "case_index": (
+        PREPARED / "current-case-index.json",
+        "baf191f64beb6b9d45a58eb1c7e2fa401c569c8cb8e75f9b93fe3def0f3931f5",
+    ),
+    "failure_index": (
+        PREPARED / "defining-failure-index.json",
+        "6b5a21f59af2ea874acc32697e05dddbd8f6713b04314ee81d3eb7761ab256cf",
+    ),
+}
+EXPECTED = {"cases": 1465, "passed": 1457, "failed": 8, "errors": 0, "skipped": 0}
+OUTCOME = {"passed": "PASS", "failed": "FAIL", "errors": "ERROR", "skipped": "SKIP"}
+
+
+def require(value: bool, message: str) -> None:
+    if not value:
+        raise ValueError(message)
+
+
+def reference(path: Path) -> dict[str, Any]:
+    body = path.read_bytes()
+    return {"path": str(path), "bytes": len(body), "sha256": hashlib.sha256(body).hexdigest()}
+
+
+def token(value: object) -> str:
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def cases_from_xml(path: Path, job: str) -> list[dict[str, Any]]:
+    body = path.read_bytes()
+    require(
+        b"<!DOCTYPE" not in body.upper() and b"<!ENTITY" not in body.upper(), "DTD/entity refused"
+    )
+    root = ET.fromstring(body)  # noqa: S314 -- complete DTD/entity preflight, fixed local receipt
+    result = []
+    for case in root.iter("testcase"):
+        children = {child.tag for child in case}
+        outcomes = children & {"failure", "error", "skipped"}
+        require(len(outcomes) <= 1, "one terminal test-case outcome")
+        outcome = "passed"
+        if "failure" in outcomes:
+            outcome = "failed"
+        elif "error" in outcomes:
+            outcome = "errors"
+        elif "skipped" in outcomes:
+            outcome = "skipped"
+        require(type(case.get("name")) is str and bool(case.get("name")), "literal test-case name")
+        result.append(
+            {
+                "name": case.get("name"),
+                "classname": case.get("classname", ""),
+                "file": case.get("file"),
+                "seconds": case.get("time"),
+                "outcome": outcome,
+                "job_name": job,
+            }
+        )
+    return result
+
+
+def counts(cases: list[dict[str, Any]]) -> dict[str, int]:
+    actual = Counter(row["outcome"] for row in cases)
+    require(set(actual) <= set(OUTCOME), "canonical native outcome names")
+    return {"cases": len(cases), **{key: actual[key] for key in OUTCOME}}
+
+
+def admit_wave_claims(
+    packet: dict[str, Any], facts: dict[str, Any], strict_same: Callable[[object, object], bool]
+) -> None:
+    require(
+        strict_same(packet["current_numeric_wave"], facts),
+        "complete current-wave claims against native facts",
+    )
+    require(
+        packet["bounded_E_proposals"] == {"closed": 43, "limited": 9, "held": 2, "open": 0},
+        "source acceptance is separate from counts",
+    )
+    require(
+        packet["formal_G_acceptance"] is False and packet["formal_ledger_change"] is False,
+        "no gate/closure promotion",
+    )
+
+
+def admit_final_claims(
+    packet: dict[str, Any],
+    actual_expected: dict[str, Any],
+    strict_same: Callable[[object, object], bool],
+) -> None:
+    require(
+        strict_same(packet, actual_expected),
+        "whole final54/current-case/source/owner/input claims against recomputed immutable inputs",
+    )
+
+
+def build(module: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    inputs, values = module["load_inputs"](BASE / "inputs.json")
+    pinned: dict[str, Any] = {}
+    for key, (path, sha) in PINNED.items():
+        ref = reference(path)
+        require(ref["sha256"] == sha, "immutable join input: " + key)
+        pinned[key] = json.loads(path.read_bytes())
+    collector = pinned["collector"]
+    flat = pinned["case_index"]
+    preparation = pinned["prepared"]
+    source, tree = module["SOURCE"], module["TREE"]
+    require(collector["candidate_sha"] == flat["source_sha"] == source, "collector/index source")
+    require(collector["candidate_tree_sha"] == flat["source_tree"] == tree, "collector/index tree")
+    require(
+        collector["collection_state"] == "COMPLETE_BOUND" and collector["issues"] == [],
+        "complete native custody",
+    )
+    require(
+        len(collector["jobs"]) == 8 and module["same"](collector["numeric_counts"], EXPECTED),
+        "eight receipts/full counts",
+    )
+    module["admit_preparation_claims"](preparation, module["build"](inputs, values))
+    module["admit_rows"](preparation, values["owner54"])
+    module["admit_source_claims"](preparation, module["source_bindings"](inputs["inputs"]))
+    all_cases = []
+    jobs = []
+    for job in collector["jobs"]:
+        name = job["name"]
+        require(
+            type(name) is str and re.fullmatch(r"[a-z0-9-]+", name) is not None,
+            "canonical fixed job name",
+        )
+        receipt_path = WAVE / "checks" / name / (name + ".json")
+        receipt = json.loads(receipt_path.read_bytes())
+        require(
+            receipt["candidate_sha"] == receipt["head_at_end"] == source, "actual native source"
+        )
+        require(
+            receipt["candidate_tree_sha"] == tree and receipt["source_immutable"] is True,
+            "actual native tree/source guard",
+        )
+        require(
+            module["same"](receipt["source_identity_before"], receipt["source_identity_after"]),
+            "actual before/after source frame",
+        )
+        require(receipt["git_input_config"]["stable"] is True, "actual Git config guard")
+        require(
+            receipt["outcome"] == job["outcome"]
+            and module["same"](receipt["exit_code"], job["exit_code"]),
+            "native outcome/exit equals collector",
+        )
+        stdout = Path(receipt["stdout_path"])
+        stdout_ref = reference(stdout)
+        require(
+            stdout_ref["sha256"] == receipt["stdout_sha256"]
+            and module["same"](stdout_ref["bytes"], receipt["stdout_bytes"]),
+            "native stdout byte custody",
+        )
+        decoded = []
+        xml_ref = None
+        if job["kind"] == "numerical":
+            xml = Path(receipt["junit"])
+            require(xml == WAVE / "checks" / name / "pytest.xml", "exact actual job XML path")
+            decoded = cases_from_xml(xml, name)
+            measured = counts(decoded)
+            require(
+                module["same"](measured, receipt["counts"])
+                and module["same"](measured, job["case_counts"]),
+                "XML native/collector complete counts",
+            )
+            require(
+                Counter(map(token, decoded)) == Counter(map(token, job["cases"])),
+                "all per-job cases equal literal XML",
+            )
+            all_cases.extend(decoded)
+            xml_ref = reference(xml)
+        jobs.append(
+            {
+                "name": name,
+                "kind": job["kind"],
+                "command": receipt["command"],
+                "cwd": receipt["cwd"],
+                "check_outcome": receipt["outcome"],
+                "exit_code": receipt["exit_code"],
+                "actual_native_counts": receipt["counts"],
+                "native_receipt": reference(receipt_path),
+                "stdout": stdout_ref,
+                "JUnit": xml_ref,
+                "source_frame": receipt["source_identity_before"],
+                "source_immutable": receipt["source_immutable"],
+                "environment": receipt["environment"],
+                "backend_observer_scope": receipt["actual_numeric_backend"]["jax"],
+            }
+        )
+    require(module["same"](counts(all_cases), EXPECTED), "full XML1465 count")
+    require(
+        module["same"](flat["numeric_counts"], EXPECTED)
+        and type(flat["case_count"]) is int
+        and flat["case_count"] == len(all_cases),
+        "flat exact count/type",
+    )
+    require(
+        Counter(map(token, all_cases)) == Counter(map(token, flat["cases"])),
+        "all flat cases equal seven JUnit bodies",
+    )
+    plan = values["numeric_plan"]
+    native_paths = {
+        "policy-engine/" + arg.split("::", 1)[0]
+        for job in plan["jobs"]
+        for arg in job["argv"]
+        if type(arg) is str and arg.startswith("tests/") and arg.split("::", 1)[0].endswith(".py")
+    }
+    require(len(native_paths) == 104, "actual104 native selected paths")
+    asset_rows = {path: plan["source_test_assets"][path] for path in sorted(native_paths)}
+    function_origins: dict[str, list[str]] = {}
+    for path, expected_ref in asset_rows.items():
+        body = module["blob"](source, path)
+        require(
+            len(body) == expected_ref["bytes"]
+            and hashlib.sha256(body).hexdigest() == expected_ref["sha256"],
+            "actual selected test source",
+        )
+        for node in ast.walk(ast.parse(body)):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith(
+                "test_"
+            ):
+                function_origins.setdefault(node.name, []).append(path)
+    packet = collector["foreign_owner_A_packet_cases"][0]
+    a_source = plan["owner_packet_extra_inputs"][0]["source"]
+    a_body = module["blob"](source, a_source)
+    require(hashlib.sha256(a_body).hexdigest() == packet["sha256"], "actual A packet source digest")
+    for node in ast.walk(ast.parse(a_body)):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith(
+            "test_"
+        ):
+            function_origins.setdefault(node.name, []).append(a_source)
+    a_cases = packet["cases"]
+    for case in a_cases:
+        function = case["name"].split("[", 1)[0]
+        require(function_origins[function] == [a_source], "anonymous A case exact unique source")
+        require(
+            case["job_name"] == "bkt-frc-s10-and-adjacent-report-consumers",
+            "A case exact admitted job",
+        )
+    a_tokens = Counter(map(token, a_cases))
+    require(
+        not a_tokens - Counter(map(token, all_cases)), "all actual A cases are native XML members"
+    )
+    native = list((Counter(map(token, all_cases)) - a_tokens).elements())
+    native_cases = [json.loads(row) for row in native]
+    require(
+        module["same"](
+            counts(native_cases), collector["native_numeric_counts_excluding_A_packets"]
+        ),
+        "native-vs-A counts independently reproduced",
+    )
+    failure_rows = [row for row in all_cases if row["outcome"] != "passed"]
+    require(
+        len(failure_rows) == 8 and pinned["failure_index"]["failure_count"] == 8,
+        "exact8 actual failure denominator",
+    )
+    outcome_keys = {(row["job_name"], row["classname"], row["name"]) for row in failure_rows}
+    require(
+        outcome_keys
+        == {
+            (row["job"], row["classname"], row["name"])
+            for row in pinned["failure_index"]["failures"]
+        },
+        "all actual complete failure traces match XML identities",
+    )
+    facts = {
+        "candidate": source,
+        "tree": tree,
+        "execution_state": "terminal",
+        "check_outcome": "FAIL",
+        "collector": reference(PINNED["collector"][0]),
+        "case_index": reference(PINNED["case_index"][0]),
+        "failure_index": reference(PINNED["failure_index"][0]),
+        "counts": counts(all_cases),
+        "native_counts_excluding_A_packet": counts(native_cases),
+        "A_packet_counts": counts(a_cases),
+        "jobs": jobs,
+        "native_test_path_count": 104,
+        "owner_packet_path_count": 1,
+        "actual_runtime_case_count": len(all_cases),
+        "XML_recomputation": (
+            "Complete seven literal native JUnit bodies independently decoded;"
+            " every full case token equals collector and flat index."
+        ),
+        "A_identity_rule": (
+            "Exact candidate source bytes and unique function identity across "
+            "all selected test sources; no substring attribution."
+        ),
+        "finding_decision_rule": (
+            "Current checkFAIL8 is separate from original54 E decisions and G "
+            "intake; source-review counts and historical324 are not added."
+        ),
+    }
+    result = copy.deepcopy(preparation)
+    result["schema"] = "policyos.e02.E.final54-source-and-native-wave-update.v1"
+    result["source_preparation"] = reference(PINNED["prepared"][0])
+    result["current_numeric_wave"] = facts
+    previous = {row["id"]: row for row in values["previous54_wave"]["rows"]}
+    for row in result["rows"]:
+        navigation = previous[row["id"]]["current_check_links"]["frozen_wave"][
+            "current_selector_navigation"
+        ]
+        pattern = re.compile(navigation["rule"])
+        matching = []
+        ordinals: Counter[str] = Counter()
+        for case in all_cases:
+            ordinal = ordinals[case["job_name"]]
+            ordinals[case["job_name"]] += 1
+            if pattern.search(case["classname"] + "::" + case["name"]):
+                matching.append(
+                    {
+                        "job": case["job_name"],
+                        "ordinal_zero_based": ordinal,
+                        "classname": case["classname"],
+                        "name": case["name"],
+                        "outcome": OUTCOME[case["outcome"]],
+                    }
+                )
+        row["current_check_links"] = {
+            "candidate": source,
+            "tree": tree,
+            "execution_state": "terminal",
+            "wave_check_outcome": "FAIL",
+            "case_index": facts["case_index"],
+            "selector_navigation": {
+                "rule": navigation["rule"],
+                "exact_current_case_bindings": matching,
+                "claim": (
+                    "Original selector navigation only; matching suite/casePASS does "
+                    "not grant criterion closure or authority."
+                ),
+            },
+        }
+    result["current_A_default_consumer_boundary"] = {
+        "capability_state": "consumer_missing",
+        "canonical_writer": "A generation_cycle.py/run_lifecycle.py",
+        "exact_actual_failures": failure_rows,
+        "complete_trace_ref": facts["failure_index"],
+        "P41_failure_cause_attribution": "not_established",
+        "minimum_input": (
+            "Existing E admitted ETS/CAS positive and malformed/unresolved "
+            "refs plus "
+            "profile/source/metric/unit/split/horizon/pairs/counts/threshold/purpose/six-role"
+            " bindings in the configured default/HTTP consumer."
+        ),
+        "next_result": (
+            "One independently recomputed persisted status/reason preserves "
+            "missing-ref versus resolved-floor failure consistently in "
+            "grade/S6/default/HTTP and fresh CAS read; retain "
+            "causal/treatment/policy refusal."
+        ),
+        "B32_LA051_findings": (
+            "limited; actual default consumer failures are remaining "
+            "implementation, not absent cloud production data."
+        ),
+    }
+    result["input_records"]["actual_wave_collector"] = facts["collector"]
+    result["input_records"]["actual_case_index"] = facts["case_index"]
+    result["input_records"]["actual_failure_index"] = facts["failure_index"]
+    admit_wave_claims(result, facts, module["same"])
+    return result, facts
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--module", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    module = runpy.run_path(str(args.module), run_name="source_preparation_module")
+    result, _facts = build(module)
+    args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
+    sys.stdout.write(
+        json.dumps(
+            {
+                "outcome": "PASS",
+                "output": reference(args.output),
+                "numeric_counts": result["current_numeric_wave"]["counts"],
+                "ledger": result["historical_ledger"],
+                "E_proposals": result["bounded_E_proposals"],
+                "G_formal_acceptance": False,
+                "current_globals_joined": False,
+            }
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

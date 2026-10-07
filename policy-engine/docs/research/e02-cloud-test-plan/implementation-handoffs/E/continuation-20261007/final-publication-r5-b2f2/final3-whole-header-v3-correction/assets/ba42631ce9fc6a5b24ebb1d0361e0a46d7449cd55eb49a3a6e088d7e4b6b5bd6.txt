@@ -1,0 +1,1 @@
+OriginalV3 observer did not compile because added physical global declaration followed original physical() use. Initial source/zero stdout retained. Move global to function entry only; no native/source/input/output change or gate rerun.

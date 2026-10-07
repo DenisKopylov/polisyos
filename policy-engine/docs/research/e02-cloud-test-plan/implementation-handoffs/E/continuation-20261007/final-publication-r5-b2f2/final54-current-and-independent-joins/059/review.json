@@ -1,0 +1,258 @@
+{
+  "schema": "e02-independent-IR-composition-source-review:1",
+  "source": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+  "tree": "41d52f7b26d7d10757b479f55dd412d97fa051c4",
+  "base": "bfbd53a1f45795ad6901bc4bb7685237b0c3d20b",
+  "source_disposition": "GO",
+  "finding_closure": false,
+  "requirements": [
+    {
+      "property": "Declared Profile2 law admitted before all three composition helpers",
+      "basis": "recomputed",
+      "evidence": "15 native marker controls plus six independently forged missing/unknown controls; callbacks zero; sole strict-reader removal gives two callbacks/late-only refusal."
+    },
+    {
+      "property": "Identical finite ratio mean/median/binary64-level equal-tail convention",
+      "basis": "independently_reconciled",
+      "evidence": "Independent Fraction gold: huge finite equal corpus, two-atom 1:2 corpus, dyadic transformed rows, asymmetric 99 zero + 200; actual producer/helpers/fresh CAS."
+    },
+    {
+      "property": "Transform artifacts bound to actual new carrier/order/context and fresh reader",
+      "basis": "recomputed",
+      "evidence": "Carrier/joint hashes regenerated, row IDs and axis preserved, map binding cleared, stale profile refused; profile-reissue removal loses named mean after readback."
+    },
+    {
+      "property": "Whole mapped draw support remains finite real non-bool",
+      "basis": "recomputed",
+      "evidence": "Invalid bool/string/nonfinite mapped draw refuses whole emission; removing type predicate publishes a coerced bool law accepted by fresh reader."
+    },
+    {
+      "property": "Lossy projection/pullback does not retain posterior-law declarations",
+      "basis": "recomputed",
+      "evidence": "All ten markers cleared, moments get own mean/std/normal approximation interval, pullback constraint-only, zero spread finite; forged stale profile rejected."
+    },
+    {
+      "property": "Valid legacy schema/functionals/callback behavior preserved",
+      "basis": "independently_reconciled",
+      "evidence": "Exact bfbd function replay vs ecde complete JSON for v1.0/v1.1 push/pull/particles compression plus first invalid callback ordering; literal Profile1 and historical unprofiled native cases."
+    },
+    {
+      "property": "Actual original canonical type settings and baseline custody",
+      "basis": "recomputed",
+      "evidence": "Author ecde supported JSON config differs only scratch baselineFile; original settings/project root/baseline unchanged; native two selected modules zero diagnostics. Unsupported .json.tmp and earlier tracked-prune observations remain historical."
+    },
+    {
+      "property": "Producer input unit/estimand/parent-lineage declarations",
+      "basis": "consumer_asserted",
+      "evidence": "Arbitrary map removes current binding and labels inherited parent lineage non-authoritative."
+    },
+    {
+      "property": "Scientific fit/noise/coverage/source-law authority and formal finding closure",
+      "basis": "not_established",
+      "evidence": "No coverage/covariance/gating or production data authority inferred from finite fixtures, producer flags or PASS count."
+    }
+  ],
+  "checks": {
+    "peer_native_pytest": {
+      "cases": 54,
+      "PASS": 54,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "peer_runtime_controls": {
+      "cases": 31,
+      "PASS": 31
+    },
+    "effective_property_removals": [
+      {
+        "case": "sole_common_admission_removal_restores_unknown_callback_escape",
+        "defining_property_outcome": "FAIL"
+      },
+      {
+        "case": "raw_map_type_predicate_removal_bool_becomes_published_law",
+        "defining_property_outcome": "FAIL"
+      },
+      {
+        "case": "profile_reissue_removal_loses_named_mean_at_fresh_reader",
+        "defining_property_outcome": "FAIL"
+      }
+    ],
+    "scoped_author_type_receipt_independent_custody": "PASS",
+    "new_common_wave": "UNRUN"
+  },
+  "complete_footprint": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-composition.toml",
+      "bytes": 1293,
+      "sha256": "5388bced3124c9ee26e4f3781403a2012889ff43ebebedddea95b6898daa8b54"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "bytes": 9186,
+      "sha256": "d4244a5bd600722fc0e14d60d16f580146b953e4f034a9d60f2b9892be26a602"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "bytes": 31271,
+      "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "bytes": 94084,
+      "sha256": "5a28f2336e7903c9d67344e08f3b82176fb789e5ffaa307fc01d4341930b3c1d"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "bytes": 14579,
+      "sha256": "955d90b702d750f1e3180f00d6c98d5d82d0a16408d3072b3061c670aa7e0f32"
+    }
+  ],
+  "bound_input_controls": [
+    {
+      "case": "source",
+      "status": "PASS",
+      "refusal": "wrong immutable source identity"
+    },
+    {
+      "case": "tree",
+      "status": "PASS",
+      "refusal": "wrong immutable source identity"
+    },
+    {
+      "case": "base",
+      "status": "PASS",
+      "refusal": "wrong immutable source identity"
+    },
+    {
+      "case": "count_bool",
+      "status": "PASS",
+      "refusal": "counts must match exact closed native receipts"
+    },
+    {
+      "case": "count_promote",
+      "status": "PASS",
+      "refusal": "counts must match exact closed native receipts"
+    },
+    {
+      "case": "missing_path",
+      "status": "PASS",
+      "refusal": "complete five-path source footprint required"
+    },
+    {
+      "case": "fake_hash",
+      "status": "PASS",
+      "refusal": "source body hash/size mismatch"
+    },
+    {
+      "case": "size_bool",
+      "status": "PASS",
+      "refusal": "source body hash/size mismatch"
+    },
+    {
+      "case": "closure_promote",
+      "status": "PASS",
+      "refusal": "scope/authority promotion"
+    },
+    {
+      "case": "type_promote",
+      "status": "PASS",
+      "refusal": "scope/authority promotion"
+    },
+    {
+      "case": "extra_field",
+      "status": "PASS",
+      "refusal": "exact bound input fields required"
+    }
+  ],
+  "complete_static_caller_census": {
+    "input_count": 5494,
+    "source_references": [],
+    "limitation": "Complete static source/tests census does not measure dynamic/external injection. No production call witness outside tested public helper boundary is claimed."
+  },
+  "current_source_refs": [
+    {
+      "path": "/tmp/e02-E-ir-composition-ecde-independent-20261007/selectors.json",
+      "bytes": 15489,
+      "sha256": "7e601bb39c18f6a33f3368f253e520743122ef6b49118ed55f14663e2fcbae1f"
+    },
+    {
+      "path": "/tmp/e02-E-ir-composition-ecde-independent-20261007/pytest.xml",
+      "bytes": 9003,
+      "sha256": "5a7c4fd86890d07d9f994d677184e54adb2adfdddd59cefc83aca3c6fe2af89c"
+    },
+    {
+      "path": "/tmp/e02-E-ir-composition-ecde-independent-20261007/pytest.stdout.txt",
+      "bytes": 80,
+      "sha256": "3a105b429c566a6ab228658f80ae3094d2be8b3cd71c1dc02ddbcc5dceba360f"
+    },
+    {
+      "path": "/tmp/e02-E-ir-composition-ecde-independent-20261007/pytest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-ir-composition-ecde-independent-20261007/native-probes.json",
+      "bytes": 27592,
+      "sha256": "e5f1a71837303302a5a6eb65ce56e7a907e28b745bfa2e838b84c3c7e8b139f5"
+    },
+    {
+      "path": "/tmp/e02-E-ir-composition-ecde-independent-20261007/native-probes.stdout.txt",
+      "bytes": 17991,
+      "sha256": "cc60033e33754aaf68b6c1602c250da5393a9f053d938bb70feca9dccdddee70"
+    },
+    {
+      "path": "/tmp/e02-E-ir-composition-ecde-independent-20261007/native-probes.stderr.txt",
+      "bytes": 216,
+      "sha256": "d8b27f35e97f1327808c1938df921c211bbeef7c2fc7d598521d13e6a5373e5d"
+    },
+    {
+      "path": "/tmp/e02-E-ir-composition-ecde-independent-20261007/source-and-type-custody.json",
+      "bytes": 3445,
+      "sha256": "9df6c35a07e1fffa4761db0df06b80f4dd213f898befc527008a11ecfed84bba"
+    },
+    {
+      "path": "/tmp/e02-E-ir-composition-ecde-independent-20261007/source-and-type-custody.stdout.txt",
+      "bytes": 3445,
+      "sha256": "9df6c35a07e1fffa4761db0df06b80f4dd213f898befc527008a11ecfed84bba"
+    },
+    {
+      "path": "/tmp/e02-E-ir-composition-ecde-independent-20261007/source-and-type-custody.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-ir-composition-ecde-independent-20261007/caller-census.json",
+      "bytes": 1122453,
+      "sha256": "97c7904cc032888e3eefc9385d59e758f2e9ac1c17c4a325f8f870b3f2e06889"
+    }
+  ],
+  "historical_failures_preserved": [
+    {
+      "source": "c539dba7d25b1495f80587422145cbd55e5f03e6",
+      "property": "unknown/missing declaration callback escape and changed legacy per-row coercion",
+      "receipt": "/tmp/e02-E-ir-composition-c539-independent-20261007/gap-review.json"
+    },
+    {
+      "source": "218c7bd75f29dea72d86d8c5830137ce0a2d0188",
+      "property": "unprofiled v1.0 inputs incorrectly emitted v1.0 where exact base emits v1.1",
+      "receipt": "/tmp/e02-E-ir-composition-c539-independent-20261007/legacy-schema-gap.json"
+    },
+    {
+      "source": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+      "property": "initial reviewer type-config observer indexed TOML root rather than tool.basedpyright; corrected observer only; no native type run repeated",
+      "receipt": "/tmp/e02-E-ir-composition-ecde-independent-20261007/historical-source-and-type-config-observer.stderr.txt"
+    }
+  ],
+  "remaining_owners": [
+    "Root/canonical Calibration facade owner: planned existing producer import companion; no mathematical source change expected.",
+    "Canonical generator/public-surface owner: actual API/schema/inventory companions and final gate queue remain separate.",
+    "Root/G: frozen dependent wave and original finding dispositions/intake separately; code GO does not ratify scientific authority or G closure."
+  ],
+  "repository_source_written": false,
+  "tests_repeated_in_receipt_recomputation": false,
+  "command": [
+    "/tmp/e02-E-ir-composition-ecde-independent-20261007/finalize-review.py"
+  ],
+  "optimized": 0
+}

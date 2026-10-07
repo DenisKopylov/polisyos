@@ -1,0 +1,119 @@
+import ast
+import copy
+import hashlib
+import json
+import runpy
+import sys
+import xml.etree.ElementTree as ET
+from collections import Counter
+from pathlib import Path
+
+BASE=Path('/tmp/e02-E-final54-b2f2-preparation-20261007')
+OUT=Path('/tmp/e02-E-final54-preparation-independent-lint-b2-20261007')
+MODULE=BASE/'join_globals.py';PACKET=BASE/'current-all-54-b2-final-v4-normal.json'
+PINS={'join_globals.py':'f2c6b00130ba0eb722c4ec46b013f7d317b97136b104f3018d945062cec60878','prepare_v4.py':'bfaab952762e87ff1910a39cfa568321949992f2610e7fbbea275a6512ac5c8d','join_wave_v2.py':'4863eec9812489df7b0582a33f6fdd5a9e57ed69d97ecbdaa00147d51473263a','current-all-54-b2-final-v4-normal.json':'7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b'}
+def require(c,r):
+ if not c:raise ValueError(r)
+def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def strict(a,b):
+ if type(a)is not type(b):return False
+ if isinstance(a,dict):return a.keys()==b.keys() and all(strict(a[k],b[k]) for k in a)
+ if isinstance(a,list):return len(a)==len(b) and all(strict(x,y) for x,y in zip(a,b))
+ return a==b
+for path,sha in PINS.items():require(digest(BASE/path)==sha,'exact helper/packet inlet before module load')
+n=runpy.run_path(str(MODULE),run_name='independent_final54_join')
+expected,m=n['build']();observed=json.loads(PACKET.read_bytes())
+require(strict(expected,observed),'complete final frozen packet rederivation')
+n['admit_complete_claims'](observed,expected,m['same']);n['admit_boundary'](observed)
+canonical={'recomputed','independently_reconciled','consumer_asserted','institutionally_supplied','not_established'}
+require(all(type(v)is str and v in canonical for v in observed['predicate_basis'].values()),'exact canonical P37 basis')
+prep=json.loads((BASE/'prepared-v4r2-normal.json').read_bytes())
+for key in ['complete_denominator','historical_ledger','bounded_E_proposals','semantic_appointment','tracked_four_semantic_decisions','original_source_bindings','bundles','source_role_qualification','remaining_owner_inputs']:
+ require(strict(observed[key],prep[key]),'full original denominator/role/owner conservation '+key)
+for before,after in zip(prep['rows'],observed['rows']):
+ for key in ['id','bundle_ids','historical_ledger_status','owner_decision','proposed_finding_outcome','canonical_ownership','bounded_decision_basis','criterion_evidence','remaining_input_or_implementation','next_owner']:
+  require(strict(before[key],after[key]),'per-row original decision conservation '+key)
+require(observed['formal_G_acceptance']is False and observed['formal_ledger_change']is False,'G intake/ledger not promoted')
+require(Counter(r['historical_ledger_status'] for r in observed['rows'])==Counter({'partial':49,'held':4,'closed':1}),'historic49/4/1')
+require(Counter(r['proposed_finding_outcome'] for r in observed['rows'])==Counter({'closed':43,'limited':9,'held':2}),'boundedE43/9/2')
+case_index=json.loads(Path(observed['current_numeric_wave']['case_index']['path']).read_bytes())
+actual_by_ordinal={};xml_multi=Counter();groups=[]
+for job in observed['current_numeric_wave']['jobs']:
+ if job['actual_native_counts']is None:
+  require(job['name']=='results-importer' and job['check_outcome']=='PASS','non-case importer distinct')
+  continue
+ path=Path(job['JUnit']['path']);raw=path.read_bytes();require(hashlib.sha256(raw).hexdigest()==job['JUnit']['sha256'] and len(raw)==job['JUnit']['bytes'],'exact seven rawXML bytes')
+ require(b'<!DOCTYPE' not in raw.upper() and b'<!ENTITY' not in raw.upper(),'no external entity/DTD')
+ local=Counter()
+ for ordinal,c in enumerate(ET.fromstring(raw).iter('testcase')):
+  status='ERROR' if c.find('error')is not None else 'FAIL' if c.find('failure')is not None else 'SKIP' if c.find('skipped')is not None else 'PASS'
+  classname=c.get('classname','');name=c.get('name','');identity=(job['name'],classname,name,status)
+  xml_multi[identity]+=1;local[status]+=1;actual_by_ordinal[(job['name'],ordinal)]={'classname':classname,'name':name,'outcome':status}
+ require(strict(job['actual_native_counts'],{'cases':sum(local.values()),'passed':local['PASS'],'failed':local['FAIL'],'errors':local['ERROR'],'skipped':local['SKIP']}),'perjob actual case counts')
+ groups.append({'name':job['name'],'count':sum(local.values()),'outcomes':dict(local),'XML_sha256':job['JUnit']['sha256']})
+index_multi=Counter((r['job_name'],r['classname'],r['name'],{'passed':'PASS','failed':'FAIL','error':'ERROR','skipped':'SKIP'}[r['outcome']]) for r in case_index['cases'])
+require(xml_multi==index_multi and sum(xml_multi.values())==1465 and len(groups)==7,'all7XML1465 complete native multiset')
+require(strict(observed['current_numeric_wave']['counts'],{'cases':1465,'passed':1457,'failed':8,'errors':0,'skipped':0}),'1465 actual counts')
+require(strict(observed['current_numeric_wave']['native_counts_excluding_A_packet'],{'cases':1458,'passed':1457,'failed':1,'errors':0,'skipped':0}),'1458 native split')
+require(strict(observed['current_numeric_wave']['A_packet_counts'],{'cases':7,'passed':0,'failed':7,'errors':0,'skipped':0}),'A7 packet split')
+owner_names=[(r[0],r[1],r[2],r[3]) for r in xml_multi if r[1]=='']
+require(len(owner_names)==7 and all(r[0]=='bkt-frc-s10-and-adjacent-report-consumers' and r[3]=='FAIL' for r in owner_names),'actual A7 classname/parent/outcome binding')
+current_nav=0
+for row in observed['rows']:
+ nav=row['current_check_links']['selector_navigation']['exact_current_case_bindings']
+ for bound in nav:
+  actual=actual_by_ordinal[(bound['job'],bound['ordinal_zero_based'])]
+  require(strict(actual,{k:bound[k] for k in ['classname','name','outcome']}),'every row case ordinal/name/outcome readback')
+  current_nav+=1
+ require(row['current_check_links']['wave_check_outcome']=='FAIL','row checkFAIL separate from proposedfinding')
+gates=observed['current_global_gates'];require(len(gates['exact_receipts'])==7 and all(g['check_outcome']=='FAIL' and type(g['exit_code'])is int and g['exit_code']==1 for g in gates['exact_receipts']),'actual7FAIL')
+require(Counter(r['outcome'] for r in gates['exact_parent_stage_rows'])==Counter({'PASS':1,'FAIL':2,'UNRUN':36}) and len(gates['exact_parent_stage_rows'])==39,'39 actual parent stages')
+require(strict(gates['parent_counts_by_selector'],{'workspace-verify':{'PASS':1,'FAIL':1,'UNRUN':13},'ci-parity':{'PASS':0,'FAIL':1,'UNRUN':23}}),'parent13/23 UNRUN distinct')
+require(gates['P41_broad_failure_cause']=='not_established' and gates['complete_binary_environment_identity']=='not_established','no fictional P41/binary environment proof')
+# Exact recipe input bytes remain historical, explicit current execution candidate differs.
+require(len(observed['local_recipe_rebinding']['recipes'])==6 and all(r['execute_implementation_candidate']==observed['candidate'] and r['original_implementation_reference_is_historical']is True for r in observed['local_recipe_rebinding']['recipes']),'six original recipes vs current candidate')
+mutations=[
+ ('typed casecount1465→float',('current_numeric_wave','counts','cases'),1465.0),
+ ('hide total8FAIL',('current_numeric_wave','counts','failed'),0),
+ ('hide native1FAIL',('current_numeric_wave','native_counts_excluding_A_packet','failed'),0),
+ ('hide A7FAIL',('current_numeric_wave','A_packet_counts','failed'),0),
+ ('individual gateFAIL→PASS',('current_global_gates','exact_receipts',0,'check_outcome'),'PASS'),
+ ('parent UNRUN→PASS',('current_global_gates','exact_parent_stage_rows',2,'outcome'),'PASS'),
+ ('typed CIzeroPASS→False',('current_global_gates','parent_counts_by_selector','ci-parity','PASS'),False),
+ ('actual gate receipt stale digest',('current_global_gates','exact_receipts',0,'receipt','sha256'),'0'*64),
+ ('global7 denominator→1',('current_global_gates','gate_count'),1),
+ ('stale perrole digest',('source_role_qualification',12,'current_source','sha256'),'0'*64),
+ ('row owner pending→accepted',('rows',0,'owner_decision'),'accepted'),
+ ('Gfalse→true',('formal_G_acceptance',),True),
+ ('historical closedcount1→True',('historical_ledger','closed'),True),
+ ('P37 explanation substituted basis',('predicate_basis','current_7gates_39stages'),'recomputed from PASS markers'),
+ ('recipe currentcandidate→e9',('local_recipe_rebinding','recipes',0,'execute_implementation_candidate'),n['RECIPE_SHA']),
+]
+results=[]
+def changed(path,value):
+ b=copy.deepcopy(observed);q=b
+ for part in path[:-1]:q=q[part]
+ q[path[-1]]=value;return b
+for label,path,value in mutations:
+ bad=changed(path,value)
+ try:n['admit_complete_claims'](bad,expected,m['same'])
+ except ValueError as exc:results.append({'case':label,'outcome':'PASS','expected_refusal':str(exc)})
+ else:raise ValueError('false final54 admission '+label)
+retotalled=copy.deepcopy(observed);retotalled['rows'].pop();retotalled['complete_denominator']['findings']=53
+try:n['admit_complete_claims'](retotalled,expected,m['same'])
+except ValueError:results.append({'case':'retotalled original54 member omission','outcome':'PASS','actual_refusal':True})
+else:raise ValueError('retotalled missing owner row admitted')
+# One actual whole-claim predicate removal only; fixed expected inputs, source/
+# full1465/globalFAIL/Gfalse boundary admission remains active.
+module_ast=ast.parse(MODULE.read_text());removed=0
+for fn in module_ast.body:
+ if isinstance(fn,ast.FunctionDef) and fn.name=='admit_complete_claims':fn.body=[ast.Pass()];removed+=1
+require(removed==1,'sole actual wholeclaim predicate')
+without={'__name__':'independent_removed_final54_wholeclaim_predicate'};exec(compile(ast.fix_missing_locations(module_ast),str(MODULE),'exec'),without)
+for label,path,value in [mutations[2],mutations[4],mutations[5],mutations[10],mutations[14]]:
+ bad=changed(path,value);without['admit_boundary'](bad);without['admit_complete_claims'](bad,expected,m['same'])
+ require(not strict(bad,expected),'removed defining metadata property divergence')
+ results.append({'case':'effective soleguard removal '+label,'outcome':'PASS','actual_admission':'ACCEPT','defining_current_metadata_property':'FAIL','source_original_raw_refs_1465_globalFAIL_Gfalse_boundary_retained':True})
+for path,sha in PINS.items():require(digest(BASE/path)==sha,'exact source/helper/input bytes unchanged')
+report={'schema':'e02.E.independent.final54.current_CASE_GATE_metadata_review.v1','outcome':'GO_SCOPED_METADATA','source':observed['candidate'],'tree':observed['tree'],'builder':{'path':str(MODULE),'bytes':MODULE.stat().st_size,'sha256':PINS['join_globals.py']},'packet':{'path':str(PACKET),'bytes':PACKET.stat().st_size,'sha256':PINS[PACKET.name]},'companion_source_hashes':PINS,'whole_actual_builder_output_equal':True,'actual_cases':observed['current_numeric_wave']['counts'],'actual_native_split':observed['current_numeric_wave']['native_counts_excluding_A_packet'],'actual_A_split':observed['current_numeric_wave']['A_packet_counts'],'complete_groups':groups,'case_identity_multiset_equal':True,'checked_perrow_navigation_bindings':current_nav,'all_original54_22_55_and13_role_body_sourceconservation':True,'source77_qualifier':'Only prior externalimports independent77review433 literal/hash binding; this reviewer does not self-review authored77 code','historical_ledger':observed['historical_ledger'],'bounded_E_proposals':observed['bounded_E_proposals'],'formal_G_acceptance':False,'seven_gates':gates['gate_outcome_counts'],'parent39stage_counts':gates['parent_stage_counts'],'parent_by_selector':gates['parent_counts_by_selector'],'controls':results,'author_is_other_agent':True,'native_math_source_case_or_global_tests_executed':False,'review_environment':{'python':sys.version,'executable':sys.executable},'limits':['Finding decisions remain accountable E proposals; G code/closure intake separate','No native/math/runtime/HTTP/browser regeneration or protected Root207 write','Whole binary environment identity and P41 broad failure causation remain not_established','Case navigation is measured selector mapping, not automatic original criterion coverage or closure']}
+print(json.dumps(report,ensure_ascii=False,indent=2))

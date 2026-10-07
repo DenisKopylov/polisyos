@@ -1,0 +1,301 @@
+{
+  "schema": "e02.E.independent.parent39-readonly-current-basis.v1",
+  "rows": [
+    {
+      "selector": "workspace",
+      "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "actual_stage_total": 15,
+      "actual_stage_outcomes": {
+        "PASS": 1,
+        "FAIL": 1,
+        "UNRUN": 13
+      },
+      "stage_rows": [
+        {
+          "label": "doctor",
+          "outcome": "PASS",
+          "exit_code": 0,
+          "reason": null
+        },
+        {
+          "label": "lint imports",
+          "outcome": "FAIL",
+          "exit_code": 1,
+          "reason": "Command '['/workspace/.polisyos-environment/uv/bin/uv', 'run', '--no-sync', 'python', 'tools/quality/lint/lint_imports.py', '--policy', 'architecture/imports/policy.toml', '--exceptions', 'architecture/imports/exceptions.toml']' returned non-zero exit status 1."
+        },
+        {
+          "label": "check package import gates (shell-package closure)",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "lint foundry",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check state reads",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check scholar imports",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check connector contracts",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check schema freshness",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check runtime API contract",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check last-mile inventory baseline",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "build honest diagnostics coverage dashboard",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check honest diagnostics substrate drift",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check extension example contract coverage",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check schemas pure-data closure",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "pytest fast backend gate",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after lint imports"
+        }
+      ],
+      "receipt": {
+        "path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/receipt.json",
+        "bytes": 96160,
+        "sha256": "aeef99eaa838ee91f83f8659a3641618a1eef5164675b9bedda5548e50a75752"
+      },
+      "native_stages": {
+        "path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/internal-stages.json",
+        "bytes": 8763,
+        "sha256": "de81c8a947e76375aaee380021dc6143c0e3d69e79bda008c3ee90ec48a74c67"
+      },
+      "source_immutable": true,
+      "metadata_unchanged": true,
+      "P41": "not_established absent exact full slice-base command/input replay",
+      "full_environment_binary_guard": "not_established; complete package metadata and protected interpreter/control refs bracketed, no mutation command directed at ROOT207",
+      "finding_closure": false
+    },
+    {
+      "selector": "CI",
+      "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "actual_stage_total": 24,
+      "actual_stage_outcomes": {
+        "FAIL": 1,
+        "UNRUN": 23
+      },
+      "stage_rows": [
+        {
+          "label": "doctor",
+          "outcome": "FAIL",
+          "exit_code": 1,
+          "reason": "Command '['/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python', '-m', 'tools.devx.workspace.doctor']' returned non-zero exit status 1."
+        },
+        {
+          "label": "verify backend fast gate",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "pytest runtime/http",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "check directory health ratchet",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "check test ratchets and helper topology",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "check architecture phase6-1 report-only contracts",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "check validator module-size budget",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "report debt ledger reconciliation",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "check extension example installability",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "check ADR thematic index freshness",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "check docs accuracy",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "build docs in strict mode",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "check semantic docstring quality",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "npm typecheck",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "npm lint",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "npm format check",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "npm architecture check",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "npm contract fixtures",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "npm coverage",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "npm build",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "npm build-storybook",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "Playwright browser install",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "npm Storybook interaction tests",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "npm accessibility suite",
+          "outcome": "UNRUN",
+          "exit_code": null,
+          "reason": "actual fail-fast after doctor"
+        }
+      ],
+      "receipt": {
+        "path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity/ci-parity/receipt.json",
+        "bytes": 95985,
+        "sha256": "e51590669e4ba55ace23cccc30a57bbea4a77b9206bc608a85e9544f3e9df6bd"
+      },
+      "native_stages": {
+        "path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "8b379810c06e5174e7342de9e529aed386c22d06c3c5330fac6bad17e60a9e8d"
+      },
+      "source_immutable": true,
+      "metadata_unchanged": true,
+      "P41": "not_established absent exact full slice-base command/input replay",
+      "full_environment_binary_guard": "not_established; complete package metadata and protected interpreter/control refs bracketed, no mutation command directed at ROOT207",
+      "finding_closure": false
+    }
+  ],
+  "actual_total": 39,
+  "scope": "Read-only saved metadata basis for final54 join; no native command/source/env execution",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]"
+}

@@ -1,0 +1,85 @@
+{
+  "observed_unix": 1791380998.7092118,
+  "prefixes": [
+    "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/raw/production-invocation.raw.json",
+    "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/preserved-catalogs/frozen-wave-64d7444a-20261007/raw/production-invocation.raw.json",
+    "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/raw",
+    "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/preserved-catalogs/frozen-wave-64d7444a-20261007/raw"
+  ],
+  "readable_processes": [
+    {
+      "pid": 1,
+      "cwd": "/workspace",
+      "argv0": "tail",
+      "source_evidence": []
+    },
+    {
+      "pid": 2,
+      "cwd": "/workspace",
+      "argv0": "/usr/local/bin/caas-prefix-transfer-server",
+      "source_evidence": []
+    },
+    {
+      "pid": 515,
+      "cwd": "/workspace",
+      "argv0": "/opt/codex/bin/codex",
+      "source_evidence": []
+    },
+    {
+      "pid": 536899,
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "argv0": "/bin/bash",
+      "source_evidence": []
+    },
+    {
+      "pid": 536902,
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "argv0": "python3",
+      "source_evidence": []
+    },
+    {
+      "pid": 536903,
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "argv0": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "source_evidence": []
+    },
+    {
+      "pid": 536937,
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "argv0": "/workspace/.polisyos-environment/uv/bin/uv",
+      "source_evidence": []
+    },
+    {
+      "pid": 536940,
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "argv0": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "source_evidence": []
+    },
+    {
+      "pid": 571826,
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "argv0": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "source_evidence": []
+    },
+    {
+      "pid": 672899,
+      "cwd": "/workspace",
+      "argv0": "/bin/bash",
+      "source_evidence": []
+    }
+  ],
+  "users": [],
+  "unreadable_infrastructure": [
+    {
+      "pid": 199,
+      "error": "[Errno 13] Permission denied: '/proc/199/cwd'",
+      "scope": "hostwide visibility not established"
+    },
+    {
+      "pid": 250,
+      "error": "[Errno 13] Permission denied: '/proc/250/cwd'",
+      "scope": "hostwide visibility not established"
+    }
+  ],
+  "unreadable_others": []
+}

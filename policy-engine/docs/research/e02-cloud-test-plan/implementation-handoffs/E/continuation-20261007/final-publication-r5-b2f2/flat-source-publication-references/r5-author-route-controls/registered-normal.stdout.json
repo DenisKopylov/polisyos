@@ -1,0 +1,106 @@
+{
+  "outcome": "PASS metadata storage controls only",
+  "mode": "normal",
+  "healthy_members": 2,
+  "healthy_raw_Counter_equal": true,
+  "negative_controls": [
+    {
+      "control": "unsupported-encoding",
+      "refused": true,
+      "exception": "ValueError",
+      "message": "unsupported registered evidence encoding"
+    },
+    {
+      "control": "boolean-stored-size",
+      "refused": true,
+      "exception": "ValueError",
+      "message": "complete typed source identity"
+    },
+    {
+      "control": "boolean-decoded-size",
+      "refused": true,
+      "exception": "ValueError",
+      "message": "complete typed source identity"
+    },
+    {
+      "control": "stored-hash",
+      "refused": true,
+      "exception": "ValueError",
+      "message": "original or stored bytes/hash /tmp/e02-E-final-publication-r5-b2f2-stage/registered-storage-controls-normal/assets/compressed.bin"
+    },
+    {
+      "control": "decoded-hash",
+      "refused": true,
+      "exception": "ValueError",
+      "message": "complete decoded original byte identity"
+    },
+    {
+      "control": "decoded-size",
+      "refused": true,
+      "exception": "ValueError",
+      "message": "complete decoded original byte identity"
+    },
+    {
+      "control": "relative-original",
+      "refused": true,
+      "exception": "ValueError",
+      "message": "complete typed source identity"
+    },
+    {
+      "control": "absolute-original-traversal",
+      "refused": true,
+      "exception": "ValueError",
+      "message": "pure full absolute original source context"
+    },
+    {
+      "control": "absolute-original-NUL",
+      "refused": true,
+      "exception": "ValueError",
+      "message": "pure full absolute original source context"
+    },
+    {
+      "control": "relative-storage-traversal",
+      "refused": true,
+      "exception": "ValueError",
+      "message": "pure full relative encoded source context"
+    },
+    {
+      "control": "relative-storage-absolute",
+      "refused": true,
+      "exception": "ValueError",
+      "message": "pure full relative encoded source context"
+    },
+    {
+      "control": "logical-name-boolean",
+      "refused": true,
+      "exception": "ValueError",
+      "message": "pure full relative logical member context"
+    },
+    {
+      "control": "logical-name-traversal",
+      "refused": true,
+      "exception": "ValueError",
+      "message": "pure full relative logical member context"
+    },
+    {
+      "control": "complete-member-denominator",
+      "refused": true,
+      "exception": "ValueError",
+      "message": "complete registered encoded member denominator"
+    },
+    {
+      "control": "exact-registered-schema",
+      "refused": true,
+      "exception": "ValueError",
+      "message": "registered exact moderate selector schema"
+    }
+  ],
+  "sole_decoded_identity_removal": {
+    "removed_predicates": 1,
+    "wrong_decoded_ref_accepted": true,
+    "markers_and_stored_bytes_intact": true,
+    "property_outcome": "FAIL"
+  },
+  "source_native_numeric_execution": false,
+  "destination_publication_writes": 0
+}

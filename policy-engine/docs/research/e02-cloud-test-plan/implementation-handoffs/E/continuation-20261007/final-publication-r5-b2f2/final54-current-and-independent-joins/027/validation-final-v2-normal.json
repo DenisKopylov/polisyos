@@ -1,0 +1,418 @@
+{
+  "schema": "policyos.e02.E.final54_current_whole_claim_controls.v1",
+  "check_outcome": "PASS",
+  "scope": "metadata and receipt admission only; no native/math tests rerun or finding closure",
+  "optimized": false,
+  "builder": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/join_globals.py",
+    "bytes": 22133,
+    "sha256": "f2c6b00130ba0eb722c4ec46b013f7d317b97136b104f3018d945062cec60878"
+  },
+  "packet": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+    "bytes": 1144158,
+    "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+  },
+  "cases": [
+    {
+      "name": "healthy complete immutable inputs",
+      "check_outcome": "PASS"
+    },
+    {
+      "name": "P37 explanation used as basis",
+      "field": [
+        "predicate_basis",
+        "current_7gates_39stages"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "P37 invented basis",
+      "field": [
+        "predicate_basis",
+        "whole_final_metadata_admission"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "source substitution",
+      "field": [
+        "candidate"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "bool finding denominator",
+      "field": [
+        "complete_denominator",
+        "findings"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "omit one bundle count",
+      "field": [
+        "complete_denominator",
+        "bundles"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "historical closed bool",
+      "field": [
+        "historical_ledger",
+        "closed"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "G acceptance flag",
+      "field": [
+        "formal_G_acceptance"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "E proposal silently accepted",
+      "field": [
+        "rows",
+        0,
+        "formal_ledger_change"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "declared104 native path changed",
+      "field": [
+        "current_numeric_wave",
+        "native_test_path_count"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "native case count float",
+      "field": [
+        "current_numeric_wave",
+        "counts",
+        "cases"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "native FAIL hidden",
+      "field": [
+        "current_numeric_wave",
+        "counts",
+        "failed"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "owner packet source identity changed",
+      "field": [
+        "current_numeric_wave",
+        "A_packet_counts",
+        "failed"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "ROOT207 count changed",
+      "field": [
+        "environment",
+        "distribution_metadata_count"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "fit source obsolete3932",
+      "field": [
+        "scientific_fit_boundary",
+        "accepted_source"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "historical12 pending bool",
+      "field": [
+        "import_owner_dependencies",
+        "original12",
+        "owner_export_pending"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "individual current source digest forged",
+      "field": [
+        "source_role_qualification",
+        0,
+        "current_source",
+        "sha256"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "gate verdict fabricatedPASS",
+      "field": [
+        "current_global_gates",
+        "exact_receipts",
+        0,
+        "check_outcome"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "native exit bool",
+      "field": [
+        "current_global_gates",
+        "exact_receipts",
+        0,
+        "exit_code"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "gate receipt digest forged",
+      "field": [
+        "current_global_gates",
+        "exact_receipts",
+        0,
+        "receipt",
+        "sha256"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "gate source immutable forged",
+      "field": [
+        "current_global_gates",
+        "exact_receipts",
+        0,
+        "source_immutable"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "gate environment count truncated",
+      "field": [
+        "current_global_gates",
+        "exact_receipts",
+        0,
+        "environment",
+        "package_METADATA_count"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "global7count bool",
+      "field": [
+        "current_global_gates",
+        "gate_count"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "global overall fabricatedPASS",
+      "field": [
+        "current_global_gates",
+        "check_outcome"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "parent39 count changed",
+      "field": [
+        "current_global_gates",
+        "parent_stage_count"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "UNRUN promotedPASS",
+      "field": [
+        "current_global_gates",
+        "exact_parent_stage_rows",
+        2,
+        "outcome"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "stage label forged",
+      "field": [
+        "current_global_gates",
+        "exact_parent_stage_rows",
+        2,
+        "label"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "stage command omitted",
+      "field": [
+        "current_global_gates",
+        "exact_parent_stage_rows",
+        2,
+        "command"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "stage ordinal changed",
+      "field": [
+        "current_global_gates",
+        "exact_parent_stage_rows",
+        2,
+        "ordinal_zero_based"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "CI zeroPASS invented",
+      "field": [
+        "current_global_gates",
+        "parent_counts_by_selector",
+        "ci-parity",
+        "PASS"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "current native count withheld",
+      "field": [
+        "current_numeric_wave",
+        "counts",
+        "cases"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "recipe candidate old3932",
+      "field": [
+        "local_recipe_rebinding",
+        "recipes",
+        0,
+        "execute_implementation_candidate"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "local recipe changed minimuminput",
+      "field": [
+        "local_recipe_rebinding",
+        "recipes",
+        0,
+        "original_recipe",
+        "minimal_inputs"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "cleanup local directive wrongly cloud",
+      "field": [
+        "cleanup",
+        "historical_old_restriction_not_current"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "P41 fabricatedcause",
+      "field": [
+        "current_global_gates",
+        "P41_broad_failure_cause"
+      ],
+      "check_outcome": "PASS",
+      "actual_refusal": "whole typed current54/cases/7gate/39stage/recipe/source/owner claims against fixed inputs"
+    },
+    {
+      "name": "retotalled whole54 member omission",
+      "check_outcome": "PASS"
+    },
+    {
+      "name": "effective sole whole-guard removal: gate verdict fabricatedPASS",
+      "check_outcome": "PASS",
+      "mutated_validation_outcome": "ACCEPT",
+      "independent_property_outcome": "FAIL",
+      "retained_guards": "native1465/globalFAIL/source/Gfalse admission remains"
+    },
+    {
+      "name": "effective sole whole-guard removal: UNRUN promotedPASS",
+      "check_outcome": "PASS",
+      "mutated_validation_outcome": "ACCEPT",
+      "independent_property_outcome": "FAIL",
+      "retained_guards": "native1465/globalFAIL/source/Gfalse admission remains"
+    },
+    {
+      "name": "effective sole whole-guard removal: recipe candidate old3932",
+      "check_outcome": "PASS",
+      "mutated_validation_outcome": "ACCEPT",
+      "independent_property_outcome": "FAIL",
+      "retained_guards": "native1465/globalFAIL/source/Gfalse admission remains"
+    },
+    {
+      "name": "current207 complete metadata set and bytes unchanged",
+      "check_outcome": "PASS"
+    }
+  ],
+  "control_count": 40,
+  "current_native_counts": {
+    "cases": 1465,
+    "passed": 1457,
+    "failed": 8,
+    "errors": 0,
+    "skipped": 0
+  },
+  "current_gate_counts": {
+    "FAIL": 7
+  },
+  "current_parent_counts": {
+    "PASS": 1,
+    "FAIL": 2,
+    "UNRUN": 36
+  },
+  "ledger_unchanged": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "E_proposals": {
+    "closed": 43,
+    "limited": 9,
+    "held": 2,
+    "open": 0
+  },
+  "G_acceptance": false
+}

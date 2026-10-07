@@ -1,0 +1,406 @@
+{
+  "schema": "policyos.e02.actual_current_lint_owner_packet.v1",
+  "summary": {
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+    "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "complete_python_input_count": 378,
+    "factual_writer_counts": {
+      "A": 2,
+      "B": 13,
+      "E": 349,
+      "G": 12,
+      "F": 2
+    },
+    "ruff_exit_code": 1,
+    "format_exit_code": 1,
+    "diagnostic_count": 292,
+    "diagnostic_path_count": 14,
+    "format_path_count": 14,
+    "diagnostics_by_factual_writer": {
+      "A": 1,
+      "B": 35,
+      "G": 256
+    },
+    "E_diagnostic_count": 0,
+    "E_format_path_count": 0,
+    "source_config_environment_immutable": true,
+    "global_pass": false,
+    "P41": "not_established"
+  },
+  "affected_owner_paths": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+      "object_id": "d9ff9803aebf2641ed4e2bd8680a50a8edcf95ba",
+      "bytes": 19187,
+      "sha256": "d99f6f850f2c3c2465a9aba926c95121a24eacd8425d828ac07a5bc88095df0f",
+      "factual_writer": "A",
+      "canonical_owner": null,
+      "originating_boundary": "A",
+      "diagnostic_count": 1,
+      "diagnostic_codes": {
+        "I001": 1
+      },
+      "format_required": true,
+      "source_mutated": false,
+      "P41": "not_established"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+      "object_id": "78be2e7776629829175e0653cd6cc22bf97a31c6",
+      "bytes": 2448,
+      "sha256": "0d36f842bea61660fd40cbf9bb8faeae993d93f2cb1e512f9f5ebdaf13b54406",
+      "factual_writer": "B",
+      "canonical_owner": null,
+      "originating_boundary": "B",
+      "diagnostic_count": 16,
+      "diagnostic_codes": {
+        "E401": 1,
+        "I001": 1,
+        "S607": 3,
+        "ANN201": 1,
+        "S101": 1,
+        "E501": 5,
+        "S603": 1,
+        "S314": 1,
+        "T201": 2
+      },
+      "format_required": true,
+      "source_mutated": false,
+      "P41": "not_established"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+      "object_id": "82d034330843b5dd069c23bc46d8cd5c11ec4ece",
+      "bytes": 2670,
+      "sha256": "aaca0830027093fceac650e2b247074fc2db102a35c28d9e84809bb646242b88",
+      "factual_writer": "B",
+      "canonical_owner": null,
+      "originating_boundary": "B",
+      "diagnostic_count": 19,
+      "diagnostic_codes": {
+        "E401": 1,
+        "I001": 1,
+        "S101": 7,
+        "S603": 2,
+        "S607": 1,
+        "E501": 4,
+        "S102": 1,
+        "C408": 1,
+        "T201": 1
+      },
+      "format_required": true,
+      "source_mutated": false,
+      "P41": "not_established"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/candidate_pytest_runner.py",
+      "object_id": "4b3fd0144904acbe551d9851ed7c00fa3948611b",
+      "bytes": 5683,
+      "sha256": "7be92b4444bb4520abac4e5000555d603290effb82cbbf124330260889561f41",
+      "factual_writer": "G",
+      "canonical_owner": "G integration evidence publisher; originating D/B/F archive consumers retain their canonical source owners",
+      "originating_boundary": "D",
+      "diagnostic_count": 25,
+      "diagnostic_codes": {
+        "I001": 1,
+        "ANN201": 1,
+        "ANN001": 3,
+        "E402": 1,
+        "T201": 13,
+        "E501": 6
+      },
+      "format_required": true,
+      "source_mutated": false,
+      "P41": "not_established"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/run_wave_driver_attempt02.py",
+      "object_id": "e9e72fb639310dc3cbc79efaa53d4c8529e0a0a2",
+      "bytes": 8831,
+      "sha256": "eeab304d3b4b04ebc0f71a00983f30c15b181ae69831cfe5442446acef8b7e53",
+      "factual_writer": "G",
+      "canonical_owner": "G integration evidence publisher; originating D/B/F archive consumers retain their canonical source owners",
+      "originating_boundary": "D",
+      "diagnostic_count": 33,
+      "diagnostic_codes": {
+        "F401": 3,
+        "E501": 10,
+        "S603": 3,
+        "C408": 1,
+        "SIM115": 2,
+        "E702": 2,
+        "E701": 5,
+        "SIM105": 2,
+        "S110": 2,
+        "S314": 1,
+        "SIM114": 1,
+        "T201": 1
+      },
+      "format_required": true,
+      "source_mutated": false,
+      "P41": "not_established"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+      "object_id": "cfaa910075caf561906970210186f71053f53994",
+      "bytes": 8256,
+      "sha256": "a8782f96386cf9502de662dea4116df66f61c24537bcf8d22f5c0da2ff940bbb",
+      "factual_writer": "G",
+      "canonical_owner": null,
+      "originating_boundary": "C",
+      "diagnostic_count": 21,
+      "diagnostic_codes": {
+        "E501": 8,
+        "T201": 2,
+        "ANN201": 3,
+        "ANN001": 5,
+        "S603": 1,
+        "S607": 1,
+        "S324": 1
+      },
+      "format_required": true,
+      "source_mutated": false,
+      "P41": "not_established"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+      "object_id": "52c285f11632a8eab8ff103b25ea5763e8ebfc14",
+      "bytes": 6261,
+      "sha256": "1ad19f77f3e1f367ff5d21c1efc1b6f9bc18175c0bbdda2b3dc36fba93ed1215",
+      "factual_writer": "G",
+      "canonical_owner": null,
+      "originating_boundary": "C",
+      "diagnostic_count": 56,
+      "diagnostic_codes": {
+        "I001": 2,
+        "E401": 1,
+        "E701": 13,
+        "ANN201": 4,
+        "ANN001": 6,
+        "E501": 9,
+        "E702": 13,
+        "E402": 3,
+        "ANN204": 1,
+        "S603": 1,
+        "S607": 1,
+        "S324": 1,
+        "T201": 1
+      },
+      "format_required": true,
+      "source_mutated": false,
+      "P41": "not_established"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+      "object_id": "68f426228d4c69ef749e814a980933846c181018",
+      "bytes": 1958,
+      "sha256": "c591f36d662b717d67f439ebf9504c2cf5531f80b6cb9a6dcdc685a11582e936",
+      "factual_writer": "G",
+      "canonical_owner": null,
+      "originating_boundary": "C",
+      "diagnostic_count": 23,
+      "diagnostic_codes": {
+        "I001": 1,
+        "E401": 1,
+        "E702": 13,
+        "UP017": 2,
+        "E701": 2,
+        "S603": 2,
+        "E501": 1,
+        "T201": 1
+      },
+      "format_required": true,
+      "source_mutated": false,
+      "P41": "not_established"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/supervise_attempt2.py",
+      "object_id": "c74e2d8b560619f21e9f82294e6696dd6c55ba55",
+      "bytes": 3049,
+      "sha256": "66b6af1abfea1b715c4b0e7fa23ee77c84de3f0dc7fa4c94c04fd846bdae1234",
+      "factual_writer": "G",
+      "canonical_owner": null,
+      "originating_boundary": "C",
+      "diagnostic_count": 7,
+      "diagnostic_codes": {
+        "F401": 1,
+        "UP017": 2,
+        "S603": 2,
+        "E501": 1,
+        "T201": 1
+      },
+      "format_required": true,
+      "source_mutated": false,
+      "P41": "not_established"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/candidate_runtime.py",
+      "object_id": "86866bd1c1e68aab992c83dff8dbd97e2ca05f26",
+      "bytes": 17493,
+      "sha256": "a320bfc0cf7b9fbf5b82ee6e004772a4888a774cfef1c491a6e2622eebe4d022",
+      "factual_writer": "G",
+      "canonical_owner": "G integration evidence publisher; originating D/B/F archive consumers retain their canonical source owners",
+      "originating_boundary": "B",
+      "diagnostic_count": 22,
+      "diagnostic_codes": {
+        "F401": 2,
+        "E501": 5,
+        "ANN401": 4,
+        "SIM102": 1,
+        "S324": 1,
+        "T201": 8,
+        "F841": 1
+      },
+      "format_required": true,
+      "source_mutated": false,
+      "P41": "not_established"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/run_checks.py",
+      "object_id": "3046a53f38b0a7c2fe83ae5a1465818a8cb36405",
+      "bytes": 5995,
+      "sha256": "765c73023c85e8156320911462c59ad1ac455645da60e85185e26a6004d69057",
+      "factual_writer": "G",
+      "canonical_owner": "G integration evidence publisher; originating D/B/F archive consumers retain their canonical source owners",
+      "originating_boundary": "B",
+      "diagnostic_count": 18,
+      "diagnostic_codes": {
+        "F401": 1,
+        "E501": 2,
+        "S603": 8,
+        "S607": 6,
+        "T201": 1
+      },
+      "format_required": true,
+      "source_mutated": false,
+      "P41": "not_established"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/run_repair.py",
+      "object_id": "96143d85e64954daceb29b45b0027bee4b33d8c8",
+      "bytes": 5459,
+      "sha256": "034eda561c074d6aa948ba3c53996eb9a66ae5f3ce9c654e648eef2c5a49e430",
+      "factual_writer": "G",
+      "canonical_owner": "G integration evidence publisher; originating D/B/F archive consumers retain their canonical source owners",
+      "originating_boundary": "B",
+      "diagnostic_count": 17,
+      "diagnostic_codes": {
+        "E501": 8,
+        "S324": 1,
+        "S603": 4,
+        "S607": 3,
+        "T201": 1
+      },
+      "format_required": true,
+      "source_mutated": false,
+      "P41": "not_established"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/probe.py",
+      "object_id": "47e4fe4f13cd1635fd28e1b8756f7efc691970e0",
+      "bytes": 23974,
+      "sha256": "5ce7244429ec1c6cf60507f5c4ef1b3059583ea3825aaa269c00dfc7b7f21bbc",
+      "factual_writer": "G",
+      "canonical_owner": "G integration evidence publisher; originating D/B/F archive consumers retain their canonical source owners",
+      "originating_boundary": "G",
+      "diagnostic_count": 26,
+      "diagnostic_codes": {
+        "ANN201": 1,
+        "ANN401": 3,
+        "S324": 1,
+        "E501": 14,
+        "I001": 1,
+        "T201": 6
+      },
+      "format_required": true,
+      "source_mutated": false,
+      "P41": "not_established"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/run-native.py",
+      "object_id": "2b4c9f01aaf82dd083372546ad42fcb78e536642",
+      "bytes": 2527,
+      "sha256": "840e32d15fdb762ebf0c68f5ddc1f2a90aca635822095212e517e3c6f045e0d6",
+      "factual_writer": "G",
+      "canonical_owner": "G integration evidence publisher; originating D/B/F archive consumers retain their canonical source owners",
+      "originating_boundary": "G",
+      "diagnostic_count": 8,
+      "diagnostic_codes": {
+        "S603": 1,
+        "F841": 1,
+        "E501": 1,
+        "T201": 5
+      },
+      "format_required": true,
+      "source_mutated": false,
+      "P41": "not_established"
+    }
+  ],
+  "basis": [
+    {
+      "path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/inputs.json",
+      "bytes": 717500,
+      "sha256": "c9369ebc6b07d7c52c28f2ceba13f4851e81688a2e43237f890920c54c9b36b6"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/capture-receipt.json",
+      "bytes": 95492,
+      "sha256": "d973357de8d7bc8507d4fb50e2feeff370c990e1792afac37b57fdab7a6aa01d"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/ruff.stdout.txt",
+      "bytes": 181979,
+      "sha256": "6b088c1fbe7bdc8143140f983b30945b2d94f0ae9e81a4eef0456e58d4c765d0"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/ruff.json",
+      "bytes": 45046,
+      "sha256": "d7187facf9a7164a7de352d4d5b384162897168a62d7b8217c19ff1f0777d5f6"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/ruff-format.stdout.txt",
+      "bytes": 1793,
+      "sha256": "cebb07b20bf0f2e2bfd283b392abd0b466e15de06654d94ee0d14c2689b6b842"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/ruff-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/ruff-format.json",
+      "bytes": 45048,
+      "sha256": "3ae3e87780f279f3eab81bcad7c98cecd6d9958fb8999141929048e5419f8dcb"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/record_and_check.py",
+      "bytes": 13730,
+      "sha256": "8b4c94376399eaa22affdd1eeb996f5ad00a144a119a5034036dad1321ffce1b"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/native-discovered-settings.stdout.txt",
+      "bytes": 115530,
+      "sha256": "d235a623e2df35e592517b734b8131d75f6c3b140c33c4df3411f87db0bf927c"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/ruff-version.stdout.txt",
+      "bytes": 13,
+      "sha256": "5c218bad3d3966fc0a61f2d77271435aacd471038e833636bfa8cf5fe743f4ab"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/python-version.stdout.txt",
+      "bytes": 146,
+      "sha256": "34f27a7c255332c79405c5112987bbcefd0dd12a90acf6cbddb40e1c4c867192"
+    }
+  ],
+  "next_owner": "G routes direct A/B utility inputs and G-published archived C/D/B/F Python inputs; E349 currently have no native diagnostics/format requests. No foreign edits, exclusions or baseline widening.",
+  "exact_old_base_replay": "not performed: P41/inherited-source attribution not_established",
+  "source_or_env_or_foreign_code_changed": false,
+  "source_delta_since_prior2dc": "freshfullGit8430pathdenominator includes actual962 passiveCALhandoff additions, activePython378 and their codebytes unchanged; fullnativecommands executed on frozenb2"
+}

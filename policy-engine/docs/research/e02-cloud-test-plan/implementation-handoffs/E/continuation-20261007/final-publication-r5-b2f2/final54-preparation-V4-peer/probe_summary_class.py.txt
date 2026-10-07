@@ -1,0 +1,36 @@
+import copy
+import hashlib
+import json
+import runpy
+from pathlib import Path
+
+ROOT = Path('/tmp/e02-E-final54-b2f2-preparation-20261007')
+MODULE = ROOT / 'prepare.py'
+PACKET = ROOT / 'prepared-v3-normal.json'
+namespace = runpy.run_path(str(MODULE), run_name='independent_preparation_summary_probe')
+inputs, values = namespace['load_inputs'](ROOT / 'inputs.json')
+roles = namespace['source_bindings'](inputs['inputs'])
+packet = json.loads(PACKET.read_bytes())
+def validate(p):
+    namespace['admit_rows'](p, values['owner54'])
+    namespace['admit_source_claims'](p, roles)
+validate(packet)
+results=[]
+for name, path, value in [
+ ('native current path denominator 104 to1', ('current_numeric_wave','native_test_path_count'),1),
+ ('distribution denominator207 to1', ('environment','distribution_metadata_count'),1),
+ ('original pending private-edge integer tobool', ('import_owner_dependencies','original12','owner_export_pending'),True),
+ ('current configured-fit source changed to old3932', ('scientific_fit_boundary','accepted_source'), namespace['OLD']),
+]:
+ mutant=copy.deepcopy(packet)
+ part=mutant
+ for key in path[:-1]:part=part[key]
+ part[path[-1]]=value
+ try:
+  validate(mutant)
+ except (ValueError,TypeError,KeyError) as exc:
+  results.append({'case':name,'observed':'REFUSED','reason':str(exc)})
+ else:
+  results.append({'case':name,'observed':'FALSE_ADMITTED','property_expected_refusal':'FAIL',
+                  'raw_sources_source_roles_original54_NULL_outcomes_retained':True})
+print(json.dumps({'source':'b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641','packet':{'path':str(PACKET),'bytes':PACKET.stat().st_size,'sha256':hashlib.sha256(PACKET.read_bytes()).hexdigest()},'validator':{'path':str(MODULE),'bytes':MODULE.stat().st_size,'sha256':hashlib.sha256(MODULE.read_bytes()).hexdigest()},'controls':results,'product_native_backend_tests_repeated':False},indent=2))

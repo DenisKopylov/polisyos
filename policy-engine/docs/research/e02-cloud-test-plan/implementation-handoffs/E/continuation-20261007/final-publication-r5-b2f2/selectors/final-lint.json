@@ -1,0 +1,239 @@
+{
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "scope": "Actual frozen full378 Python nativeRuff+format; bothFAIL1 and292diagnostics/14format foreignpaths. E349source/test/utility inputs clean. Source/config/metadata184 immutable. Findingclosure independent; P41not_established/noinheritedwaiver.",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/inputs.json",
+      "portable_path": "inputs.json",
+      "bytes": 717500,
+      "sha256": "c9369ebc6b07d7c52c28f2ceba13f4851e81688a2e43237f890920c54c9b36b6",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/capture-receipt.json",
+      "portable_path": "capture-receipt.json",
+      "bytes": 95492,
+      "sha256": "d973357de8d7bc8507d4fb50e2feeff370c990e1792afac37b57fdab7a6aa01d",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/owner-packet.json",
+      "portable_path": "owner-packet.json",
+      "bytes": 14450,
+      "sha256": "4277454bdce47094cee9afd666cf44d9fcfc37953b5838f66a68aaee73eee491",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/record_and_check.py",
+      "portable_path": "record_and_check.py.txt",
+      "bytes": 13730,
+      "sha256": "8b4c94376399eaa22affdd1eeb996f5ad00a144a119a5034036dad1321ffce1b",
+      "role": "literal passive observer source"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/build_owner_packet.py",
+      "portable_path": "build_owner_packet.py.txt",
+      "bytes": 3806,
+      "sha256": "4bfdbe3d153ed2f12852cc75e3824d694c73ec28badc967d97ddcd850e296e5c",
+      "role": "literal passive observer source"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/owner-builder.stdout.json",
+      "portable_path": "owner-builder.stdout.json",
+      "bytes": 669,
+      "sha256": "65b39d1a7cd1a7d0ef4a0b970061967d9d0ba46c6bae69d9ec8d1854705f4630",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/owner-builder.stderr.txt",
+      "portable_path": "owner-builder.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/validate_owner_claims.py",
+      "portable_path": "validate_owner_claims.py.txt",
+      "bytes": 5671,
+      "sha256": "8a86cbdc6f0253ee697cd5c1557af44f7744b0d744a76427c41dfd16de565f01",
+      "role": "literal passive observer source"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/recorder.stdout.json",
+      "portable_path": "recorder.stdout.json",
+      "bytes": 1519,
+      "sha256": "2fc61262713335d2045462cdef037ba2d1b97cee5a6345c991703462754ccf65",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/recorder.stderr.txt",
+      "portable_path": "recorder.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/full-git-delta.name-status.bin",
+      "portable_path": "full-git-delta.name-status.bin",
+      "bytes": 1460522,
+      "sha256": "e8eaefceba5878c21fad3a9ecc7bfedcdf8851f19c60ed51b471431ca83e1663",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/before-git-status.json",
+      "portable_path": "before-git-status.json",
+      "bytes": 591,
+      "sha256": "49435f88bc14deb924b160dffb26f6bb5ac287e9f3d7ec2b888443715460c579",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/after-git-status.json",
+      "portable_path": "after-git-status.json",
+      "bytes": 591,
+      "sha256": "49435f88bc14deb924b160dffb26f6bb5ac287e9f3d7ec2b888443715460c579",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/ruff.json",
+      "portable_path": "ruff.json",
+      "bytes": 45046,
+      "sha256": "d7187facf9a7164a7de352d4d5b384162897168a62d7b8217c19ff1f0777d5f6",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/ruff.stdout.txt",
+      "portable_path": "ruff.stdout.txt",
+      "bytes": 181979,
+      "sha256": "6b088c1fbe7bdc8143140f983b30945b2d94f0ae9e81a4eef0456e58d4c765d0",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/ruff.stderr.txt",
+      "portable_path": "ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/ruff-format.json",
+      "portable_path": "ruff-format.json",
+      "bytes": 45048,
+      "sha256": "3ae3e87780f279f3eab81bcad7c98cecd6d9958fb8999141929048e5419f8dcb",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/ruff-format.stdout.txt",
+      "portable_path": "ruff-format.stdout.txt",
+      "bytes": 1793,
+      "sha256": "cebb07b20bf0f2e2bfd283b392abd0b466e15de06654d94ee0d14c2689b6b842",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/ruff-format.stderr.txt",
+      "portable_path": "ruff-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/ruff-version.json",
+      "portable_path": "ruff-version.json",
+      "bytes": 1040,
+      "sha256": "bd85a8471c3f580293f348319113d0258815364e761dbc3e907e1eeaf1c841c2",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/ruff-version.stdout.txt",
+      "portable_path": "ruff-version.stdout.txt",
+      "bytes": 13,
+      "sha256": "5c218bad3d3966fc0a61f2d77271435aacd471038e833636bfa8cf5fe743f4ab",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/ruff-version.stderr.txt",
+      "portable_path": "ruff-version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/python-version.json",
+      "portable_path": "python-version.json",
+      "bytes": 1116,
+      "sha256": "f91460f74cac726ea005af02138409d01d0f3fb45627e6b87335053aa8023c3a",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/python-version.stdout.txt",
+      "portable_path": "python-version.stdout.txt",
+      "bytes": 146,
+      "sha256": "34f27a7c255332c79405c5112987bbcefd0dd12a90acf6cbddb40e1c4c867192",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/python-version.stderr.txt",
+      "portable_path": "python-version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/native-discovered-settings.json",
+      "portable_path": "native-discovered-settings.json",
+      "bytes": 1160,
+      "sha256": "1937c1b9fcb61267cf2618270faeaba318054a5ceb562e96eb76223f4992c42f",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/native-discovered-settings.stdout.txt",
+      "portable_path": "native-discovered-settings.stdout.txt",
+      "bytes": 115530,
+      "sha256": "d235a623e2df35e592517b734b8131d75f6c3b140c33c4df3411f87db0bf927c",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/native-discovered-settings.stderr.txt",
+      "portable_path": "native-discovered-settings.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/owner-controls-normal.stdout.json",
+      "portable_path": "owner-controls-normal.stdout.json",
+      "bytes": 2417,
+      "sha256": "76fdd7fa3d73b5b9112e06b78a63c6ea32c3c557e708c4f41d1ce20547d426f5",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/owner-controls-normal.stderr.txt",
+      "portable_path": "owner-controls-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/owner-controls-optimized.stdout.json",
+      "portable_path": "owner-controls-optimized.stdout.json",
+      "bytes": 2416,
+      "sha256": "5def1d8be346e3be46255ca403ec2831cafb0ab0a909f134ce9f20ae0cc394a2",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/owner-controls-optimized.stderr.txt",
+      "portable_path": "owner-controls-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "closed current native Ruff/format evidence or actual claim guard controls"
+    }
+  ],
+  "logical_count": 32,
+  "byte_unique_count": 23,
+  "unique_bytes": 2711654,
+  "full_actual_denominator": 378,
+  "no_source_or_env_edits": true,
+  "author_controls_each_mode": 8,
+  "author_is_not_independent_reviewer": true
+}

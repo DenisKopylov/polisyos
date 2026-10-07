@@ -1,0 +1,1688 @@
+{
+  "schema": "policyos.e02.explicit_flat_literal_references.v1",
+  "files": [
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/admission-resume.stderr",
+      "portable_path": "source-freeze-publication/admission-resume.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/admission-resume.stdout",
+      "portable_path": "source-freeze-publication/admission-resume.stdout",
+      "bytes": 123265,
+      "sha256": "7458b1113513ed49db2c156ec0e215d8dbaffd13590c037151467b201e9dbd97",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/fetch-readback.stderr",
+      "portable_path": "source-freeze-publication/fetch-readback.stderr",
+      "bytes": 149,
+      "sha256": "412f476e112416865867e4f49c2e5a83dad72017f91ccb75f521590357efc874",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/fetch-readback.stdout",
+      "portable_path": "source-freeze-publication/fetch-readback.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/freeze.json",
+      "portable_path": "source-freeze-publication/freeze.json",
+      "bytes": 4697,
+      "sha256": "4d49a909e20e3311dd60eadff8f62c03a8bd0e5438d96004bf276c3ff5cb569c",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/publication-commands.json",
+      "portable_path": "source-freeze-publication/publication-commands.json",
+      "bytes": 1576,
+      "sha256": "b7e6ed28a24524d39e2865440850f23437743bceb29b09e141cfec40915fc230",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/publication-readback.json",
+      "portable_path": "source-freeze-publication/publication-readback.json",
+      "bytes": 2488,
+      "sha256": "c453139628edbeeb3af4fcb900ba7c49b06a195ac1d29f0f336d55b30d3d0a15",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/push.stderr",
+      "portable_path": "source-freeze-publication/push.stderr",
+      "bytes": 115,
+      "sha256": "601efcb840895745d79bd3bf92b22cb4b447d8301f92efe027bde0e7c32d0a7d",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/push.stdout",
+      "portable_path": "source-freeze-publication/push.stdout",
+      "bytes": 486,
+      "sha256": "5862b67d50ad6bc704a33b82376546b383611d5a339b331b001769794da34e0d",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/remote-ancestor.stderr",
+      "portable_path": "source-freeze-publication/remote-ancestor.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/remote-ancestor.stdout",
+      "portable_path": "source-freeze-publication/remote-ancestor.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/remote-readback.stderr",
+      "portable_path": "source-freeze-publication/remote-readback.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/remote-readback.stdout",
+      "portable_path": "source-freeze-publication/remote-readback.stdout",
+      "bytes": 86,
+      "sha256": "16c12be14b683fb438ddf58f141e100608250c5645582090364f0747289ec849",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-final-publication-coordination-20261007/git-prepublication-readback.json",
+      "portable_path": "closed-flat-refs/git-prepublication-readback.json",
+      "bytes": 4197,
+      "sha256": "7ba7dd6719ed0248c7fbb335ec387d0faa45655fcabcf31ea666d7bdb3926893",
+      "role": "original closed readback or readiness index; old pending index remains historical distinct from final completion"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-final-publication-coordination-20261007/fresh-G-6e8725-delta.json",
+      "portable_path": "closed-flat-refs/fresh-G-6e8725-delta.json",
+      "bytes": 5643,
+      "sha256": "367c1931bc1bd06cdd272ba7195d6dcdb993612a95f85f1f9f256628e6412f11",
+      "role": "original closed readback or readiness index; old pending index remains historical distinct from final completion"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-finished-packet-index-b2f2f65e-20261007.json",
+      "portable_path": "closed-flat-refs/e02-E-final3-finished-packet-index-b2f2f65e-20261007.json",
+      "bytes": 3964,
+      "sha256": "2686583a5c1422261332a889935784a2f4e21da59943ee096131943f04cb4356",
+      "role": "original closed readback or readiness index; old pending index remains historical distinct from final completion"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-finished-packet-index-b2f2f65e-20261007-v2.json",
+      "portable_path": "closed-flat-refs/e02-E-final3-finished-packet-index-b2f2f65e-20261007-v2.json",
+      "bytes": 4576,
+      "sha256": "bb145f9364c49780472f06982fe102c0dc417105b78aa6fc18e30a3eccb50d7e",
+      "role": "original closed readback or readiness index; old pending index remains historical distinct from final completion"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/prepare-flat-inventory.py.txt",
+      "portable_path": "r5-author-route-controls/prepare-flat-inventory.py.txt",
+      "bytes": 11056,
+      "sha256": "78e581dcd52fdd8b1d9b2aa536c3fe8ea212ab0d6466c7e3663fac651f569e2e",
+      "role": "actual metadata-only route/registered encoding admission controls and source; no numerical execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/close-final-input-queue.py.txt",
+      "portable_path": "r5-author-route-controls/close-final-input-queue.py.txt",
+      "bytes": 18070,
+      "sha256": "1916e76fb76e101ceec7f62ee3f74cfbf5848c6f7377fd007b5049d7820753f0",
+      "role": "actual metadata-only route/registered encoding admission controls and source; no numerical execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/probe-binary-storage-routes.py.txt",
+      "portable_path": "r5-author-route-controls/probe-binary-storage-routes.py.txt",
+      "bytes": 2657,
+      "sha256": "659bd908b2c75c965b43f308e057c59eb18df9d290c994c9b14fbaf002140d2b",
+      "role": "actual metadata-only route/registered encoding admission controls and source; no numerical execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/binary-storage-controls.stdout.json",
+      "portable_path": "r5-author-route-controls/binary-storage-controls.stdout.json",
+      "bytes": 1894,
+      "sha256": "57f2b1d22472383c36ac3d8a1dc834cd6ecf24f6147226f0b7080f4b91954a79",
+      "role": "actual metadata-only route/registered encoding admission controls and source; no numerical execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/binary-storage-controls.stderr.txt",
+      "portable_path": "r5-author-route-controls/binary-storage-controls.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata-only route/registered encoding admission controls and source; no numerical execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/probe-registered-storage.py.txt",
+      "portable_path": "r5-author-route-controls/probe-registered-storage.py.txt",
+      "bytes": 6248,
+      "sha256": "e4cd44860095ab0a675dea44c0d10f7df0712522a930da6f17138b5484b89b31",
+      "role": "actual metadata-only route/registered encoding admission controls and source; no numerical execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/registered-normal.stdout.json",
+      "portable_path": "r5-author-route-controls/registered-normal.stdout.json",
+      "bytes": 3059,
+      "sha256": "122a8a00f20041da5c25c36360dcecf817418093ad5019addac6b7783a86ed96",
+      "role": "actual metadata-only route/registered encoding admission controls and source; no numerical execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/registered-normal.stderr.txt",
+      "portable_path": "r5-author-route-controls/registered-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata-only route/registered encoding admission controls and source; no numerical execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/registered-optimized.stdout.json",
+      "portable_path": "r5-author-route-controls/registered-optimized.stdout.json",
+      "bytes": 3065,
+      "sha256": "13ab172de8a13cf9ca3b06b6afa08995a1662b20559e3acdcebd63ce435235e2",
+      "role": "actual metadata-only route/registered encoding admission controls and source; no numerical execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/registered-optimized.stderr.txt",
+      "portable_path": "r5-author-route-controls/registered-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata-only route/registered encoding admission controls and source; no numerical execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/registered-storage-controls-normal/review.json",
+      "portable_path": "r5-author-route-controls/registered-storage-controls-normal/review.json",
+      "bytes": 3059,
+      "sha256": "122a8a00f20041da5c25c36360dcecf817418093ad5019addac6b7783a86ed96",
+      "role": "actual normal/-O registered encoding admission and sole decoded-identity guard removal"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/registered-storage-controls-optimized/review.json",
+      "portable_path": "r5-author-route-controls/registered-storage-controls-optimized/review.json",
+      "bytes": 3065,
+      "sha256": "13ab172de8a13cf9ca3b06b6afa08995a1662b20559e3acdcebd63ce435235e2",
+      "role": "actual normal/-O registered encoding admission and sole decoded-identity guard removal"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/registered-storage-controls-normal/sole-decoded-predicate-removal.py.txt",
+      "portable_path": "r5-author-route-controls/registered-storage-controls-normal/sole-decoded-predicate-removal.py.txt",
+      "bytes": 2839,
+      "sha256": "f788a52cbb6cec042b12178449b8f01fa4e67a8c104608f7fa08cb530347fbd5",
+      "role": "actual normal/-O registered encoding admission and sole decoded-identity guard removal"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/registered-storage-controls-optimized/sole-decoded-predicate-removal.py.txt",
+      "portable_path": "r5-author-route-controls/registered-storage-controls-optimized/sole-decoded-predicate-removal.py.txt",
+      "bytes": 2839,
+      "sha256": "f788a52cbb6cec042b12178449b8f01fa4e67a8c104608f7fa08cb530347fbd5",
+      "role": "actual normal/-O registered encoding admission and sole decoded-identity guard removal"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/probe-final-copier.py.txt",
+      "portable_path": "r5-actual-copier-controls/probe-final-copier.py.txt",
+      "bytes": 8081,
+      "sha256": "032547648ada3ec22fd3f0fecd14263902b5dbc6d9bba7b16a72c385439db6d8",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/probe-Counter-aliased-omission-delta.py.txt",
+      "portable_path": "r5-actual-copier-controls/probe-Counter-aliased-omission-delta.py.txt",
+      "bytes": 4245,
+      "sha256": "1c8b7450d7b1d6e9d696f6726e9896e4daba119ac5e909870a39c82505689b3c",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal.stdout.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal.stderr",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal.stderr",
+      "bytes": 356,
+      "sha256": "89647fd4439bb8276484fa9da996edd4f033fc196ebc43632883c831710f7032",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized.stdout.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized.stderr",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized.stderr",
+      "bytes": 356,
+      "sha256": "89647fd4439bb8276484fa9da996edd4f033fc196ebc43632883c831710f7032",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-normal.stdout.json",
+      "portable_path": "r5-actual-copier-controls/Counter-delta-normal.stdout.json",
+      "bytes": 343,
+      "sha256": "896537ae074f9d453114d0d96c0c33b20e6d52739147ecec299ec57fd1b5eae0",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-normal.stderr",
+      "portable_path": "r5-actual-copier-controls/Counter-delta-normal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-optimized.stdout.json",
+      "portable_path": "r5-actual-copier-controls/Counter-delta-optimized.stdout.json",
+      "bytes": 346,
+      "sha256": "ddbdc0fcdcac1e8a4e03fed8e87bcea45ab894876e2742ab49153a074f67adb3",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-optimized.stderr",
+      "portable_path": "r5-actual-copier-controls/Counter-delta-optimized.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/published-layout-normal.stdout.json",
+      "portable_path": "r5-actual-copier-controls/published-layout-normal.stdout.json",
+      "bytes": 610,
+      "sha256": "c06e334c2b8eef6b3042cf32cde840ec3895a36b000e7c571954ee9dff26b96c",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/published-layout-normal.stderr",
+      "portable_path": "r5-actual-copier-controls/published-layout-normal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/published-layout-optimized.stdout.json",
+      "portable_path": "r5-actual-copier-controls/published-layout-optimized.stdout.json",
+      "bytes": 613,
+      "sha256": "86f842985990d9a6e1a4edf30c08c1700f951f9dad000c7a627048f696d8a1d8",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/published-layout-optimized.stderr",
+      "portable_path": "r5-actual-copier-controls/published-layout-optimized.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/published-layout-complete-readback.json",
+      "portable_path": "r5-actual-copier-controls/published-layout-complete-readback.json",
+      "bytes": 1401,
+      "sha256": "1d0d68742948db9227601be9a31fe2cdf65ae0cda31907f99a7fb8388d9d0878",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/build-first-transport-observation.json",
+      "portable_path": "r5-actual-copier-controls/build-first-transport-observation.json",
+      "bytes": 522,
+      "sha256": "63bb31fc22016a4d147831e71abd5e486682bd6bc21185dc4fa14c687aab7ea1",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/build-final-v1.stdout.json",
+      "portable_path": "r5-actual-copier-controls/build-final-v1.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/build-final-v1.stderr",
+      "portable_path": "r5-actual-copier-controls/build-final-v1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/close-final-controls-selection.py.txt",
+      "portable_path": "r5-actual-copier-controls/close-final-controls-selection.py.txt",
+      "bytes": 5880,
+      "sha256": "945f2f8f7646b3a9c915e426756eea433e7132df0d20c8007ad1742c144bbf7a",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/flat-source-publication-selection.json",
+      "portable_path": "r5-actual-copier-controls/flat-source-publication-selection.json",
+      "bytes": 12948,
+      "sha256": "20288aafd4f6053c4e1ffb770a46ff32ce2dd837053fdb174f23e78fa4a257a5",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/G-accepted-true.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/G-accepted-true.observation.json",
+      "bytes": 595,
+      "sha256": "46d99e86da20459742c9e317b200dbf28a7bcdd88ff3a7f5019011c9d188cbaf",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/G-accepted-true.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/G-accepted-true.stderr.txt",
+      "bytes": 628,
+      "sha256": "6b9a960d7df834ff4ac5ce2200489ecea2781b444145341940c205b2151d4ecf",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/G-accepted-true.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/G-accepted-true.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/ROOT-after-zero.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/ROOT-after-zero.observation.json",
+      "bytes": 595,
+      "sha256": "f0881b610888e149d603916a2c783d265ed825da3ffdf85819c24caef79e81ac",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/ROOT-after-zero.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/ROOT-after-zero.stderr.txt",
+      "bytes": 630,
+      "sha256": "0766d231af81f7471b9266446ffedf5e7d79667e26e78d152c4364a906ad453b",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/ROOT-after-zero.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/ROOT-after-zero.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/UNRUN-zero.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/UNRUN-zero.observation.json",
+      "bytes": 580,
+      "sha256": "53cce5e8778f670f95e8d4039471f217715f381bde9ed38ae237bf64d41565ba",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/UNRUN-zero.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/UNRUN-zero.stderr.txt",
+      "bytes": 628,
+      "sha256": "6b9a960d7df834ff4ac5ce2200489ecea2781b444145341940c205b2151d4ecf",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/UNRUN-zero.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/UNRUN-zero.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/ambiguous-layout.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/ambiguous-layout.observation.json",
+      "bytes": 598,
+      "sha256": "c751b23ea08e06dfe9e9df6e9d859f2e881e1ad849d3ffe1a595e2d566a2ae8c",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/ambiguous-layout.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/ambiguous-layout.stderr.txt",
+      "bytes": 846,
+      "sha256": "3b68794ee9aac18d5880587ad572a4f3f6e5b6cbc09892efa1c76c831e088af3",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/ambiguous-layout.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/ambiguous-layout.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/case-PASS-bool.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/case-PASS-bool.observation.json",
+      "bytes": 592,
+      "sha256": "607bd455ca9f2bc1229bab2311ba74eba1c28130f9cba53dedefcaec079c23e4",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/case-PASS-bool.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/case-PASS-bool.stderr.txt",
+      "bytes": 628,
+      "sha256": "6b9a960d7df834ff4ac5ce2200489ecea2781b444145341940c205b2151d4ecf",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/case-PASS-bool.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/case-PASS-bool.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/decoded-original-digest.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/decoded-original-digest.observation.json",
+      "bytes": 619,
+      "sha256": "dac7836e87e61900b639d5db18ab492912dfa2546221fcb17e02025a5b86197a",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/decoded-original-digest.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/decoded-original-digest.stderr.txt",
+      "bytes": 612,
+      "sha256": "52e84f400ffdf26266fb2be63da1bc5b5800a4ac468bceec667591acc53f3cde",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/decoded-original-digest.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/decoded-original-digest.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/fake-build-final-stage-py-txt.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/fake-build-final-stage-py-txt.observation.json",
+      "bytes": 637,
+      "sha256": "b1a40d33ef8af11fb7a0331cea1bac74f695598556ecbe3d1cc9cb0d27c2bb1a",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/fake-build-final-stage-py-txt.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/fake-build-final-stage-py-txt.stderr.txt",
+      "bytes": 426,
+      "sha256": "d00d87853d15def5f13455d8e99e5aa2307bccbf6ec1756ad4b18dbd8924a93e",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/fake-build-final-stage-py-txt.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/fake-build-final-stage-py-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/fake-copy-final-publication-py-txt.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/fake-copy-final-publication-py-txt.observation.json",
+      "bytes": 652,
+      "sha256": "3cffa1a3b04953c9fa9e0608f7e14931630736d92e23848c581e6466d0bd5285",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/fake-copy-final-publication-py-txt.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/fake-copy-final-publication-py-txt.stderr.txt",
+      "bytes": 408,
+      "sha256": "0ae55bba1ba539defd3ac36900a97b2f671a5bc73a7c1bda443492fb90c766bd",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/fake-copy-final-publication-py-txt.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/fake-copy-final-publication-py-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/fake-implementation-handoff-json.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/fake-implementation-handoff-json.observation.json",
+      "bytes": 646,
+      "sha256": "c4ba4a5dafa8063951f84ff581483320f50d5c6209b654dba108d661fc6616f0",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/fake-implementation-handoff-json.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/fake-implementation-handoff-json.stderr.txt",
+      "bytes": 426,
+      "sha256": "d00d87853d15def5f13455d8e99e5aa2307bccbf6ec1756ad4b18dbd8924a93e",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/fake-implementation-handoff-json.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/fake-implementation-handoff-json.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/fake-supplemental-c229-functions-patch-txt.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/fake-supplemental-c229-functions-patch-txt.observation.json",
+      "bytes": 676,
+      "sha256": "5c0697ec4008a0d07be11085ecedeb3214b650df3b130c1e397ac1a66cbcc308",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/fake-supplemental-c229-functions-patch-txt.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/fake-supplemental-c229-functions-patch-txt.stderr.txt",
+      "bytes": 426,
+      "sha256": "d00d87853d15def5f13455d8e99e5aa2307bccbf6ec1756ad4b18dbd8924a93e",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/fake-supplemental-c229-functions-patch-txt.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/fake-supplemental-c229-functions-patch-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/gate-PASS.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/gate-PASS.observation.json",
+      "bytes": 577,
+      "sha256": "e12b22cda9d908f2d0fd59d220d2574b525edf74603ea209825b6ce05abd81e7",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/gate-PASS.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/gate-PASS.stderr.txt",
+      "bytes": 628,
+      "sha256": "6b9a960d7df834ff4ac5ce2200489ecea2781b444145341940c205b2151d4ecf",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/gate-PASS.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/gate-PASS.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/healthy-stage-complete-readback.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/healthy-stage-complete-readback.json",
+      "bytes": 239956,
+      "sha256": "3369616736800fea8a47edf8fc64a43a79871b42c75170425fb3f85f3ad0908b",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/healthy-stage.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/healthy-stage.observation.json",
+      "bytes": 639,
+      "sha256": "5d8e0fce705ebb369dd432566c24a3a6ffe8f516553bed31707787c6ecc928ac",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/healthy-stage.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/healthy-stage.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/healthy-stage.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/healthy-stage.stdout.txt",
+      "bytes": 622,
+      "sha256": "56f2435c0c6377a7bc8339bf8771bcff74194a790513351b5f97f2eb016a5b6f",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/ledger-closed-bool.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/ledger-closed-bool.observation.json",
+      "bytes": 604,
+      "sha256": "ee212e6aa45057863c98de1eeaebb9215a0e2d4a6a2b656fb329930479e630b1",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/ledger-closed-bool.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/ledger-closed-bool.stderr.txt",
+      "bytes": 628,
+      "sha256": "6b9a960d7df834ff4ac5ce2200489ecea2781b444145341940c205b2151d4ecf",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/ledger-closed-bool.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/ledger-closed-bool.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/logical-total-plus1.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/logical-total-plus1.observation.json",
+      "bytes": 607,
+      "sha256": "c6462dc5016dcbc013523b46fbe9a81fbb2870fe0f5b65d44b6e297f0f748a87",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/logical-total-plus1.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/logical-total-plus1.stderr.txt",
+      "bytes": 612,
+      "sha256": "ec0062f67fc956c0707fd55eb8cccdfe8b5df95f4e576a2bd060b948b82a276c",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/logical-total-plus1.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/logical-total-plus1.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/mandatory-selector-omission.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/mandatory-selector-omission.observation.json",
+      "bytes": 631,
+      "sha256": "46428b91cc57fcce04470db19727d489a8ccbe5cd92c21cc7c8e6b9f4cad09ca",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/mandatory-selector-omission.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/mandatory-selector-omission.stderr.txt",
+      "bytes": 606,
+      "sha256": "c3285047ad78b88b890a4ec5a519e167c0efe87f84e325a87f1e242cceb7820d",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/mandatory-selector-omission.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/mandatory-selector-omission.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/missing-build-final-stage-py-txt.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/missing-build-final-stage-py-txt.observation.json",
+      "bytes": 646,
+      "sha256": "53d98f98a2cbd0a25282a92844fc5f0a1d459e3392b8565932cf12d378cc9cd4",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/missing-build-final-stage-py-txt.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/missing-build-final-stage-py-txt.stderr.txt",
+      "bytes": 1034,
+      "sha256": "724d981066e5bacc300d85e43369d47d326dd9a62bbe397a599bb8df863a8a7b",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/missing-build-final-stage-py-txt.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/missing-build-final-stage-py-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/missing-copy-final-publication-py-txt.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/missing-copy-final-publication-py-txt.observation.json",
+      "bytes": 661,
+      "sha256": "308744715b0c857192192aaf63aaff8386bc82a84e7ab77b9cbbd3fd2d839b30",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/missing-copy-final-publication-py-txt.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/missing-copy-final-publication-py-txt.stderr.txt",
+      "bytes": 1044,
+      "sha256": "56d8a8ecbdada2987e952967f5ad95ccdc6d49b07a8ccd94d4fae4fc6148a07d",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/missing-copy-final-publication-py-txt.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/missing-copy-final-publication-py-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/missing-implementation-handoff-json.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/missing-implementation-handoff-json.observation.json",
+      "bytes": 655,
+      "sha256": "00f8e78572bd0f61acfcd3469a729c779303cee7cb3b55314a234716ca687856",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/missing-implementation-handoff-json.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/missing-implementation-handoff-json.stderr.txt",
+      "bytes": 1040,
+      "sha256": "8cd8931abb903435345f4b81364d1f64da8ea3e8aa4d55a5bbc2f3918e988c7c",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/missing-implementation-handoff-json.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/missing-implementation-handoff-json.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/missing-supplemental-c229-functions-patch-txt.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/missing-supplemental-c229-functions-patch-txt.observation.json",
+      "bytes": 685,
+      "sha256": "8fa8d416aa5961833857bbf8530edf5f256f50c90b0a7801a2870b4eb1a9f94e",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/missing-supplemental-c229-functions-patch-txt.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/missing-supplemental-c229-functions-patch-txt.stderr.txt",
+      "bytes": 1060,
+      "sha256": "24829647e9cd3316ff33170461f32a3863a1112eb98b4289246b93ca0c5ec12b",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/missing-supplemental-c229-functions-patch-txt.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/missing-supplemental-c229-functions-patch-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/payload-total-plus1.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/payload-total-plus1.observation.json",
+      "bytes": 607,
+      "sha256": "f8424521729027be31b7597503c9e2e6c7a8eccc5445c088b39062f8a60cd4e3",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/payload-total-plus1.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/payload-total-plus1.stderr.txt",
+      "bytes": 612,
+      "sha256": "ec0062f67fc956c0707fd55eb8cccdfe8b5df95f4e576a2bd060b948b82a276c",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/payload-total-plus1.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/payload-total-plus1.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/retotalled-genuine-member-omission.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/retotalled-genuine-member-omission.observation.json",
+      "bytes": 652,
+      "sha256": "28fd65b14a246c74fdde4b627904cc4527dd9c7d90303021107bfb69bd90844b",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/retotalled-genuine-member-omission.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/retotalled-genuine-member-omission.stderr.txt",
+      "bytes": 1711,
+      "sha256": "458f90afafeb521fac1e0cf629310dcb0adb8a3563196f5a9ce54a4d785eda0e",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/retotalled-genuine-member-omission.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/retotalled-genuine-member-omission.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/review.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/review.json",
+      "bytes": 20690,
+      "sha256": "3e2f462d18949851a09fb432501830517a1167a5c0dde7ed1d0ec8ee0452ee3b",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/root-execution-true.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/root-execution-true.observation.json",
+      "bytes": 607,
+      "sha256": "21766e7000156a6812dbd6656ac42a29216a6c06a84622664e7e219a1b42982f",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/root-execution-true.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/root-execution-true.stderr.txt",
+      "bytes": 630,
+      "sha256": "0766d231af81f7471b9266446ffedf5e7d79667e26e78d152c4364a906ad453b",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/root-execution-true.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/root-execution-true.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/sole-Counter-guard-removal.py.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/sole-Counter-guard-removal.py.txt",
+      "bytes": 38440,
+      "sha256": "2ca06dbbaa3c27bfe2fb99dfed5dbaced1e40a5110c1bbfdfc8734c5d665c203",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/sole-Counter-removal.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/sole-Counter-removal.observation.json",
+      "bytes": 621,
+      "sha256": "904d1bad2101e6818b0ce2ec69f9782c2f578f8a4e7e41e2a279c68910c2b74e",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/sole-Counter-removal.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/sole-Counter-removal.stderr.txt",
+      "bytes": 1777,
+      "sha256": "b83502556e18af826414642b1949902fc5a2e0ea67c8dfeb02abe763770778ab",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/sole-Counter-removal.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/sole-Counter-removal.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/source-zero.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/source-zero.observation.json",
+      "bytes": 583,
+      "sha256": "3c89fc4a2734404ac9ed85794f259a4940fcbe1b7b0b95d8290e91e7c1dd06d1",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/source-zero.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/source-zero.stderr.txt",
+      "bytes": 630,
+      "sha256": "0766d231af81f7471b9266446ffedf5e7d79667e26e78d152c4364a906ad453b",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/source-zero.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/source-zero.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/unsafe-carrier-route.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/unsafe-carrier-route.observation.json",
+      "bytes": 610,
+      "sha256": "faed4fb2e340aedf660800e0fe8218cbbebfff0340e0a98aa3d95b851943e5ea",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/unsafe-carrier-route.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/unsafe-carrier-route.stderr.txt",
+      "bytes": 832,
+      "sha256": "2efebb38a6307021dffbaae0f45af19bdea0cd7d28dd6b61670c1fdfd19875b5",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/unsafe-carrier-route.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/unsafe-carrier-route.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/wrong-layout.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/wrong-layout.observation.json",
+      "bytes": 590,
+      "sha256": "d461ac8ff5e56e33d22aa0785ecc319451a5356bbd1a861264aa0309550558c0",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/wrong-layout.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/wrong-layout.stderr.txt",
+      "bytes": 846,
+      "sha256": "3b68794ee9aac18d5880587ad572a4f3f6e5b6cbc09892efa1c76c831e088af3",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/wrong-layout.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-normal/wrong-layout.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/G-accepted-true.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/G-accepted-true.observation.json",
+      "bytes": 611,
+      "sha256": "a9e66040223f135ee9cb8d4f27bc160bf7a2aca35e38c54f2d3dd919fd2a2b5c",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/G-accepted-true.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/G-accepted-true.stderr.txt",
+      "bytes": 628,
+      "sha256": "6b9a960d7df834ff4ac5ce2200489ecea2781b444145341940c205b2151d4ecf",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/G-accepted-true.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/G-accepted-true.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/ROOT-after-zero.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/ROOT-after-zero.observation.json",
+      "bytes": 611,
+      "sha256": "b43b06458a8326e92ae27c7fa2263711ce8d897cb8fe4bb0fe042cacbb7f252d",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/ROOT-after-zero.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/ROOT-after-zero.stderr.txt",
+      "bytes": 630,
+      "sha256": "0766d231af81f7471b9266446ffedf5e7d79667e26e78d152c4364a906ad453b",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/ROOT-after-zero.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/ROOT-after-zero.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/UNRUN-zero.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/UNRUN-zero.observation.json",
+      "bytes": 596,
+      "sha256": "90e3ec8dc57ab1256b5253ca48c323f0caa3c9e9c04458ae05429a9e049548be",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/UNRUN-zero.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/UNRUN-zero.stderr.txt",
+      "bytes": 628,
+      "sha256": "6b9a960d7df834ff4ac5ce2200489ecea2781b444145341940c205b2151d4ecf",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/UNRUN-zero.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/UNRUN-zero.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/ambiguous-layout.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/ambiguous-layout.observation.json",
+      "bytes": 614,
+      "sha256": "eab668a25a51bc1b4e1e5400b600b635bb3392d0c53d8ad25ec632a386bd2325",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/ambiguous-layout.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/ambiguous-layout.stderr.txt",
+      "bytes": 846,
+      "sha256": "3b68794ee9aac18d5880587ad572a4f3f6e5b6cbc09892efa1c76c831e088af3",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/ambiguous-layout.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/ambiguous-layout.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/case-PASS-bool.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/case-PASS-bool.observation.json",
+      "bytes": 608,
+      "sha256": "dce20c289ef419042fee8a92e93dc6ee40a73e8fe529e77f017ef79a27364e91",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/case-PASS-bool.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/case-PASS-bool.stderr.txt",
+      "bytes": 628,
+      "sha256": "6b9a960d7df834ff4ac5ce2200489ecea2781b444145341940c205b2151d4ecf",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/case-PASS-bool.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/case-PASS-bool.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/decoded-original-digest.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/decoded-original-digest.observation.json",
+      "bytes": 635,
+      "sha256": "8e2cc1138d801dc32f12bfcfe32cb795a9b0beccde4ca1c0b32688ba46a07c1f",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/decoded-original-digest.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/decoded-original-digest.stderr.txt",
+      "bytes": 612,
+      "sha256": "52e84f400ffdf26266fb2be63da1bc5b5800a4ac468bceec667591acc53f3cde",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/decoded-original-digest.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/decoded-original-digest.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/fake-build-final-stage-py-txt.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/fake-build-final-stage-py-txt.observation.json",
+      "bytes": 653,
+      "sha256": "48ca32944092728d98cd1ab2bcaf36a32af2e67722dfaf238752d8cb6dc38dd5",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/fake-build-final-stage-py-txt.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/fake-build-final-stage-py-txt.stderr.txt",
+      "bytes": 426,
+      "sha256": "d00d87853d15def5f13455d8e99e5aa2307bccbf6ec1756ad4b18dbd8924a93e",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/fake-build-final-stage-py-txt.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/fake-build-final-stage-py-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/fake-copy-final-publication-py-txt.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/fake-copy-final-publication-py-txt.observation.json",
+      "bytes": 668,
+      "sha256": "3c4b950057b291751426c3c7d530f6755a6a431a09038d7d89a88aa3769832bc",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/fake-copy-final-publication-py-txt.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/fake-copy-final-publication-py-txt.stderr.txt",
+      "bytes": 408,
+      "sha256": "0ae55bba1ba539defd3ac36900a97b2f671a5bc73a7c1bda443492fb90c766bd",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/fake-copy-final-publication-py-txt.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/fake-copy-final-publication-py-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/fake-implementation-handoff-json.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/fake-implementation-handoff-json.observation.json",
+      "bytes": 662,
+      "sha256": "e619235f67e07f0e6cc9d0fa11faa802c3989d9dbf9c5688b7dfeefdccb63626",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/fake-implementation-handoff-json.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/fake-implementation-handoff-json.stderr.txt",
+      "bytes": 426,
+      "sha256": "d00d87853d15def5f13455d8e99e5aa2307bccbf6ec1756ad4b18dbd8924a93e",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/fake-implementation-handoff-json.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/fake-implementation-handoff-json.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/fake-supplemental-c229-functions-patch-txt.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/fake-supplemental-c229-functions-patch-txt.observation.json",
+      "bytes": 692,
+      "sha256": "bb4d0a856b87ac3f015d3ba440fad1a16452df41c83eaf5ef7baaee3406538fd",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/fake-supplemental-c229-functions-patch-txt.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/fake-supplemental-c229-functions-patch-txt.stderr.txt",
+      "bytes": 426,
+      "sha256": "d00d87853d15def5f13455d8e99e5aa2307bccbf6ec1756ad4b18dbd8924a93e",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/fake-supplemental-c229-functions-patch-txt.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/fake-supplemental-c229-functions-patch-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/gate-PASS.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/gate-PASS.observation.json",
+      "bytes": 593,
+      "sha256": "5ca68b0d08d3cf96f606873fbc41736c738ac8ed33dec58978b70b0b683020cb",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/gate-PASS.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/gate-PASS.stderr.txt",
+      "bytes": 628,
+      "sha256": "6b9a960d7df834ff4ac5ce2200489ecea2781b444145341940c205b2151d4ecf",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/gate-PASS.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/gate-PASS.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/healthy-stage-complete-readback.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/healthy-stage-complete-readback.json",
+      "bytes": 241723,
+      "sha256": "33f11840facaf696d5d27d58ca0f1770379cef6486211a30aa7b794df6a80b4d",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/healthy-stage.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/healthy-stage.observation.json",
+      "bytes": 655,
+      "sha256": "151f9f1928af71bbf609b72a7af00def822e00a6f578418ffc93076d8a8ce1c6",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/healthy-stage.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/healthy-stage.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/healthy-stage.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/healthy-stage.stdout.txt",
+      "bytes": 625,
+      "sha256": "dbf690f504715b173d6192f23fcc82e229d119ab889b83f59b38cb3c89973bc9",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/ledger-closed-bool.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/ledger-closed-bool.observation.json",
+      "bytes": 620,
+      "sha256": "c61de35b053becca7b827de3b75adf2677400c4bac1baf252e9b495018772fdd",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/ledger-closed-bool.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/ledger-closed-bool.stderr.txt",
+      "bytes": 628,
+      "sha256": "6b9a960d7df834ff4ac5ce2200489ecea2781b444145341940c205b2151d4ecf",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/ledger-closed-bool.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/ledger-closed-bool.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/logical-total-plus1.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/logical-total-plus1.observation.json",
+      "bytes": 623,
+      "sha256": "da240f7f3b6a84a442568e158ac4b4c4140f2ac096d135c0619710b9ddf5d231",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/logical-total-plus1.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/logical-total-plus1.stderr.txt",
+      "bytes": 612,
+      "sha256": "ec0062f67fc956c0707fd55eb8cccdfe8b5df95f4e576a2bd060b948b82a276c",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/logical-total-plus1.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/logical-total-plus1.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/mandatory-selector-omission.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/mandatory-selector-omission.observation.json",
+      "bytes": 647,
+      "sha256": "5e38f6b5f17d4c87d74dc1bc3450c6b9fbbb15bdb67cbf7317ba25fb9daa44eb",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/mandatory-selector-omission.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/mandatory-selector-omission.stderr.txt",
+      "bytes": 606,
+      "sha256": "c3285047ad78b88b890a4ec5a519e167c0efe87f84e325a87f1e242cceb7820d",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/mandatory-selector-omission.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/mandatory-selector-omission.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/missing-build-final-stage-py-txt.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/missing-build-final-stage-py-txt.observation.json",
+      "bytes": 662,
+      "sha256": "d3e67a455bd6c4f9818f5700b87a70945a12cc537d6795283aff241990b2fce1",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/missing-build-final-stage-py-txt.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/missing-build-final-stage-py-txt.stderr.txt",
+      "bytes": 1037,
+      "sha256": "55bc88fd3b1fe2cd9043140ebb9f05a3509a09b8b1c2027030fb72db21e145f3",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/missing-build-final-stage-py-txt.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/missing-build-final-stage-py-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/missing-copy-final-publication-py-txt.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/missing-copy-final-publication-py-txt.observation.json",
+      "bytes": 677,
+      "sha256": "7d68ebca7ea64fe6d8e5820c9c2e54dd0b210bddcedc33825cd3d5b2eb3430a7",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/missing-copy-final-publication-py-txt.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/missing-copy-final-publication-py-txt.stderr.txt",
+      "bytes": 1047,
+      "sha256": "c48e1dc40d0bd7897af01f4472db6224e1d9f7c405bebba1669ceb4087408b1b",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/missing-copy-final-publication-py-txt.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/missing-copy-final-publication-py-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/missing-implementation-handoff-json.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/missing-implementation-handoff-json.observation.json",
+      "bytes": 671,
+      "sha256": "512e33d4ee9b3e80a70029165e16b1e6feb6b63452d4ca59104aee600feee143",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/missing-implementation-handoff-json.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/missing-implementation-handoff-json.stderr.txt",
+      "bytes": 1043,
+      "sha256": "8639ce32e262d96dc4f1565641f6a084226de30a6accd35162b3eeee9729c82c",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/missing-implementation-handoff-json.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/missing-implementation-handoff-json.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/missing-supplemental-c229-functions-patch-txt.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/missing-supplemental-c229-functions-patch-txt.observation.json",
+      "bytes": 701,
+      "sha256": "866103ba2897f57a42f2159cafd3ea6e346c51c5fc425256692175d3997bbb3c",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/missing-supplemental-c229-functions-patch-txt.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/missing-supplemental-c229-functions-patch-txt.stderr.txt",
+      "bytes": 1063,
+      "sha256": "42329334a5d46141607bb0860ed9410c2de06a9b2785da5be99806aa414bfaa8",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/missing-supplemental-c229-functions-patch-txt.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/missing-supplemental-c229-functions-patch-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/payload-total-plus1.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/payload-total-plus1.observation.json",
+      "bytes": 623,
+      "sha256": "727ce396f62adf089872851745e2f49c163580da34f829b652f0e25a6b7141b5",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/payload-total-plus1.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/payload-total-plus1.stderr.txt",
+      "bytes": 612,
+      "sha256": "ec0062f67fc956c0707fd55eb8cccdfe8b5df95f4e576a2bd060b948b82a276c",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/payload-total-plus1.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/payload-total-plus1.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/retotalled-genuine-member-omission.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/retotalled-genuine-member-omission.observation.json",
+      "bytes": 668,
+      "sha256": "a1dbf01fe2b0cb8e95e9d9f0f782e3b5440845f7b6d7008792effa40964c2f1b",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/retotalled-genuine-member-omission.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/retotalled-genuine-member-omission.stderr.txt",
+      "bytes": 1711,
+      "sha256": "458f90afafeb521fac1e0cf629310dcb0adb8a3563196f5a9ce54a4d785eda0e",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/retotalled-genuine-member-omission.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/retotalled-genuine-member-omission.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/review.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/review.json",
+      "bytes": 21212,
+      "sha256": "3ec4d5737725f40d3441785dc7f56542f590d8addf47a023adcbaf612525a62f",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/root-execution-true.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/root-execution-true.observation.json",
+      "bytes": 623,
+      "sha256": "274fa850953ab148f2b89f94a70987ed90298c505006aa2395a0da06d84c257e",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/root-execution-true.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/root-execution-true.stderr.txt",
+      "bytes": 630,
+      "sha256": "0766d231af81f7471b9266446ffedf5e7d79667e26e78d152c4364a906ad453b",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/root-execution-true.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/root-execution-true.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/sole-Counter-guard-removal.py.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/sole-Counter-guard-removal.py.txt",
+      "bytes": 38440,
+      "sha256": "2ca06dbbaa3c27bfe2fb99dfed5dbaced1e40a5110c1bbfdfc8734c5d665c203",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/sole-Counter-removal.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/sole-Counter-removal.observation.json",
+      "bytes": 640,
+      "sha256": "039d576b1f380103ccef79516c1a0dda2134e454c040050870cafcc176e37532",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/sole-Counter-removal.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/sole-Counter-removal.stderr.txt",
+      "bytes": 1798,
+      "sha256": "803c3ba14e147c470b3a60b2f66927b1380683df3913ba0c5d9ce4bad5141bc5",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/sole-Counter-removal.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/sole-Counter-removal.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/source-zero.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/source-zero.observation.json",
+      "bytes": 599,
+      "sha256": "6cda93d2c21fccb7429c2652ef361f05b6aa94aa5f4e97ad7327db4722a08111",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/source-zero.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/source-zero.stderr.txt",
+      "bytes": 630,
+      "sha256": "0766d231af81f7471b9266446ffedf5e7d79667e26e78d152c4364a906ad453b",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/source-zero.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/source-zero.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/unsafe-carrier-route.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/unsafe-carrier-route.observation.json",
+      "bytes": 626,
+      "sha256": "bee7c7972d11752e60447332b686260a5c81297ce17050499a804edfb37a1b30",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/unsafe-carrier-route.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/unsafe-carrier-route.stderr.txt",
+      "bytes": 832,
+      "sha256": "2efebb38a6307021dffbaae0f45af19bdea0cd7d28dd6b61670c1fdfd19875b5",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/unsafe-carrier-route.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/unsafe-carrier-route.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/wrong-layout.observation.json",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/wrong-layout.observation.json",
+      "bytes": 606,
+      "sha256": "7c9a3f113e5cdc13e8b843c2817e17857ba2ed8335d0a8a4572e908022e321f6",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/wrong-layout.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/wrong-layout.stderr.txt",
+      "bytes": 846,
+      "sha256": "3b68794ee9aac18d5880587ad572a4f3f6e5b6cbc09892efa1c76c831e088af3",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-optimized/wrong-layout.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/full-controls-optimized/wrong-layout.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-normal/retotalled-real-aliased-member-omission.observation.json",
+      "portable_path": "r5-actual-copier-controls/Counter-delta-normal/retotalled-real-aliased-member-omission.observation.json",
+      "bytes": 667,
+      "sha256": "b0c87f313d579e4b3e6f670f1e6459c77339c0150a300c87c6892be02f4cfd1b",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-normal/retotalled-real-aliased-member-omission.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/Counter-delta-normal/retotalled-real-aliased-member-omission.stderr.txt",
+      "bytes": 612,
+      "sha256": "52e84f400ffdf26266fb2be63da1bc5b5800a4ac468bceec667591acc53f3cde",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-normal/retotalled-real-aliased-member-omission.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/Counter-delta-normal/retotalled-real-aliased-member-omission.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-normal/review.json",
+      "portable_path": "r5-actual-copier-controls/Counter-delta-normal/review.json",
+      "bytes": 3946,
+      "sha256": "b5c685b07d518ff365122e7e35b5af898b8479c88d3f5d9f3b0ddb80e957ece4",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-normal/sole-Counter-guard-removal.py.txt",
+      "portable_path": "r5-actual-copier-controls/Counter-delta-normal/sole-Counter-guard-removal.py.txt",
+      "bytes": 38440,
+      "sha256": "2ca06dbbaa3c27bfe2fb99dfed5dbaced1e40a5110c1bbfdfc8734c5d665c203",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-normal/sole-Counter-removal.observation.json",
+      "portable_path": "r5-actual-copier-controls/Counter-delta-normal/sole-Counter-removal.observation.json",
+      "bytes": 619,
+      "sha256": "1217beb7b8b70ec7a297b21953e87e2faa99c37d37f67bcc5d3cc03069adf403",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-normal/sole-Counter-removal.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/Counter-delta-normal/sole-Counter-removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-normal/sole-Counter-removal.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/Counter-delta-normal/sole-Counter-removal.stdout.txt",
+      "bytes": 629,
+      "sha256": "23bed3fa274ef73cdfd75f6774291dd67595a8415355e9f26b08e4c42175fab0",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-optimized/retotalled-real-aliased-member-omission.observation.json",
+      "portable_path": "r5-actual-copier-controls/Counter-delta-optimized/retotalled-real-aliased-member-omission.observation.json",
+      "bytes": 683,
+      "sha256": "2b2fa29c6b11aaf792d3bbcc6c45a7dabb22b52dd0535d86ec71498cf074598b",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-optimized/retotalled-real-aliased-member-omission.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/Counter-delta-optimized/retotalled-real-aliased-member-omission.stderr.txt",
+      "bytes": 612,
+      "sha256": "52e84f400ffdf26266fb2be63da1bc5b5800a4ac468bceec667591acc53f3cde",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-optimized/retotalled-real-aliased-member-omission.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/Counter-delta-optimized/retotalled-real-aliased-member-omission.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-optimized/review.json",
+      "portable_path": "r5-actual-copier-controls/Counter-delta-optimized/review.json",
+      "bytes": 3988,
+      "sha256": "424444ec4d9743a4b478f2dba09ef82d8a35ea78714b5119183bc149b249ba2a",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-optimized/sole-Counter-guard-removal.py.txt",
+      "portable_path": "r5-actual-copier-controls/Counter-delta-optimized/sole-Counter-guard-removal.py.txt",
+      "bytes": 38440,
+      "sha256": "2ca06dbbaa3c27bfe2fb99dfed5dbaced1e40a5110c1bbfdfc8734c5d665c203",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-optimized/sole-Counter-removal.observation.json",
+      "portable_path": "r5-actual-copier-controls/Counter-delta-optimized/sole-Counter-removal.observation.json",
+      "bytes": 638,
+      "sha256": "2fb890510b8ba51534cba5031fb0d52a0e86f1d5e44dbef0a77ffa6dfbf03dce",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-optimized/sole-Counter-removal.stderr.txt",
+      "portable_path": "r5-actual-copier-controls/Counter-delta-optimized/sole-Counter-removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-optimized/sole-Counter-removal.stdout.txt",
+      "portable_path": "r5-actual-copier-controls/Counter-delta-optimized/sole-Counter-removal.stdout.txt",
+      "bytes": 632,
+      "sha256": "8adcfa95c88d596b92e3e317fab7bd996b187af430cc951070cb0ca1b30d2588",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/README.md",
+      "portable_path": "r5-actual-copier-controls/final-ready-v1/README.md",
+      "bytes": 3200,
+      "sha256": "28ac4381a4a1bffd712a8250866c26754afcc0091550ea01e9fb5fdcec6943f8",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/build-final-stage.py.txt",
+      "portable_path": "r5-actual-copier-controls/final-ready-v1/build-final-stage.py.txt",
+      "bytes": 12494,
+      "sha256": "efcff1c38bc221f1a7ade7b6870f2d97ca7ea52bf3e2d9c7ab742a7e5a0a4a0d",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/build.stdout.json",
+      "portable_path": "r5-actual-copier-controls/final-ready-v1/build.stdout.json",
+      "bytes": 257,
+      "sha256": "7bf8c721be5fd308ae77820838873660fe0060139cc80ab621bf057666f5f926",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+      "portable_path": "r5-actual-copier-controls/final-ready-v1/copy-final-publication.py.txt",
+      "bytes": 38490,
+      "sha256": "e0c4d2b0fe37c5cc1e61dab3cb3b9badc927315aade0526e870e17c399fee713",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/implementation-handoff.json",
+      "portable_path": "r5-actual-copier-controls/final-ready-v1/implementation-handoff.json",
+      "bytes": 56530,
+      "sha256": "2a6b23b747fe5a45090fe5cb75b20eb6aec7aea925d803756ddaf10a987232d6",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/input-closure-queue.json",
+      "portable_path": "r5-actual-copier-controls/final-ready-v1/input-closure-queue.json",
+      "bytes": 31268,
+      "sha256": "a5f2036bd99b627ff871e1dc802e7ff9933b5c90d7eb9e383d2e1f87fd8948e0",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/manifest.json",
+      "portable_path": "r5-actual-copier-controls/final-ready-v1/manifest.json",
+      "bytes": 1558202,
+      "sha256": "ee6ccf691dae4509becb8e7f7f16d1e60102d6e28db8e849daa280f3f9ef6d94",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/qualification.json",
+      "portable_path": "r5-actual-copier-controls/final-ready-v1/qualification.json",
+      "bytes": 3713,
+      "sha256": "06619b8135d6d5de9112efdff27378eeccd1715c88919c60a388da737c5e6fa6",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/source-handoff-Git-references.json",
+      "portable_path": "r5-actual-copier-controls/final-ready-v1/source-handoff-Git-references.json",
+      "bytes": 275706,
+      "sha256": "4db83dcbf4ed44d36c3797e0197ffc6f11eb2777eaf03e01d07d9ff681664403",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/supplemental-c229-functions.patch.txt",
+      "portable_path": "r5-actual-copier-controls/final-ready-v1/supplemental-c229-functions.patch.txt",
+      "bytes": 4133,
+      "sha256": "758f3f24f26c1b6205d98b3e2675f4a57d47690b9d83bb08af5a246970d09bdd",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/actual-controls-reconciliation.json",
+      "portable_path": "r5-actual-copier-controls/actual-controls-reconciliation.json",
+      "bytes": 1239,
+      "sha256": "6bbe4fa18d4e1d117216cacd518bbc9a30c12e653411cf0ac4be1628bb17d3dd",
+      "role": "complete actual metadata-only copier controls/source/history; first unique-content removal observer ERROR qualified by corrected effective aliased-member delta; no fixture/destination payload selected"
+    }
+  ],
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "source_native_numeric_execution": false
+}

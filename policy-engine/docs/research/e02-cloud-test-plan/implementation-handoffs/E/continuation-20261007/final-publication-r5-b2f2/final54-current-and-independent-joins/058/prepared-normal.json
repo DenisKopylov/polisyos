@@ -1,0 +1,1593 @@
+{
+  "schema": "policyos.e02.final54_source_delta_preparation.v1",
+  "scope": "source-qualified preparation only; no new54 adjudication, final freeze or common-wave outcome",
+  "prior_frozen54_input": {
+    "path": "/tmp/e02-E-current54-3932-layer-20261007/current54-31782-qualified-owner-layer-preparation.json",
+    "bytes": 390717,
+    "sha256": "95af9483c2eff6123e417abe84f12c983888800085d00c5a9e86cb36e1a27878"
+  },
+  "complete_denominator": {
+    "findings": 54,
+    "bundles": 22,
+    "links": 55
+  },
+  "historical_ledger": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "retained_bounded_E_proposals": {
+    "closed": 43,
+    "limited": 9,
+    "held": 2
+  },
+  "formal_ledger_change": false,
+  "G_formal_finding_intake": false,
+  "new_final_owner_dispositions": null,
+  "rows": [
+    {
+      "id": "B32",
+      "bundle_ids": [
+        "FRC-01"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "limited",
+      "owner_decision": "pending",
+      "accountable_owner": "A",
+      "next_owner": "A",
+      "prior_literal_row_sha256": "4255883e0a94e1d736c662a96618fbeb91209908a58cb81034317cee47bed275",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B97",
+      "bundle_ids": [
+        "DOE-01"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "b9f3b41728075a1fd59e34e46db6ad7e6c5700146847371b321b0cf6900b9d7b",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B98",
+      "bundle_ids": [
+        "DOE-01"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "75fac0023b72326ed7f7015c8ca21545f69f9c00b3a0d9c85e4989f7148a9bb3",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B99",
+      "bundle_ids": [
+        "DOE-01"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "24a200713b1fe7ef681d1181b208ba374f04e38947e1abae6dfa0b95e4d6a8f3",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B100",
+      "bundle_ids": [
+        "DOE-02"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "cb5cfc22be981564dc3e544663bdbef8087293ea21a43ff261bdb817efe6d874",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B101",
+      "bundle_ids": [
+        "DOE-02"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "a3213f22142ccf1d4c62aed9a50dd30bc79639ca6ceeddd108c5e0087ff73634",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B102",
+      "bundle_ids": [
+        "DOE-03"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "2cf996f065dd02fb7e029a32476f670adb1ac44cc421db385a4df510f7889446",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B103",
+      "bundle_ids": [
+        "DOE-03"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "974e1432c558e74217e31a80d80bcb3516a0617fd2c5e8fe46e36b46fa8ff28c",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B104",
+      "bundle_ids": [
+        "DOE-03"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "83a796f76d098a7dd10296d5a531d078f50d994dc95e8e1ed287b173ba206189",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B105",
+      "bundle_ids": [
+        "DOE-03"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "6595d8af0069e8e8dc4188e0132734838710eeea2c632f13f9006e32613c9ce3",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B166",
+      "bundle_ids": [
+        "BKT-01"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "e65c9ee4dd7d3253dc82368b8eb65b60a294a757e3f433f11b55d2bd37759f84",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B167",
+      "bundle_ids": [
+        "BKT-02"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "0d2ec829249356aa14c169b001a403c571573df5dad4b1a9c1f3c006fd8192c2",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B168",
+      "bundle_ids": [
+        "BKT-02"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "49fd653a93ec392d5496e1cab20101c81e6a58f8379ca4c4ae51ee133a597a63",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B169",
+      "bundle_ids": [
+        "BKT-01"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "2bd6f4e876c0cd1cbdad34c7942d8e05ea868314efdcf7c7612253f37d314625",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B170",
+      "bundle_ids": [
+        "BKT-01"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "529206331f0bceb10d7d802823df151d2a8f5d652572399c17c9bded3ab49621",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B171",
+      "bundle_ids": [
+        "BKT-02"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "64cf8f7d4f4bebcfde1494b94d5700eb2aba8e04f70f4945d4ccf801692910ea",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B172",
+      "bundle_ids": [
+        "BKT-03"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "limited",
+      "owner_decision": "pending",
+      "accountable_owner": "Scientist accountable trust-purpose/profile owner",
+      "next_owner": "Scientist accountable trust-purpose/profile owner",
+      "prior_literal_row_sha256": "2acae38ae4894d132326513ba6683e1abcb5e0c90240fcdc5a4d9ab4bc76ef2d",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B173",
+      "bundle_ids": [
+        "BKT-03"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "limited",
+      "owner_decision": "pending",
+      "accountable_owner": "Scientist accountable trust-purpose/profile owner",
+      "next_owner": "Scientist accountable trust-purpose/profile owner",
+      "prior_literal_row_sha256": "5e18c9bd26d51df4ae40bd68b24514a9f82c8edfec38d4f9394365414375e7b4",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B174",
+      "bundle_ids": [
+        "BKT-04"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "d2d9051335c1928718e2c05224c9b902e45cbf6528ed7622af0d1c42965fa40d",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B175",
+      "bundle_ids": [
+        "BKT-04"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "71c0e07081b9d4330ce2c9c25239850fb0bb6c1c26c0991e99c2f66b8b32b8e6",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B176",
+      "bundle_ids": [
+        "CAL-01"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "36776d4e3b5af7ad7719c61d806d8c9b4bacc8275756f4f3717da7b1e158bf49",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B177",
+      "bundle_ids": [
+        "CAL-01"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "7322461d70cca73c0ee31b0c1ea8975f2b6ef019ac03a94ae5aed93a26daf181",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B178",
+      "bundle_ids": [
+        "CAL-01"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "8dc4c71f583f5b9734676f45e412e850f092d930ac0b9f6aa0fc7f8e21a3aed0",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B179",
+      "bundle_ids": [
+        "CAL-02"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "0b3ea77e7ab623aed46b7527e6cb148a6a7b2623aa6d6728259a05c19ee3371e",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B180",
+      "bundle_ids": [
+        "CAL-02"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "c5bdb9c761eb9838bb8a25708eb0d03bb4561f694254b050a4f7b674c26f4ad6",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B181",
+      "bundle_ids": [
+        "CAL-02"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "3a23549a245b5fb48d389d383046ecc859e3f11dff9ef6dbb946d49e703bf619",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B182",
+      "bundle_ids": [
+        "CAL-02"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "23ee69d49e8b1f6eae2ae761a418e823aab2eb24eac7126c9130a2f5f3234934",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B183",
+      "bundle_ids": [
+        "CAL-03"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "a98f231e5f2363658f1b4a71aeba12cfc21f0b0f175540ddf40101ef5e57eff7",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B184",
+      "bundle_ids": [
+        "CAL-04"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "77e9eddb78138f91f21dce4c08edfaac08ae368a8c3cf6d7f0f4adfd76c82662",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B185",
+      "bundle_ids": [
+        "CAL-05"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "1dc2dc77990ed5bff4c1c8d15d7f8c2a65a58db80b844a540898d4526f1596af",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B186",
+      "bundle_ids": [
+        "UQP-01"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "8804bd3e404682098b876e528904cf17ae82b3ae4d7422f682d18fb9d30f7e9f",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B187",
+      "bundle_ids": [
+        "UQP-02"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "676e7492d58ba2bd16d797596cf09a78671a48052bf4622310f98aa75d51db4b",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B188",
+      "bundle_ids": [
+        "UQP-02"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "974b808a7c5b5a42847fa544c1cb5af7d51ab02a985b07e9488eac073b719cf2",
+      "new_source_dependency": "accepted ecde finite-ratio producer/reader or public-composition companion; bounded original decision unchanged"
+    },
+    {
+      "id": "B189",
+      "bundle_ids": [
+        "UQP-01"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "85cec090d3c57ffb251bfd449e1e953230ac5c84055da7774a02e9e46e524bf5",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B190",
+      "bundle_ids": [
+        "UQP-01"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "limited",
+      "owner_decision": "pending",
+      "accountable_owner": "Scientist response/Jacobian/execution producer with E propagation adapter",
+      "next_owner": "Scientist response/Jacobian/execution producer with E propagation adapter",
+      "prior_literal_row_sha256": "9d4926901e40625789b0e97f136ce2dea8e2e05c2bd3a3462da9cb015845196e",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B191",
+      "bundle_ids": [
+        "UQP-01"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "72ddf0cc5f5a7c5c07884a69974edc0d94497bf53d88f1f9ffdaec43ad1eb695",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B192",
+      "bundle_ids": [
+        "UQP-02"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "a334677bd7ece3377e39765a722215bf76f6df54d45e1cf1ef2191e90bc239f7",
+      "new_source_dependency": "accepted ecde finite-ratio producer/reader or public-composition companion; bounded original decision unchanged"
+    },
+    {
+      "id": "B193",
+      "bundle_ids": [
+        "UQP-03"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "G formal intake after current frozen-wave receipt reconciliation",
+      "prior_literal_row_sha256": "a66af1c0264f3442bffeae785adc1d7199ac328c25faf7549389b0c96e7fd764",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B194",
+      "bundle_ids": [
+        "UQP-03"
+      ],
+      "historical_ledger_status": "held",
+      "retained_bounded_E_proposal": "held",
+      "owner_decision": "pending",
+      "accountable_owner": "Scientist served evaluator/domain owner and Foundry actual source-law/model issuer",
+      "next_owner": "Scientist served evaluator/domain owner and Foundry actual source-law/model issuer",
+      "prior_literal_row_sha256": "e9eee10a10462f3996942b8069b08595e4ba0fc1f25b4e3a117aa60e4136fac2",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B195",
+      "bundle_ids": [
+        "CAL-03"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "f23175c8daf4208153c87a595b92d7e9420312da3be829bc4385d628e4a80ae6",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B196",
+      "bundle_ids": [
+        "CAL-04"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "28cfe2ce0dc0dea5da3a6ec1b47f0389eb2a2f9f6e7752713674a3f8fcb2e1f3",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B197",
+      "bundle_ids": [
+        "CAL-06"
+      ],
+      "historical_ledger_status": "held",
+      "retained_bounded_E_proposal": "held",
+      "owner_decision": "pending",
+      "accountable_owner": "Foundry actual Calibrator/source-fit/noise issuer and Scientist configured welfare consumer",
+      "next_owner": "Foundry actual Calibrator/source-fit/noise issuer and Scientist configured welfare consumer",
+      "prior_literal_row_sha256": "e13efdd750f34311e1a5fab13106d55db589bb8b0d4b0ccd6a13288e8954913e",
+      "new_source_dependency": "configured generic HMC/NUTS technical inlet6638 is CHANGE_REQUIRED; scientific source/fit/noise/target criterion remains held"
+    },
+    {
+      "id": "B198",
+      "bundle_ids": [
+        "CAL-06"
+      ],
+      "historical_ledger_status": "closed",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E final new-source regression; reopen only if defining-property counterexample exists",
+      "prior_literal_row_sha256": "8a03a8aaa448aae46ec027b4b4fdedccbabb523a2cebd036b75064e2ba720744",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B199",
+      "bundle_ids": [
+        "UQS-01"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "2995c8ae0803955644cd39a974c6fe6ee9422b2b06f008f439ac058358dd3c2e",
+      "new_source_dependency": "accepted ecde finite-ratio producer/reader or public-composition companion; bounded original decision unchanged"
+    },
+    {
+      "id": "B200",
+      "bundle_ids": [
+        "UQS-01"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "limited",
+      "owner_decision": "pending",
+      "accountable_owner": "Foundry/Scientist information-relationship producer with E aggregator and IR contract owner",
+      "next_owner": "Foundry/Scientist information-relationship producer with E aggregator and IR contract owner",
+      "prior_literal_row_sha256": "c4bf32f814b28b42c44654996d59d9b409f70c58a83f993b41e7b8664a238135",
+      "new_source_dependency": null
+    },
+    {
+      "id": "B201",
+      "bundle_ids": [
+        "UQS-01"
+      ],
+      "historical_ledger_status": "held",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "G/canonical IR generated/public companion writers; G formal finding intake separately",
+      "prior_literal_row_sha256": "26a73a5adf726aec14efe803e7130d2b5db78a79d4ff736c363f79eb088494e3",
+      "new_source_dependency": "accepted ecde finite-ratio producer/reader or public-composition companion; bounded original decision unchanged"
+    },
+    {
+      "id": "B202",
+      "bundle_ids": [
+        "UQS-01"
+      ],
+      "historical_ledger_status": "held",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "G/canonical IR generated/public companion writers; G formal finding intake separately",
+      "prior_literal_row_sha256": "6e219df51f4d56dec8f00c0987140af0136af0b2d5168c77416f2151ec84200c",
+      "new_source_dependency": "accepted ecde finite-ratio producer/reader or public-composition companion; bounded original decision unchanged"
+    },
+    {
+      "id": "B203",
+      "bundle_ids": [
+        "CAL-04"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "27c8b3d237f1ee83cceec18a5e6009282e5e3af8a5517df7f8f6ef787a87c0fa",
+      "new_source_dependency": null
+    },
+    {
+      "id": "LA-051",
+      "bundle_ids": [
+        "FRC-01",
+        "FRC-02"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "limited",
+      "owner_decision": "pending",
+      "accountable_owner": "A with E ForecastOwner supplier",
+      "next_owner": "A with E ForecastOwner supplier",
+      "prior_literal_row_sha256": "f52480b46508be95fc1c2d4bb1a089b057a5460e29d57431b72a9f46f4681cf1",
+      "new_source_dependency": null
+    },
+    {
+      "id": "LA-052",
+      "bundle_ids": [
+        "PCL-01"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "02548fa86f8f19d82571bd5bc458a9d3c6fd8772bc8a2060bcf6221173a627a7",
+      "new_source_dependency": null
+    },
+    {
+      "id": "LA-053",
+      "bundle_ids": [
+        "PCL-01"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "limited",
+      "owner_decision": "pending",
+      "accountable_owner": "Calibration API owner and Scientist compatibility migration owner jointly",
+      "next_owner": "Calibration API owner and Scientist compatibility migration owner jointly",
+      "prior_literal_row_sha256": "f47bcf9f0d68118877563e9580a112eb75d98aed6a3aa5d9630d0ce7dabea373",
+      "new_source_dependency": null
+    },
+    {
+      "id": "LA-054",
+      "bundle_ids": [
+        "DDM-02"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "limited",
+      "owner_decision": "pending",
+      "accountable_owner": "DDM applicability/live-feed/deployment-purpose owners",
+      "next_owner": "DDM applicability/live-feed/deployment-purpose owners",
+      "prior_literal_row_sha256": "ada2756c535abae1b790df5562820474405a417dc3c0840fea4f896a6f314534",
+      "new_source_dependency": null
+    },
+    {
+      "id": "LA-055",
+      "bundle_ids": [
+        "DDM-02"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "limited",
+      "owner_decision": "pending",
+      "accountable_owner": "DDM deployment-purpose owner and identity-bound institutional R2 signoff issuer",
+      "next_owner": "DDM deployment-purpose owner and identity-bound institutional R2 signoff issuer",
+      "prior_literal_row_sha256": "1571bf6e2a65da8dec3519b9c442c6369e19138feaacc99df35fa045cebac905",
+      "new_source_dependency": null
+    },
+    {
+      "id": "LA-056",
+      "bundle_ids": [
+        "DDM-01"
+      ],
+      "historical_ledger_status": "partial",
+      "retained_bounded_E_proposal": "closed",
+      "owner_decision": "accepted",
+      "accountable_owner": "E root; G formal ledger/code intake remains separate",
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "prior_literal_row_sha256": "8ec9523ba2ac940bb8666328a6fd21abdd33ba3bd6ba667284e9ed58b1b27890",
+      "new_source_dependency": null
+    }
+  ],
+  "bundles": [
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-01.md",
+      "finding_ids": [
+        "B166",
+        "B169",
+        "B170"
+      ],
+      "id": "BKT-01",
+      "task_refs": [
+        "E.md#bundle-bkt-01"
+      ],
+      "unit": "E",
+      "writer": "E-W01"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-02.md",
+      "finding_ids": [
+        "B167",
+        "B168",
+        "B171"
+      ],
+      "id": "BKT-02",
+      "task_refs": [
+        "E.md#bundle-bkt-02"
+      ],
+      "unit": "E",
+      "writer": "E-W01"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-03.md",
+      "finding_ids": [
+        "B172",
+        "B173"
+      ],
+      "id": "BKT-03",
+      "task_refs": [
+        "E.md#bundle-bkt-03"
+      ],
+      "unit": "E",
+      "writer": "E-W01"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-04.md",
+      "finding_ids": [
+        "B174",
+        "B175"
+      ],
+      "id": "BKT-04",
+      "task_refs": [
+        "E.md#bundle-bkt-04"
+      ],
+      "unit": "E",
+      "writer": "E-W02"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-01.md",
+      "finding_ids": [
+        "B176",
+        "B177",
+        "B178"
+      ],
+      "id": "CAL-01",
+      "task_refs": [
+        "E.md#bundle-cal-01"
+      ],
+      "unit": "E",
+      "writer": "E-W03"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-02.md",
+      "finding_ids": [
+        "B179",
+        "B180",
+        "B181",
+        "B182"
+      ],
+      "id": "CAL-02",
+      "task_refs": [
+        "E.md#bundle-cal-02"
+      ],
+      "unit": "E",
+      "writer": "E-W03"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-03.md",
+      "finding_ids": [
+        "B183",
+        "B195"
+      ],
+      "id": "CAL-03",
+      "task_refs": [
+        "E.md#bundle-cal-03"
+      ],
+      "unit": "E",
+      "writer": "E-W03"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-04.md",
+      "finding_ids": [
+        "B184",
+        "B196",
+        "B203"
+      ],
+      "id": "CAL-04",
+      "task_refs": [
+        "E.md#bundle-cal-04"
+      ],
+      "unit": "E",
+      "writer": "E-W03"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-05.md",
+      "finding_ids": [
+        "B185"
+      ],
+      "id": "CAL-05",
+      "task_refs": [
+        "E.md#bundle-cal-05"
+      ],
+      "unit": "E",
+      "writer": "E-W04"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-06.md",
+      "finding_ids": [
+        "B197",
+        "B198"
+      ],
+      "id": "CAL-06",
+      "task_refs": [
+        "E.md#bundle-cal-06"
+      ],
+      "unit": "E",
+      "writer": "E-W03"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DDM-01.md",
+      "finding_ids": [
+        "LA-056"
+      ],
+      "id": "DDM-01",
+      "task_refs": [
+        "E.md#bundle-ddm-01"
+      ],
+      "unit": "E",
+      "writer": "E-W05"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DDM-02.md",
+      "finding_ids": [
+        "LA-054",
+        "LA-055"
+      ],
+      "id": "DDM-02",
+      "task_refs": [
+        "E.md#bundle-ddm-02"
+      ],
+      "unit": "E",
+      "writer": "E-W05"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-01.md",
+      "finding_ids": [
+        "B97",
+        "B98",
+        "B99"
+      ],
+      "id": "DOE-01",
+      "task_refs": [
+        "E.md#bundle-doe-01"
+      ],
+      "unit": "E",
+      "writer": "E-W06"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-02.md",
+      "finding_ids": [
+        "B100",
+        "B101"
+      ],
+      "id": "DOE-02",
+      "task_refs": [
+        "E.md#bundle-doe-02"
+      ],
+      "unit": "E",
+      "writer": "E-W06"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-03.md",
+      "finding_ids": [
+        "B102",
+        "B103",
+        "B104",
+        "B105"
+      ],
+      "id": "DOE-03",
+      "task_refs": [
+        "E.md#bundle-doe-03"
+      ],
+      "unit": "E",
+      "writer": "E-W06"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-01.md",
+      "finding_ids": [
+        "B32",
+        "LA-051"
+      ],
+      "id": "FRC-01",
+      "task_refs": [
+        "E.md#bundle-frc-01"
+      ],
+      "unit": "E",
+      "writer": "E-W07"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-02.md",
+      "finding_ids": [
+        "LA-051"
+      ],
+      "id": "FRC-02",
+      "task_refs": [
+        "E.md#bundle-frc-02"
+      ],
+      "unit": "E",
+      "writer": "E-W07"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/PCL-01.md",
+      "finding_ids": [
+        "LA-052",
+        "LA-053"
+      ],
+      "id": "PCL-01",
+      "task_refs": [
+        "E.md#bundle-pcl-01"
+      ],
+      "unit": "E",
+      "writer": "E-W08"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-01.md",
+      "finding_ids": [
+        "B186",
+        "B189",
+        "B190",
+        "B191"
+      ],
+      "id": "UQP-01",
+      "task_refs": [
+        "E.md#bundle-uqp-01"
+      ],
+      "unit": "E",
+      "writer": "E-W03"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-02.md",
+      "finding_ids": [
+        "B187",
+        "B188",
+        "B192"
+      ],
+      "id": "UQP-02",
+      "task_refs": [
+        "E.md#bundle-uqp-02"
+      ],
+      "unit": "E",
+      "writer": "E-W03"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-03.md",
+      "finding_ids": [
+        "B193",
+        "B194"
+      ],
+      "id": "UQP-03",
+      "task_refs": [
+        "E.md#bundle-uqp-03"
+      ],
+      "unit": "E",
+      "writer": "E-W03"
+    },
+    {
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQS-01.md",
+      "finding_ids": [
+        "B199",
+        "B200",
+        "B201",
+        "B202"
+      ],
+      "id": "UQS-01",
+      "task_refs": [
+        "E.md#bundle-uqs-01"
+      ],
+      "unit": "E",
+      "writer": "E-W03"
+    }
+  ],
+  "current_source_observation": {
+    "accepted_merge": "a1849fd03ad8baa3314c9ce558ba097920344b3a",
+    "tree": "b831f07dc9148e3a7687069d12b0009153d82315",
+    "final_source_freeze": false,
+    "atomic_physical_input_freeze": false
+  },
+  "accepted_IR_source": {
+    "source": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+    "tree": "41d52f7b26d7d10757b479f55dd412d97fa051c4",
+    "independent_source_disposition": "GO",
+    "independent_finding_closure": false,
+    "full_changed_footprint": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-composition.toml",
+        "bytes": 1293,
+        "sha256": "5388bced3124c9ee26e4f3781403a2012889ff43ebebedddea95b6898daa8b54"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+        "bytes": 9186,
+        "sha256": "d4244a5bd600722fc0e14d60d16f580146b953e4f034a9d60f2b9892be26a602"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "bytes": 31271,
+        "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "bytes": 94084,
+        "sha256": "5a28f2336e7903c9d67344e08f3b82176fb789e5ffaa307fc01d4341930b3c1d"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+        "bytes": 14579,
+        "sha256": "955d90b702d750f1e3180f00d6c98d5d82d0a16408d3072b3061c670aa7e0f32"
+      }
+    ],
+    "independent_receipt": {
+      "path": "/tmp/e02-E-ir-composition-ecde-independent-20261007/review.json",
+      "bytes": 10428,
+      "sha256": "5528cfc117615c8d6ca05bead60682523c737bea4dc430b511da1cf53dc014ee"
+    },
+    "closed_checks": {
+      "peer_native_pytest": {
+        "cases": 54,
+        "PASS": 54,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "peer_runtime_controls": {
+        "cases": 31,
+        "PASS": 31
+      },
+      "effective_property_removals": [
+        {
+          "case": "sole_common_admission_removal_restores_unknown_callback_escape",
+          "defining_property_outcome": "FAIL"
+        },
+        {
+          "case": "raw_map_type_predicate_removal_bool_becomes_published_law",
+          "defining_property_outcome": "FAIL"
+        },
+        {
+          "case": "profile_reissue_removal_loses_named_mean_at_fresh_reader",
+          "defining_property_outcome": "FAIL"
+        }
+      ],
+      "scoped_author_type_receipt_independent_custody": "PASS",
+      "new_common_wave": "UNRUN"
+    },
+    "requirements_and_P37_basis": [
+      {
+        "property": "Declared Profile2 law admitted before all three composition helpers",
+        "basis": "recomputed",
+        "evidence": "15 native marker controls plus six independently forged missing/unknown controls; callbacks zero; sole strict-reader removal gives two callbacks/late-only refusal."
+      },
+      {
+        "property": "Identical finite ratio mean/median/binary64-level equal-tail convention",
+        "basis": "independently_reconciled",
+        "evidence": "Independent Fraction gold: huge finite equal corpus, two-atom 1:2 corpus, dyadic transformed rows, asymmetric 99 zero + 200; actual producer/helpers/fresh CAS."
+      },
+      {
+        "property": "Transform artifacts bound to actual new carrier/order/context and fresh reader",
+        "basis": "recomputed",
+        "evidence": "Carrier/joint hashes regenerated, row IDs and axis preserved, map binding cleared, stale profile refused; profile-reissue removal loses named mean after readback."
+      },
+      {
+        "property": "Whole mapped draw support remains finite real non-bool",
+        "basis": "recomputed",
+        "evidence": "Invalid bool/string/nonfinite mapped draw refuses whole emission; removing type predicate publishes a coerced bool law accepted by fresh reader."
+      },
+      {
+        "property": "Lossy projection/pullback does not retain posterior-law declarations",
+        "basis": "recomputed",
+        "evidence": "All ten markers cleared, moments get own mean/std/normal approximation interval, pullback constraint-only, zero spread finite; forged stale profile rejected."
+      },
+      {
+        "property": "Valid legacy schema/functionals/callback behavior preserved",
+        "basis": "independently_reconciled",
+        "evidence": "Exact bfbd function replay vs ecde complete JSON for v1.0/v1.1 push/pull/particles compression plus first invalid callback ordering; literal Profile1 and historical unprofiled native cases."
+      },
+      {
+        "property": "Actual original canonical type settings and baseline custody",
+        "basis": "recomputed",
+        "evidence": "Author ecde supported JSON config differs only scratch baselineFile; original settings/project root/baseline unchanged; native two selected modules zero diagnostics. Unsupported .json.tmp and earlier tracked-prune observations remain historical."
+      },
+      {
+        "property": "Producer input unit/estimand/parent-lineage declarations",
+        "basis": "consumer_asserted",
+        "evidence": "Arbitrary map removes current binding and labels inherited parent lineage non-authoritative."
+      },
+      {
+        "property": "Scientific fit/noise/coverage/source-law authority and formal finding closure",
+        "basis": "not_established",
+        "evidence": "No coverage/covariance/gating or production data authority inferred from finite fixtures, producer flags or PASS count."
+      }
+    ],
+    "current_wave_contribution": null,
+    "native54_peer31_not_added_to_commonwave": true
+  },
+  "source_role_qualification": [
+    {
+      "role": "producer",
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "bytes": 17155,
+      "sha256": "0ca1f285756508e86ccfadd1ceba011a777dafd91ac2defdc843172985bf3e05",
+      "binding_revision": "a1849fd03ad8baa3314c9ce558ba097920344b3a",
+      "comparison_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "body_equal_to_comparison": true,
+      "qualified_evidence_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "qualification": "exact role body preserved at this observed merge only; final source must be rebound"
+    },
+    {
+      "role": "profile_and_reader",
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "bytes": 31271,
+      "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d",
+      "binding_revision": "a1849fd03ad8baa3314c9ce558ba097920344b3a",
+      "comparison_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "body_equal_to_comparison": false,
+      "qualified_evidence_source": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+      "qualification": "actual independently GO ecde source; prior3932 blanket equality invalid"
+    },
+    {
+      "role": "common_law_admission",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "bytes": 22618,
+      "sha256": "a29fff79a9d9d7cf47f66809f2fcfcc6188722af6f5f1617eb5a78ce5c5a0f4a",
+      "binding_revision": "a1849fd03ad8baa3314c9ce558ba097920344b3a",
+      "comparison_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "body_equal_to_comparison": true,
+      "qualified_evidence_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "qualification": "exact role body preserved at this observed merge only; final source must be rebound"
+    },
+    {
+      "role": "common_stochastic_transform",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "bytes": 71486,
+      "sha256": "4860382fe26db3ad6a29c206aada4b94123b7cd4d941ee79c58beae342f5c47f",
+      "binding_revision": "a1849fd03ad8baa3314c9ce558ba097920344b3a",
+      "comparison_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "body_equal_to_comparison": true,
+      "qualified_evidence_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "qualification": "exact role body preserved at this observed merge only; final source must be rebound"
+    },
+    {
+      "role": "native_Node",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "bytes": 20893,
+      "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41",
+      "binding_revision": "a1849fd03ad8baa3314c9ce558ba097920344b3a",
+      "comparison_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "body_equal_to_comparison": true,
+      "qualified_evidence_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "qualification": "exact role body preserved at this observed merge only; final source must be rebound"
+    },
+    {
+      "role": "single_Welfare_consumer",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "bytes": 193138,
+      "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+      "binding_revision": "a1849fd03ad8baa3314c9ce558ba097920344b3a",
+      "comparison_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "body_equal_to_comparison": true,
+      "qualified_evidence_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "qualification": "exact role body preserved at this observed merge only; final source must be rebound"
+    },
+    {
+      "role": "public_IR_composition_helpers",
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "bytes": 94084,
+      "sha256": "5a28f2336e7903c9d67344e08f3b82176fb789e5ffaa307fc01d4341930b3c1d",
+      "binding_revision": "a1849fd03ad8baa3314c9ce558ba097920344b3a",
+      "qualified_evidence_source": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+      "qualification": "new public push_forward/pull_back/compress runtime source; full carrier preflight and profile reissue/clear boundaries"
+    }
+  ],
+  "current_CAL_source_boundary": {
+    "source": "6638e18a3295e43a89b0ae6adba32e62952154bb",
+    "tree": "5bc2352671f5172a88268ec45d8dd537b4e048fe",
+    "independent_source_disposition": "CHANGE_REQUIRED",
+    "independent_receipt": {
+      "path": "/tmp/e02-E-fit-independent-6638-20261007/independent-initial-review.json",
+      "bytes": 12792,
+      "sha256": "03e4876a03901bf49e2246a0e9f1392f32b105589abf04b87942af667b901ef9"
+    },
+    "closed_healthy_native": {
+      "status": "PASS",
+      "junit": {
+        "tests": 42,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "captured_command_receipt": "pytest.receipt.json"
+    },
+    "literal_counterexamples": [
+      {
+        "case": "contract_version",
+        "method": "hmc",
+        "outcome": "ADMITTED",
+        "parameter_labels": [
+          "coefficients",
+          "intercept",
+          "sigma"
+        ],
+        "corpus_hash": "sha256:72246fc93ce7d3e78b3086967ec881f505a5a74ccfee39b07adab42f210f6eab",
+        "envelope_publications": 3,
+        "result_ref": {
+          "artifact_id": "sha256:0904344191d41d29dbbcb5cd4e5adcb4a2075357194b099a39b4f3d0a6be97f1",
+          "kind": "scientist.method_result.bayesian.sampling",
+          "media_type": "application/json"
+        },
+        "evidence_ref": {
+          "artifact_id": "sha256:512d11d287716087087730466eb22dadd61769e1d45889778bee829c6c7e4706",
+          "kind": "scientist.method_evidence",
+          "media_type": "application/json"
+        }
+      },
+      {
+        "case": "envelope_contract_version",
+        "method": "hmc",
+        "outcome": "ADMITTED",
+        "parameter_labels": [
+          "coefficients",
+          "intercept",
+          "sigma"
+        ],
+        "corpus_hash": "sha256:72246fc93ce7d3e78b3086967ec881f505a5a74ccfee39b07adab42f210f6eab",
+        "envelope_publications": 3,
+        "result_ref": {
+          "artifact_id": "sha256:dbbb1b0836f2e72a9232ae7f9d7d3e7f134fbee2e1f1f81627e46ede41e82441",
+          "kind": "scientist.method_result.bayesian.sampling",
+          "media_type": "application/json"
+        },
+        "evidence_ref": {
+          "artifact_id": "sha256:2be6d1106f4dbd09fce1d00ffc681460454ba18f6af993dfcd5db23acea78eda",
+          "kind": "scientist.method_evidence",
+          "media_type": "application/json"
+        }
+      },
+      {
+        "case": "rank4_coefficients",
+        "method": "hmc",
+        "outcome": "ADMITTED",
+        "parameter_labels": [
+          "coefficients",
+          "intercept",
+          "sigma"
+        ],
+        "corpus_hash": "sha256:6ca01dc89ff64f368d8489c35c069ca897acf26797c7437eaff37365bb0c228d",
+        "envelope_publications": 3,
+        "result_ref": {
+          "artifact_id": "sha256:07aaeafba9a3f4861436f8d9371b2cc5a49407062ff9c0e4eecdc4334f8be562",
+          "kind": "scientist.method_result.bayesian.sampling",
+          "media_type": "application/json"
+        },
+        "evidence_ref": {
+          "artifact_id": "sha256:2428b457fc8883fc336e11a9d3b42e03ca4a0a76b9131b927107443da843da43",
+          "kind": "scientist.method_evidence",
+          "media_type": "application/json"
+        }
+      },
+      {
+        "case": "missing_sigma",
+        "method": "hmc",
+        "outcome": "ADMITTED",
+        "parameter_labels": [
+          "coefficients",
+          "intercept"
+        ],
+        "corpus_hash": "sha256:47506d712fb6630a6c87c5ceaad6f9752bed9e3a48151830992daa5e4e8b7413",
+        "envelope_publications": 2,
+        "result_ref": {
+          "artifact_id": "sha256:fc8a6fe7bd640229bdb5b689556fe9a5399c62bc9d5e8895cb6ca03cedcda57f",
+          "kind": "scientist.method_result.bayesian.sampling",
+          "media_type": "application/json"
+        },
+        "evidence_ref": {
+          "artifact_id": "sha256:98bb9d29b795954a2cfcc89e01914f66c23e414ece579a4faf6cadfa3c02e65c",
+          "kind": "scientist.method_evidence",
+          "media_type": "application/json"
+        }
+      },
+      {
+        "case": "contract_version",
+        "method": "nuts",
+        "outcome": "ADMITTED",
+        "parameter_labels": [
+          "coefficients",
+          "intercept",
+          "sigma"
+        ],
+        "corpus_hash": "sha256:6cc41b52dc112dfef50bdb11aab82f7ea71bdaf7fcef0eb3e1888404def8c9a4",
+        "envelope_publications": 3,
+        "result_ref": {
+          "artifact_id": "sha256:3010be3dbe44f38f8afab5a872d63ff4b87d1f24f6fe3dba3d4343e6a5eeca62",
+          "kind": "scientist.method_result.bayesian.sampling",
+          "media_type": "application/json"
+        },
+        "evidence_ref": {
+          "artifact_id": "sha256:a55534c3e28948d5c6232636829107ed0d8efec04cf27ef49b6d5aeab47ccf03",
+          "kind": "scientist.method_evidence",
+          "media_type": "application/json"
+        }
+      },
+      {
+        "case": "envelope_contract_version",
+        "method": "nuts",
+        "outcome": "ADMITTED",
+        "parameter_labels": [
+          "coefficients",
+          "intercept",
+          "sigma"
+        ],
+        "corpus_hash": "sha256:6cc41b52dc112dfef50bdb11aab82f7ea71bdaf7fcef0eb3e1888404def8c9a4",
+        "envelope_publications": 3,
+        "result_ref": {
+          "artifact_id": "sha256:c96abe413258608f62412850b45ad13b75cc583cb914037305f68598971bcdba",
+          "kind": "scientist.method_result.bayesian.sampling",
+          "media_type": "application/json"
+        },
+        "evidence_ref": {
+          "artifact_id": "sha256:620da027f1b5d2710eab415b35f069ca7b4ffa96d5cf2b070d97ef3df803d50f",
+          "kind": "scientist.method_evidence",
+          "media_type": "application/json"
+        }
+      },
+      {
+        "case": "rank4_coefficients",
+        "method": "nuts",
+        "outcome": "ADMITTED",
+        "parameter_labels": [
+          "coefficients",
+          "intercept",
+          "sigma"
+        ],
+        "corpus_hash": "sha256:f0bd8369e49d4f4bac36720830e92c18b5d54549e442c167e212614bd4b06948",
+        "envelope_publications": 3,
+        "result_ref": {
+          "artifact_id": "sha256:fdeadd9be9a23c7edb3ab63b9bd41d8a641595ad97473c7d6e764aa7d22ec407",
+          "kind": "scientist.method_result.bayesian.sampling",
+          "media_type": "application/json"
+        },
+        "evidence_ref": {
+          "artifact_id": "sha256:202f8d51a9544bcfd25e5528809c64f7d288ab72669be4e831cbc452ffd5a5c5",
+          "kind": "scientist.method_evidence",
+          "media_type": "application/json"
+        }
+      },
+      {
+        "case": "missing_sigma",
+        "method": "nuts",
+        "outcome": "ADMITTED",
+        "parameter_labels": [
+          "coefficients",
+          "intercept"
+        ],
+        "corpus_hash": "sha256:350d56bed87fc2e9fe2fc754c39c2750b8e2b481a0d01723c5ac2fb7ad3502b2",
+        "envelope_publications": 2,
+        "result_ref": {
+          "artifact_id": "sha256:afd2ee9cb4daf1115ef984ebf7f0b6c6c3799c63c58b9ddd256bca11726b0644",
+          "kind": "scientist.method_result.bayesian.sampling",
+          "media_type": "application/json"
+        },
+        "evidence_ref": {
+          "artifact_id": "sha256:a3476075dc134b49c0abd87b853d3d828eb7bbaaf0e2341bae23d1105dee62e1",
+          "kind": "scientist.method_evidence",
+          "media_type": "application/json"
+        }
+      }
+    ],
+    "supported_profile_decision": {
+      "revision": "1a3bd343237e8fc28b57153e6c6eccef7f22c33c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/configured-fit-supported-profile-20261007.json",
+      "bytes": 3209,
+      "sha256": "c36cef42824d1151c5bf38e81d2e2095941e66ba5e258ae4c8d6daf31408ab8d",
+      "decision": {
+        "runtime_backend": "numpy reference sampler only",
+        "recorded_contract_version": "foundry.bayesian.reference_sampler.v1",
+        "version_admission": "Require supported literal version in recorded reproducibility and its content-bound determinism envelope; reject missing/unknown versions before envelope publication or evaluator callback.",
+        "complete_parameter_records": [
+          "intercept",
+          "coefficients",
+          "sigma"
+        ],
+        "rank_admission": {
+          "intercept": 2,
+          "sigma": 2,
+          "coefficients": 3
+        },
+        "axes": "intercept/sigma: chain,draw; coefficients: chain,draw,parameter; common exact chain/draw counts and positive dimensions; reject additional or missing records and unknown ranks before publication.",
+        "source_authority": "Recorded result/evidence/source relationships are checked; admitting this finite corpus does not establish source law, noise model, mixing, scientific fit or institutional authority.",
+        "future_contracts": "Unsupported future producer version/profile refuses at this inlet; canonical producer owner can declare compatibility separately.",
+        "guard_location": "Shared E fit corpus admission before any envelope store.put_json or downstream nominal/evaluator callback; retain unchanged real HMC/NUTS positives and fresh complete joint-law readback."
+      }
+    },
+    "source_fix_and_independent_review": null,
+    "next_owner": "E CAL configured fit inlet author, then independent source reviewer",
+    "next_verifiable_result": "shared literal v1/rank2-3/complete intercept-coefficients-sigma admission before any envelope publication/evaluator; actual HMC/NUTS positives and coherent version/rank/missing-extra-record refusals plus sole admission removal",
+    "B197_scientific_input_authority": "not_established",
+    "scientific_hold_not_removed_by_generic_native42": true
+  },
+  "final_join_binding": {
+    "candidate": null,
+    "tree": null,
+    "freeze_ref": null,
+    "current_wave_ref": null,
+    "check_outcome": null,
+    "capability_state": "not_established",
+    "next_owner": "Root final accepted composition+CAL source freeze and independent common-wave receipt collector"
+  },
+  "final_recipe_rebinding": {
+    "required_candidate": null,
+    "required_tree": null,
+    "every_criterion_supported_local_recipe_must_pin_final_source": true,
+    "original_six_history_source_law_recipes_are_initial_queue_not_upper_bound": true,
+    "new_fit_input_allowed_only_if_original_criterion_requires_it": true,
+    "blanket_production_or_full_posterior_gate": false,
+    "remaining_owner_input_vector": [
+      {
+        "ids": [
+          "B32"
+        ],
+        "minimal_inputs": "E admitted ForecastOwnerRequest/profile/source schema/unit/split/horizon/six-time-role refs and separate candidate/evidence refs in the same CAS; then A independent default/HTTP verifier.",
+        "next_verifiable_result": "Actual ETS -> persisted receipt/evidence -> A resolver recomputation -> fresh persisted grade/S6/default/HTTP decision. Missing-ref reason differs from resolved floor failure; unresolved fake mapping refuses. E packet is an implementation dependency, not missing production data.",
+        "owner": "A",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4"
+      },
+      {
+        "ids": [
+          "LA-051"
+        ],
+        "minimal_inputs": "Same configured CAS ForecastOwner positive/negative packet and profile/purpose/source/rule/time refs; same estimator shape with different actual holdout outcomes.",
+        "next_verifiable_result": "A source-resolved measured numerator/denominator and all bound field/time predicates changes the fresh default/HTTP result; nominal confidence alone cannot become observed calibration. Terminal causal/treatment/policy refusal remains.",
+        "owner": "A with E ForecastOwner supplier",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4"
+      },
+      {
+        "ids": [
+          "B172"
+        ],
+        "minimal_inputs": "Versioned trust-grade purpose/profile; criterion-supported meaningful-bias margin/equivalence sampling/interval assumptions only where positive neutrality is requested.",
+        "next_verifiable_result": "Constant nonzero residual retains descriptive magnitude and unavailable inference cannot grant trust. Existing current diagnostics pass; owner-approved positive profile and equivalence case required before any neutrality/GradeA authority.",
+        "owner": "Scientist accountable trust-purpose/profile owner",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4"
+      },
+      {
+        "ids": [
+          "B173"
+        ],
+        "minimal_inputs": "Same versioned trust-purpose/profile; runtime backend identity and declared inference/equivalence use.",
+        "next_verifiable_result": "Current df2 analytic t oracle agrees p=1 and p=.12168993434632014; missing SciPy degrades honestly. Preserve partial/limited explicitly per user until profile input; never convert non-significance to equivalence.",
+        "owner": "Scientist accountable trust-purpose/profile owner",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4"
+      },
+      {
+        "ids": [
+          "B190"
+        ],
+        "minimal_inputs": "Existing actual configured model/evaluator or source-bound Jacobian; input-output axis/unit mapping and immutable model/objective/source refs, or explicitly declared affine response with content-bound provenance/units.",
+        "next_verifiable_result": "Real response or admitted Jacobian -> existing persisted response/sensitivity artifact -> configured Node propagation -> fresh read. Zero-baseline y=x-2 retains variance; partial/unresolved/fake or wrong-unit map cannot gain authority. Current params-only map is not that producer.",
+        "owner": "Scientist response/Jacobian/execution producer with E propagation adapter",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4"
+      },
+      {
+        "ids": [
+          "B200"
+        ],
+        "minimal_inputs": "Content-bound information-unit relationship artifact: source identities, same/different measurement/replicate, shared data/covariance, prior/likelihood/posterior lineage, same estimand/unit.",
+        "next_verifiable_result": "Producer relationships -> CAS -> fresh aggregator: four copies remain std1; independently admitted measurements can narrow under their declared joint law. Equal values or origin strings alone cannot establish independence.",
+        "owner": "Foundry/Scientist information-relationship producer with E aggregator and IR contract owner",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4"
+      },
+      {
+        "ids": [
+          "LA-053"
+        ],
+        "minimal_inputs": "Tracked actual compatibility support window/API classification; current canonical/root/alias identity and migrated native numerical consumer corpus.",
+        "next_verifiable_result": "Owner-approved compatibility window and existing public inventory identify whether retirement is due. Until that decision retain alias; actual object/exception/native-corpus parity already passes. Do not invent arbitrary sunset or remove supported alias.",
+        "owner": "Calibration API owner and Scientist compatibility migration owner jointly",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4"
+      },
+      {
+        "ids": [
+          "LA-054"
+        ],
+        "minimal_inputs": "Exact current source report/model/detector/regime/metric/window/rule/expiry refs, complete observed invalidation feed and freshness policy; target consumer identity.",
+        "next_verifiable_result": "Current source -> distinctv2 registry -> fresh source rebind/public deployment consumer. Missing/delayed/incomplete feed, wrong subject/metric/regime, expiry and trigger retain typed refusal; historical calibration pass cannot substitute current validity.",
+        "owner": "DDM applicability/live-feed/deployment-purpose owners",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4"
+      },
+      {
+        "ids": [
+          "LA-055"
+        ],
+        "minimal_inputs": "Actual observed complete current window plus source validity and independently identity-bound R2/purpose input where R2 override is exercised; explicit baseline/veto precedence.",
+        "next_verifiable_result": "Fresh persisted restriction stays veto; valid R2 issuer can exercise only admitted R2 exception; R0/R1/failed certificate and R4/R3 persisted veto cannot be overridden. Boolean signoff or synthetic [] proves only library branch, not institution/deployment authority.",
+        "owner": "DDM deployment-purpose owner and identity-bound institutional R2 signoff issuer",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4"
+      },
+      {
+        "ids": [
+          "B194"
+        ],
+        "minimal_inputs": "Owner-admitted exact served evaluator/model/config/source/joint-law/output/domain refs in configured CAS; same-input transient retry classification only if that profile requests retries.",
+        "next_verifiable_result": "Existing dispatcher -> every addressed terminal draw outcome -> persisted report/envelope -> fresh served consumer. Requested=success+failure/refusal; success-only conditional mean remains labeled/refused for unconditional authority. Native Welfare128=92+36 is an established generic sibling, not missing served input.",
+        "owner": "Scientist served evaluator/domain owner and Foundry actual source-law/model issuer",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4"
+      },
+      {
+        "ids": [
+          "B197"
+        ],
+        "minimal_inputs": "Actual CalibratorInputs/model/objective/source-target time/unit/split join, declared likelihood/noise/fit assumptions, trainable field/tie coordinate mapping and configured CAS/report refs.",
+        "next_verifiable_result": "Real configured fit -> strict Foundry CalibrationReportv2 -> fresh existing Node/Welfare consumer. Recompute J/axis/cross-covariance/nullspace and reject wrong/Funnel kind/schema/config/objective. Generic known-noise fixture is technical positive only; factual source-fit authority remains held.",
+        "owner": "Foundry actual Calibrator/source-fit/noise issuer and Scientist configured welfare consumer",
+        "rule": "Recipes are scoped initial inputs, not blanket prerequisites or an upper bound on criterion-supported new inputs.",
+        "source_existing_recipe_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json@e9cb425e4dfe888720f93eb84f1667f24a8a92c4"
+      }
+    ]
+  },
+  "current_public_global_boundary": {
+    "capability_state": "surface_missing",
+    "canonical_owner": "G accepted-integration generator/public-surface owners with appointed API/Core/IR facade leases",
+    "old3932_full103_projection": "historical source-bound observation only; no actual new dependency hash/schema render is claimed here",
+    "next_result": "generator projects actual final accepted source/runtime input manifest and nine companions; fresh full required gates preserve native outcomes separately",
+    "C_F_adoption_claimed": false
+  },
+  "new_native_tests_or_environment_or_ROOT_source_written": false
+}

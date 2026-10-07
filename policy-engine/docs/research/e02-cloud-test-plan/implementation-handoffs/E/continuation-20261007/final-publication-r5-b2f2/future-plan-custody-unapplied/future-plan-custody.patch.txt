@@ -1,0 +1,31 @@
+--- /tmp/e02-E-final-composed-wave-refresh-20261007.py
++++ /tmp/e02-E-final-composed-wave-refresh-20261007.py
+@@ -31,6 +31,20 @@
+     req(isinstance(value, str) and re.fullmatch('[0-9a-f]{40}', value) is not None, 'full immutable ref required before Git/import callbacks')
+     return value
+ 
++
++
++def materialize_admitted_execution_plan(plan_path, wave, plan):
++    """Persist exact admitted bytes before the canonical executor callback."""
++    expected = (json.dumps(plan, indent=2) + '\n').encode()
++    admitted = plan_path.read_bytes()
++    req(admitted == expected, 'prepared plan bytes differ from actual execution argument')
++    req(Path(plan['output_root']).resolve() == wave.resolve(), 'execution output binding differs')
++    req(not wave.exists() and not wave.is_symlink(), 'exclusive never-existing wave required before plan materialization')
++    wave.mkdir(parents=True, exist_ok=False)
++    with (wave / 'plan.json').open('xb') as stream:
++        stream.write(admitted)
++    req((wave / 'plan.json').read_bytes() == admitted and plan_path.read_bytes() == admitted,
++        'exact admitted plan bytes changed during materialization')
+ 
+ def main():
+     parser = argparse.ArgumentParser()
+@@ -153,6 +167,7 @@
+         wrapper = importlib.util.module_from_spec(wrapper_spec)
+         wrapper_spec.loader.exec_module(wrapper)
+         planner = wrapper.load_planner(argparse.Namespace(repo=repo, candidate=args.candidate, comparison_base=mod.BASE, output_root=wave))
++        materialize_admitted_execution_plan(plan_path, wave, plan)
+         raise SystemExit(asyncio.run(planner.execute(plan)))
+ 
+ 

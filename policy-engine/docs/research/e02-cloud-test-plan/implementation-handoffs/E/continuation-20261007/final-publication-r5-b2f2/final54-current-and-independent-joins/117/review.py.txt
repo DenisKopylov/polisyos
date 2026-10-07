@@ -1,0 +1,190 @@
+"""Thin conservation join; reuses already closed independent numeric/native receipts."""
+from collections import Counter
+import ast
+import copy
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+SOURCE = 'b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641'
+TREE = '4cbbed1d9392832729cab92c6615f9a1d03a41c7'
+PACKET = Path('/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json')
+PACKET_SHA = '7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b'
+INPUTS = {
+    'numeric': Path('/tmp/e02-E-final-wave-numeric-independent-b2-20261007/recomputed-wave.json'),
+    'our_flat_cases': Path('/tmp/e02-E-final-wave-numeric-independent-b2-20261007/case-index.json'),
+    'parents': Path('/tmp/e02-E-final-metadata-independent-b2-20261007/parents-normal.json'),
+    'final3_literal_native': Path('/tmp/e02-E-final3-independent-b2-20261007/review.json'),
+    'lint': Path('/tmp/e02-E-final-root-lint-b2-independent-20261007/review.json'),
+    'prior54': Path('/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json'),
+    'lint_existing_full54_review': Path('/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/final-CASE-GATE-review-normal.stdout.json'),
+    'author_join': Path('/tmp/e02-E-final54-b2f2-preparation-20261007/join_globals.py'),
+}
+
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def ref(path):
+    blob = path.read_bytes()
+    return {'path': str(path), 'bytes': len(blob), 'sha256': sha(blob)}
+
+
+def read(path):
+    return json.loads(path.read_bytes())
+
+
+def require(condition, label):
+    if not condition:
+        raise ValueError(label)
+
+
+def guard():
+    def git(*args):
+        return subprocess.run(['git', '-C', str(ROOT), *args], capture_output=True, text=True, check=True).stdout
+    return {'source': git('rev-parse', 'HEAD').strip(), 'tree': git('rev-parse', 'HEAD^{tree}').strip(),
+            'tracked_status': git('status', '--porcelain', '--untracked-files=no'),
+            'untracked_is_not_whole_clean': git('status', '--porcelain', '--untracked-files=normal')}
+
+
+def typed_equal(a, b):
+    if type(a) is not type(b):
+        return False
+    if isinstance(b, dict):
+        return a.keys() == b.keys() and all(typed_equal(a[k], b[k]) for k in b)
+    if isinstance(b, list):
+        return len(a) == len(b) and all(typed_equal(x, y) for x, y in zip(a, b))
+    return a == b
+
+
+def admit_claim(candidate, expected):
+    if not typed_equal(candidate, expected):
+        raise ValueError('conservation_claim_diff_from_prior_independent_receipts')
+
+
+def main():
+    before = guard()
+    require(before['source'] == SOURCE and before['tree'] == TREE and before['tracked_status'] == '', 'Root_frozen_source_guard')
+    require(ref(PACKET)['sha256'] == PACKET_SHA, 'V4_fixed_packet')
+    packet = read(PACKET)
+    inputs = {k: read(p) for k, p in INPUTS.items() if k != 'author_join'}
+    n = inputs['numeric']['claim']
+    p = inputs['parents']['claim']
+    f = inputs['final3_literal_native']['claim']
+    require(packet['candidate'] == SOURCE and packet['tree'] == TREE, 'V4_source_header')
+    require(packet['formal_ledger_change'] is False and packet['formal_G_acceptance'] is False and packet['new_individual_owner_disposition'] is False, 'no_owner_or_G_promotion')
+    rows = packet['rows']
+    require(len(rows) == 54 and len({r['id'] for r in rows}) == 54, 'full54_ID_Counter')
+    links = Counter((r['id'], bundle) for r in rows for bundle in r['bundle_ids'])
+    require(sum(links.values()) == 55 and len({b for _, b in links}) == 22 and max(links.values()) == 1, '22bundles_55unique_links')
+    prior = {r['id']: r for r in inputs['prior54']['rows']}
+    preserved_fields = ('bundle_ids', 'canonical_ownership', 'historical_ledger_status', 'owner_decision', 'proposed_finding_outcome', 'formal_ledger_change', 'accountable_owner', 'bounded_decision_basis', 'remaining_input_or_implementation', 'next_owner')
+    for row in rows:
+        require(row['id'] in prior, 'unknown_original_ID')
+        for key in preserved_fields:
+            require(typed_equal(row[key], prior[row['id']][key]), 'changed_original_decision:' + row['id'] + ':' + key)
+    history = dict(Counter(r['historical_ledger_status'] for r in rows))
+    proposals = dict(Counter(r['proposed_finding_outcome'] for r in rows))
+    require(history == {'partial': 49, 'held': 4, 'closed': 1}, 'history49_4_1')
+    require(proposals == {'limited': 9, 'closed': 43, 'held': 2}, 'proposals43_9_2')
+    require(packet['historical_ledger'] == history, 'historical_summary_reconciliation')
+    require(packet['bounded_E_proposals'] == {**proposals, 'open': 0}, 'proposed_summary_reconciliation')
+    require(next(r for r in rows if r['id'] == 'B198')['historical_ledger_status'] == 'closed', 'B198_closed_regression')
+    wave = packet['current_numeric_wave']
+    require(wave['counts'] == n['numeric_counts'] and wave['native_counts_excluding_A_packet'] == n['native_counts'] and wave['A_packet_counts'] == n['A_packet_counts'], 'current_numeric_independent_counts')
+    require(wave['native_test_path_count'] == n['native_selectors'] and wave['owner_packet_path_count'] == n['owner_packet_inputs'], '104plus1_input_denominator')
+    native_jobs = {r['name']: r for r in inputs['numeric']['jobs']}
+    require(len(wave['jobs']) == 8, 'all8_native_jobs')
+    for job in wave['jobs']:
+        expected = native_jobs[job['name']]
+        require(job['check_outcome'] == expected['outcome'] and job['exit_code'] == expected['exit_code'], 'job_actual_outcome')
+        require(typed_equal(job['native_receipt'], expected['receipt']), 'job_native_ref')
+        require(typed_equal(job['actual_native_counts'], expected['case_counts']), 'job_native_case_count')
+        require(typed_equal(job['source_frame'], expected['source_frame']), 'job_raw_frame')
+    global_gates = packet['current_global_gates']
+    require(global_gates['gate_count'] == 7 and global_gates['gate_outcome_counts'] == {'FAIL': 7}, 'all7_terminal_FAIL')
+    require(global_gates['full_global_pass'] is False and len(global_gates['exact_receipts']) == 7, 'seven_receipts_no_fullPASS')
+    outcomes = {r['selector']: r['check_outcome'] for r in global_gates['exact_receipts']}
+    require(outcomes == {**f['current_native_outcomes'], 'ruff': 'FAIL', 'ruff-format': 'FAIL', 'workspace-verify': p['workspace_outcome'], 'ci-parity': p['ci_outcome']}, 'current_seven_outcomes_independent')
+    expected_steps = []
+    for parent in inputs['parents']['actual_parent_facts']:
+        for ordinal, row in enumerate(parent['complete_steps']):
+            expected_steps.append({'parent_selector': parent['selector'], 'ordinal_zero_based': ordinal, **row})
+    require(typed_equal(global_gates['exact_parent_stage_rows'], expected_steps), 'complete39_parent_rows_independent')
+    stage_counts = dict(Counter(r['outcome'] for r in expected_steps))
+    require(stage_counts == {'PASS': 1, 'FAIL': 2, 'UNRUN': 36} and global_gates['parent_stage_counts'] == stage_counts, 'all39_literal_stage_counts')
+    require(global_gates['parent_counts_by_selector'] == {'workspace-verify': p['workspace_stages'], 'ci-parity': p['ci_stages']}, '15and24_stage_counts')
+    # The flat cases were independently decoded earlier. This is a sparse binding conservation join, not another XML review.
+    flat = inputs['our_flat_cases']['cases']
+    group_cases = {}
+    for case in flat:
+        group_cases.setdefault(case['job_name'], []).append(case)
+    binding_count = 0
+    for row in rows:
+        nav = row['current_check_links']['selector_navigation']['exact_current_case_bindings']
+        for binding in nav:
+            actual = group_cases[binding['job']][binding['ordinal_zero_based']]
+            require(actual['classname'] == binding['classname'] and actual['name'] == binding['name'], 'current_original54_case_identity_binding')
+            expected_outcome = {'passed': 'PASS', 'failed': 'FAIL', 'error': 'ERROR', 'skipped': 'SKIP'}[actual['outcome']]
+            require(expected_outcome == binding['outcome'], 'current_case_status_binding')
+            binding_count += 1
+    require(len(packet['source_role_qualification']) == 13, '13_source_roles_no_new_review')
+    require(len(packet['local_recipe_rebinding']['recipes']) == 6, 'six_initial_local_recipes')
+    for recipe in packet['local_recipe_rebinding']['recipes']:
+        require(recipe['execute_implementation_candidate'] == SOURCE and recipe['execute_implementation_tree'] == TREE and recipe['original_implementation_reference_is_historical'] is True, 'local_current_source_historical_reference_split')
+    enums = {'recomputed', 'independently_reconciled', 'consumer_asserted', 'institutionally_supplied', 'not_established'}
+    require(set(packet['predicate_basis'].values()) <= enums, 'P37_canonical_enums')
+    claim = {'source': SOURCE, 'tree': TREE, 'bundles': 22, 'IDs': 54, 'links': 55, 'historical': history, 'proposals': proposals,
+             'numeric': n['numeric_counts'], 'native_numeric': n['native_counts'], 'A_packet': n['A_packet_counts'],
+             'current_gates': outcomes, 'parent39_stages': stage_counts, 'formal_G_acceptance': False, 'formal_ledger_change': False}
+    controls = [{'case': 'whole_thin_conservation', 'state': 'GO'}]
+    variants = [('count', ('numeric', 'passed'), 1465), ('historical', ('historical', 'held'), 2), ('proposal', ('proposals', 'closed'), 54),
+                ('gate', ('current_gates', 'architecture'), 'PASS'), ('parent', ('parent39_stages', 'UNRUN'), 0), ('authority', ('formal_G_acceptance',), True), ('source', ('tree',), '0' * 40)]
+    for name, path, value in variants:
+        mutant = copy.deepcopy(claim)
+        cursor = mutant
+        for k in path[:-1]:
+            cursor = cursor[k]
+        cursor[path[-1]] = value
+        try:
+            admit_claim(mutant, claim)
+        except ValueError as exc:
+            controls.append({'case': name, 'state': 'REFUSED', 'reason': str(exc)})
+        else:
+            raise RuntimeError('false thin conservation claim admitted')
+    tree = ast.parse(Path(__file__).read_text())
+    hits = 0
+    for node in tree.body:
+        if isinstance(node, ast.FunctionDef) and node.name == 'admit_claim':
+            for i, statement in enumerate(node.body):
+                if isinstance(statement, ast.If):
+                    node.body[i] = ast.Pass()
+                    hits += 1
+    require(hits == 1, 'sole_actual_typed_claim_predicate')
+    ast.fix_missing_locations(tree)
+    removed = {'__name__': '_final54_actual_guard_removed', '__file__': __file__}
+    exec(compile(tree, str(Path(__file__)) + ':actual_if_removed', 'exec'), removed)
+    guard_removed = removed['admit_claim']
+    promoted = copy.deepcopy(claim)
+    promoted['formal_G_acceptance'] = True
+    guard_removed(promoted, claim)
+    controls.append({'case': 'sole_typed_claim_predicate_removed', 'state': 'ADMITTED_PROPERTY_FAIL', 'all_closed_raw_refs_retained': True})
+    after = guard()
+    require(before == after, 'read_only_source_guard_equal')
+    return {'schema': 'policyos.e02.independent.final54.thin_conservation.v1', 'source': SOURCE, 'tree': TREE,
+            'disposition': 'GO thin conservation against already independently closed numeric/native/parent receipts; no repeated original-card or source reviews',
+            'current_packet': ref(PACKET), 'input_refs': {k: ref(p) for k, p in INPUTS.items()}, 'claim': claim,
+            'preserved_original_row_fields': list(preserved_fields), 'current_binding_count': binding_count, 'control_rows': controls,
+            'source_guard_before': before, 'source_guard_after': after, 'optimization_mode': not __debug__,
+            'P37': {'count_binding_conservation': 'independently_reconciled', 'literal_refs_and_structural_arithmetic': 'recomputed', 'finding_or_G_authority': 'not_established'},
+            'limits': ['Original54 owner criteria/source-role decisions reuse existing independent reviews; no new closure by case count.',
+                       'Final3 fixed native body facts are accepted; V2 header admission utility escape remains separately CHANGE_REQUIRED until its corrective utility is reviewed.',
+                       'No numerical/native/gate/environment/source changes or repetitions.']}
+
+
+if __name__ == '__main__':
+    print(json.dumps(main(), indent=2, sort_keys=True))

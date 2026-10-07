@@ -1,0 +1,37 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,json,subprocess
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+HERE=Path(__file__).parent
+SOURCE='b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641'
+TREE='4cbbed1d9392832729cab92c6615f9a1d03a41c7'
+FREEZE=Path('/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/freeze.json')
+PUB=FREEZE.parent/'publication-readback.json'
+PLAN=Path('/tmp/e02-E-final-parent-gate-adapters-r4/canonical-factory-plan.json')
+OBSERVER=Path('/tmp/e02-E-final-parent-gate-adapters-r4/run_final_parent_umbrella.py.txt')
+
+def ref(p):
+    data=p.read_bytes()
+    return {'path':str(p),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+def git(*a):return subprocess.check_output(['git','--no-optional-locks',*a],cwd=ROOT).decode().strip()
+assert git('rev-parse','HEAD')==SOURCE and git('rev-parse','HEAD^{tree}')==TREE
+assert not git('diff','--name-only') and not git('diff','--cached','--name-only')
+assert ref(OBSERVER)['sha256']=='0d67bdd63687f5622c5f993b1bcc11b3c40d9c416d9ef0b75d6d2e39a8364e0c'
+plan=json.loads(PLAN.read_text());plan_refs=[]
+for original in plan['before']['source_refs']:
+    p=ROOT/original['path'];r=ref(p)
+    assert r['bytes']==original['bytes'] and r['sha256']==original['sha256']
+    plan_refs.append(r)
+f=json.loads(FREEZE.read_text());p=json.loads(PUB.read_text())
+assert f['candidate']==p['source']==SOURCE and f['candidate_tree']==p['tree']==TREE
+assert p['freeze']['sha256']==ref(FREEZE)['sha256'] and p['freeze']['bytes']==ref(FREEZE)['bytes']
+commands=[]
+for name in ['workspace-verify','ci-parity']:
+    output=Path('/tmp/e02-E-final-parent-b2f2f65e-20261007-'+name)
+    started=output/name/'started.json';start=json.loads(started.read_text())
+    assert start['source']==SOURCE and start['tree']==TREE
+    assert start['source_before']['framed_sha256']==f['framed_sha256']
+    commands.append({'selector':name,'executed_observer_argv':[str(ROOT/'policy-engine/.venv/bin/python'),'-B',str(OBSERVER),'--selector',name,'--candidate',SOURCE,'--tree',TREE,'--output-root',str(output),'--execute'],'native_wrapper_argv':start['command'],'output_root':str(output),'started':ref(started),'parent_stage_count':15 if name=='workspace-verify' else 24,'cwd':str(ROOT/'policy-engine')})
+admission={'schema':'policyos.e02.final_parent_b2f_execution_input_admission.v1','recorded_at':datetime.now(timezone.utc).isoformat(),'assembly_time':'After parent launches; original exact source guards/start receipts retained and this note does not pretend to precede the launches','source':SOURCE,'tree':TREE,'current_tracked_status':git('status','--porcelain'),'freeze_current_literal':ref(FREEZE),'publication_current_literal':ref(PUB),'publication_freeze_ref_matches_current_bytes':True,'observer':ref(OBSERVER),'complete_canonical_plan':ref(PLAN),'actual_unchanged_plan_sources':plan_refs,'commands':commands,'schedule':['workspace-verify','ci-parity'],'serialization_basis':'Actual same Root _build last-mile/coverage/source-supplied mutable fixtures, not worker/thread/CPU quota','other_cloud_checks_parallel':True,'artificial_thread_worker_CPU_process_caps_added':False,'new_parent_skip_or_bypass_flags_added':False,'Root207_environment_install_or_sync_command_directed_by_observer':False,'late_canonical_writer_scope':'No late extension/browser stage reached in workspace; CI actual stage outcomes retained at close, never presumed','finding_closure_or_global_acceptance':False,'original_preparation_observer_errors':[{'scope':'Initial standalone admission stdin failed to parse on else24; no Git/source/package/backend commands ran. Original CLI tool output retained in chat; that exact stdin source was not separately archived.','outcome':'ERROR metadata observer only'},{'scope':'Uncalculated stale-freeze claim corrected by literal hash observer qualification. Original freeze/readback bytes retained without edits.','qualification':ref(HERE/'freeze-hash-observer-error-qualification.json')}],'predicate_basis':{'exact_root_source_tree_and_selected_plan_inputs':'recomputed','source_reviews_and_original_remote_readback':'independently_reconciled','original_before_after_all_tracked_frames':'recomputed','future_late_writer_and_native_caller_cause':'not_established','finding_or_G_authority':'not_established'}}
+(HERE/'admission.json').write_text(json.dumps(admission,indent=2)+'\n')
+print(json.dumps({'admission':ref(HERE/'admission.json'),'scope':'exact original input/argv/guard custody; no source/native command execution by this record'}))

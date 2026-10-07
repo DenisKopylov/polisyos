@@ -1,0 +1,8 @@
+{
+  "observed_at": "2026-10-07T17:16:43.270085+00:00",
+  "original_attempt": "exec_command returned transport disconnected after creating first full stage; original stdout/stderr empty and preserved",
+  "process_exit_code": "not_established",
+  "first_stage_actual_validation": "separate exact archived validate invocation returned0 with958 logical/579 carriers; actual archived stage and published CLI positives recorded subsequently",
+  "source_or_numerical_failure_attribution": false,
+  "Root_or_leaf_writes": false
+}

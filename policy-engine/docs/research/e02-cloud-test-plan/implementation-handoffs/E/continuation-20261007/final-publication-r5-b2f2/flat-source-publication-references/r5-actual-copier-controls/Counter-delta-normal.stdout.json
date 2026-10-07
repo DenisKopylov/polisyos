@@ -1,0 +1,10 @@
+{
+  "outcome": "PASS custody delta only",
+  "report": {
+    "path": "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-normal/review.json",
+    "bytes": 3946,
+    "sha256": "b5c685b07d518ff365122e7e35b5af898b8479c88d3f5d9f3b0ddb80e957ece4"
+  },
+  "blocked_genuine_omission": true,
+  "sole_Counter_removal_accepts_same_omission": true
+}

@@ -1,0 +1,38 @@
+{
+  "schema": "policyos.e02.final_static119.actual_qualification_controls.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "rows": 119,
+  "writer_counts": {
+    "E": 91,
+    "B": 28
+  },
+  "with_current_executed_named_AST_callers": 48,
+  "with_qualified_accepted_role_native_receipt": 35,
+  "current_role_actual_Git_body_equal_checks": 13,
+  "actual_controls_per_mode": 19,
+  "normal_optimized_stdout_bytes": 4894,
+  "normal_optimized_stdout_sha256": "11d5d1e0cd42478ae1b61a809ffccfe74bb10f036379709e7e8a89c618bdc41a",
+  "actual_commands": [
+    [
+      "/usr/bin/python3",
+      "-S",
+      "/tmp/e02-E-final3-validate-witness-map-b2f2f65e-20261007-v2.py.txt"
+    ],
+    [
+      "/usr/bin/python3",
+      "-S",
+      "-O",
+      "/tmp/e02-E-final3-validate-witness-map-b2f2f65e-20261007-v2.py.txt"
+    ]
+  ],
+  "exit_codes": [
+    0,
+    0
+  ],
+  "controls": "healthy1+typed source/case/owner/claim corruption9 refused+actual sole comparison AST removal admits same9, keeping named source/native inputs intact.",
+  "limit": "Actualtestcase execution plus named ASTassociation is not perbranch tracing; rolebounded native receipts do not establish defaultserved dispatch. All119 static records retain currentnativeFAIL/partial, findingclosurefalse. B28 remain B attribution.",
+  "new_native_execution": false,
+  "ROOT_or_env_writes": false,
+  "P41": "not_established"
+}

@@ -1,0 +1,178 @@
+import collections
+import copy
+import gzip
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+OUT = Path('/tmp/e02-E-final3-independent-b2-20261007')
+PACKET = Path('/tmp/e02-E-final3-publication-b2f2f65e-20261007')
+INDEX = Path('/tmp/e02-E-final3-closed-index-b2f2f65e-20261007-v2.json')
+SOURCE = 'b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641'
+TREE = '4cbbed1d9392832729cab92c6615f9a1d03a41c7'
+
+def need(ok, why):
+    if not ok:
+        raise ValueError(why)
+
+def ref(p):
+    p = Path(p)
+    h = hashlib.sha256()
+    size = 0
+    with p.open('rb') as f:
+        for b in iter(lambda: f.read(1024 * 1024), b''):
+            h.update(b)
+            size += len(b)
+    return {'path': str(p), 'bytes': size, 'sha256': h.hexdigest()}
+
+def read(p):
+    return json.loads(Path(p).read_text())
+
+def git(args):
+    p = subprocess.run(['git', '-C', str(ROOT), *args], capture_output=True)
+    need(p.returncode == 0, 'read-only Git command failed')
+    return p.stdout
+
+def state():
+    return {'source': git(['rev-parse', 'HEAD']).decode().strip(), 'tree': git(['rev-parse', 'HEAD^{tree}']).decode().strip(), 'tracked_status': git(['status', '--porcelain=v1', '--untracked-files=no']).decode().strip()}
+
+def equal(a, b):
+    if type(a) is not type(b):
+        return False
+    if isinstance(a, dict):
+        return a.keys() == b.keys() and all(equal(a[k], b[k]) for k in a)
+    if isinstance(a, list):
+        return len(a) == len(b) and all(equal(x, y) for x, y in zip(a, b))
+    return a == b
+
+def admit_claim(actual, expected):
+    need(equal(actual, expected), 'complete typed closed native gate claim binding')
+
+def bind(r):
+    a = ref(r['path'])
+    need(type(r['bytes']) is int and a['bytes'] == r['bytes'] and a['sha256'] == r['sha256'], 'complete original native output/reference equality')
+    return a
+
+def main():
+    before = state()
+    need(before == {'source': SOURCE, 'tree': TREE, 'tracked_status': ''}, 'frozen actual source lease')
+    need(ref(INDEX)['sha256'] == 'f38e680e418519a35e9700e209eb2b729721ddd9021d648aa4ffbff7935404a4', 'current corrected v2 index')
+    need(ref(PACKET / 'publication-selection.json')['sha256'] == '1c6619d44223e3715d02906b2181752f3fbeef0a9c2060a2a53228f54d6f85f5', 'current fixed73 logical selection')
+    index, selection = read(INDEX), read(PACKET / 'publication-selection.json')
+    selected = []
+    for row in selection['assets']:
+        stored = ref(PACKET / row['portable_path'])
+        need(type(row['bytes']) is int and stored['bytes'] == row['bytes'] and stored['sha256'] == row['sha256'], 'stored literal/gzip carrier equality')
+        original = ref(row['original_path'])
+        need(original['bytes'] == row['decoded_bytes'] and original['sha256'] == row['decoded_sha256'], 'full original chosen-byte equality')
+        h, n = hashlib.sha256(), 0
+        opener = gzip.open if row['encoding'] == 'gzip' else open
+        need(row['encoding'] in ['literal', 'gzip'], 'canonical carrier encoding')
+        with opener(PACKET / row['portable_path'], 'rb') as f:
+            for b in iter(lambda: f.read(1024 * 1024), b''):
+                h.update(b)
+                n += len(b)
+        need((n, h.hexdigest()) == (row['decoded_bytes'], row['decoded_sha256']), 'every lossless decoded original body')
+        selected.append({'logical_name': row['logical_name'], 'stored': stored, 'decoded_original': original, 'encoding': row['encoding']})
+    unique = {(r['stored']['bytes'], r['stored']['sha256']) for r in selected}
+    need(len(selected) == selection['logical_count'] == 73 and len(unique) == selection['unique_count'] == 52 and sum(b for b, _ in unique) == selection['unique_bytes'] == 6591514, 'complete73/52 stored-member Counter denominator')
+    facts = []
+    for group, entries in [('deciding', index['deciding']), ('historical', index['historical_attempts'])]:
+        for name, row in entries.items():
+            actual = read(row['receipt']['path'])
+            need(bind(row['receipt']), 'closed receipt binding')
+            need(actual['source'] == SOURCE and actual['tree'] == TREE and actual['head_after'] == SOURCE, 'six actual receipt source/tree/head')
+            need(actual['exit_code'] == row['exit_code'] and actual['outcome'] == row['outcome'] and actual['command'] == row['command'] and actual['cwd'] == row['cwd'], 'six literal full actual argv/cwd/outcomes')
+            need(actual['source_immutable'] is True and actual['source_before'] == actual['source_after'] == row['source_before'] == row['source_after'], 'six full metadata frame actual guards')
+            need(actual['ROOT_environment_metadata_unchanged'] is True and equal(actual['ROOT_environment_metadata_before'], actual['ROOT_environment_metadata_after']), 'ROOT metadata/control beforeafter equality')
+            metadata = actual['ROOT_environment_metadata_after']['combined_rows']
+            need(sum(r['path'].endswith('/METADATA') for r in metadata) == 207 and len(metadata) == 210, '207 packageMETADATA+3 protected guardrefs')
+            for m in metadata:
+                path = ROOT / 'policy-engine/.venv' / m['path']
+                if 'symlink' in m:
+                    need(path.is_symlink() and os.readlink(path) == m['symlink'], 'protected executable linkstring')
+                else:
+                    a = ref(path)
+                    need((a['bytes'], a['sha256']) == (m['bytes'], m['sha256']), 'actual ROOT metadata/control bytes')
+            for stream in ['stdout', 'stderr']:
+                bind(row[stream])
+            if group == 'deciding':
+                need(row['exit_code'] == 1 and row['outcome'] == row['canonical_outcome'] == 'FAIL', 'all3 final nativeFAIL1 preserved')
+            facts.append({'group': group, 'name': name, 'receipt': bind(row['receipt']), 'command': row['command'], 'native_outcome': row['canonical_outcome'], 'wrapper_outcome': row['outcome'], 'exit_code': row['exit_code'], 'full_source_metadata_frame': row['source_after'], 'packageMETADATA_count': 207, 'protected_extra_control_count': 3, 'stdout': row['stdout'], 'stderr': row['stderr']})
+    arch = index['architecture_complete_current']
+    raw_arch = Path(index['deciding']['architecture']['stdout']['path']).read_text()
+    pattern = re.compile(r'^- New deep-import creep detected: (\S+) -> (\S+) \(([^)]+)\)\.', re.M)
+    raw_rows = [{'source_module': a, 'imported_module': b, 'path': p} for a, b, p in pattern.findall(raw_arch)]
+    need(raw_rows == arch['all_deep_import_rows'] and len(raw_rows) == arch['deep_import_rows'] == 151 and len({r['path'] for r in raw_rows}) == arch['deep_import_paths'] == 79, 'all actual151 importrows/79paths from complete native stdout')
+    need(arch['native_no_UNRUN'] is True and arch['missing_required_families'] == [] and arch['standalone_atlas_not_run'] is True, 'full canonical4families not standaloneAtlas')
+    need('Standalone Atlas gate:' in raw_arch and 'is not run by' in raw_arch and 'Architecture guardrail check FAILED:' in raw_arch, 'actual native scope/status text')
+    outputs = [bind(r) for r in arch['complete_observed_outputs']]
+    need(len(outputs) == arch['observed_output_count'] == 6, 'all6 actual generated outputs')
+    families = collections.Counter(next(r for r in ['runtime-api-client', 'runtime-dashboard-api-types', 'runtime-openapi-snapshot', 'trust-claim-posture-register'] if '/outputs/' + r + '/' in p['path']) for p in outputs)
+    need(families == {'runtime-api-client': 3, 'runtime-dashboard-api-types': 1, 'runtime-openapi-snapshot': 1, 'trust-claim-posture-register': 1}, 'all4 configured family exact outputs')
+    runtime = index['runtime_complete_current']
+    catalog = read(runtime['catalog']['path'])
+    bind(runtime['catalog'])
+    need(catalog['actual_checker_exit_code'] == runtime['canonical_checker_exit_code'] == 1 and catalog['original_cli_arguments'] == runtime['original_cli_arguments'] == [], 'actual default runtime CLI checkerFAIL1')
+    raw_openapi_ref = bind(runtime['raw_openapi'])
+    api = read(runtime['raw_openapi']['path'])
+    need(len(api['components']['schemas']) == runtime['schema_components'] == 573, 'actual573 raw OpenAPI schema components')
+    example = api['paths']['/api/v1/exports/governed-projections/confidence-ledger-risk-spend']['get']['responses']['200']['content']['application/json']['examples']['default']['value']
+    need(example['source']['validation']['bound_dependency_count'] == runtime['bound_dependency_count'] == 1495, 'named confidence-ledger example dependency count')
+    need(example['source_dependency_hash'] == runtime['source_dependency_hash'] and example['projection_hash'] == runtime['projection_hash'], 'exact named example bound identities')
+    need(catalog['openapi_captures_raw_only'][0]['sha256'] == raw_openapi_ref['sha256'], 'actual canonical captured raw artifact binding')
+    runtime_outputs = [bind(r) for r in runtime['complete_generated_client_outputs']]
+    need(runtime_outputs == catalog['complete_generated_client_outputs_raw_only'] and len(runtime_outputs) == 3, 'all3 actual native generatedclient outputs')
+    static = index['static_complete_current']
+    stdout = read(index['deciding']['static-invocation']['stdout']['path'])
+    records = read(static['complete_changed_records']['path'])
+    corpus = read(static['input_corpus']['path'])
+    bind(static['complete_changed_records'])
+    bind(static['input_corpus'])
+    raw_ref = bind(static['raw_stays_ignored'])
+    need(stdout['status'] == 'FAILED' and stdout['runtime_invocation_established'] is False, 'static raw native status is partial proxyFAIL')
+    expected_names = [('regression', n) for n in stdout['regressions']] + [('new_unresolved', n) for n in stdout['new_unresolved_by_construction']]
+    need(collections.Counter((r['check_class'], r['symbol']) for r in records['rows']) == collections.Counter(expected_names), 'full actual24+95=119 changed mechanism names/classes')
+    need((len(stdout['regressions']), len(stdout['new_unresolved_by_construction']), len(records['rows'])) == (24, 95, 119), 'complete119actualstatic records')
+    need(dict(collections.Counter(r['current_writer'] for r in records['rows'])) == records['actual_owner_counts'] == index['actual_119_owner_counts'] == {'E': 91, 'B': 28}, 'all119 factual writer rows')
+    current = [p[len('policy-engine/'):] for p in git(['ls-tree', '-r', '--name-only', SOURCE]).decode().splitlines() if p.startswith(('policy-engine/src/', 'policy-engine/tools/', 'policy-engine/tests/')) and p.endswith('.py')]
+    baseline = [p[len('policy-engine/'):] for p in git(['ls-tree', '-r', '--name-only', index['base']]).decode().splitlines() if p.startswith(('policy-engine/src/', 'policy-engine/tools/', 'policy-engine/tests/')) and p.endswith('.py')]
+    need(sorted(r['path'] for r in corpus['current']) == sorted(current) and sorted(r['path'] for r in corpus['base_rows']) == sorted(baseline), 'full5942/5904 exact actual Git pathdenominators')
+    need(len(current) == 5942 and len(baseline) == 5904 and sum(p.startswith('src/') for p in current) == 2703 and corpus['denominator'] == static['full_native_denominator'], 'all native current/base/source corpus counts')
+    need(static['runtime_invocation_established'] is False and static['coverage'] == 'partial' and static['P41'].startswith('not_established'), 'proxy not runtime or inheritedcause authority')
+    need(raw_ref['bytes'] == 171903508 and raw_ref['sha256'] == records['raw_receipt']['sha256'], 'ignored171MB full rawbody SHA conserved without retaining newrawcopy or graphreparse')
+    for r in records['rows']:
+        p = r['source_input']['path']
+        a = ref(p)
+        need(a['bytes'] == r['source_input']['bytes'] and a['sha256'] == r['source_input']['sha256'], 'all119 sourceinput current-body byte refs')
+    claim = {'source': SOURCE, 'tree': TREE, 'logical_members': 73, 'storage_contents': 52, 'current_native_outcomes': {'architecture': 'FAIL', 'runtime-api-contract': 'FAIL', 'static-invocation': 'FAIL'}, 'architecture_rows': 151, 'architecture_paths': 79, 'architecture_outputs': 6, 'architecture_missing_required': [], 'standalone_atlas_selected': False, 'OpenAPI_components': 573, 'named_confidence_example_dependencies': 1495, 'static_changed_records': 119, 'static_regressions': 24, 'static_new_unresolved': 95, 'static_owners': {'E': 91, 'B': 28}, 'static_current_corpus': 5942, 'static_base_corpus': 5904, 'static_runtime_witness': False, 'initial_static_signal_P41cause': 'not_established', 'source_global_scientific_G_authority': False}
+    controls = []
+    mutations = [('allnative_PASS', lambda d: d['current_native_outcomes'].__setitem__('architecture', 'PASS')), ('missing151row', lambda d: d.__setitem__('architecture_rows', 150)), ('Atlas_false_selected', lambda d: d.__setitem__('standalone_atlas_selected', True)), ('bool119', lambda d: d.__setitem__('static_changed_records', True)), ('Graph_runtime_authority', lambda d: d.__setitem__('static_runtime_witness', True)), ('OOM_PID_cause', lambda d: d.__setitem__('initial_static_signal_P41cause', 'OOM')), ('wrong1495', lambda d: d.__setitem__('named_confidence_example_dependencies', 1489)), ('hidden_B_owner', lambda d: d['static_owners'].__setitem__('B', 0)), ('missing52carrier', lambda d: d.__setitem__('storage_contents', 51)), ('G_findings_promoted', lambda d: d.__setitem__('source_global_scientific_G_authority', True))]
+    for name, change in mutations:
+        bad = copy.deepcopy(claim)
+        change(bad)
+        try:
+            admit_claim(bad, claim)
+        except ValueError as e:
+            controls.append({'name': name, 'outcome': 'rejected', 'reason': str(e), 'actual_raw_native_refs_source_markers_payloads_retained': True})
+        else:
+            raise ValueError('closed finalgate metadata promotion admitted')
+    removed = lambda actual, expected: None
+    bad = copy.deepcopy(claim)
+    bad['static_runtime_witness'] = True
+    removed(bad, claim)
+    controls.append({'name': 'sole_complete_gate_claim_admission_removed', 'proxy_promoted_to_runtime_re_admitted': True, 'defining_property': 'FAIL'})
+    after = state()
+    need(before == after, 'frozen source read guard unchanged')
+    report = {'schema': 'policyos.e02.independent_final3_closed_custody.v1', 'source': SOURCE, 'tree': TREE, 'disposition': 'GO for fixed literal final3 native custody/index; author admission supplement remains separately pending', 'claim': claim, 'source_guard_before': before, 'source_guard_after': after, 'all_selected_original_carriers': selected, 'all_six_actual_native_attempts': facts, 'actual151_deep_import_rows': raw_rows, 'actual4_generated_families': dict(families), 'raw_runtime_OpenAPI': raw_openapi_ref, 'named_confidence_example_scope': 'Only the literal OpenAPI default example for /api/v1/exports/governed-projections/confidence-ledger-risk-spend. No independent served verifier/projection authority claimed.', 'full_static_raw_custody': raw_ref, 'static119_input_binding': bind(static['complete_changed_records']), 'static5942_5904_full_corpus': bind(static['input_corpus']), 'static_proxy': {'measured': static['measured'], 'unmeasured': static['unmeasured'], 'limitations': static['limitations']}, 'oldindex_correction': index['historical_index_ref'], 'current_unapplied_API_seams': index['remaining_API_owner_seams'], 'independent_controls': controls, 'optimization_mode': not __debug__, 'native_repeated': False, 'P37': [{'predicate': 'literal carriers/decompression/fullstaticraw SHA/sourcebody/meta refs', 'basis': 'recomputed'}, {'predicate': 'raw native statuses/importrows/generator outputs/119 names and5942/5904 inputs', 'basis': 'independently_reconciled'}, {'predicate': 'factual writer/classification of119 source rows and unapplied owner packet scope', 'basis': 'consumer_asserted'}, {'predicate': 'full raw graph mechanism field reparse/caller execution/endpoints/P41cause/scientific/G/finding authority', 'basis': 'not_established'}], 'limits': ['No native source/gate/test/numeric/environment execution repeated.', '171MB raw hash is streamed; the full graph is not reparsed or copied again. Complete119 symbol/class names are reconciled from actual native stdout; arbitrary graph inference remains partial.', 'All current3 native gates FAIL; initial Corepack wrapperERROR and static-9ERROR remain historical separate attempts.', 'StandaloneAtlas is outside this canonical command; missing_required=[] describes four selected native generator families only.', 'Exact old-base full same-command physical input replay was not performed; P41 remains not_established.']}
+    p = OUT / ('review-optimized.json' if not __debug__ else 'review.json')
+    p.write_text(json.dumps(report, indent=2) + '\n')
+    print(json.dumps({'report': ref(p), 'final_native_outcomes': claim['current_native_outcomes'], 'independent_controls': len(controls), 'author_admission_supplement': 'pending', 'native_repeated': False}, indent=2))
+
+if __name__ == '__main__':
+    OUT.mkdir(exist_ok=True)
+    main()

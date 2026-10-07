@@ -1,0 +1,89 @@
+{
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "summary": {
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+    "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "complete_python_input_count": 378,
+    "factual_writer_counts": {
+      "A": 2,
+      "B": 13,
+      "E": 349,
+      "G": 12,
+      "F": 2
+    },
+    "ruff_exit_code": 1,
+    "format_exit_code": 1,
+    "diagnostic_count": 292,
+    "diagnostic_path_count": 14,
+    "format_path_count": 14,
+    "diagnostics_by_factual_writer": {
+      "A": 1,
+      "B": 35,
+      "G": 256
+    },
+    "E_diagnostic_count": 0,
+    "E_format_path_count": 0,
+    "source_config_environment_immutable": true,
+    "global_pass": false,
+    "P41": "not_established"
+  },
+  "controls": [
+    {
+      "name": "healthy_closed_output_recompute",
+      "outcome": "PASS"
+    },
+    {
+      "name": "denominator",
+      "outcome": "PASS",
+      "refusal": "owner_summary_mismatch",
+      "raw_argv_inputs_and_outcomes_unchanged": true
+    },
+    {
+      "name": "foreign_diags_hidden",
+      "outcome": "PASS",
+      "refusal": "owner_summary_mismatch",
+      "raw_argv_inputs_and_outcomes_unchanged": true
+    },
+    {
+      "name": "E_false_attribution",
+      "outcome": "PASS",
+      "refusal": "owner_summary_mismatch",
+      "raw_argv_inputs_and_outcomes_unchanged": true
+    },
+    {
+      "name": "bool_count",
+      "outcome": "PASS",
+      "refusal": "owner_summary_mismatch",
+      "raw_argv_inputs_and_outcomes_unchanged": true
+    },
+    {
+      "name": "global_marker",
+      "outcome": "PASS",
+      "refusal": "owner_summary_mismatch",
+      "raw_argv_inputs_and_outcomes_unchanged": true
+    },
+    {
+      "name": "P41_waiver",
+      "outcome": "PASS",
+      "refusal": "owner_summary_mismatch",
+      "raw_argv_inputs_and_outcomes_unchanged": true
+    },
+    {
+      "name": "sole_typed_admission_removal",
+      "outcome": "PASS",
+      "defining_refusal_property": "FAIL",
+      "false_claims_readmitted": [
+        "denominator",
+        "foreign_diags_hidden",
+        "E_false_attribution",
+        "bool_count"
+      ],
+      "raw_command_and_bytes_preserved": true
+    }
+  ],
+  "control_count": 8,
+  "optimization_mode": true,
+  "scope": "read-only closed gate evidence claims; no Ruff/format/numeric/backend rerun"
+}

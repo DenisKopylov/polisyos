@@ -1,0 +1,180 @@
+{
+  "schema": "policyos.e02.final_parent_b2f_execution_input_admission.v1",
+  "recorded_at": "2026-10-07T16:24:43.281691+00:00",
+  "assembly_time": "After parent launches; original exact source guards/start receipts retained and this note does not pretend to precede the launches",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "current_tracked_status": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/",
+  "freeze_current_literal": {
+    "path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/freeze.json",
+    "bytes": 4697,
+    "sha256": "4d49a909e20e3311dd60eadff8f62c03a8bd0e5438d96004bf276c3ff5cb569c"
+  },
+  "publication_current_literal": {
+    "path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/publication-readback.json",
+    "bytes": 2488,
+    "sha256": "c453139628edbeeb3af4fcb900ba7c49b06a195ac1d29f0f336d55b30d3d0a15"
+  },
+  "publication_freeze_ref_matches_current_bytes": true,
+  "observer": {
+    "path": "/tmp/e02-E-final-parent-gate-adapters-r4/run_final_parent_umbrella.py.txt",
+    "bytes": 8791,
+    "sha256": "0d67bdd63687f5622c5f993b1bcc11b3c40d9c416d9ef0b75d6d2e39a8364e0c"
+  },
+  "complete_canonical_plan": {
+    "path": "/tmp/e02-E-final-parent-gate-adapters-r4/canonical-factory-plan.json",
+    "bytes": 22971,
+    "sha256": "6a23e4d0fc2a43cff3ad1babae95f6dd7c78ff66cee835accdea4821e7463c7c"
+  },
+  "actual_unchanged_plan_sources": [
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tools/devx/workspace/verify.py",
+      "bytes": 12277,
+      "sha256": "864ec1e4f463b63610986cd86b93a1b61687408b84e1a9c64cd6d6a65d587207"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tools/devx/workspace/ci_parity.py",
+      "bytes": 11939,
+      "sha256": "8ee3abda4668c4bbc24c58412b11eda51eaae9c046b98ad80ff5b17705e26619"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tools/devx/workspace/_common.py",
+      "bytes": 7324,
+      "sha256": "fadb1e8e48587a79fdeafdf7ce23216518d4f09a06c3045b0ed1f1c0133c267a"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/repo_quality/conftest.py",
+      "bytes": 588,
+      "sha256": "48dbbacf5d48bdbc012c5bfa817c37edbe17ebdad416d4d2a18f916ee6a37126"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py",
+      "bytes": 12746,
+      "sha256": "371ac66d1e32d7e5b3c65a18d93588073c243fef5f1e30939255bdf92a9007ae"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+      "bytes": 17078,
+      "sha256": "31a6e918fe41cf8ca722e0bb72fba6b0f56c31c4df15582101ad36f377fa0c08"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py",
+      "bytes": 7609,
+      "sha256": "5d8db50ec87df1f8aa5fe7322c1a8f13df02b4e596c7d2ddc839dcecbf5f93f3"
+    }
+  ],
+  "commands": [
+    {
+      "selector": "workspace-verify",
+      "executed_observer_argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-B",
+        "/tmp/e02-E-final-parent-gate-adapters-r4/run_final_parent_umbrella.py.txt",
+        "--selector",
+        "workspace-verify",
+        "--candidate",
+        "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "--tree",
+        "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "--output-root",
+        "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify",
+        "--execute"
+      ],
+      "native_wrapper_argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+        "--repo",
+        "/workspace/e02-E-continuation-20261006",
+        "--gate",
+        "verify",
+        "--stages-output",
+        "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/internal-stages.json",
+        "--temp-root",
+        "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/umbrella-tmp",
+        "--backend-only"
+      ],
+      "output_root": "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify",
+      "started": {
+        "path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-workspace-verify/workspace-verify/started.json",
+        "bytes": 49139,
+        "sha256": "0b8f0755d85871882f1bac38100be8954f523de54328d5f9c34ded253ccbc5c8"
+      },
+      "parent_stage_count": 15,
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine"
+    },
+    {
+      "selector": "ci-parity",
+      "executed_observer_argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-B",
+        "/tmp/e02-E-final-parent-gate-adapters-r4/run_final_parent_umbrella.py.txt",
+        "--selector",
+        "ci-parity",
+        "--candidate",
+        "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "--tree",
+        "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+        "--output-root",
+        "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity",
+        "--execute"
+      ],
+      "native_wrapper_argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+        "--repo",
+        "/workspace/e02-E-continuation-20261006",
+        "--gate",
+        "ci-parity",
+        "--stages-output",
+        "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity/ci-parity/internal-stages.json",
+        "--temp-root",
+        "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity/ci-parity/umbrella-tmp"
+      ],
+      "output_root": "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity",
+      "started": {
+        "path": "/tmp/e02-E-final-parent-b2f2f65e-20261007-ci-parity/ci-parity/started.json",
+        "bytes": 48999,
+        "sha256": "1904611b40ac02770adfeaa61f66577f9595be9d9a3cf8da943ce403f877f256"
+      },
+      "parent_stage_count": 24,
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine"
+    }
+  ],
+  "schedule": [
+    "workspace-verify",
+    "ci-parity"
+  ],
+  "serialization_basis": "Actual same Root _build last-mile/coverage/source-supplied mutable fixtures, not worker/thread/CPU quota",
+  "other_cloud_checks_parallel": true,
+  "artificial_thread_worker_CPU_process_caps_added": false,
+  "new_parent_skip_or_bypass_flags_added": false,
+  "Root207_environment_install_or_sync_command_directed_by_observer": false,
+  "late_canonical_writer_scope": "No late extension/browser stage reached in workspace; CI actual stage outcomes retained at close, never presumed",
+  "finding_closure_or_global_acceptance": false,
+  "original_preparation_observer_errors": [
+    {
+      "scope": "Initial standalone admission stdin failed to parse on else24; no Git/source/package/backend commands ran. Original CLI tool output retained in chat; that exact stdin source was not separately archived.",
+      "outcome": "ERROR metadata observer only"
+    },
+    {
+      "scope": "Uncalculated stale-freeze claim corrected by literal hash observer qualification. Original freeze/readback bytes retained without edits.",
+      "qualification": {
+        "path": "/tmp/e02-E-final-parent-admission-b2f2f65e-20261007/freeze-hash-observer-error-qualification.json",
+        "bytes": 1190,
+        "sha256": "59adab195657073be5ff6dd007b94b06f11b2502f20a34a38b44952d4b0f06b6"
+      }
+    }
+  ],
+  "predicate_basis": {
+    "exact_root_source_tree_and_selected_plan_inputs": "recomputed",
+    "source_reviews_and_original_remote_readback": "independently_reconciled",
+    "original_before_after_all_tracked_frames": "recomputed",
+    "future_late_writer_and_native_caller_cause": "not_established",
+    "finding_or_G_authority": "not_established"
+  }
+}

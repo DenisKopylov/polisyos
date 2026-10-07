@@ -1,0 +1,111 @@
+"""Render navigation indices from the pinned complete final54 receipt."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import sys
+from collections import Counter
+from pathlib import Path
+from typing import Any
+
+BASE = Path("/tmp/e02-E-final54-b2f2-preparation-20261007")  # noqa: S108 -- closed deciding namespace
+PACKET = BASE / "current-all-54-b2-final-v4-normal.json"
+SHA = "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+
+
+def require(value: bool, message: str) -> None:
+    if not value:
+        raise ValueError(message)
+
+
+def ref(path: Path) -> dict[str, Any]:
+    body = path.read_bytes()
+    return {"path": str(path), "bytes": len(body), "sha256": hashlib.sha256(body).hexdigest()}
+
+
+def main() -> None:
+    require(ref(PACKET)["sha256"] == SHA, "fixed complete input")
+    packet = json.loads(PACKET.read_bytes())
+    require(len(packet["rows"]) == 54 and len(packet["bundles"]) == 22, "complete originals")
+    proposals = Counter(row["proposed_finding_outcome"] for row in packet["rows"])
+    require(proposals == Counter({"closed": 43, "limited": 9, "held": 2}), "preserved E proposals")
+    rows = []
+    for row in packet["rows"]:
+        binding = row["current_check_links"]["selector_navigation"]["exact_current_case_bindings"]
+        rows.append(
+            {
+                "id": row["id"],
+                "bundle_ids": row["bundle_ids"],
+                "historical_ledger_status": row["historical_ledger_status"],
+                "E_bounded_proposed_finding_outcome": row["proposed_finding_outcome"],
+                "owner_decision": row["owner_decision"],
+                "accountable_owner": row["accountable_owner"],
+                "formal_G_acceptance": False,
+                "formal_ledger_change": False,
+                "exact_original_and_deciding_evidence": {
+                    "source": ref(PACKET),
+                    "finding_fragment": "#/rows/" + str(len(rows)),
+                },
+                "current_case_navigation_counts": dict(
+                    Counter(case["outcome"] for case in binding)
+                ),
+                "case_navigation_not_criterion_approval": True,
+                "remaining_input_or_implementation": row["remaining_input_or_implementation"],
+                "next_owner": row["next_owner"],
+                "current_source_qualification": row["current_source_qualification"],
+            }
+        )
+    index = {
+        "schema": "policyos.e02.E.final54_owner_navigation_index.v1",
+        "source": packet["candidate"],
+        "tree": packet["tree"],
+        "complete_denominator": packet["complete_denominator"],
+        "historical_ledger": packet["historical_ledger"],
+        "E_bounded_proposals": packet["bounded_E_proposals"],
+        "current_numeric_counts": packet["current_numeric_wave"]["counts"],
+        "current_global_gate_outcomes": packet["current_global_gates"]["gate_outcome_counts"],
+        "current_parent_stage_outcomes": packet["current_global_gates"]["parent_stage_counts"],
+        "G_formal_acceptance": False,
+        "formal_ledger_change": False,
+        "rows": rows,
+    }
+    paths = []
+    for name, value in (
+        ("current-owner-index-b2.json", index),
+        (
+            "current-local-G-recipes-b2.json",
+            {
+                "schema": "policyos.e02.E.final_b2_local_recipe_rebinding.v1",
+                "source_complete_packet": ref(PACKET),
+                **packet["local_recipe_rebinding"],
+            },
+        ),
+        (
+            "current-owner-actions-b2.json",
+            {
+                "schema": "policyos.e02.E.final_b2_owner_actions.v1",
+                "source": packet["candidate"],
+                "tree": packet["tree"],
+                "source_complete_packet": ref(PACKET),
+                "remaining_owner_inputs": packet["remaining_owner_inputs"],
+                "current_global_owner_actions": packet["current_global_owner_actions"],
+                "public_and_external_consumers": packet["public_and_external_consumers"],
+                "scientific_fit_boundary": packet["scientific_fit_boundary"],
+                "finding_or_G_acceptance": False,
+            },
+        ),
+    ):
+        target = BASE / name
+        target.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n")
+        paths.append(ref(target))
+    sys.stdout.write(
+        json.dumps(
+            {"check_outcome": "PASS", "scope": "navigation rendering only", "outputs": paths}
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

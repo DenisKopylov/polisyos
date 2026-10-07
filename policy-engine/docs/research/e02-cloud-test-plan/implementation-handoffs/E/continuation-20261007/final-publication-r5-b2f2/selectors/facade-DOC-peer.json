@@ -1,0 +1,345 @@
+{
+  "schema": "policyos.e02.independent_DOC_review_publication_selection.v1",
+  "candidate": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+  "candidate_tree": "8cba7977f54ed1c7e6d0f66b3c7e83a98011ab6e",
+  "parent": "5835140f86199c51676187ed337fd61ceabeb713",
+  "source_candidate": "ace655f4c97fdbfb2fed0b22de7a54caa3ac31b1",
+  "source_tree": "954620fc97fb377ca17be3db3592b10b66849a3e",
+  "source_disposition_reuse": "GO bounded sixpath source only",
+  "DOC_disposition": "GO bounded immutable DOC custody only",
+  "file_count": 54,
+  "total_bytes": 114000,
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/G-closure-promotion-normal.stderr.txt",
+      "path": "G-closure-promotion-normal.stderr.txt",
+      "bytes": 795,
+      "sha256": "4089d4eca072c4d9f437b4b52cdc3d49f097f45ded224fb926fd8c2da009cde6"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/G-closure-promotion-normal.stdout.txt",
+      "path": "G-closure-promotion-normal.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/G-closure-promotion-optimized.stderr.txt",
+      "path": "G-closure-promotion-optimized.stderr.txt",
+      "bytes": 801,
+      "sha256": "0f90afc30f7029140bb5b591bc3be050b97bde547ffa202d2f7d4bd7a76474f6"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/G-closure-promotion-optimized.stdout.txt",
+      "path": "G-closure-promotion-optimized.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/commands.json",
+      "path": "commands.json",
+      "bytes": 1071,
+      "sha256": "6911c50067031e17a7db1b1a746b48e59d5a278f7d64e5487def9ea365d55cab"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/current-wave-promotion-normal.stderr.txt",
+      "path": "current-wave-promotion-normal.stderr.txt",
+      "bytes": 801,
+      "sha256": "78bcae1fbaf12ca752ec364f33592193c3d4bfcdc7e1040895179726245492df"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/current-wave-promotion-normal.stdout.txt",
+      "path": "current-wave-promotion-normal.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/current-wave-promotion-optimized.stderr.txt",
+      "path": "current-wave-promotion-optimized.stderr.txt",
+      "bytes": 807,
+      "sha256": "e5272326b80d47aa1d3ca7b4152c6748e009c43211bf919dd8f9b89ddad4fdae"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/current-wave-promotion-optimized.stdout.txt",
+      "path": "current-wave-promotion-optimized.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/fake-present-review-normal.stderr.txt",
+      "path": "fake-present-review-normal.stderr.txt",
+      "bytes": 845,
+      "sha256": "9061f4bca680e5636624cf11e8b226bce778d88684cd2943cf11eb1e0c9a948d"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/fake-present-review-normal.stdout.txt",
+      "path": "fake-present-review-normal.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/fake-present-review-optimized.stderr.txt",
+      "path": "fake-present-review-optimized.stderr.txt",
+      "bytes": 851,
+      "sha256": "312d3361d34fb04acbe8ceca4aacf806d2511c414b44c407ca68a35ce3658f55"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/fake-present-review-optimized.stdout.txt",
+      "path": "fake-present-review-optimized.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/fresh-case-inflation-normal.stderr.txt",
+      "path": "fresh-case-inflation-normal.stderr.txt",
+      "bytes": 797,
+      "sha256": "de8ce73da91b6a8358ceaff707bcb96692c52bc382b6157e6ae4da572b23f44f"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/fresh-case-inflation-normal.stdout.txt",
+      "path": "fresh-case-inflation-normal.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/fresh-case-inflation-optimized.stderr.txt",
+      "path": "fresh-case-inflation-optimized.stderr.txt",
+      "bytes": 803,
+      "sha256": "d8f1df8b490d2d1df761e4ddeabfe04c44bff43960ffb925701a034a24abb6fb"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/fresh-case-inflation-optimized.stdout.txt",
+      "path": "fresh-case-inflation-optimized.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/full-index-Counter-substitution-normal.stderr.txt",
+      "path": "full-index-Counter-substitution-normal.stderr.txt",
+      "bytes": 857,
+      "sha256": "279c48c882464880b169b8f3470442645c5510d3fa3e9196413be81ab3d7ca73"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/full-index-Counter-substitution-normal.stdout.txt",
+      "path": "full-index-Counter-substitution-normal.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/full-index-Counter-substitution-optimized.stderr.txt",
+      "path": "full-index-Counter-substitution-optimized.stderr.txt",
+      "bytes": 863,
+      "sha256": "d63c6c6e81e93fdd333f6a497088ef666fa7f24b045c13d39a0adf4387b3906d"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/full-index-Counter-substitution-optimized.stdout.txt",
+      "path": "full-index-Counter-substitution-optimized.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/healthy-normal.stderr.txt",
+      "path": "healthy-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/healthy-normal.stdout.txt",
+      "path": "healthy-normal.stdout.txt",
+      "bytes": 171,
+      "sha256": "9e86a574531e85672446180a2975b1f1791aede9425223001024c788b6bc5ba2"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/healthy-optimized.stderr.txt",
+      "path": "healthy-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/healthy-optimized.stdout.txt",
+      "path": "healthy-optimized.stdout.txt",
+      "bytes": 171,
+      "sha256": "9e86a574531e85672446180a2975b1f1791aede9425223001024c788b6bc5ba2"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/missing-empty-carrier-normal.stderr.txt",
+      "path": "missing-empty-carrier-normal.stderr.txt",
+      "bytes": 1257,
+      "sha256": "1ff8d9983d7da58021abd7d47d44d84e56ff81e867834bad513fea15d4fb6319"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/missing-empty-carrier-normal.stdout.txt",
+      "path": "missing-empty-carrier-normal.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/missing-empty-carrier-optimized.stderr.txt",
+      "path": "missing-empty-carrier-optimized.stderr.txt",
+      "bytes": 1266,
+      "sha256": "104604ba8985eac4491a644ff46eae1a4187ec5e0c7bf07ac71643fde2a46882"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/missing-empty-carrier-optimized.stdout.txt",
+      "path": "missing-empty-carrier-optimized.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/review.json",
+      "path": "review.json",
+      "bytes": 64255,
+      "sha256": "a939c238acf54879ea461239195e784064b4b8e01f7e6e19f56da062529dc646"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/review.stderr.txt",
+      "path": "review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/review.stdout.txt",
+      "path": "review.stdout.txt",
+      "bytes": 626,
+      "sha256": "7ca382212257679036542eeb745806ec94745f8376d8f860ebe27bd851173a5d"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/review_handoff.py",
+      "path": "review_handoff.py.txt",
+      "bytes": 17794,
+      "sha256": "156355c6e42f6a6a41c143c06e6cafef58647a3fd3c39c932d4c00703491525f"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/sole-index-guard-removal-normal.stderr.txt",
+      "path": "sole-index-guard-removal-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/sole-index-guard-removal-normal.stdout.txt",
+      "path": "sole-index-guard-removal-normal.stdout.txt",
+      "bytes": 171,
+      "sha256": "9e86a574531e85672446180a2975b1f1791aede9425223001024c788b6bc5ba2"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/sole-index-guard-removal-optimized.stderr.txt",
+      "path": "sole-index-guard-removal-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/sole-index-guard-removal-optimized.stdout.txt",
+      "path": "sole-index-guard-removal-optimized.stdout.txt",
+      "bytes": 171,
+      "sha256": "9e86a574531e85672446180a2975b1f1791aede9425223001024c788b6bc5ba2"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/sole-index-guard-removal.py.txt",
+      "path": "sole-index-guard-removal.py.txt",
+      "bytes": 12519,
+      "sha256": "cd938f15977f7e6d168bac8cb87bbf942d7c7b26719627fc5deada12435f14b2"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/source-sha-normal.stderr.txt",
+      "path": "source-sha-normal.stderr.txt",
+      "bytes": 777,
+      "sha256": "893e18dfcb0689f5e0e0d4410d63b85f96ffd925f793ce33ffba181212d489cf"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/source-sha-normal.stdout.txt",
+      "path": "source-sha-normal.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/source-sha-optimized.stderr.txt",
+      "path": "source-sha-optimized.stderr.txt",
+      "bytes": 783,
+      "sha256": "1b2deb9f115d27fd2ab11b01ed1046b36a7c7bfb836a4895cbdc87c428108099"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/source-sha-optimized.stdout.txt",
+      "path": "source-sha-optimized.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/tree-sha-normal.stderr.txt",
+      "path": "tree-sha-normal.stderr.txt",
+      "bytes": 773,
+      "sha256": "340cf10722c9f01c7a4a0a1344ae8db39c9f00207d0bb0ea0a52f6801e050f55"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/tree-sha-normal.stdout.txt",
+      "path": "tree-sha-normal.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/tree-sha-optimized.stderr.txt",
+      "path": "tree-sha-optimized.stderr.txt",
+      "bytes": 779,
+      "sha256": "27116c786ce8f40412e018365c88e281627e065c10cd77c4a816fffca7b60f74"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/tree-sha-optimized.stdout.txt",
+      "path": "tree-sha-optimized.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/typed-count-bool-normal.stderr.txt",
+      "path": "typed-count-bool-normal.stderr.txt",
+      "bytes": 789,
+      "sha256": "9fc17876dd2797f3bf37f5a4c02fb59b7b9345b16cfa9355ba3521cb0528901f"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/typed-count-bool-normal.stdout.txt",
+      "path": "typed-count-bool-normal.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/typed-count-bool-optimized.stderr.txt",
+      "path": "typed-count-bool-optimized.stderr.txt",
+      "bytes": 795,
+      "sha256": "325d9981ae2e88ce3e33148b6772e48ad269caad01729ef6a1877cece7d33c6c"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/typed-count-bool-optimized.stdout.txt",
+      "path": "typed-count-bool-optimized.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/unknown-basis-promotion-normal.stderr.txt",
+      "path": "unknown-basis-promotion-normal.stderr.txt",
+      "bytes": 803,
+      "sha256": "7fc247025cde8337303833828ad7be13cabae09f2f734bb823e0b3319196dbe8"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/unknown-basis-promotion-normal.stdout.txt",
+      "path": "unknown-basis-promotion-normal.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/unknown-basis-promotion-optimized.stderr.txt",
+      "path": "unknown-basis-promotion-optimized.stderr.txt",
+      "bytes": 809,
+      "sha256": "9b200690e2c1d05091c9ff75934e18ebc10d1e921c082f00789abd3457d388c6"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/unknown-basis-promotion-optimized.stdout.txt",
+      "path": "unknown-basis-promotion-optimized.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "native_tests_rerun": false,
+  "excluded": [
+    "transient control input copies",
+    "mutated headers/index and destination trees",
+    "CAS/cache/environment/production inputs"
+  ],
+  "G_formal_intake_or_finding_closure": false
+}

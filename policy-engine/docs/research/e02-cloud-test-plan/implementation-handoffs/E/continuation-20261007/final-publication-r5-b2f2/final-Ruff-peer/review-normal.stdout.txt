@@ -1,0 +1,13 @@
+{
+  "report": {
+    "path": "/tmp/e02-E-final-root-lint-b2-independent-20261007/review.json",
+    "bytes": 131242,
+    "sha256": "b5aafa827ca95fe37658cdb974a00dee197c3220042682147cf4f7230b83f099"
+  },
+  "full378_native": "FAIL",
+  "E349": "0 diagnostics / 0 format requests",
+  "foreign292_diagnostics14_paths14_formats": true,
+  "independent_controls": 9,
+  "raw_assets": 32,
+  "source_unchanged": true
+}

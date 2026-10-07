@@ -1,0 +1,65 @@
+import hashlib
+import json
+from pathlib import Path
+
+ROOT = Path('/tmp/e02-E-bayesian-fit-bridge-r6')
+READBACK = ROOT / 'final-publication-readback'
+SELECTED = []
+
+def add(path, portable, role):
+    data = path.read_bytes()
+    data.decode('utf-8')
+    if portable.endswith('.py'):
+        portable += '.txt'
+    if portable.endswith('.json'):
+        json.loads(data)
+    SELECTED.append({'source_path': str(path), 'portable_path': portable, 'bytes': len(data),
+                     'sha256': hashlib.sha256(data).hexdigest(), 'role': role})
+
+for directory in ['source-publication-77b4', 'doc-publication', 'pr58-current-description']:
+    for path in sorted((ROOT / directory).iterdir()):
+        if path.is_file():
+            add(path, directory + '/' + path.name, 'actual closed publication CLI/REST inputs and complete stdout/stderr; historical failed gh edit retained')
+for path in sorted(READBACK.iterdir()):
+    if path.is_file() and not path.name.startswith('doc-blob-'):
+        add(path, 'final-publication-readback/' + path.name, 'actual metadata Git/source/remote/PR readback; original pre-description PR snapshot is historical')
+for name in ['record_published_source_and_docs.py', 'final-readback-builder.stdout.json', 'final-readback-builder.stderr.txt',
+             'pr58-current-body.md', 'final-publication-summary.json', 'validate_publication_readback_summary.py',
+             'publication-summary-controls-normal.stdout.json', 'publication-summary-controls-normal.stderr.txt',
+             'publication-summary-controls-optimized.stdout.json', 'publication-summary-controls-optimized.stderr.txt']:
+    add(ROOT / name, name, 'current publication summary/author pure typed corrupt-field and effective removal controls; not independent review')
+
+raw = []
+for path in sorted(READBACK.glob('doc-blob-*')):
+    data = path.read_bytes()
+    raw.append({'source_path': str(path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
+raw_index = {'scope': 'ignored redundant raw Git show payload captures only; exact already-published DOC artifacts remain in immutable Git',
+             'source': 'c40b2f5767bb5810bc8ac4c2ead9510f8c01430b', 'records': raw,
+             'file_count': len(raw), 'stdout_blob_count': sum(r['source_path'].endswith('.stdout.txt') for r in raw),
+             'total_bytes': sum(r['bytes'] for r in raw),
+             'reproduce': 'Use each exact full40SHA:path git show argv recorded in final-publication-readback/receipt.json; no source/backends rerun',
+             'not_selected': 'Do not copy these 962 redundant raw content captures into another Git evidence dump'}
+path = ROOT / 'ignored-raw-readback-index.json'
+path.write_text(json.dumps(raw_index, indent=2) + '\n')
+add(path, path.name, 'complete ignored raw capture identity/reproduce index; raw content deliberately excluded')
+
+unique = {(item['sha256'], item['bytes']) for item in SELECTED}
+selection = {'schema': 'e02.E.source_DOC_PR_metadata_publication_selection.v1',
+             'source': '77b4d68ec37e3f34b84ce4fd1787746e3d5f5322', 'source_tree': 'd5efa295c8af983a86a620a120ab091aae580db3',
+             'DOC': 'c40b2f5767bb5810bc8ac4c2ead9510f8c01430b', 'DOC_tree': 'b596c99e8edc0e6735c942f0415fb50ecccfa331',
+             'handoff_prefix': 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/configured-bayesian-fit/',
+             'PR': 'https://github.com/DenisKopylov/polisyos/pull/58', 'PR_head': 'c40b2f5767bb5810bc8ac4c2ead9510f8c01430b',
+             'scope': 'Closed source-first/topic publication, separate passive DOC commit/readback and current own PR title/body; metadata only, no native/backend/gate repetition',
+             'source_native_decisions_reused_from': ['independent-review-77b4.json@4339639c4fd7dd5abd6c3bc29784e903a57084e2447abddcd600244bd8236b6f',
+                                                  'independent-publication-review-77b4-v3.json@8d44f97f2717bca276f7d31a1f455fce5c215beaf8712a479ae0af2356f9701f'],
+             'assets': SELECTED, 'logical_count': len(SELECTED), 'byte_unique_count': len(unique), 'unique_bytes': sum(size for _, size in unique),
+             'author_controls_each_mode': 10, 'author_is_not_independent_reviewer': True,
+             'attachment': 'Root completed actual native PR58 attachment; no reconstructed unavailable app tool bytes',
+             'history': 'original pre-description PR snapshot, gh deprecated-Projects edit failure and source/DOC original commands retained; later REST capture qualifies current title/body only',
+             'limitations': ['Finding outcome and global gate outcome remain separate', 'No full backend/numeric replay by this metadata reader',
+                             'Complete 962 publication raw Git byte captures excluded as redundant ignored content; full metadata/input hashes are selected'],
+             'tool_inspection_observer_error': 'One tool-only inspection requested nonexistent files field in prior Ruff selector (actual assets), acknowledged; no separately captured source/CLI asset or native regression claimed'}
+(ROOT / 'final-publication-selection.json').write_text(json.dumps(selection, ensure_ascii=False, indent=2) + '\n')
+print(json.dumps({'path': str(ROOT / 'final-publication-selection.json'), 'bytes': (ROOT / 'final-publication-selection.json').stat().st_size,
+                  'sha256': hashlib.sha256((ROOT / 'final-publication-selection.json').read_bytes()).hexdigest(),
+                  'logical': len(SELECTED), 'unique': len(unique), 'unique_bytes': selection['unique_bytes']}))

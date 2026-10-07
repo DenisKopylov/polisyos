@@ -1,0 +1,105 @@
+{
+  "schema": "policyos.e02.exact_raw_archive_scope.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "operation": "Three CLOSED raw static invocation JSON streams reversibly gzip archived after exact input and complete decompressed stream digest/byte equality, before original plaintext retirement.",
+  "files": [
+    {
+      "old": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/raw/production-invocation.raw.json",
+      "real": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/preserved-catalogs/frozen-wave-64d7444a-20261007/raw/production-invocation.raw.json",
+      "bytes": 171816130,
+      "sha256": "2db8bd7e6e2517bc18b8f0e53d4f79617802b15fdf24e8e0ba1a9b64b895a3b9",
+      "archive": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/closed-static-raw-archives-20261007/frozen-wave-64d7444a.production-invocation.raw.json.gz",
+        "bytes": 6518181,
+        "sha256": "2203291c8ac19de0d9c37c675f3164c179355c260baf76c784dfb40d12d88f1c"
+      },
+      "reopen_recipe": {
+        "shell_argv": [
+          "gzip",
+          "-dc",
+          "--",
+          "/workspace/e02-E-pr38-r3-receipts/closed-static-raw-archives-20261007/frozen-wave-64d7444a.production-invocation.raw.json.gz"
+        ],
+        "destination_requirement": "explicit fresh /tmp filename chosen by recipient, single file at a time; redirect stdout to it, then compute sha256sum and wc -c against exact bytes/SHA above. Do not silently restore old historical path or alter committed index."
+      }
+    },
+    {
+      "old": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/raw/production-invocation.raw.json",
+      "real": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/preserved-catalogs/common-wave-a9f78817c-corrected/raw/production-invocation.raw.json",
+      "bytes": 171772302,
+      "sha256": "438665b9b62b5860d17d388b0ac9466a0d628773e93059e2ada9fdf410990635",
+      "archive": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/closed-static-raw-archives-20261007/corrected-wave-a9f78817.production-invocation.raw.json.gz",
+        "bytes": 6513037,
+        "sha256": "b975e44dbadf1de0d57df53ad4faa9c2c16d310652580caa576ff58aa3017953"
+      },
+      "reopen_recipe": {
+        "shell_argv": [
+          "gzip",
+          "-dc",
+          "--",
+          "/workspace/e02-E-pr38-r3-receipts/closed-static-raw-archives-20261007/corrected-wave-a9f78817.production-invocation.raw.json.gz"
+        ],
+        "destination_requirement": "explicit fresh /tmp filename chosen by recipient, single file at a time; redirect stdout to it, then compute sha256sum and wc -c against exact bytes/SHA above. Do not silently restore old historical path or alter committed index."
+      }
+    },
+    {
+      "old": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/raw/production-invocation.raw.json",
+      "real": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/preserved-catalogs/common-wave-5e3e37276/raw/production-invocation.raw.json",
+      "bytes": 171772803,
+      "sha256": "404cdb1543a96433016ca3880c3d557e2d027f9fa62060be40d9b8e266b16fbd",
+      "archive": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/closed-static-raw-archives-20261007/historical-wave-5e3e3727.production-invocation.raw.json.gz",
+        "bytes": 6513079,
+        "sha256": "7f3769dc47c7109cdb03347e50a821abc044023b332e3f252210109a817b7910"
+      },
+      "reopen_recipe": {
+        "shell_argv": [
+          "gzip",
+          "-dc",
+          "--",
+          "/workspace/e02-E-pr38-r3-receipts/closed-static-raw-archives-20261007/historical-wave-5e3e3727.production-invocation.raw.json.gz"
+        ],
+        "destination_requirement": "explicit fresh /tmp filename chosen by recipient, single file at a time; redirect stdout to it, then compute sha256sum and wc -c against exact bytes/SHA above. Do not silently restore old historical path or alter committed index."
+      }
+    }
+  ],
+  "total_original_bytes": 515361235,
+  "total_archive_bytes": 19544297,
+  "old_plaintext_retired": true,
+  "compressed_bytes_never_masquerade_as_JSON": true,
+  "earlier_relocation_readability_qualified": "21 catalog relocation receipts remain literal historical observations. Exactly these three old and real plaintext filenames are now unavailable until explicit fresh-path decode. Parent catalog symlinks and all other data remain retained.",
+  "initial_observer_gap": "First pre-action refusal stdout/stderr retained, no action. Its initial non-unique proc JSON was overwritten by retry, so precise first refusal process evidence is not established. Corrected script uses unique time_ns+pid observation names before remaining actions; first successful paired proc observations and all later paired observations retained.",
+  "visibility_limits": "Fresh readable non-zombie /proc cwd/cmdline/fd sources checked old+real paths and their parents immediately before compression/retirement. Infrastructure processes 199/250 unreadable explicitly scoped; hostwide visibility and continuous writer exclusion not established.",
+  "ROOT_boundary": {
+    "HEAD": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "whole_checkout_clean": false,
+    "whole_input_byte_immutable": false,
+    "observed_modified_inputs": "29 tracked generated G6/G7/G8 JSONs during active backend",
+    "specific_current_native_mutating_caller_P41": "not_established",
+    "operation_no_ROOT_source_env_package_Git_or_production_mutation": true
+  },
+  "resource_basis": "Full memory.stat/events, swap and statvfs before/after retained. 1 MiB streaming buffer, exclusive gzip output, no large plaintext materialization. Free-capacity change under concurrent writers does not establish cause or any numerical property.",
+  "deciding_property": "All 515361235 input bytes retained with exact hashes in 19544297 gzip bytes; original input and full decoded stream equal prior inventory expectation before retirement. Independent peer review pending, no self-independent GO claimed.",
+  "P37_predicates": [
+    {
+      "predicate": "operation input/decompressed hash and size equality",
+      "basis": "recomputed"
+    },
+    {
+      "predicate": "prior inventory expectation equality",
+      "basis": "recomputed"
+    },
+    {
+      "predicate": "observed readable process users",
+      "basis": "recomputed"
+    },
+    {
+      "predicate": "hostwide no users/current ROOT mutation cause/scientific or finding authority",
+      "basis": "not_established"
+    }
+  ],
+  "production_or_numerical_result_claimed": false
+}

@@ -1,0 +1,15 @@
+{
+  "actual_commands": [
+    [
+      "python3",
+      "/tmp/e02-E-final-root-lint-b2-independent-20261007/review.py"
+    ],
+    [
+      "python3",
+      "-O",
+      "/tmp/e02-E-final-root-lint-b2-independent-20261007/review.py"
+    ]
+  ],
+  "stdout_stderr": "complete closed capture files selected",
+  "scope": "stdlib read-only receipt/custody checks; no native test/Ruff/format/backend rerun"
+}

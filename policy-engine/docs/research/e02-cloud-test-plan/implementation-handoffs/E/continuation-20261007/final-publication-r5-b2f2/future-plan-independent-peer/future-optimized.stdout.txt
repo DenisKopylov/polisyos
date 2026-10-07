@@ -1,0 +1,10 @@
+{
+  "disposition": "GO for closed unapplied future custody-only packet",
+  "report": {
+    "path": "/tmp/e02-E-final-metadata-independent-b2-20261007/future-optimized.json",
+    "bytes": 51895,
+    "sha256": "17a0374c17c7fcb2ab77eeee6546089bb33748cb1c3a2d7df84313051b59c26c"
+  },
+  "typed_controls": 9,
+  "native_repeated": false
+}

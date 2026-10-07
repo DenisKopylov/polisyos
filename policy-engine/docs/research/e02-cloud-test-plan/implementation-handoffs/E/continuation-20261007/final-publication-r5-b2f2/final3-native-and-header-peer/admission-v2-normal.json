@@ -1,0 +1,357 @@
+{
+  "author_controls_replayed": {
+    "case_count": 23,
+    "gate_rerun": false,
+    "raw_graph_recopied": false,
+    "rows": [
+      {
+        "case": "whole_healthy",
+        "outcome": {
+          "finding_closure": false,
+          "logical_count": 73,
+          "native_outcomes": {
+            "architecture": "FAIL",
+            "runtime-api-contract": "FAIL",
+            "static-invocation": "FAIL"
+          },
+          "native_runtime_execution": false,
+          "state": "GO",
+          "unique_count": 52
+        }
+      },
+      {
+        "case": "claim_runtime_complete_current.schema_components",
+        "reason": "typed_claim_diff_from_complete_closed_native_inputs",
+        "state": "REFUSED"
+      },
+      {
+        "case": "claim_runtime_complete_current.bound_dependency_count",
+        "reason": "typed_claim_diff_from_complete_closed_native_inputs",
+        "state": "REFUSED"
+      },
+      {
+        "case": "claim_static_complete_current.regressions",
+        "reason": "typed_claim_diff_from_complete_closed_native_inputs",
+        "state": "REFUSED"
+      },
+      {
+        "case": "claim_actual_119_owner_counts.E",
+        "reason": "typed_claim_diff_from_complete_closed_native_inputs",
+        "state": "REFUSED"
+      },
+      {
+        "case": "claim_deciding.architecture.outcome",
+        "reason": "typed_claim_diff_from_complete_closed_native_inputs",
+        "state": "REFUSED"
+      },
+      {
+        "case": "claim_historical_attempts.runtime_initial.outcome",
+        "reason": "typed_claim_diff_from_complete_closed_native_inputs",
+        "state": "REFUSED"
+      },
+      {
+        "case": "claim_remaining_API_owner_seams.current_new_private_runtime_edges",
+        "reason": "typed_claim_diff_from_complete_closed_native_inputs",
+        "state": "REFUSED"
+      },
+      {
+        "case": "claim_finding_closure",
+        "reason": "typed_claim_diff_from_complete_closed_native_inputs",
+        "state": "REFUSED"
+      },
+      {
+        "case": "retotal_omission_attempts/runtime-api-contract-retry-corepack/receipt.json",
+        "reason": "mandatory_full_closed_member_Counter_drift",
+        "state": "REFUSED"
+      },
+      {
+        "case": "retotal_omission_attempts/static-invocation-retry-capacity/complete-source-inputs-before.json",
+        "reason": "mandatory_full_closed_member_Counter_drift",
+        "state": "REFUSED"
+      },
+      {
+        "case": "retotal_omission_current/e02-E-final3-closed-index-b2f2f65e-20261007-v2.json",
+        "reason": "mandatory_full_closed_member_Counter_drift",
+        "state": "REFUSED"
+      },
+      {
+        "case": "actual_member_guard_removed_attempts/runtime-api-contract-retry-corepack/receipt.json",
+        "result": {
+          "finding_closure": false,
+          "logical_count": 72,
+          "native_outcomes": {
+            "architecture": "FAIL",
+            "runtime-api-contract": "FAIL",
+            "static-invocation": "FAIL"
+          },
+          "native_runtime_execution": false,
+          "state": "GO",
+          "unique_count": 51
+        },
+        "state": "ADMITTED_PROPERTY_FAIL"
+      },
+      {
+        "case": "actual_member_guard_removed_attempts/static-invocation-retry-capacity/complete-source-inputs-before.json",
+        "result": {
+          "finding_closure": false,
+          "logical_count": 72,
+          "native_outcomes": {
+            "architecture": "FAIL",
+            "runtime-api-contract": "FAIL",
+            "static-invocation": "FAIL"
+          },
+          "native_runtime_execution": false,
+          "state": "GO",
+          "unique_count": 52
+        },
+        "state": "ADMITTED_PROPERTY_FAIL"
+      },
+      {
+        "case": "actual_member_guard_removed_current/e02-E-final3-closed-index-b2f2f65e-20261007-v2.json",
+        "result": {
+          "finding_closure": false,
+          "logical_count": 72,
+          "native_outcomes": {
+            "architecture": "FAIL",
+            "runtime-api-contract": "FAIL",
+            "static-invocation": "FAIL"
+          },
+          "native_runtime_execution": false,
+          "state": "GO",
+          "unique_count": 51
+        },
+        "state": "ADMITTED_PROPERTY_FAIL"
+      },
+      {
+        "case": "actual_claim_guard_removed_0",
+        "result": {
+          "finding_closure": false,
+          "logical_count": 73,
+          "native_outcomes": {
+            "architecture": "FAIL",
+            "runtime-api-contract": "FAIL",
+            "static-invocation": "FAIL"
+          },
+          "native_runtime_execution": false,
+          "state": "GO",
+          "unique_count": 52
+        },
+        "state": "ADMITTED_PROPERTY_FAIL"
+      },
+      {
+        "case": "actual_claim_guard_removed_1",
+        "result": {
+          "finding_closure": false,
+          "logical_count": 73,
+          "native_outcomes": {
+            "architecture": "FAIL",
+            "runtime-api-contract": "FAIL",
+            "static-invocation": "FAIL"
+          },
+          "native_runtime_execution": false,
+          "state": "GO",
+          "unique_count": 52
+        },
+        "state": "ADMITTED_PROPERTY_FAIL"
+      },
+      {
+        "case": "actual_claim_guard_removed_2",
+        "result": {
+          "finding_closure": false,
+          "logical_count": 73,
+          "native_outcomes": {
+            "architecture": "FAIL",
+            "runtime-api-contract": "FAIL",
+            "static-invocation": "FAIL"
+          },
+          "native_runtime_execution": false,
+          "state": "GO",
+          "unique_count": 52
+        },
+        "state": "ADMITTED_PROPERTY_FAIL"
+      },
+      {
+        "case": "actual_claim_guard_removed_3",
+        "result": {
+          "finding_closure": false,
+          "logical_count": 73,
+          "native_outcomes": {
+            "architecture": "FAIL",
+            "runtime-api-contract": "FAIL",
+            "static-invocation": "FAIL"
+          },
+          "native_runtime_execution": false,
+          "state": "GO",
+          "unique_count": 52
+        },
+        "state": "ADMITTED_PROPERTY_FAIL"
+      },
+      {
+        "case": "actual_claim_guard_removed_4",
+        "result": {
+          "finding_closure": false,
+          "logical_count": 73,
+          "native_outcomes": {
+            "architecture": "FAIL",
+            "runtime-api-contract": "FAIL",
+            "static-invocation": "FAIL"
+          },
+          "native_runtime_execution": false,
+          "state": "GO",
+          "unique_count": 52
+        },
+        "state": "ADMITTED_PROPERTY_FAIL"
+      },
+      {
+        "case": "actual_claim_guard_removed_5",
+        "result": {
+          "finding_closure": false,
+          "logical_count": 73,
+          "native_outcomes": {
+            "architecture": "FAIL",
+            "runtime-api-contract": "FAIL",
+            "static-invocation": "FAIL"
+          },
+          "native_runtime_execution": false,
+          "state": "GO",
+          "unique_count": 52
+        },
+        "state": "ADMITTED_PROPERTY_FAIL"
+      },
+      {
+        "case": "actual_claim_guard_removed_6",
+        "result": {
+          "finding_closure": false,
+          "logical_count": 73,
+          "native_outcomes": {
+            "architecture": "FAIL",
+            "runtime-api-contract": "FAIL",
+            "static-invocation": "FAIL"
+          },
+          "native_runtime_execution": false,
+          "state": "GO",
+          "unique_count": 52
+        },
+        "state": "ADMITTED_PROPERTY_FAIL"
+      },
+      {
+        "case": "actual_claim_guard_removed_7",
+        "result": {
+          "finding_closure": false,
+          "logical_count": 73,
+          "native_outcomes": {
+            "architecture": "FAIL",
+            "runtime-api-contract": "FAIL",
+            "static-invocation": "FAIL"
+          },
+          "native_runtime_execution": false,
+          "state": "GO",
+          "unique_count": 52
+        },
+        "state": "ADMITTED_PROPERTY_FAIL"
+      }
+    ],
+    "schema": "policyos.e02.final3.publication_actual_admission_controls.v1",
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "state": "GO bounded custody/claim controls; native three FAIL and finding outcomes unchanged",
+    "trusted_selection_sha256": "1c6619d44223e3715d02906b2181752f3fbeef0a9c2060a2a53228f54d6f85f5"
+  },
+  "disposition": "CHANGE_REQUIRED",
+  "independent_header_controls": [
+    {
+      "field": "tree",
+      "mutated_value": "0000000000000000000000000000000000000000",
+      "result": {
+        "finding_closure": false,
+        "logical_count": 73,
+        "native_outcomes": {
+          "architecture": "FAIL",
+          "runtime-api-contract": "FAIL",
+          "static-invocation": "FAIL"
+        },
+        "native_runtime_execution": false,
+        "state": "GO",
+        "unique_count": 52
+      },
+      "state": "ADMITTED_PROPERTY_FAIL"
+    },
+    {
+      "field": "native_outcomes",
+      "mutated_value": {
+        "architecture": "PASS",
+        "runtime-api-contract": "PASS",
+        "static-invocation": "PASS"
+      },
+      "result": {
+        "finding_closure": false,
+        "logical_count": 73,
+        "native_outcomes": {
+          "architecture": "FAIL",
+          "runtime-api-contract": "FAIL",
+          "static-invocation": "FAIL"
+        },
+        "native_runtime_execution": false,
+        "state": "GO",
+        "unique_count": 52
+      },
+      "state": "ADMITTED_PROPERTY_FAIL"
+    },
+    {
+      "field": "P41",
+      "mutated_value": "recomputed",
+      "result": {
+        "finding_closure": false,
+        "logical_count": 73,
+        "native_outcomes": {
+          "architecture": "FAIL",
+          "runtime-api-contract": "FAIL",
+          "static-invocation": "FAIL"
+        },
+        "native_runtime_execution": false,
+        "state": "GO",
+        "unique_count": 52
+      },
+      "state": "ADMITTED_PROPERTY_FAIL"
+    },
+    {
+      "field": "schema",
+      "mutated_value": "unknown",
+      "result": {
+        "finding_closure": false,
+        "logical_count": 73,
+        "native_outcomes": {
+          "architecture": "FAIL",
+          "runtime-api-contract": "FAIL",
+          "static-invocation": "FAIL"
+        },
+        "native_runtime_execution": false,
+        "state": "GO",
+        "unique_count": 52
+      },
+      "state": "ADMITTED_PROPERTY_FAIL"
+    },
+    {
+      "field": "scope",
+      "mutated_value": "full served verification and all required gates PASS",
+      "result": {
+        "finding_closure": false,
+        "logical_count": 73,
+        "native_outcomes": {
+          "architecture": "FAIL",
+          "runtime-api-contract": "FAIL",
+          "static-invocation": "FAIL"
+        },
+        "native_runtime_execution": false,
+        "state": "GO",
+        "unique_count": 52
+      },
+      "state": "ADMITTED_PROPERTY_FAIL"
+    }
+  ],
+  "mode": "normal",
+  "native_rerun": false,
+  "schema": "policyos.e02.independent.final3.admission_probe.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "validator_sha256": "b8e931237172eb2c46ca899398c74d8b699a50fd2913a7268759bec119c18d7c"
+}

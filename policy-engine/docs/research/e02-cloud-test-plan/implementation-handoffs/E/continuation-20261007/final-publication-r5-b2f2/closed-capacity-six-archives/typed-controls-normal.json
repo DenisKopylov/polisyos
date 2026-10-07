@@ -1,0 +1,342 @@
+{
+  "schema": "policyos.e02.closed_archive_custody_control.v1",
+  "receipt_sha256": "dcece4418d5469881914e13d273ce31433d7d7ddbed68edb0ba20e3d4cb9b2cb",
+  "catalog_count": 6,
+  "full_tar_members_including_six_catalog_roots": 59641,
+  "payload_bytes": 923448923,
+  "archive_bytes": 224493173,
+  "cases": [
+    {
+      "catalog": "independent-cal-reviewer",
+      "members": 15530,
+      "payload_bytes": 415862803,
+      "controls": [
+        {
+          "name": "omission",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "bool_uid",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "bool_gid",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "bool_mode",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "changed_body",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "extra_metadata",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "negative_byte_count",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "sole_complete_member_admission_removed",
+          "missing_member_re_admitted": true,
+          "property_outcome": "FAIL"
+        }
+      ]
+    },
+    {
+      "catalog": "backtest-old58-overlay",
+      "members": 5771,
+      "payload_bytes": 149299000,
+      "controls": [
+        {
+          "name": "omission",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "bool_uid",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "bool_gid",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "bool_mode",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "changed_body",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "extra_metadata",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "negative_byte_count",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "sole_complete_member_admission_removed",
+          "missing_member_re_admitted": true,
+          "property_outcome": "FAIL"
+        }
+      ]
+    },
+    {
+      "catalog": "cal-frozen58",
+      "members": 4907,
+      "payload_bytes": 134036209,
+      "controls": [
+        {
+          "name": "omission",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "bool_uid",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "bool_gid",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "bool_mode",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "changed_body",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "extra_metadata",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "negative_byte_count",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "sole_complete_member_admission_removed",
+          "missing_member_re_admitted": true,
+          "property_outcome": "FAIL"
+        }
+      ]
+    },
+    {
+      "catalog": "public-surface-packet",
+      "members": 4459,
+      "payload_bytes": 79124935,
+      "controls": [
+        {
+          "name": "omission",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "bool_uid",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "bool_gid",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "bool_mode",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "changed_body",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "extra_metadata",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "negative_byte_count",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "sole_complete_member_admission_removed",
+          "missing_member_re_admitted": true,
+          "property_outcome": "FAIL"
+        }
+      ]
+    },
+    {
+      "catalog": "mc",
+      "members": 4316,
+      "payload_bytes": 75746769,
+      "controls": [
+        {
+          "name": "omission",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "bool_uid",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "bool_gid",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "bool_mode",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "changed_body",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "extra_metadata",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "negative_byte_count",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "sole_complete_member_admission_removed",
+          "missing_member_re_admitted": true,
+          "property_outcome": "FAIL"
+        }
+      ]
+    },
+    {
+      "catalog": "common-wave-a9f78817c-corrected/temporary",
+      "members": 24658,
+      "payload_bytes": 69379207,
+      "controls": [
+        {
+          "name": "omission",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "bool_uid",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "bool_gid",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "bool_mode",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "changed_body",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "extra_metadata",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "negative_byte_count",
+          "outcome": "rejected",
+          "reason": "full typed member/body/mode/link/ownership/mtime/hardlink equality",
+          "original_markers_archive_hashes_and_payload_retained": true
+        },
+        {
+          "name": "sole_complete_member_admission_removed",
+          "missing_member_re_admitted": true,
+          "property_outcome": "FAIL"
+        }
+      ]
+    }
+  ],
+  "optimization_mode": false,
+  "qualifications": [
+    "This reads the original complete stream readback and original stable-source inventories. It does not redo archiving/removal or claim new native/test outcomes.",
+    "Original source operation uses native tar type/body checks; this corrective typed metadata comparator additionally excludes Python bool/int equality in receipt admission.",
+    "Historical old symlink and tmpfs paths are unavailable until archive reopening.",
+    "Readable-process observations cannot establish host-wide quiescence; known inaccessible infrastructure remains disclosed.",
+    "Resource changes during concurrent terminal wave are non-atomic and do not identify a PID-specific OOM cause."
+  ]
+}

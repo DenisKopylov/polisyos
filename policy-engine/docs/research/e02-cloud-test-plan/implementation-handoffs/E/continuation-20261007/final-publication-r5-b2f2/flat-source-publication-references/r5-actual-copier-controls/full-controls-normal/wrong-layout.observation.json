@@ -1,0 +1,18 @@
+{
+  "name": "wrong-layout",
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-B",
+    "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+    "--manifest",
+    "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/wrong-layout/manifest.json",
+    "--layout",
+    "published",
+    "--destination-root",
+    "/tmp/e02-E-final-publication-r5-b2f2-stage/full-controls-normal/wrong-layout-destination"
+  ],
+  "exit_code": 1,
+  "destination_created": false,
+  "expected_exit": 1,
+  "PASS": true
+}

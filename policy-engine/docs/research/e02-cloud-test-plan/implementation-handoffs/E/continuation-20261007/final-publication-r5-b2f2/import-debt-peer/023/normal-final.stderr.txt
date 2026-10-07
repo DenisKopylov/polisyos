@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/reconcile.py.txt", line 1432, in <module>
+    main()
+  File "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/reconcile.py.txt", line 746, in main
+    require(len(helper_definitions) == 3, "all three actual native helper definitions")
+  File "/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/reconcile.py.txt", line 43, in require
+    raise ValueError(message)
+ValueError: all three actual native helper definitions

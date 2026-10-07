@@ -1,0 +1,177 @@
+import ast
+import collections
+import copy
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import xml.etree.ElementTree as ET
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+PREP = Path('/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z')
+WAVE = Path('/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z')
+PUB = Path('/tmp/e02-E-final-composed-wave-collection-b2f2f65e-20261007')
+LAUNCH = Path('/tmp/e02-E-final-composed-wave-launch-b2f2f65e-20261007T1620Z')
+OUT = Path('/tmp/e02-E-final-wave-numeric-independent-b2-20261007')
+SOURCE = 'b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641'
+TREE = '4cbbed1d9392832729cab92c6615f9a1d03a41c7'
+
+def need(ok, why):
+    if not ok:
+        raise ValueError(why)
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+def ref(path):
+    p = Path(path)
+    b = p.read_bytes()
+    return {'path': str(p), 'bytes': len(b), 'sha256': sha(b)}
+
+def read(path):
+    return json.loads(Path(path).read_text())
+
+def state():
+    def cmd(args):
+        p = subprocess.run(['git', '-C', str(ROOT), *args], capture_output=True, text=True)
+        need(p.returncode == 0, 'Git source read failed')
+        return p.stdout.strip()
+    return {'source_sha': cmd(['rev-parse', 'HEAD']), 'source_tree': cmd(['rev-parse', 'HEAD^{tree}']), 'tracked_status': cmd(['status', '--porcelain=v1', '--untracked-files=no'])}
+
+def typed_equal(a, b):
+    if type(a) is not type(b):
+        return False
+    if isinstance(a, dict):
+        return a.keys() == b.keys() and all(typed_equal(a[k], b[k]) for k in a)
+    if isinstance(a, list):
+        return len(a) == len(b) and all(typed_equal(x, y) for x, y in zip(a, b))
+    return a == b
+
+def case_key(c):
+    return tuple((k, c.get(k)) for k in ['job_name', 'classname', 'name', 'file', 'seconds', 'outcome'])
+
+def counts(cases):
+    c = collections.Counter(r['outcome'] for r in cases)
+    return {'cases': len(cases), 'passed': c['passed'], 'failed': c['failed'], 'errors': c['error'], 'skipped': c['skipped']}
+
+def parse_xml(path, job):
+    document = ET.parse(path).getroot()
+    cases, failures = [], []
+    for tc in document.iter('testcase'):
+        failure, error, skip = tc.find('failure'), tc.find('error'), tc.find('skipped')
+        status = 'error' if error is not None else 'failed' if failure is not None else 'skipped' if skip is not None else 'passed'
+        row = {'name': tc.get('name', ''), 'classname': tc.get('classname', ''), 'file': tc.get('file'), 'seconds': tc.get('time', '0'), 'outcome': status, 'job_name': job}
+        cases.append(row)
+        node = error if error is not None else failure
+        if node is not None:
+            failures.append({'job': job, 'name': row['name'], 'classname': row['classname'], 'file': row['file'], 'kind': 'error' if error is not None else 'failure', 'message': node.get('message', ''), 'complete_trace': node.text or ''})
+    summaries = [dict(s.attrib) for s in document.iter('testsuite')]
+    need(sum(int(s.get('tests', 0)) for s in summaries) == len(cases), 'complete JUnit denominator mismatch')
+    return cases, failures
+
+def admit_claim(actual, expected):
+    need(typed_equal(actual, expected), 'complete typed current numeric/source/owner claim admission')
+
+def main():
+    before = state()
+    need(before == {'source_sha': SOURCE, 'source_tree': TREE, 'tracked_status': ''}, 'frozen current source guard')
+    plan = read(PREP / 'final-numeric-selector-plan.json')
+    publication = read(PUB / 'publication-receipt.json')
+    published_index = read(PREP / 'current-case-index.json')
+    failure_index = read(PREP / 'defining-failure-index.json')
+    selection = read(PREP / 'publication-selection.json')
+    need((plan['candidate_sha'], plan['candidate_tree_sha']) == (SOURCE, TREE), 'exact plan identity')
+    need((publication['candidate_sha'], publication['candidate_tree_sha']) == (SOURCE, TREE), 'exact collector identity')
+    need(publication['collection_state'] == 'COMPLETE_BOUND' and publication['issues'] == [], 'collector completed without issues')
+    native_paths = [p for group in plan['groups'].values() for p in group]
+    need(len(native_paths) == len(set(native_paths)) == plan['native_test_path_count'] == 104, 'all104 unique native selectors')
+    need(len(plan['owner_packet_extra_inputs']) == 1 and plan['test_input_path_count_including_owner_packets'] == 105, 'one current A packet plus104 native')
+    selected_refs = []
+    for a in selection['assets']:
+        p = Path(a.get('source_path', a.get('path')))
+        actual = ref(p)
+        need(type(a['bytes']) is int and actual['bytes'] == a['bytes'] and actual['sha256'] == a['sha256'], 'closed moderate selected member mismatch')
+        selected_refs.append(actual)
+    need(len(selected_refs) == 63, 'full63 deciding assets')
+    materialization = read(LAUNCH / 'post-execution-plan-materialization.json')
+    need((PREP / 'final-numeric-selector-plan.json').read_bytes() == (WAVE / 'plan.json').read_bytes() == (PUB / 'plan.json').read_bytes(), 'literal prepared/wave/published plan equality')
+    need(materialization['source_plan']['sha256'] == ref(PREP / 'final-numeric-selector-plan.json')['sha256'] and materialization['source_plan']['mtime_unix'] < materialization['wave_started_unix'], 'prepared plan existed before wave start')
+    need('post-terminal' in materialization['canonical_cli_materialization_boundary'], 'postterminal plan alias history retained')
+    original_observer = read(LAUNCH / 'collector-execution.json')
+    current_observer = read(LAUNCH / 'collector-current-execution.json')
+    need(original_observer['exit_code'] != 0 and current_observer['exit_code'] == 0, 'original collectorERROR vs corrected closed collector')
+    by_pub = {j['name']: j for j in publication['jobs']}
+    rows, all_cases, failures, frames = [], [], [], []
+    for job in plan['jobs']:
+        p = WAVE / 'checks' / job['name'] / (job['name'] + '.json')
+        receipt = read(p)
+        need((receipt['candidate_sha'], receipt['candidate_tree_sha'], receipt['head_at_end']) == (SOURCE, TREE, SOURCE), 'actual receipt source/tree/head')
+        need(receipt['command'] == job['argv'] and receipt['cwd'] == job['cwd'], 'full actual argv/cwd exact plan match')
+        need(receipt['source_immutable'] is True and receipt['source_identity_before'] == receipt['source_identity_after'], 'actual full canonical source frame equality')
+        frames.append(receipt['source_identity_before'])
+        need(receipt['git_input_config']['stable'] is True and receipt['git_input_config']['sha256'] == receipt['git_input_config']['after_sha256'], 'config bytes stable')
+        stdout = Path(receipt['stdout_path'])
+        need(ref(stdout)['bytes'] == receipt['stdout_bytes'] and ref(stdout)['sha256'] == receipt['stdout_sha256'], 'complete combined native stdout/stderr bytes')
+        published = by_pub[job['name']]
+        need(published['command'] == receipt['command'] and published['outcome'] == receipt['outcome'] and published['exit_code'] == receipt['exit_code'], 'collector actual closed command/outcome match')
+        decoded = []
+        if job['kind'] == 'numerical':
+            decoded, issues = parse_xml(Path(receipt['junit']), job['name'])
+            failures.extend(issues)
+            need(typed_equal(counts(decoded), receipt['counts']) and typed_equal(counts(decoded), published['case_counts']), 'receipt/collector raw JUnit counts equality')
+            need(collections.Counter(case_key(c) for c in decoded) == collections.Counter(case_key(c) for c in published['cases']), 'complete exact JUnit-case multiset')
+            all_cases.extend(decoded)
+        else:
+            need(job['name'] == 'results-importer' and receipt['exit_code'] == 0 and receipt['outcome'] == 'PASS' and receipt['counts'] is None, 'importer actual closed PASS independent of finding')
+        rows.append({'name': job['name'], 'kind': job['kind'], 'receipt': ref(p), 'outcome': receipt['outcome'], 'exit_code': receipt['exit_code'], 'case_counts': counts(decoded) if decoded else None, 'JUnit': ref(receipt['junit']) if decoded else None, 'combined_native_stdout_stderr': ref(stdout), 'source_frame': receipt['source_identity_before'], 'selected_environment': receipt['environment']['selected_variables'], 'P41': receipt['P41'], 'finding_closure': receipt['finding_closure']})
+    need(len(rows) == len(by_pub) == 8, 'seven numerical groups plus importer')
+    need(all(f == frames[0] for f in frames) and frames[0]['tracked_paths'] == 22005 and frames[0]['bytes'] == 620699802, 'common full input frame across all8 receipts')
+    actual_counts = counts(all_cases)
+    need(actual_counts == publication['numeric_counts'] == published_index['numeric_counts'] == {'cases': 1465, 'passed': 1457, 'failed': 8, 'errors': 0, 'skipped': 0}, 'complete actual numerical counts')
+    need(collections.Counter(case_key(c) for c in all_cases) == collections.Counter(case_key(c) for c in published_index['cases']), 'flatCaseIndex complete exactcase multiset')
+    need(failures == failure_index['failures'] and len(failures) == failure_index['failure_count'] == 8, 'all8 complete failure messages/traces')
+    packet = plan['owner_packet_extra_inputs'][0]
+    source_body = (ROOT / packet['source']).read_bytes()
+    destination_body = Path(packet['destination']).read_bytes()
+    need(source_body == destination_body and sha(source_body) == packet['sha256'], 'current typed A packet exact source/destination binding')
+    functions = [n.name for n in ast.parse(source_body).body if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.name.startswith('test_')]
+    a_cases = [c for c in all_cases if c['classname'] == '']
+    need(len(a_cases) == 7 and all(any(c['name'] == n or c['name'].startswith(n + '[') for n in functions) for c in a_cases), 'exact three A functions/seven actual anonymous-parametrized cases')
+    native_cases = [c for c in all_cases if c not in a_cases]
+    need(counts(native_cases) == publication['native_numeric_counts_excluding_A_packets'] == {'cases': 1458, 'passed': 1457, 'failed': 1, 'errors': 0, 'skipped': 0}, 'native vs packet actual denominator')
+    need(publication['foreign_owner_A_packet_cases'][0]['counts'] == counts(a_cases), 'exact A7 independent counts')
+    criterion = read(PREP / 'criterion-selector-map.json')
+    findings = collections.defaultdict(list)
+    for r in criterion['rows']:
+        for ident in r['finding_ids']:
+            findings[ident].append(r['bundle'])
+    need(len(criterion['rows']) == 22 and len(findings) == 54 and sum(len(v) for v in findings.values()) == 55 and len(findings['LA-051']) == 2, '22 bundles54 IDs55 links exact source-navigation cardinality')
+    claim = {'source_sha': SOURCE, 'source_tree': TREE, 'native_selectors': 104, 'owner_packet_inputs': 1, 'numeric_counts': actual_counts, 'native_counts': counts(native_cases), 'A_packet_counts': counts(a_cases), 'global_gates': 'separate pending parent receipts; not covered by this numerical-only collector', 'finding_closure': False, 'G_acceptance': False, 'retained64d324_current_PASS': False, 'prelaunch_wave_plan_alias_exists': False}
+    controls = []
+    mutations = [('hidden_A_failures', lambda d: d['numeric_counts'].__setitem__('failed', 0)), ('native_count_bool', lambda d: d.__setitem__('native_selectors', True)), ('surface_global_PASS', lambda d: d.__setitem__('global_gates', 'PASS')), ('findings_promoted', lambda d: d.__setitem__('finding_closure', True)), ('G_promoted', lambda d: d.__setitem__('G_acceptance', True)), ('oldCAL_current_PASS', lambda d: d.__setitem__('retained64d324_current_PASS', True)), ('alias_backdated', lambda d: d.__setitem__('prelaunch_wave_plan_alias_exists', True)), ('source_fake', lambda d: d.__setitem__('source_sha', '0' * 40))]
+    for name, mutate in mutations:
+        bad = copy.deepcopy(claim)
+        mutate(bad)
+        try:
+            admit_claim(bad, claim)
+        except ValueError as e:
+            controls.append({'name': name, 'outcome': 'rejected', 'reason': str(e), 'raw_closed_receipts_JUnit_source_markers_preserved': True})
+        else:
+            raise ValueError('corrupt frozen numeric claim accepted')
+    removed = lambda actual, expected: None
+    bad = copy.deepcopy(claim)
+    bad['finding_closure'] = True
+    removed(bad, claim)
+    controls.append({'name': 'sole_typed_closed_claim_admission_removed', 'false_finding_closure_re_admitted': True, 'property_outcome': 'FAIL'})
+    after = state()
+    need(before == after, 'source read bracket immutable')
+    report = {'schema': 'policyos.e02.independent_final_numeric_reconciliation.v1', 'source_sha': SOURCE, 'source_tree': TREE, 'disposition': 'GO for complete closed current numerical custody; wave remains FAIL due8 A-consumer assertions', 'claim': claim, 'source_guard_before': before, 'source_guard_after': after, 'jobs': rows, 'all_actual_failure_traces': failures, 'complete_selected_original_refs': selected_refs, 'criterion_source_navigation': {'bundles': 22, 'unique_findings': 54, 'id_to_bundle_links': 55, 'findings': dict(findings), 'basis': 'navigation/source-input association only; no automatic per-finding criterion acceptance'}, 'postterminal_plan_alias_history': {'original_observer': ref(LAUNCH / 'collector-execution.json'), 'original_complete_stderr': ref(LAUNCH / 'collector.stderr.txt'), 'corrected_closed_observer': ref(LAUNCH / 'collector-current-execution.json'), 'materialization': ref(LAUNCH / 'post-execution-plan-materialization.json'), 'prelaunch_alias_existence': 'not_established', 'prepared_plan_before_start_and_actual8argv_bound': True}, 'canonical_full_input_frames': frames[0], 'freeze_frame_comparison': 'Canonical sorted path/data framing is reconciled across8 jobs. Freeze capture framing will be recorded separately; no redundant620MB physical rescan or inferred cross-format equality.', 'controls': controls, 'optimization_mode': not __debug__, 'P37': [{'predicate': 'actual complete7JUnit and1465case/full failure/packet denominator', 'basis': 'independently_reconciled'}, {'predicate': 'literal63 assets/eight actual receipt source/argv/frames/config/readback', 'basis': 'recomputed'}, {'predicate': 'current per-finding closure/G intake/production scientific authority/global gate success', 'basis': 'not_established'}], 'limits': ['No native tests/math/global gates repeated.', 'Historical64d324 observation remains historical, original-9 interruption retained.', 'Source64d/a9/317 baseline results are not current b2 PASS.', 'Global/Ruff/architecture/static/HTTP/CI outcomes are separate parent receipts, not implied by numerical counts.', 'Production data and semantic/scientific owner inputs are not synthesized.']}
+    path = OUT / ('recomputed-wave-optimized.json' if not __debug__ else 'recomputed-wave.json')
+    path.write_text(json.dumps(report, indent=2) + '\n')
+    index_path = OUT / ('case-index-optimized.json' if not __debug__ else 'case-index.json')
+    index_path.write_text(json.dumps({'schema': 'policyos.e02.independent_fresh_case_index.v1', 'source_sha': SOURCE, 'source_tree': TREE, 'case_count': len(all_cases), 'numeric_counts': actual_counts, 'cases': all_cases, 'finding_closure': False, 'global_gates': 'separate parent receipts'}, indent=2) + '\n')
+    print(json.dumps({'report': ref(path), 'case_index': ref(index_path), 'native_counts': counts(native_cases), 'A_packet_counts': counts(a_cases), 'numeric_counts': actual_counts, 'jobs': len(rows), 'controls': len(controls), 'source_unchanged': True}, indent=2))
+
+if __name__ == '__main__':
+    OUT.mkdir(exist_ok=True)
+    main()

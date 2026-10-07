@@ -1,0 +1,57 @@
+{
+  "schema": "policyos.e02.cloud.repeatable_canonical_copy_retirement_preflight.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "source_status": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/\n",
+  "exact_targets": [
+    "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/retained-workspace/source",
+    "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/retained-workspace/environment"
+  ],
+  "closed_native_receipt": {
+    "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/receipt.json",
+    "sha256": "60e67357c70db4b7aefe257e6c8ac9fadad435da6ba6e4fce26a00077a5bcdb6"
+  },
+  "source_duplicates_manifest": {
+    "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retirement-admission/source-file-duplicates.json",
+    "sha256": "3e251f8cbe823cb2fefc2107582cf9ea82896082f85316b1a51be9fcf41d135c"
+  },
+  "private_environment_file_refs": {
+    "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retirement-admission/private-environment-all-file-refs.json",
+    "sha256": "2bdcc1bbfae2d24e22989beda7e222b709475268b3963bba314fbe6f0b5fb892",
+    "METADATA_count": 159,
+    "RECORD_count": 159
+  },
+  "preserved_unique_instrumentation": [
+    {
+      "original_path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/retained-workspace/source/.polisyos-tools/timing.jsonl",
+      "preserved_path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retirement-admission/unique-source-88da70f93999c312d88fa43562432c6f733b2a4a52735581d0669c9e0c37ac07.txt",
+      "bytes": 15465,
+      "sha256": "88da70f93999c312d88fa43562432c6f733b2a4a52735581d0669c9e0c37ac07"
+    }
+  ],
+  "declared_outputs_and_all_auxiliary_output_refs": [
+    {
+      "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/retained-workspace/outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json",
+      "bytes": 2812414,
+      "sha256": "bd8be9b6f1273224b25bac9f61b868f94ce47a78007077f680cf14db4a8cd8bc"
+    },
+    {
+      "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/retained-workspace/outputs/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "bytes": 2377697,
+      "sha256": "00c3617b40c8b4fa5f07185510beae8b8dd708c16b051b711743fa9f01d52473"
+    }
+  ],
+  "actual_no_active_users": [],
+  "excluded_self_and_direct_shell_pids": [
+    760703,
+    760706
+  ],
+  "source_logical_bytes": 622141210,
+  "environment_logical_bytes": 1085410548,
+  "before": {
+    "memory.current": "17046867968\n",
+    "memory.max": "17179869184\n",
+    "memory.events": "low 0\nhigh 0\nmax 4373045\noom 120\noom_kill 13\noom_group_kill 0\n",
+    "memory.stat": "anon 6224629760\nfile 9546608640\nkernel 1274757120\nkernel_stack 786432\npagetables 14917632\nsec_pagetables 0\npercpu 14224\nsock 0\nvmalloc 0\nshmem 7944998912\nfile_mapped 194818048\nfile_dirty 36864\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 0\nshmem_thp 0\ninactive_anon 6943780864\nactive_anon 7225688064\ninactive_file 356196352\nactive_file 1245421568\nunevictable 0\nslab_reclaimable 919988504\nslab_unreclaimable 339032752\nslab 1259021256\nworkingset_refault_anon 0\nworkingset_refault_file 187482149\nworkingset_activate_anon 0\nworkingset_activate_file 29051829\nworkingset_restore_anon 0\nworkingset_restore_file 14547091\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 7318093311\npgsteal 195510188\npswpin 0\npswpout 0\npgscan_kswapd 9826863\npgscan_direct 7308260816\npgscan_khugepaged 5632\npgscan_proactive 0\npgsteal_kswapd 9357599\npgsteal_direct 186147141\npgsteal_khugepaged 5448\npgsteal_proactive 0\npgfault 796667213\npgmajfault 268562\npgrefill 59428546\npgactivate 30539155\npgdeactivate 54539020\npglazyfree 1303692\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 1223\nthp_collapse_alloc 82\nthp_swpout 0\nthp_swpout_fallback 0\n"
+  },
+  "authorization": "Parent explicit cloud cleanup lease, repeatable canonical source copy/private environment only after closed deciding output/noactiveusers; ROOT207/DOE184/cache/Git/projectcode untouched"
+}

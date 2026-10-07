@@ -1,0 +1,185 @@
+{
+  "schema": "policyos.e02.independent_final3_selection.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/review.py.txt",
+      "portable_path": "review.py.txt",
+      "bytes": 17045,
+      "sha256": "81aaad1bcdce0ede9f67c0c1f99b66662b4c13f4a0ae027a6db5d7282a6efd7d",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/review.json",
+      "portable_path": "review.json",
+      "bytes": 131148,
+      "sha256": "92410533f3fa3cc30058fb4f149b2706762c021e8ad741bcd8c675d2516efa12",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/review-optimized.json",
+      "portable_path": "review-optimized.json",
+      "bytes": 131147,
+      "sha256": "3f85cb31c9ed583a673c4a84fad353947b245dce103fdbc49cb4f42515937e7d",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/review-normal.stdout.txt",
+      "portable_path": "review-normal.stdout.txt",
+      "bytes": 425,
+      "sha256": "de72cee435ff4b40c85e62d36acd895f711c46ad36f6e5bf6cc477d9360ec7d3",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/review-normal.stderr.txt",
+      "portable_path": "review-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/review-optimized.stdout.txt",
+      "portable_path": "review-optimized.stdout.txt",
+      "bytes": 435,
+      "sha256": "c44a152c4262b8596063e7ea8cada614e2eff71148eb9a7f0be56a2488e84349",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/review-optimized.stderr.txt",
+      "portable_path": "review-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/historical-observer-v1.py.txt",
+      "portable_path": "historical-observer-v1.py.txt",
+      "bytes": 17013,
+      "sha256": "bc0499b8dd017ed5918bad49dc05df3726e7c388a111df5e816baa886257f86a",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/historical-observer-v1.stdout.txt",
+      "portable_path": "historical-observer-v1.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/historical-observer-v1.stderr.txt",
+      "portable_path": "historical-observer-v1.stderr.txt",
+      "bytes": 383,
+      "sha256": "b5223376263cca8a052c63847697952294bd078bd646ddc1b467c975af176c4b",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/historical-observer-v2.py.txt",
+      "portable_path": "historical-observer-v2.py.txt",
+      "bytes": 17013,
+      "sha256": "bc1bc82a122e91455bcdc4dd64fc9517a8fffb869e6fabc7c731c24650d51cd0",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/historical-observer-v2.stdout.txt",
+      "portable_path": "historical-observer-v2.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/historical-observer-v2.stderr.txt",
+      "portable_path": "historical-observer-v2.stderr.txt",
+      "bytes": 500,
+      "sha256": "385c229d93064734bf8e2c64cece5ad486252cef14b12bf22899d769da0286fe",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/admission-probe-v2.py.txt",
+      "portable_path": "admission-probe-v2.py.txt",
+      "bytes": 1551,
+      "sha256": "80ac58ffc0f0ef4be828e0cc108f76c7c1ca918519a0537ccbab2615e8faf574",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/admission-v2-normal.json",
+      "portable_path": "admission-v2-normal.json",
+      "bytes": 11115,
+      "sha256": "c24c047e5ec70c85160446e3ec305c35e8690dd22198f3518e9385f43abbf458",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/admission-v2-normal.stderr.txt",
+      "portable_path": "admission-v2-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/admission-v2-optimized.json",
+      "portable_path": "admission-v2-optimized.json",
+      "bytes": 11118,
+      "sha256": "cf1a256fdc512375fa2bb3d6512bd236beccd21b122b29a8c95bcc2ca9f7fd6a",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/admission-v2-optimized.stderr.txt",
+      "portable_path": "admission-v2-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/admission-probe-v3.py.txt",
+      "portable_path": "admission-probe-v3.py.txt",
+      "bytes": 5324,
+      "sha256": "afd8f8daff6939079c3ea43d8ade5ba4171bd27443ce261822ac2a0abb9130ee",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/admission-v3-normal.json",
+      "portable_path": "admission-v3-normal.json",
+      "bytes": 7650,
+      "sha256": "209c72032f7c345f813f69559d7f642f3b3ed71f3c52641240bb938b27f8df01",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/admission-v3-normal.stderr.txt",
+      "portable_path": "admission-v3-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/admission-v3-optimized.json",
+      "portable_path": "admission-v3-optimized.json",
+      "bytes": 7649,
+      "sha256": "7be998cb8d73bd82e73beba340b8b88ac593926804318fd9ee04842c73ad1ce1",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/admission-v3-optimized.stderr.txt",
+      "portable_path": "admission-v3-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/commands-admission.json",
+      "portable_path": "commands-admission.json",
+      "bytes": 1705,
+      "sha256": "485955ecdd28e3b69df14d0e56dd54a82e5d0f5b94dde428f624834cedc24e6e",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-independent-b2-20261007/supplement-custody.json",
+      "portable_path": "supplement-custody.json",
+      "bytes": 5664,
+      "sha256": "1fa67962951f979913edd83740e93fd241e921b9f7fef23e2094c472ce44a4f5",
+      "role": "complete independent native literal/ref/custody review or actual typed metadata/admission removal/control source/history"
+    }
+  ],
+  "files": 25,
+  "bytes": 366885,
+  "scope": "Fixed native final3 literal/current index GO; complete typed header V3 correction GO; old V2 escape preserved. Static witness qualifier utility separate pending. No gate/native/numerical reruns."
+}

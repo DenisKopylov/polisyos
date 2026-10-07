@@ -1,0 +1,25 @@
+{
+  "commands": [
+    [
+      "python3",
+      "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/recompute.py"
+    ],
+    [
+      "python3",
+      "-O",
+      "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/recompute.py"
+    ]
+  ],
+  "closed_before_selection": true,
+  "observer_corrections": [
+    {
+      "original": "historical-observer-v1",
+      "scope": "Reviewer assumed author selection.assets, actual final shape usesfiles; no native failure or source mutation."
+    },
+    {
+      "original": "historical-observer-v2",
+      "scope": "Reviewer initially compared raw failure7-field dict with publication10-field provenance dict; corrected raw7values and separatelyverified3provenance fields, exact native trace bytes unchanged."
+    }
+  ],
+  "runtime_math_or_gate_repeated": false
+}

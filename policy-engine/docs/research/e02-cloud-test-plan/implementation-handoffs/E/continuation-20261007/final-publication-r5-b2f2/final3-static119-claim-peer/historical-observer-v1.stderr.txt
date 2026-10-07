@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final3-witness-independent-b2-20261007/review.py", line 156, in <module>
+    print(json.dumps(main(), indent=2, sort_keys=True))
+                     ^^^^^^
+  File "/tmp/e02-E-final3-witness-independent-b2-20261007/review.py", line 87, in main
+    require(Counter((r['symbol'], r['check_class']) for r in original['rows']) == Counter(rawrows), '119_native_symbol_class_multiset')
+  File "/tmp/e02-E-final3-witness-independent-b2-20261007/review.py", line 22, in require
+    raise ValueError(label)
+ValueError: 119_native_symbol_class_multiset

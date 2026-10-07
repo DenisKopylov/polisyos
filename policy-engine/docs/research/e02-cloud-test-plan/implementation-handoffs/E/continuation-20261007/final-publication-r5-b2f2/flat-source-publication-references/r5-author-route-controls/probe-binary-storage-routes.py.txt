@@ -1,0 +1,45 @@
+import ast
+import importlib.machinery
+import importlib.util
+import json
+from pathlib import Path
+
+stage = Path('/tmp/e02-E-final-publication-r5-b2f2-stage')
+old = Path('/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/copy-closed-controls.py.txt')
+loader = importlib.machinery.SourceFileLoader('route_c229', str(old))
+spec = importlib.util.spec_from_loader(loader.name, loader)
+module = importlib.util.module_from_spec(spec)
+loader.exec_module(module)
+tree = ast.parse((stage / 'prepare-flat-inventory.py.txt').read_text())
+node = next(item for item in tree.body if isinstance(item, ast.FunctionDef) and item.name == 'finite_storage_route')
+scope = {'original_passive': module.passive}
+exec(compile(ast.Module(body=[node], type_ignores=[]), '<actual preparation route helper>', 'exec'), scope)
+route = scope['finite_storage_route']
+cases = [
+    ('invalid UTF8 preserves literal binary role', 'stderr.txt', b'\xff', 'f/stderr.bin'),
+    ('NUL framed Git input is binary despite valid UTF8', 'source-nul.txt', b'a\0b\0', 'f/source-nul.bin'),
+    ('ASCII binary control is not UTF8 text', 'control.json', b'\x01a', 'f/control.bin'),
+    ('empty original stream remains text', 'empty.stdout.json', b'', 'f/empty.stdout.txt'),
+    ('invalid JSON diagnostic remains text', 'error.stdout.json', b'Traceback\n', 'f/error.stdout.txt'),
+    ('healthy JSON retains JSON role', 'healthy.json', b'{"n": 1}\n', 'f/healthy.json'),
+    ('literal script remains passive', 'recipe.py', b'print(1)\n', 'f/recipe.py.txt'),
+]
+observed = []
+for label, name, body, expected in cases:
+    actual = route('f', name, body)
+    if actual != expected:
+        raise ValueError((label, actual, expected))
+    observed.append({'property': label, 'actual': actual, 'expected': expected, 'outcome': 'PASS'})
+for malformed in ('../x.txt', '/x.txt', 'a/./x.txt', 'a\\x.txt'):
+    try:
+        route('f', malformed, b'x')
+    except ValueError:
+        observed.append({'property': 'canonical pure route refusal', 'input': malformed, 'outcome': 'PASS'})
+    else:
+        raise ValueError('malformed route escaped')
+old_route = module.passive('f', 'source-nul.txt', b'a\0b\0')
+if old_route != 'f/source-nul.txt':
+    raise ValueError('old class divergence was not demonstrated')
+print(json.dumps({'outcome': 'PASS preparation route controls only', 'cases': observed,
+                  'old_proxy_divergence': {'actual_old_route': old_route, 'new_expected_route': 'f/source-nul.bin'},
+                  'destination_writes': 0, 'source_or_numeric_execution': False}, indent=2))

@@ -1,0 +1,74 @@
+{
+  "files": [
+    {
+      "path": "checks/custody-control-stdlib/custody-control-stdlib.json",
+      "bytes": 8629,
+      "sha256": "18ef467397d4846de67b9f7bef5deb3fb86436921ce344a0b85a5ba0f25e0434"
+    },
+    {
+      "path": "checks/custody-control-stdlib/custody-control-stdlib.stdout.txt",
+      "bytes": 21,
+      "sha256": "e6dd2210d196eb0d7f5bc2c354dc3b06c4083625780a283aa210ca404d5378b7"
+    },
+    {
+      "path": "cleanup-candidates.json",
+      "bytes": 674,
+      "sha256": "5560a31f4839d55a3915de7851e4498d781cb8f464ace685bcbc36158ba790a8"
+    },
+    {
+      "path": "execution-complete.json",
+      "bytes": 178,
+      "sha256": "ff69de27ad8ae8035b4564736c7b12533676b59cde60489ae6217440cd210f15"
+    },
+    {
+      "path": "plan.json",
+      "bytes": 75881,
+      "sha256": "4645544eedc3723f65a82359653e22d5a69f83dd725170a233f88b91fb9e9c06"
+    },
+    {
+      "path": "publication-receipt.json",
+      "bytes": 11211,
+      "sha256": "a584505e6c122efd4791ab7a0ab931e32c54bd4e178a0d6efe12471a70c5cd90"
+    },
+    {
+      "path": "raw-custody.json",
+      "bytes": 231,
+      "sha256": "12ef73d5f61151483058efa7ea03cce731bd07677ed7013c890ebdf9623bd416"
+    },
+    {
+      "path": "wave-started.json",
+      "bytes": 198,
+      "sha256": "289fd9986f07d86ebbf2e15aecf4d4f87d40840b6537f3d3efdb19d941aae19c"
+    }
+  ],
+  "file_count": 8,
+  "total_bytes": 97023,
+  "self_index_excluded": true,
+  "wave_source_assets": [
+    {
+      "path": "plan.json",
+      "bytes": 75881,
+      "sha256": "4645544eedc3723f65a82359653e22d5a69f83dd725170a233f88b91fb9e9c06"
+    },
+    {
+      "path": "wave-started.json",
+      "bytes": 198,
+      "sha256": "289fd9986f07d86ebbf2e15aecf4d4f87d40840b6537f3d3efdb19d941aae19c"
+    },
+    {
+      "path": "execution-complete.json",
+      "bytes": 178,
+      "sha256": "ff69de27ad8ae8035b4564736c7b12533676b59cde60489ae6217440cd210f15"
+    },
+    {
+      "path": "checks/custody-control-stdlib/custody-control-stdlib.json",
+      "bytes": 8629,
+      "sha256": "18ef467397d4846de67b9f7bef5deb3fb86436921ce344a0b85a5ba0f25e0434"
+    },
+    {
+      "path": "checks/custody-control-stdlib/custody-control-stdlib.stdout.txt",
+      "bytes": 21,
+      "sha256": "e6dd2210d196eb0d7f5bc2c354dc3b06c4083625780a283aa210ca404d5378b7"
+    }
+  ]
+}

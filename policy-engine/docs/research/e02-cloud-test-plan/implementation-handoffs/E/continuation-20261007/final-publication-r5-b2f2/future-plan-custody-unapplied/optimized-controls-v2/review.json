@@ -1,0 +1,299 @@
+{
+  "schema": "policyos.e02.future_recipe_custody_control.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "optimized": true,
+  "check_count": 9,
+  "rows": [
+    {
+      "name": "old-missing-plan",
+      "state": "REFUSED_MISSING_PLAN",
+      "callbacks": {
+        "executor": 1,
+        "numerical": 0
+      },
+      "actual_executor_source": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+        "bytes": 25922,
+        "sha256": "3e1367f35392c8334a849da655035113c543066425d2bdb67643468a5b8038e4"
+      },
+      "actual_collector_source": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+        "bytes": 41358,
+        "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac"
+      },
+      "collector_argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+        "--repo",
+        "/workspace/e02-E-continuation-20261006",
+        "--candidate",
+        "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "--wave-root",
+        "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/old-missing-plan/wave",
+        "--publication-root",
+        "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/old-missing-plan/collection"
+      ],
+      "collector_exit": 1,
+      "input_plan": {
+        "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/old-missing-plan/admitted-pre-execution-plan.json",
+        "bytes": 75916,
+        "sha256": "34dc456551fba85ee58818baa733a915a5b2698b4cfe07ea8d85f238170182fa"
+      },
+      "wave": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/old-missing-plan/wave",
+      "collector_stdout": {
+        "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/old-missing-plan/collector.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "collector_stderr": {
+        "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/old-missing-plan/collector.stderr.txt",
+        "bytes": 1778,
+        "sha256": "ecd605c1cf4378bbfc79dfcb54f10ac1cdebbd0dd7835a26726635a4b3b5c139"
+      },
+      "control_outcome": "PASS",
+      "defining_property": "FAIL"
+    },
+    {
+      "name": "future-healthy",
+      "state": "HEALTHY_CONTROL_COMPLETE_BOUND",
+      "callbacks": {
+        "executor": 1,
+        "numerical": 0
+      },
+      "actual_executor_source": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+        "bytes": 25922,
+        "sha256": "3e1367f35392c8334a849da655035113c543066425d2bdb67643468a5b8038e4"
+      },
+      "actual_collector_source": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+        "bytes": 41358,
+        "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac"
+      },
+      "collector_argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+        "--repo",
+        "/workspace/e02-E-continuation-20261006",
+        "--candidate",
+        "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "--wave-root",
+        "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/wave",
+        "--publication-root",
+        "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/collection"
+      ],
+      "collector_exit": 1,
+      "input_plan": {
+        "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/admitted-pre-execution-plan.json",
+        "bytes": 75902,
+        "sha256": "36c4f263eec54d0eb3afd755d9eacf88754d954e8e40da290708240756fc86ef"
+      },
+      "wave": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/wave",
+      "collector_stdout": {
+        "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/collector.stdout.txt",
+        "bytes": 334,
+        "sha256": "8e4e3a63aafd21ab0c89da30dc08a0ad3b4a7fa39d4d415baa66bbaf97bd4017"
+      },
+      "collector_stderr": {
+        "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/collector.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "control_outcome": "PASS",
+      "defining_property": "PASS"
+    },
+    {
+      "name": "future-inlet-removed",
+      "state": "REFUSED_MISSING_PLAN",
+      "callbacks": {
+        "executor": 1,
+        "numerical": 0
+      },
+      "actual_executor_source": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+        "bytes": 25922,
+        "sha256": "3e1367f35392c8334a849da655035113c543066425d2bdb67643468a5b8038e4"
+      },
+      "actual_collector_source": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+        "bytes": 41358,
+        "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac"
+      },
+      "collector_argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+        "--repo",
+        "/workspace/e02-E-continuation-20261006",
+        "--candidate",
+        "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "--wave-root",
+        "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-inlet-removed/wave",
+        "--publication-root",
+        "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-inlet-removed/collection"
+      ],
+      "collector_exit": 1,
+      "input_plan": {
+        "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-inlet-removed/admitted-pre-execution-plan.json",
+        "bytes": 75944,
+        "sha256": "04792738640fa086e8b6b12f798cf03ffc4a269d6e69a44aa75babf50eb9215c"
+      },
+      "wave": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-inlet-removed/wave",
+      "collector_stdout": {
+        "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-inlet-removed/collector.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "collector_stderr": {
+        "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-inlet-removed/collector.stderr.txt",
+        "bytes": 1782,
+        "sha256": "ecda50e252084791f29426e7901c0979fb216a5aece119c688cad8648dfa67f0"
+      },
+      "control_outcome": "PASS",
+      "defining_property": "FAIL"
+    },
+    {
+      "name": "future-byte-predicate-removed",
+      "state": "PROPERTY_FAIL_REMOVAL_EXECUTED_BEFORE_DOWNSTREAM_REFUSAL",
+      "callbacks": {
+        "executor": 1,
+        "numerical": 0
+      },
+      "actual_executor_source": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+        "bytes": 25922,
+        "sha256": "3e1367f35392c8334a849da655035113c543066425d2bdb67643468a5b8038e4"
+      },
+      "actual_collector_source": {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+        "bytes": 41358,
+        "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac"
+      },
+      "collector_argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+        "--repo",
+        "/workspace/e02-E-continuation-20261006",
+        "--candidate",
+        "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "--wave-root",
+        "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/wave",
+        "--publication-root",
+        "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/collection"
+      ],
+      "collector_exit": 1,
+      "input_plan": {
+        "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/admitted-pre-execution-plan.json",
+        "bytes": 76018,
+        "sha256": "c399dc3ce9e9c3ad161d0e23b894d3e6933a84596636c5b27b36964d4512da7b"
+      },
+      "wave": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/wave",
+      "collector_stdout": {
+        "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/collector.stdout.txt",
+        "bytes": 354,
+        "sha256": "69d46b365c8a24d3cee456528d208698518923c88ef828cce84318151e8de237"
+      },
+      "collector_stderr": {
+        "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/collector.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "control_outcome": "PASS",
+      "defining_property": "FAIL"
+    },
+    {
+      "name": "same-count-substituted-command",
+      "state": "REFUSED_BEFORE_EXECUTOR",
+      "error": "prepared plan bytes differ from actual execution argument",
+      "callbacks": {
+        "executor": 0,
+        "numerical": 0
+      },
+      "input_plan": {
+        "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/same-count-substituted-command/admitted-pre-execution-plan.json",
+        "bytes": 76005,
+        "sha256": "c5cfc4ccc44c5dd87e50263c00a4879ccb3e31f1f482e07158ffc7923dd6d241"
+      },
+      "defining_property": "PASS"
+    },
+    {
+      "name": "same-count-summary-promotion",
+      "state": "REFUSED_BEFORE_EXECUTOR",
+      "error": "prepared plan bytes differ from actual execution argument",
+      "callbacks": {
+        "executor": 0,
+        "numerical": 0
+      },
+      "input_plan": {
+        "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/same-count-summary-promotion/admitted-pre-execution-plan.json",
+        "bytes": 75927,
+        "sha256": "b532a248711fbbb803bf9725e11190ddc885ca708af4c0a9308ef6ddf6eedb02"
+      },
+      "defining_property": "PASS"
+    },
+    {
+      "name": "present-fake-wave-plan",
+      "state": "REFUSED_BEFORE_EXECUTOR",
+      "error": "exclusive never-existing wave required before plan materialization",
+      "callbacks": {
+        "executor": 0,
+        "numerical": 0
+      },
+      "input_plan": {
+        "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/present-fake-wave-plan/admitted-pre-execution-plan.json",
+        "bytes": 75958,
+        "sha256": "43e2f67f174e5b3dc496be2eb3fdf84132501df17b7471ed7eeec7de8a82b723"
+      },
+      "defining_property": "PASS"
+    },
+    {
+      "name": "wrong-output-binding",
+      "state": "REFUSED_BEFORE_EXECUTOR",
+      "error": "execution output binding differs",
+      "callbacks": {
+        "executor": 0,
+        "numerical": 0
+      },
+      "input_plan": {
+        "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/wrong-output-binding/admitted-pre-execution-plan.json",
+        "bytes": 75950,
+        "sha256": "6570b1079cd78ef95eecb022a97fbe82fe80c3f86024afd4358e1d903a5e22ed"
+      },
+      "defining_property": "PASS"
+    },
+    {
+      "name": "malformed-prepared-body",
+      "state": "REFUSED_BEFORE_EXECUTOR",
+      "error": "prepared plan bytes differ from actual execution argument",
+      "callbacks": {
+        "executor": 0,
+        "numerical": 0
+      },
+      "input_plan": {
+        "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/malformed-prepared-body/admitted-pre-execution-plan.json",
+        "bytes": 28,
+        "sha256": "762599a91ba9943ff6aee9b8b4e808f7558b3b21a0c958e90a3e76ec16c196a2"
+      },
+      "defining_property": "PASS"
+    }
+  ],
+  "actual_stdlib_command_count": 4,
+  "numeric_pytest_callbacks": 0,
+  "current_b943_recipe_unchanged": true,
+  "root_tracked_source_unchanged": true,
+  "future_patch_applied": false,
+  "current_wave_repeated": false,
+  "no_numeric_backend_evidence": true,
+  "pre_head": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "post_head": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "root_source_paths_and_recipe": {
+    "path": "/tmp/e02-E-final-composed-wave-refresh-20261007.py",
+    "bytes": 10432,
+    "sha256": "b943046817b20c655818e77d94258044a0982a1fcc4465ea6cb51c8a9b4c3fc0"
+  },
+  "future_source": {
+    "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/future-final-composed-wave-refresh.py.txt",
+    "bytes": 11345,
+    "sha256": "5a079d55548d325d4d6c2cd7d55c24d0f3d028e4cade1e72957771ae7254e8e4"
+  },
+  "execution_scope": "Actual canonical executor/collector with only four tiny stdlib child commands; synthetic custody control markers explicitly prevent numerical/CI/finding authority"
+}

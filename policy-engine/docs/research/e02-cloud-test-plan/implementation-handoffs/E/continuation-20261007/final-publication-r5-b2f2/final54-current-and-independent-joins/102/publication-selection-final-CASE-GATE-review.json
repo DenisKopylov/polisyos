@@ -1,0 +1,124 @@
+{
+  "schema": "e02.E.independent.final54.current_CASE_GATE_metadata_selection.v1",
+  "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "builder": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/join_globals.py",
+    "bytes": 22133,
+    "sha256": "f2c6b00130ba0eb722c4ec46b013f7d317b97136b104f3018d945062cec60878"
+  },
+  "packet": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+    "bytes": 1144158,
+    "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+  },
+  "outcome": "GO_SCOPED_METADATA",
+  "scope": "Independent original54/22/55/13role/conserveddecisions; seven savedJUnit1465 identitymultiset and1013rowbindings; sevenFAIL/parent39stages13+23UNRUN; typedcorrupt/ref/retotal/removal. No native/math/global or own77sourcecode review/repetition.",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/review_final_join.py",
+      "portable_path": "review_final_join.py.txt",
+      "bytes": 12029,
+      "sha256": "2cc8eee88a4ee92be023c7db1b2d9079dba9ae3eabf23a6a9b816f32e26960df",
+      "role": "literal independent final54 CASE/GATE metadata conservation/actual savedXML multiset/wholetyped corrupt-removal or scoped priorV4review"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/final-CASE-GATE-review-normal.stdout.json",
+      "portable_path": "final-CASE-GATE-review-normal.stdout.json",
+      "bytes": 9011,
+      "sha256": "5aeab1e6dddfe162aeacd731fac524d53eb1d899336ac116ba9961ee1db287ed",
+      "role": "literal independent final54 CASE/GATE metadata conservation/actual savedXML multiset/wholetyped corrupt-removal or scoped priorV4review"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/final-CASE-GATE-review-normal.stderr.txt",
+      "portable_path": "final-CASE-GATE-review-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal independent final54 CASE/GATE metadata conservation/actual savedXML multiset/wholetyped corrupt-removal or scoped priorV4review"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/final-CASE-GATE-review-optimized.stdout.json",
+      "portable_path": "final-CASE-GATE-review-optimized.stdout.json",
+      "bytes": 9011,
+      "sha256": "5aeab1e6dddfe162aeacd731fac524d53eb1d899336ac116ba9961ee1db287ed",
+      "role": "literal independent final54 CASE/GATE metadata conservation/actual savedXML multiset/wholetyped corrupt-removal or scoped priorV4review"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/final-CASE-GATE-review-optimized.stderr.txt",
+      "portable_path": "final-CASE-GATE-review-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal independent final54 CASE/GATE metadata conservation/actual savedXML multiset/wholetyped corrupt-removal or scoped priorV4review"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/measure_actual_cases.py",
+      "portable_path": "measure_actual_cases.py.txt",
+      "bytes": 3930,
+      "sha256": "b9cdcda0bfc3abddbdafa18b33d4cd308891908f46c42c0da3ec9b6916cdfc6c",
+      "role": "literal independent final54 CASE/GATE metadata conservation/actual savedXML multiset/wholetyped corrupt-removal or scoped priorV4review"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/actual1465-JUnit-multiset-basis.json",
+      "portable_path": "actual1465-JUnit-multiset-basis.json",
+      "bytes": 473305,
+      "sha256": "d9694082cea5d66e8ebb1e5b172be26ecab41d5d8f5c3c2650145f5c14962bcc",
+      "role": "literal independent final54 CASE/GATE metadata conservation/actual savedXML multiset/wholetyped corrupt-removal or scoped priorV4review"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/actual1465-measure-normal.stdout.json",
+      "portable_path": "actual1465-measure-normal.stdout.json",
+      "bytes": 393,
+      "sha256": "469a6d2add0165198869aa17c98dc4c1a22a589eb60e91cf2efe8172bfb89254",
+      "role": "literal independent final54 CASE/GATE metadata conservation/actual savedXML multiset/wholetyped corrupt-removal or scoped priorV4review"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/actual1465-measure-normal.stderr.txt",
+      "portable_path": "actual1465-measure-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal independent final54 CASE/GATE metadata conservation/actual savedXML multiset/wholetyped corrupt-removal or scoped priorV4review"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/actual1465-measure-optimized.stdout.json",
+      "portable_path": "actual1465-measure-optimized.stdout.json",
+      "bytes": 393,
+      "sha256": "469a6d2add0165198869aa17c98dc4c1a22a589eb60e91cf2efe8172bfb89254",
+      "role": "literal independent final54 CASE/GATE metadata conservation/actual savedXML multiset/wholetyped corrupt-removal or scoped priorV4review"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/actual1465-measure-optimized.stderr.txt",
+      "portable_path": "actual1465-measure-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal independent final54 CASE/GATE metadata conservation/actual savedXML multiset/wholetyped corrupt-removal or scoped priorV4review"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/actual-parent39-stage-basis.json",
+      "portable_path": "actual-parent39-stage-basis.json",
+      "bytes": 10109,
+      "sha256": "4ad1baa645f231d7d798015226d561d46f4fe37350fad248c897a3bd50207cd4",
+      "role": "literal independent final54 CASE/GATE metadata conservation/actual savedXML multiset/wholetyped corrupt-removal or scoped priorV4review"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/publication-selection-v4-review.json",
+      "portable_path": "publication-selection-v4-review.json",
+      "bytes": 7924,
+      "sha256": "9cd8386003aaaa6bf922b84fa40485999d987c45e4923de205d2d9e776685b5e",
+      "role": "literal independent final54 CASE/GATE metadata conservation/actual savedXML multiset/wholetyped corrupt-removal or scoped priorV4review"
+    }
+  ],
+  "logical_count": 13,
+  "byte_unique_count": 8,
+  "unique_bytes": 516701,
+  "own_controls_each_mode": 21,
+  "actual_source_role_review_qualifier": "13opaqueGitbody hashes conserve namedacceptedversions. Existingexternalimports77GO433 is qualifiedliteralonly, notself77CODEGO.",
+  "old_metadata_review_selection": {
+    "path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/publication-selection-v4-review.json",
+    "bytes": 7924,
+    "sha256": "9cd8386003aaaa6bf922b84fa40485999d987c45e4923de205d2d9e776685b5e"
+  },
+  "raw_original_inputs_not_recopied": "Author fixedsevenXML+finalpacket+completeoriginalowner/cards/recipes remain sourceinputs withfullhashrefs; ownactualmultiset retained without copyingtempCAS/wholeenv/rawsource snapshots.",
+  "author_and_reviewer_different": true,
+  "finding_or_G_intake_promotion": false,
+  "source_or_ROOTenv_mutation": false
+}

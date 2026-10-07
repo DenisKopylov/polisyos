@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final54-b2f2-preparation-20261007/validate_final.py", line 247, in <module>
+    main()
+  File "/tmp/e02-E-final54-b2f2-preparation-20261007/validate_final.py", line 215, in main
+    require(saved_paths == live_paths, "complete current ROOT metadata pathset")
+  File "/tmp/e02-E-final54-b2f2-preparation-20261007/validate_final.py", line 24, in require
+    raise ValueError(message)
+ValueError: complete current ROOT metadata pathset

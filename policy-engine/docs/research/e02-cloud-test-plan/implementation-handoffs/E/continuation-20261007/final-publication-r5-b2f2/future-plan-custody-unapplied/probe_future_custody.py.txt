@@ -1,0 +1,208 @@
+"""Actual canonical execute/collect custody controls; no pytest/numeric callback."""
+from pathlib import Path
+from types import SimpleNamespace
+import argparse
+import ast
+import asyncio
+import copy
+import hashlib
+import importlib.machinery
+import importlib.util
+import json
+import subprocess
+import sys
+import time
+
+ROOT = Path(__file__).resolve().parent
+REPO = Path('/workspace/e02-E-continuation-20261006')
+CANDIDATE = 'b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641'
+PREP = Path('/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z')
+WRAPPER = PREP / 'exact-reviewed-harness/prepare_current_owner_wave.py'
+ACTUAL = Path('/tmp/e02-E-final-composed-wave-refresh-20261007.py')
+FUTURE = ROOT / 'future-final-composed-wave-refresh.py.txt'
+COLLECTOR = REPO / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py'
+
+
+def require(condition, reason):
+    if not condition:
+        raise ValueError(reason)
+
+
+def identity(path):
+    data = path.read_bytes()
+    return dict(path=str(path), bytes=len(data), sha256=hashlib.sha256(data).hexdigest())
+
+
+def load(name, path):
+    loader = importlib.machinery.SourceFileLoader(name, str(path))
+    spec = importlib.util.spec_from_loader(name, loader)
+    module = importlib.util.module_from_spec(spec)
+    loader.exec_module(module)
+    return module
+
+
+def execution_tail(path, remove=False):
+    parsed = ast.parse(path.read_text())
+    main = next(n for n in parsed.body if isinstance(n, ast.FunctionDef) and n.name == 'main')
+    branch = next(n for n in main.body if isinstance(n, ast.If) and ast.unparse(n.test) == 'args.execute')
+    tail = branch.body[-2:] if path == FUTURE else branch.body[-1:]
+    if path == FUTURE:
+        require(isinstance(tail[0], ast.Expr) and isinstance(tail[0].value, ast.Call)
+                and ast.unparse(tail[0].value.func) == 'materialize_admitted_execution_plan', 'actual single inlet statement changed')
+    require(isinstance(tail[-1], ast.Raise), 'actual canonical executor tail changed')
+    if remove:
+        tail = tail[-1:]  # Only the actual protected inlet statement removed.
+    return compile(ast.Module(body=tail, type_ignores=[]), str(path), 'exec')
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--output-root', type=Path, required=True)
+    args = parser.parse_args()
+    require(not args.output_root.exists(), 'fresh control output required')
+    args.output_root.mkdir()
+    metadata = json.loads((ROOT / 'future-patch-source.json').read_text())
+    require(identity(ACTUAL)['sha256'] == metadata['original']['sha256'], 'immutable actual recipe changed')
+    require(identity(FUTURE)['sha256'] == metadata['future']['sha256'], 'future patch source changed')
+    frozen_inputs = json.loads((PREP / 'harness-source-inputs.json').read_text())['assets']
+    expected_wrapper = next(r for r in frozen_inputs if r['path'].endswith('/prepare_current_owner_wave.py.txt'))
+    require(identity(WRAPPER)['sha256'] == expected_wrapper['sha256'], 'canonical wrapper differs before load')
+    wrapper = load('current_validated_wrapper_for_custody_control', WRAPPER)
+    planner = wrapper.load_planner(argparse.Namespace(repo=REPO, candidate=CANDIDATE,
+        comparison_base='198076863e143dea9f89f02734b13d50dae3eed5', output_root=args.output_root / 'validation-only'))
+    future = load('future_custody_only_source', FUTURE)
+    actual_plan = json.loads((PREP / 'final-numeric-selector-plan.json').read_text())
+    pre_head = subprocess.check_output(['git', '-C', str(REPO), 'rev-parse', 'HEAD']).decode().strip()
+    require(pre_head == CANDIDATE, 'control source lease differs')
+    rows = []
+
+    def prepare(name):
+        base = args.output_root / name
+        base.mkdir()
+        wave = base / 'wave'
+        plan_path = base / 'admitted-pre-execution-plan.json'
+        plan = copy.deepcopy(actual_plan)
+        job = copy.deepcopy(next(j for j in plan['jobs'] if j['kind'] == 'importer'))
+        job.update(name='custody-control-stdlib', kind='importer', group=None,
+                   output=str(wave / 'checks/custody-control-stdlib'), junit=None,
+                   argv=[str(REPO / 'policy-engine/.venv/bin/python'), '-c',
+                         'import pathlib,sys; pathlib.Path(sys.argv[1]).write_text("stdlib-command-executed\\n"); print("custody-control-only")',
+                         str(wave / 'stdlib-marker.txt')])
+        job['environment']['TMPDIR'] = str(wave / 'tmp-env/custody-control-stdlib')
+        for key in ('UV_CACHE_DIR', 'RUFF_CACHE_DIR', 'XDG_CACHE_HOME'):
+            job['environment'][key] = str(wave / 'cache' / key.lower())
+        plan.update(output_root=str(wave), jobs=[job], owner_packet_extra_inputs=[],
+                    groups={}, source_test_assets={}, native_test_path_count=0,
+                    test_input_path_count_including_owner_packets=0,
+                    group_path_counts={}, collector_control_only=True,
+                    execution_state='Synthetic custody protocol control; no numeric/pytest/backend method callback',
+                    global_gate_queue=[])
+        plan_path.write_text(json.dumps(plan, indent=2) + '\n')
+        return base, wave, plan_path, plan
+
+    def execute_and_collect(name, source, removal=False, compare_removal=False):
+        base, wave, plan_path, plan = prepare(name)
+        callback = dict(executor=0, numerical=0)
+        facade = SimpleNamespace()
+
+        async def observed_execute(received):
+            callback['executor'] += 1
+            require(received == plan and all(j['kind'] == 'importer' for j in received['jobs']), 'only one explicit stdlib control job permitted')
+            require(received['jobs'][0]['argv'][1] == '-c', 'no pytest/production numerical command allowed')
+            return await planner.execute(received)
+
+        facade.execute = observed_execute
+        inlet = future.materialize_admitted_execution_plan
+        if compare_removal:
+            fake = copy.deepcopy(plan)
+            fake['jobs'][0]['argv'][-1] = str(wave / 'forged-same-count-marker.txt')
+            plan_path.write_text(json.dumps(fake, indent=2) + '\n')
+            helper = ast.parse(FUTURE.read_text())
+            function = next(n for n in helper.body if isinstance(n, ast.FunctionDef) and n.name == 'materialize_admitted_execution_plan')
+            matches = [i for i, n in enumerate(function.body) if isinstance(n, ast.Expr) and isinstance(n.value, ast.Call)
+                       and ast.unparse(n.value.func) == 'req' and ast.unparse(n.value.args[0]) == 'admitted == expected']
+            require(len(matches) == 1, 'sole full-byte admission predicate changed')
+            function.body.pop(matches[0])
+            namespace = dict(Path=Path, json=json, req=future.req)
+            exec(compile(ast.Module(body=[function], type_ignores=[]), '<only-full-byte-predicate-removed>', 'exec'), namespace)
+            inlet = namespace['materialize_admitted_execution_plan']
+        environment = dict(materialize_admitted_execution_plan=inlet, plan_path=plan_path,
+                           wave=wave, plan=plan, planner=facade, asyncio=asyncio)
+        try:
+            exec(execution_tail(source, removal), environment)
+        except SystemExit as exc:
+            executor_exit = exc.code
+        require(executor_exit == 0 and callback == dict(executor=1, numerical=0), 'actual stdlib-only canonical executor did not close')
+        require((wave / 'stdlib-marker.txt').read_text() == 'stdlib-command-executed\n', 'actual child stdlib marker missing')
+        command = [str(REPO / 'policy-engine/.venv/bin/python'), str(COLLECTOR), '--repo', str(REPO),
+                   '--candidate', CANDIDATE, '--wave-root', str(wave), '--publication-root', str(base / 'collection')]
+        with (base / 'collector.stdout.txt').open('xb') as stdout, (base / 'collector.stderr.txt').open('xb') as stderr:
+            result = subprocess.run(command, stdout=stdout, stderr=stderr, cwd=REPO)
+        missing = source == ACTUAL or removal
+        if missing:
+            require(result.returncode != 0 and not (wave / 'plan.json').exists(), 'missing-plan control did not refuse')
+            require('FileNotFoundError' in (base / 'collector.stderr.txt').read_text() and not (base / 'collection').exists(), 'collector must refuse before publication')
+            state = 'REFUSED_MISSING_PLAN'
+        else:
+            collected = json.loads((base / 'collection/publication-receipt.json').read_text())
+            if compare_removal:
+                require(collected['collection_state'] == 'CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT' and collected['issues'], 'canonical downstream command mismatch was not detected')
+                require(callback['executor'] == 1, 'removed admission did not expose premature execution')
+                state = 'PROPERTY_FAIL_REMOVAL_EXECUTED_BEFORE_DOWNSTREAM_REFUSAL'
+            else:
+                require(result.returncode == 1 and collected['collection_state'] == 'CONTROL_COMPLETE_BOUND' and not collected['issues'], 'healthy current control collector failed: CONTROL fixtures intentionally do not return production CLI success')
+                require((wave / 'plan.json').read_bytes() == plan_path.read_bytes(), 'exclusive exact plan persistence differs')
+                state = 'HEALTHY_CONTROL_COMPLETE_BOUND'
+        rows.append(dict(name=name, state=state, callbacks=callback, actual_executor_source=identity(planner.PREPARATION / 'plan_wave.py'),
+                         actual_collector_source=identity(COLLECTOR), collector_argv=command, collector_exit=result.returncode,
+                         input_plan=identity(plan_path), wave=str(wave), collector_stdout=identity(base / 'collector.stdout.txt'),
+                         collector_stderr=identity(base / 'collector.stderr.txt'),
+                         control_outcome='PASS', defining_property='FAIL' if source == ACTUAL or removal or compare_removal else 'PASS'))
+
+    execute_and_collect('old-missing-plan', ACTUAL)
+    execute_and_collect('future-healthy', FUTURE)
+    execute_and_collect('future-inlet-removed', FUTURE, removal=True)
+    execute_and_collect('future-byte-predicate-removed', FUTURE, compare_removal=True)
+    for name in ['same-count-substituted-command', 'same-count-summary-promotion', 'present-fake-wave-plan', 'wrong-output-binding', 'malformed-prepared-body']:
+        base, wave, plan_path, plan = prepare(name)
+        fake = copy.deepcopy(plan)
+        if name == 'same-count-substituted-command':
+            fake['jobs'][0]['argv'][-1] = str(wave / 'fake.txt')
+            plan_path.write_text(json.dumps(fake, indent=2) + '\n')
+        elif name == 'same-count-summary-promotion':
+            fake['execution_state'] = 'PASS'
+            plan_path.write_text(json.dumps(fake, indent=2) + '\n')
+        elif name == 'present-fake-wave-plan':
+            wave.mkdir()
+            (wave / 'plan.json').write_bytes(plan_path.read_bytes())
+        elif name == 'wrong-output-binding':
+            plan['output_root'] = str(base / 'other-wave')
+            plan_path.write_text(json.dumps(plan, indent=2) + '\n')
+        else:
+            plan_path.write_bytes(b'{ malformed same-count input')
+        try:
+            future.materialize_admitted_execution_plan(plan_path, wave, plan)
+        except ValueError as exc:
+            rows.append(dict(name=name, state='REFUSED_BEFORE_EXECUTOR', error=str(exc),
+                             callbacks=dict(executor=0, numerical=0), input_plan=identity(plan_path),
+                             defining_property='PASS'))
+        else:
+            raise ValueError('adversarial input unexpectedly admitted: ' + name)
+    post_head = subprocess.check_output(['git', '-C', str(REPO), 'rev-parse', 'HEAD']).decode().strip()
+    post_dirty = subprocess.check_output(['git', '-C', str(REPO), 'status', '--porcelain', '--untracked-files=no']).decode()
+    require(post_head == CANDIDATE and not post_dirty and identity(ACTUAL)['sha256'] == metadata['original']['sha256'], 'actual source or frozen recipe changed')
+    report = dict(schema='policyos.e02.future_recipe_custody_control.v1', source=CANDIDATE,
+                  optimized=not __debug__, check_count=len(rows), rows=rows,
+                  actual_stdlib_command_count=4, numeric_pytest_callbacks=0,
+                  current_b943_recipe_unchanged=True, root_tracked_source_unchanged=True,
+                  future_patch_applied=False, current_wave_repeated=False,
+                  no_numeric_backend_evidence=True, pre_head=pre_head, post_head=post_head,
+                  root_source_paths_and_recipe=identity(ACTUAL), future_source=identity(FUTURE),
+                  execution_scope='Actual canonical executor/collector with only four tiny stdlib child commands; synthetic custody control markers explicitly prevent numerical/CI/finding authority')
+    (args.output_root / 'review.json').write_text(json.dumps(report, indent=2) + '\n')
+    print(json.dumps(dict(checks=len(rows), stdlib_commands=4, numeric_callbacks=0,
+                          report=str(args.output_root / 'review.json'))))
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,97 @@
+import ast
+import copy
+import hashlib
+import json
+import runpy
+import subprocess
+import sys
+from pathlib import Path
+
+R=Path('/tmp/e02-E-final54-b2f2-preparation-20261007')
+MODULE=R/'prepare_v4.py';INPUTS=R/'inputs.json';PACKET=R/'prepared-v4r2-normal.json'
+MODULE_HASH='bfaab952762e87ff1910a39cfa568321949992f2610e7fbbea275a6512ac5c8d'
+PACKET_HASH='929c6f325797b41947f096a022bfdab58975fbbe6a87b4903b1b86456cfbfa4a'
+OUT=Path('/tmp/e02-E-final54-preparation-independent-lint-b2-20261007')
+def require(c,r):
+ if not c:raise ValueError(r)
+def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def strict(a,b):
+ if type(a)is not type(b):return False
+ if isinstance(a,dict):return a.keys()==b.keys() and all(strict(a[k],b[k]) for k in a)
+ if isinstance(a,list):return len(a)==len(b) and all(strict(x,y) for x,y in zip(a,b))
+ return a==b
+require(digest(MODULE)==MODULE_HASH and digest(PACKET)==PACKET_HASH,'immutable V4 bytes')
+old=json.loads((R/'prepared-v3-normal.json').read_bytes());actual=json.loads(PACKET.read_bytes())
+old['current_numeric_wave']['execution_state']='terminal_receipts_available_not_joined_in_preparation'
+for row in old['rows']:row['current_check_links']['execution_state']='terminal_receipts_available_not_joined_in_preparation'
+require(strict(old,actual),'V3→V4 output changes only terminal-not-joined preparation state; no row/owner/source mutation')
+n=runpy.run_path(str(MODULE),run_name='independent_corrective_V4_scope')
+i,v=n['load_inputs'](INPUTS)
+expected=n['build'](i,v)
+require(strict(actual,expected),'complete actual V4 build matches immutable author result')
+plan=v['numeric_plan']
+paths=set()
+for job in plan['jobs']:
+ for arg in job['argv']:
+  if type(arg)is str and arg.startswith('tests/'):
+   path=arg.partition('::')[0]
+   if path.endswith('.py'):paths.add('policy-engine/'+path)
+require(len(paths)==104==plan['native_test_path_count']==actual['current_numeric_wave']['native_test_path_count'],'independent104 native argv-path count')
+require(type(v['environment'])is list and len(v['environment'])==207==actual['environment']['distribution_metadata_count'],'independent207 saved metadata')
+require(v['fit_review']['source']=='77b4d68ec37e3f34b84ce4fd1787746e3d5f5322'==actual['scientific_fit_boundary']['accepted_source'],'independent fit source ref')
+owner=v['owner54'];roles=expected['source_role_qualification'];n['admit_preparation_claims'](actual,expected)
+mutations=[
+ ('original native paths104→1',('current_numeric_wave','native_test_path_count'),1),
+ ('original ROOTmetadata207→1',('environment','distribution_metadata_count'),1),
+ ('original pending edge1→True',('import_owner_dependencies','original12','owner_export_pending'),True),
+ ('original accepted fit77→3932',('scientific_fit_boundary','accepted_source'),n['OLD']),
+ ('native count type104→104.0',('current_numeric_wave','native_test_path_count'),104.0),
+ ('environment count type207→207.0',('environment','distribution_metadata_count'),207.0),
+ ('actual plan hash→stale',('current_numeric_wave','plan','sha256'),'0'*64),
+ ('actual environment hash→stale',('environment','snapshot','sha256'),'0'*64),
+ ('actual fit peer hash→stale',('scientific_fit_boundary','accepted_review','sha256'),'0'*64),
+ ('individual owner promoted',('rows',0,'owner_decision'),'accepted'),
+ ('current wave made PASS',('current_numeric_wave','check_outcome'),'PASS'),
+ ('role-specific digest stale',('source_role_qualification',12,'current_source','sha256'),'0'*64),
+]
+results=[]
+def mutate(path,value):
+ b=copy.deepcopy(actual);q=b
+ for key in path[:-1]:q=q[key]
+ q[path[-1]]=value
+ return b
+for name,path,value in mutations:
+ bad=mutate(path,value)
+ try:n['admit_preparation_claims'](bad,expected)
+ except ValueError as exc:results.append({'case':name,'outcome':'PASS','observed':'REFUSED','reason':str(exc)})
+ else:raise ValueError('V4 falsely admitted '+name)
+# Effective removal of only the whole strict-equality predicate, with all
+# source bindings/full54/pending check/owner admission left active.
+tree=ast.parse(MODULE.read_text());removed=0
+for fn in tree.body:
+ if isinstance(fn,ast.FunctionDef) and fn.name=='admit_preparation_claims':
+  require(len(fn.body)==1 and isinstance(fn.body[0],ast.Expr),'one actual defining guard')
+  fn.body=[ast.Pass()];removed+=1
+require(removed==1,'single whole guard removal')
+without={'__name__':'independent_removed_whole_V4_claim_guard'}
+exec(compile(ast.fix_missing_locations(tree),str(MODULE),'exec'),without)
+for name,path,value in mutations[:4]:
+ bad=mutate(path,value)
+ without['admit_rows'](bad,owner);without['admit_source_claims'](bad,roles);without['admit_preparation_claims'](bad,expected)
+ results.append({'case':'effective sole-guard removal '+name,'outcome':'PASS','observed':'ADMITTED','defining_summary_property':'FAIL','all_original_rows_source_roles_NULL_outcomes_and_old_guards_retained':True})
+# Malformed class must refuse before child Git, including a late bad role;
+# semantic source identity still requires safe Git reads and is not called0.
+saved=n['blob'].__globals__['git'];callbacks=0
+def spy(*a):
+ global callbacks
+ callbacks+=1;raise ValueError('Git callback was reached')
+n['blob'].__globals__['git']=spy
+try:
+ for sha,path in [('--output=/tmp/not-admitted','policy-engine/AGENTS.md'),(n['SOURCE'],'policy-engine/../AGENTS.md'),(True,'policy-engine/AGENTS.md'),(n['SOURCE'],None),(n['SOURCE'],'.')]:
+  try:n['blob'](sha,path)
+  except (ValueError,TypeError):pass
+  else:raise ValueError('bad Git object admitted')
+finally:n['blob'].__globals__['git']=saved
+require(callbacks==0,'malformed Git objects zero callbacks')
+require(digest(MODULE)==MODULE_HASH and digest(PACKET)==PACKET_HASH,'immutable after own controls')
+print(json.dumps({'scope':'independent metadata V4 source/count/ref correction only; no product/native/fit/math/code review','outcome':'GO_SCOPED_METADATA','candidate':n['SOURCE'],'tree':n['TREE'],'module':{'path':str(MODULE),'bytes':MODULE.stat().st_size,'sha256':MODULE_HASH},'packet':{'path':str(PACKET),'bytes':PACKET.stat().st_size,'sha256':PACKET_HASH},'typed_whole_packet_recomputed_equal':True,'V3_original54_and13role_binding_reused':'original-denominator-normal.stdout.json@285a25aeb31e250a680c7137e1dc11e5fb946f7d0642fe2e3295e6f0e8f00bae','output_delta_only':'54row +topnumeric execution_state terminal_receipts_available_not_joined_in_preparation','actual_native_path_count':len(paths),'actual_environment_metadata_count':len(v['environment']),'source_fit_review_qualified':'external imports77 peer4339639c; no self77 source CODE GO','controls':results,'malformed_Git_object_controls':5,'malformed_Git_callbacks':callbacks,'runtime_or_global_or_finding_outcomes_promoted':False,'product_native_backend_or_new_owner54_review_repeated':False,'environment':{'python':sys.version,'executable':sys.executable}},ensure_ascii=False,indent=2))

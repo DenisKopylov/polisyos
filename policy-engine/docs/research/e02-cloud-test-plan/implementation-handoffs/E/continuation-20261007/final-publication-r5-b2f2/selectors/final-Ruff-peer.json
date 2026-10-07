@@ -1,0 +1,66 @@
+{
+  "schema": "policyos.e02.independent.moderate_selection.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2-independent-20261007/review.json",
+      "portable_path": "review.json",
+      "bytes": 131242,
+      "sha256": "b5aafa827ca95fe37658cdb974a00dee197c3220042682147cf4f7230b83f099",
+      "role": "independent closed read-only custody/typed-control output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2-independent-20261007/review-optimized.json",
+      "portable_path": "review-optimized.json",
+      "bytes": 131240,
+      "sha256": "e2dcd7972d8978663aaa78c646e4341ef257829e52d086f3a1f262a02e6737ea",
+      "role": "independent closed read-only custody/typed-control output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2-independent-20261007/review-normal.stdout.txt",
+      "portable_path": "review-normal.stdout.txt",
+      "bytes": 406,
+      "sha256": "24d830c0093ac7fef78d75ae8d329841fe460bb04ecaa2d6c6ad9f4c34fc1816",
+      "role": "independent closed read-only custody/typed-control output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2-independent-20261007/review-normal.stderr.txt",
+      "portable_path": "review-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent closed read-only custody/typed-control output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2-independent-20261007/review-optimized.stdout.txt",
+      "portable_path": "review-optimized.stdout.txt",
+      "bytes": 416,
+      "sha256": "391bea4e074f9a1230becc423ea8390819ab52cb2ed6123dfda2f6a955dedc8a",
+      "role": "independent closed read-only custody/typed-control output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2-independent-20261007/review-optimized.stderr.txt",
+      "portable_path": "review-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent closed read-only custody/typed-control output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2-independent-20261007/review.py.txt",
+      "portable_path": "review.py.txt",
+      "bytes": 11289,
+      "sha256": "712b58ce480186bc6ff2328deb02a691fdd89bb694149c7de358e31fcec027c0",
+      "role": "independent closed read-only custody/typed-control output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-root-lint-b2-independent-20261007/commands.json",
+      "portable_path": "commands.json",
+      "bytes": 397,
+      "sha256": "1e5ad12be57d49cc8436d0710877742ebf51f3597369923e73f2a30aa5dbc2fd",
+      "role": "independent closed read-only custody/typed-control output"
+    }
+  ],
+  "logical_count": 8,
+  "bytes": 274990,
+  "scope": "No runtime/finding/G acceptance inferred from custody GO."
+}

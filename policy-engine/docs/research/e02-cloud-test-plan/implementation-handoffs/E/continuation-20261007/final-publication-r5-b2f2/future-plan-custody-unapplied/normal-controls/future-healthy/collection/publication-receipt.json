@@ -1,0 +1,276 @@
+{
+  "schema": "policyos.e02.wave_publication_custody.v1",
+  "candidate_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "candidate_tree_sha": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "wave_root": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/wave",
+  "publication_root": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/collection",
+  "terminal": "execution-complete.json",
+  "started": {
+    "candidate_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "started_unix": 1791391165.8760238,
+    "reviews_requirement": "root caller asserts independent reviews complete before --execute"
+  },
+  "completion": {
+    "candidate_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "numerical_codes": [],
+    "gate_codes": [],
+    "finished_unix": 1791391170.2028174,
+    "finding_closure": false
+  },
+  "source_freeze": null,
+  "collection_state": "CONTROL_COMPLETE_BOUND",
+  "publication_evidence_scope": "Synthetic collector protocol control only; no numerical/backend evidence",
+  "expected_job_count_from_complete_plan": 1,
+  "job_receipt_count": 1,
+  "native_file_count": 0,
+  "all_test_file_input_count": 0,
+  "source_runtime_input_count": 7668,
+  "tracked_input_count": 22005,
+  "changed_python_full_lint_denominator": 378,
+  "numeric_counts": {
+    "cases": 0,
+    "passed": 0,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "native_numeric_counts_excluding_A_packets": {
+    "cases": 0,
+    "passed": 0,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "unattributed_owner_packet_counts": {
+    "cases": 0,
+    "passed": 0,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "unattributed_owner_packet_cases": [],
+  "native_numeric_attribution_complete": true,
+  "native_numeric_count_scope": "Includes the explicit G ControlPlaneStore companion. Contradictory owner-packet identities stay unattributed and are excluded from both native and A counts.",
+  "numeric_outcome_counts": {},
+  "non_numeric_outcome_counts": {
+    "PASS": 1
+  },
+  "foreign_owner_A_packet_cases": [],
+  "source_frames_consistent_across_jobs": true,
+  "effective_git_config_consistent_across_jobs": true,
+  "post_command_backend_observer_scope": "No inference of unmeasured test-child JAX state.",
+  "jobs": [
+    {
+      "name": "custody-control-stdlib",
+      "kind": "importer",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-c",
+        "import pathlib,sys; pathlib.Path(sys.argv[1]).write_text(\"stdlib-command-executed\\n\"); print(\"custody-control-only\")",
+        "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/wave/stdlib-marker.txt"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "outcome": "PASS",
+      "case_counts": null,
+      "exit_code": 0,
+      "wall_seconds": 2.8698437213897705,
+      "max_rss_kib": 131596,
+      "user_cpu_seconds": 0.017786,
+      "system_cpu_seconds": 0.007268999999999999,
+      "rss_scope": "wait4 command plus its waited descendants; not sum of overlapping jobs",
+      "binding_predicates": {
+        "candidate": true,
+        "tree": true,
+        "ending_head": true,
+        "command": true,
+        "cwd": true,
+        "source_frames_equal": true,
+        "source_immutable": true,
+        "config_stable": true,
+        "config_hashes_equal": true,
+        "declared_inputs_bound_to_candidate_git": true,
+        "tracked_path_count": true,
+        "started_after_wave_start": true
+      },
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/wave/tmp-env/custody-control-stdlib",
+          "RUFF_CACHE_DIR": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/wave/cache/ruff_cache_dir",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/run/codex-environment/codex-home/tmp/arg0/codex-arg01gKa79:/opt/codex/codex-path:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/wave/cache/uv_cache_dir",
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "backend_observer": {
+        "jax": {
+          "default_backend": "cpu",
+          "enable_x64": false,
+          "devices": [
+            {
+              "platform": "cpu",
+              "id": 0,
+              "kind": "cpu"
+            }
+          ]
+        },
+        "numpy": {
+          "Compilers": {
+            "c": {
+              "name": "gcc",
+              "linker": "ld.bfd",
+              "version": "14.2.1",
+              "commands": "cc"
+            },
+            "cython": {
+              "name": "cython",
+              "linker": "cython",
+              "version": "3.2.1",
+              "commands": "cython"
+            },
+            "c++": {
+              "name": "gcc",
+              "linker": "ld.bfd",
+              "version": "14.2.1",
+              "commands": "c++"
+            }
+          },
+          "Machine Information": {
+            "host": {
+              "cpu": "x86_64",
+              "family": "x86_64",
+              "endian": "little",
+              "system": "linux"
+            },
+            "build": {
+              "cpu": "x86_64",
+              "family": "x86_64",
+              "endian": "little",
+              "system": "linux"
+            }
+          },
+          "Build Dependencies": {
+            "blas": {
+              "name": "scipy-openblas",
+              "found": true,
+              "version": "0.3.30",
+              "detection method": "pkgconfig",
+              "include directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/include",
+              "lib directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/lib",
+              "openblas configuration": "OpenBLAS 0.3.30  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+              "pc file directory": "/project/.openblas"
+            },
+            "lapack": {
+              "name": "scipy-openblas",
+              "found": true,
+              "version": "0.3.30",
+              "detection method": "pkgconfig",
+              "include directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/include",
+              "lib directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/lib",
+              "openblas configuration": "OpenBLAS 0.3.30  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+              "pc file directory": "/project/.openblas"
+            }
+          },
+          "Python Information": {
+            "path": "/tmp/build-env-r8m2wpdb/bin/python",
+            "version": "3.14"
+          },
+          "SIMD Extensions": {
+            "baseline": [
+              "SSE",
+              "SSE2",
+              "SSE3"
+            ],
+            "found": [
+              "SSSE3",
+              "SSE41",
+              "POPCNT",
+              "SSE42",
+              "AVX",
+              "F16C",
+              "FMA3",
+              "AVX2",
+              "AVX512F",
+              "AVX512CD",
+              "AVX512_SKX",
+              "AVX512_CLX",
+              "AVX512_CNL",
+              "AVX512_ICL"
+            ],
+            "not found": [
+              "AVX512_KNL",
+              "AVX512_KNM",
+              "AVX512_SPR"
+            ]
+          }
+        }
+      },
+      "backend_observer_scope": "Post-command observer process; test-child changed JAX config is not inferred."
+    }
+  ],
+  "static_proxy": null,
+  "excluded_raw_custody": [
+    {
+      "path": "raw/custody-control-stdlib.git-config-private.nul",
+      "bytes": 5315,
+      "sha256": "3886b76efcaa4ffb9d9f76371428cf6b10e369eae3e8c892e30097d09cbd5f28",
+      "publication": "private_excluded_hash_size_only"
+    }
+  ],
+  "issues": [],
+  "numeric_results_are_new_candidate_only": false,
+  "doctor_is_full_ci": false,
+  "finding_closure": false,
+  "code_acceptance_and_original_criterion_decisions": "Separate; ledger statuses not reclassified by check counts.",
+  "cleanup_policy": "Only candidate list; no deletion or Trash action. Preserve unique deciding bytes/code/docs. Check no active users before repeatables move to native Trash; without Trash keep exact candidates.",
+  "cleanup_candidates": [
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/wave/tmp-env/custody-control-stdlib",
+      "kind": "TMPDIR"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/wave/cache/ruff_cache_dir",
+      "kind": "RUFF_CACHE_DIR"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/wave/umbrella-temp/workspace-verify",
+      "kind": "umbrella_temporary"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/wave/umbrella-temp/ci-parity",
+      "kind": "umbrella_temporary"
+    }
+  ],
+  "raw_local_input_limitation": "Raw graph/private config remain outside Git; exact command/source/hash/size and complete moderate stdout are published. Do not promote the bounded static proxy to runtime proof."
+}

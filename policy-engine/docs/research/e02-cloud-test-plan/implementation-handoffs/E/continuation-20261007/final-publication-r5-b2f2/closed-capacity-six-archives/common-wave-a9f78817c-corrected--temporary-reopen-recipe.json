@@ -1,0 +1,10 @@
+{
+  "archive": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/closed-r2-catalog-archives-20261007/common-wave-a9f78817c-corrected--temporary.tar.gz",
+    "bytes": 9400548,
+    "sha256": "4c2f95a5b9794877ce65850f45e0e09355be64f676ba40379f2537d6b7f1be40"
+  },
+  "top_level_member": "common-wave-a9f78817c-corrected--temporary",
+  "fresh_reopen_command": "mkdir -p /tmp/e02-E-reopen-common-wave-a9f78817c-corrected--temporary-fresh && tar -xzf /workspace/e02-E-pr38-r3-receipts/closed-r2-catalog-archives-20261007/common-wave-a9f78817c-corrected--temporary.tar.gz -C /tmp/e02-E-reopen-common-wave-a9f78817c-corrected--temporary-fresh",
+  "qualification": "Choose a genuinely fresh empty extraction directory; absolute historical symlink strings are preserved and are not followed by archive/readback. Reopen restores all archived catalog bytes/modes/link strings and exact PAX mtime; no promise of historical external target availability."
+}

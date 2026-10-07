@@ -1,0 +1,216 @@
+import ast
+import collections
+import copy
+import hashlib
+import importlib.machinery
+import importlib.util
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+OUT = Path('/tmp/e02-E-final-metadata-independent-b2-20261007')
+FUTURE = Path('/tmp/e02-E-future-plan-custody-b2f2f65e-20261007')
+PARENT = Path('/tmp/e02-E-final-parent-admission-b2f2f65e-20261007')
+SOURCE = 'b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641'
+TREE = '4cbbed1d9392832729cab92c6615f9a1d03a41c7'
+FRAME = '2bb4a6f11b58ddd62326b86c6a8113c5fc69d8d874052db64563b5498b73fb5e'
+
+def need(ok, why):
+    if not ok:
+        raise ValueError(why)
+
+def ref(p):
+    p = Path(p)
+    b = p.read_bytes()
+    return {'path': str(p), 'bytes': len(b), 'sha256': hashlib.sha256(b).hexdigest()}
+
+def read(p):
+    return json.loads(Path(p).read_text())
+
+def state():
+    def git(args):
+        p = subprocess.run(['git', '-C', str(ROOT), *args], capture_output=True, text=True)
+        need(p.returncode == 0, 'read-only source Git command failed')
+        return p.stdout.strip()
+    return {'source': git(['rev-parse', 'HEAD']), 'tree': git(['rev-parse', 'HEAD^{tree}']), 'tracked_status': git(['status', '--porcelain=v1', '--untracked-files=no'])}
+
+def equal(a, b):
+    if type(a) is not type(b):
+        return False
+    if isinstance(a, dict):
+        return a.keys() == b.keys() and all(equal(a[k], b[k]) for k in a)
+    if isinstance(a, list):
+        return len(a) == len(b) and all(equal(x, y) for x, y in zip(a, b))
+    return a == b
+
+def admit_claim(actual, expected):
+    need(equal(actual, expected), 'full typed closed-metadata claim equality')
+
+def check_refs(selection, rows_key, path_key):
+    rows = selection[rows_key]
+    refs = []
+    for r in rows:
+        actual = ref(r[path_key])
+        need(type(r['bytes']) is int and actual['bytes'] == r['bytes'] and actual['sha256'] == r['sha256'], 'every literal selected asset hash/size')
+        refs.append(actual)
+    return refs
+
+def controls(claim, mutations):
+    result = []
+    for name, change in mutations:
+        mutant = copy.deepcopy(claim)
+        change(mutant)
+        try:
+            admit_claim(mutant, claim)
+        except ValueError as e:
+            result.append({'name': name, 'outcome': 'rejected', 'reason': str(e), 'original_closed_receipt_ref_count_and_source_markers_kept': True})
+        else:
+            raise ValueError('typed claim promotion accepted')
+    removed = lambda actual, expected: None
+    bad = copy.deepcopy(claim)
+    bad['finding_authority'] = True
+    removed(bad, claim)
+    result.append({'name': 'sole_typed_claim_admission_removed', 'false_finding_authority_re_admitted': True, 'defining_property': 'FAIL'})
+    return result
+
+def future_review():
+    selection = read(FUTURE / 'publication-selection.json')
+    need(ref(FUTURE / 'publication-selection.json')['sha256'] == '700b25ae0cbc1ead0c0992ab64051e8a5c50d2ea38057e8adcc11a5ff1da2353', 'fixed145-asset selector identity')
+    selected = check_refs(selection, 'files', 'source')
+    need(len(selected) == selection['file_count'] == 145 and sum(r['bytes'] for r in selected) == selection['total_bytes'] == 2571047, 'complete145 literal members')
+    original = Path('/tmp/e02-E-final-composed-wave-refresh-20261007.py')
+    old = original.read_bytes()
+    new_path = FUTURE / 'future-final-composed-wave-refresh.py.txt'
+    new = new_path.read_bytes()
+    need(hashlib.sha256(old).hexdigest() == 'b943046817b20c655818e77d94258044a0982a1fcc4465ea6cb51c8a9b4c3fc0', 'actual frozen recipe unchanged')
+    need(hashlib.sha256(new).hexdigest() == '5a079d55548d325d4d6c2cd7d55c24d0f3d028e4cade1e72957771ae7254e8e4', 'unapplied future recipe source identity')
+    old_ast, new_ast = ast.parse(old), ast.parse(new)
+    old_functions = {n.name: ast.dump(n, include_attributes=False) for n in old_ast.body if isinstance(n, ast.FunctionDef)}
+    new_functions = {n.name: ast.dump(n, include_attributes=False) for n in new_ast.body if isinstance(n, ast.FunctionDef)}
+    need(set(new_functions) == set(old_functions) | {'materialize_admitted_execution_plan'}, 'one new pure custody inlet only')
+    need(all(old_functions[k] == new_functions[k] for k in old_functions if k != 'main'), 'old reusable functions unchanged')
+    for tree in [old_ast, new_ast]:
+        main = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'main')
+        branch = next(n for n in main.body if isinstance(n, ast.If) and ast.unparse(n.test) == 'args.execute')
+        if tree is new_ast:
+            need(ast.unparse(branch.body[-2]).startswith('materialize_admitted_execution_plan('), 'actual immediately-before-execute inlet')
+            branch.body.pop(-2)
+    need(ast.dump(old_ast, include_attributes=False) == ast.dump(ast.Module(body=[n for n in new_ast.body if not isinstance(n, ast.FunctionDef) or n.name != 'materialize_admitted_execution_plan'], type_ignores=[]), include_attributes=False), 'entire old recipe AST preserved after removing one new inlet/call')
+    all_control_rows = []
+    states = {'old-missing-plan': 'REFUSED_MISSING_PLAN', 'future-healthy': 'HEALTHY_CONTROL_COMPLETE_BOUND', 'future-inlet-removed': 'REFUSED_MISSING_PLAN', 'future-byte-predicate-removed': 'PROPERTY_FAIL_REMOVAL_EXECUTED_BEFORE_DOWNSTREAM_REFUSAL'}
+    for mode in ['normal', 'optimized']:
+        root = FUTURE / (mode + '-controls-v2')
+        report = read(root / 'review.json')
+        need(report['check_count'] == len(report['rows']) == 9 and report['numeric_pytest_callbacks'] == 0 and report['future_patch_applied'] is False, 'actual per-mode scoped report')
+        need(report['source'] == report['pre_head'] == report['post_head'] == SOURCE, 'control source bracket')
+        mode_rows = []
+        for r in report['rows']:
+            base = root / r['name']
+            if r['name'] in states:
+                need(r['state'] == states[r['name']], 'actual control outcome not promoted')
+                receipt_path = base / 'wave/checks/custody-control-stdlib/custody-control-stdlib.json'
+                child = read(receipt_path)
+                need(child['command'][:2] == [str(ROOT / 'policy-engine/.venv/bin/python'), '-c'] and len(child['command']) == 4, 'one actual stdlib command only')
+                need(child['command'][2] == 'import pathlib,sys; pathlib.Path(sys.argv[1]).write_text("stdlib-command-executed\\n"); print("custody-control-only")', 'actual tiny child contains no numeric/test callbacks')
+                need(Path(child['command'][-1]).read_text() == 'stdlib-command-executed\n', 'actual closed child marker')
+                need(child['exit_code'] == 0 and child['outcome'] == 'PASS' and child['counts'] is None and child['source_immutable'] is True, 'closed stdlib receipt distinct from method/test PASS')
+                need(child['source_identity_before'] == child['source_identity_after'], 'canonical raw input bytes unchanged')
+                for key in ['collector_stdout', 'collector_stderr', 'input_plan', 'actual_executor_source', 'actual_collector_source']:
+                    need(ref(r[key]['path']) == r[key], 'closed observer input/output/program reference')
+                if r['name'] in ['old-missing-plan', 'future-inlet-removed']:
+                    need(r['collector_exit'] == 1 and not (base / 'wave/plan.json').exists() and 'FileNotFoundError' in (base / 'collector.stderr.txt').read_text(), 'actual missing plan collector refusal')
+                else:
+                    collection = read(base / 'collection/publication-receipt.json')
+                    if r['name'] == 'future-healthy':
+                        need(r['collector_exit'] == 1 and collection['collection_state'] == 'CONTROL_COMPLETE_BOUND' and collection['issues'] == [], 'CONTROL CLI1 not production COMPLETE_BOUND CLI0')
+                        need((base / 'wave/plan.json').read_bytes() == Path(r['input_plan']['path']).read_bytes(), 'healthy actual persisted admitted bytes')
+                    else:
+                        need(collection['collection_state'] == 'CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT' and bool(collection['issues']), 'premature actual child then downstream mismatch refusal')
+                mode_rows.append({'name': r['name'], 'actual_receipt': ref(receipt_path), 'actual_collector_exit': r['collector_exit'], 'actual_state': r['state'], 'actual_tiny_child_closed': True, 'numeric_test_callback': False})
+            else:
+                need(r['state'] == 'REFUSED_BEFORE_EXECUTOR' and r['callbacks'] == {'executor': 0, 'numerical': 0}, 'all5 negative pre-executor pure inlet refusals')
+                mode_rows.append({'name': r['name'], 'state': r['state'], 'complete_input': ref(r['input_plan']['path']), 'error': r['error'], 'actual_child_receipt': None})
+        need(len(mode_rows) == 9, 'all9 actual control rows')
+        all_control_rows.append({'mode': mode, 'report': ref(root / 'review.json'), 'rows': mode_rows})
+    claim = {'source': SOURCE, 'tree': TREE, 'selected_members': 145, 'actual_recipe_sha': ref(original)['sha256'], 'future_applied': False, 'controls_per_mode': 9, 'actual_stdlib_commands_per_mode': 4, 'numeric_callbacks': 0, 'healthy_control_collector_exit': 1, 'healthy_control_status': 'CONTROL_COMPLETE_BOUND', 'current_numeric_wave_repeated': False, 'finding_authority': False}
+    mutations = [('CONTROL_CLI1_promoted0', lambda d: d.__setitem__('healthy_control_collector_exit', 0)), ('CONTROL_status_production', lambda d: d.__setitem__('healthy_control_status', 'COMPLETE_BOUND')), ('future_patch_applied', lambda d: d.__setitem__('future_applied', True)), ('bool_count', lambda d: d.__setitem__('actual_stdlib_commands_per_mode', True)), ('member_omission', lambda d: d.__setitem__('selected_members', 144)), ('native_false_callbacks', lambda d: d.__setitem__('numeric_callbacks', 4)), ('oldrecipe_false_identity', lambda d: d.__setitem__('actual_recipe_sha', '0' * 64)), ('finding_promoted', lambda d: d.__setitem__('finding_authority', True))]
+    return {'kind': 'future-plan-custody', 'disposition': 'GO for closed unapplied future custody-only packet', 'claim': claim, 'selected_originals': selected, 'actual_canonical_control_rows': all_control_rows, 'independent_controls': controls(claim, mutations), 'historical_observer': ref(FUTURE / 'observer-v1-error-qualification.json'), 'limits': ['No canonical child/executor/collector replay by independent reviewer; actual closed raw receipts and complete tiny-child command/marker/source outputs reconciled.', 'Future patch is not applied to original b943 or current numerical wave.', 'CONTROL CLI1 is retained; no production/CI/numerical/finding acceptance follows.', 'Property-removal controls use actual existing children and subsequent raw collector refusals.']}
+
+def metadata_frame(rows):
+    h = hashlib.sha256()
+    for r in rows:
+        h.update(r['path'].encode() + b'\0' + str(r['bytes']).encode() + b'\0' + r['sha256'].encode() + b'\n')
+    return {'tracked_paths': len(rows), 'bytes': sum(r['bytes'] for r in rows), 'framed_sha256': h.hexdigest()}
+
+def parent_review():
+    need(ref(PARENT / 'publication-selection.json')['sha256'] == '350ccce9060241d5b5f8f9703da5933347e0d25f7d6ee776d48d792fed6ffc94', 'fixed parent36 selector')
+    selection = read(PARENT / 'publication-selection.json')
+    selected = check_refs(selection, 'assets', 'source_path')
+    unique = {(r['bytes'], r['sha256']) for r in selected}
+    need(len(selected) == selection['logical_count'] == 36 and len(unique) == selection['content_unique_count'] == 30 and sum(b for b, _ in unique) == selection['content_unique_bytes'] == 6179316, 'complete36/30 byte-unique parent denominator')
+    first = {}
+    expected_copies = []
+    for r in selection['assets']:
+        key = (r['bytes'], r['sha256'])
+        if key not in first:
+            first[key] = r['portable_path']
+            expected_copies.append({'source_path': r['source_path'], 'destination': r['portable_path'], 'bytes': r['bytes'], 'sha256': r['sha256']})
+        need(r['canonical_destination'] == first[key] and r['deduplicated'] is (r['portable_path'] != first[key]), 'all alias/physical-original identities')
+    need(equal(expected_copies, selection['copies']), 'entire first-occurrence copy vector')
+    freeze = read('/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/complete-source-inputs.json')
+    need(metadata_frame(freeze) == {'tracked_paths': 22005, 'bytes': 620699802, 'framed_sha256': FRAME}, 'freeze complete metadata frame reconstruction')
+    closeout = read(PARENT / 'closeout.json')
+    facts = []
+    for name, expected in [('workspace-verify', {'PASS': 1, 'FAIL': 1, 'UNRUN': 13}), ('ci-parity', {'PASS': 0, 'FAIL': 1, 'UNRUN': 23})]:
+        root = Path('/tmp/e02-E-final-parent-b2f2f65e-20261007-' + name) / name
+        r, started, stages = read(root / 'receipt.json'), read(root / 'started.json'), read(root / 'internal-stages.json')
+        need((r['source'], r['tree'], r['head_after']) == (SOURCE, TREE, SOURCE) and r['outcome'] == 'FAIL' and r['exit_code'] == 1, 'closed native parent exactsourceFAIL1')
+        need(r['command'] == started['command'] and r['cwd'] == started['cwd'] == str(ROOT / 'policy-engine'), 'literal actual canonical command/cwd/start')
+        need(r['command'][1].endswith('/uncapped_umbrella.py') and '--gate' in r['command'], 'actual canonical existing umbrella native caller')
+        need(r['source_immutable'] is True and r['source_before'] == r['source_after'] == metadata_frame(freeze), 'raw parent complete input snapshots/source headers')
+        before, after = read(root / 'complete-source-inputs-before.json'), read(root / 'complete-source-inputs-after.json')
+        need(equal(before, after) and equal(before, freeze), 'all22005 original before/after/freeze path/body SHA/size/type rows')
+        need(r['ROOT_environment_metadata_unchanged'] is True and equal(r['ROOT_environment_metadata_before'], r['ROOT_environment_metadata_after']), 'complete207 native METADATA custody')
+        meta = r['ROOT_environment_metadata_after']['metadata_rows']
+        need(len(meta) == 207, 'actual207 metadata full denominator')
+        for m in meta:
+            actual = ref(ROOT / 'policy-engine/.venv' / m['path'])
+            need(actual['bytes'] == m['bytes'] and actual['sha256'] == m['sha256'], 'current ROOT207 protected metadata binding')
+        need(len(stages['scopes']) == 1 and stages['exit_code'] == 1 and stages['numerical_thread_caps'] is None and stages['required_steps_preserved'] is True, 'complete canonical single scope/no artificial caps')
+        steps = stages['scopes'][0]['steps']
+        raw_counts = {k: sum(s['outcome'] == k for s in steps) for k in ['PASS', 'FAIL', 'UNRUN']}
+        need(raw_counts == expected and len(steps) == sum(expected.values()), 'all15/24 actual stage statuses preserved')
+        fail_index = next(i for i, s in enumerate(steps) if s['outcome'] == 'FAIL')
+        need(all(s['outcome'] == 'UNRUN' and s['reason'].startswith('actual fail-fast') for s in steps[fail_index + 1:]), 'successorUNRUN stays separate')
+        need(all(s['outcome'] == 'PASS' and s['exit_code'] == 0 for s in steps[:fail_index]), 'actual preceding stages closed')
+        need(steps[fail_index]['exit_code'] == 1, 'actualfailednativechildexit1')
+        for stream in ['stdout', 'stderr']:
+            actual = ref(root / (stream + '.txt'))
+            need(actual['bytes'] == r[stream]['bytes'] and actual['sha256'] == r[stream]['sha256'], 'complete raw closed parent streams')
+        published = next(p for p in closeout['check_outcomes'] if p['selector'] == name)
+        need(published['stages'] == raw_counts and published['full_stage_count'] == len(steps) and published['first_fail'] == steps[fail_index]['label'], 'closeoutderivednative stage/outcome facts')
+        facts.append({'selector': name, 'receipt': ref(root / 'receipt.json'), 'stages': ref(root / 'internal-stages.json'), 'complete_steps': steps, 'actual_counts': raw_counts, 'first_fail': steps[fail_index]['label'], 'source_frame': r['source_after'], 'environment_metadata_count': len(meta), 'native_exit_code': 1, 'outcome': 'FAIL', 'full_source_rows_reconciled_without621MB_reread': True})
+    need(facts[0]['complete_steps'][-1]['outcome'] == 'UNRUN', 'workspace terminalstageUNRUN')
+    need(facts[0]['complete_steps'][-1].get('exit_code') is None, 'UNRUN has no fabricated childexit')
+    need(closeout['finding_or_formal_G_acceptance'] is False and closeout['numeric_suite_rerun_by_parent_executor'] is False, 'authorityandno broadnumericrerun')
+    claim = {'source': SOURCE, 'tree': TREE, 'logical_members': 36, 'physical_unique_contents': 30, 'workspace_stages': facts[0]['actual_counts'], 'ci_stages': facts[1]['actual_counts'], 'workspace_outcome': 'FAIL', 'ci_outcome': 'FAIL', 'metadata_frame': FRAME, 'ROOT_metadata_rows': 207, 'doctor_fullCI_PASS': False, 'P41': 'not_established', 'finding_authority': False}
+    mutations = [('UNRUN_to_PASS', lambda d: d['workspace_stages'].__setitem__('UNRUN', 0)), ('CI_global_PASS', lambda d: d.__setitem__('ci_outcome', 'PASS')), ('doctor_fullCI', lambda d: d.__setitem__('doctor_fullCI_PASS', True)), ('bool207', lambda d: d.__setitem__('ROOT_metadata_rows', True)), ('omit_member', lambda d: d.__setitem__('logical_members', 35)), ('raw_vs_metadata_frame_conflated', lambda d: d.__setitem__('metadata_frame', '749c00bb984af4a48c73a44f1c84747d7f3f4681d82022211602aeefcd6d4890')), ('P41_promoted', lambda d: d.__setitem__('P41', 'inherited')), ('findings_promoted', lambda d: d.__setitem__('finding_authority', True))]
+    return {'kind': 'closed-parent-workflows', 'disposition': 'GO for complete parent receipt custody; workspace and CI remain FAIL', 'claim': claim, 'selected_originals': selected, 'actual_parent_facts': facts, 'independent_controls': controls(claim, mutations), 'metadata_scope': 'All207 package METADATA exact, not complete environment/binary byte identity.', 'historical_observer': ref(PARENT / 'freeze-hash-observer-error-qualification.json'), 'limits': ['Native parent/child commands not repeated by independent reviewer.', 'Workspace15 and CI24 scopes are exact currently admitted selectors; successor13/23 stages UNRUN remain separate from eventual standalone successor receipts.', 'Doctor Chromium/frontend probes PASS does not mean CI PASS; schemas/runtime-openapi FAIL remain.', 'Metadata2bb framing differs from canonical run_check raw749c by algorithm; neither difference nor historical path intersection is causalP41 attribution.', 'Full source snapshots are sequential/not atomic; no global quiescence or scientific/finding/G authority established.']}
+
+def main():
+    kind = sys.argv[1]
+    before = state()
+    need(before == {'source': SOURCE, 'tree': TREE, 'tracked_status': ''}, 'exact frozen source guard')
+    report = future_review() if kind == 'future' else parent_review()
+    after = state()
+    need(before == after, 'read-only source bracket unchanged')
+    report.update(schema='policyos.e02.independent_closed_metadata_custody.v1', source=SOURCE, tree=TREE, source_guard_before=before, source_guard_after=after, optimization_mode=not __debug__, native_or_numeric_or_environment_mutation=False, P37=[{'predicate': 'actual closed input/ref/byte/order/count claims and full native stdout stage outcomes', 'basis': 'independently_reconciled'}, {'predicate': 'literal selection bodies/source/metadata framing and pure typed negative admission', 'basis': 'recomputed'}, {'predicate': 'scientific/finding/fullCI/G authority, whole-environment binary identity and broadP41cause', 'basis': 'not_established'}])
+    path = OUT / (kind + ('-optimized.json' if not __debug__ else '-normal.json'))
+    path.write_text(json.dumps(report, indent=2) + '\n')
+    print(json.dumps({'disposition': report['disposition'], 'report': ref(path), 'typed_controls': len(report['independent_controls']), 'native_repeated': False}, indent=2))
+
+if __name__ == '__main__':
+    OUT.mkdir(exist_ok=True)
+    main()

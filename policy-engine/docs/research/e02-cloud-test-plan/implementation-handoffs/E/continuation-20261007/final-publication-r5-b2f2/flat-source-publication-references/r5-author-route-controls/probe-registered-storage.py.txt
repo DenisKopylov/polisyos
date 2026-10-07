@@ -1,0 +1,119 @@
+import ast
+import copy
+import gzip
+import importlib.machinery
+import importlib.util
+import json
+import sys
+from pathlib import Path
+
+STAGE = Path('/tmp/e02-E-final-publication-r5-b2f2-stage')
+MODE = 'optimized' if sys.flags.optimize else 'normal'
+OUT = STAGE / ('registered-storage-controls-' + MODE)
+OUT.mkdir(exist_ok=False)
+old = Path('/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/copy-closed-controls.py.txt')
+loader = importlib.machinery.SourceFileLoader('registered_c229_' + MODE, str(old))
+module_spec = importlib.util.spec_from_loader(loader.name, loader)
+mechanism = importlib.util.module_from_spec(module_spec)
+loader.exec_module(mechanism)
+source = (STAGE / 'prepare-flat-inventory.py.txt').read_text()
+tree = ast.parse(source)
+nodes = [item for item in tree.body if isinstance(item, ast.FunctionDef) and item.name in ('finite_storage_route', 'registered_expand')]
+scope = {'mechanism': mechanism, 'original_passive': mechanism.passive,
+         'original_expand': mechanism.expand, 'Path': Path}
+exec(compile(ast.Module(body=nodes, type_ignores=[]), '<actual registered admission helper>', 'exec'), scope)
+expand = scope['registered_expand']
+body = b'{"fixture":"bytes only, no scientific authority"}\n'
+original = OUT / 'original.json'
+original.write_bytes(body)
+stored = OUT / 'assets' / 'literal.txt'
+stored.parent.mkdir()
+stored.write_bytes(body)
+compressed = OUT / 'assets' / 'compressed.bin'
+compressed.write_bytes(gzip.compress(body, mtime=0))
+rows = []
+for encoding, path in (('literal', stored), ('gzip', compressed)):
+    raw = path.read_bytes()
+    rows.append({'logical_name': encoding + '/original.json', 'original_path': str(original),
+                 'portable_path': 'assets/' + path.name,
+                 'bytes': len(raw), 'sha256': mechanism.sha(raw), 'encoding': encoding,
+                 'decoded_bytes': len(body), 'decoded_sha256': mechanism.sha(body)})
+document = {'schema': 'policyos.e02.final3.moderate_literal_selection.v1', 'assets': rows}
+entry = {'family': 'fixture', 'path': str(OUT / 'selector.json'),
+         'member_schema': document['schema'], 'member_class': 'assets', 'members': 2}
+healthy = expand(entry, document)
+if len(healthy) != 2 or [row['storage_mode'] for row in healthy] != ['literal', 'gzip_literal_archive']:
+    raise ValueError('healthy full registered storage identity')
+if [row['selected_record'] for row in healthy] != rows:
+    raise ValueError('healthy raw Counter member conservation')
+
+mutations = []
+for name, key, value in (
+    ('unsupported-encoding', 'encoding', 'zip'),
+    ('boolean-stored-size', 'bytes', True),
+    ('boolean-decoded-size', 'decoded_bytes', True),
+    ('stored-hash', 'sha256', '0' * 64),
+    ('decoded-hash', 'decoded_sha256', '0' * 64),
+    ('decoded-size', 'decoded_bytes', len(body) + 1),
+    ('relative-original', 'original_path', 'relative.json'),
+    ('absolute-original-traversal', 'original_path', '/tmp/../fake.json'),
+    ('absolute-original-NUL', 'original_path', '/tmp/\0fake.json'),
+    ('relative-storage-traversal', 'portable_path', '../compressed.bin'),
+    ('relative-storage-absolute', 'portable_path', '/tmp/compressed.bin'),
+    ('logical-name-boolean', 'logical_name', True),
+    ('logical-name-traversal', 'logical_name', '../fake'),
+):
+    doc = copy.deepcopy(document)
+    doc['assets'][1][key] = value
+    mutations.append((name, doc, entry))
+doc = copy.deepcopy(document)
+doc['assets'].pop()
+mutations.append(('complete-member-denominator', doc, entry))
+doc = copy.deepcopy(document)
+doc['schema'] = 'unsupported.schema'
+mutations.append(('exact-registered-schema', doc, entry))
+
+observations = []
+for name, doc, current_entry in mutations:
+    try:
+        expand(current_entry, doc)
+    except (ValueError, OSError) as exc:
+        observations.append({'control': name, 'refused': True, 'exception': type(exc).__name__, 'message': str(exc)})
+    else:
+        raise ValueError('accepted invalid registered member: ' + name)
+
+lookup = {(path.read_bytes().__len__(), mechanism.sha(path.read_bytes())): path.read_bytes() for path in (stored, compressed)}
+lookup = {(digest, size): value for (size, digest), value in lookup.items()}
+removal_tree = ast.parse(source)
+function = next(item for item in removal_tree.body if isinstance(item, ast.FunctionDef) and item.name == 'registered_expand')
+removed = 0
+kept = []
+for statement in function.body:
+    if isinstance(statement, ast.For) and 'for raw, route, original, stored in admitted' in ast.unparse(statement):
+        body_kept = []
+        for child in statement.body:
+            if isinstance(child, ast.If) and 'complete decoded original byte identity' in ast.unparse(child):
+                removed += 1
+            else:
+                body_kept.append(child)
+        statement.body = body_kept
+    kept.append(statement)
+function.body = kept
+if removed != 1:
+    raise ValueError('exact sole decoded identity predicate removal')
+mutant_scope = dict(scope)
+exec(compile(ast.Module(body=[function], type_ignores=[]), '<sole decoded identity predicate removal>', 'exec'), mutant_scope)
+bad = copy.deepcopy(document)
+bad['assets'][1]['decoded_sha256'] = '0' * 64
+mutant_rows = mutant_scope['registered_expand'](entry, bad, lookup)
+if mutant_rows[1]['original']['sha256'] != '0' * 64 or mutant_rows[1]['selected_record'] != bad['assets'][1]:
+    raise ValueError('removal did not reach the integrity-invalid decoded observation')
+(OUT / 'sole-decoded-predicate-removal.py.txt').write_text(ast.unparse(function) + '\n')
+result = {'outcome': 'PASS metadata storage controls only', 'mode': MODE,
+          'healthy_members': len(healthy), 'healthy_raw_Counter_equal': True,
+          'negative_controls': observations,
+          'sole_decoded_identity_removal': {'removed_predicates': removed, 'wrong_decoded_ref_accepted': True,
+                                          'markers_and_stored_bytes_intact': True, 'property_outcome': 'FAIL'},
+          'source_native_numeric_execution': False, 'destination_publication_writes': 0}
+(OUT / 'review.json').write_text(json.dumps(result, indent=2, allow_nan=False) + '\n')
+print(json.dumps(result, indent=2))

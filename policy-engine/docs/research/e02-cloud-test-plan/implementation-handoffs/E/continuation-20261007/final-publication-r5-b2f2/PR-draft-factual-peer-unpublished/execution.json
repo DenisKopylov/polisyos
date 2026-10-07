@@ -1,0 +1,49 @@
+{
+  "schema": "policyos.e02.pr_draft_factual_observer_execution.v1",
+  "mode_outputs_byte_equal": true,
+  "commands": [
+    {
+      "name": "normal",
+      "argv": [
+        "python3",
+        "/tmp/e02-E-pr-draft-factual-review-b2f2-20261007/review_drafts.py"
+      ],
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-pr-draft-factual-review-b2f2-20261007/normal.json",
+        "bytes": 8442,
+        "sha256": "c83db4bf3f76a34c449eb55c7105f3bed148e03e7aec450fe5aca7e66b845ca5"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-pr-draft-factual-review-b2f2-20261007/normal.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "optimized",
+      "argv": [
+        "python3",
+        "-O",
+        "/tmp/e02-E-pr-draft-factual-review-b2f2-20261007/review_drafts.py"
+      ],
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-pr-draft-factual-review-b2f2-20261007/optimized.json",
+        "bytes": 8442,
+        "sha256": "c83db4bf3f76a34c449eb55c7105f3bed148e03e7aec450fe5aca7e66b845ca5"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-pr-draft-factual-review-b2f2-20261007/optimized.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "script": {
+    "path": "/tmp/e02-E-pr-draft-factual-review-b2f2-20261007/review_drafts.py",
+    "bytes": 9352,
+    "sha256": "5d57bbfaa601c59df629725db94686445ecea2d86a836e08b8a4dff613b6dd79"
+  },
+  "ROOT_or_environment_or_remote_written": false
+}

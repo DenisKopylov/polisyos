@@ -1,0 +1,115 @@
+{
+  "schema": "e02.E.pr_description_publication.v1",
+  "at_utc": "2026-10-07T16:34:39.375182+00:00",
+  "url": "https://github.com/DenisKopylov/polisyos/pull/58",
+  "branch": "codex/e02-E-cal-20261006",
+  "head": "c40b2f5767bb5810bc8ac4c2ead9510f8c01430b",
+  "base": "main",
+  "publication_scope": "PR title/body only",
+  "source_or_environment_write": false,
+  "previous_title": "E02 E: admit calibration inputs and verify welfare support",
+  "current_title": "E02 E: admit calibration inputs and bind fitted uncertainty draws",
+  "body": {
+    "path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-body.md",
+    "bytes": 3685,
+    "sha256": "55e0ef421ab2312d321b11cb5e0646ec05b477c23869c620ef84e3d03a8830d9"
+  },
+  "original_before": {
+    "path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/before.stdout.txt",
+    "sha256": "9e09030b00501f869e6d05f1a6c42ec4bb6a5d9417b724f32dbdda78e2235341"
+  },
+  "failed_graphql_cli": {
+    "stdout": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/edit.stdout.txt",
+    "stderr": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/edit.stderr.txt",
+    "reason": "gh pr edit queries deprecated Projects classic projectCards; REST edit used after exact unchanged-body/head check"
+  },
+  "commands": [
+    {
+      "argv": [
+        "gh",
+        "api",
+        "repos/DenisKopylov/polisyos/pulls/58"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/rest-before.stdout.txt",
+        "bytes": 18086,
+        "sha256": "07221a6d655571c11a08a16db09ae989e096a9a6e382ebafa7d42d37d6101c45"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/rest-before.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "argv": [
+        "gh",
+        "api",
+        "--method",
+        "PATCH",
+        "repos/DenisKopylov/polisyos/pulls/58",
+        "--input",
+        "-"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/rest-edit.stdout.txt",
+        "bytes": 19495,
+        "sha256": "fb53c3e050aa820fc18586166e670d5232aa213ef2332949e5018d3ec4330402"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/rest-edit.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "argv": [
+        "gh",
+        "api",
+        "repos/DenisKopylov/polisyos/pulls/58"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/rest-after.stdout.txt",
+        "bytes": 19495,
+        "sha256": "fb53c3e050aa820fc18586166e670d5232aa213ef2332949e5018d3ec4330402"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/rest-after.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/status-after.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-bayesian-fit-bridge-r6/pr58-current-description/status-after.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "exact_title_body_head_readback": true,
+  "limitations": [
+    "Metadata publication does not establish finding closure or full gate PASS",
+    "App attachment was already completed by Root; no repeat attachment claim"
+  ],
+  "source_candidate": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+  "documentation_candidate": "c40b2f5767bb5810bc8ac4c2ead9510f8c01430b"
+}

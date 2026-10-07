@@ -1,0 +1,56 @@
+{
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "additions": [
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "git_blob": "91c64a39aade054c5dcdfbed9600db3554d7fdc8",
+      "bytes": 14451,
+      "sha256": "ae932dd1153f0272b38a748aabcd2adb53fae267268b85d867ee8198bcbf3642",
+      "family": "MC_joint_law_support_and_Scientist_consumer",
+      "reason": "actual producer/public-composition/configured-fit\u2192CAS\u2192MC native defining companion; current source and outcomes separate"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+      "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "git_blob": "a4da5f1f87cef67afd76033d43950fb7603f7b30",
+      "bytes": 34293,
+      "sha256": "a3c52aba86dcb0c219f6f47a876f90a02da460b2a346c726ca75b7ddec57594b",
+      "family": "MC_joint_law_support_and_Scientist_consumer",
+      "reason": "actual producer/public-composition/configured-fit\u2192CAS\u2192MC native defining companion; current source and outcomes separate"
+    }
+  ],
+  "original_families_preserved": true,
+  "native_paths": 104,
+  "total_input_paths": 105,
+  "unchanged_CAL_paths_retained": [
+    "policy-engine/tests/unit/foundry/calibration/test_auxiliary.py",
+    "policy-engine/tests/unit/foundry/calibration/test_bijectors.py",
+    "policy-engine/tests/unit/foundry/calibration/test_calibration_robust_set_selector.py",
+    "policy-engine/tests/unit/foundry/calibration/test_calibrator.py",
+    "policy-engine/tests/unit/foundry/calibration/test_calibrator_batch.py",
+    "policy-engine/tests/unit/foundry/calibration/test_calibrator_fidelity.py",
+    "policy-engine/tests/unit/foundry/calibration/test_calibrator_mvp.py",
+    "policy-engine/tests/unit/foundry/calibration/test_dp_ci.py",
+    "policy-engine/tests/unit/foundry/calibration/test_fabric_quality.py",
+    "policy-engine/tests/unit/foundry/calibration/test_hessian.py",
+    "policy-engine/tests/unit/foundry/calibration/test_identifiability.py",
+    "policy-engine/tests/unit/foundry/calibration/test_loss.py",
+    "policy-engine/tests/unit/foundry/calibration/test_measurement.py",
+    "policy-engine/tests/unit/foundry/calibration/test_multi_start.py",
+    "policy-engine/tests/unit/foundry/calibration/test_preflight.py",
+    "policy-engine/tests/unit/foundry/calibration/test_pure_executor.py",
+    "policy-engine/tests/unit/foundry/calibration/test_pure_executor_batch.py",
+    "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+    "policy-engine/tests/unit/remediation/test_cal_01.py",
+    "policy-engine/tests/unit/remediation/test_cal_02.py",
+    "policy-engine/tests/unit/remediation/test_cal_03.py",
+    "policy-engine/tests/unit/remediation/test_cal_04.py",
+    "policy-engine/tests/unit/remediation/test_cal_06.py",
+    "policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py"
+  ],
+  "case_denominator": "UNRUN; actual JUnit only",
+  "global_queue_retained": 7,
+  "execute_requested": true
+}

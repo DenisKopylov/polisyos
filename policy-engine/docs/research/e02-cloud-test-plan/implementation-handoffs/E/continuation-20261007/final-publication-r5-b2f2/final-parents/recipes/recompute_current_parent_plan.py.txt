@@ -1,0 +1,35 @@
+from pathlib import Path
+import dataclasses,hashlib,json,os,subprocess,sys
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+PE=ROOT/'policy-engine'
+OUT=Path(__file__).parent
+sys.path[:0]=[str(PE),str(PE/'src')]
+for name in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS','POLISYOS_PYTEST_WORKERS','POLISYOS_PYTEST_DIST','PYTEST_ADDOPTS']:
+    os.environ.pop(name,None)
+os.environ['PATH']='/workspace/.polisyos-environment/uv/bin'+os.pathsep+os.environ['PATH']
+
+def sha(data):return hashlib.sha256(data).hexdigest()
+def git(*argv):return subprocess.check_output(['git','--no-optional-locks',*argv],cwd=ROOT).decode().strip()
+def rows(paths):
+    return [{'path':str(p.relative_to(ROOT)),'bytes':len(p.read_bytes()),'sha256':sha(p.read_bytes())}for p in paths]
+paths=[PE/'tools/devx/workspace/verify.py',PE/'tools/devx/workspace/ci_parity.py',PE/'tools/devx/workspace/_common.py',PE/'docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py',PE/'tests/repo_quality/conftest.py']+[PE/('tests/repo_quality/tools/test_policy_design_case_layer3_g'+n+'_readiness.py')for n in ['6','7','8']]
+before={'head':git('rev-parse','HEAD'),'tree':git('rev-parse','HEAD^{tree}'),'tracked_delta':git('diff','--name-only'),'cached_delta':git('diff','--cached','--name-only'),'source_refs':rows(paths)}
+from tools.devx.workspace import ci_parity,verify
+# The existing recorded wrapper applies precisely this in-process uncapped setting.
+verify.PYTEST_NUMERICAL_ENV={}
+verify_args=verify._build_parser().parse_args(['--backend-only'])
+ci_args=ci_parity._build_parser().parse_args([])
+v=[{'label':'doctor','command':list(verify._doctor_command(verify_args.surface)),'cwd':str(PE),'outcome':'UNRUN'}]
+for spec in verify._backend_commands(pytest_workers=verify._resolve_pytest_workers(verify_args.pytest_workers),pytest_dist=verify._resolve_pytest_dist()):
+    v.append({'label':spec.label,'command':list(spec.argv),'cwd':str(spec.cwd),'env':dict(spec.env or {}),'outcome':'UNRUN'})
+c=[{'label':'doctor','command':list(ci_parity._doctor_command(ci_args.surface)),'cwd':str(PE),'outcome':'UNRUN'}]
+for spec in [*ci_parity._backend_commands(skip_runtime_http=ci_args.skip_runtime_http,skip_docs=ci_args.skip_docs),*ci_parity._frontend_commands(skip_browser=ci_args.skip_browser,include_e2e_smoke=ci_args.include_e2e_smoke,include_visual=ci_args.include_visual)]:
+    c.append({'label':spec.label,'command':list(spec.argv),'cwd':str(spec.cwd),'env':dict(spec.env or {}),'outcome':'UNRUN'})
+after={'head':git('rev-parse','HEAD'),'tree':git('rev-parse','HEAD^{tree}'),'tracked_delta':git('diff','--name-only'),'cached_delta':git('diff','--cached','--name-only'),'source_refs':rows(paths)}
+assert len(v)==15 and len(c)==24
+assert any('pytest' in r['command']and 'not integration'in r['command']for r in v)
+assert c[1]['label']=='verify backend fast gate'and '--skip-doctor'in c[1]['command']
+assert not any(r.get('env')for r in v)
+result={'schema':'policyos.e02.final_parent_canonical_factory_preparation.v1','check_status':'UNRUN','scope':'Actual canonical command-factory planning only, no command/gate/native/backend entry invoked. uv --version and Git are read-only metadata operations.','before':before,'after':after,'exact_planned_source_refs_unchanged':before==after,'final_freeze_source_tree_output':'pending Root; observed current source is not an execution authorization','workspace_verify':{'argv':['--backend-only'],'stages':v,'planned_stage_count':15},'ci_parity':{'argv':[],'stages':c,'planned_stage_count':24,'nested_verify':'Existing canonical second command creates full14backend scope and retains every required stage. It may reach the broad pytest final step if all prerequisites PASS; this is not a selective E family wave.'},'shared_mutable_outputs':['_build/.tmp/last-mile/package-import-gates.json','_build/.tmp/last-mile/inventory.json','_build/.tmp/last-mile/schemas-python-residue.txt','_build/honest-diagnostics/coverage/','_cache/hypothesis/repo_quality/','architecture/policy_design_case/layer3_g6*.json','architecture/policy_design_case/layer3_g7*.json','architecture/policy_design_case/layer3_g8*.json'],'literal_static_writer_refs':[{'path':'policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py','lines':[100,135,146]},{'path':'policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py','lines':[210,240]},{'path':'policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py','lines':[51]}],'scheduling_qualification':'Distinct TMP/cache/basetemp avoid only those assigned namespaces. Exact same Root ignored output files, source-supplied write=True fixtures and hardcoded Hypothesis database are still common; existing wrapper has no inter-parent lock. Root schedules only these actual writer resources; unrelated cloud checks remain uncapped. Do not promise simultaneous parent safety if later stages become reachable.','fail_fast':'No skip/prerequisite override added. Actual failure location determines later UNRUN rows: e.g verify second-stage FAIL leaves13UNRUN; CI first-doctor FAIL leaves23UNRUN. Counts above are plans, not outcomes.','doctor_semantics':'Verify built-in --skip-contract-checks and CI nested --skip-doctor come from canonical repo factories. No additional skip doctor/contracts/browser flags added by observer.','P41':'not_established: static write=True reachability is scheduling evidence, not actual previous caller/cause attribution','resource_caps_added':False,'package_install_or_sync_or_Root_source_write':False,'source_native_numeric_gate_executed':False,'finding_closure_or_global_acceptance':False}
+(OUT/'canonical-factory-plan.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({'workspace_verify_planned':15,'ci_parity_planned':24,'outcomes':'UNRUN','exact_source_refs_unchanged':before==after,'plan_path':str(OUT/'canonical-factory-plan.json')},indent=2))

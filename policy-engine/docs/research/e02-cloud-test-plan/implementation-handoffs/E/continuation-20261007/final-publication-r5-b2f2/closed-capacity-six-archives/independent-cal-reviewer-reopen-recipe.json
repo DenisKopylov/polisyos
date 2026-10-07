@@ -1,0 +1,10 @@
+{
+  "archive": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/closed-r2-catalog-archives-20261007/independent-cal-reviewer.tar.gz",
+    "bytes": 98670786,
+    "sha256": "b9491f1c61722739cc532c60b17b9933661e32ca311ea5da12d5aa46626b9599"
+  },
+  "top_level_member": "independent-cal-reviewer",
+  "fresh_reopen_command": "mkdir -p /tmp/e02-E-reopen-independent-cal-reviewer-fresh && tar -xzf /workspace/e02-E-pr38-r3-receipts/closed-r2-catalog-archives-20261007/independent-cal-reviewer.tar.gz -C /tmp/e02-E-reopen-independent-cal-reviewer-fresh",
+  "qualification": "Choose a genuinely fresh empty extraction directory; absolute historical symlink strings are preserved and are not followed by archive/readback. Reopen restores all archived catalog bytes/modes/link strings and exact PAX mtime; no promise of historical external target availability."
+}

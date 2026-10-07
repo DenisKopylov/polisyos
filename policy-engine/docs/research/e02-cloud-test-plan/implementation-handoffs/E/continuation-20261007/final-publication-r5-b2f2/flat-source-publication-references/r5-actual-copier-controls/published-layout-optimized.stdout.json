@@ -1,0 +1,14 @@
+{
+  "logical_count": 958,
+  "original_logical_bytes": 170379798,
+  "stored_logical_bytes": 82739609,
+  "unique_payload_files": 579,
+  "unique_payload_bytes": 38385637,
+  "deduplicated_occurrences": 379,
+  "metadata_files": 10,
+  "expected_git_paths": 589,
+  "outcome": "PASS literal DOC custody only",
+  "destination": "/tmp/e02-E-final-publication-r5-b2f2-stage/published-layout-replay-optimized/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2",
+  "source_native_numeric_gate_execution": false,
+  "explicit_carrier_layout": "published"
+}

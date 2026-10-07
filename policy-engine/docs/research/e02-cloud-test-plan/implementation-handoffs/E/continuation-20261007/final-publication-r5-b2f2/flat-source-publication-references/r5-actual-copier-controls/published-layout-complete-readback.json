@@ -1,0 +1,27 @@
+{
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "rows": [
+    {
+      "mode": "normal",
+      "complete_files": 589,
+      "source": "actual archived copier --layout published",
+      "destination": "/tmp/e02-E-final-publication-r5-b2f2-stage/published-layout-replay-normal/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2",
+      "all_literal_bytes_equal": true,
+      "diffs": [],
+      "actual_stdout": "/tmp/e02-E-final-publication-r5-b2f2-stage/published-layout-normal.stdout.json",
+      "actual_stderr": "/tmp/e02-E-final-publication-r5-b2f2-stage/published-layout-normal.stderr"
+    },
+    {
+      "mode": "optimized",
+      "complete_files": 589,
+      "source": "actual archived copier --layout published",
+      "destination": "/tmp/e02-E-final-publication-r5-b2f2-stage/published-layout-replay-optimized/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2",
+      "all_literal_bytes_equal": true,
+      "diffs": [],
+      "actual_stdout": "/tmp/e02-E-final-publication-r5-b2f2-stage/published-layout-optimized.stdout.json",
+      "actual_stderr": "/tmp/e02-E-final-publication-r5-b2f2-stage/published-layout-optimized.stderr"
+    }
+  ],
+  "no_numeric_or_source_execution": true
+}

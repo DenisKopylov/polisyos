@@ -1,0 +1,203 @@
+{
+  "schema": "policyos.e02.E.final54-current-native-recomputing-validator.v1",
+  "optimized": false,
+  "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "packet": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-source-wave-b2-v2-normal.json",
+    "bytes": 911705,
+    "sha256": "5045162856b15e70f1aae8ceab39a4c7af178cc1da6468d73a19802ae6b91502"
+  },
+  "source_module": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/prepare_v4.py",
+    "bytes": 30841,
+    "sha256": "bfaab952762e87ff1910a39cfa568321949992f2610e7fbbea275a6512ac5c8d"
+  },
+  "join_module": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/join_wave_v2.py",
+    "bytes": 17508,
+    "sha256": "4863eec9812489df7b0582a33f6fdd5a9e57ed69d97ecbdaa00147d51473263a"
+  },
+  "complete_case_counts": {
+    "cases": 1465,
+    "passed": 1457,
+    "failed": 8,
+    "errors": 0,
+    "skipped": 0
+  },
+  "native_counts_excluding_A": {
+    "cases": 1458,
+    "passed": 1457,
+    "failed": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "A_counts": {
+    "cases": 7,
+    "passed": 0,
+    "failed": 7,
+    "errors": 0,
+    "skipped": 0
+  },
+  "ROOT_metadata_count": 207,
+  "ROOT_metadata_unchanged": true,
+  "controls": [
+    {
+      "case": "healthy54_source_roles_and_full1465_native_cases",
+      "outcome": "PASS"
+    },
+    {
+      "case": "original_source_preparation_native104_as1",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "complete current-wave claims against native facts"
+    },
+    {
+      "case": "original_source_preparation_env207_as1",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole final54/current-case/source/owner/input claims against recomputed immutable inputs"
+    },
+    {
+      "case": "original_source_preparation_export_count_asTrue",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole final54/current-case/source/owner/input claims against recomputed immutable inputs"
+    },
+    {
+      "case": "original_source_preparation_fit77_as3932",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole final54/current-case/source/owner/input claims against recomputed immutable inputs"
+    },
+    {
+      "case": "source_sha_forged",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole final54/current-case/source/owner/input claims against recomputed immutable inputs"
+    },
+    {
+      "case": "source_tree_forged",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole final54/current-case/source/owner/input claims against recomputed immutable inputs"
+    },
+    {
+      "case": "actual_count_bool",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "complete current-wave claims against native facts"
+    },
+    {
+      "case": "actual_count_float",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "complete current-wave claims against native facts"
+    },
+    {
+      "case": "native_FAIL_as_PASS",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "complete current-wave claims against native facts"
+    },
+    {
+      "case": "A_failures_as_native",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "complete current-wave claims against native facts"
+    },
+    {
+      "case": "numeric_receipt_digest_forged",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "complete current-wave claims against native facts"
+    },
+    {
+      "case": "numeric_source_frame_forged",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "complete current-wave claims against native facts"
+    },
+    {
+      "case": "current_case_name_forged",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole final54/current-case/source/owner/input claims against recomputed immutable inputs"
+    },
+    {
+      "case": "current_case_outcome_forged",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole final54/current-case/source/owner/input claims against recomputed immutable inputs"
+    },
+    {
+      "case": "retotalled_finding_duplicate",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole final54/current-case/source/owner/input claims against recomputed immutable inputs"
+    },
+    {
+      "case": "unchanged_historical_closed_bool",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole final54/current-case/source/owner/input claims against recomputed immutable inputs"
+    },
+    {
+      "case": "bounded_proposal_float",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole final54/current-case/source/owner/input claims against recomputed immutable inputs"
+    },
+    {
+      "case": "criterion_original_hash_forged",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole final54/current-case/source/owner/input claims against recomputed immutable inputs"
+    },
+    {
+      "case": "source_role_old_unqualified_body",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole final54/current-case/source/owner/input claims against recomputed immutable inputs"
+    },
+    {
+      "case": "configured_fit_institutional_claim",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole final54/current-case/source/owner/input claims against recomputed immutable inputs"
+    },
+    {
+      "case": "G_formal_acceptance_by_count",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "no gate/closure promotion"
+    },
+    {
+      "case": "global_pending_as_PASS",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole final54/current-case/source/owner/input claims against recomputed immutable inputs"
+    },
+    {
+      "case": "loss_of_A_failure_trace_ref",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole final54/current-case/source/owner/input claims against recomputed immutable inputs"
+    },
+    {
+      "case": "actual_case_binding_removed_all_outer_markers_retained",
+      "outcome": "PASS",
+      "actual_admission": "REFUSE",
+      "reason": "whole final54/current-case/source/owner/input claims against recomputed immutable inputs"
+    },
+    {
+      "case": "sole_final_claim_guard_removal_re_admits_false_case_link",
+      "outcome": "PASS",
+      "actual_admission": "ACCEPT",
+      "defining_property_outcome": "FAIL",
+      "native1465_and_source_header_guards_retained": true
+    }
+  ],
+  "control_count": 26,
+  "finding_acceptance_or_native_tests_reexecuted": false
+}

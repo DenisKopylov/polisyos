@@ -1,0 +1,118 @@
+{
+  "schema": "policyos.e02.final3.moderate_literal_selection.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "assets": [
+    {
+      "logical_name": "witnesses/all-119-qualified-native-boundaries.json",
+      "original_path": "/tmp/e02-E-final3-static-witness-qualification-b2f2f65e-20261007/all-119-qualified-native-boundaries.json",
+      "portable_path": "assets/c77b27c6a69be9857968ad9a44a2dba99af7c01afcb7a96a35d1d82621d2af3e.bin",
+      "bytes": 77230,
+      "sha256": "1335acbd6cdc4781cae954fa86177fc5048b55f7ad22940d6972adb5bb2f277a",
+      "encoding": "gzip",
+      "decoded_bytes": 1373845,
+      "decoded_sha256": "c77b27c6a69be9857968ad9a44a2dba99af7c01afcb7a96a35d1d82621d2af3e"
+    },
+    {
+      "logical_name": "observers/join-witnesses.py.txt",
+      "original_path": "/tmp/e02-E-final3-map-static-witnesses-b2f2f65e-20261007.py.txt",
+      "portable_path": "assets/e85d0e6c8003ab99e28636644e66f65db99303557d75a9f65d8c36cfdd88fbeb.txt",
+      "bytes": 12200,
+      "sha256": "e85d0e6c8003ab99e28636644e66f65db99303557d75a9f65d8c36cfdd88fbeb",
+      "encoding": "literal",
+      "decoded_bytes": 12200,
+      "decoded_sha256": "e85d0e6c8003ab99e28636644e66f65db99303557d75a9f65d8c36cfdd88fbeb"
+    },
+    {
+      "logical_name": "controls/validate-witness-map-v2.py.txt",
+      "original_path": "/tmp/e02-E-final3-validate-witness-map-b2f2f65e-20261007-v2.py.txt",
+      "portable_path": "assets/d1cd2ce825f5a40f7da91c4a9f293a849400775b8c108f17edfc37473d489ce0.txt",
+      "bytes": 5737,
+      "sha256": "d1cd2ce825f5a40f7da91c4a9f293a849400775b8c108f17edfc37473d489ce0",
+      "encoding": "literal",
+      "decoded_bytes": 5737,
+      "decoded_sha256": "d1cd2ce825f5a40f7da91c4a9f293a849400775b8c108f17edfc37473d489ce0"
+    },
+    {
+      "logical_name": "controls/normal.json",
+      "original_path": "/tmp/e02-E-final3-witness-validation-b2f2f65e-v2-normal.json",
+      "portable_path": "assets/11d5d1e0cd42478ae1b61a809ffccfe74bb10f036379709e7e8a89c618bdc41a.txt",
+      "bytes": 4894,
+      "sha256": "11d5d1e0cd42478ae1b61a809ffccfe74bb10f036379709e7e8a89c618bdc41a",
+      "encoding": "literal",
+      "decoded_bytes": 4894,
+      "decoded_sha256": "11d5d1e0cd42478ae1b61a809ffccfe74bb10f036379709e7e8a89c618bdc41a"
+    },
+    {
+      "logical_name": "controls/optimized.json",
+      "original_path": "/tmp/e02-E-final3-witness-validation-b2f2f65e-v2-optimized.json",
+      "portable_path": "assets/11d5d1e0cd42478ae1b61a809ffccfe74bb10f036379709e7e8a89c618bdc41a.txt",
+      "bytes": 4894,
+      "sha256": "11d5d1e0cd42478ae1b61a809ffccfe74bb10f036379709e7e8a89c618bdc41a",
+      "encoding": "literal",
+      "decoded_bytes": 4894,
+      "decoded_sha256": "11d5d1e0cd42478ae1b61a809ffccfe74bb10f036379709e7e8a89c618bdc41a"
+    },
+    {
+      "logical_name": "inputs/current-case-index.json",
+      "original_path": "/tmp/e02-E-final-composed-wave-preparation-b2f2f65e-20261007T1620Z/current-case-index.json",
+      "portable_path": "assets/baf191f64beb6b9d45a58eb1c7e2fa401c569c8cb8e75f9b93fe3def0f3931f5.bin",
+      "bytes": 28807,
+      "sha256": "5033025ae82152a1e897b5c20cba7de2243ae817712115a3d0f52778d31f4d81",
+      "encoding": "gzip",
+      "decoded_bytes": 447667,
+      "decoded_sha256": "baf191f64beb6b9d45a58eb1c7e2fa401c569c8cb8e75f9b93fe3def0f3931f5"
+    },
+    {
+      "logical_name": "inputs/current-owner-source-role-join.json",
+      "original_path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+      "portable_path": "assets/7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b.bin",
+      "bytes": 130032,
+      "sha256": "b7bdafc12d7d8f0f288e86034f013014e52a6bcde2c8d18672a18dbac16abae3",
+      "encoding": "gzip",
+      "decoded_bytes": 1144158,
+      "decoded_sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+    },
+    {
+      "logical_name": "historical/first-observer-validator.py.txt",
+      "original_path": "/tmp/e02-E-final3-validate-witness-map-b2f2f65e-20261007.py.txt",
+      "portable_path": "assets/22bce7cb82647cee8629b1f2422a494803437cc9507952419f4a0538dfc91716.txt",
+      "bytes": 5708,
+      "sha256": "22bce7cb82647cee8629b1f2422a494803437cc9507952419f4a0538dfc91716",
+      "encoding": "literal",
+      "decoded_bytes": 5708,
+      "decoded_sha256": "22bce7cb82647cee8629b1f2422a494803437cc9507952419f4a0538dfc91716"
+    },
+    {
+      "logical_name": "historical/first-observer-error.txt",
+      "original_path": "/tmp/e02-E-final3-witness-validation-first-observer-error.txt",
+      "portable_path": "assets/b22b3fd1c6cb1732be672ab0da4b1bfab7a20ada1e13d84251eb943064d5b066.txt",
+      "bytes": 304,
+      "sha256": "b22b3fd1c6cb1732be672ab0da4b1bfab7a20ada1e13d84251eb943064d5b066",
+      "encoding": "literal",
+      "decoded_bytes": 304,
+      "decoded_sha256": "b22b3fd1c6cb1732be672ab0da4b1bfab7a20ada1e13d84251eb943064d5b066"
+    },
+    {
+      "logical_name": "controls/control-receipt.json",
+      "original_path": "/tmp/e02-E-final3-witness-supplement-b2f2f65e-20261007/control-receipt.json",
+      "portable_path": "assets/c36e705f10efdeb4184ca45ed71a79541f855f39649e603152718b96e0ec2422.txt",
+      "bytes": 1438,
+      "sha256": "c36e705f10efdeb4184ca45ed71a79541f855f39649e603152718b96e0ec2422",
+      "encoding": "literal",
+      "decoded_bytes": 1438,
+      "decoded_sha256": "c36e705f10efdeb4184ca45ed71a79541f855f39649e603152718b96e0ec2422"
+    }
+  ],
+  "logical_count": 10,
+  "unique_count": 9,
+  "unique_bytes": 266350,
+  "scope": "Actualtestcase execution plus named ASTassociation is not perbranch tracing; rolebounded native receipts do not establish defaultserved dispatch. All119 static records retain currentnativeFAIL/partial, findingclosurefalse. B28 remain B attribution.",
+  "native_outcomes": {
+    "architecture": "FAIL",
+    "runtime-api-contract": "FAIL",
+    "static-invocation": "FAIL"
+  },
+  "finding_closure": false,
+  "P41": "not_established"
+}

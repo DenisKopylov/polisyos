@@ -1,0 +1,64 @@
+from pathlib import Path
+import contextlib
+import hashlib
+import io
+import json
+import runpy
+import subprocess
+import sys
+from unittest.mock import patch
+
+HERE=Path(__file__).parent
+SCRIPT=HERE/'run_final_parent_umbrella.py.txt'
+# Real observed ROOT identity for a nonexecuting plan only, not an admitted freeze.
+CANDIDATE='f5c2845851aeb1591de9c73db6de392656656e96'
+TREE='c1bd578d9ae57a90282f442dd65314e074f57fe9'
+OUTPUT=Path('/tmp/e02-E-final-parent-adapter-nonexecuting-plan-only-20261007')
+
+
+def probe(name,argv,healthy):
+    stdout=io.StringIO();stderr=io.StringIO();calls={'git':0,'mkdir':0}
+    def no_git(*args,**kwargs):
+        calls['git']+=1
+        raise AssertionError('a prepared plan must not execute Git')
+    def no_mkdir(*args,**kwargs):
+        calls['mkdir']+=1
+        raise AssertionError('a prepared plan must not write output directories')
+    error=None;code=0
+    with patch.object(sys,'argv',[str(SCRIPT),*argv]),patch.object(subprocess,'check_output',no_git),patch.object(Path,'mkdir',no_mkdir),contextlib.redirect_stdout(stdout),contextlib.redirect_stderr(stderr):
+        try:
+            runpy.run_path(str(SCRIPT),run_name='__main__')
+        except SystemExit as exc:
+            code=exc.code or 0
+        except Exception as exc:
+            error={'type':type(exc).__name__,'message':str(exc)}
+            code=1
+    row={'name':name,'argv':[str(SCRIPT),*argv],'exit_code':code,'error':error,'stdout':stdout.getvalue(),'stderr':stderr.getvalue(),'callbacks':calls}
+    assert calls=={'git':0,'mkdir':0},row
+    if healthy:
+        assert code==0 and error is None,row
+        observation=json.loads(stdout.getvalue())
+        assert observation['check_status']=='UNRUN' and observation['source_native_gate_executed'] is False,row
+    else:
+        assert code!=0,row
+    assert not OUTPUT.exists()
+    row['outcome']='PASS'
+    return row
+
+base=['--selector','workspace-verify','--candidate',CANDIDATE,'--tree',TREE,'--output-root',str(OUTPUT)]
+rows=[probe('workspace-verify-nonexecuting-plan',base,True)]
+ci=list(base);ci[1]='ci-parity';rows.append(probe('ci-parity-nonexecuting-plan',ci,True))
+for name,field,value in [
+    ('short-candidate','--candidate','f5c28458'),
+    ('uppercase-tree','--tree',TREE.upper()),
+    ('nonhex-tree','--tree','g'*40),
+    ('relative-output','--output-root','relative-output'),
+    ('ROOT-output-refused','--output-root','/workspace/e02-E-continuation-20261006/forbidden-plan-output'),
+    ('traversal-output','--output-root','/tmp/../workspace/forbidden-plan-output'),
+    ('unknown-selector','--selector','doctor'),
+]:
+    argv=list(base);argv[argv.index(field)+1]=value
+    rows.append(probe(name,argv,False))
+source=SCRIPT.read_bytes();compile(source,str(SCRIPT),'exec')
+result={'schema':'policyos.e02.final_parent_adapter_preparation_controls.v1','check_status':'PASS','scope':'pure preparation/CLI refusal only; no parent/native/gate/backend execution','ROOT_identity_scope':'observed source/tree used only for nonexecuting plan; not final admitted freeze','script':{'path':str(SCRIPT),'bytes':len(source),'sha256':hashlib.sha256(source).hexdigest()},'controls':rows,'healthy_plan_count':2,'refusal_count':7,'Git_callbacks':0,'output_mkdir_callbacks':0,'output_exists':OUTPUT.exists(),'gate_outcomes':'UNRUN','syntax_compile':'PASS'}
+print(json.dumps(result,indent=2)+'\n',end='')

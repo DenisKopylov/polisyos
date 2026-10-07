@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final-metadata-independent-b2-20261007/review.py", line 216, in <module>
+    main()
+  File "/tmp/e02-E-final-metadata-independent-b2-20261007/review.py", line 206, in main
+    report = future_review() if kind == 'future' else parent_review()
+                                                      ^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-metadata-independent-b2-20261007/review.py", line 177, in parent_review
+    need(len(meta) == 207, 'actual207 metadata full denominator')
+  File "/tmp/e02-E-final-metadata-independent-b2-20261007/review.py", line 22, in need
+    raise ValueError(why)
+ValueError: actual207 metadata full denominator

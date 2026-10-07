@@ -1,0 +1,68 @@
+import copy
+import hashlib
+import json
+from pathlib import Path
+
+BASE = Path('/tmp/e02-E-six-closed-catalog-archive-20261007-oracle')
+RECEIPT_SHA = 'dcece4418d5469881914e13d273ce31433d7d7ddbed68edb0ba20e3d4cb9b2cb'
+
+def need(value, reason):
+    if not value:
+        raise ValueError(reason)
+
+def typed_equal(a, b):
+    if type(a) is not type(b):
+        return False
+    if isinstance(a, dict):
+        return a.keys() == b.keys() and all(typed_equal(a[k], b[k]) for k in a)
+    if isinstance(a, list):
+        return len(a) == len(b) and all(typed_equal(x, y) for x, y in zip(a, b))
+    return a == b
+
+def semantic(rows):
+    return [{k: v for k, v in r.items() if k != 'allocated_bytes'} for r in rows]
+
+def admit(original, reopened):
+    need(typed_equal(semantic(original), semantic(reopened)), 'full typed member/body/mode/link/ownership/mtime/hardlink equality')
+
+def main():
+    raw = (BASE / 'receipt.json').read_bytes()
+    need(hashlib.sha256(raw).hexdigest() == RECEIPT_SHA, 'closed original receipt bytes changed')
+    receipt = json.loads(raw)
+    need(len(receipt['actions']) == 6 and receipt['payload_bytes_preserved'] == 923448923 and receipt['archive_bytes'] == 224493173, 'complete six-catalog receipt denominator')
+    rows = []
+    for action in receipt['actions']:
+        refs = {Path(r['path']).name: r for r in action['references']}
+        for r in refs.values():
+            b = Path(r['path']).read_bytes()
+            need(type(r['bytes']) is int and len(b) == r['bytes'] and hashlib.sha256(b).hexdigest() == r['sha256'], 'immutable inventory/proc/recipe/reference mismatch')
+        tag = action['name'].replace('/', '--')
+        original = json.loads((BASE / (tag + '-inventory-before.json')).read_text())
+        reopened = json.loads((BASE / (tag + '-archive-full-member-readback.json')).read_text())
+        retired = json.loads((BASE / (tag + '-inventory-before-retirement.json')).read_text())
+        admit(original, reopened)
+        admit(original, retired)
+        need(sum(r.get('bytes', 0) for r in original) == action['payload_bytes'] and len(original) == action['full_member_count_including_catalog_root'], 'per-catalog full denominator')
+        need(not Path(action['retired_tmpfs_source']).exists(), 'retired old plaintext path still present')
+        controls = []
+        for name, change in [('omission', lambda d: d.pop()), ('bool_uid', lambda d: d[0].__setitem__('uid', False)), ('bool_gid', lambda d: d[0].__setitem__('gid', False)), ('bool_mode', lambda d: d[0].__setitem__('mode', True)), ('changed_body', lambda d: next(r for r in d if r['type'] == 'file').__setitem__('sha256', '0' * 64)), ('extra_metadata', lambda d: d[0].__setitem__('positive_claim', True)), ('negative_byte_count', lambda d: next(r for r in d if r['type'] == 'file').__setitem__('bytes', -1))]:
+            mutant = copy.deepcopy(reopened)
+            change(mutant)
+            try:
+                admit(original, mutant)
+            except ValueError as e:
+                controls.append({'name': name, 'outcome': 'rejected', 'reason': str(e), 'original_markers_archive_hashes_and_payload_retained': True})
+            else:
+                raise ValueError('integrity-valid metadata corruption accepted')
+        removed = lambda old, observed: None
+        removed(original, reopened[:-1])
+        controls.append({'name': 'sole_complete_member_admission_removed', 'missing_member_re_admitted': True, 'property_outcome': 'FAIL'})
+        rows.append({'catalog': action['name'], 'members': len(original), 'payload_bytes': action['payload_bytes'], 'controls': controls})
+    need(sum(r['members'] for r in rows) == 59641 and sum(r['payload_bytes'] for r in rows) == 923448923, 'aggregate full actual body/member denominator')
+    output = {'schema': 'policyos.e02.closed_archive_custody_control.v1', 'receipt_sha256': RECEIPT_SHA, 'catalog_count': 6, 'full_tar_members_including_six_catalog_roots': 59641, 'payload_bytes': 923448923, 'archive_bytes': 224493173, 'cases': rows, 'optimization_mode': not __debug__, 'qualifications': ['This reads the original complete stream readback and original stable-source inventories. It does not redo archiving/removal or claim new native/test outcomes.', 'Original source operation uses native tar type/body checks; this corrective typed metadata comparator additionally excludes Python bool/int equality in receipt admission.', 'Historical old symlink and tmpfs paths are unavailable until archive reopening.', 'Readable-process observations cannot establish host-wide quiescence; known inaccessible infrastructure remains disclosed.', 'Resource changes during concurrent terminal wave are non-atomic and do not identify a PID-specific OOM cause.']}
+    path = BASE / ('typed-controls-optimized.json' if not __debug__ else 'typed-controls-normal.json')
+    path.write_text(json.dumps(output, indent=2) + '\n')
+    print(json.dumps({'output': str(path), 'sha256': hashlib.sha256(path.read_bytes()).hexdigest(), 'healthy_catalogs': 6, 'corrupt_refusals': 42, 'effective_member_removals': 6, 'no_runtime_or_finding_claim': True}, indent=2))
+
+if __name__ == '__main__':
+    main()

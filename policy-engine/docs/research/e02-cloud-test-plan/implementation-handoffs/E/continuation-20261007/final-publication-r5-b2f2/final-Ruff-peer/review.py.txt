@@ -1,0 +1,147 @@
+import ast
+import collections
+import copy
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+BASE = Path('/tmp/e02-E-final-root-lint-b2f2f65e-20261007')
+OUT = Path('/tmp/e02-E-final-root-lint-b2-independent-20261007')
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+SOURCE = 'b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641'
+TREE = '4cbbed1d9392832729cab92c6615f9a1d03a41c7'
+SLICE_BASE = '198076863e143dea9f89f02734b13d50dae3eed5'
+
+def need(value, reason):
+    if not value:
+        raise ValueError(reason)
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+def ref(path):
+    p = Path(path)
+    data = p.read_bytes()
+    return {'path': str(p), 'bytes': len(data), 'sha256': sha(data)}
+
+def git(args):
+    p = subprocess.run(['git', '-C', str(ROOT), *args], capture_output=True)
+    need(p.returncode == 0, 'read-only Git command failed')
+    return p.stdout
+
+def state():
+    return {'source': git(['rev-parse', 'HEAD']).decode().strip(), 'tree': git(['rev-parse', 'HEAD^{tree}']).decode().strip(), 'status': git(['status', '--porcelain=v1']).decode()}
+
+def typed_equal(a, b):
+    if type(a) is not type(b):
+        return False
+    if isinstance(a, dict):
+        return a.keys() == b.keys() and all(typed_equal(a[k], b[k]) for k in a)
+    if isinstance(a, list):
+        return len(a) == len(b) and all(typed_equal(x, y) for x, y in zip(a, b))
+    return a == b
+
+def admit_summary(actual, expected):
+    need(typed_equal(actual, expected), 'complete closed-native-derived typed summary mismatch')
+
+def main():
+    before = state()
+    need((before['source'], before['tree']) == (SOURCE, TREE), 'frozen current source mismatch')
+    selected = json.loads((BASE / 'publication-selection.json').read_text())
+    need((selected['source'], selected['tree'], selected['base']) == (SOURCE, TREE, SLICE_BASE), 'publication identity mismatch')
+    assets = selected['assets']
+    need(len(assets) == selected['logical_count'] == 32, 'complete 32-member selection')
+    original_refs = []
+    for row in assets:
+        actual = ref(row['source_path'])
+        need(type(row['bytes']) is int and actual['bytes'] == row['bytes'] and actual['sha256'] == row['sha256'], 'selected raw member mismatch')
+        original_refs.append(actual)
+    unique = {(r['sha256'], r['bytes']) for r in original_refs}
+    need(len(unique) == selected['byte_unique_count'] == 23 and sum(n for _, n in unique) == selected['unique_bytes'] == 2711654, 'unique content denominator mismatch')
+    inputs = json.loads((BASE / 'inputs.json').read_text())
+    capture = json.loads((BASE / 'capture-receipt.json').read_text())
+    packet = json.loads((BASE / 'owner-packet.json').read_text())
+    rows = inputs['python_rows']
+    by_path = {r['path']: r for r in rows}
+    need(len(rows) == len(by_path) == 378, 'full current Python denominator')
+    diff = git(['diff', '--name-only', SLICE_BASE, SOURCE, '--']).decode().splitlines()
+    need(len(diff) == inputs['full_changed_path_count'] == 8430, 'full path delta denominator mismatch')
+    need(sorted(p for p in diff if p.endswith('.py')) == sorted(by_path), 'no omitted Python input')
+    source_checks = []
+    for r in rows:
+        body = git(['show', SOURCE + ':' + r['path']])
+        actual = (ROOT / r['path']).read_bytes()
+        need(body == actual and len(body) == r['bytes'] and sha(body) == r['sha256'], 'actual/Git/source input mismatch')
+        source_checks.append({'path': r['path'], 'bytes': len(body), 'sha256': sha(body), 'writer': r['writer_attribution']['writer']})
+    need(collections.Counter(r['writer_attribution']['writer'] for r in rows) == collections.Counter({'E': 349, 'A': 2, 'B': 13, 'G': 12, 'F': 2}), 'factual writer denominator mismatch')
+    for r in inputs['effective_recursive_configuration_inputs']:
+        need(git(['show', SOURCE + ':' + r['path']]) == (ROOT / r['path']).read_bytes(), 'recursive Ruff configuration mismatch')
+        need(ref(ROOT / r['path'])['sha256'] == r['sha256'], 'configuration identity mismatch')
+    metadata = inputs['environment_metadata']
+    need(len(metadata) == inputs['environment_metadata_count'] == 184, 'actual Ruff environment denominator')
+    for r in metadata:
+        actual = ref(r['path'])
+        need(actual['bytes'] == r['bytes'] and actual['sha256'] == r['sha256'], 'readonly native Ruff environment metadata mismatch')
+    for s in [capture['before'], capture['after']]:
+        need(s['HEAD'] == SOURCE and s['tree'] == TREE and s['tracked_status_porcelain'] == '', 'historical source guard mismatch')
+    native = {r['name']: r for r in capture['checks']}
+    arguments = [r['path'][len('policy-engine/'):] for r in rows]
+    need(native['ruff']['argv'][7:] == arguments and native['ruff-format']['argv'][6:] == arguments, 'native complete argv denominator mismatch')
+    for c in native.values():
+        need(c['cwd'] == str(ROOT / 'policy-engine') and c['exit_code'] == 1, 'closed native exit/cwd mismatch')
+        for field in ['stdout', 'stderr']:
+            actual = ref(c[field]['path'])
+            need(actual['bytes'] == c[field]['bytes'] and actual['sha256'] == c[field]['sha256'], 'closed native raw stream mismatch')
+        need('--fix' not in c['argv'] and '--config' not in c['argv'] and '--exclude' not in c['argv'], 'Ruff selector weakened')
+    diagnostics = json.loads((BASE / 'ruff.stdout.txt').read_text())
+    diag_paths = collections.defaultdict(list)
+    for d in diagnostics:
+        path = Path(d['filename']).relative_to(ROOT).as_posix()
+        need(path in by_path, 'diagnostic outside complete denominator')
+        diag_paths[path].append(d)
+    formats = ['policy-engine/' + line[len('Would reformat: '):] for line in (BASE / 'ruff-format.stdout.txt').read_text().splitlines() if line.startswith('Would reformat: ')]
+    need(len(set(formats)) == len(formats) == 14 and all(p in by_path for p in formats), 'format actual raw paths mismatch')
+    writer_count = collections.Counter(by_path[Path(d['filename']).relative_to(ROOT).as_posix()]['writer_attribution']['writer'] for d in diagnostics)
+    expected = {'source': SOURCE, 'tree': TREE, 'base': SLICE_BASE, 'complete_python_input_count': 378, 'factual_writer_counts': dict(collections.Counter(r['writer_attribution']['writer'] for r in rows)), 'ruff_exit_code': 1, 'format_exit_code': 1, 'diagnostic_count': len(diagnostics), 'diagnostic_path_count': len(diag_paths), 'format_path_count': len(formats), 'diagnostics_by_factual_writer': dict(writer_count), 'E_diagnostic_count': sum(len(ds) for p, ds in diag_paths.items() if by_path[p]['writer_attribution']['writer'] == 'E'), 'E_format_path_count': sum(by_path[p]['writer_attribution']['writer'] == 'E' for p in formats), 'source_config_environment_immutable': capture['source_and_config_before_after_unchanged'] and capture['metadata_before_after_unchanged'], 'global_pass': False, 'P41': 'not_established'}
+    need((expected['diagnostic_count'], expected['diagnostic_path_count'], expected['E_diagnostic_count'], expected['E_format_path_count']) == (292, 14, 0, 0), 'actual native outcome changed')
+    admit_summary(packet['summary'], expected)
+    affected = {r['path']: r for r in packet['affected_owner_paths']}
+    need(set(affected) == set(diag_paths) | set(formats), 'complete owner affected-path set mismatch')
+    for p, row in affected.items():
+        need(row['sha256'] == by_path[p]['sha256'] and row['factual_writer'] == by_path[p]['writer_attribution']['writer'], 'owner path source/attribution mismatch')
+    spec = importlib.util.spec_from_file_location('closed_owner_claims', BASE / 'validate_owner_claims.py')
+    utility = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(utility)
+    actual_controls = utility.controls(BASE)
+    need(actual_controls['control_count'] == 8, 'author guard controls incomplete')
+    mutants = [('native_global_PASS', 'global_pass', True), ('foreign_diagnostics_hidden', 'diagnostic_count', 0), ('E_scope_falsely_red', 'E_diagnostic_count', 292), ('denominator_reduced', 'complete_python_input_count', 349), ('count_bool', 'E_format_path_count', False), ('P41_promoted', 'P41', 'inherited'), ('source_promoted', 'source', '0' * 40), ('false_format_PASS', 'format_exit_code', 0)]
+    independent = []
+    for name, key, value in mutants:
+        bad = copy.deepcopy(expected)
+        bad[key] = value
+        try:
+            admit_summary(bad, expected)
+        except ValueError as e:
+            independent.append({'name': name, 'outcome': 'rejected', 'reason': str(e), 'native_commands_raw_outputs_input_markers_retained': True})
+        else:
+            raise ValueError('corrupt closed lint claim accepted')
+    # Sole complete admission removal preserves every expected native byte/marker.
+    removed = lambda actual, expected: None
+    bad = copy.deepcopy(expected)
+    bad['global_pass'] = True
+    removed(bad, expected)
+    independent.append({'name': 'sole_summary_admission_removed', 'false_global_PASS_re_admitted': True, 'defining_property': 'FAIL'})
+    after = state()
+    need(before == after, 'source read bracket changed')
+    report = {'schema': 'policyos.e02.independent_final_lint_custody.v1', 'disposition': 'GO for closed lint receipt/custody; full native Ruff and format remain FAIL', 'source': SOURCE, 'tree': TREE, 'base': SLICE_BASE, 'source_guard_before': before, 'source_guard_after': after, 'complete_raw_summary': expected, 'selected_original_refs': original_refs, 'current_source_body_checks': source_checks, 'complete_affected_paths': [{**affected[p], 'actual_native_diagnostics': len(diag_paths[p]), 'actual_native_format_requested': p in formats} for p in sorted(affected)], 'author_controls_actually_executed': actual_controls, 'independent_controls': independent, 'optimization_mode': not __debug__, 'P37': [{'predicate': 'raw native diagnostic and format counts, exact full argv and path denominator', 'basis': 'independently_reconciled'}, {'predicate': 'current source bodies/configuration/environment and literal selected originals', 'basis': 'recomputed'}, {'predicate': 'factual publication writer attribution', 'basis': 'consumer_asserted', 'explanation': 'Full source receipts/prior writer plan and actual publication/family paths bind routing, not institutional product authority.'}, {'predicate': 'exact old-base failure causality/P41', 'basis': 'not_established'}], 'limits': ['No native Ruff/format/math/backend execution repeated.', 'Global native FAIL is retained. E349 clean does not grant global PASS or finding closure.', 'No exact old slice-base full native command replay was performed; inherited P41 attribution remains not_established.', 'G routes A/B direct utilities and G-published archived input utilities. Canonical product ownership is not transferred.']}
+    path = OUT / ('review-optimized.json' if not __debug__ else 'review.json')
+    path.write_text(json.dumps(report, indent=2) + '\n')
+    print(json.dumps({'report': ref(path), 'full378_native': 'FAIL', 'E349': '0 diagnostics / 0 format requests', 'foreign292_diagnostics14_paths14_formats': True, 'independent_controls': len(independent), 'raw_assets': 32, 'source_unchanged': True}, indent=2))
+
+if __name__ == '__main__':
+    OUT.mkdir(exist_ok=True)
+    main()

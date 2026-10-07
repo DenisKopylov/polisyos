@@ -1,0 +1,90 @@
+{
+  "schema": "policyos.e02.final_r5_effective_aliased_counter_delta.v1",
+  "copier": {
+    "path": "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+    "bytes": 38490,
+    "sha256": "e0c4d2b0fe37c5cc1e61dab3cb3b9badc927315aade0526e870e17c399fee713"
+  },
+  "manifest": {
+    "path": "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/manifest.json",
+    "bytes": 1558202,
+    "sha256": "ee6ccf691dae4509becb8e7f7f16d1e60102d6e28db8e849daa280f3f9ef6d94"
+  },
+  "optimized": true,
+  "rows": [
+    {
+      "name": "retotalled-real-aliased-member-omission",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/final-ready-v1/copy-final-publication.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-optimized/retotalled-real-aliased-member-omission/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-optimized/retotalled-real-aliased-member-omission-destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "expected_exit": 1,
+      "PASS": true
+    },
+    {
+      "name": "sole-Counter-removal",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-optimized/sole-Counter-guard-removal.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-optimized/sole-Counter-removal/manifest.json",
+        "--layout",
+        "stage",
+        "--destination-root",
+        "/tmp/e02-E-final-publication-r5-b2f2-stage/Counter-delta-optimized/sole-Counter-removal-destination"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "expected_exit": 0,
+      "PASS": true
+    }
+  ],
+  "omitted_original_logical_member": {
+    "family": "final-three-gates-complete",
+    "selection_source_path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/publication-selection.json",
+    "member_class": "assets",
+    "original": {
+      "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stored": {
+      "path": "/tmp/e02-E-final3-publication-b2f2f65e-20261007/assets/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "storage_mode": "literal",
+    "logical_destination": "final-three-gates-complete/assets/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt",
+    "selected_record": {
+      "logical_name": "attempts/architecture/stderr.txt",
+      "original_path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/stderr.txt",
+      "portable_path": "assets/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "literal",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "canonical_destination": "final-numeric/launch/stderr.txt",
+    "deduplicated": true
+  },
+  "all_original_content_carriers_retained": true,
+  "new_original_logical_denominator": 957,
+  "sole_original_Counter_predicate_removed": true,
+  "old_observer_attempt": "Initial control omitted unique content and failed earlier at expected lookup; retained as observer ERROR, not source/custody failure. This fresh two-case delta omits a repeated raw member with all carriers retained.",
+  "source_native_numeric_execution": false,
+  "Root_or_leaf_written": false,
+  "all_controls_PASS": true
+}

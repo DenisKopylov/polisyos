@@ -1,0 +1,19 @@
+{
+  "schema": "policyos.e02.future_custody_control_guard_closure.v1",
+  "closed_utc": "2026-10-07T16:46:11Z",
+  "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "tracked_status": "",
+  "root_metadata_before": 207,
+  "root_metadata_after": 207,
+  "all_metadata_and_pyvenv_cfg_equal": true,
+  "actual_recipe_sha256": "b943046817b20c655818e77d94258044a0982a1fcc4465ea6cb51c8a9b4c3fc0",
+  "future_patch_applied": false,
+  "active_execution_leases": "CLOSED for DOE common numeric wave and future tiny stdlib controls; parent global selectors retain their separate source leases. No further test/global/numerical command is queued by DOE.",
+  "predicate_basis": {
+    "root_HEAD_tree_status": "recomputed",
+    "207_metadata_invariance": "recomputed",
+    "current_b943_bytes": "recomputed",
+    "new_source_or_numerical_authority": "not_established"
+  }
+}

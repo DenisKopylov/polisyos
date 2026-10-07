@@ -1,0 +1,247 @@
+"""Recompute the final receipt join and probe its typed whole-claim admission."""
+
+from __future__ import annotations
+
+import ast
+import copy
+import hashlib
+import json
+import runpy
+import sys
+from pathlib import Path
+from typing import Any
+
+BASE = Path("/tmp/e02-E-final54-b2f2-preparation-20261007")  # noqa: S108 -- fixed closed inputs
+SOURCE_PATH = BASE / "join_globals.py"
+SOURCE_HASH = "f2c6b00130ba0eb722c4ec46b013f7d317b97136b104f3018d945062cec60878"
+PACKET_PATH = BASE / "current-all-54-b2-final-v4-normal.json"
+PACKET_HASH = "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+ROOT_ENV = Path("/workspace/e02-E-continuation-20261006/policy-engine/.venv")
+
+
+def require(value: bool, message: str) -> None:
+    if not value:
+        raise ValueError(message)
+
+
+def ref(path: Path) -> dict[str, Any]:
+    body = path.read_bytes()
+    return {"path": str(path), "bytes": len(body), "sha256": hashlib.sha256(body).hexdigest()}
+
+
+def change(original: dict[str, Any], path: list[str | int], value: object) -> dict[str, Any]:
+    result = copy.deepcopy(original)
+    target: Any = result
+    for key in path[:-1]:
+        target = target[key]
+    require(
+        path[-1] in target if isinstance(target, dict) else path[-1] < len(target),
+        "existing mutation field",
+    )
+    target[path[-1]] = value
+    return result
+
+
+def main() -> None:
+    require(ref(SOURCE_PATH)["sha256"] == SOURCE_HASH, "immutable final builder source")
+    require(ref(PACKET_PATH)["sha256"] == PACKET_HASH, "immutable complete final packet")
+    source = runpy.run_path(str(SOURCE_PATH), run_name="final_builder")
+    expected, module = source["build"]()
+    observed = json.loads(PACKET_PATH.read_bytes())
+    source["admit_complete_claims"](observed, expected, module["same"])
+    source["admit_boundary"](observed)
+    definitions: list[tuple[str, list[str | int], object]] = [
+        (
+            "P37 explanation used as basis",
+            ["predicate_basis", "current_7gates_39stages"],
+            "recomputed from PASS markers",
+        ),
+        ("P37 invented basis", ["predicate_basis", "whole_final_metadata_admission"], "verified"),
+        ("source substitution", ["candidate"], "3932cded22a29254a7dfced99723e147d6fea7cb"),
+        ("bool finding denominator", ["complete_denominator", "findings"], True),
+        ("omit one bundle count", ["complete_denominator", "bundles"], 21),
+        ("historical closed bool", ["historical_ledger", "closed"], True),
+        ("G acceptance flag", ["formal_G_acceptance"], True),
+        ("E proposal silently accepted", ["rows", 0, "formal_ledger_change"], True),
+        ("declared104 native path changed", ["current_numeric_wave", "native_test_path_count"], 1),
+        ("native case count float", ["current_numeric_wave", "counts", "cases"], 1465.0),
+        ("native FAIL hidden", ["current_numeric_wave", "counts", "failed"], 0),
+        (
+            "owner packet source identity changed",
+            ["current_numeric_wave", "A_packet_counts", "failed"],
+            0,
+        ),
+        ("ROOT207 count changed", ["environment", "distribution_metadata_count"], 1),
+        (
+            "fit source obsolete3932",
+            ["scientific_fit_boundary", "accepted_source"],
+            "3932cded22a29254a7dfced99723e147d6fea7cb",
+        ),
+        (
+            "historical12 pending bool",
+            ["import_owner_dependencies", "original12", "owner_export_pending"],
+            True,
+        ),
+        (
+            "individual current source digest forged",
+            ["source_role_qualification", 0, "current_source", "sha256"],
+            "0" * 64,
+        ),
+        (
+            "gate verdict fabricatedPASS",
+            ["current_global_gates", "exact_receipts", 0, "check_outcome"],
+            "PASS",
+        ),
+        ("native exit bool", ["current_global_gates", "exact_receipts", 0, "exit_code"], True),
+        (
+            "gate receipt digest forged",
+            ["current_global_gates", "exact_receipts", 0, "receipt", "sha256"],
+            "0" * 64,
+        ),
+        (
+            "gate source immutable forged",
+            ["current_global_gates", "exact_receipts", 0, "source_immutable"],
+            False,
+        ),
+        (
+            "gate environment count truncated",
+            ["current_global_gates", "exact_receipts", 0, "environment", "package_METADATA_count"],
+            1,
+        ),
+        ("global7count bool", ["current_global_gates", "gate_count"], True),
+        ("global overall fabricatedPASS", ["current_global_gates", "check_outcome"], "PASS"),
+        ("parent39 count changed", ["current_global_gates", "parent_stage_count"], 37),
+        (
+            "UNRUN promotedPASS",
+            ["current_global_gates", "exact_parent_stage_rows", 2, "outcome"],
+            "PASS",
+        ),
+        (
+            "stage label forged",
+            ["current_global_gates", "exact_parent_stage_rows", 2, "label"],
+            "invented",
+        ),
+        (
+            "stage command omitted",
+            ["current_global_gates", "exact_parent_stage_rows", 2, "command"],
+            [],
+        ),
+        (
+            "stage ordinal changed",
+            ["current_global_gates", "exact_parent_stage_rows", 2, "ordinal_zero_based"],
+            1,
+        ),
+        (
+            "CI zeroPASS invented",
+            ["current_global_gates", "parent_counts_by_selector", "ci-parity", "PASS"],
+            1,
+        ),
+        ("current native count withheld", ["current_numeric_wave", "counts", "cases"], None),
+        (
+            "recipe candidate old3932",
+            ["local_recipe_rebinding", "recipes", 0, "execute_implementation_candidate"],
+            "3932cded22a29254a7dfced99723e147d6fea7cb",
+        ),
+        (
+            "local recipe changed minimuminput",
+            ["local_recipe_rebinding", "recipes", 0, "original_recipe", "minimal_inputs"],
+            [],
+        ),
+        (
+            "cleanup local directive wrongly cloud",
+            ["cleanup", "historical_old_restriction_not_current"],
+            False,
+        ),
+        ("P41 fabricatedcause", ["current_global_gates", "P41_broad_failure_cause"], "inherited"),
+    ]
+    cases = [{"name": "healthy complete immutable inputs", "check_outcome": "PASS"}]
+    mutants = {}
+    for name, path, value in definitions:
+        mutant = change(observed, path, value)
+        require(not module["same"](mutant, observed), "effective actual summary mutation")
+        try:
+            source["admit_complete_claims"](mutant, expected, module["same"])
+        except ValueError as exc:
+            cases.append(
+                {"name": name, "field": path, "check_outcome": "PASS", "actual_refusal": str(exc)}
+            )
+            mutants[name] = mutant
+        else:
+            raise ValueError("false admission: " + name)
+    omitted = copy.deepcopy(observed)
+    omitted["rows"].pop()
+    omitted["complete_denominator"]["findings"] -= 1
+    try:
+        source["admit_complete_claims"](omitted, expected, module["same"])
+    except ValueError:
+        cases.append({"name": "retotalled whole54 member omission", "check_outcome": "PASS"})
+    else:
+        raise ValueError("retotalled missing original finding admitted")
+    tree = ast.parse(SOURCE_PATH.read_bytes())
+    guards = [
+        node
+        for node in tree.body
+        if isinstance(node, ast.FunctionDef) and node.name == "admit_complete_claims"
+    ]
+    require(len(guards) == 1, "one actual whole typed guard")
+    guards[0].body = [ast.Return(value=ast.Constant(None))]
+    ast.fix_missing_locations(tree)
+    removed: dict[str, Any] = {"__name__": "guard_removal"}
+    exec(compile(tree, str(SOURCE_PATH), "exec"), removed)  # noqa: S102 -- fixed pinned observer AST; only named guard removed
+    for name in ("gate verdict fabricatedPASS", "UNRUN promotedPASS", "recipe candidate old3932"):
+        mutant = mutants[name]
+        removed["admit_boundary"](mutant)
+        removed["admit_complete_claims"](mutant, expected, module["same"])
+        require(
+            not module["same"](mutant, expected),
+            "independent expected property detects removal escape",
+        )
+        cases.append(
+            {
+                "name": "effective sole whole-guard removal: " + name,
+                "check_outcome": "PASS",
+                "mutated_validation_outcome": "ACCEPT",
+                "independent_property_outcome": "FAIL",
+                "retained_guards": "native1465/globalFAIL/source/Gfalse admission remains",
+            }
+        )
+    env = json.loads(Path(observed["environment"]["snapshot"]["path"]).read_bytes())
+    require(type(env) is list and len(env) == 207, "saved207 distribution records")
+    saved_paths = {row["path"] for row in env}
+    live_paths = {
+        str(path)
+        for path in (ROOT_ENV / "lib/python3.14/site-packages").glob("*.dist-info/METADATA")
+    }
+    require(saved_paths == live_paths, "complete current ROOT metadata pathset")
+    for row in env:
+        current = ref(ROOT_ENV / row["path"])
+        require(
+            current["bytes"] == row["bytes"] and current["sha256"] == row["sha256"],
+            "current207 protected saved bytes",
+        )
+    cases.append(
+        {"name": "current207 complete metadata set and bytes unchanged", "check_outcome": "PASS"}
+    )
+    result = {
+        "schema": "policyos.e02.E.final54_current_whole_claim_controls.v1",
+        "check_outcome": "PASS",
+        "scope": (
+            "metadata and receipt admission only; no native/math tests rerun or finding closure"
+        ),
+        "optimized": not __debug__,
+        "builder": ref(SOURCE_PATH),
+        "packet": ref(PACKET_PATH),
+        "cases": cases,
+        "control_count": len(cases),
+        "current_native_counts": observed["current_numeric_wave"]["counts"],
+        "current_gate_counts": observed["current_global_gates"]["gate_outcome_counts"],
+        "current_parent_counts": observed["current_global_gates"]["parent_stage_counts"],
+        "ledger_unchanged": observed["historical_ledger"],
+        "E_proposals": observed["bounded_E_proposals"],
+        "G_acceptance": False,
+    }
+    sys.stdout.write(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
+
+
+if __name__ == "__main__":
+    main()

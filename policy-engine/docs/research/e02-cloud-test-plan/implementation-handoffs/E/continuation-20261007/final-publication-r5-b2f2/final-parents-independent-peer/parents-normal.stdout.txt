@@ -1,0 +1,10 @@
+{
+  "disposition": "GO for complete parent receipt custody; workspace and CI remain FAIL",
+  "report": {
+    "path": "/tmp/e02-E-final-metadata-independent-b2-20261007/parents-normal.json",
+    "bytes": 34421,
+    "sha256": "2617bcb669b5badb49ef56624af6e827a296f71c05456ccf03a7772d40308cd2"
+  },
+  "typed_controls": 9,
+  "native_repeated": false
+}

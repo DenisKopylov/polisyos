@@ -1,0 +1,37 @@
+import hashlib
+import json
+import xml.etree.ElementTree as ET
+from collections import Counter
+from pathlib import Path
+
+ROOT=Path('/tmp/e02-E-final-composed-defining-wave-b2f2f65e-20261007T1620Z/checks')
+SOURCE='b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641'
+TREE='4cbbed1d9392832729cab92c6615f9a1d03a41c7'
+OUT=Path('/tmp/e02-E-final54-preparation-independent-lint-b2-20261007')
+rows=[];groups=[]
+def require(c,r):
+ if not c:raise ValueError(r)
+def ref(p):
+ b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+files=sorted(ROOT.glob('*/pytest.xml'));require(len(files)==7,'all7 required JUnit files (includes native59 G checkpoint companion)')
+for path in files:
+ data=path.read_bytes();require(b'<!DOCTYPE' not in data.upper() and b'<!ENTITY' not in data.upper(),'XML entities/DTD refused')
+ xml=ET.fromstring(data);receipt_path=path.parent/(path.parent.name+'.json');receipt=json.loads(receipt_path.read_bytes())
+ require(receipt['candidate_sha']==SOURCE and receipt['candidate_tree_sha']==TREE,'native exact source/tree')
+ local=[]
+ for index,case in enumerate(xml.iter('testcase')):
+  outcome='ERROR' if case.find('error')is not None else 'FAIL' if case.find('failure')is not None else 'SKIP' if case.find('skipped')is not None else 'PASS'
+  classname=case.get('classname','');name=case.get('name','')
+  # The seven current A contract-packet functions intentionally have empty
+  # classname under native standalone import mode. All other native rows retain
+  # tests.* classnames, including the G59 required consumer companion.
+  scope='A_owner_packet' if classname=='' else 'native_repo'
+  row={'group':path.parent.name,'ordinal':index,'classname':classname,'name':name,'outcome':outcome,'scope':scope}
+  local.append(row);rows.append(row)
+ counts=dict(Counter(r['outcome'] for r in local));require(receipt['outcome']==('FAIL' if counts.get('FAIL',0) or counts.get('ERROR',0) else 'PASS'),'native group outcome')
+ groups.append({'group':path.parent.name,'count':len(local),'outcomes':counts,'receipt':ref(receipt_path),'JUnit':ref(path),'command':receipt['command'],'exit_code':receipt['exit_code'],'outcome':receipt['outcome']})
+whole=Counter(r['outcome'] for r in rows);native=Counter(r['outcome'] for r in rows if r['scope']=='native_repo');owner=Counter(r['outcome'] for r in rows if r['scope']=='A_owner_packet')
+require(whole==Counter({'PASS':1457,'FAIL':8}) and native==Counter({'PASS':1457,'FAIL':1}) and owner==Counter({'FAIL':7}),'actual1465/native1458/A7 outcome denominator')
+multiset=Counter((r['group'],r['classname'],r['name'],r['outcome'],r['scope']) for r in rows)
+report={'schema':'e02.E.independent.final54.current_JUnit_multiset_basis.v1','source':SOURCE,'tree':TREE,'groups':groups,'actual_counts':{'total':len(rows),'outcomes':dict(whole),'native_total':sum(native.values()),'native_outcomes':dict(native),'A_packet_total':sum(owner.values()),'A_packet_outcomes':dict(owner)},'full_multiset':[{'group':k[0],'classname':k[1],'name':k[2],'outcome':k[3],'scope':k[4],'multiplicity':v} for k,v in sorted(multiset.items())],'failed_rows':[r for r in rows if r['outcome']!='PASS'],'scope':'Read-only closed native XML/receipt parse, no pytest/backend/math execution or owner finding closure','qualification':'Exact seven group receipts and fixedXMLbytes; includes nativeG59requiredcompanion. Empty-classname A7 split is checked against actual current packet names/command later in joined peer review.','early_tool_inspection':'Initial exploratory tool-only listing temporarily excluded Gcheckpoint companion; no captured false-total receipt or outcome was claimed; final actual seven-file denominator includes it.'}
+p=OUT/'actual1465-JUnit-multiset-basis.json';p.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n');print(json.dumps({'path':str(p),'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'counts':report['actual_counts']}))

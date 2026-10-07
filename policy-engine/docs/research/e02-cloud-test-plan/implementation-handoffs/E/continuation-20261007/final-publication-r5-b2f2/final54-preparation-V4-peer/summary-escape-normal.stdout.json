@@ -1,0 +1,40 @@
+{
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "packet": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/prepared-v3-normal.json",
+    "bytes": 486911,
+    "sha256": "dc45081e4bd30aa7d6bc7f01ea6e336edad614dfbd4c2f7524c2d81778700c65"
+  },
+  "validator": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/prepare.py",
+    "bytes": 29677,
+    "sha256": "1e05ad7c5fabb9fadb7c962f0dd294ef36b2d1a1eac5d05dc10c26c10199f18e"
+  },
+  "controls": [
+    {
+      "case": "native current path denominator 104 to1",
+      "observed": "FALSE_ADMITTED",
+      "property_expected_refusal": "FAIL",
+      "raw_sources_source_roles_original54_NULL_outcomes_retained": true
+    },
+    {
+      "case": "distribution denominator207 to1",
+      "observed": "FALSE_ADMITTED",
+      "property_expected_refusal": "FAIL",
+      "raw_sources_source_roles_original54_NULL_outcomes_retained": true
+    },
+    {
+      "case": "original pending private-edge integer tobool",
+      "observed": "FALSE_ADMITTED",
+      "property_expected_refusal": "FAIL",
+      "raw_sources_source_roles_original54_NULL_outcomes_retained": true
+    },
+    {
+      "case": "current configured-fit source changed to old3932",
+      "observed": "FALSE_ADMITTED",
+      "property_expected_refusal": "FAIL",
+      "raw_sources_source_roles_original54_NULL_outcomes_retained": true
+    }
+  ],
+  "product_native_backend_tests_repeated": false
+}

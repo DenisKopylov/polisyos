@@ -1,0 +1,278 @@
+{
+  "schema": "policyos.e02.closed_catalog_archive_selection.v1",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/receipt.json",
+      "portable_path": "receipt.json",
+      "bytes": 83140,
+      "sha256": "dcece4418d5469881914e13d273ce31433d7d7ddbed68edb0ba20e3d4cb9b2cb",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/archive.stdout.txt",
+      "portable_path": "archive.stdout.txt",
+      "bytes": 1456,
+      "sha256": "79229866550449825e6982417a1cb562f484b9fb354249c8d0b1bb0343193ddf",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/archive.stderr.txt",
+      "portable_path": "archive.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/typed-controls-normal.json",
+      "portable_path": "typed-controls-normal.json",
+      "bytes": 13277,
+      "sha256": "ba067cb374644d2e16c5b03f35103ce4ca01c57ab04c77980b1b3d8771b7cb4f",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/typed-controls-optimized.json",
+      "portable_path": "typed-controls-optimized.json",
+      "bytes": 13276,
+      "sha256": "a28265566780318c54d7b39113a5b2b8bc2019e739dc6bbb2a0e81743e21971e",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/typed-controls-normal.stdout.txt",
+      "portable_path": "typed-controls-normal.stdout.txt",
+      "bytes": 303,
+      "sha256": "245a470f94e50baf17c2517269b4042052fdcc1b945229d052a8e798e8bf2cef",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/typed-controls-normal.stderr.txt",
+      "portable_path": "typed-controls-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/typed-controls-optimized.stdout.txt",
+      "portable_path": "typed-controls-optimized.stdout.txt",
+      "bytes": 306,
+      "sha256": "10a9f3208b9b42ee274de1833fa1cad152ba02c1d03c78de29c04c83fbed7c6f",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/typed-controls-optimized.stderr.txt",
+      "portable_path": "typed-controls-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/independent-cal-reviewer-process-before.json",
+      "portable_path": "independent-cal-reviewer-process-before.json",
+      "bytes": 1553,
+      "sha256": "127a39c09a65b0c499eeae3cf4d5f5db055f0e369b3a80d57d8b3bafb4a2d689",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/independent-cal-reviewer-process-before-retirement.json",
+      "portable_path": "independent-cal-reviewer-process-before-retirement.json",
+      "bytes": 1553,
+      "sha256": "d286648a349caac5eb65ceb2ca752cbe236e3dde7ec2c89b5d1a8f29688aea0d",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/independent-cal-reviewer-controls.json",
+      "portable_path": "independent-cal-reviewer-controls.json",
+      "bytes": 884,
+      "sha256": "58ffb00ca46faae316231a61dc874b1a2397f4a02270deeaed04799be34417a1",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/independent-cal-reviewer-reopen-recipe.json",
+      "portable_path": "independent-cal-reviewer-reopen-recipe.json",
+      "bytes": 852,
+      "sha256": "5ed137800c4dca6d30b005118cf37bdfeb9f67a9c62c01c5a59cae7fd8c31fbb",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/backtest-old58-overlay-process-before.json",
+      "portable_path": "backtest-old58-overlay-process-before.json",
+      "bytes": 1550,
+      "sha256": "eee5f5c8ea9336e93099ab399aae08d06e9f9c443ed519c1190c9b286dbd79f6",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/backtest-old58-overlay-process-before-retirement.json",
+      "portable_path": "backtest-old58-overlay-process-before-retirement.json",
+      "bytes": 1550,
+      "sha256": "842b9293032db7505eaa5e179d1fb73ce6edeb3be9acd2162724394563d85dae",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/backtest-old58-overlay-controls.json",
+      "portable_path": "backtest-old58-overlay-controls.json",
+      "bytes": 884,
+      "sha256": "58ffb00ca46faae316231a61dc874b1a2397f4a02270deeaed04799be34417a1",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/backtest-old58-overlay-reopen-recipe.json",
+      "portable_path": "backtest-old58-overlay-reopen-recipe.json",
+      "bytes": 842,
+      "sha256": "466e47cc39c7a43efe40a9914f30422e6082024e602c8d0f5062dd494ad599cc",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/cal-frozen58-process-before.json",
+      "portable_path": "cal-frozen58-process-before.json",
+      "bytes": 1529,
+      "sha256": "eb1bf770a9d40eb7bc8a3368a44bf6f642a6830d27234144f65caab2f938fd5f",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/cal-frozen58-process-before-retirement.json",
+      "portable_path": "cal-frozen58-process-before-retirement.json",
+      "bytes": 1530,
+      "sha256": "3e4939f2ed7be7758fab8021f30240cc1ab5085033847cd4c29d398ef5e118a6",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/cal-frozen58-controls.json",
+      "portable_path": "cal-frozen58-controls.json",
+      "bytes": 884,
+      "sha256": "58ffb00ca46faae316231a61dc874b1a2397f4a02270deeaed04799be34417a1",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/cal-frozen58-reopen-recipe.json",
+      "portable_path": "cal-frozen58-reopen-recipe.json",
+      "bytes": 792,
+      "sha256": "f88df2af9c63f2cb099190633bb30bf74c442082486cb40bab9281b070816cb6",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/public-surface-packet-process-before.json",
+      "portable_path": "public-surface-packet-process-before.json",
+      "bytes": 1548,
+      "sha256": "ebf74c18f3005b38415501b3dc0f3613c9aa73b548310795fdaf873ed3713a8d",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/public-surface-packet-process-before-retirement.json",
+      "portable_path": "public-surface-packet-process-before-retirement.json",
+      "bytes": 1547,
+      "sha256": "b613a35a21648a551aff4492fa5f48cf7a10908f55fd91cf88b3192219a6f2bd",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/public-surface-packet-controls.json",
+      "portable_path": "public-surface-packet-controls.json",
+      "bytes": 884,
+      "sha256": "58ffb00ca46faae316231a61dc874b1a2397f4a02270deeaed04799be34417a1",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/public-surface-packet-reopen-recipe.json",
+      "portable_path": "public-surface-packet-reopen-recipe.json",
+      "bytes": 837,
+      "sha256": "0752aa5ca9901ea264b261c618cc4884cc08d90d72f3e360061bf1b6aea4315c",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/mc-process-before.json",
+      "portable_path": "mc-process-before.json",
+      "bytes": 1510,
+      "sha256": "9e69f9ac2ce60d206da00f598a57717a9ae46e9cf1aae51c7722919e74905e52",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/mc-process-before-retirement.json",
+      "portable_path": "mc-process-before-retirement.json",
+      "bytes": 1510,
+      "sha256": "d0cd7f15b8562697ccd0508740ba83442106b39e0b2dc028da5a9e96fe51ad41",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/mc-controls.json",
+      "portable_path": "mc-controls.json",
+      "bytes": 884,
+      "sha256": "58ffb00ca46faae316231a61dc874b1a2397f4a02270deeaed04799be34417a1",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/mc-reopen-recipe.json",
+      "portable_path": "mc-reopen-recipe.json",
+      "bytes": 742,
+      "sha256": "97d2bfb61ac4a0374b80739608bfe1c073e4656e5758dfeed32b251f8493bf31",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/common-wave-a9f78817c-corrected--temporary-process-before.json",
+      "portable_path": "common-wave-a9f78817c-corrected--temporary-process-before.json",
+      "bytes": 1588,
+      "sha256": "34f079aec125f0c905a48f93880b70cf67f47a71f6f4f8d5ae559d816d1fef33",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/common-wave-a9f78817c-corrected--temporary-process-before-retirement.json",
+      "portable_path": "common-wave-a9f78817c-corrected--temporary-process-before-retirement.json",
+      "bytes": 1587,
+      "sha256": "2d7e1a0ec06de8e83b954175f802794228011415779ce1789fe0f0bfe4c570a3",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/common-wave-a9f78817c-corrected--temporary-controls.json",
+      "portable_path": "common-wave-a9f78817c-corrected--temporary-controls.json",
+      "bytes": 884,
+      "sha256": "58ffb00ca46faae316231a61dc874b1a2397f4a02270deeaed04799be34417a1",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/common-wave-a9f78817c-corrected--temporary-reopen-recipe.json",
+      "portable_path": "common-wave-a9f78817c-corrected--temporary-reopen-recipe.json",
+      "bytes": 941,
+      "sha256": "c86830cdb1d3c18154d915a2bd924b92c09cb3b7f1c58de995748591a390d554",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/archive_closed_catalogs.py.txt",
+      "portable_path": "archive_closed_catalogs.py.txt",
+      "bytes": 16874,
+      "sha256": "0d77264c12927d5a9d06a92028707ff23e94aa17e3825a05be6a2b7b6ce1aa3b",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/validate_closed_custody.py.txt",
+      "portable_path": "validate_closed_custody.py.txt",
+      "bytes": 5149,
+      "sha256": "169a8777045ed46aed64a03e9faff689ba8fbb8ae9ad61a7be2f1ec228be78d5",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    },
+    {
+      "source_path": "/tmp/e02-E-six-closed-catalog-archive-20261007-oracle/commands.json",
+      "portable_path": "commands.json",
+      "bytes": 805,
+      "sha256": "f988a37b6a9e34f190447640cb36b44c9692332d0e3ef552af61114d69a6e504",
+      "role": "closed byte-preserving catalog archiving custody/guards/control/recipe"
+    }
+  ],
+  "logical_count": 36,
+  "bytes": 163451,
+  "full_archive_bytes_ignored_not_selected": 224493173,
+  "preserved_original_payload_bytes": 923448923,
+  "full_member_count_including_six_roots": 59641,
+  "ROOT_or_environment_native_inputs_modified": false,
+  "P37": [
+    {
+      "predicate": "full archive/source member/body/mode/link/time preservation",
+      "basis": "recomputed"
+    },
+    {
+      "predicate": "readable process no users at retirement",
+      "basis": "recomputed",
+      "explanation": "scoped /proc observation; inaccessible infrastructure disclosed, no host-wide quiescence"
+    },
+    {
+      "predicate": "full ROOT/source-input immutability and mathematical authority",
+      "basis": "not_established"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "schema": "policyos.e02.cloud.repeatable_canonical_copy_retirement_closed.v1",
+  "deleted_exact_paths": [
+    "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/retained-workspace/source",
+    "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/retained-workspace/environment"
+  ],
+  "all_absent": true,
+  "preflight": {
+    "path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retirement-admission/retirement-preflight.json",
+    "sha256": "eb41c33cf419e395423f28a16cef0d3a641f4fde9f7c937d48a3e57675a18a3d"
+  },
+  "outputs_preserved_unchanged": true,
+  "unique_instrumentation_preserved": [
+    {
+      "original_path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture/retained-workspace/source/.polisyos-tools/timing.jsonl",
+      "preserved_path": "/tmp/e02-E-final3-b2f2f65e-20261007-architecture-retirement-admission/unique-source-88da70f93999c312d88fa43562432c6f733b2a4a52735581d0669c9e0c37ac07.txt",
+      "bytes": 15465,
+      "sha256": "88da70f93999c312d88fa43562432c6f733b2a4a52735581d0669c9e0c37ac07"
+    }
+  ],
+  "after": {
+    "memory.current": "15253487616\n",
+    "memory.max": "17179869184\n",
+    "memory.events": "low 0\nhigh 0\nmax 4373045\noom 120\noom_kill 13\noom_group_kill 0\n",
+    "memory.stat": "anon 6285012992\nfile 7745241088\nkernel 1221734400\nkernel_stack 786432\npagetables 15028224\nsec_pagetables 0\npercpu 14112\nsock 0\nvmalloc 0\nshmem 6143631360\nfile_mapped 194818048\nfile_dirty 36864\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 0\nshmem_thp 0\ninactive_anon 7004098560\nactive_anon 5424386048\ninactive_file 356171776\nactive_file 1245437952\nunevictable 0\nslab_reclaimable 898488944\nslab_unreclaimable 307398224\nslab 1205887168\nworkingset_refault_anon 0\nworkingset_refault_file 187482149\nworkingset_activate_anon 0\nworkingset_activate_file 29051829\nworkingset_restore_anon 0\nworkingset_restore_file 14547091\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 7318093311\npgsteal 195510188\npswpin 0\npswpout 0\npgscan_kswapd 9826863\npgscan_direct 7308260816\npgscan_khugepaged 5632\npgscan_proactive 0\npgsteal_kswapd 9357599\npgsteal_direct 186147141\npgsteal_khugepaged 5448\npgsteal_proactive 0\npgfault 796682214\npgmajfault 268562\npgrefill 59428546\npgactivate 30539177\npgdeactivate 54539020\npglazyfree 1303692\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 1223\nthp_collapse_alloc 82\nthp_swpout 0\nthp_swpout_fallback 0\n"
+  },
+  "root_source_after": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "root_status_after": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/\n",
+  "ROOT207_DOE184_sharedUVcache_Git_registrations_affected": false,
+  "global_events_PID_cause": "not_established"
+}

@@ -1,0 +1,119 @@
+"""Extract complete changed-mechanism records; this does not rerun an AST gate."""
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+PE = ROOT / 'policy-engine'
+SOURCE = 'b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641'
+BASE = '198076863e143dea9f89f02734b13d50dae3eed5'
+STAGE = Path('/tmp/e02-E-final3-b2f2f65e-20261007-static-invocation-retry-capacity')
+OUT = Path('/tmp/e02-E-final3-static-attribution-b2f2f65e-20261007')
+OUT.mkdir()
+
+def digest_bytes(data):
+    return hashlib.sha256(data).hexdigest()
+
+def reference(path):
+    h = hashlib.sha256()
+    with path.open('rb') as stream:
+        while data := stream.read(1024 * 1024):
+            h.update(data)
+    return {'path': str(path), 'bytes': path.stat().st_size, 'sha256': h.hexdigest()}
+
+def write(name, value):
+    path = OUT / name
+    with path.open('x') as stream:
+        json.dump(value, stream, indent=2)
+        stream.write('\n')
+    return reference(path)
+
+def git(*argv, input_bytes=None):
+    return subprocess.run(['git', '--no-optional-locks', *argv], cwd=PE,
+                          input=input_bytes, check=True, capture_output=True).stdout
+
+if git('rev-parse', 'HEAD').decode().strip() != SOURCE:
+    raise RuntimeError('not the immutable final source')
+native = json.loads((STAGE / 'production-invocation.raw.json').read_text())
+receipt = json.loads((STAGE / 'receipt.json').read_text())
+if receipt['exit_code'] != 1 or receipt['outcome'] != 'FAIL' or not receipt['source_immutable']:
+    raise RuntimeError('native terminal/source mismatch')
+current_paths = [p.decode() for p in git('ls-files', '-z', '--', 'src', 'tools', 'tests').split(b'\0') if p.endswith(b'.py')]
+base_paths = [p.decode() for p in git('ls-tree', '-rz', '--name-only', BASE, '--', 'src', 'tools', 'tests').split(b'\0') if p.endswith(b'.py')]
+prefix = git('rev-parse', '--show-prefix').decode().strip()
+queries = [*base_paths, 'pyproject.toml']
+raw = git('cat-file', '--batch', input_bytes=''.join(f'{BASE}:{prefix}{p}\n' for p in queries).encode())
+offset = 0
+baseline = {}
+base_rows = []
+for name in queries:
+    end = raw.index(b'\n', offset)
+    header = raw[offset:end].split()
+    offset = end + 1
+    if len(header) != 3 or header[1] != b'blob':
+        raise RuntimeError('baseline corpus omission')
+    size = int(header[2])
+    data = raw[offset:offset + size]
+    offset += size + 1
+    text = data.decode('utf-8-sig')
+    if name != 'pyproject.toml':
+        baseline[name] = text
+        base_rows.append({'path': name, 'blob': header[0].decode(), 'bytes': len(data),
+                          'sha256': digest_bytes(data), 'native_utf8_sig_sha256': digest_bytes(text.encode())})
+    else:
+        baseline_manifest = {'path': name, 'blob': header[0].decode(), 'bytes': len(data), 'sha256': digest_bytes(data)}
+if offset != len(raw):
+    raise RuntimeError('baseline corpus residual bytes')
+current = {}
+current_rows = []
+for name in current_paths:
+    data = (PE / name).read_bytes()
+    text = data.decode('utf-8-sig')
+    current[name] = text
+    current_rows.append({'path': name, 'bytes': len(data), 'sha256': digest_bytes(data),
+                         'native_utf8_sig_sha256': digest_bytes(text.encode())})
+actual = {'paths': 'all tracked src/**/*.py, tools/**/*.py, tests/**/*.py',
+          'current_files': len(current), 'base_files': len(baseline),
+          'source_files': sum(p.startswith('src/') for p in current),
+          'current_sha256': digest_bytes(json.dumps(current, sort_keys=True).encode()),
+          'base_sha256': digest_bytes(json.dumps(baseline, sort_keys=True).encode())}
+if actual != native['denominator']:
+    raise RuntimeError('complete native denominator mismatch')
+corpus_ref = write('full-native-input-corpus.json', {'source': SOURCE, 'base': BASE,
+                    'denominator': actual, 'current': current_rows, 'base_rows': base_rows,
+                    'current_manifest': reference(PE / 'pyproject.toml'), 'base_manifest': baseline_manifest})
+writer_path = Path('/tmp/e02-E-import-debt-2dc99fe3-independent-20261007/final-normal/writer-qualification-v4.json')
+writer = json.loads(writer_path.read_text())
+writers = {r['path']: r for r in writer['complete_writer_rows']}
+selected = []
+for kind, names in [('regression', native['regressions']), ('new_unresolved', native['new_unresolved_by_construction'])]:
+    for name in names:
+        record = native['mechanisms'][name]
+        path = 'policy-engine/' + record['path']
+        attribution = writers.get(path)
+        if attribution is not None:
+            if digest_bytes((ROOT / path).read_bytes()) != attribution['source']['sha256']:
+                raise RuntimeError('current writer body differs from pinned 2dc')
+        selected.append({'symbol': name, 'check_class': kind, 'native_mechanism_record': record,
+                         'source_input': reference(ROOT / path),
+                         'current_writer': attribution['writer'] if attribution else 'not_established',
+                         'writer_basis': attribution['declared_provenance'] if attribution else 'Not in pinned changed-source writer corpus; no guessed owner',
+                         'runtime_witness': 'Separate qualified native source receipts; direct-call proxy does not measure persisted runtime execution'})
+records_ref = write('all-119-native-mechanism-records.json', {'source': SOURCE, 'base': BASE,
+                    'raw_receipt': reference(STAGE / 'production-invocation.raw.json'),
+                    'current_writer_input': reference(writer_path),
+                    'rows': selected, 'actual_owner_counts': {k: sum(r['current_writer'] == k for r in selected)
+                    for k in sorted({r['current_writer'] for r in selected})}})
+summary = {'schema': 'policyos.e02.final_static_native_extraction.v1', 'source': SOURCE,
+           'base': BASE, 'native_outcome': 'FAIL', 'native_exit_code': 1, 'coverage': native['coverage'],
+           'regressions': len(native['regressions']), 'new_unresolved': len(native['new_unresolved_by_construction']),
+           'all_unresolved': len(native['unresolved_by_construction']),
+           'unresolved_receiver_calls': len(native['unresolved_receiver_calls']),
+           'mechanisms': len(native['mechanisms']), 'root_count': native['root_count'],
+           'full_native_denominator': actual, 'input_corpus': corpus_ref, 'complete_changed_records': records_ref,
+           'runtime_invocation_established': native['runtime_invocation_established'],
+           'measured': native['measured'], 'unmeasured': native['unmeasured'], 'limitations': native['limitations'],
+           'P41': 'not_established: no exact full slice-base command replay', 'finding_closure': False,
+           'raw_stays_ignored': reference(STAGE / 'production-invocation.raw.json')}
+print(json.dumps(write('summary.json', summary)))

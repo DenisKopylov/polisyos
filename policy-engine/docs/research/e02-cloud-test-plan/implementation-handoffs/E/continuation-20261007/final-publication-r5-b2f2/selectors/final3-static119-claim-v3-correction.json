@@ -1,0 +1,68 @@
+{
+  "schema": "policyos.e02.final3.moderate_literal_selection.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "assets": [
+    {
+      "logical_name": "current/correction-receipt.json",
+      "original_path": "/tmp/e02-E-final3-witness-claim-correction-b2f2f65e-20261007/correction-receipt.json",
+      "portable_path": "assets/149be21eb9fdb30eab3c35b8d52cfc5ef80d6ca59df085d6de386a1bc7839abd.txt",
+      "bytes": 1843,
+      "sha256": "149be21eb9fdb30eab3c35b8d52cfc5ef80d6ca59df085d6de386a1bc7839abd",
+      "encoding": "literal",
+      "decoded_bytes": 1843,
+      "decoded_sha256": "149be21eb9fdb30eab3c35b8d52cfc5ef80d6ca59df085d6de386a1bc7839abd"
+    },
+    {
+      "logical_name": "current/validator-v3.py.txt",
+      "original_path": "/tmp/e02-E-final3-validate-witness-map-b2f2f65e-20261007-v3.py.txt",
+      "portable_path": "assets/8d4009b445e41a23313ca28a50bfe9ac7e9059b7216ff7a1276cfd7e4e0214f6.txt",
+      "bytes": 8180,
+      "sha256": "8d4009b445e41a23313ca28a50bfe9ac7e9059b7216ff7a1276cfd7e4e0214f6",
+      "encoding": "literal",
+      "decoded_bytes": 8180,
+      "decoded_sha256": "8d4009b445e41a23313ca28a50bfe9ac7e9059b7216ff7a1276cfd7e4e0214f6"
+    },
+    {
+      "logical_name": "current/normal.json",
+      "original_path": "/tmp/e02-E-final3-witness-validation-b2f2f65e-v3-normal.json",
+      "portable_path": "assets/c8a68ba6c2ecd0a83e4e3b4ae5cd11c0165da35839cc3114c34d64621735aa17.txt",
+      "bytes": 8615,
+      "sha256": "c8a68ba6c2ecd0a83e4e3b4ae5cd11c0165da35839cc3114c34d64621735aa17",
+      "encoding": "literal",
+      "decoded_bytes": 8615,
+      "decoded_sha256": "c8a68ba6c2ecd0a83e4e3b4ae5cd11c0165da35839cc3114c34d64621735aa17"
+    },
+    {
+      "logical_name": "current/optimized.json",
+      "original_path": "/tmp/e02-E-final3-witness-validation-b2f2f65e-v3-optimized.json",
+      "portable_path": "assets/c8a68ba6c2ecd0a83e4e3b4ae5cd11c0165da35839cc3114c34d64621735aa17.txt",
+      "bytes": 8615,
+      "sha256": "c8a68ba6c2ecd0a83e4e3b4ae5cd11c0165da35839cc3114c34d64621735aa17",
+      "encoding": "literal",
+      "decoded_bytes": 8615,
+      "decoded_sha256": "c8a68ba6c2ecd0a83e4e3b4ae5cd11c0165da35839cc3114c34d64621735aa17"
+    },
+    {
+      "logical_name": "historical/V2-semantic-escapes.json",
+      "original_path": "/tmp/e02-E-final3-witness-validation-v2-semantic-escapes.json",
+      "portable_path": "assets/63886c31d3b998a9cb8b31f34af63e4317596ca2adf3e2df26713152f5b0ce72.txt",
+      "bytes": 1195,
+      "sha256": "63886c31d3b998a9cb8b31f34af63e4317596ca2adf3e2df26713152f5b0ce72",
+      "encoding": "literal",
+      "decoded_bytes": 1195,
+      "decoded_sha256": "63886c31d3b998a9cb8b31f34af63e4317596ca2adf3e2df26713152f5b0ce72"
+    }
+  ],
+  "logical_count": 5,
+  "unique_count": 4,
+  "unique_bytes": 19833,
+  "scope": "Evidence annotation admission only, preserve currentnative3FAIL and all119 partialgraph records, no runtime authority or findings closure.",
+  "native_outcomes": {
+    "architecture": "FAIL",
+    "runtime-api-contract": "FAIL",
+    "static-invocation": "FAIL"
+  },
+  "finding_closure": false,
+  "P41": "not_established"
+}

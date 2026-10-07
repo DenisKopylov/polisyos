@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final54-b2f2-preparation-20261007/join_globals.py", line 503, in <module>
+    main()
+  File "/tmp/e02-E-final54-b2f2-preparation-20261007/join_globals.py", line 483, in main
+    result, _module = build()
+                      ^^^^^^^
+  File "/tmp/e02-E-final54-b2f2-preparation-20261007/join_globals.py", line 347, in build
+    require(
+  File "/tmp/e02-E-final54-b2f2-preparation-20261007/join_globals.py", line 62, in require
+    raise ValueError(message)
+ValueError: full native stages equal closeout

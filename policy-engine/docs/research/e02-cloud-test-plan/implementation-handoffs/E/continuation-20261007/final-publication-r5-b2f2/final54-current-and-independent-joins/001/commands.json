@@ -1,0 +1,62 @@
+{
+  "schema": "policyos.e02.E.literal_final54_metadata_commands.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "cwd": "/workspace",
+  "scope": "literal metadata executions only; no native test/check execution",
+  "executions": [
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-S",
+        "/tmp/e02-E-final54-b2f2-preparation-20261007/join_globals.py",
+        "--output",
+        "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json"
+      ],
+      "stdout": "/tmp/e02-E-final54-b2f2-preparation-20261007/join-final-v4-normal.stdout.txt",
+      "stderr": "/tmp/e02-E-final54-b2f2-preparation-20261007/join-final-v4-normal.stderr.txt"
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-S",
+        "-O",
+        "/tmp/e02-E-final54-b2f2-preparation-20261007/join_globals.py",
+        "--output",
+        "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-optimized.json"
+      ],
+      "stdout": "/tmp/e02-E-final54-b2f2-preparation-20261007/join-final-v4-optimized.stdout.txt",
+      "stderr": "/tmp/e02-E-final54-b2f2-preparation-20261007/join-final-v4-optimized.stderr.txt"
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-S",
+        "/tmp/e02-E-final54-b2f2-preparation-20261007/validate_final.py"
+      ],
+      "stdout": "/tmp/e02-E-final54-b2f2-preparation-20261007/validation-final-v2-normal.json",
+      "stderr": "/tmp/e02-E-final54-b2f2-preparation-20261007/validation-final-v2-normal.stderr.txt"
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-S",
+        "-O",
+        "/tmp/e02-E-final54-b2f2-preparation-20261007/validate_final.py"
+      ],
+      "stdout": "/tmp/e02-E-final54-b2f2-preparation-20261007/validation-final-v2-optimized.json",
+      "stderr": "/tmp/e02-E-final54-b2f2-preparation-20261007/validation-final-v2-optimized.stderr.txt"
+    },
+    {
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-S",
+        "/tmp/e02-E-final54-b2f2-preparation-20261007/write_indices.py"
+      ],
+      "stdout": "/tmp/e02-E-final54-b2f2-preparation-20261007/write-indices.stdout.txt",
+      "stderr": "/tmp/e02-E-final54-b2f2-preparation-20261007/write-indices.stderr.txt"
+    }
+  ],
+  "historical_observer_qualification": "Initial snapshot decoder expected a different 210-row schema, then omitted zero-PASS CI key, then author validation compared absolute versus relative metadata paths. All initial refusal stdout/stderr and exact executed sources are preserved; no native receipt or source input changed. V3 basis prose correction moved explanations while freezing exact canonical P37 enums.",
+  "future_replay": "Fetch actual E publication/source b2 by exact SHA; resolve original receipt paths using published original-path aliases and hash/size records. Source/output identities remain frozen; any local path remapping is an explicit operational adaptation, not a new numeric PASS. Six local recipes run only on factual criterion-supported inputs, read-only, with the final b2 implementation override."
+}

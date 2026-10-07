@@ -1,0 +1,135 @@
+{
+  "schema": "e02.E.independent.final54_preparation_v4.publication_selection.v1",
+  "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "scope": "Independent V3 original54/22/55/13role byte-conservation and old summary escape; corrected V4 typed wholeclaims GO only. No self77 source code review, new original-row acceptance, finalcase/global/native rerun.",
+  "outcome": "GO_SCOPED_METADATA_CORRECTION",
+  "author_source": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/prepare_v4.py",
+    "bytes": 30841,
+    "sha256": "bfaab952762e87ff1910a39cfa568321949992f2610e7fbbea275a6512ac5c8d"
+  },
+  "author_packet": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/prepared-v4r2-normal.json",
+    "bytes": 489441,
+    "sha256": "929c6f325797b41947f096a022bfdab58975fbbe6a87b4903b1b86456cfbfa4a"
+  },
+  "fixed_input_manifest": {
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/inputs.json",
+    "sha256": "416e0106b4ee30f4ba9efc74a7fee4686cd3e5fee07706661bdac468a6110372"
+  },
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/probe_summary_class.py",
+      "portable_path": "probe_summary_class.py.txt",
+      "bytes": 1877,
+      "sha256": "bf4c18487e59bee065ba4786ea50ab86e8199e1ff6619e08b45e6bd8f1170f5a",
+      "role": "literal independent thin metadata source/byte/corrupt/removal observation; oldV3 falseadmission preserved"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/summary-escape-normal.stdout.json",
+      "portable_path": "summary-escape-normal.stdout.json",
+      "bytes": 1422,
+      "sha256": "af0d26ef617f6779a6dd8b7b2458cb1d6923f48329910a6cc8eccbf8c950c539",
+      "role": "literal independent thin metadata source/byte/corrupt/removal observation; oldV3 falseadmission preserved"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/summary-escape-normal.stderr.txt",
+      "portable_path": "summary-escape-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal independent thin metadata source/byte/corrupt/removal observation; oldV3 falseadmission preserved"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/summary-escape-optimized.stdout.json",
+      "portable_path": "summary-escape-optimized.stdout.json",
+      "bytes": 1422,
+      "sha256": "af0d26ef617f6779a6dd8b7b2458cb1d6923f48329910a6cc8eccbf8c950c539",
+      "role": "literal independent thin metadata source/byte/corrupt/removal observation; oldV3 falseadmission preserved"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/summary-escape-optimized.stderr.txt",
+      "portable_path": "summary-escape-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal independent thin metadata source/byte/corrupt/removal observation; oldV3 falseadmission preserved"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/inspect_original_denominator.py",
+      "portable_path": "inspect_original_denominator.py.txt",
+      "bytes": 6636,
+      "sha256": "113720095a2a814213dcaae30aa9bdd34fd9d7418ca768a7d34b8926d08444b7",
+      "role": "literal independent thin metadata source/byte/corrupt/removal observation; oldV3 falseadmission preserved"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/original-denominator-normal.stdout.json",
+      "portable_path": "original-denominator-normal.stdout.json",
+      "bytes": 36540,
+      "sha256": "285a25aeb31e250a680c7137e1dc11e5fb946f7d0642fe2e3295e6f0e8f00bae",
+      "role": "literal independent thin metadata source/byte/corrupt/removal observation; oldV3 falseadmission preserved"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/original-denominator-normal.stderr.txt",
+      "portable_path": "original-denominator-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal independent thin metadata source/byte/corrupt/removal observation; oldV3 falseadmission preserved"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/original-denominator-optimized.stdout.json",
+      "portable_path": "original-denominator-optimized.stdout.json",
+      "bytes": 36540,
+      "sha256": "285a25aeb31e250a680c7137e1dc11e5fb946f7d0642fe2e3295e6f0e8f00bae",
+      "role": "literal independent thin metadata source/byte/corrupt/removal observation; oldV3 falseadmission preserved"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/original-denominator-optimized.stderr.txt",
+      "portable_path": "original-denominator-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal independent thin metadata source/byte/corrupt/removal observation; oldV3 falseadmission preserved"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/review_corrective_v4.py",
+      "portable_path": "review_corrective_v4.py.txt",
+      "bytes": 6858,
+      "sha256": "939cd9fab3e441fd87e322d484ca9f030332e6ba85a6ea24620bd68c8054f4b9",
+      "role": "literal independent thin metadata source/byte/corrupt/removal observation; oldV3 falseadmission preserved"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/corrective-v4-normal.stdout.json",
+      "portable_path": "corrective-v4-normal.stdout.json",
+      "bytes": 5256,
+      "sha256": "c8ac6dba50d8ae8005288ed77c6d03a660649b936deebeb7351107b8fc1656d5",
+      "role": "literal independent thin metadata source/byte/corrupt/removal observation; oldV3 falseadmission preserved"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/corrective-v4-normal.stderr.txt",
+      "portable_path": "corrective-v4-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal independent thin metadata source/byte/corrupt/removal observation; oldV3 falseadmission preserved"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/corrective-v4-optimized.stdout.json",
+      "portable_path": "corrective-v4-optimized.stdout.json",
+      "bytes": 5256,
+      "sha256": "c8ac6dba50d8ae8005288ed77c6d03a660649b936deebeb7351107b8fc1656d5",
+      "role": "literal independent thin metadata source/byte/corrupt/removal observation; oldV3 falseadmission preserved"
+    },
+    {
+      "source_path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/corrective-v4-optimized.stderr.txt",
+      "portable_path": "corrective-v4-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal independent thin metadata source/byte/corrupt/removal observation; oldV3 falseadmission preserved"
+    }
+  ],
+  "logical_count": 15,
+  "byte_unique_count": 7,
+  "unique_bytes": 58589,
+  "raw_source_cards_or_full54_duplicates_not_copied": "Author source/input originalGitrefs remain literal and accepted fullpacket preserved separately; independent52read-onlyGit commands bind full card/fragment bytes.",
+  "independent_from_metadata_author": true,
+  "source77_review_reuse": "external imports4339639c hash-only; no authored77 code GO by this peer",
+  "case_join_and_final_gates_review": "separate pending scope; no outcomes inferred from source/metadata guards"
+}

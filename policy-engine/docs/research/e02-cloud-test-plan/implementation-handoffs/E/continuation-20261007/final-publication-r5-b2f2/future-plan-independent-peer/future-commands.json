@@ -1,0 +1,18 @@
+{
+  "actual_commands": [
+    [
+      "python3",
+      "/tmp/e02-E-final-metadata-independent-b2-20261007/review.py",
+      "future"
+    ],
+    [
+      "python3",
+      "-O",
+      "/tmp/e02-E-final-metadata-independent-b2-20261007/review.py",
+      "future"
+    ]
+  ],
+  "native_or_numeric_or_canonical_child_repeated": false,
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "reviewer_metadata_observer_correction": "ControlCLI1 remains healthy CONTROL only, no production acceptance."
+}

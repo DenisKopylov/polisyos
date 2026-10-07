@@ -1,0 +1,15 @@
+{
+  "report": {
+    "path": "/tmp/e02-E-final3-independent-b2-20261007/review-optimized.json",
+    "bytes": 131147,
+    "sha256": "3f85cb31c9ed583a673c4a84fad353947b245dce103fdbc49cb4f42515937e7d"
+  },
+  "final_native_outcomes": {
+    "architecture": "FAIL",
+    "runtime-api-contract": "FAIL",
+    "static-invocation": "FAIL"
+  },
+  "independent_controls": 11,
+  "author_admission_supplement": "pending",
+  "native_repeated": false
+}

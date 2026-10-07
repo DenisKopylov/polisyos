@@ -1,0 +1,125 @@
+{
+  "schema": "policyos.e02.independent_final_numeric_selection.v1",
+  "source_sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "source_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/recomputed-wave.json",
+      "portable_path": "recomputed-wave.json",
+      "bytes": 78549,
+      "sha256": "f8c1a91d1a70ec71d98ebe2925f9f70e2e3e104790997bcef5588071be9924fc",
+      "role": "complete closed independent numeric-custody/CaseIndex/typed-control observer output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/recomputed-wave-optimized.json",
+      "portable_path": "recomputed-wave-optimized.json",
+      "bytes": 78548,
+      "sha256": "227a2aac7fab78e3817e92a85e64186188e0fff5d7259d55a28eed0c055c56d0",
+      "role": "complete closed independent numeric-custody/CaseIndex/typed-control observer output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/case-index.json",
+      "portable_path": "case-index.json",
+      "bytes": 447116,
+      "sha256": "df2beee6e2666425dcb68966880f20690056b048da0dc2387d559e5e0099c47e",
+      "role": "complete closed independent numeric-custody/CaseIndex/typed-control observer output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/recompute-normal.stdout.txt",
+      "portable_path": "recompute-normal.stdout.txt",
+      "bytes": 826,
+      "sha256": "47117104bb057e7c74707ebeb0d169e7851dbae073e6ff303a326d239c75aa42",
+      "role": "complete closed independent numeric-custody/CaseIndex/typed-control observer output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/recompute-normal.stderr.txt",
+      "portable_path": "recompute-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete closed independent numeric-custody/CaseIndex/typed-control observer output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/recompute-optimized.stdout.txt",
+      "portable_path": "recompute-optimized.stdout.txt",
+      "bytes": 846,
+      "sha256": "1caec3eaa125ff6ca66b4d154d0c79ec9b1def7ad4ec17f27b8f81991ee4b9b5",
+      "role": "complete closed independent numeric-custody/CaseIndex/typed-control observer output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/recompute-optimized.stderr.txt",
+      "portable_path": "recompute-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete closed independent numeric-custody/CaseIndex/typed-control observer output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/recompute.py.txt",
+      "portable_path": "recompute.py.txt",
+      "bytes": 17074,
+      "sha256": "f41fc9ff047a9f7a182e3823951ad28803f583983d5cff2e2b79f2e93ee90056",
+      "role": "complete closed independent numeric-custody/CaseIndex/typed-control observer output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/historical-observer-v1.py.txt",
+      "portable_path": "historical-observer-v1.py.txt",
+      "bytes": 15602,
+      "sha256": "f77baa8d82764a4dd2c23a3d66d1a89672b0927ed30de9b66546aa254f35a1c0",
+      "role": "complete closed independent numeric-custody/CaseIndex/typed-control observer output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/historical-observer-v1.stdout.txt",
+      "portable_path": "historical-observer-v1.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete closed independent numeric-custody/CaseIndex/typed-control observer output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/historical-observer-v1.stderr.txt",
+      "portable_path": "historical-observer-v1.stderr.txt",
+      "bytes": 325,
+      "sha256": "08ad191c86befbc776c4433d5816e71644b18a29020dd6442fab4242e843aa57",
+      "role": "complete closed independent numeric-custody/CaseIndex/typed-control observer output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/historical-observer-v2.py.txt",
+      "portable_path": "historical-observer-v2.py.txt",
+      "bytes": 16590,
+      "sha256": "0d99b4ed27e1ff273219b28a93ff71d41ce870b6941b03f67569b9ef2245eb87",
+      "role": "complete closed independent numeric-custody/CaseIndex/typed-control observer output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/historical-observer-v2.stdout.txt",
+      "portable_path": "historical-observer-v2.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete closed independent numeric-custody/CaseIndex/typed-control observer output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/historical-observer-v2.stderr.txt",
+      "portable_path": "historical-observer-v2.stderr.txt",
+      "bytes": 556,
+      "sha256": "871271970edb40c1f1bcc64d973c2867c82619aa2fbbc3f0ce4ff27642bcb810",
+      "role": "complete closed independent numeric-custody/CaseIndex/typed-control observer output"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/commands.json",
+      "portable_path": "commands.json",
+      "bytes": 805,
+      "sha256": "85429b88a6b2cfb1224e021b2df3a3dff2ff3d3f4e2fc2cfc3ee706475252837",
+      "role": "complete closed independent numeric-custody/CaseIndex/typed-control observer output"
+    }
+  ],
+  "logical_count": 15,
+  "bytes": 656837,
+  "numeric_counts": {
+    "cases": 1465,
+    "passed": 1457,
+    "failed": 8,
+    "errors": 0,
+    "skipped": 0
+  },
+  "global_gates": "separate parent receipts",
+  "finding_closure": false,
+  "G_acceptance": false,
+  "scope": "Fresh sevenJUnit/eightactualclosedreceipts numeric wave custody only; exacthistorical/perfinding/globalauthority distinctions preserved."
+}

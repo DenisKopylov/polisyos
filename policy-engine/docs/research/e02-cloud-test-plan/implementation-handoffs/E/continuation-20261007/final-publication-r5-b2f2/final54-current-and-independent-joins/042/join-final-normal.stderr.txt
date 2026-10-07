@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final54-b2f2-preparation-20261007/join_globals.py", line 497, in <module>
+    main()
+  File "/tmp/e02-E-final54-b2f2-preparation-20261007/join_globals.py", line 477, in main
+    result, _module = build()
+                      ^^^^^^^
+  File "/tmp/e02-E-final54-b2f2-preparation-20261007/join_globals.py", line 189, in build
+    native_gate(name, final3["deciding"][name], module["same"]) for name in final3["deciding"]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final54-b2f2-preparation-20261007/join_globals.py", line 111, in native_gate
+    len(before["metadata_rows"]) == 207 and len(before["protected_controls"]) == 3,
+        ~~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'metadata_rows'

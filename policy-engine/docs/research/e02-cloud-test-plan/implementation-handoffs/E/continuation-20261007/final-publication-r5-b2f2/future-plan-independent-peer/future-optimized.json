@@ -1,0 +1,1068 @@
+{
+  "kind": "future-plan-custody",
+  "disposition": "GO for closed unapplied future custody-only packet",
+  "claim": {
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+    "selected_members": 145,
+    "actual_recipe_sha": "b943046817b20c655818e77d94258044a0982a1fcc4465ea6cb51c8a9b4c3fc0",
+    "future_applied": false,
+    "controls_per_mode": 9,
+    "actual_stdlib_commands_per_mode": 4,
+    "numeric_callbacks": 0,
+    "healthy_control_collector_exit": 1,
+    "healthy_control_status": "CONTROL_COMPLETE_BOUND",
+    "current_numeric_wave_repeated": false,
+    "finding_authority": false
+  },
+  "selected_originals": [
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/build_future_packet.py",
+      "bytes": 3397,
+      "sha256": "b129bb6488d8f40990b0b9399e42ed6c6cec7f11bc69a781856869f40d829f2f"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/future-final-composed-wave-refresh.py.txt",
+      "bytes": 11345,
+      "sha256": "5a079d55548d325d4d6c2cd7d55c24d0f3d028e4cade1e72957771ae7254e8e4"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/future-plan-custody.patch.txt",
+      "bytes": 1618,
+      "sha256": "cc1e9e7421a138ea62cc6f6bf3010ddb9cc14c560c5ec74081514780a417930e"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/future-patch-source.json",
+      "bytes": 1013,
+      "sha256": "c1582f289a31cea1c01e395c0a013edad52d0b4d2a7a3a26767da57e398e0268"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/probe_future_custody.py",
+      "bytes": 13210,
+      "sha256": "e033d31a0b5ade6d2b13db406308e786487140bc22c7cda33d03c9a849b0cd2a"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/probe_future_custody.v1.py.txt",
+      "bytes": 13099,
+      "sha256": "6c95c21f279d03b9423262e00a14345f805b513e35b28f8ce7fe2e8946f393e4"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/observer-v1-error-qualification.json",
+      "bytes": 1029,
+      "sha256": "0d0d40dcc3941c21e6b7f44eeca1f6218e73ac3bd3c4b341095c71b0f5f8713c"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-v2.stdout.txt",
+      "bytes": 1934,
+      "sha256": "092af514a32ff1f843328de67c848d3c87accb8778656ad4c3f5be38dd17d2ff"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-v2.stdout.txt",
+      "bytes": 1948,
+      "sha256": "6d555aa07e913e59c6b5b66e3b5fda378b07e55b9b68f8aadcb7abd9c992b94b"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/admitted-pre-execution-plan.json",
+      "bytes": 75860,
+      "sha256": "90dc7646ad5b5b08adf80d757b1222e5eeb6f4e7634aa8851248f824cd1a8c8f"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/collection/checks/custody-control-stdlib/custody-control-stdlib.json",
+      "bytes": 8612,
+      "sha256": "13a1d3dd8b229ee2d757a14c9d9f90173a863edabf665eb5de9401acfed4c9be"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/collection/checks/custody-control-stdlib/custody-control-stdlib.stdout.txt",
+      "bytes": 21,
+      "sha256": "e6dd2210d196eb0d7f5bc2c354dc3b06c4083625780a283aa210ca404d5378b7"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/collection/copy-index.json",
+      "bytes": 2273,
+      "sha256": "99ee468a257abb929ec277ebdea291da93d1f8452e511d12a7d66a63d4755862"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/collection/execution-complete.json",
+      "bytes": 178,
+      "sha256": "e203d8e04261c71c544cf2c40105c73ba3a7f4834efd08c6865e4628127b05f1"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/collection/plan.json",
+      "bytes": 75860,
+      "sha256": "90dc7646ad5b5b08adf80d757b1222e5eeb6f4e7634aa8851248f824cd1a8c8f"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/collection/publication-receipt.json",
+      "bytes": 11182,
+      "sha256": "ebc59bac87ac8038190783cc0a486bc13a1c2d42e0120d65b0dcc0c7521ff634"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/collection/wave-started.json",
+      "bytes": 198,
+      "sha256": "0f87c485d495ccba738d5f21df41a296a00d8740829ec6e72c206d888cc82b8d"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/collector.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/collector.stdout.txt",
+      "bytes": 334,
+      "sha256": "8e4e3a63aafd21ab0c89da30dc08a0ad3b4a7fa39d4d415baa66bbaf97bd4017"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/wave/checks/custody-control-stdlib/custody-control-stdlib.json",
+      "bytes": 8612,
+      "sha256": "13a1d3dd8b229ee2d757a14c9d9f90173a863edabf665eb5de9401acfed4c9be"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/wave/checks/custody-control-stdlib/custody-control-stdlib.stdout.txt",
+      "bytes": 21,
+      "sha256": "e6dd2210d196eb0d7f5bc2c354dc3b06c4083625780a283aa210ca404d5378b7"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/wave/execution-complete.json",
+      "bytes": 178,
+      "sha256": "e203d8e04261c71c544cf2c40105c73ba3a7f4834efd08c6865e4628127b05f1"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/wave/plan.json",
+      "bytes": 75860,
+      "sha256": "90dc7646ad5b5b08adf80d757b1222e5eeb6f4e7634aa8851248f824cd1a8c8f"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/wave/stdlib-marker.txt",
+      "bytes": 24,
+      "sha256": "db7f8ea7ab549ae9db79668ab08a18ab9f6be8b579a6764e64a42459006e0486"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/future-healthy/wave/wave-started.json",
+      "bytes": 198,
+      "sha256": "0f87c485d495ccba738d5f21df41a296a00d8740829ec6e72c206d888cc82b8d"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/old-missing-plan/admitted-pre-execution-plan.json",
+      "bytes": 75874,
+      "sha256": "16232368cf3304bedb19ddbe8a313d0c6c68bed8937eca712176361333e7ea9d"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/old-missing-plan/collector.stderr.txt",
+      "bytes": 1772,
+      "sha256": "a2fb54f964e2d6049d5083d4ca2830367c36882e5c88802864f2773410fbb543"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/old-missing-plan/collector.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/old-missing-plan/wave/checks/custody-control-stdlib/custody-control-stdlib.json",
+      "bytes": 8611,
+      "sha256": "24cdf5ec737a01201c3e739108f51f86e1b34ad57a8aad20e4b56d407241e957"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/old-missing-plan/wave/checks/custody-control-stdlib/custody-control-stdlib.stdout.txt",
+      "bytes": 21,
+      "sha256": "e6dd2210d196eb0d7f5bc2c354dc3b06c4083625780a283aa210ca404d5378b7"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/old-missing-plan/wave/execution-complete.json",
+      "bytes": 178,
+      "sha256": "c4c16d53efa4d72d6ccaf05fd6a0ad66b0a5d397a03ad14fa037f102fb7c2d11"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/old-missing-plan/wave/stdlib-marker.txt",
+      "bytes": 24,
+      "sha256": "db7f8ea7ab549ae9db79668ab08a18ab9f6be8b579a6764e64a42459006e0486"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls/old-missing-plan/wave/wave-started.json",
+      "bytes": 198,
+      "sha256": "98dc3afea9c63dd407345cb1fcf21f89cd82431518a85752849a09bf6dd12d9c"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-byte-predicate-removed/admitted-pre-execution-plan.json",
+      "bytes": 75997,
+      "sha256": "acecfdf495546dde3503af891784f92c43f5f8e30d66d5d8c3d1656020bd1bc6"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-byte-predicate-removed/collection/checks/custody-control-stdlib/custody-control-stdlib.json",
+      "bytes": 8706,
+      "sha256": "90b68c5137c6deddd665da08c0627e5375eb9ec59495bf2ecd27f23ec78d1789"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-byte-predicate-removed/collection/checks/custody-control-stdlib/custody-control-stdlib.stdout.txt",
+      "bytes": 21,
+      "sha256": "e6dd2210d196eb0d7f5bc2c354dc3b06c4083625780a283aa210ca404d5378b7"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-byte-predicate-removed/collection/copy-index.json",
+      "bytes": 2273,
+      "sha256": "e4a30d20a48180161cbfeffc77b0c9ec054ef2d0f0cc9aef87435d89185005e5"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-byte-predicate-removed/collection/execution-complete.json",
+      "bytes": 178,
+      "sha256": "6c19a9e707661dbd95ce308abc849a7e1928ffe784dcc02b10446ea65b7cf789"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-byte-predicate-removed/collection/plan.json",
+      "bytes": 75997,
+      "sha256": "acecfdf495546dde3503af891784f92c43f5f8e30d66d5d8c3d1656020bd1bc6"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-byte-predicate-removed/collection/publication-receipt.json",
+      "bytes": 11901,
+      "sha256": "2756cf9633a371bcffef8b2bc142ba2b5c47e6585ebca7356b7ddc575f4b60f5"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-byte-predicate-removed/collection/wave-started.json",
+      "bytes": 198,
+      "sha256": "ae0ba7a0b2283481d0d47cc583f832a5bb952f96d677dee42bebf7e23a4e9917"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-byte-predicate-removed/collector.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-byte-predicate-removed/collector.stdout.txt",
+      "bytes": 354,
+      "sha256": "69d46b365c8a24d3cee456528d208698518923c88ef828cce84318151e8de237"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-byte-predicate-removed/wave/checks/custody-control-stdlib/custody-control-stdlib.json",
+      "bytes": 8706,
+      "sha256": "90b68c5137c6deddd665da08c0627e5375eb9ec59495bf2ecd27f23ec78d1789"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-byte-predicate-removed/wave/checks/custody-control-stdlib/custody-control-stdlib.stdout.txt",
+      "bytes": 21,
+      "sha256": "e6dd2210d196eb0d7f5bc2c354dc3b06c4083625780a283aa210ca404d5378b7"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-byte-predicate-removed/wave/execution-complete.json",
+      "bytes": 178,
+      "sha256": "6c19a9e707661dbd95ce308abc849a7e1928ffe784dcc02b10446ea65b7cf789"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-byte-predicate-removed/wave/plan.json",
+      "bytes": 75997,
+      "sha256": "acecfdf495546dde3503af891784f92c43f5f8e30d66d5d8c3d1656020bd1bc6"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-byte-predicate-removed/wave/stdlib-marker.txt",
+      "bytes": 24,
+      "sha256": "db7f8ea7ab549ae9db79668ab08a18ab9f6be8b579a6764e64a42459006e0486"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-byte-predicate-removed/wave/wave-started.json",
+      "bytes": 198,
+      "sha256": "ae0ba7a0b2283481d0d47cc583f832a5bb952f96d677dee42bebf7e23a4e9917"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-healthy/admitted-pre-execution-plan.json",
+      "bytes": 75881,
+      "sha256": "4645544eedc3723f65a82359653e22d5a69f83dd725170a233f88b91fb9e9c06"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-healthy/collection/checks/custody-control-stdlib/custody-control-stdlib.json",
+      "bytes": 8629,
+      "sha256": "18ef467397d4846de67b9f7bef5deb3fb86436921ce344a0b85a5ba0f25e0434"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-healthy/collection/checks/custody-control-stdlib/custody-control-stdlib.stdout.txt",
+      "bytes": 21,
+      "sha256": "e6dd2210d196eb0d7f5bc2c354dc3b06c4083625780a283aa210ca404d5378b7"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-healthy/collection/copy-index.json",
+      "bytes": 2273,
+      "sha256": "2b30bb77a94cbe5f7e45278b26be69fcea536873677d7f76aa1e8bcd4adc1918"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-healthy/collection/execution-complete.json",
+      "bytes": 178,
+      "sha256": "ff69de27ad8ae8035b4564736c7b12533676b59cde60489ae6217440cd210f15"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-healthy/collection/plan.json",
+      "bytes": 75881,
+      "sha256": "4645544eedc3723f65a82359653e22d5a69f83dd725170a233f88b91fb9e9c06"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-healthy/collection/publication-receipt.json",
+      "bytes": 11211,
+      "sha256": "a584505e6c122efd4791ab7a0ab931e32c54bd4e178a0d6efe12471a70c5cd90"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-healthy/collection/wave-started.json",
+      "bytes": 198,
+      "sha256": "289fd9986f07d86ebbf2e15aecf4d4f87d40840b6537f3d3efdb19d941aae19c"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-healthy/collector.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-healthy/collector.stdout.txt",
+      "bytes": 334,
+      "sha256": "8e4e3a63aafd21ab0c89da30dc08a0ad3b4a7fa39d4d415baa66bbaf97bd4017"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-healthy/wave/checks/custody-control-stdlib/custody-control-stdlib.json",
+      "bytes": 8629,
+      "sha256": "18ef467397d4846de67b9f7bef5deb3fb86436921ce344a0b85a5ba0f25e0434"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-healthy/wave/checks/custody-control-stdlib/custody-control-stdlib.stdout.txt",
+      "bytes": 21,
+      "sha256": "e6dd2210d196eb0d7f5bc2c354dc3b06c4083625780a283aa210ca404d5378b7"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-healthy/wave/execution-complete.json",
+      "bytes": 178,
+      "sha256": "ff69de27ad8ae8035b4564736c7b12533676b59cde60489ae6217440cd210f15"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-healthy/wave/plan.json",
+      "bytes": 75881,
+      "sha256": "4645544eedc3723f65a82359653e22d5a69f83dd725170a233f88b91fb9e9c06"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-healthy/wave/stdlib-marker.txt",
+      "bytes": 24,
+      "sha256": "db7f8ea7ab549ae9db79668ab08a18ab9f6be8b579a6764e64a42459006e0486"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-healthy/wave/wave-started.json",
+      "bytes": 198,
+      "sha256": "289fd9986f07d86ebbf2e15aecf4d4f87d40840b6537f3d3efdb19d941aae19c"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-inlet-removed/admitted-pre-execution-plan.json",
+      "bytes": 75923,
+      "sha256": "8b0a589f7259ab5e723ce1ec17890477feeb2a5d300c9d719a334cb0471083db"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-inlet-removed/collector.stderr.txt",
+      "bytes": 1779,
+      "sha256": "8fabc6b0efb2347abcc43df6dc9cc8d7efe5be97de3e6fc4b4c5962c9a939194"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-inlet-removed/collector.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-inlet-removed/wave/checks/custody-control-stdlib/custody-control-stdlib.json",
+      "bytes": 8666,
+      "sha256": "882648c38604805e62d3136dac8d0391a5460ee5be359d86724641deb97639ce"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-inlet-removed/wave/checks/custody-control-stdlib/custody-control-stdlib.stdout.txt",
+      "bytes": 21,
+      "sha256": "e6dd2210d196eb0d7f5bc2c354dc3b06c4083625780a283aa210ca404d5378b7"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-inlet-removed/wave/execution-complete.json",
+      "bytes": 178,
+      "sha256": "acdeb321f81f37c9583bf9f07f28d3ceeedec7679d71aba6ff463b92de0146dc"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-inlet-removed/wave/stdlib-marker.txt",
+      "bytes": 24,
+      "sha256": "db7f8ea7ab549ae9db79668ab08a18ab9f6be8b579a6764e64a42459006e0486"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-inlet-removed/wave/wave-started.json",
+      "bytes": 197,
+      "sha256": "bb7b35b0a64517a6ad5b43648af7cd47ef5d3b1a57188c37a64ec6a095fa677d"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/malformed-prepared-body/admitted-pre-execution-plan.json",
+      "bytes": 28,
+      "sha256": "762599a91ba9943ff6aee9b8b4e808f7558b3b21a0c958e90a3e76ec16c196a2"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/old-missing-plan/admitted-pre-execution-plan.json",
+      "bytes": 75895,
+      "sha256": "67d2cf92eed63e075678ec5825cefde131bd9cf8def40487b3dbc63e1c3bb5c4"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/old-missing-plan/collector.stderr.txt",
+      "bytes": 1775,
+      "sha256": "dfe5e98b83dc57dd1e9788886bb6563b427acdd014a6b271bba4ea6b206d61e0"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/old-missing-plan/collector.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/old-missing-plan/wave/checks/custody-control-stdlib/custody-control-stdlib.json",
+      "bytes": 8625,
+      "sha256": "484a95720c45468e7451998c3252284059bf1d594363e530c5207ad9d00ffb7c"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/old-missing-plan/wave/checks/custody-control-stdlib/custody-control-stdlib.stdout.txt",
+      "bytes": 21,
+      "sha256": "e6dd2210d196eb0d7f5bc2c354dc3b06c4083625780a283aa210ca404d5378b7"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/old-missing-plan/wave/execution-complete.json",
+      "bytes": 178,
+      "sha256": "06f3e39f21e7dbe54f41d0e623ba966db2a227309512ae727aa903ddc07a92e0"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/old-missing-plan/wave/stdlib-marker.txt",
+      "bytes": 24,
+      "sha256": "db7f8ea7ab549ae9db79668ab08a18ab9f6be8b579a6764e64a42459006e0486"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/old-missing-plan/wave/wave-started.json",
+      "bytes": 198,
+      "sha256": "195cf44830109652b77fa4c698c42bfe3e7f49f552345b0d82382b791ecbd7f1"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/present-fake-wave-plan/admitted-pre-execution-plan.json",
+      "bytes": 75937,
+      "sha256": "782036063dd0519485caf05db03835c847b31f86da453135d5a9f8db1eb5b713"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/present-fake-wave-plan/wave/plan.json",
+      "bytes": 75937,
+      "sha256": "782036063dd0519485caf05db03835c847b31f86da453135d5a9f8db1eb5b713"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/review.json",
+      "bytes": 14420,
+      "sha256": "0b7a94bd5a496308d1551e65285fafa90ea3244d34474a21fc2d4db6d49a439f"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/same-count-substituted-command/admitted-pre-execution-plan.json",
+      "bytes": 75984,
+      "sha256": "5b1d71eefbbf888cc16963285a766f1f914761719ede796374f821ed591312c7"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/same-count-summary-promotion/admitted-pre-execution-plan.json",
+      "bytes": 75906,
+      "sha256": "10da3f720b4186d180cc5250eb3398a379c3b9c24e178cdbc6bcea78e4997e6a"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/wrong-output-binding/admitted-pre-execution-plan.json",
+      "bytes": 75929,
+      "sha256": "55b7687d3599ba2fc09e5bf1c597683346660821b6ec5609c82c1943aa841138"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/admitted-pre-execution-plan.json",
+      "bytes": 76018,
+      "sha256": "c399dc3ce9e9c3ad161d0e23b894d3e6933a84596636c5b27b36964d4512da7b"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/collection/checks/custody-control-stdlib/custody-control-stdlib.json",
+      "bytes": 8737,
+      "sha256": "e6fa5a4287dcccc236db1d38392ef14572c029722b1d9cf21a0b8e4c2f16fffc"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/collection/checks/custody-control-stdlib/custody-control-stdlib.stdout.txt",
+      "bytes": 21,
+      "sha256": "e6dd2210d196eb0d7f5bc2c354dc3b06c4083625780a283aa210ca404d5378b7"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/collection/copy-index.json",
+      "bytes": 2273,
+      "sha256": "dd3eb4f11e26b175bb70eee062db03457c0a49cd4c910baa9865d97e1b00502c"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/collection/execution-complete.json",
+      "bytes": 178,
+      "sha256": "620d014cd5484e2c3282f89b836139206192b44e8682ba22e2447a774e954314"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/collection/plan.json",
+      "bytes": 76018,
+      "sha256": "c399dc3ce9e9c3ad161d0e23b894d3e6933a84596636c5b27b36964d4512da7b"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/collection/publication-receipt.json",
+      "bytes": 11942,
+      "sha256": "6749d384f75fd3de9570864ea8e32c8456761ae33e167dae8e416f80aa016ffd"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/collection/wave-started.json",
+      "bytes": 197,
+      "sha256": "e227cccbafb1e7809439209ea404e1ad602ce94d77e7dab576d7a5bf89fed754"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/collector.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/collector.stdout.txt",
+      "bytes": 354,
+      "sha256": "69d46b365c8a24d3cee456528d208698518923c88ef828cce84318151e8de237"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/wave/checks/custody-control-stdlib/custody-control-stdlib.json",
+      "bytes": 8737,
+      "sha256": "e6fa5a4287dcccc236db1d38392ef14572c029722b1d9cf21a0b8e4c2f16fffc"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/wave/checks/custody-control-stdlib/custody-control-stdlib.stdout.txt",
+      "bytes": 21,
+      "sha256": "e6dd2210d196eb0d7f5bc2c354dc3b06c4083625780a283aa210ca404d5378b7"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/wave/execution-complete.json",
+      "bytes": 178,
+      "sha256": "620d014cd5484e2c3282f89b836139206192b44e8682ba22e2447a774e954314"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/wave/plan.json",
+      "bytes": 76018,
+      "sha256": "c399dc3ce9e9c3ad161d0e23b894d3e6933a84596636c5b27b36964d4512da7b"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/wave/stdlib-marker.txt",
+      "bytes": 24,
+      "sha256": "db7f8ea7ab549ae9db79668ab08a18ab9f6be8b579a6764e64a42459006e0486"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/wave/wave-started.json",
+      "bytes": 197,
+      "sha256": "e227cccbafb1e7809439209ea404e1ad602ce94d77e7dab576d7a5bf89fed754"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/admitted-pre-execution-plan.json",
+      "bytes": 75902,
+      "sha256": "36c4f263eec54d0eb3afd755d9eacf88754d954e8e40da290708240756fc86ef"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/collection/checks/custody-control-stdlib/custody-control-stdlib.json",
+      "bytes": 8630,
+      "sha256": "2aec50ef83eb8ec93a427f409c4f3255f3138abe3db1eeb29e010a60205722b0"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/collection/checks/custody-control-stdlib/custody-control-stdlib.stdout.txt",
+      "bytes": 21,
+      "sha256": "e6dd2210d196eb0d7f5bc2c354dc3b06c4083625780a283aa210ca404d5378b7"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/collection/copy-index.json",
+      "bytes": 2273,
+      "sha256": "a000b7fd811716513ea4ba3e248844c28de4533c8f373de417db4cd6fb4ca93e"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/collection/execution-complete.json",
+      "bytes": 177,
+      "sha256": "e0aec8b41502634a6b5939a4e144323a5c0c93b1f5928824698b5940503993dc"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/collection/plan.json",
+      "bytes": 75902,
+      "sha256": "36c4f263eec54d0eb3afd755d9eacf88754d954e8e40da290708240756fc86ef"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/collection/publication-receipt.json",
+      "bytes": 11222,
+      "sha256": "43c7a08d474b839a44a2786055c52ff9a541515e4813a05314fd89eca08d6c79"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/collection/wave-started.json",
+      "bytes": 197,
+      "sha256": "2a4e0d6aeb65c89555b63826b2fcc789950dd46892fc9ec622d8af6b02adb8b9"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/collector.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/collector.stdout.txt",
+      "bytes": 334,
+      "sha256": "8e4e3a63aafd21ab0c89da30dc08a0ad3b4a7fa39d4d415baa66bbaf97bd4017"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/wave/checks/custody-control-stdlib/custody-control-stdlib.json",
+      "bytes": 8630,
+      "sha256": "2aec50ef83eb8ec93a427f409c4f3255f3138abe3db1eeb29e010a60205722b0"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/wave/checks/custody-control-stdlib/custody-control-stdlib.stdout.txt",
+      "bytes": 21,
+      "sha256": "e6dd2210d196eb0d7f5bc2c354dc3b06c4083625780a283aa210ca404d5378b7"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/wave/execution-complete.json",
+      "bytes": 177,
+      "sha256": "e0aec8b41502634a6b5939a4e144323a5c0c93b1f5928824698b5940503993dc"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/wave/plan.json",
+      "bytes": 75902,
+      "sha256": "36c4f263eec54d0eb3afd755d9eacf88754d954e8e40da290708240756fc86ef"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/wave/stdlib-marker.txt",
+      "bytes": 24,
+      "sha256": "db7f8ea7ab549ae9db79668ab08a18ab9f6be8b579a6764e64a42459006e0486"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/wave/wave-started.json",
+      "bytes": 197,
+      "sha256": "2a4e0d6aeb65c89555b63826b2fcc789950dd46892fc9ec622d8af6b02adb8b9"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-inlet-removed/admitted-pre-execution-plan.json",
+      "bytes": 75944,
+      "sha256": "04792738640fa086e8b6b12f798cf03ffc4a269d6e69a44aa75babf50eb9215c"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-inlet-removed/collector.stderr.txt",
+      "bytes": 1782,
+      "sha256": "ecda50e252084791f29426e7901c0979fb216a5aece119c688cad8648dfa67f0"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-inlet-removed/collector.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-inlet-removed/wave/checks/custody-control-stdlib/custody-control-stdlib.json",
+      "bytes": 8670,
+      "sha256": "ef77ba068115b2cd0d92b0bb2e87bd058a95aaf58f17bbc0d163c3a6b6a52a56"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-inlet-removed/wave/checks/custody-control-stdlib/custody-control-stdlib.stdout.txt",
+      "bytes": 21,
+      "sha256": "e6dd2210d196eb0d7f5bc2c354dc3b06c4083625780a283aa210ca404d5378b7"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-inlet-removed/wave/execution-complete.json",
+      "bytes": 178,
+      "sha256": "68271cc6072931df99a547629c38d3bcf59b8700d30ea550e2ada54ddc1404e4"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-inlet-removed/wave/stdlib-marker.txt",
+      "bytes": 24,
+      "sha256": "db7f8ea7ab549ae9db79668ab08a18ab9f6be8b579a6764e64a42459006e0486"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-inlet-removed/wave/wave-started.json",
+      "bytes": 198,
+      "sha256": "912e3200078caa29e2ba0f4f0cde189e41fa7c1db6b57a3d15bcf8a48e134ad8"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/malformed-prepared-body/admitted-pre-execution-plan.json",
+      "bytes": 28,
+      "sha256": "762599a91ba9943ff6aee9b8b4e808f7558b3b21a0c958e90a3e76ec16c196a2"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/old-missing-plan/admitted-pre-execution-plan.json",
+      "bytes": 75916,
+      "sha256": "34dc456551fba85ee58818baa733a915a5b2698b4cfe07ea8d85f238170182fa"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/old-missing-plan/collector.stderr.txt",
+      "bytes": 1778,
+      "sha256": "ecd605c1cf4378bbfc79dfcb54f10ac1cdebbd0dd7835a26726635a4b3b5c139"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/old-missing-plan/collector.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/old-missing-plan/wave/checks/custody-control-stdlib/custody-control-stdlib.json",
+      "bytes": 8648,
+      "sha256": "b8dfcba93c3f5ecb7b6b8e1fdf8b2edb49574dd75e04489921684faccdb1c533"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/old-missing-plan/wave/checks/custody-control-stdlib/custody-control-stdlib.stdout.txt",
+      "bytes": 21,
+      "sha256": "e6dd2210d196eb0d7f5bc2c354dc3b06c4083625780a283aa210ca404d5378b7"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/old-missing-plan/wave/execution-complete.json",
+      "bytes": 178,
+      "sha256": "25d4b90f378a7a589fff26f7e8c489aa988dad3321d575215e5c42db00614f55"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/old-missing-plan/wave/stdlib-marker.txt",
+      "bytes": 24,
+      "sha256": "db7f8ea7ab549ae9db79668ab08a18ab9f6be8b579a6764e64a42459006e0486"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/old-missing-plan/wave/wave-started.json",
+      "bytes": 198,
+      "sha256": "a363160144e0c9af82ca96fcefd87e0582ff18a536a60e49cbf63183d8789456"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/present-fake-wave-plan/admitted-pre-execution-plan.json",
+      "bytes": 75958,
+      "sha256": "43e2f67f174e5b3dc496be2eb3fdf84132501df17b7471ed7eeec7de8a82b723"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/present-fake-wave-plan/wave/plan.json",
+      "bytes": 75958,
+      "sha256": "43e2f67f174e5b3dc496be2eb3fdf84132501df17b7471ed7eeec7de8a82b723"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/review.json",
+      "bytes": 14506,
+      "sha256": "399a5032e735d994d900222acccef73e5e8722d055f785086c7928cb45f3b011"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/same-count-substituted-command/admitted-pre-execution-plan.json",
+      "bytes": 76005,
+      "sha256": "c5cfc4ccc44c5dd87e50263c00a4879ccb3e31f1f482e07158ffc7923dd6d241"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/same-count-summary-promotion/admitted-pre-execution-plan.json",
+      "bytes": 75927,
+      "sha256": "b532a248711fbbb803bf9725e11190ddc885ca708af4c0a9308ef6ddf6eedb02"
+    },
+    {
+      "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/wrong-output-binding/admitted-pre-execution-plan.json",
+      "bytes": 75950,
+      "sha256": "6570b1079cd78ef95eecb022a97fbe82fe80c3f86024afd4358e1d903a5e22ed"
+    }
+  ],
+  "actual_canonical_control_rows": [
+    {
+      "mode": "normal",
+      "report": {
+        "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/review.json",
+        "bytes": 14420,
+        "sha256": "0b7a94bd5a496308d1551e65285fafa90ea3244d34474a21fc2d4db6d49a439f"
+      },
+      "rows": [
+        {
+          "name": "old-missing-plan",
+          "actual_receipt": {
+            "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/old-missing-plan/wave/checks/custody-control-stdlib/custody-control-stdlib.json",
+            "bytes": 8625,
+            "sha256": "484a95720c45468e7451998c3252284059bf1d594363e530c5207ad9d00ffb7c"
+          },
+          "actual_collector_exit": 1,
+          "actual_state": "REFUSED_MISSING_PLAN",
+          "actual_tiny_child_closed": true,
+          "numeric_test_callback": false
+        },
+        {
+          "name": "future-healthy",
+          "actual_receipt": {
+            "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-healthy/wave/checks/custody-control-stdlib/custody-control-stdlib.json",
+            "bytes": 8629,
+            "sha256": "18ef467397d4846de67b9f7bef5deb3fb86436921ce344a0b85a5ba0f25e0434"
+          },
+          "actual_collector_exit": 1,
+          "actual_state": "HEALTHY_CONTROL_COMPLETE_BOUND",
+          "actual_tiny_child_closed": true,
+          "numeric_test_callback": false
+        },
+        {
+          "name": "future-inlet-removed",
+          "actual_receipt": {
+            "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-inlet-removed/wave/checks/custody-control-stdlib/custody-control-stdlib.json",
+            "bytes": 8666,
+            "sha256": "882648c38604805e62d3136dac8d0391a5460ee5be359d86724641deb97639ce"
+          },
+          "actual_collector_exit": 1,
+          "actual_state": "REFUSED_MISSING_PLAN",
+          "actual_tiny_child_closed": true,
+          "numeric_test_callback": false
+        },
+        {
+          "name": "future-byte-predicate-removed",
+          "actual_receipt": {
+            "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/future-byte-predicate-removed/wave/checks/custody-control-stdlib/custody-control-stdlib.json",
+            "bytes": 8706,
+            "sha256": "90b68c5137c6deddd665da08c0627e5375eb9ec59495bf2ecd27f23ec78d1789"
+          },
+          "actual_collector_exit": 1,
+          "actual_state": "PROPERTY_FAIL_REMOVAL_EXECUTED_BEFORE_DOWNSTREAM_REFUSAL",
+          "actual_tiny_child_closed": true,
+          "numeric_test_callback": false
+        },
+        {
+          "name": "same-count-substituted-command",
+          "state": "REFUSED_BEFORE_EXECUTOR",
+          "complete_input": {
+            "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/same-count-substituted-command/admitted-pre-execution-plan.json",
+            "bytes": 75984,
+            "sha256": "5b1d71eefbbf888cc16963285a766f1f914761719ede796374f821ed591312c7"
+          },
+          "error": "prepared plan bytes differ from actual execution argument",
+          "actual_child_receipt": null
+        },
+        {
+          "name": "same-count-summary-promotion",
+          "state": "REFUSED_BEFORE_EXECUTOR",
+          "complete_input": {
+            "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/same-count-summary-promotion/admitted-pre-execution-plan.json",
+            "bytes": 75906,
+            "sha256": "10da3f720b4186d180cc5250eb3398a379c3b9c24e178cdbc6bcea78e4997e6a"
+          },
+          "error": "prepared plan bytes differ from actual execution argument",
+          "actual_child_receipt": null
+        },
+        {
+          "name": "present-fake-wave-plan",
+          "state": "REFUSED_BEFORE_EXECUTOR",
+          "complete_input": {
+            "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/present-fake-wave-plan/admitted-pre-execution-plan.json",
+            "bytes": 75937,
+            "sha256": "782036063dd0519485caf05db03835c847b31f86da453135d5a9f8db1eb5b713"
+          },
+          "error": "exclusive never-existing wave required before plan materialization",
+          "actual_child_receipt": null
+        },
+        {
+          "name": "wrong-output-binding",
+          "state": "REFUSED_BEFORE_EXECUTOR",
+          "complete_input": {
+            "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/wrong-output-binding/admitted-pre-execution-plan.json",
+            "bytes": 75929,
+            "sha256": "55b7687d3599ba2fc09e5bf1c597683346660821b6ec5609c82c1943aa841138"
+          },
+          "error": "execution output binding differs",
+          "actual_child_receipt": null
+        },
+        {
+          "name": "malformed-prepared-body",
+          "state": "REFUSED_BEFORE_EXECUTOR",
+          "complete_input": {
+            "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/normal-controls-v2/malformed-prepared-body/admitted-pre-execution-plan.json",
+            "bytes": 28,
+            "sha256": "762599a91ba9943ff6aee9b8b4e808f7558b3b21a0c958e90a3e76ec16c196a2"
+          },
+          "error": "prepared plan bytes differ from actual execution argument",
+          "actual_child_receipt": null
+        }
+      ]
+    },
+    {
+      "mode": "optimized",
+      "report": {
+        "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/review.json",
+        "bytes": 14506,
+        "sha256": "399a5032e735d994d900222acccef73e5e8722d055f785086c7928cb45f3b011"
+      },
+      "rows": [
+        {
+          "name": "old-missing-plan",
+          "actual_receipt": {
+            "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/old-missing-plan/wave/checks/custody-control-stdlib/custody-control-stdlib.json",
+            "bytes": 8648,
+            "sha256": "b8dfcba93c3f5ecb7b6b8e1fdf8b2edb49574dd75e04489921684faccdb1c533"
+          },
+          "actual_collector_exit": 1,
+          "actual_state": "REFUSED_MISSING_PLAN",
+          "actual_tiny_child_closed": true,
+          "numeric_test_callback": false
+        },
+        {
+          "name": "future-healthy",
+          "actual_receipt": {
+            "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-healthy/wave/checks/custody-control-stdlib/custody-control-stdlib.json",
+            "bytes": 8630,
+            "sha256": "2aec50ef83eb8ec93a427f409c4f3255f3138abe3db1eeb29e010a60205722b0"
+          },
+          "actual_collector_exit": 1,
+          "actual_state": "HEALTHY_CONTROL_COMPLETE_BOUND",
+          "actual_tiny_child_closed": true,
+          "numeric_test_callback": false
+        },
+        {
+          "name": "future-inlet-removed",
+          "actual_receipt": {
+            "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-inlet-removed/wave/checks/custody-control-stdlib/custody-control-stdlib.json",
+            "bytes": 8670,
+            "sha256": "ef77ba068115b2cd0d92b0bb2e87bd058a95aaf58f17bbc0d163c3a6b6a52a56"
+          },
+          "actual_collector_exit": 1,
+          "actual_state": "REFUSED_MISSING_PLAN",
+          "actual_tiny_child_closed": true,
+          "numeric_test_callback": false
+        },
+        {
+          "name": "future-byte-predicate-removed",
+          "actual_receipt": {
+            "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/future-byte-predicate-removed/wave/checks/custody-control-stdlib/custody-control-stdlib.json",
+            "bytes": 8737,
+            "sha256": "e6fa5a4287dcccc236db1d38392ef14572c029722b1d9cf21a0b8e4c2f16fffc"
+          },
+          "actual_collector_exit": 1,
+          "actual_state": "PROPERTY_FAIL_REMOVAL_EXECUTED_BEFORE_DOWNSTREAM_REFUSAL",
+          "actual_tiny_child_closed": true,
+          "numeric_test_callback": false
+        },
+        {
+          "name": "same-count-substituted-command",
+          "state": "REFUSED_BEFORE_EXECUTOR",
+          "complete_input": {
+            "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/same-count-substituted-command/admitted-pre-execution-plan.json",
+            "bytes": 76005,
+            "sha256": "c5cfc4ccc44c5dd87e50263c00a4879ccb3e31f1f482e07158ffc7923dd6d241"
+          },
+          "error": "prepared plan bytes differ from actual execution argument",
+          "actual_child_receipt": null
+        },
+        {
+          "name": "same-count-summary-promotion",
+          "state": "REFUSED_BEFORE_EXECUTOR",
+          "complete_input": {
+            "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/same-count-summary-promotion/admitted-pre-execution-plan.json",
+            "bytes": 75927,
+            "sha256": "b532a248711fbbb803bf9725e11190ddc885ca708af4c0a9308ef6ddf6eedb02"
+          },
+          "error": "prepared plan bytes differ from actual execution argument",
+          "actual_child_receipt": null
+        },
+        {
+          "name": "present-fake-wave-plan",
+          "state": "REFUSED_BEFORE_EXECUTOR",
+          "complete_input": {
+            "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/present-fake-wave-plan/admitted-pre-execution-plan.json",
+            "bytes": 75958,
+            "sha256": "43e2f67f174e5b3dc496be2eb3fdf84132501df17b7471ed7eeec7de8a82b723"
+          },
+          "error": "exclusive never-existing wave required before plan materialization",
+          "actual_child_receipt": null
+        },
+        {
+          "name": "wrong-output-binding",
+          "state": "REFUSED_BEFORE_EXECUTOR",
+          "complete_input": {
+            "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/wrong-output-binding/admitted-pre-execution-plan.json",
+            "bytes": 75950,
+            "sha256": "6570b1079cd78ef95eecb022a97fbe82fe80c3f86024afd4358e1d903a5e22ed"
+          },
+          "error": "execution output binding differs",
+          "actual_child_receipt": null
+        },
+        {
+          "name": "malformed-prepared-body",
+          "state": "REFUSED_BEFORE_EXECUTOR",
+          "complete_input": {
+            "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/optimized-controls-v2/malformed-prepared-body/admitted-pre-execution-plan.json",
+            "bytes": 28,
+            "sha256": "762599a91ba9943ff6aee9b8b4e808f7558b3b21a0c958e90a3e76ec16c196a2"
+          },
+          "error": "prepared plan bytes differ from actual execution argument",
+          "actual_child_receipt": null
+        }
+      ]
+    }
+  ],
+  "independent_controls": [
+    {
+      "name": "CONTROL_CLI1_promoted0",
+      "outcome": "rejected",
+      "reason": "full typed closed-metadata claim equality",
+      "original_closed_receipt_ref_count_and_source_markers_kept": true
+    },
+    {
+      "name": "CONTROL_status_production",
+      "outcome": "rejected",
+      "reason": "full typed closed-metadata claim equality",
+      "original_closed_receipt_ref_count_and_source_markers_kept": true
+    },
+    {
+      "name": "future_patch_applied",
+      "outcome": "rejected",
+      "reason": "full typed closed-metadata claim equality",
+      "original_closed_receipt_ref_count_and_source_markers_kept": true
+    },
+    {
+      "name": "bool_count",
+      "outcome": "rejected",
+      "reason": "full typed closed-metadata claim equality",
+      "original_closed_receipt_ref_count_and_source_markers_kept": true
+    },
+    {
+      "name": "member_omission",
+      "outcome": "rejected",
+      "reason": "full typed closed-metadata claim equality",
+      "original_closed_receipt_ref_count_and_source_markers_kept": true
+    },
+    {
+      "name": "native_false_callbacks",
+      "outcome": "rejected",
+      "reason": "full typed closed-metadata claim equality",
+      "original_closed_receipt_ref_count_and_source_markers_kept": true
+    },
+    {
+      "name": "oldrecipe_false_identity",
+      "outcome": "rejected",
+      "reason": "full typed closed-metadata claim equality",
+      "original_closed_receipt_ref_count_and_source_markers_kept": true
+    },
+    {
+      "name": "finding_promoted",
+      "outcome": "rejected",
+      "reason": "full typed closed-metadata claim equality",
+      "original_closed_receipt_ref_count_and_source_markers_kept": true
+    },
+    {
+      "name": "sole_typed_claim_admission_removed",
+      "false_finding_authority_re_admitted": true,
+      "defining_property": "FAIL"
+    }
+  ],
+  "historical_observer": {
+    "path": "/tmp/e02-E-future-plan-custody-b2f2f65e-20261007/observer-v1-error-qualification.json",
+    "bytes": 1029,
+    "sha256": "0d0d40dcc3941c21e6b7f44eeca1f6218e73ac3bd3c4b341095c71b0f5f8713c"
+  },
+  "limits": [
+    "No canonical child/executor/collector replay by independent reviewer; actual closed raw receipts and complete tiny-child command/marker/source outputs reconciled.",
+    "Future patch is not applied to original b943 or current numerical wave.",
+    "CONTROL CLI1 is retained; no production/CI/numerical/finding acceptance follows.",
+    "Property-removal controls use actual existing children and subsequent raw collector refusals."
+  ],
+  "schema": "policyos.e02.independent_closed_metadata_custody.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "source_guard_before": {
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+    "tracked_status": ""
+  },
+  "source_guard_after": {
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+    "tracked_status": ""
+  },
+  "optimization_mode": true,
+  "native_or_numeric_or_environment_mutation": false,
+  "P37": [
+    {
+      "predicate": "actual closed input/ref/byte/order/count claims and full native stdout stage outcomes",
+      "basis": "independently_reconciled"
+    },
+    {
+      "predicate": "literal selection bodies/source/metadata framing and pure typed negative admission",
+      "basis": "recomputed"
+    },
+    {
+      "predicate": "scientific/finding/fullCI/G authority, whole-environment binary identity and broadP41cause",
+      "basis": "not_established"
+    }
+  ]
+}

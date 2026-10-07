@@ -1,0 +1,170 @@
+from pathlib import Path
+from collections import Counter
+import copy, hashlib, json, os, shutil, subprocess, sys, xml.etree.ElementTree as ET
+
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+OUT=Path(__file__).parent
+PUB='2dc99fe3cbc9f184205d291ec80410bb8bbc1c76'
+TREE='8cba7977f54ed1c7e6d0f66b3c7e83a98011ab6e'
+PAR='5835140f86199c51676187ed337fd61ceabeb713'
+PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade'
+SOURCE='ace655f4c97fdbfb2fed0b22de7a54caa3ac31b1'
+SOURCE_TREE='954620fc97fb377ca17be3db3592b10b66849a3e'
+BASE='f5c2845851aeb1591de9c73db6de392656656e96'
+OLD='e4566c56f1d05479e4d8bc5bba562d701c17e5bc'
+REUSE='ecde9d2d8d9d13cba87420930105e378010a1acc'
+P=ROOT/PREFIX
+AUTHOR=Path('/tmp/e02-E-root-summary-facade-author-20261007')
+CORE=Path('/tmp/e02-E-root-summary-facade-core-companion-20261007')
+PEER=Path('/tmp/e02-E-summary-facade-ace655-independent-20261007/publication-selection.json')
+STAGE=Path('/tmp/e02-E-root-summary-facade-handoff-r4-stage')
+AN=['affected-caller-pytest.stderr.txt','affected-caller-pytest.stdout.txt','author-checks.json','check_author.py','commit.stderr.txt','commit.stdout.txt','format-check.stderr.txt','format-check.stdout.txt','format.json','format.stderr.txt','format.stdout.txt','implementation-source.json','old-f5-facade.py.txt','old-public-caller.stderr.txt','old-public-caller.stdout.txt','old_public_caller_probe.py.txt','pytest.xml','ruff.stderr.txt','ruff.stdout.txt']
+CN=['affected-facade.stderr.txt','affected-facade.stdout.txt','commit.stderr.txt','commit.stdout.txt','format-check.stderr.txt','format-check.stdout.txt','format.stderr.txt','format.stdout.txt','implementation-source.json','pytest.xml','receipt.json','ruff.stderr.txt','ruff.stdout.txt']
+
+def sha(b):return hashlib.sha256(b).hexdigest()
+def canonical(x):return json.dumps(x,sort_keys=True,ensure_ascii=False,separators=(',',':'),allow_nan=False)
+def require(ok,message):
+    if not ok:raise ValueError(message)
+def git(*args):return subprocess.check_output(['git','--no-optional-locks',*args],cwd=ROOT)
+def readj(p):return json.loads(p.read_bytes())
+def writej(p,x):p.write_text(json.dumps(x,indent=2,ensure_ascii=False)+'\n')
+def ref(p):
+    b=p.read_bytes();return {'source_path':str(p),'bytes':len(b),'sha256':sha(b)}
+def snapshot():return {'HEAD':git('rev-parse','HEAD').decode().strip(),'tree':git('rev-parse','HEAD^{tree}').decode().strip(),'status':git('status','--porcelain=v1').decode(),'tracked_status':git('status','--porcelain=v1','--untracked-files=no').decode()}
+def cases(p):
+    rows=[]
+    for t in ET.parse(p).getroot().iter('testcase'):
+        flags=[x.tag for x in t if x.tag in ('failure','error','skipped')]
+        require(len(flags)<=1,'ambiguous testcase outcome')
+        status={'failure':'FAIL','error':'ERROR','skipped':'SKIP'}.get(flags[0] if flags else '', 'PASS')
+        rows.append((t.attrib.get('classname'),t.attrib.get('name'),status))
+    require(len(rows)==len(set(rows)),'duplicate native testcase identity')
+    return rows
+def row(path,portable,role,original=None):
+    r={**ref(path),'portable_path':portable,'role':role}
+    if original is not None:r['original_selected_record']=original
+    return r
+def original_record(path,name):return {**ref(path),'path':name}
+
+before=snapshot()
+require(before['HEAD']==PUB and before['tree']==TREE and before['tracked_status']=='','live publication identity/clean tracked guard')
+require(git('rev-parse',PUB+'^').decode().strip()==PAR,'ordinary publication parent')
+require(git('rev-parse',PUB+'^{tree}').decode().strip()==TREE,'immutable publication tree')
+names=git('diff','--name-only',PAR,PUB).decode().splitlines()
+require(len(names)==61 and all(n.startswith(PREFIX+'/') and not n.endswith('.py') for n in names),'complete passive 61path footprint')
+require(all(x.startswith('A\t') for x in git('diff','--name-status',PAR,PUB).decode().splitlines()),'only additive DOC publication')
+physical_names=sorted(str(x.relative_to(ROOT)) for x in P.rglob('*') if x.is_file())
+require(physical_names==sorted(names),'physical complete footprint equals immutable Git')
+git_rows=[]
+for name in names:
+    raw=git('show',PUB+':'+name);physical=(ROOT/name).read_bytes()
+    require(raw==physical,'Git/physical '+name)
+    require(not (ROOT/name).is_symlink(),'publication carrier not symlink '+name)
+    git_rows.append({'path':name,'bytes':len(raw),'sha256':sha(raw),'git_blob':git('rev-parse',PUB+':'+name).decode().strip()})
+h=readj(P/'implementation-handoff.json');i=readj(P/'copy-index.json')
+require(h['candidate']==SOURCE and h['tree']==SOURCE_TREE and h['base']==BASE,'source identity')
+require(git('rev-parse',SOURCE+'^{tree}').decode().strip()==SOURCE_TREE,'exact immutable source tree')
+require(git('rev-parse',BASE+'^{tree}').decode().strip()==h['base_tree'],'base tree')
+source_paths=git('diff','--name-only',BASE,SOURCE).decode().splitlines()
+require(sorted(source_paths)==sorted(x['path'] for x in h['full_source_footprint']) and len(source_paths)==6,'source full six paths')
+for r in h['full_source_footprint']:
+    b=git('show',SOURCE+':'+r['path'])
+    require(len(b)==r['bytes'] and sha(b)==r['sha256'] and git('rev-parse',SOURCE+':'+r['path']).decode().strip()==r['git_blob'],'exact source blob '+r['path'])
+require(sum(r['bytes'] for r in h['full_source_footprint'])==51431,'complete source bytes')
+require(len([p for p in source_paths if p.endswith('.py')])==4,'source Python denominator')
+for p in ('policy-engine/src/polisyos/ir/analytics/uncertainty.py','policy-engine/src/polisyos/ir/analytics/posterior_summary.py'):
+    require(git('show',REUSE+':'+p)==git('show',SOURCE+':'+p),'unchanged reviewed math body '+p)
+for s in (BASE,OLD,SOURCE):require(subprocess.run(['git','merge-base','--is-ancestor',s,PUB],cwd=ROOT).returncode==0,'source ancestry '+s)
+
+peer=readj(PEER)
+require(ref(PEER)['sha256']=='112be519e5f4736dbf8483716d7e3e036ac7a3b54b964d7d58c024ed0237235e','closed independently approved selector')
+require(peer['candidate']==SOURCE and peer['candidate_tree']==SOURCE_TREE and len(peer['assets'])==44,'approved exact peer source/44 members')
+expected=[]
+for directory,names0,portable,role in ((AUTHOR,AN,'author-historical-e456','historical e456 root-author complete moderate output'),(CORE,CN,'author-corrective-ace','ace corrective root-author complete moderate output')):
+    for name in names0:
+        expected.append(row(directory/name,portable+'/'+name+('.txt' if name.endswith('.py') else ''),role,original_record(directory/name,name)))
+for a in peer['assets']:
+    r=row(Path(a['source_path']),'independent/'+a['path'],'independent current ace GO or explicitly historical e456/observer output',a)
+    require(r['bytes']==a['bytes'] and r['sha256']==a['sha256'],'peer original byte identity')
+    expected.append(r)
+expected.append(row(PEER,'independent/publication-selection.json','complete original44member peer selector'))
+expected.append(row(STAGE/'source-assembly.json','assembly/source-assembly.json','read-only immutable Git/source and original-output reconciliation'))
+expected.append(row(STAGE/'assemble_handoff.py.txt','assembly/assemble_handoff.py.txt','exact passive source handoff assembly recipe'))
+require(len(expected)==79,'independent original member denominator')
+def member_projection(r):return {k:r.get(k) for k in ('source_path','portable_path','bytes','sha256','role','original_selected_record')}
+gold_counter=Counter(canonical(member_projection(r)) for r in expected)
+actual_counter=Counter(canonical(member_projection(r)) for r in i['assets'])
+require(gold_counter==actual_counter,'full original source/role/member Counter')
+counter_rows=sorted(gold_counter.items())
+require(i['complete_logical_source_Counter']==[list(x) for x in counter_rows] and i['Counter_sha256']==sha(canonical(counter_rows).encode()),'literal complete Counter/hash')
+unique={};copygold=[]
+for r in expected:
+    key=r['sha256'],r['bytes']
+    if key not in unique:
+        unique[key]=r['portable_path']
+        copygold.append({'source_path':r['source_path'],'destination':r['portable_path'],'bytes':r['bytes'],'sha256':r['sha256']})
+require(i['copies']==copygold and len(copygold)==57 and sum(r['bytes'] for r in copygold)==382298,'first-content canonical dedup/57 complete copies')
+for r in i['assets']:
+    require(r['canonical_destination']==unique[(r['sha256'],r['bytes'])] and r['deduplicated'] is (r['portable_path']!=r['canonical_destination']),'exact alias binding')
+    require((P/r['canonical_destination']).read_bytes()==Path(r['source_path']).read_bytes(),'literal full original occurrence '+r['source_path'])
+require(sum(r['deduplicated'] for r in i['assets'])==22,'all repeated/empty occurrences retained')
+meta={'README.md','copy-index.json','implementation-handoff.json','validate-handoff.py.txt'}
+require({str(x.relative_to(P)) for x in P.rglob('*') if x.is_file()}==meta|{r['destination'] for r in copygold},'complete metadata plus literal carriers')
+require(i['logical_count']==79 and i['copied_files']==57 and i['copied_bytes']==382298,'index denominator')
+require(h['deciding_output_count']==79 and h['deciding_unique_files']==57 and h['deciding_unique_bytes']==382298,'handoff denominator')
+require({k:h['complete_source_membership'][k] for k in ('author_historical','author_corrective','independent_selected','independent_original_selector','assembly_companions')}=={'author_historical':19,'author_corrective':13,'independent_selected':44,'independent_original_selector':1,'assembly_companions':2},'complete family member roles')
+
+junit={}
+for name,count in (('author-historical-e456/pytest.xml',93),('author-corrective-ace/pytest.xml',6),('independent/historical-e456/pytest.xml',93),('independent/pytest.xml',6)):
+    c=cases(P/name);require(len(c)==count and all(r[-1]=='PASS' for r in c),'closed raw exact native '+name)
+    junit[name]={'raw_cases':len(c),'statuses':dict(Counter(r[-1] for r in c)),'case_id_sha256':sha(canonical(sorted(c)).encode()),**ref(P/name)}
+require(sorted(cases(P/'author-historical-e456/pytest.xml'))==sorted(cases(P/'independent/historical-e456/pytest.xml')),'separate raw historical author/peer exact case denominator')
+require(sorted(cases(P/'author-corrective-ace/pytest.xml'))==sorted(cases(P/'independent/pytest.xml')),'separate raw current author/peer exact case denominator')
+require(h['native_case_observations']=={'historical_e456_author':93,'historical_e456_independent':93,'current_ace_author':6,'current_ace_independent':6,'counts_are_not_added':True},'no inflated/fresh 99case claim')
+require(h['qualification']['new_common_wave']=='UNRUN' and h['qualification']['finding_closure_or_formal_G_acceptance'] is False and h['qualification']['scientific_source_fit_noise_coverage_authority'] is False,'unknown authority remains denied')
+require(h['future_self_SHA_included'] is False and PUB not in (P/'implementation-handoff.json').read_text(),'no self future SHA')
+bases={'recomputed','independently_reconciled','consumer_asserted','institutionally_supplied','not_established'}
+require(len(h['predicate_basis'])==8 and all(set(v)=={'basis','explanation'} and v['basis'] in bases and isinstance(v['explanation'],str) and v['explanation'] for v in h['predicate_basis'].values()),'canonical full P37 fields')
+require(readj(P/'independent/review.json')['source_disposition']=='GO','own prior immutable source GO literal')
+require(readj(P/'independent/historical-e456/review.json')['source_disposition']=='CHANGE_REQUIRED','old source rejection literal preserved')
+v=(P/'validate-handoff.py.txt').read_text()
+template=git('show','a30eb1a82345fe3139bf2c5dc77ac664eb6f98ea:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/handoff/validate-handoff.py.txt').decode()
+require(v[v.index('def sha(b):'):]==template[template.index('def sha(b):'):],'exact reused validator custody functions')
+
+# Actual archived validator, read-only; these are evidence utility replays, not native source tests.
+CONTROL=OUT/'control-inputs';CONTROL.mkdir(exist_ok=True)
+CACHE=CONTROL/'immutable-input';CACHE.mkdir(exist_ok=True)
+for name in names:
+    dest=CACHE/str(Path(name).relative_to(PREFIX));dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(git('show',PUB+':'+name))
+results=[]
+def invoke(case,mode,mutate=None,program=None,want_accept=False):
+    target=CONTROL/(case+'-'+mode);shutil.copytree(CACHE,target)
+    if mutate is not None:mutate(target)
+    if program is not None:
+        (target/'validate-handoff.py.txt').write_text(program)
+        hh=readj(target/'implementation-handoff.json');hh['validator_identity']={'bytes':len(program.encode()),'sha256':sha(program.encode())};writej(target/'implementation-handoff.json',hh)
+    argv=[sys.executable]+(['-O'] if mode=='optimized' else [])+['-B',str(target/'validate-handoff.py.txt'),str(target)]
+    c=subprocess.run(argv,capture_output=True,env={**os.environ,'PYTHONDONTWRITEBYTECODE':'1'})
+    (OUT/(case+'-'+mode+'.stdout.txt')).write_bytes(c.stdout);(OUT/(case+'-'+mode+'.stderr.txt')).write_bytes(c.stderr)
+    require((c.returncode==0)==want_accept,'actual validator expected acceptance/refusal '+case+' '+mode)
+    rr={'case':case,'mode':mode,'command':argv,'exit_code':c.returncode,'actual_admitted':c.returncode==0,'expected_admitted':want_accept,'outcome':'PASS control','stdout_sha256':sha(c.stdout),'stderr_sha256':sha(c.stderr)}
+    results.append(rr)
+def header(change):
+    def edit(target):
+        hh=readj(target/'implementation-handoff.json');change(hh);writej(target/'implementation-handoff.json',hh)
+    return edit
+def replace_index(target):
+    ix=readj(target/'copy-index.json');ix['assets'][0]['source_path']=ix['assets'][1]['source_path'];ix['assets'][0]['original_selected_record']['source_path']=ix['assets'][1]['source_path']
+    c=sorted(Counter(canonical(member_projection(r)) for r in ix['assets']).items());ix['complete_logical_source_Counter']=[list(x) for x in c];ix['Counter_sha256']=sha(canonical(c).encode());writej(target/'copy-index.json',ix)
+mutants=[('source-sha',header(lambda x:x.__setitem__('candidate','0'*40))),('tree-sha',header(lambda x:x.__setitem__('tree','0'*40))),('typed-count-bool',header(lambda x:x.__setitem__('deciding_unique_files',True))),('fresh-case-inflation',header(lambda x:x['native_case_observations'].__setitem__('current_ace_independent',99))),('current-wave-promotion',header(lambda x:x['qualification'].__setitem__('new_common_wave','PASS'))),('G-closure-promotion',header(lambda x:x['qualification'].__setitem__('finding_closure_or_formal_G_acceptance',True))),('unknown-basis-promotion',header(lambda x:x['predicate_basis']['final_wave_generated_surface_and_G_findings'].__setitem__('basis','recomputed'))),('missing-empty-carrier',lambda x:(x/'author-historical-e456/affected-caller-pytest.stderr.txt').unlink()),('fake-present-review',lambda x:(x/'independent/review.json').write_text('{}\n')),('full-index-Counter-substitution',replace_index)]
+index_guard=" if canonical({'bytes':len(raw),'sha256':sha(raw)})!=canonical(KNOWN['copy_index']):raise ValueError('full exact original deciding index')"
+require(v.count(index_guard)==1,'one complete index admission predicate')
+removed=v.replace(index_guard," # removed only full exact original deciding index admission",1)
+for mode in ('normal','optimized'):
+    invoke('healthy',mode,want_accept=True)
+    for case,mutation in mutants:invoke(case,mode,mutation)
+    invoke('sole-index-guard-removal',mode,replace_index,removed,True)
+    results[-1]['required_property_outcome']='FAIL: original-source member Counter was replaced while all carrier bytes, counts and scope markers remained'
+after=snapshot();require(after==before,'complete live HEAD/tree/status guard unchanged during review')
+writej(OUT/'review.json',{'schema':'policyos.e02.independent_posterior_facade_second_handoff_custody.v1','disposition':'GO bounded immutable DOC custody only','publication_candidate':PUB,'publication_tree':TREE,'publication_parent':PAR,'source_candidate':SOURCE,'source_tree':SOURCE_TREE,'source_base':BASE,'source_GO_reuse':ref(P/'independent/review.json'),'publication_paths':61,'active_python_paths':0,'logical_member_count':79,'literal_copy_count':57,'literal_copy_bytes':382298,'retained_alias_occurrences':22,'complete_original_member_Counter_sha256':sha(canonical(counter_rows).encode()),'immutable_git_rows':git_rows,'original_source_ref_occurrences':[ref(Path(r['source_path'])) for r in expected],'JUnit_raw_observations':junit,'native_claims':h['native_case_observations'],'predicate_basis':h['predicate_basis'],'actual_evidence_validator_controls':results,'source_native_numeric_gate_rerun':False,'before':before,'after':after,'formal_G_acceptance':False,'new_common_wave':'UNRUN','limitations':['DOC custody and exact earlier source acceptance only; no upstream CAL/77 or scientific fit/noise/source-law authority from this receipt','Historical e45693 and current ace6 are separate immutable raw observations; no fresh99-case claim','Two unique untracked Root directories remain; tracked clean guard is not whole-workspace clean','No production data, environment mutation, native tests, HMC or global gates executed'],'environment':{'interpreter':sys.executable,'python':sys.version,'optimization_guard_modes':['normal','optimized'],'cwd':str(Path.cwd()),'ROOT_source_environment_or_Git_writer':False}})
+print(json.dumps({'disposition':'GO bounded immutable DOC custody only','publication_candidate':PUB,'publication_tree':TREE,'paths':61,'logical_members':79,'copies':57,'copy_bytes':382298,'aliases':22,'healthy_modes':2,'actual_corrupt_refusals':20,'effective_guard_removals':2,'native_tests_rerun':False,'review':ref(OUT/'review.json')},indent=2))

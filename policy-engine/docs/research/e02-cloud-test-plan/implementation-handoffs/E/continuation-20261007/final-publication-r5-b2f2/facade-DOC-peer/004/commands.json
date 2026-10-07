@@ -1,0 +1,16 @@
+{
+  "schema": "policyos.e02.independent_DOC_review_commands.v1",
+  "actual_review_command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "-B",
+    "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/review_handoff.py"
+  ],
+  "stdout": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/review.stdout.txt",
+  "stderr": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/review.stderr.txt",
+  "actual_utility_commands": "Every normal/-O argv is literal in review.json actual_evidence_validator_controls; no native numeric selectors or package mutations",
+  "ROOT_read_only": true,
+  "closed_source_read_guard": "2dc99fe3/tree8cba before=after; current Root may proceed ordinary DOC merges after completed review",
+  "archived_script": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/review_handoff.py",
+  "property_removal_script": "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/sole-index-guard-removal.py.txt",
+  "transient_mutated_headers_index_and_input_copies_published": false
+}

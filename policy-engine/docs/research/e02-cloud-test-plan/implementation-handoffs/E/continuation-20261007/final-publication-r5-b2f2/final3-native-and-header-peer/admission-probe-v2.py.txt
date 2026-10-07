@@ -1,0 +1,11 @@
+import copy, hashlib, importlib.machinery, importlib.util, json, pathlib, sys
+p = pathlib.Path('/tmp/e02-E-final3-validate-publication-b2f2f65e-20261007-v2.py.txt')
+loader=importlib.machinery.SourceFileLoader('_final3_independent',str(p)); spec=importlib.util.spec_from_loader(loader.name,loader); m=importlib.util.module_from_spec(spec); loader.exec_module(m)
+original=m.trusted(); controls=m.run_controls(); rows=[]
+for field,value in [('tree','0'*40),('native_outcomes',{'architecture':'PASS','runtime-api-contract':'PASS','static-invocation':'PASS'}),('P41','recomputed'),('schema','unknown'),('scope','full served verification and all required gates PASS')]:
+    candidate=copy.deepcopy(original); candidate[field]=value
+    try: result=m.validate(candidate,m.ROOT)
+    except Exception as e: rows.append({'field':field,'mutated_value':value,'state':'REFUSED','exception':type(e).__name__,'message':str(e)})
+    else: rows.append({'field':field,'mutated_value':value,'state':'ADMITTED_PROPERTY_FAIL','result':result})
+report={'schema':'policyos.e02.independent.final3.admission_probe.v1','source':'b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641','tree':'4cbbed1d9392832729cab92c6615f9a1d03a41c7','validator_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'mode':'optimized' if not __debug__ else 'normal','author_controls_replayed':controls,'independent_header_controls':rows,'native_rerun':False,'disposition':'CHANGE_REQUIRED' if any(r['state']=='ADMITTED_PROPERTY_FAIL' for r in rows) else 'GO'}
+print(json.dumps(report,indent=2,sort_keys=True))

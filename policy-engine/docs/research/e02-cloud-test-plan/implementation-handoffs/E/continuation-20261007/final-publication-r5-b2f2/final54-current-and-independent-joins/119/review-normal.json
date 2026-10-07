@@ -1,0 +1,189 @@
+{
+  "P37": {
+    "count_binding_conservation": "independently_reconciled",
+    "finding_or_G_authority": "not_established",
+    "literal_refs_and_structural_arithmetic": "recomputed"
+  },
+  "claim": {
+    "A_packet": {
+      "cases": 7,
+      "errors": 0,
+      "failed": 7,
+      "passed": 0,
+      "skipped": 0
+    },
+    "IDs": 54,
+    "bundles": 22,
+    "current_gates": {
+      "architecture": "FAIL",
+      "ci-parity": "FAIL",
+      "ruff": "FAIL",
+      "ruff-format": "FAIL",
+      "runtime-api-contract": "FAIL",
+      "static-invocation": "FAIL",
+      "workspace-verify": "FAIL"
+    },
+    "formal_G_acceptance": false,
+    "formal_ledger_change": false,
+    "historical": {
+      "closed": 1,
+      "held": 4,
+      "partial": 49
+    },
+    "links": 55,
+    "native_numeric": {
+      "cases": 1458,
+      "errors": 0,
+      "failed": 1,
+      "passed": 1457,
+      "skipped": 0
+    },
+    "numeric": {
+      "cases": 1465,
+      "errors": 0,
+      "failed": 8,
+      "passed": 1457,
+      "skipped": 0
+    },
+    "parent39_stages": {
+      "FAIL": 2,
+      "PASS": 1,
+      "UNRUN": 36
+    },
+    "proposals": {
+      "closed": 43,
+      "held": 2,
+      "limited": 9
+    },
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7"
+  },
+  "control_rows": [
+    {
+      "case": "whole_thin_conservation",
+      "state": "GO"
+    },
+    {
+      "case": "count",
+      "reason": "conservation_claim_diff_from_prior_independent_receipts",
+      "state": "REFUSED"
+    },
+    {
+      "case": "historical",
+      "reason": "conservation_claim_diff_from_prior_independent_receipts",
+      "state": "REFUSED"
+    },
+    {
+      "case": "proposal",
+      "reason": "conservation_claim_diff_from_prior_independent_receipts",
+      "state": "REFUSED"
+    },
+    {
+      "case": "gate",
+      "reason": "conservation_claim_diff_from_prior_independent_receipts",
+      "state": "REFUSED"
+    },
+    {
+      "case": "parent",
+      "reason": "conservation_claim_diff_from_prior_independent_receipts",
+      "state": "REFUSED"
+    },
+    {
+      "case": "authority",
+      "reason": "conservation_claim_diff_from_prior_independent_receipts",
+      "state": "REFUSED"
+    },
+    {
+      "case": "source",
+      "reason": "conservation_claim_diff_from_prior_independent_receipts",
+      "state": "REFUSED"
+    },
+    {
+      "all_closed_raw_refs_retained": true,
+      "case": "sole_typed_claim_predicate_removed",
+      "state": "ADMITTED_PROPERTY_FAIL"
+    }
+  ],
+  "current_binding_count": 1013,
+  "current_packet": {
+    "bytes": 1144158,
+    "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/current-all-54-b2-final-v4-normal.json",
+    "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+  },
+  "disposition": "GO thin conservation against already independently closed numeric/native/parent receipts; no repeated original-card or source reviews",
+  "input_refs": {
+    "author_join": {
+      "bytes": 22133,
+      "path": "/tmp/e02-E-final54-b2f2-preparation-20261007/join_globals.py",
+      "sha256": "f2c6b00130ba0eb722c4ec46b013f7d317b97136b104f3018d945062cec60878"
+    },
+    "final3_literal_native": {
+      "bytes": 131148,
+      "path": "/tmp/e02-E-final3-independent-b2-20261007/review.json",
+      "sha256": "92410533f3fa3cc30058fb4f149b2706762c021e8ad741bcd8c675d2516efa12"
+    },
+    "lint": {
+      "bytes": 131242,
+      "path": "/tmp/e02-E-final-root-lint-b2-independent-20261007/review.json",
+      "sha256": "b5aafa827ca95fe37658cdb974a00dee197c3220042682147cf4f7230b83f099"
+    },
+    "lint_existing_full54_review": {
+      "bytes": 9011,
+      "path": "/tmp/e02-E-final54-preparation-independent-lint-b2-20261007/final-CASE-GATE-review-normal.stdout.json",
+      "sha256": "5aeab1e6dddfe162aeacd731fac524d53eb1d899336ac116ba9961ee1db287ed"
+    },
+    "numeric": {
+      "bytes": 78549,
+      "path": "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/recomputed-wave.json",
+      "sha256": "f8c1a91d1a70ec71d98ebe2925f9f70e2e3e104790997bcef5588071be9924fc"
+    },
+    "our_flat_cases": {
+      "bytes": 447116,
+      "path": "/tmp/e02-E-final-wave-numeric-independent-b2-20261007/case-index.json",
+      "sha256": "df2beee6e2666425dcb68966880f20690056b048da0dc2387d559e5e0099c47e"
+    },
+    "parents": {
+      "bytes": 34421,
+      "path": "/tmp/e02-E-final-metadata-independent-b2-20261007/parents-normal.json",
+      "sha256": "2617bcb669b5badb49ef56624af6e827a296f71c05456ccf03a7772d40308cd2"
+    },
+    "prior54": {
+      "bytes": 314142,
+      "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+      "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8"
+    }
+  },
+  "limits": [
+    "Original54 owner criteria/source-role decisions reuse existing independent reviews; no new closure by case count.",
+    "Final3 fixed native body facts are accepted; V2 header admission utility escape remains separately CHANGE_REQUIRED until its corrective utility is reviewed.",
+    "No numerical/native/gate/environment/source changes or repetitions."
+  ],
+  "optimization_mode": false,
+  "preserved_original_row_fields": [
+    "bundle_ids",
+    "canonical_ownership",
+    "historical_ledger_status",
+    "owner_decision",
+    "proposed_finding_outcome",
+    "formal_ledger_change",
+    "accountable_owner",
+    "bounded_decision_basis",
+    "remaining_input_or_implementation",
+    "next_owner"
+  ],
+  "schema": "policyos.e02.independent.final54.thin_conservation.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "source_guard_after": {
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "tracked_status": "",
+    "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+    "untracked_is_not_whole_clean": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/\n"
+  },
+  "source_guard_before": {
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "tracked_status": "",
+    "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+    "untracked_is_not_whole_clean": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/\n"
+  },
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7"
+}

@@ -1,0 +1,45 @@
+from pathlib import Path
+from collections import Counter
+import hashlib,json
+HERE=Path(__file__).parent
+SOURCE='b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641'
+TREE='4cbbed1d9392832729cab92c6615f9a1d03a41c7'
+FRAME='2bb4a6f11b58ddd62326b86c6a8113c5fc69d8d874052db64563b5498b73fb5e'
+PREP=Path('/tmp/e02-E-final-parent-gate-adapters-r4')
+FREEZE=Path('/tmp/e02-E-final-source-freeze-b2f2f65e-20261007')
+
+def sha(data):return hashlib.sha256(data).hexdigest()
+def row(p,portable,role):
+ data=p.read_bytes()
+ return {'source_path':str(p),'portable_path':portable,'bytes':len(data),'sha256':sha(data),'role':role}
+checks=[];assets=[]
+for name,expected in [('workspace-verify',{'PASS':1,'FAIL':1,'UNRUN':13}),('ci-parity',{'PASS':0,'FAIL':1,'UNRUN':23})]:
+ root=Path('/tmp/e02-E-final-parent-b2f2f65e-20261007-'+name)/name
+ r=json.loads((root/'receipt.json').read_text());stages=json.loads((root/'internal-stages.json').read_text())
+ assert r['source']==SOURCE and r['tree']==TREE and r['head_after']==SOURCE and r['exit_code']==1 and r['outcome']=='FAIL'
+ assert r['source_immutable']is True and r['ROOT_environment_metadata_unchanged']is True
+ assert r['source_before']==r['source_after']=={'tracked_paths':22005,'bytes':620699802,'framed_sha256':FRAME}
+ assert r['ROOT_environment_metadata_before']==r['ROOT_environment_metadata_after']
+ assert len(stages['scopes'])==1
+ scope=stages['scopes'][0];counts={k:sum(s['outcome']==k for s in scope['steps'])for k in ['PASS','FAIL','UNRUN']}
+ assert counts==expected and len(scope['steps'])==sum(expected.values())
+ assert stages['required_steps_preserved']is True and stages['numerical_thread_caps']is None
+ assert not any(s['outcome']=='PASS'and 'pytest' in s['command']for s in scope['steps'])
+ checks.append({'selector':name,'native_exit_code':1,'check_outcome':'FAIL','scope_count':1,'stages':counts,'full_stage_count':len(scope['steps']),'first_fail':next(s['label']for s in scope['steps']if s['outcome']=='FAIL'),'source_and_metadata_unchanged':True,'source_full_frame':r['source_after'],'wall_seconds':r['wall_seconds'],'receipt':row(root/'receipt.json',name+'/receipt.json','actual complete native parent receipt')})
+ for f in ['started.json','receipt.json','stdout.txt','stderr.txt','internal-stages.json','complete-source-inputs-before.json','complete-source-inputs-after.json']:
+  assets.append(row(root/f,name+'/'+f,'actual closed native parent original; complete commands/env/source/stages/stdout/stderr'))
+closeout={'schema':'policyos.e02.final_b2_parent_native_closeout.v1','source':SOURCE,'tree':TREE,'check_outcomes':checks,'schedule':['workspace-verify','ci-parity'],'shared_writer_basis':'exact Root _build last-mile/coverage/native source-supplied fixture outputs; not CPU/thread/process quota','caps_added':False,'prerequisites_or_doctor_bypassed':False,'broad_backend_pytest_or_late_extension_browser_install_stages_executed':False,'CI_doctor_qualification':'Doctor itself ran its canonical checks: schemas/runtime-openapi FAIL, browser and frontend-contract probe PASS. Native pnpm invocation is --frozen-lockfile --lockfile-only --ignore-scripts validation. These subchecks do not confer parent or fullCI PASS.','source_native_caller_or_per_process_resource_cause_P41':'not_established beyond exact executed parent/stage argv and receipts','metadata_scope':'Complete207 package METADATA and protected Python/control refs before/after identical; complete environment/package binary identity not established','snapshot_qualification':'Sequential complete tracked physical byte frames, not atomic source snapshot; before/after exactfreeze frame/source unchanged','first_metadata_observer_errors':'Initial admission stdin SyntaxError and uncalculated stale-freeze message are explicit observer ERRORs; current literal freeze hash matches original publication. No artifact/source failure or modifying writer inferred.','finding_or_formal_G_acceptance':False,'numeric_suite_rerun_by_parent_executor':False,'predicate_basis':{'native_command_stage_order_counts_and_exit':'recomputed','complete_tracked_frames_HEAD_and_env_metadata':'recomputed','source_review_freeze_remote_admission':'independently_reconciled','P41_broadcause_scientific_finding_authority':'not_established'}}
+(HERE/'closeout.json').write_text(json.dumps(closeout,indent=2)+'\n')
+for f in ['capture_admission.py.txt','admission.json','admission-capture.stdout.json','admission-capture.stderr.txt','workspace-launch.stdout.json','workspace-launch.stderr.txt','ci-launch.stdout.json','ci-launch.stderr.txt','original-final-freeze.json','original-publication-readback.json','freeze-hash-observer-error-qualification.json','close_parents.py.txt','closeout.json']:
+ assets.append(row(HERE/f,'admission/'+f,'exact execution/input/source admission or explicitly historical observer ERROR qualification'))
+for p,portable in [(PREP/'run_final_parent_umbrella.py.txt','recipes/run_final_parent_umbrella.py.txt'),(PREP/'canonical-factory-plan.json','recipes/canonical-factory-plan.json'),(PREP/'recompute_current_parent_plan.py.txt','recipes/recompute_current_parent_plan.py.txt'),(PREP/'preparation-controls.stdout.json','recipes/preparation-controls.stdout.json'),(PREP/'probe_preparation.py.txt','recipes/probe_preparation.py.txt'),(PREP/'preparation-final.json','recipes/preparation-final.json'),(FREEZE/'complete-source-inputs.json','freeze/complete-source-inputs.json'),(FREEZE/'root-environment-metadata.json','freeze/root-environment-metadata.json'),(Path('/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py'),'recipes/canonical-uncapped_umbrella.py.txt')]:
+ assets.append(row(p,portable,'complete original frozen/source/recipe identity; no rawsource/privateGitconfig/environment trees'))
+unique={};copies=[]
+for r in assets:
+ key=(r['sha256'],r['bytes'])
+ if key not in unique:
+  unique[key]=r['portable_path'];copies.append({'source_path':r['source_path'],'destination':r['portable_path'],'bytes':r['bytes'],'sha256':r['sha256']})
+ r['canonical_destination']=unique[key];r['deduplicated']=r['portable_path']!=unique[key]
+selection={'schema':'policyos.e02.final_parent_b2_moderate_publication_selection.v1','source':SOURCE,'tree':TREE,'assets':assets,'copies':copies,'logical_count':len(assets),'content_unique_count':len(copies),'content_unique_bytes':sum(r['bytes']for r in copies),'literal_originals_closed':True,'scope':'Both final native parents FAIL with full15/24 scopes; complete moderate command/env/source/stdout/stderr/UNRUN custody. Metadata-only preparation errors labelled separately. No numeric rerun/finding/global PASS.','check_outcomes':{'workspace-verify':'FAIL','ci-parity':'FAIL'},'excluded':['Source620MB bytes/tree','privateGitconfig/environment','cache/tmp/node_modules/fixture roots','unrelated active outputs'],'future_self_SHA_included':False}
+(HERE/'publication-selection.json').write_text(json.dumps(selection,indent=2)+'\n')
+print(json.dumps({'closeout':row(HERE/'closeout.json','closeout.json','recomputed actual closed parent observations'),'selection':row(HERE/'publication-selection.json','publication-selection.json','complete moderate original selector'),'logical_count':len(assets),'content_unique_count':len(copies),'content_unique_bytes':selection['content_unique_bytes']},indent=2))

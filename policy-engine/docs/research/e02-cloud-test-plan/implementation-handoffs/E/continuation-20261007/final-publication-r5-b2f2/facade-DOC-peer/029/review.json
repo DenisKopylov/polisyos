@@ -1,0 +1,1301 @@
+{
+  "schema": "policyos.e02.independent_posterior_facade_second_handoff_custody.v1",
+  "disposition": "GO bounded immutable DOC custody only",
+  "publication_candidate": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+  "publication_tree": "8cba7977f54ed1c7e6d0f66b3c7e83a98011ab6e",
+  "publication_parent": "5835140f86199c51676187ed337fd61ceabeb713",
+  "source_candidate": "ace655f4c97fdbfb2fed0b22de7a54caa3ac31b1",
+  "source_tree": "954620fc97fb377ca17be3db3592b10b66849a3e",
+  "source_base": "f5c2845851aeb1591de9c73db6de392656656e96",
+  "source_GO_reuse": {
+    "source_path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/review.json",
+    "bytes": 10915,
+    "sha256": "04cefff0ecfb4cd1ffbe94dcb87fd38af2398f5074238d9283606f3c16558e0a"
+  },
+  "publication_paths": 61,
+  "active_python_paths": 0,
+  "logical_member_count": 79,
+  "literal_copy_count": 57,
+  "literal_copy_bytes": 382298,
+  "retained_alias_occurrences": 22,
+  "complete_original_member_Counter_sha256": "e12b229acb2c8c4675e609c97cbe4a0ed3ddfaf5347f83b8e856a2330e9e17c1",
+  "immutable_git_rows": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/README.md",
+      "bytes": 1203,
+      "sha256": "44ec6c0c8973e175f563c638c0aecad24d105f7363266c7a6ee70d08786d4aca",
+      "git_blob": "865255171f434d6366de30031efa6bf4e23fbe26"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/assembly/assemble_handoff.py.txt",
+      "bytes": 17875,
+      "sha256": "002b5deb48d6edc6e61c18f5736dae05e33eb89a2a7053b6f342cc9503b0796c",
+      "git_blob": "a7d801eda3bdb936b1cce2f8f7b364068eb66a51"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/assembly/source-assembly.json",
+      "bytes": 3021,
+      "sha256": "04ee094960903dcc445b18ffbde9f3437e560be91384428a46f04541e1aceb0c",
+      "git_blob": "3c97415358e82d25fb9144a6af0257ce3ba443b4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-corrective-ace/affected-facade.stdout.txt",
+      "bytes": 80,
+      "sha256": "700bc0322b00f8e8db3ce495047983b54ab27ab59ed1fedac05f3aeba47dae24",
+      "git_blob": "f12236223cec204f991cd649a9030a838b9fb011"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-corrective-ace/commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "8c5d495e049a39023d409c0300f632a424279595769669bf2389073a5865dc75",
+      "git_blob": "a03abc809df3b738532526e153ee478871309eb4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-corrective-ace/commit.stdout.txt",
+      "bytes": 159,
+      "sha256": "83d972a2ee9d0a90e4ed5ac5560bc8c6ad52d5da9bf5b4af633d2b42fb26eee8",
+      "git_blob": "860488c422a3ac5f33aa71c8f2aa1a7dfeb35c5c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-corrective-ace/format-check.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "git_blob": "5e122f397b6d5d61b45621051851165eadce6a78"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-corrective-ace/format.stdout.txt",
+      "bytes": 19,
+      "sha256": "413a709001976657cb743636fd34e48fc41d8d302d665460d3f874b3313da127",
+      "git_blob": "3110eee6fdcf112be64f64b680ff5662f027ab39"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-corrective-ace/implementation-source.json",
+      "bytes": 845,
+      "sha256": "6b3974460c7938c476e0e3d6845a0556b7d0a7d02aa923f48d43f2114e0d4d76",
+      "git_blob": "fe973ba1cfe8039f4c0a4cc7f8056358fe0ca00d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-corrective-ace/pytest.xml",
+      "bytes": 1181,
+      "sha256": "427508fd1fe7cf913ae9c0f7b280afe50277669172583d20b62c1ce8f944e8ba",
+      "git_blob": "4c0b79b0c9f0b02aee82164b47ab844655eebfd1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-corrective-ace/receipt.json",
+      "bytes": 3982,
+      "sha256": "f164530103b010f53edf04ea045f46a4eaffd7bbbfc116465ab7a4bf26f45928",
+      "git_blob": "bbf304f8e5bd5f950f09bc3370a808d4ba9c2dad"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-historical-e456/affected-caller-pytest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-historical-e456/affected-caller-pytest.stdout.txt",
+      "bytes": 160,
+      "sha256": "15d45ee89dd77c1573712d174e175e1369a0daf3ca0e6acdebef061ce046e96d",
+      "git_blob": "fd52211f913f9840088bbedb740304a77985f784"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-historical-e456/author-checks.json",
+      "bytes": 62090,
+      "sha256": "842cf097ab20a9e5a22a84b8f422b28b6cb3c656948e91a14eeeb804a0c2646f",
+      "git_blob": "786650b90ad17dd565a122bc04bf00d45ba82aa4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-historical-e456/check_author.py.txt",
+      "bytes": 4527,
+      "sha256": "bb84188d59b9b7b7ee4bd0d08aaf7327544afac3c787f2212db467e6ef725f77",
+      "git_blob": "6a44a0041d6dcdbb4fe3c550aab7aeb2d0b556a9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-historical-e456/commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "d27b6f980d420286a9cb34dc6291bdd5ee7de5c49c89568cb3887599b0b04bf2",
+      "git_blob": "097ae32914f3395088ffa2f019611c93f75985a0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-historical-e456/commit.stdout.txt",
+      "bytes": 271,
+      "sha256": "0fc33107e7a5aea06547b6610a0092b585f87a6a1c99848706acf6607dab5f8b",
+      "git_blob": "75ef0025138664fa2b0c16abc375af35ca8af45e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-historical-e456/format-check.stdout.txt",
+      "bytes": 26,
+      "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de",
+      "git_blob": "ddcd0f8f66f25c19eeacd57ec4dac96669cf18f2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-historical-e456/format.json",
+      "bytes": 508,
+      "sha256": "13d16711c2a8c91d2326b80b8b4f2b4bbf724fd6906dc29aa9714b28962c5c99",
+      "git_blob": "6141380eeece354cbfac123eb91ce23e6d1fc523"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-historical-e456/format.stdout.txt",
+      "bytes": 43,
+      "sha256": "a9c322be5811cf4bd7ab6927ecb6751d36851790b8b4de75d87f0c39a56d2c8d",
+      "git_blob": "37f6d3ad152dad4a501540b05db3866320c790e3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-historical-e456/implementation-source.json",
+      "bytes": 6024,
+      "sha256": "c8dbc728e54c2b90e65312eb0a1470a5b534ddf04f70bc07a1c8554bd7c794c4",
+      "git_blob": "ecda0ec8f9eb9a0ee573e5b1ec8754aec9f5087a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-historical-e456/old-f5-facade.py.txt",
+      "bytes": 3933,
+      "sha256": "d12e0948c1816acae51bbe5519e767622a2e6a24d907b31f04e0f7b7ca0e803e",
+      "git_blob": "f8f7d305f7a50fe533467a5134228f8613e2b6d5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-historical-e456/old-public-caller.stdout.txt",
+      "bytes": 407,
+      "sha256": "aa6c7fb5b7b198e409193307cdd052ef74b39ade87129b950869656c3a17335c",
+      "git_blob": "ed06ec9fe3b9c4525d70b0ea7e39b1e119d3a4e1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-historical-e456/old_public_caller_probe.py.txt",
+      "bytes": 594,
+      "sha256": "abaffd90afce38d5811a80f7cdffc25113aa2b857698c0d3c54f4fafac19e5f9",
+      "git_blob": "e6037b9df076c9d50f68da08d80192504f638002"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-historical-e456/pytest.xml",
+      "bytes": 14977,
+      "sha256": "c95feb18639ea3edb906f8248abbe9aaa332188ae5635ba25fc8410f72fa95b6",
+      "git_blob": "0cd8757c14b24ebf3c262220fb5333255aa6d342"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-historical-e456/ruff.stdout.txt",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "git_blob": "0637a088a01e8ddab3bf3fa98dbe804cbde1a0dc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/copy-index.json",
+      "bytes": 124945,
+      "sha256": "c00e12432b0d908a46ceb7f2a0c1a2654609685f10b19ae9f0b6617995320668",
+      "git_blob": "b4943738e6820ed157eaeb88cf8a5c1236c02a1d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/implementation-handoff.json",
+      "bytes": 11181,
+      "sha256": "315fa87bb3a7315612278460641c90d42436a114a13188565cb93ccceeefeea7",
+      "git_blob": "abf98eb2d88a471cc50817077d938c11bf1b5308"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/collect-final-review.py.txt",
+      "bytes": 7638,
+      "sha256": "80b31b0acddaf157482f420bc0d0303b31c915af2bb119b07f7bfb71d5566522",
+      "git_blob": "250113196eeabdba47f6be6fa6712c9ebbbf3919"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/commands.json",
+      "bytes": 3798,
+      "sha256": "a7ae2d65e6ec4e411509906dab27aee33bcff76aac924ba267df2e10649f049b",
+      "git_blob": "e87da6846c53d328e4d515a01f3bbea13c8af44c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/delta-review.json",
+      "bytes": 8928,
+      "sha256": "2837064a2770eb5e4b28f9149222e15158088cbe9f86fddf452b735e5c4fac79",
+      "git_blob": "a949b70f9d0e39387a74b62f851ee79571fb3e8c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/delta-review.py.txt",
+      "bytes": 8623,
+      "sha256": "085bbb6646c2ce475559b14c9e135499c6c7e4d55768d43a368a517c759efba3",
+      "git_blob": "1be9e47d10a7a5cdf454e9c75b2d465d7ebc8357"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/delta-review.stdout.txt",
+      "bytes": 70,
+      "sha256": "82ff3945ff0a7db497857fb49612d5cc6f4cbd5e02f9c9aada72157f05415bb7",
+      "git_blob": "0edecad3495cd12e0b6bafe3aa5cc350ad470f93"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/historical-e456/actual-caller-removal.json",
+      "bytes": 1703,
+      "sha256": "9aa3bcf597ec4d7eb6694da2e67c71c0092ee2a0206ddbee36300eab70057309",
+      "git_blob": "9339f9b710b4554f38046e81bb62649a539b44ab"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/historical-e456/actual-caller-removal.py.txt",
+      "bytes": 2257,
+      "sha256": "18d12fbda139707e19eb2d049bc4b8412eeeed3c629e4355541a54e78038abbd",
+      "git_blob": "4fabdf4a351ad069cbe67eec09f9f0b3a536afa6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/historical-e456/collect-review.py.txt",
+      "bytes": 4967,
+      "sha256": "675d07cb8bdfda8d53f01960c954002961fb5e55d569944d574dbb1a42481cbb",
+      "git_blob": "7b03c54ebdd88e77c02f3b323789032d29151743"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/historical-e456/dynamic-import-edges.json",
+      "bytes": 8520,
+      "sha256": "49a63fed935b414a710d936e2c8a135b4cb4029b2c561434ac6b4a3df1fd2e90",
+      "git_blob": "de57ce0d253223dcd3d9f1b744decd4d7971f23c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/historical-e456/historical-collector-syntax-observer.py.txt",
+      "bytes": 4953,
+      "sha256": "55d9b1a59592aac1c5f84e72a50ff0dc156239ef1c0233ba3580fded194da09f",
+      "git_blob": "21acde29ce0ef3f99e6801c284621c7b7d153561"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/historical-e456/historical-collector-syntax-observer.stderr.txt",
+      "bytes": 322,
+      "sha256": "0cb6fb3c3b3f93db2fab5de657d21137e1eb07533c02b17b32da946e78b9c5ed",
+      "git_blob": "50fc9368112289f7e6ed76e1589e471cfbac7a81"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/historical-e456/import-edges.json",
+      "bytes": 44967,
+      "sha256": "f5360ad9191c06420ebc6ccd718e79e4ef46a69bafa86e92838d0613eaab7cda",
+      "git_blob": "7e252c79d8f21734b32a30a2a8f81082942b0632"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/historical-e456/native-and-import-probes.json",
+      "bytes": 13227,
+      "sha256": "6ca55150917b18c9ab2507d24109b56336a24de0ce5771de01feaee2144fd2f5",
+      "git_blob": "94f610c0da00f1b3c4ef8f808cf56f75881a93ea"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/historical-e456/native-and-import-probes.py.txt",
+      "bytes": 14021,
+      "sha256": "527d8b41f3a340a217f78af137b9de7733088ac4b59d5ac9518e75f052eb79fb",
+      "git_blob": "e9e74af056938d06d0d28ae377f3675266d5b4d1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/historical-e456/native-and-import-probes.stdout.txt",
+      "bytes": 135,
+      "sha256": "3c571acb604874ebaaa820e643ac9b6a5763b0663875330e2f4c17d750555c1c",
+      "git_blob": "beccebfcd94c290343264803684a55f6f210c286"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/historical-e456/pytest.xml",
+      "bytes": 14977,
+      "sha256": "a5d7a10543f3ab0941f2648d36b49be7f001675eef1ebaa80ced1e3480378baa",
+      "git_blob": "ea30c55c706695a3ac8b8cce707e9c70222aaf11"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/historical-e456/review.json",
+      "bytes": 14593,
+      "sha256": "8cf8f4dded35e419d8f645513ef20602cfa4463b58c64649047eeabc3c4679e1",
+      "git_blob": "88dabd55538b0852fb07e9d8b59cd7fa459e0c66"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/historical-e456/review.stdout.txt",
+      "bytes": 187,
+      "sha256": "cc5bdc73483dd77cc3cf63f7313b51bd093cdc310a2228f9311fddbca9f81aeb",
+      "git_blob": "03f70b295cc902d15b26b6bb35ab7302ece5bfac"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/historical-e456/run-selectors.py.txt",
+      "bytes": 3229,
+      "sha256": "6a7572323ed3342b2793f576b0602a4e5201ee9d2cec3deacabdf481624bd9a6",
+      "git_blob": "a763f5b51e1d6cea45ea9d039b5d8a41bc24d4da"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/historical-e456/selectors.json",
+      "bytes": 25530,
+      "sha256": "1ad211b5616ea02044c9182d20d4448d8fbae47fd0d213f24c9dda0cecfc0df3",
+      "git_blob": "79ffbf4fc27efdd39e001f612403e5348cc96dc2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/historical-e456/selectors.stdout.txt",
+      "bytes": 114,
+      "sha256": "3c207e7e23116aedbd0fb78e66bab43914df80ba12ef795cf8aaa0378dffdd91",
+      "git_blob": "aa0c598f56009d4446b0e7c66f438c34f9a5b4b7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/import-edges.json",
+      "bytes": 23147,
+      "sha256": "187efb5a05f55cd0d24d32328ae5a78bbd66efb898d0d01a70aa20858f0e469f",
+      "git_blob": "1e807405c6a6d5e60bac27010bb5ef3216f28fc2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/publication-selection.json",
+      "bytes": 12471,
+      "sha256": "112be519e5f4736dbf8483716d7e3e036ac7a3b54b964d7d58c024ed0237235e",
+      "git_blob": "ddcce418d45ad0b24d7ca78f4a7e31ea37fef0c5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/pytest.xml",
+      "bytes": 1181,
+      "sha256": "4c8525fa1d8d031865e051b4dddb3cafed3476ad4f033f9e4f1a88a9e9bc701b",
+      "git_blob": "f8e15444f71ffe29d8a627d72827c847d4c69312"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/review-optimized.json",
+      "bytes": 10915,
+      "sha256": "2332d6127310aac20c2bcd56d7bd98aaf435bfa50c3100a9bcdeb9d9b0bd7c24",
+      "git_blob": "79dbea6c8b71905a8bfdd91b1971b549ae8272aa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/review-optimized.stdout.txt",
+      "bytes": 364,
+      "sha256": "2f9479be8905405f130fb721da6587a65dc6efe2533a8e2c26dfae618304300e",
+      "git_blob": "1de92d28af81418a41a4f63d3b524a6bf020522b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/review.json",
+      "bytes": 10915,
+      "sha256": "04cefff0ecfb4cd1ffbe94dcb87fd38af2398f5074238d9283606f3c16558e0a",
+      "git_blob": "9ee9c37075d38d0723744db4f9399f2760d75ede"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/review.stdout.txt",
+      "bytes": 364,
+      "sha256": "2926b54b67e9f9c5e90e2e3c07a047f12e7a71da9b117237bec13d12f5062b3e",
+      "git_blob": "2d7174b57885277e7053d319922b97899de2094f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/run-selectors.py.txt",
+      "bytes": 3207,
+      "sha256": "a145eeee2e50681c7e3fe9491648b736588ca009861a5dbe3fa328f44e51f7c9",
+      "git_blob": "7905136c4df47d6fe982def8c05ffdff76978ef0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/select-publication.py.txt",
+      "bytes": 5883,
+      "sha256": "0b7738834987bd331dadb5f1774b913429a7de87c490b7b6636b132e80a1d5ef",
+      "git_blob": "3968e6bfb3c309b9564fb97716e74edd689e6b82"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/selectors.json",
+      "bytes": 8925,
+      "sha256": "c8810ddc2f72a073df129b5e3c649c75e2ed57bf56a352846dce5e4db633a6aa",
+      "git_blob": "24b2a079a9ce92dbe2ffed647778483323abd46f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/selectors.stdout.txt",
+      "bytes": 112,
+      "sha256": "8c1cb2975709ec96046e94481cdf7c6712402aa5fff46cc0f18342eefce80233",
+      "git_blob": "e719b1b3a3a78f592be78d609b6889b91409ee1b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/validate-handoff.py.txt",
+      "bytes": 12597,
+      "sha256": "1f31f0774ea7c17972390c0d33c643b4d20ad4075f1942b2c811a0139269c932",
+      "git_blob": "eb216c7a37c32f313c8ea5e51041bcfeeb03046f"
+    }
+  ],
+  "original_source_ref_occurrences": [
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/affected-caller-pytest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/affected-caller-pytest.stdout.txt",
+      "bytes": 160,
+      "sha256": "15d45ee89dd77c1573712d174e175e1369a0daf3ca0e6acdebef061ce046e96d"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/author-checks.json",
+      "bytes": 62090,
+      "sha256": "842cf097ab20a9e5a22a84b8f422b28b6cb3c656948e91a14eeeb804a0c2646f"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/check_author.py",
+      "bytes": 4527,
+      "sha256": "bb84188d59b9b7b7ee4bd0d08aaf7327544afac3c787f2212db467e6ef725f77"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "d27b6f980d420286a9cb34dc6291bdd5ee7de5c49c89568cb3887599b0b04bf2"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/commit.stdout.txt",
+      "bytes": 271,
+      "sha256": "0fc33107e7a5aea06547b6610a0092b585f87a6a1c99848706acf6607dab5f8b"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/format-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/format-check.stdout.txt",
+      "bytes": 26,
+      "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/format.json",
+      "bytes": 508,
+      "sha256": "13d16711c2a8c91d2326b80b8b4f2b4bbf724fd6906dc29aa9714b28962c5c99"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/format.stdout.txt",
+      "bytes": 43,
+      "sha256": "a9c322be5811cf4bd7ab6927ecb6751d36851790b8b4de75d87f0c39a56d2c8d"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/implementation-source.json",
+      "bytes": 6024,
+      "sha256": "c8dbc728e54c2b90e65312eb0a1470a5b534ddf04f70bc07a1c8554bd7c794c4"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/old-f5-facade.py.txt",
+      "bytes": 3933,
+      "sha256": "d12e0948c1816acae51bbe5519e767622a2e6a24d907b31f04e0f7b7ca0e803e"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/old-public-caller.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/old-public-caller.stdout.txt",
+      "bytes": 407,
+      "sha256": "aa6c7fb5b7b198e409193307cdd052ef74b39ade87129b950869656c3a17335c"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/old_public_caller_probe.py.txt",
+      "bytes": 594,
+      "sha256": "abaffd90afce38d5811a80f7cdffc25113aa2b857698c0d3c54f4fafac19e5f9"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/pytest.xml",
+      "bytes": 14977,
+      "sha256": "c95feb18639ea3edb906f8248abbe9aaa332188ae5635ba25fc8410f72fa95b6"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-author-20261007/ruff.stdout.txt",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/affected-facade.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/affected-facade.stdout.txt",
+      "bytes": 80,
+      "sha256": "700bc0322b00f8e8db3ce495047983b54ab27ab59ed1fedac05f3aeba47dae24"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "8c5d495e049a39023d409c0300f632a424279595769669bf2389073a5865dc75"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/commit.stdout.txt",
+      "bytes": 159,
+      "sha256": "83d972a2ee9d0a90e4ed5ac5560bc8c6ad52d5da9bf5b4af633d2b42fb26eee8"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/format-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/format-check.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/format.stdout.txt",
+      "bytes": 19,
+      "sha256": "413a709001976657cb743636fd34e48fc41d8d302d665460d3f874b3313da127"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/implementation-source.json",
+      "bytes": 845,
+      "sha256": "6b3974460c7938c476e0e3d6845a0556b7d0a7d02aa923f48d43f2114e0d4d76"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/pytest.xml",
+      "bytes": 1181,
+      "sha256": "427508fd1fe7cf913ae9c0f7b280afe50277669172583d20b62c1ce8f944e8ba"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/receipt.json",
+      "bytes": 3982,
+      "sha256": "f164530103b010f53edf04ea045f46a4eaffd7bbbfc116465ab7a4bf26f45928"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-core-companion-20261007/ruff.stdout.txt",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review.json",
+      "bytes": 10915,
+      "sha256": "04cefff0ecfb4cd1ffbe94dcb87fd38af2398f5074238d9283606f3c16558e0a"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review-optimized.json",
+      "bytes": 10915,
+      "sha256": "2332d6127310aac20c2bcd56d7bd98aaf435bfa50c3100a9bcdeb9d9b0bd7c24"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review.stdout.txt",
+      "bytes": 364,
+      "sha256": "2926b54b67e9f9c5e90e2e3c07a047f12e7a71da9b117237bec13d12f5062b3e"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review-optimized.stdout.txt",
+      "bytes": 364,
+      "sha256": "2f9479be8905405f130fb721da6587a65dc6efe2533a8e2c26dfae618304300e"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/review-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/commands.json",
+      "bytes": 3798,
+      "sha256": "a7ae2d65e6ec4e411509906dab27aee33bcff76aac924ba267df2e10649f049b"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/selectors.json",
+      "bytes": 8925,
+      "sha256": "c8810ddc2f72a073df129b5e3c649c75e2ed57bf56a352846dce5e4db633a6aa"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/selectors.stdout.txt",
+      "bytes": 112,
+      "sha256": "8c1cb2975709ec96046e94481cdf7c6712402aa5fff46cc0f18342eefce80233"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/selectors.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/pytest.xml",
+      "bytes": 1181,
+      "sha256": "4c8525fa1d8d031865e051b4dddb3cafed3476ad4f033f9e4f1a88a9e9bc701b"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/pytest.stdout.txt",
+      "bytes": 80,
+      "sha256": "700bc0322b00f8e8db3ce495047983b54ab27ab59ed1fedac05f3aeba47dae24"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/pytest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.json",
+      "bytes": 8928,
+      "sha256": "2837064a2770eb5e4b28f9149222e15158088cbe9f86fddf452b735e5c4fac79"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.stdout.txt",
+      "bytes": 70,
+      "sha256": "82ff3945ff0a7db497857fb49612d5cc6f4cbd5e02f9c9aada72157f05415bb7"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/import-edges.json",
+      "bytes": 23147,
+      "sha256": "187efb5a05f55cd0d24d32328ae5a78bbd66efb898d0d01a70aa20858f0e469f"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/run-selectors.py.txt",
+      "bytes": 3207,
+      "sha256": "a145eeee2e50681c7e3fe9491648b736588ca009861a5dbe3fa328f44e51f7c9"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/delta-review.py.txt",
+      "bytes": 8623,
+      "sha256": "085bbb6646c2ce475559b14c9e135499c6c7e4d55768d43a368a517c759efba3"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/collect-final-review.py.txt",
+      "bytes": 7638,
+      "sha256": "80b31b0acddaf157482f420bc0d0303b31c915af2bb119b07f7bfb71d5566522"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/select-publication.py.txt",
+      "bytes": 5883,
+      "sha256": "0b7738834987bd331dadb5f1774b913429a7de87c490b7b6636b132e80a1d5ef"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/review.json",
+      "bytes": 14593,
+      "sha256": "8cf8f4dded35e419d8f645513ef20602cfa4463b58c64649047eeabc3c4679e1"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/review.stdout.txt",
+      "bytes": 187,
+      "sha256": "cc5bdc73483dd77cc3cf63f7313b51bd093cdc310a2228f9311fddbca9f81aeb"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/selectors.json",
+      "bytes": 25530,
+      "sha256": "1ad211b5616ea02044c9182d20d4448d8fbae47fd0d213f24c9dda0cecfc0df3"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/selectors.stdout.txt",
+      "bytes": 114,
+      "sha256": "3c207e7e23116aedbd0fb78e66bab43914df80ba12ef795cf8aaa0378dffdd91"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/selectors.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/pytest.xml",
+      "bytes": 14977,
+      "sha256": "a5d7a10543f3ab0941f2648d36b49be7f001675eef1ebaa80ced1e3480378baa"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/pytest.stdout.txt",
+      "bytes": 160,
+      "sha256": "15d45ee89dd77c1573712d174e175e1369a0daf3ca0e6acdebef061ce046e96d"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/pytest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.json",
+      "bytes": 13227,
+      "sha256": "6ca55150917b18c9ab2507d24109b56336a24de0ce5771de01feaee2144fd2f5"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.stdout.txt",
+      "bytes": 135,
+      "sha256": "3c571acb604874ebaaa820e643ac9b6a5763b0663875330e2f4c17d750555c1c"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.json",
+      "bytes": 1703,
+      "sha256": "9aa3bcf597ec4d7eb6694da2e67c71c0092ee2a0206ddbee36300eab70057309"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.stdout.txt",
+      "bytes": 1703,
+      "sha256": "9aa3bcf597ec4d7eb6694da2e67c71c0092ee2a0206ddbee36300eab70057309"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/import-edges.json",
+      "bytes": 44967,
+      "sha256": "f5360ad9191c06420ebc6ccd718e79e4ef46a69bafa86e92838d0613eaab7cda"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/dynamic-import-edges.json",
+      "bytes": 8520,
+      "sha256": "49a63fed935b414a710d936e2c8a135b4cb4029b2c561434ac6b4a3df1fd2e90"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/run-selectors.py.txt",
+      "bytes": 3229,
+      "sha256": "6a7572323ed3342b2793f576b0602a4e5201ee9d2cec3deacabdf481624bd9a6"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/native-and-import-probes.py.txt",
+      "bytes": 14021,
+      "sha256": "527d8b41f3a340a217f78af137b9de7733088ac4b59d5ac9518e75f052eb79fb"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/actual-caller-removal.py.txt",
+      "bytes": 2257,
+      "sha256": "18d12fbda139707e19eb2d049bc4b8412eeeed3c629e4355541a54e78038abbd"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/collect-review.py.txt",
+      "bytes": 4967,
+      "sha256": "675d07cb8bdfda8d53f01960c954002961fb5e55d569944d574dbb1a42481cbb"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/historical-collector-syntax-observer.py.txt",
+      "bytes": 4953,
+      "sha256": "55d9b1a59592aac1c5f84e72a50ff0dc156239ef1c0233ba3580fded194da09f"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-e456-independent-20261007/historical-collector-syntax-observer.stderr.txt",
+      "bytes": 322,
+      "sha256": "0cb6fb3c3b3f93db2fab5de657d21137e1eb07533c02b17b32da946e78b9c5ed"
+    },
+    {
+      "source_path": "/tmp/e02-E-summary-facade-ace655-independent-20261007/publication-selection.json",
+      "bytes": 12471,
+      "sha256": "112be519e5f4736dbf8483716d7e3e036ac7a3b54b964d7d58c024ed0237235e"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-handoff-r4-stage/source-assembly.json",
+      "bytes": 3021,
+      "sha256": "04ee094960903dcc445b18ffbde9f3437e560be91384428a46f04541e1aceb0c"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-summary-facade-handoff-r4-stage/assemble_handoff.py.txt",
+      "bytes": 17875,
+      "sha256": "002b5deb48d6edc6e61c18f5736dae05e33eb89a2a7053b6f342cc9503b0796c"
+    }
+  ],
+  "JUnit_raw_observations": {
+    "author-historical-e456/pytest.xml": {
+      "raw_cases": 93,
+      "statuses": {
+        "PASS": 93
+      },
+      "case_id_sha256": "67aab5badc2393180181cd8f7ff6906664740dcef6d776625c93ef5d2d726dc5",
+      "source_path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-historical-e456/pytest.xml",
+      "bytes": 14977,
+      "sha256": "c95feb18639ea3edb906f8248abbe9aaa332188ae5635ba25fc8410f72fa95b6"
+    },
+    "author-corrective-ace/pytest.xml": {
+      "raw_cases": 6,
+      "statuses": {
+        "PASS": 6
+      },
+      "case_id_sha256": "92ec6deccbb3c55b5fdafeeac44cc515a5444a2e71f22379fc85e4cae080621c",
+      "source_path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/author-corrective-ace/pytest.xml",
+      "bytes": 1181,
+      "sha256": "427508fd1fe7cf913ae9c0f7b280afe50277669172583d20b62c1ce8f944e8ba"
+    },
+    "independent/historical-e456/pytest.xml": {
+      "raw_cases": 93,
+      "statuses": {
+        "PASS": 93
+      },
+      "case_id_sha256": "67aab5badc2393180181cd8f7ff6906664740dcef6d776625c93ef5d2d726dc5",
+      "source_path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/historical-e456/pytest.xml",
+      "bytes": 14977,
+      "sha256": "a5d7a10543f3ab0941f2648d36b49be7f001675eef1ebaa80ced1e3480378baa"
+    },
+    "independent/pytest.xml": {
+      "raw_cases": 6,
+      "statuses": {
+        "PASS": 6
+      },
+      "case_id_sha256": "92ec6deccbb3c55b5fdafeeac44cc515a5444a2e71f22379fc85e4cae080621c",
+      "source_path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade/independent/pytest.xml",
+      "bytes": 1181,
+      "sha256": "4c8525fa1d8d031865e051b4dddb3cafed3476ad4f033f9e4f1a88a9e9bc701b"
+    }
+  },
+  "native_claims": {
+    "historical_e456_author": 93,
+    "historical_e456_independent": 93,
+    "current_ace_author": 6,
+    "current_ace_independent": 6,
+    "counts_are_not_added": true
+  },
+  "predicate_basis": {
+    "public_function_and_DTO_identity": {
+      "basis": "independently_reconciled",
+      "explanation": "Independent cold canonical identity and actual two caller bindings, present-fake/removal controls"
+    },
+    "finite_functionals_and_CAS_raw_readback": {
+      "basis": "independently_reconciled",
+      "explanation": "Independent native asymmetric and atom/interpolation-divergent law fixtures; exact unchanged ecde defining property reused"
+    },
+    "complete_source_import_class": {
+      "basis": "independently_reconciled",
+      "explanation": "Independent complete four-Python AST/dynamic census plus deep-constructor adversary/property-removal"
+    },
+    "source_candidate_tree_and_sixpath_footprint": {
+      "basis": "recomputed",
+      "explanation": "Read-only exact Git base/candidate/tree/diff and six literal Git blobs reconciled to independent footprint"
+    },
+    "original_member_Counter_and_content_dedup": {
+      "basis": "recomputed",
+      "explanation": "Complete19author/13corrective/44peer+selector and two assembly companions; aliases/raw roles bound in fixed copy-index"
+    },
+    "literal_original_deciding_bytes": {
+      "basis": "recomputed",
+      "explanation": "Each copied original rehashed with exact size and all repeats retained; independent thin custody still pending"
+    },
+    "source_scientific_fit_noise_and_B197_authority": {
+      "basis": "not_established",
+      "explanation": "Finite law/public-binding fixture has no authority over real configured source/fit/consumer"
+    },
+    "final_wave_generated_surface_and_G_findings": {
+      "basis": "not_established",
+      "explanation": "No finalfreeze/native/global wave or canonical shared generator/owner acceptance executed by assembly"
+    }
+  },
+  "actual_evidence_validator_controls": [
+    {
+      "case": "healthy",
+      "mode": "normal",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/healthy-normal/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/healthy-normal"
+      ],
+      "exit_code": 0,
+      "actual_admitted": true,
+      "expected_admitted": true,
+      "outcome": "PASS control",
+      "stdout_sha256": "9e86a574531e85672446180a2975b1f1791aede9425223001024c788b6bc5ba2",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "source-sha",
+      "mode": "normal",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/source-sha-normal/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/source-sha-normal"
+      ],
+      "exit_code": 1,
+      "actual_admitted": false,
+      "expected_admitted": false,
+      "outcome": "PASS control",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "893e18dfcb0689f5e0e0d4410d63b85f96ffd925f793ce33ffba181212d489cf"
+    },
+    {
+      "case": "tree-sha",
+      "mode": "normal",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/tree-sha-normal/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/tree-sha-normal"
+      ],
+      "exit_code": 1,
+      "actual_admitted": false,
+      "expected_admitted": false,
+      "outcome": "PASS control",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "340cf10722c9f01c7a4a0a1344ae8db39c9f00207d0bb0ea0a52f6801e050f55"
+    },
+    {
+      "case": "typed-count-bool",
+      "mode": "normal",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/typed-count-bool-normal/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/typed-count-bool-normal"
+      ],
+      "exit_code": 1,
+      "actual_admitted": false,
+      "expected_admitted": false,
+      "outcome": "PASS control",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "9fc17876dd2797f3bf37f5a4c02fb59b7b9345b16cfa9355ba3521cb0528901f"
+    },
+    {
+      "case": "fresh-case-inflation",
+      "mode": "normal",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/fresh-case-inflation-normal/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/fresh-case-inflation-normal"
+      ],
+      "exit_code": 1,
+      "actual_admitted": false,
+      "expected_admitted": false,
+      "outcome": "PASS control",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "de8ce73da91b6a8358ceaff707bcb96692c52bc382b6157e6ae4da572b23f44f"
+    },
+    {
+      "case": "current-wave-promotion",
+      "mode": "normal",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/current-wave-promotion-normal/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/current-wave-promotion-normal"
+      ],
+      "exit_code": 1,
+      "actual_admitted": false,
+      "expected_admitted": false,
+      "outcome": "PASS control",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "78bcae1fbaf12ca752ec364f33592193c3d4bfcdc7e1040895179726245492df"
+    },
+    {
+      "case": "G-closure-promotion",
+      "mode": "normal",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/G-closure-promotion-normal/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/G-closure-promotion-normal"
+      ],
+      "exit_code": 1,
+      "actual_admitted": false,
+      "expected_admitted": false,
+      "outcome": "PASS control",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "4089d4eca072c4d9f437b4b52cdc3d49f097f45ded224fb926fd8c2da009cde6"
+    },
+    {
+      "case": "unknown-basis-promotion",
+      "mode": "normal",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/unknown-basis-promotion-normal/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/unknown-basis-promotion-normal"
+      ],
+      "exit_code": 1,
+      "actual_admitted": false,
+      "expected_admitted": false,
+      "outcome": "PASS control",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "7fc247025cde8337303833828ad7be13cabae09f2f734bb823e0b3319196dbe8"
+    },
+    {
+      "case": "missing-empty-carrier",
+      "mode": "normal",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/missing-empty-carrier-normal/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/missing-empty-carrier-normal"
+      ],
+      "exit_code": 1,
+      "actual_admitted": false,
+      "expected_admitted": false,
+      "outcome": "PASS control",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "1ff8d9983d7da58021abd7d47d44d84e56ff81e867834bad513fea15d4fb6319"
+    },
+    {
+      "case": "fake-present-review",
+      "mode": "normal",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/fake-present-review-normal/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/fake-present-review-normal"
+      ],
+      "exit_code": 1,
+      "actual_admitted": false,
+      "expected_admitted": false,
+      "outcome": "PASS control",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "9061f4bca680e5636624cf11e8b226bce778d88684cd2943cf11eb1e0c9a948d"
+    },
+    {
+      "case": "full-index-Counter-substitution",
+      "mode": "normal",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/full-index-Counter-substitution-normal/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/full-index-Counter-substitution-normal"
+      ],
+      "exit_code": 1,
+      "actual_admitted": false,
+      "expected_admitted": false,
+      "outcome": "PASS control",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "279c48c882464880b169b8f3470442645c5510d3fa3e9196413be81ab3d7ca73"
+    },
+    {
+      "case": "sole-index-guard-removal",
+      "mode": "normal",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/sole-index-guard-removal-normal/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/sole-index-guard-removal-normal"
+      ],
+      "exit_code": 0,
+      "actual_admitted": true,
+      "expected_admitted": true,
+      "outcome": "PASS control",
+      "stdout_sha256": "9e86a574531e85672446180a2975b1f1791aede9425223001024c788b6bc5ba2",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "required_property_outcome": "FAIL: original-source member Counter was replaced while all carrier bytes, counts and scope markers remained"
+    },
+    {
+      "case": "healthy",
+      "mode": "optimized",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/healthy-optimized/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/healthy-optimized"
+      ],
+      "exit_code": 0,
+      "actual_admitted": true,
+      "expected_admitted": true,
+      "outcome": "PASS control",
+      "stdout_sha256": "9e86a574531e85672446180a2975b1f1791aede9425223001024c788b6bc5ba2",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "source-sha",
+      "mode": "optimized",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/source-sha-optimized/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/source-sha-optimized"
+      ],
+      "exit_code": 1,
+      "actual_admitted": false,
+      "expected_admitted": false,
+      "outcome": "PASS control",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "1b2deb9f115d27fd2ab11b01ed1046b36a7c7bfb836a4895cbdc87c428108099"
+    },
+    {
+      "case": "tree-sha",
+      "mode": "optimized",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/tree-sha-optimized/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/tree-sha-optimized"
+      ],
+      "exit_code": 1,
+      "actual_admitted": false,
+      "expected_admitted": false,
+      "outcome": "PASS control",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "27116c786ce8f40412e018365c88e281627e065c10cd77c4a816fffca7b60f74"
+    },
+    {
+      "case": "typed-count-bool",
+      "mode": "optimized",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/typed-count-bool-optimized/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/typed-count-bool-optimized"
+      ],
+      "exit_code": 1,
+      "actual_admitted": false,
+      "expected_admitted": false,
+      "outcome": "PASS control",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "325d9981ae2e88ce3e33148b6772e48ad269caad01729ef6a1877cece7d33c6c"
+    },
+    {
+      "case": "fresh-case-inflation",
+      "mode": "optimized",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/fresh-case-inflation-optimized/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/fresh-case-inflation-optimized"
+      ],
+      "exit_code": 1,
+      "actual_admitted": false,
+      "expected_admitted": false,
+      "outcome": "PASS control",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "d8f1df8b490d2d1df761e4ddeabfe04c44bff43960ffb925701a034a24abb6fb"
+    },
+    {
+      "case": "current-wave-promotion",
+      "mode": "optimized",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/current-wave-promotion-optimized/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/current-wave-promotion-optimized"
+      ],
+      "exit_code": 1,
+      "actual_admitted": false,
+      "expected_admitted": false,
+      "outcome": "PASS control",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e5272326b80d47aa1d3ca7b4152c6748e009c43211bf919dd8f9b89ddad4fdae"
+    },
+    {
+      "case": "G-closure-promotion",
+      "mode": "optimized",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/G-closure-promotion-optimized/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/G-closure-promotion-optimized"
+      ],
+      "exit_code": 1,
+      "actual_admitted": false,
+      "expected_admitted": false,
+      "outcome": "PASS control",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "0f90afc30f7029140bb5b591bc3be050b97bde547ffa202d2f7d4bd7a76474f6"
+    },
+    {
+      "case": "unknown-basis-promotion",
+      "mode": "optimized",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/unknown-basis-promotion-optimized/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/unknown-basis-promotion-optimized"
+      ],
+      "exit_code": 1,
+      "actual_admitted": false,
+      "expected_admitted": false,
+      "outcome": "PASS control",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "9b200690e2c1d05091c9ff75934e18ebc10d1e921c082f00789abd3457d388c6"
+    },
+    {
+      "case": "missing-empty-carrier",
+      "mode": "optimized",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/missing-empty-carrier-optimized/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/missing-empty-carrier-optimized"
+      ],
+      "exit_code": 1,
+      "actual_admitted": false,
+      "expected_admitted": false,
+      "outcome": "PASS control",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "104604ba8985eac4491a644ff46eae1a4187ec5e0c7bf07ac71643fde2a46882"
+    },
+    {
+      "case": "fake-present-review",
+      "mode": "optimized",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/fake-present-review-optimized/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/fake-present-review-optimized"
+      ],
+      "exit_code": 1,
+      "actual_admitted": false,
+      "expected_admitted": false,
+      "outcome": "PASS control",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "312d3361d34fb04acbe8ceca4aacf806d2511c414b44c407ca68a35ce3658f55"
+    },
+    {
+      "case": "full-index-Counter-substitution",
+      "mode": "optimized",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/full-index-Counter-substitution-optimized/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/full-index-Counter-substitution-optimized"
+      ],
+      "exit_code": 1,
+      "actual_admitted": false,
+      "expected_admitted": false,
+      "outcome": "PASS control",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "d63c6c6e81e93fdd333f6a497088ef666fa7f24b045c13d39a0adf4387b3906d"
+    },
+    {
+      "case": "sole-index-guard-removal",
+      "mode": "optimized",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "-B",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/sole-index-guard-removal-optimized/validate-handoff.py.txt",
+        "/tmp/e02-E-summary-facade-handoff2dc-independent-20261007/control-inputs/sole-index-guard-removal-optimized"
+      ],
+      "exit_code": 0,
+      "actual_admitted": true,
+      "expected_admitted": true,
+      "outcome": "PASS control",
+      "stdout_sha256": "9e86a574531e85672446180a2975b1f1791aede9425223001024c788b6bc5ba2",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "required_property_outcome": "FAIL: original-source member Counter was replaced while all carrier bytes, counts and scope markers remained"
+    }
+  ],
+  "source_native_numeric_gate_rerun": false,
+  "before": {
+    "HEAD": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+    "tree": "8cba7977f54ed1c7e6d0f66b3c7e83a98011ab6e",
+    "status": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/\n",
+    "tracked_status": ""
+  },
+  "after": {
+    "HEAD": "2dc99fe3cbc9f184205d291ec80410bb8bbc1c76",
+    "tree": "8cba7977f54ed1c7e6d0f66b3c7e83a98011ab6e",
+    "status": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/\n",
+    "tracked_status": ""
+  },
+  "formal_G_acceptance": false,
+  "new_common_wave": "UNRUN",
+  "limitations": [
+    "DOC custody and exact earlier source acceptance only; no upstream CAL/77 or scientific fit/noise/source-law authority from this receipt",
+    "Historical e45693 and current ace6 are separate immutable raw observations; no fresh99-case claim",
+    "Two unique untracked Root directories remain; tracked clean guard is not whole-workspace clean",
+    "No production data, environment mutation, native tests, HMC or global gates executed"
+  ],
+  "environment": {
+    "interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "optimization_guard_modes": [
+      "normal",
+      "optimized"
+    ],
+    "cwd": "/workspace",
+    "ROOT_source_environment_or_Git_writer": false
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "source": {
+    "sha": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+    "tree": "d5efa295c8af983a86a620a120ab091aae580db3",
+    "native_remote_source_readback": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322"
+  },
+  "DOC": {
+    "sha": "c40b2f5767bb5810bc8ac4c2ead9510f8c01430b",
+    "tree": "b596c99e8edc0e6735c942f0415fb50ecccfa331",
+    "direct_source_parent": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+    "native_remote_DOC_readback": "c40b2f5767bb5810bc8ac4c2ead9510f8c01430b",
+    "passive_paths": 962,
+    "total_bytes": 19296942,
+    "active_python": 0,
+    "prefix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/configured-bayesian-fit/"
+  },
+  "source_byte_continuity": {
+    "authored_paths": 6,
+    "source77_DOCc40_physical_equal": true
+  },
+  "PR": {
+    "number": 58,
+    "url": "https://github.com/DenisKopylov/polisyos/pull/58",
+    "head": "c40b2f5767bb5810bc8ac4c2ead9510f8c01430b",
+    "branch": "codex/e02-E-cal-20261006",
+    "base": "main",
+    "state": "open",
+    "title": "E02 E: admit calibration inputs and bind fitted uncertainty draws",
+    "body_bytes": 3685,
+    "body_sha256": "55e0ef421ab2312d321b11cb5e0646ec05b477c23869c620ef84e3d03a8830d9"
+  },
+  "scope": {
+    "actual_Git_source_DOC_readback": true,
+    "PR_metadata_edit": true,
+    "source_environment_or_runtime_mutation": false,
+    "runtime_backend_checks_repeated": false,
+    "main_push": false,
+    "app_attachment": "Root-reported actual native success; no reconstructed tool bytes",
+    "source_finding_global_decisions_separate": true,
+    "clean_CAL_before_after": true
+  },
+  "historical": {
+    "pre_edit_title": "E02 E: admit calibration inputs and verify welfare support",
+    "failed_gh_pr_edit_reason": "deprecated Projects classic GraphQL projectCards",
+    "old_final_readback_PR_metadata": "historical pre-description-update snapshot; current REST after capture supersedes only title/body"
+  }
+}

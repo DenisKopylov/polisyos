@@ -1,0 +1,183 @@
+"""Always-on custody/disposition controls; no product imports or native tests."""
+
+from __future__ import annotations
+
+import argparse
+import ast
+import copy
+import json
+import runpy
+import sys
+from pathlib import Path
+from typing import Any
+
+
+def changed(packet: dict[str, Any], pointer: str, value: object) -> dict[str, Any]:
+    result = copy.deepcopy(packet)
+    current: Any = result
+    parts = pointer.split("/")
+    for part in parts[:-1]:
+        current = current[int(part)] if isinstance(current, list) else current[part]
+    if isinstance(current, list):
+        current[int(parts[-1])] = value
+    else:
+        current[parts[-1]] = value
+    return result
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--module", type=Path, required=True)
+    parser.add_argument("--inputs", type=Path, required=True)
+    parser.add_argument("--packet", type=Path, required=True)
+    args = parser.parse_args()
+    module = runpy.run_path(str(args.module), run_name="custody_control_module")
+    _manifest, values = module["load_inputs"](args.inputs)
+    packet = json.loads(args.packet.read_bytes())
+    roles = module["source_bindings"](_manifest["inputs"])
+    owner = values["owner54"]
+    controls: list[dict[str, Any]] = []
+
+    def validate(value: dict[str, Any]) -> None:
+        module["admit_rows"](value, owner)
+        module["admit_source_claims"](value, roles)
+
+    validate(packet)
+    controls.append(
+        {"case": "healthy_current_source_all54_original_dispositions", "outcome": "PASS"}
+    )
+    mutations = [
+        ("false_current_source", "candidate", "0" * 40),
+        ("false_current_tree", "tree", "0" * 40),
+        ("retotalled_duplicate_finding", "rows/0/id", packet["rows"][1]["id"]),
+        ("formal_ledger_promotion", "formal_ledger_change", True),
+        ("formal_G_promotion", "formal_G_acceptance", True),
+        ("invented_new_owner_decision", "new_individual_owner_disposition", True),
+        ("historical_closed_count_bool", "historical_ledger/closed", True),
+        ("proposal_closed_count_float", "bounded_E_proposals/closed", 43.0),
+        ("bundle_denominator_bool", "complete_denominator/bundles", True),
+        ("changed_original_owner_decision", "rows/0/owner_decision", "accepted"),
+        (
+            "changed_original_criterion_hash",
+            "rows/0/criterion_evidence/original_criterion_refs/0/sha256",
+            "0" * 64,
+        ),
+        (
+            "invented_minimum_input",
+            "remaining_owner_inputs/0/minimal_inputs",
+            "No actual source or consumer required",
+        ),
+        ("ratification_removed", "tracked_four_semantic_decisions", None),
+        (
+            "current_role_digest_forged",
+            "source_role_qualification/0/current_source/sha256",
+            "0" * 64,
+        ),
+        (
+            "stale_whole_prior_role_reuse",
+            "source_role_qualification/4/accepted_source/revision",
+            module["OLD"],
+        ),
+        ("invalid_P37_basis", "source_role_qualification/0/basis", "measured"),
+        ("invented_capability", "public_and_external_consumers/capability_state", "green"),
+        ("finite_fit_flag_authority", "scientific_fit_boundary/gate_eligible", True),
+        (
+            "edge_denominator_float",
+            "import_owner_dependencies/current_new_E_static_edges/total",
+            23.0,
+        ),
+        ("pending_numeric_as_PASS", "current_numeric_wave/check_outcome", "PASS"),
+        ("pending_global_as_PASS", "current_global_gates/check_outcome", "PASS"),
+    ]
+    for name, pointer, value in mutations:
+        try:
+            validate(changed(packet, pointer, value))
+        except (ValueError, TypeError, KeyError) as exc:
+            controls.append(
+                {"case": name, "outcome": "PASS", "admission": "REFUSE", "reason": str(exc)}
+            )
+        else:
+            raise ValueError("actual mutant admitted: " + name)
+
+    # Remove only the exact source/ref equality predicate. Header/count/owner/P37
+    # admission remains; the actual forged source body is then accepted.
+    tree = ast.parse(args.module.read_text())
+    removed = 0
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef) and node.name == "admit_source_claims":
+            for index, statement in enumerate(node.body):
+                if (
+                    isinstance(statement, ast.Expr)
+                    and isinstance(statement.value, ast.Call)
+                    and len(statement.value.args) == 2
+                    and isinstance(statement.value.args[1], ast.Constant)
+                    and statement.value.args[1].value == "complete role/source/ref/type claims"
+                ):
+                    node.body[index] = ast.Pass()
+                    removed += 1
+    module["require"](removed == 1, "exactly one defining source/ref predicate removed")
+    namespace: dict[str, Any] = {"__name__": "effective_removed_source_claim_module"}
+    exec(compile(ast.fix_missing_locations(tree), str(args.module), "exec"), namespace)  # noqa: S102 -- pinned own observer AST
+    forged = changed(packet, "source_role_qualification/0/current_source/sha256", "0" * 64)
+    namespace["admit_rows"](forged, owner)
+    namespace["admit_source_claims"](forged, roles)
+    controls.append(
+        {
+            "case": "sole_source_claim_predicate_removal_re_admits_forged_current_role",
+            "outcome": "PASS",
+            "actual_admission": "ACCEPT",
+            "defining_property_outcome": "FAIL",
+            "other_header_owner_counts_P37_guards_active": True,
+        }
+    )
+    callback_count = 0
+
+    def spy(*_args: object) -> bytes:
+        nonlocal callback_count
+        callback_count += 1
+        raise ValueError("unexpected Git callback")
+
+    saved = module["blob"].__globals__["git"]
+    module["blob"].__globals__["git"] = spy
+    try:
+        for revision, path in [
+            ("--output=/tmp/not-admitted", "policy-engine/AGENTS.md"),
+            (module["SOURCE"], "policy-engine/../AGENTS.md"),
+            (module["SOURCE"], "policy-engine/\x00bad.py"),
+            (True, "policy-engine/AGENTS.md"),
+        ]:
+            try:
+                module["blob"](revision, path)
+            except (ValueError, TypeError) as exc:
+                controls.append(
+                    {"case": "invalid_Git_object_preflight", "outcome": "PASS", "refusal": str(exc)}
+                )
+            else:
+                raise ValueError("invalid Git object admitted")
+    finally:
+        module["blob"].__globals__["git"] = saved
+    module["require"](callback_count == 0, "invalid Git ref/path callback count zero")
+    sys.stdout.write(
+        json.dumps(
+            {
+                "schema": "policyos.e02.E.final54-preparation-controls.v1",
+                "optimized": not __debug__,
+                "source": module["SOURCE"],
+                "tree": module["TREE"],
+                "input": module["reference"](args.inputs),
+                "observer_source": module["reference"](args.module),
+                "packet": module["reference"](args.packet),
+                "controls": controls,
+                "control_count": len(controls),
+                "invalid_Git_callbacks": callback_count,
+                "product_import_or_native_reexecution": False,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

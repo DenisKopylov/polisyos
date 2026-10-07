@@ -1,0 +1,3236 @@
+Resolved settings for: "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py"
+Settings path: "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml"
+
+# General Settings
+cache_dir = "/tmp/e02-E-final-root-lint-b2f2f65e-20261007/cache-settings"
+fix = false
+fix_only = false
+output_format = full
+show_fixes = false
+unsafe_fixes = hint
+
+# File Resolver Settings
+file_resolver.exclude = [
+	".bzr",
+	".direnv",
+	".eggs",
+	".git",
+	".git-rewrite",
+	".hg",
+	".ipynb_checkpoints",
+	".mypy_cache",
+	".nox",
+	".pants.d",
+	".pyenv",
+	".pytest_cache",
+	".pytype",
+	".ruff_cache",
+	".svn",
+	".tox",
+	".venv",
+	".vscode",
+	"__pypackages__",
+	"_build",
+	"buck-out",
+	"dist",
+	"node_modules",
+	"site-packages",
+	"venv",
+]
+file_resolver.extend_exclude = []
+file_resolver.force_exclude = false
+file_resolver.include = [
+	"*.py",
+	"*.pyi",
+	"*.ipynb",
+	"**/pyproject.toml",
+]
+file_resolver.extend_include = []
+file_resolver.respect_gitignore = true
+file_resolver.project_root = "/workspace/e02-E-continuation-20261006/policy-engine"
+
+# Linter Settings
+linter.exclude = []
+linter.project_root = "/workspace/e02-E-continuation-20261006/policy-engine"
+linter.rules.enabled = [
+	missing-type-function-argument (ANN001),
+	missing-type-args (ANN002),
+	missing-type-kwargs (ANN003),
+	missing-return-type-undocumented-public-function (ANN201),
+	missing-return-type-private-function (ANN202),
+	missing-return-type-special-method (ANN204),
+	missing-return-type-static-method (ANN205),
+	missing-return-type-class-method (ANN206),
+	any-type (ANN401),
+	assert (S101),
+	exec-builtin (S102),
+	bad-file-permissions (S103),
+	hardcoded-bind-all-interfaces (S104),
+	hardcoded-password-string (S105),
+	hardcoded-password-func-arg (S106),
+	hardcoded-password-default (S107),
+	hardcoded-temp-file (S108),
+	try-except-pass (S110),
+	try-except-continue (S112),
+	request-without-timeout (S113),
+	flask-debug-true (S201),
+	tarfile-unsafe-members (S202),
+	suspicious-pickle-usage (S301),
+	suspicious-marshal-usage (S302),
+	suspicious-insecure-hash-usage (S303),
+	suspicious-insecure-cipher-usage (S304),
+	suspicious-insecure-cipher-mode-usage (S305),
+	suspicious-mktemp-usage (S306),
+	suspicious-eval-usage (S307),
+	suspicious-mark-safe-usage (S308),
+	suspicious-url-open-usage (S310),
+	suspicious-non-cryptographic-random-usage (S311),
+	suspicious-telnet-usage (S312),
+	suspicious-xmlc-element-tree-usage (S313),
+	suspicious-xml-element-tree-usage (S314),
+	suspicious-xml-expat-reader-usage (S315),
+	suspicious-xml-expat-builder-usage (S316),
+	suspicious-xml-sax-usage (S317),
+	suspicious-xml-mini-dom-usage (S318),
+	suspicious-xml-pull-dom-usage (S319),
+	suspicious-ftp-lib-usage (S321),
+	suspicious-unverified-context-usage (S323),
+	hashlib-insecure-hash-function (S324),
+	request-with-no-cert-validation (S501),
+	ssl-insecure-version (S502),
+	ssl-with-bad-defaults (S503),
+	ssl-with-no-version (S504),
+	weak-cryptographic-key (S505),
+	unsafe-yaml-load (S506),
+	ssh-no-host-key-verification (S507),
+	snmp-insecure-version (S508),
+	snmp-weak-cryptography (S509),
+	paramiko-call (S601),
+	subprocess-popen-with-shell-equals-true (S602),
+	subprocess-without-shell-equals-true (S603),
+	call-with-shell-equals-true (S604),
+	start-process-with-a-shell (S605),
+	start-process-with-no-shell (S606),
+	start-process-with-partial-path (S607),
+	hardcoded-sql-expression (S608),
+	unix-command-wildcard-injection (S609),
+	django-extra (S610),
+	django-raw-sql (S611),
+	logging-config-insecure-listen (S612),
+	jinja2-autoescape-false (S701),
+	mako-templates (S702),
+	unsafe-markup-use (S704),
+	unary-prefix-increment-decrement (B002),
+	assignment-to-os-environ (B003),
+	unreliable-callable-check (B004),
+	strip-with-multi-characters (B005),
+	mutable-argument-default (B006),
+	unused-loop-control-variable (B007),
+	function-call-in-default-argument (B008),
+	get-attr-with-constant (B009),
+	set-attr-with-constant (B010),
+	assert-false (B011),
+	jump-statement-in-finally (B012),
+	redundant-tuple-in-exception-handler (B013),
+	duplicate-handler-exception (B014),
+	useless-comparison (B015),
+	raise-literal (B016),
+	assert-raises-exception (B017),
+	useless-expression (B018),
+	cached-instance-method (B019),
+	loop-variable-overrides-iterator (B020),
+	f-string-docstring (B021),
+	useless-contextlib-suppress (B022),
+	function-uses-loop-variable (B023),
+	abstract-base-class-without-abstract-method (B024),
+	duplicate-try-block-exception (B025),
+	star-arg-unpacking-after-keyword-arg (B026),
+	empty-method-without-abstract-decorator (B027),
+	no-explicit-stacklevel (B028),
+	except-with-empty-tuple (B029),
+	except-with-non-exception-classes (B030),
+	reuse-of-groupby-generator (B031),
+	unintentional-type-annotation (B032),
+	duplicate-value (B033),
+	re-sub-positional-args (B034),
+	static-key-dict-comprehension (B035),
+	mutable-contextvar-default (B039),
+	raise-without-from-inside-except (B904),
+	zip-without-explicit-strict (B905),
+	batched-without-explicit-strict (B911),
+	unnecessary-generator-list (C400),
+	unnecessary-generator-set (C401),
+	unnecessary-generator-dict (C402),
+	unnecessary-list-comprehension-set (C403),
+	unnecessary-list-comprehension-dict (C404),
+	unnecessary-literal-set (C405),
+	unnecessary-literal-dict (C406),
+	unnecessary-collection-call (C408),
+	unnecessary-literal-within-tuple-call (C409),
+	unnecessary-literal-within-list-call (C410),
+	unnecessary-list-call (C411),
+	unnecessary-call-around-sorted (C413),
+	unnecessary-double-cast-or-process (C414),
+	unnecessary-subscript-reversal (C415),
+	unnecessary-comprehension (C416),
+	unnecessary-map (C417),
+	unnecessary-literal-within-dict-call (C418),
+	unnecessary-comprehension-in-call (C419),
+	unnecessary-dict-comprehension-for-iterable (C420),
+	print (T201),
+	p-print (T203),
+	pytest-fixture-incorrect-parentheses-style (PT001),
+	pytest-fixture-positional-args (PT002),
+	pytest-extraneous-scope-function (PT003),
+	pytest-parametrize-names-wrong-type (PT006),
+	pytest-parametrize-values-wrong-type (PT007),
+	pytest-patch-with-lambda (PT008),
+	pytest-unittest-assertion (PT009),
+	pytest-raises-without-exception (PT010),
+	pytest-raises-too-broad (PT011),
+	pytest-raises-with-multiple-statements (PT012),
+	pytest-incorrect-pytest-import (PT013),
+	pytest-duplicate-parametrize-test-cases (PT014),
+	pytest-assert-always-false (PT015),
+	pytest-fail-without-message (PT016),
+	pytest-assert-in-except (PT017),
+	pytest-composite-assertion (PT018),
+	pytest-fixture-param-without-value (PT019),
+	pytest-deprecated-yield-fixture (PT020),
+	pytest-fixture-finalizer-callback (PT021),
+	pytest-useless-yield-fixture (PT022),
+	pytest-incorrect-mark-parentheses-style (PT023),
+	pytest-unnecessary-asyncio-mark-on-fixture (PT024),
+	pytest-erroneous-use-fixtures-on-fixture (PT025),
+	pytest-use-fixtures-without-parameters (PT026),
+	pytest-unittest-raises-assertion (PT027),
+	pytest-parameter-with-default-argument (PT028),
+	pytest-warns-too-broad (PT030),
+	pytest-warns-with-multiple-statements (PT031),
+	duplicate-isinstance-call (SIM101),
+	collapsible-if (SIM102),
+	needless-bool (SIM103),
+	suppressible-exception (SIM105),
+	return-in-try-except-finally (SIM107),
+	if-else-block-instead-of-if-exp (SIM108),
+	compare-with-tuple (SIM109),
+	reimplemented-builtin (SIM110),
+	uncapitalized-environment-variables (SIM112),
+	enumerate-for-loop (SIM113),
+	if-with-same-arms (SIM114),
+	open-file-with-context-handler (SIM115),
+	if-else-block-instead-of-dict-lookup (SIM116),
+	multiple-with-statements (SIM117),
+	in-dict-keys (SIM118),
+	negate-equal-op (SIM201),
+	negate-not-equal-op (SIM202),
+	double-negation (SIM208),
+	if-expr-with-true-false (SIM210),
+	if-expr-with-false-true (SIM211),
+	if-expr-with-twisted-arms (SIM212),
+	expr-and-not-expr (SIM220),
+	expr-or-not-expr (SIM221),
+	expr-or-true (SIM222),
+	expr-and-false (SIM223),
+	yoda-conditions (SIM300),
+	if-else-block-instead-of-dict-get (SIM401),
+	split-static-string (SIM905),
+	dict-get-with-none-default (SIM910),
+	zip-dict-keys-and-values (SIM911),
+	typing-only-first-party-import (TC001),
+	typing-only-third-party-import (TC002),
+	typing-only-standard-library-import (TC003),
+	runtime-import-in-type-checking-block (TC004),
+	empty-type-checking-block (TC005),
+	runtime-cast-value (TC006),
+	unquoted-type-alias (TC007),
+	runtime-string-union (TC010),
+	unsorted-imports (I001),
+	missing-required-import (I002),
+	invalid-class-name (N801),
+	invalid-function-name (N802),
+	invalid-argument-name (N803),
+	invalid-first-argument-name-for-class-method (N804),
+	invalid-first-argument-name-for-method (N805),
+	non-lowercase-variable-in-function (N806),
+	dunder-function-name (N807),
+	constant-imported-as-non-constant (N811),
+	lowercase-imported-as-non-lowercase (N812),
+	camelcase-imported-as-lowercase (N813),
+	camelcase-imported-as-constant (N814),
+	mixed-case-variable-in-class-scope (N815),
+	mixed-case-variable-in-global-scope (N816),
+	camelcase-imported-as-acronym (N817),
+	error-suffix-on-exception-name (N818),
+	invalid-module-name (N999),
+	mixed-spaces-and-tabs (E101),
+	multiple-imports-on-one-line (E401),
+	module-import-not-at-top-of-file (E402),
+	line-too-long (E501),
+	multiple-statements-on-one-line-colon (E701),
+	multiple-statements-on-one-line-semicolon (E702),
+	useless-semicolon (E703),
+	none-comparison (E711),
+	true-false-comparison (E712),
+	not-in-test (E713),
+	not-is-test (E714),
+	type-comparison (E721),
+	bare-except (E722),
+	lambda-assignment (E731),
+	ambiguous-variable-name (E741),
+	ambiguous-class-name (E742),
+	ambiguous-function-name (E743),
+	io-error (E902),
+	unused-import (F401),
+	import-shadowed-by-loop-var (F402),
+	undefined-local-with-import-star (F403),
+	late-future-import (F404),
+	undefined-local-with-import-star-usage (F405),
+	undefined-local-with-nested-import-star-usage (F406),
+	future-feature-not-defined (F407),
+	percent-format-invalid-format (F501),
+	percent-format-expected-mapping (F502),
+	percent-format-expected-sequence (F503),
+	percent-format-extra-named-arguments (F504),
+	percent-format-missing-argument (F505),
+	percent-format-mixed-positional-and-named (F506),
+	percent-format-positional-count-mismatch (F507),
+	percent-format-star-requires-sequence (F508),
+	percent-format-unsupported-format-character (F509),
+	string-dot-format-invalid-format (F521),
+	string-dot-format-extra-named-arguments (F522),
+	string-dot-format-extra-positional-arguments (F523),
+	string-dot-format-missing-arguments (F524),
+	string-dot-format-mixing-automatic (F525),
+	f-string-missing-placeholders (F541),
+	multi-value-repeated-key-literal (F601),
+	multi-value-repeated-key-variable (F602),
+	expressions-in-star-assignment (F621),
+	multiple-starred-expressions (F622),
+	assert-tuple (F631),
+	is-literal (F632),
+	invalid-print-syntax (F633),
+	if-tuple (F634),
+	break-outside-loop (F701),
+	continue-outside-loop (F702),
+	yield-outside-function (F704),
+	return-outside-function (F706),
+	default-except-not-last (F707),
+	forward-annotation-syntax-error (F722),
+	redefined-while-unused (F811),
+	undefined-name (F821),
+	undefined-export (F822),
+	undefined-local (F823),
+	unused-variable (F841),
+	unused-annotation (F842),
+	raise-not-implemented (F901),
+	useless-metaclass-type (UP001),
+	type-of-primitive (UP003),
+	useless-object-inheritance (UP004),
+	deprecated-unittest-alias (UP005),
+	non-pep585-annotation (UP006),
+	non-pep604-annotation-union (UP007),
+	super-call-with-parameters (UP008),
+	utf8-encoding-declaration (UP009),
+	unnecessary-future-import (UP010),
+	lru-cache-without-parameters (UP011),
+	unnecessary-encode-utf8 (UP012),
+	convert-typed-dict-functional-to-class (UP013),
+	convert-named-tuple-functional-to-class (UP014),
+	redundant-open-modes (UP015),
+	datetime-timezone-utc (UP017),
+	native-literals (UP018),
+	typing-text-str-alias (UP019),
+	open-alias (UP020),
+	replace-universal-newlines (UP021),
+	replace-stdout-stderr (UP022),
+	deprecated-c-element-tree (UP023),
+	os-error-alias (UP024),
+	unicode-kind-prefix (UP025),
+	deprecated-mock-import (UP026),
+	yield-in-for-loop (UP028),
+	unnecessary-builtin-import (UP029),
+	format-literals (UP030),
+	printf-string-formatting (UP031),
+	f-string (UP032),
+	lru-cache-with-maxsize-none (UP033),
+	extraneous-parentheses (UP034),
+	deprecated-import (UP035),
+	outdated-version-block (UP036),
+	quoted-annotation (UP037),
+	unnecessary-class-parentheses (UP039),
+	non-pep695-type-alias (UP040),
+	timeout-error-alias (UP041),
+	unnecessary-default-type-args (UP043),
+	non-pep646-unpack (UP044),
+	non-pep604-annotation-optional (UP045),
+	non-pep695-generic-class (UP046),
+	non-pep695-generic-function (UP047),
+	private-type-parameter (UP049),
+	useless-class-metaclass-type (UP050),
+	ambiguous-unicode-character-string (RUF001),
+	ambiguous-unicode-character-docstring (RUF002),
+	ambiguous-unicode-character-comment (RUF003),
+	collection-literal-concatenation (RUF005),
+	asyncio-dangling-task (RUF006),
+	zip-instead-of-pairwise (RUF007),
+	mutable-dataclass-default (RUF008),
+	function-call-in-dataclass-default-argument (RUF009),
+	explicit-f-string-type-conversion (RUF010),
+	mutable-class-default (RUF012),
+	implicit-optional (RUF013),
+	unnecessary-iterable-allocation-for-first-element (RUF015),
+	invalid-index-type (RUF016),
+	quadratic-list-summation (RUF017),
+	assignment-in-assert (RUF018),
+	unnecessary-key-check (RUF019),
+	never-union (RUF020),
+	parenthesize-chained-operators (RUF021),
+	unsorted-dunder-all (RUF022),
+	unsorted-dunder-slots (RUF023),
+	mutable-fromkeys-value (RUF024),
+	default-factory-kwarg (RUF026),
+	invalid-formatter-suppression-comment (RUF028),
+	assert-with-print-message (RUF030),
+	decimal-from-float-literal (RUF032),
+	post-init-default (RUF033),
+	useless-if-else (RUF034),
+	invalid-assert-message-literal-argument (RUF040),
+	unnecessary-nested-literal (RUF041),
+	pytest-raises-ambiguous-pattern (RUF043),
+	unnecessary-cast-to-int (RUF046),
+	map-int-version-parsing (RUF048),
+	dataclass-enum (RUF049),
+	if-key-in-dict-del (RUF051),
+	class-with-mixed-type-vars (RUF053),
+	unnecessary-round (RUF057),
+	starmap-zip (RUF058),
+	unused-unpacked-variable (RUF059),
+	unused-noqa (RUF100),
+	redirected-noqa (RUF101),
+	invalid-pyproject-toml (RUF200),
+]
+linter.rules.should_fix = [
+	missing-type-function-argument (ANN001),
+	missing-type-args (ANN002),
+	missing-type-kwargs (ANN003),
+	missing-return-type-undocumented-public-function (ANN201),
+	missing-return-type-private-function (ANN202),
+	missing-return-type-special-method (ANN204),
+	missing-return-type-static-method (ANN205),
+	missing-return-type-class-method (ANN206),
+	any-type (ANN401),
+	assert (S101),
+	exec-builtin (S102),
+	bad-file-permissions (S103),
+	hardcoded-bind-all-interfaces (S104),
+	hardcoded-password-string (S105),
+	hardcoded-password-func-arg (S106),
+	hardcoded-password-default (S107),
+	hardcoded-temp-file (S108),
+	try-except-pass (S110),
+	try-except-continue (S112),
+	request-without-timeout (S113),
+	flask-debug-true (S201),
+	tarfile-unsafe-members (S202),
+	suspicious-pickle-usage (S301),
+	suspicious-marshal-usage (S302),
+	suspicious-insecure-hash-usage (S303),
+	suspicious-insecure-cipher-usage (S304),
+	suspicious-insecure-cipher-mode-usage (S305),
+	suspicious-mktemp-usage (S306),
+	suspicious-eval-usage (S307),
+	suspicious-mark-safe-usage (S308),
+	suspicious-url-open-usage (S310),
+	suspicious-non-cryptographic-random-usage (S311),
+	suspicious-telnet-usage (S312),
+	suspicious-xmlc-element-tree-usage (S313),
+	suspicious-xml-element-tree-usage (S314),
+	suspicious-xml-expat-reader-usage (S315),
+	suspicious-xml-expat-builder-usage (S316),
+	suspicious-xml-sax-usage (S317),
+	suspicious-xml-mini-dom-usage (S318),
+	suspicious-xml-pull-dom-usage (S319),
+	suspicious-ftp-lib-usage (S321),
+	suspicious-unverified-context-usage (S323),
+	hashlib-insecure-hash-function (S324),
+	request-with-no-cert-validation (S501),
+	ssl-insecure-version (S502),
+	ssl-with-bad-defaults (S503),
+	ssl-with-no-version (S504),
+	weak-cryptographic-key (S505),
+	unsafe-yaml-load (S506),
+	ssh-no-host-key-verification (S507),
+	snmp-insecure-version (S508),
+	snmp-weak-cryptography (S509),
+	paramiko-call (S601),
+	subprocess-popen-with-shell-equals-true (S602),
+	subprocess-without-shell-equals-true (S603),
+	call-with-shell-equals-true (S604),
+	start-process-with-a-shell (S605),
+	start-process-with-no-shell (S606),
+	start-process-with-partial-path (S607),
+	hardcoded-sql-expression (S608),
+	unix-command-wildcard-injection (S609),
+	django-extra (S610),
+	django-raw-sql (S611),
+	logging-config-insecure-listen (S612),
+	jinja2-autoescape-false (S701),
+	mako-templates (S702),
+	unsafe-markup-use (S704),
+	unary-prefix-increment-decrement (B002),
+	assignment-to-os-environ (B003),
+	unreliable-callable-check (B004),
+	strip-with-multi-characters (B005),
+	mutable-argument-default (B006),
+	unused-loop-control-variable (B007),
+	function-call-in-default-argument (B008),
+	get-attr-with-constant (B009),
+	set-attr-with-constant (B010),
+	assert-false (B011),
+	jump-statement-in-finally (B012),
+	redundant-tuple-in-exception-handler (B013),
+	duplicate-handler-exception (B014),
+	useless-comparison (B015),
+	raise-literal (B016),
+	assert-raises-exception (B017),
+	useless-expression (B018),
+	cached-instance-method (B019),
+	loop-variable-overrides-iterator (B020),
+	f-string-docstring (B021),
+	useless-contextlib-suppress (B022),
+	function-uses-loop-variable (B023),
+	abstract-base-class-without-abstract-method (B024),
+	duplicate-try-block-exception (B025),
+	star-arg-unpacking-after-keyword-arg (B026),
+	empty-method-without-abstract-decorator (B027),
+	no-explicit-stacklevel (B028),
+	except-with-empty-tuple (B029),
+	except-with-non-exception-classes (B030),
+	reuse-of-groupby-generator (B031),
+	unintentional-type-annotation (B032),
+	duplicate-value (B033),
+	re-sub-positional-args (B034),
+	static-key-dict-comprehension (B035),
+	mutable-contextvar-default (B039),
+	raise-without-from-inside-except (B904),
+	zip-without-explicit-strict (B905),
+	batched-without-explicit-strict (B911),
+	unnecessary-generator-list (C400),
+	unnecessary-generator-set (C401),
+	unnecessary-generator-dict (C402),
+	unnecessary-list-comprehension-set (C403),
+	unnecessary-list-comprehension-dict (C404),
+	unnecessary-literal-set (C405),
+	unnecessary-literal-dict (C406),
+	unnecessary-collection-call (C408),
+	unnecessary-literal-within-tuple-call (C409),
+	unnecessary-literal-within-list-call (C410),
+	unnecessary-list-call (C411),
+	unnecessary-call-around-sorted (C413),
+	unnecessary-double-cast-or-process (C414),
+	unnecessary-subscript-reversal (C415),
+	unnecessary-comprehension (C416),
+	unnecessary-map (C417),
+	unnecessary-literal-within-dict-call (C418),
+	unnecessary-comprehension-in-call (C419),
+	unnecessary-dict-comprehension-for-iterable (C420),
+	print (T201),
+	p-print (T203),
+	pytest-fixture-incorrect-parentheses-style (PT001),
+	pytest-fixture-positional-args (PT002),
+	pytest-extraneous-scope-function (PT003),
+	pytest-parametrize-names-wrong-type (PT006),
+	pytest-parametrize-values-wrong-type (PT007),
+	pytest-patch-with-lambda (PT008),
+	pytest-unittest-assertion (PT009),
+	pytest-raises-without-exception (PT010),
+	pytest-raises-too-broad (PT011),
+	pytest-raises-with-multiple-statements (PT012),
+	pytest-incorrect-pytest-import (PT013),
+	pytest-duplicate-parametrize-test-cases (PT014),
+	pytest-assert-always-false (PT015),
+	pytest-fail-without-message (PT016),
+	pytest-assert-in-except (PT017),
+	pytest-composite-assertion (PT018),
+	pytest-fixture-param-without-value (PT019),
+	pytest-deprecated-yield-fixture (PT020),
+	pytest-fixture-finalizer-callback (PT021),
+	pytest-useless-yield-fixture (PT022),
+	pytest-incorrect-mark-parentheses-style (PT023),
+	pytest-unnecessary-asyncio-mark-on-fixture (PT024),
+	pytest-erroneous-use-fixtures-on-fixture (PT025),
+	pytest-use-fixtures-without-parameters (PT026),
+	pytest-unittest-raises-assertion (PT027),
+	pytest-parameter-with-default-argument (PT028),
+	pytest-warns-too-broad (PT030),
+	pytest-warns-with-multiple-statements (PT031),
+	duplicate-isinstance-call (SIM101),
+	collapsible-if (SIM102),
+	needless-bool (SIM103),
+	suppressible-exception (SIM105),
+	return-in-try-except-finally (SIM107),
+	if-else-block-instead-of-if-exp (SIM108),
+	compare-with-tuple (SIM109),
+	reimplemented-builtin (SIM110),
+	uncapitalized-environment-variables (SIM112),
+	enumerate-for-loop (SIM113),
+	if-with-same-arms (SIM114),
+	open-file-with-context-handler (SIM115),
+	if-else-block-instead-of-dict-lookup (SIM116),
+	multiple-with-statements (SIM117),
+	in-dict-keys (SIM118),
+	negate-equal-op (SIM201),
+	negate-not-equal-op (SIM202),
+	double-negation (SIM208),
+	if-expr-with-true-false (SIM210),
+	if-expr-with-false-true (SIM211),
+	if-expr-with-twisted-arms (SIM212),
+	expr-and-not-expr (SIM220),
+	expr-or-not-expr (SIM221),
+	expr-or-true (SIM222),
+	expr-and-false (SIM223),
+	yoda-conditions (SIM300),
+	if-else-block-instead-of-dict-get (SIM401),
+	split-static-string (SIM905),
+	dict-get-with-none-default (SIM910),
+	zip-dict-keys-and-values (SIM911),
+	typing-only-first-party-import (TC001),
+	typing-only-third-party-import (TC002),
+	typing-only-standard-library-import (TC003),
+	runtime-import-in-type-checking-block (TC004),
+	empty-type-checking-block (TC005),
+	runtime-cast-value (TC006),
+	unquoted-type-alias (TC007),
+	runtime-string-union (TC010),
+	unsorted-imports (I001),
+	missing-required-import (I002),
+	invalid-class-name (N801),
+	invalid-function-name (N802),
+	invalid-argument-name (N803),
+	invalid-first-argument-name-for-class-method (N804),
+	invalid-first-argument-name-for-method (N805),
+	non-lowercase-variable-in-function (N806),
+	dunder-function-name (N807),
+	constant-imported-as-non-constant (N811),
+	lowercase-imported-as-non-lowercase (N812),
+	camelcase-imported-as-lowercase (N813),
+	camelcase-imported-as-constant (N814),
+	mixed-case-variable-in-class-scope (N815),
+	mixed-case-variable-in-global-scope (N816),
+	camelcase-imported-as-acronym (N817),
+	error-suffix-on-exception-name (N818),
+	invalid-module-name (N999),
+	mixed-spaces-and-tabs (E101),
+	multiple-imports-on-one-line (E401),
+	module-import-not-at-top-of-file (E402),
+	line-too-long (E501),
+	multiple-statements-on-one-line-colon (E701),
+	multiple-statements-on-one-line-semicolon (E702),
+	useless-semicolon (E703),
+	none-comparison (E711),
+	true-false-comparison (E712),
+	not-in-test (E713),
+	not-is-test (E714),
+	type-comparison (E721),
+	bare-except (E722),
+	lambda-assignment (E731),
+	ambiguous-variable-name (E741),
+	ambiguous-class-name (E742),
+	ambiguous-function-name (E743),
+	io-error (E902),
+	unused-import (F401),
+	import-shadowed-by-loop-var (F402),
+	undefined-local-with-import-star (F403),
+	late-future-import (F404),
+	undefined-local-with-import-star-usage (F405),
+	undefined-local-with-nested-import-star-usage (F406),
+	future-feature-not-defined (F407),
+	percent-format-invalid-format (F501),
+	percent-format-expected-mapping (F502),
+	percent-format-expected-sequence (F503),
+	percent-format-extra-named-arguments (F504),
+	percent-format-missing-argument (F505),
+	percent-format-mixed-positional-and-named (F506),
+	percent-format-positional-count-mismatch (F507),
+	percent-format-star-requires-sequence (F508),
+	percent-format-unsupported-format-character (F509),
+	string-dot-format-invalid-format (F521),
+	string-dot-format-extra-named-arguments (F522),
+	string-dot-format-extra-positional-arguments (F523),
+	string-dot-format-missing-arguments (F524),
+	string-dot-format-mixing-automatic (F525),
+	f-string-missing-placeholders (F541),
+	multi-value-repeated-key-literal (F601),
+	multi-value-repeated-key-variable (F602),
+	expressions-in-star-assignment (F621),
+	multiple-starred-expressions (F622),
+	assert-tuple (F631),
+	is-literal (F632),
+	invalid-print-syntax (F633),
+	if-tuple (F634),
+	break-outside-loop (F701),
+	continue-outside-loop (F702),
+	yield-outside-function (F704),
+	return-outside-function (F706),
+	default-except-not-last (F707),
+	forward-annotation-syntax-error (F722),
+	redefined-while-unused (F811),
+	undefined-name (F821),
+	undefined-export (F822),
+	undefined-local (F823),
+	unused-variable (F841),
+	unused-annotation (F842),
+	raise-not-implemented (F901),
+	useless-metaclass-type (UP001),
+	type-of-primitive (UP003),
+	useless-object-inheritance (UP004),
+	deprecated-unittest-alias (UP005),
+	non-pep585-annotation (UP006),
+	non-pep604-annotation-union (UP007),
+	super-call-with-parameters (UP008),
+	utf8-encoding-declaration (UP009),
+	unnecessary-future-import (UP010),
+	lru-cache-without-parameters (UP011),
+	unnecessary-encode-utf8 (UP012),
+	convert-typed-dict-functional-to-class (UP013),
+	convert-named-tuple-functional-to-class (UP014),
+	redundant-open-modes (UP015),
+	datetime-timezone-utc (UP017),
+	native-literals (UP018),
+	typing-text-str-alias (UP019),
+	open-alias (UP020),
+	replace-universal-newlines (UP021),
+	replace-stdout-stderr (UP022),
+	deprecated-c-element-tree (UP023),
+	os-error-alias (UP024),
+	unicode-kind-prefix (UP025),
+	deprecated-mock-import (UP026),
+	yield-in-for-loop (UP028),
+	unnecessary-builtin-import (UP029),
+	format-literals (UP030),
+	printf-string-formatting (UP031),
+	f-string (UP032),
+	lru-cache-with-maxsize-none (UP033),
+	extraneous-parentheses (UP034),
+	deprecated-import (UP035),
+	outdated-version-block (UP036),
+	quoted-annotation (UP037),
+	unnecessary-class-parentheses (UP039),
+	non-pep695-type-alias (UP040),
+	timeout-error-alias (UP041),
+	unnecessary-default-type-args (UP043),
+	non-pep646-unpack (UP044),
+	non-pep604-annotation-optional (UP045),
+	non-pep695-generic-class (UP046),
+	non-pep695-generic-function (UP047),
+	private-type-parameter (UP049),
+	useless-class-metaclass-type (UP050),
+	ambiguous-unicode-character-string (RUF001),
+	ambiguous-unicode-character-docstring (RUF002),
+	ambiguous-unicode-character-comment (RUF003),
+	collection-literal-concatenation (RUF005),
+	asyncio-dangling-task (RUF006),
+	zip-instead-of-pairwise (RUF007),
+	mutable-dataclass-default (RUF008),
+	function-call-in-dataclass-default-argument (RUF009),
+	explicit-f-string-type-conversion (RUF010),
+	mutable-class-default (RUF012),
+	implicit-optional (RUF013),
+	unnecessary-iterable-allocation-for-first-element (RUF015),
+	invalid-index-type (RUF016),
+	quadratic-list-summation (RUF017),
+	assignment-in-assert (RUF018),
+	unnecessary-key-check (RUF019),
+	never-union (RUF020),
+	parenthesize-chained-operators (RUF021),
+	unsorted-dunder-all (RUF022),
+	unsorted-dunder-slots (RUF023),
+	mutable-fromkeys-value (RUF024),
+	default-factory-kwarg (RUF026),
+	invalid-formatter-suppression-comment (RUF028),
+	assert-with-print-message (RUF030),
+	decimal-from-float-literal (RUF032),
+	post-init-default (RUF033),
+	useless-if-else (RUF034),
+	invalid-assert-message-literal-argument (RUF040),
+	unnecessary-nested-literal (RUF041),
+	pytest-raises-ambiguous-pattern (RUF043),
+	unnecessary-cast-to-int (RUF046),
+	map-int-version-parsing (RUF048),
+	dataclass-enum (RUF049),
+	if-key-in-dict-del (RUF051),
+	class-with-mixed-type-vars (RUF053),
+	unnecessary-round (RUF057),
+	starmap-zip (RUF058),
+	unused-unpacked-variable (RUF059),
+	unused-noqa (RUF100),
+	redirected-noqa (RUF101),
+	invalid-pyproject-toml (RUF200),
+]
+linter.per_file_ignores = {
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/core/audit/models.py"
+basename_matcher = "../../../src/polisyos/core/audit/models.py"
+negated = false
+data = [
+	hardcoded-password-string (S105),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/fabric/connectors/sources/sql_query.py"
+basename_matcher = "../../../src/polisyos/fabric/connectors/sources/sql_query.py"
+negated = false
+data = [
+	hardcoded-sql-expression (S608),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/quality/refs.py"
+basename_matcher = "../../../src/polisyos/runtime/quality/refs.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/fabric/docs/normalize.py"
+basename_matcher = "../../../src/polisyos/fabric/docs/normalize.py"
+negated = false
+data = [
+	try-except-pass (S110),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/fabric/data_plane/cli.py"
+basename_matcher = "../../../src/polisyos/fabric/data_plane/cli.py"
+negated = false
+data = [
+	print (T201),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tools/quality/testing/repeat_pytest.py"
+basename_matcher = "../../../tools/quality/testing/repeat_pytest.py"
+negated = false
+data = [
+	subprocess-without-shell-equals-true (S603),
+	print (T201),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/academic/batch/test_article_extractor_stage.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/academic/batch/test_article_extractor_stage.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/services/artifact_inspector.py"
+basename_matcher = "../../../src/polisyos/runtime/http/services/artifact_inspector.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/container.py"
+basename_matcher = "../../../src/polisyos/runtime/http/container.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/contracts/state.py"
+basename_matcher = "../../../src/polisyos/foundry/contracts/state.py"
+negated = false
+data = [
+	forward-annotation-syntax-error (F722),
+	undefined-name (F821),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/scholar/**"
+basename_matcher = "../../../src/polisyos/scholar/**"
+negated = false
+data = [
+	missing-type-function-argument (ANN001),
+	missing-return-type-private-function (ANN202),
+	any-type (ANN401),
+	suspicious-url-open-usage (S310),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/ukraine/models.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/ukraine/models.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/quality/construct_registry.py"
+basename_matcher = "../../../src/polisyos/runtime/quality/construct_registry.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/academic/batch/test_best_snapshot.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/academic/batch/test_best_snapshot.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/catalog/batch/test_publish.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/catalog/batch/test_publish.py"
+negated = false
+data = [
+	pytest-assert-in-except (PT017),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/doc_normalize.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/doc_normalize.py"
+negated = false
+data = [
+	suspicious-xml-element-tree-usage (S314),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/batch/cli.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/catalog/batch/cli.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/core/governance/legal/backends/expr_ast.py"
+basename_matcher = "../../../src/polisyos/core/governance/legal/backends/expr_ast.py"
+negated = false
+data = [
+	hardcoded-password-func-arg (S106),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/services/mobility.py"
+basename_matcher = "../../../src/polisyos/runtime/http/services/mobility.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_requirement/compiler.py"
+basename_matcher = "../../../src/polisyos/data_requirement/compiler.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/catalog/batch/test_harvester_sampling.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/catalog/batch/test_harvester_sampling.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/quality/attestation.py"
+basename_matcher = "../../../src/polisyos/runtime/quality/attestation.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/calibration.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/ukraine/builders/calibration.py"
+negated = false
+data = [
+	missing-return-type-private-function (ANN202),
+	any-type (ANN401),
+	try-except-pass (S110),
+	hashlib-insecure-hash-function (S324),
+	hardcoded-sql-expression (S608),
+	typing-only-first-party-import (TC001),
+	line-too-long (E501),
+	undefined-local-with-import-star (F403),
+	undefined-local-with-import-star-usage (F405),
+	ambiguous-unicode-character-string (RUF001),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/**"
+basename_matcher = "../../../tests/unit/foundry/**"
+negated = false
+data = [
+	exec-builtin (S102),
+	hardcoded-temp-file (S108),
+	try-except-pass (S110),
+	subprocess-without-shell-equals-true (S603),
+	unused-loop-control-variable (B007),
+	assert-raises-exception (B017),
+	zip-without-explicit-strict (B905),
+	unnecessary-collection-call (C408),
+	pytest-parametrize-names-wrong-type (PT006),
+	pytest-parametrize-values-wrong-type (PT007),
+	pytest-raises-too-broad (PT011),
+	pytest-assert-in-except (PT017),
+	pytest-composite-assertion (PT018),
+	pytest-fixture-param-without-value (PT019),
+	duplicate-isinstance-call (SIM101),
+	collapsible-if (SIM102),
+	suppressible-exception (SIM105),
+	expr-or-true (SIM222),
+	typing-only-first-party-import (TC001),
+	typing-only-standard-library-import (TC003),
+	invalid-class-name (N801),
+	invalid-function-name (N802),
+	invalid-argument-name (N803),
+	non-lowercase-variable-in-function (N806),
+	camelcase-imported-as-acronym (N817),
+	module-import-not-at-top-of-file (E402),
+	line-too-long (E501),
+	lambda-assignment (E731),
+	ambiguous-variable-name (E741),
+	unused-import (F401),
+	unused-variable (F841),
+	collection-literal-concatenation (RUF005),
+	mutable-class-default (RUF012),
+	pytest-raises-ambiguous-pattern (RUF043),
+	unused-unpacked-variable (RUF059),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/catalog/batch/test_benchmark.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/catalog/batch/test_benchmark.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tools/devx/connectors/**"
+basename_matcher = "../../../tools/devx/connectors/**"
+negated = false
+data = [
+	any-type (ANN401),
+	collapsible-if (SIM102),
+	typing-only-first-party-import (TC001),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/core/artifacts/backends/caching_store.py"
+basename_matcher = "../../../src/polisyos/core/artifacts/backends/caching_store.py"
+negated = false
+data = [
+	any-type (ANN401),
+	typing-only-first-party-import (TC001),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/resolve_extract.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/resolve_extract.py"
+negated = false
+data = [
+	any-type (ANN401),
+	try-except-pass (S110),
+	suspicious-non-cryptographic-random-usage (S311),
+	collapsible-if (SIM102),
+	enumerate-for-loop (SIM113),
+	non-lowercase-variable-in-function (N806),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/catalog/batch/test_pipeline.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/catalog/batch/test_pipeline.py"
+negated = false
+data = [
+	pytest-assert-in-except (PT017),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/config.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/config.py"
+negated = false
+data = [
+	hardcoded-password-string (S105),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/numeric_extract.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/numeric_extract.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_query.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/knowledge/skg_query.py"
+negated = false
+data = [
+	try-except-continue (S112),
+	hardcoded-sql-expression (S608),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/openapi_contract.py"
+basename_matcher = "../../../src/polisyos/runtime/http/openapi_contract.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_types.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/catalog/knowledge/test_types.py"
+negated = false
+data = [
+	assert-raises-exception (B017),
+	pytest-raises-too-broad (PT011),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/agent_sim/distributions.py"
+basename_matcher = "../../../src/polisyos/foundry/agent_sim/distributions.py"
+negated = false
+data = [
+	forward-annotation-syntax-error (F722),
+	undefined-name (F821),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/prompts/moderator_extraction.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/prompts/moderator_extraction.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/agent_sim/prng.py"
+basename_matcher = "../../../src/polisyos/foundry/agent_sim/prng.py"
+negated = false
+data = [
+	forward-annotation-syntax-error (F722),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py"
+basename_matcher = "../../../src/polisyos/foundry/methods/catalog/causal/ncm_engine.py"
+negated = false
+data = [
+	suspicious-eval-usage (S307),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/*"
+basename_matcher = "../../../tests/*"
+negated = false
+data = [
+	missing-type-function-argument (ANN001),
+	missing-type-args (ANN002),
+	missing-type-kwargs (ANN003),
+	missing-type-self (ANN101),
+	missing-type-cls (ANN102),
+	missing-return-type-undocumented-public-function (ANN201),
+	missing-return-type-private-function (ANN202),
+	missing-return-type-special-method (ANN204),
+	missing-return-type-static-method (ANN205),
+	missing-return-type-class-method (ANN206),
+	any-type (ANN401),
+	assert (S101),
+	print (T201),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/fabric/connectors/transform/aggregator.py"
+basename_matcher = "../../../src/polisyos/fabric/connectors/transform/aggregator.py"
+negated = false
+data = [
+	import-shadowed-by-loop-var (F402),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/edge_synthesize.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/edge_synthesize.py"
+negated = false
+data = [
+	hardcoded-sql-expression (S608),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/services/feedback.py"
+basename_matcher = "../../../src/polisyos/runtime/http/services/feedback.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/api.py"
+basename_matcher = "../../../src/polisyos/runtime/api.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/core/components/_cli_*.py"
+basename_matcher = "../../../src/polisyos/core/components/_cli_*.py"
+negated = false
+data = [
+	print (T201),
+	invalid-argument-name (N803),
+	non-lowercase-variable-in-function (N806),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/legal/batch/deterministic_spo_subtypes.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/legal/batch/deterministic_spo_subtypes.py"
+negated = false
+data = [
+	undefined-name (F821),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/app.py"
+basename_matcher = "../../../src/polisyos/runtime/http/app.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/fabric/**"
+basename_matcher = "../../../tests/unit/fabric/**"
+negated = false
+data = [
+	hardcoded-password-string (S105),
+	hardcoded-password-func-arg (S106),
+	hardcoded-temp-file (S108),
+	subprocess-without-shell-equals-true (S603),
+	hardcoded-sql-expression (S608),
+	assert-raises-exception (B017),
+	pytest-raises-too-broad (PT011),
+	pytest-raises-with-multiple-statements (PT012),
+	pytest-composite-assertion (PT018),
+	pytest-fixture-param-without-value (PT019),
+	duplicate-isinstance-call (SIM101),
+	if-else-block-instead-of-if-exp (SIM108),
+	multiple-with-statements (SIM117),
+	typing-only-first-party-import (TC001),
+	typing-only-third-party-import (TC002),
+	typing-only-standard-library-import (TC003),
+	invalid-class-name (N801),
+	invalid-first-argument-name-for-method (N805),
+	non-lowercase-variable-in-function (N806),
+	line-too-long (E501),
+	ambiguous-unicode-character-string (RUF001),
+	mutable-class-default (RUF012),
+	pytest-raises-ambiguous-pattern (RUF043),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/csrf.py"
+basename_matcher = "../../../src/polisyos/runtime/http/csrf.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/academic/batch/test_run2_pipeline_upgrades.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/academic/batch/test_run2_pipeline_upgrades.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tools/devx/architecture/**"
+basename_matcher = "../../../tools/devx/architecture/**"
+negated = false
+data = [
+	subprocess-without-shell-equals-true (S603),
+	collapsible-if (SIM102),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tools/registry.py"
+basename_matcher = "../../../tools/registry.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/batch/normalizer.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/catalog/batch/normalizer.py"
+negated = false
+data = [
+	any-type (ANN401),
+	open-file-with-context-handler (SIM115),
+	line-too-long (E501),
+	ambiguous-unicode-character-string (RUF001),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/fabric/storage/duckdb_adapter.py"
+basename_matcher = "../../../src/polisyos/fabric/storage/duckdb_adapter.py"
+negated = false
+data = [
+	hardcoded-sql-expression (S608),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/fabric/connectors/testing/**"
+basename_matcher = "../../../src/polisyos/fabric/connectors/testing/**"
+negated = false
+data = [
+	assert (S101),
+	try-except-pass (S110),
+	suppressible-exception (SIM105),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/fabric/world/materialize/**"
+basename_matcher = "../../../src/polisyos/fabric/world/materialize/**"
+negated = false
+data = [
+	try-except-continue (S112),
+	hardcoded-sql-expression (S608),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/ir/analytics/survey_quality.py"
+basename_matcher = "../../../src/polisyos/ir/analytics/survey_quality.py"
+negated = false
+data = [
+	hardcoded-password-string (S105),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/quality/event_log.py"
+basename_matcher = "../../../src/polisyos/runtime/quality/event_log.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/services/control_plane_store.py"
+basename_matcher = "../../../src/polisyos/runtime/http/services/control_plane_store.py"
+negated = false
+data = [
+	any-type (ANN401),
+	hardcoded-sql-expression (S608),
+	unnecessary-comprehension (C416),
+	multiple-with-statements (SIM117),
+	in-dict-keys (SIM118),
+	runtime-cast-value (TC006),
+	unsorted-imports (I001),
+	line-too-long (E501),
+	datetime-timezone-utc (UP017),
+	deprecated-import (UP035),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tools/*"
+basename_matcher = "../../../tools/*"
+negated = false
+data = [
+	print (T201),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/core/security/sbom.py"
+basename_matcher = "../../../src/polisyos/core/security/sbom.py"
+negated = false
+data = [
+	subprocess-without-shell-equals-true (S603),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/routes/mobility.py"
+basename_matcher = "../../../src/polisyos/runtime/http/routes/mobility.py"
+negated = false
+data = [
+	function-call-in-default-argument (B008),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tools/**"
+basename_matcher = "../../../tools/**"
+negated = false
+data = [
+	print (T201),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/batch/qc.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/catalog/batch/qc.py"
+negated = false
+data = [
+	suspicious-url-open-usage (S310),
+	hardcoded-sql-expression (S608),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/response_policies.py"
+basename_matcher = "../../../src/polisyos/runtime/http/response_policies.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/academic/batch/test_transport_score.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/academic/batch/test_transport_score.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/__init__.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/catalog/knowledge/__init__.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/jax_bootstrap.py"
+basename_matcher = "../../../jax_bootstrap.py"
+negated = false
+data = [
+	module-import-not-at-top-of-file (E402),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/fabric/connectors/sources/eurostat.py"
+basename_matcher = "../../../src/polisyos/fabric/connectors/sources/eurostat.py"
+negated = false
+data = [
+	camelcase-imported-as-acronym (N817),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/academic/batch/test_fulltext_resolver.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/academic/batch/test_fulltext_resolver.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/variable_canonizer.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/knowledge/variable_canonizer.py"
+negated = false
+data = [
+	assert (S101),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/batch/interpolation.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/catalog/batch/interpolation.py"
+negated = false
+data = [
+	hardcoded-sql-expression (S608),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/routes/control.py"
+basename_matcher = "../../../src/polisyos/runtime/http/routes/control.py"
+negated = false
+data = [
+	function-call-in-default-argument (B008),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/routes/review.py"
+basename_matcher = "../../../src/polisyos/runtime/http/routes/review.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/pipeline.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/pipeline.py"
+negated = false
+data = [
+	missing-type-function-argument (ANN001),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py"
+negated = false
+data = [
+	any-type (ANN401),
+	assert (S101),
+	hardcoded-sql-expression (S608),
+	unused-loop-control-variable (B007),
+	loop-variable-overrides-iterator (B020),
+	multiple-with-statements (SIM117),
+	non-lowercase-variable-in-function (N806),
+	line-too-long (E501),
+	import-shadowed-by-loop-var (F402),
+	useless-if-else (RUF034),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_canonical_resolver.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/academic/knowledge/test_canonical_resolver.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/quality/performance_budget.py"
+basename_matcher = "../../../src/polisyos/runtime/quality/performance_budget.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_resolver.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/catalog/knowledge/proxy_resolver.py"
+negated = false
+data = [
+	any-type (ANN401),
+	collapsible-if (SIM102),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/graph_builder.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/graph_builder.py"
+negated = false
+data = [
+	unused-loop-control-variable (B007),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/ir/analytics/test_evidence_bundle.py"
+basename_matcher = "../../../tests/unit/ir/analytics/test_evidence_bundle.py"
+negated = false
+data = [
+	hardcoded-password-func-arg (S106),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/services/sae_spatial_service.py"
+basename_matcher = "../../../src/polisyos/runtime/http/services/sae_spatial_service.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/legal/batch/deterministic_spo_articles.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/legal/batch/deterministic_spo_articles.py"
+negated = false
+data = [
+	undefined-name (F821),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/batch/graph_builder.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/catalog/batch/graph_builder.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/quality/scorecard.py"
+basename_matcher = "../../../src/polisyos/runtime/quality/scorecard.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/core/observability/__init__.py"
+basename_matcher = "../../../src/polisyos/core/observability/__init__.py"
+negated = false
+data = [
+	missing-type-function-argument (ANN001),
+	missing-type-args (ANN002),
+	missing-type-kwargs (ANN003),
+	missing-type-self (ANN101),
+	missing-type-cls (ANN102),
+	missing-return-type-undocumented-public-function (ANN201),
+	missing-return-type-private-function (ANN202),
+	missing-return-type-special-method (ANN204),
+	missing-return-type-static-method (ANN205),
+	missing-return-type-class-method (ANN206),
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tools/devx/foundry/**"
+basename_matcher = "../../../tools/devx/foundry/**"
+negated = false
+data = [
+	typing-only-standard-library-import (TC003),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/quality/data_quality.py"
+basename_matcher = "../../../src/polisyos/runtime/quality/data_quality.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/common/serialization.py"
+basename_matcher = "../../../src/polisyos/common/serialization.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/ukraine/sharding.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/ukraine/sharding.py"
+negated = false
+data = [
+	ambiguous-unicode-character-string (RUF001),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/agent_sim/population.py"
+basename_matcher = "../../../src/polisyos/foundry/agent_sim/population.py"
+negated = false
+data = [
+	forward-annotation-syntax-error (F722),
+	undefined-name (F821),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/dev_identity_middleware.py"
+basename_matcher = "../../../src/polisyos/runtime/http/dev_identity_middleware.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/ir/**"
+basename_matcher = "../../../tests/unit/ir/**"
+negated = false
+data = [
+	missing-type-function-argument (ANN001),
+	missing-type-args (ANN002),
+	missing-type-kwargs (ANN003),
+	missing-type-self (ANN101),
+	missing-type-cls (ANN102),
+	missing-return-type-undocumented-public-function (ANN201),
+	missing-return-type-private-function (ANN202),
+	missing-return-type-special-method (ANN204),
+	missing-return-type-static-method (ANN205),
+	missing-return-type-class-method (ANN206),
+	any-type (ANN401),
+	assert (S101),
+	assert-raises-exception (B017),
+	print (T201),
+	pytest-raises-too-broad (PT011),
+	non-lowercase-variable-in-function (N806),
+	line-too-long (E501),
+	pytest-raises-ambiguous-pattern (RUF043),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/batch/__init__.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/catalog/batch/__init__.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/examples/**"
+basename_matcher = "../../../examples/**"
+negated = false
+data = [
+	mutable-class-default (RUF012),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/dedup.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/dedup.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/ukraine/orchestrator.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/ukraine/orchestrator.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudicator.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/academic/batch/test_claim_adjudicator.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tools/ci/**"
+basename_matcher = "../../../tools/ci/**"
+negated = false
+data = [
+	suspicious-xml-element-tree-usage (S314),
+	typing-only-standard-library-import (TC003),
+	module-import-not-at-top-of-file (E402),
+	line-too-long (E501),
+	unused-noqa (RUF100),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/common/*"
+basename_matcher = "../../../src/polisyos/common/*"
+negated = false
+data = [
+	print (T201),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/lex/**"
+basename_matcher = "../../../tests/unit/lex/**"
+negated = false
+data = [
+	hardcoded-sql-expression (S608),
+	pytest-raises-too-broad (PT011),
+	line-too-long (E501),
+	ambiguous-unicode-character-string (RUF001),
+	ambiguous-unicode-character-docstring (RUF002),
+	ambiguous-unicode-character-comment (RUF003),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/qc.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/qc.py"
+negated = false
+data = [
+	suspicious-url-open-usage (S310),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/services/debug.py"
+basename_matcher = "../../../src/polisyos/runtime/http/services/debug.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/scientist/**"
+basename_matcher = "../../../tests/unit/scientist/**"
+negated = false
+data = [
+	hardcoded-password-string (S105),
+	hardcoded-password-func-arg (S106),
+	hardcoded-temp-file (S108),
+	try-except-pass (S110),
+	unused-loop-control-variable (B007),
+	assert-raises-exception (B017),
+	unnecessary-collection-call (C408),
+	pytest-parametrize-names-wrong-type (PT006),
+	pytest-raises-too-broad (PT011),
+	pytest-assert-in-except (PT017),
+	pytest-composite-assertion (PT018),
+	suppressible-exception (SIM105),
+	if-else-block-instead-of-if-exp (SIM108),
+	multiple-with-statements (SIM117),
+	typing-only-first-party-import (TC001),
+	typing-only-third-party-import (TC002),
+	typing-only-standard-library-import (TC003),
+	non-lowercase-variable-in-function (N806),
+	error-suffix-on-exception-name (N818),
+	module-import-not-at-top-of-file (E402),
+	line-too-long (E501),
+	ambiguous-variable-name (E741),
+	unused-variable (F841),
+	mutable-class-default (RUF012),
+	pytest-raises-ambiguous-pattern (RUF043),
+	unnecessary-cast-to-int (RUF046),
+	unused-unpacked-variable (RUF059),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tools/devx/workspace/**"
+basename_matcher = "../../../tools/devx/workspace/**"
+negated = false
+data = [
+	assert (S101),
+	subprocess-without-shell-equals-true (S603),
+	start-process-with-partial-path (S607),
+	if-else-block-instead-of-if-exp (SIM108),
+	typing-only-standard-library-import (TC003),
+	module-import-not-at-top-of-file (E402),
+	line-too-long (E501),
+	unused-noqa (RUF100),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/fabric/**"
+basename_matcher = "../../../src/polisyos/fabric/**"
+negated = false
+data = [
+	missing-type-function-argument (ANN001),
+	missing-type-args (ANN002),
+	missing-type-kwargs (ANN003),
+	missing-type-self (ANN101),
+	missing-type-cls (ANN102),
+	missing-return-type-undocumented-public-function (ANN201),
+	missing-return-type-private-function (ANN202),
+	missing-return-type-special-method (ANN204),
+	missing-return-type-static-method (ANN205),
+	missing-return-type-class-method (ANN206),
+	any-type (ANN401),
+	collapsible-if (SIM102),
+	multiple-with-statements (SIM117),
+	typing-only-first-party-import (TC001),
+	typing-only-third-party-import (TC002),
+	typing-only-standard-library-import (TC003),
+	error-suffix-on-exception-name (N818),
+	line-too-long (E501),
+	non-pep695-generic-class (UP046),
+	non-pep695-generic-function (UP047),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/core/security/settings.py"
+basename_matcher = "../../../src/polisyos/core/security/settings.py"
+negated = false
+data = [
+	cached-instance-method (B019),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/catalog/batch/harvester.py"
+negated = false
+data = [
+	any-type (ANN401),
+	suspicious-xml-element-tree-usage (S314),
+	collapsible-if (SIM102),
+	multiple-with-statements (SIM117),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/catalog/batch/test_qc.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/catalog/batch/test_qc.py"
+negated = false
+data = [
+	pytest-assert-in-except (PT017),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/__init__.py"
+basename_matcher = "../../../src/polisyos/runtime/__init__.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/core/artifacts/_env_utils.py"
+basename_matcher = "../../../src/polisyos/core/artifacts/_env_utils.py"
+negated = false
+data = [
+	subprocess-without-shell-equals-true (S603),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/validation/phase2_closure.py"
+basename_matcher = "../../../src/polisyos/foundry/validation/phase2_closure.py"
+negated = false
+data = [
+	suspicious-xml-element-tree-usage (S314),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/prompts/context_extraction.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/prompts/context_extraction.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tools/ops_runners/**"
+basename_matcher = "../../../tools/ops_runners/**"
+negated = false
+data = [
+	missing-type-function-argument (ANN001),
+	missing-return-type-private-function (ANN202),
+	any-type (ANN401),
+	assert (S101),
+	hardcoded-password-string (S105),
+	hardcoded-password-func-arg (S106),
+	hardcoded-temp-file (S108),
+	try-except-pass (S110),
+	suspicious-url-open-usage (S310),
+	hashlib-insecure-hash-function (S324),
+	subprocess-without-shell-equals-true (S603),
+	start-process-with-partial-path (S607),
+	hardcoded-sql-expression (S608),
+	unnecessary-generator-set (C401),
+	unnecessary-comprehension (C416),
+	suppressible-exception (SIM105),
+	typing-only-standard-library-import (TC003),
+	module-import-not-at-top-of-file (E402),
+	line-too-long (E501),
+	unused-variable (F841),
+	printf-string-formatting (UP031),
+	ambiguous-unicode-character-string (RUF001),
+	unused-noqa (RUF100),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/core/security/slsa/config.py"
+basename_matcher = "../../../src/polisyos/core/security/slsa/config.py"
+negated = false
+data = [
+	hardcoded-password-string (S105),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tools/quality/testing/check_fabric_exception_baseline.py"
+basename_matcher = "../../../tools/quality/testing/check_fabric_exception_baseline.py"
+negated = false
+data = [
+	subprocess-without-shell-equals-true (S603),
+	print (T201),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/llm_extractor.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/llm_extractor.py"
+negated = false
+data = [
+	any-type (ANN401),
+	assert (S101),
+	hashlib-insecure-hash-function (S324),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/quality/acquisition_planner.py"
+basename_matcher = "../../../src/polisyos/runtime/quality/acquisition_planner.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/fabric/world/query.py"
+basename_matcher = "../../../src/polisyos/fabric/world/query.py"
+negated = false
+data = [
+	hardcoded-sql-expression (S608),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/quality/adapter_contracts.py"
+basename_matcher = "../../../src/polisyos/runtime/quality/adapter_contracts.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/agent_sim/state.py"
+basename_matcher = "../../../src/polisyos/foundry/agent_sim/state.py"
+negated = false
+data = [
+	forward-annotation-syntax-error (F722),
+	undefined-name (F821),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/ir/observation/governance.py"
+basename_matcher = "../../../src/polisyos/ir/observation/governance.py"
+negated = false
+data = [
+	hardcoded-password-func-arg (S106),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/quality/source_truth.py"
+basename_matcher = "../../../src/polisyos/runtime/quality/source_truth.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/manifest.py"
+basename_matcher = "../../../src/polisyos/runtime/manifest.py"
+negated = false
+data = [
+	typing-only-first-party-import (TC001),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/ukraine/test_builders.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/ukraine/test_builders.py"
+negated = false
+data = [
+	pytest-raises-ambiguous-pattern (RUF043),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/errors.py"
+basename_matcher = "../../../src/polisyos/runtime/http/errors.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/agent_sim/graphs.py"
+basename_matcher = "../../../src/polisyos/foundry/agent_sim/graphs.py"
+negated = false
+data = [
+	forward-annotation-syntax-error (F722),
+	undefined-name (F821),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/store.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/knowledge/store.py"
+negated = false
+data = [
+	hardcoded-sql-expression (S608),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/routes/debug.py"
+basename_matcher = "../../../src/polisyos/runtime/http/routes/debug.py"
+negated = false
+data = [
+	function-call-in-default-argument (B008),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/quality/replay.py"
+basename_matcher = "../../../src/polisyos/runtime/quality/replay.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/prompts/paper_classification.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/prompts/paper_classification.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/services/timeline.py"
+basename_matcher = "../../../src/polisyos/runtime/http/services/timeline.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/fabric/quality/__init__.py"
+basename_matcher = "../../../src/polisyos/fabric/quality/__init__.py"
+negated = false
+data = [
+	hardcoded-sql-expression (S608),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_store.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/catalog/knowledge/test_store.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/ir/analytics/latent_bridge_synthesis.py"
+basename_matcher = "../../../src/polisyos/ir/analytics/latent_bridge_synthesis.py"
+negated = false
+data = [
+	hardcoded-password-string (S105),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/routes/runs.py"
+basename_matcher = "../../../src/polisyos/runtime/http/routes/runs.py"
+negated = false
+data = [
+	any-type (ANN401),
+	function-call-in-default-argument (B008),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/parameter_selector.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/knowledge/parameter_selector.py"
+negated = false
+data = [
+	missing-type-function-argument (ANN001),
+	missing-return-type-private-function (ANN202),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/security.py"
+basename_matcher = "../../../src/polisyos/runtime/http/security.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/migrate.py"
+basename_matcher = "../../../migrate.py"
+negated = false
+data = [
+	module-import-not-at-top-of-file (E402),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/core/contracts/__init__.py"
+basename_matcher = "../../../src/polisyos/core/contracts/__init__.py"
+negated = false
+data = [
+	unused-import (F401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/prompts/boundary_conditions.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/prompts/boundary_conditions.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/sources.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/ukraine/builders/sources.py"
+negated = false
+data = [
+	missing-return-type-private-function (ANN202),
+	any-type (ANN401),
+	try-except-pass (S110),
+	hashlib-insecure-hash-function (S324),
+	hardcoded-sql-expression (S608),
+	typing-only-first-party-import (TC001),
+	line-too-long (E501),
+	undefined-local-with-import-star (F403),
+	undefined-local-with-import-star-usage (F405),
+	ambiguous-unicode-character-string (RUF001),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/core/audit/_assembler_core.py"
+basename_matcher = "../../../src/polisyos/core/audit/_assembler_core.py"
+negated = false
+data = [
+	subprocess-without-shell-equals-true (S603),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/legal/batch/deterministic_spo.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/legal/batch/deterministic_spo.py"
+negated = false
+data = [
+	module-import-not-at-top-of-file (E402),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/routes/lineage.py"
+basename_matcher = "../../../src/polisyos/runtime/http/routes/lineage.py"
+negated = false
+data = [
+	function-call-in-default-argument (B008),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/article_extractor.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/article_extractor.py"
+negated = false
+data = [
+	any-type (ANN401),
+	assert (S101),
+	non-lowercase-variable-in-function (N806),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/catalog/knowledge/search.py"
+negated = false
+data = [
+	collapsible-if (SIM102),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/ukraine/builders/demography.py"
+negated = false
+data = [
+	missing-return-type-private-function (ANN202),
+	any-type (ANN401),
+	try-except-pass (S110),
+	line-too-long (E501),
+	undefined-local-with-import-star (F403),
+	undefined-local-with-import-star-usage (F405),
+	ambiguous-unicode-character-string (RUF001),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_types.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/academic/knowledge/test_types.py"
+negated = false
+data = [
+	assert-raises-exception (B017),
+	pytest-raises-too-broad (PT011),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/ir/test_public_surface.py"
+basename_matcher = "../../../tests/unit/ir/test_public_surface.py"
+negated = false
+data = [
+	subprocess-without-shell-equals-true (S603),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/**"
+basename_matcher = "../../../src/polisyos/foundry/**"
+negated = false
+data = [
+	missing-type-function-argument (ANN001),
+	missing-type-args (ANN002),
+	missing-type-kwargs (ANN003),
+	missing-return-type-undocumented-public-function (ANN201),
+	missing-return-type-private-function (ANN202),
+	missing-return-type-special-method (ANN204),
+	any-type (ANN401),
+	assert (S101),
+	hardcoded-password-string (S105),
+	try-except-pass (S110),
+	try-except-continue (S112),
+	unused-loop-control-variable (B007),
+	function-uses-loop-variable (B023),
+	no-explicit-stacklevel (B028),
+	zip-without-explicit-strict (B905),
+	unnecessary-collection-call (C408),
+	unnecessary-literal-within-tuple-call (C409),
+	unnecessary-comprehension (C416),
+	print (T201),
+	pytest-parameter-with-default-argument (PT028),
+	collapsible-if (SIM102),
+	needless-bool (SIM103),
+	suppressible-exception (SIM105),
+	if-else-block-instead-of-if-exp (SIM108),
+	compare-with-tuple (SIM109),
+	reimplemented-builtin (SIM110),
+	in-dict-keys (SIM118),
+	if-else-block-instead-of-dict-get (SIM401),
+	typing-only-first-party-import (TC001),
+	typing-only-third-party-import (TC002),
+	typing-only-standard-library-import (TC003),
+	runtime-import-in-type-checking-block (TC004),
+	invalid-argument-name (N803),
+	non-lowercase-variable-in-function (N806),
+	camelcase-imported-as-constant (N814),
+	mixed-case-variable-in-class-scope (N815),
+	camelcase-imported-as-acronym (N817),
+	error-suffix-on-exception-name (N818),
+	module-import-not-at-top-of-file (E402),
+	line-too-long (E501),
+	lambda-assignment (E731),
+	ambiguous-variable-name (E741),
+	unused-import (F401),
+	unused-variable (F841),
+	yield-in-for-loop (UP028),
+	non-pep695-generic-class (UP046),
+	non-pep695-generic-function (UP047),
+	ambiguous-unicode-character-docstring (RUF002),
+	ambiguous-unicode-character-comment (RUF003),
+	collection-literal-concatenation (RUF005),
+	zip-instead-of-pairwise (RUF007),
+	function-call-in-dataclass-default-argument (RUF009),
+	mutable-class-default (RUF012),
+	unnecessary-iterable-allocation-for-first-element (RUF015),
+	unsorted-dunder-all (RUF022),
+	useless-if-else (RUF034),
+	unnecessary-cast-to-int (RUF046),
+	unused-unpacked-variable (RUF059),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/parser.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/parser.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/agent_sim/experiment.py"
+basename_matcher = "../../../src/polisyos/foundry/agent_sim/experiment.py"
+negated = false
+data = [
+	suspicious-pickle-usage (S301),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/benchmark.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/benchmark.py"
+negated = false
+data = [
+	any-type (ANN401),
+	try-except-pass (S110),
+	hardcoded-sql-expression (S608),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/services/control_registry_providers.py"
+basename_matcher = "../../../src/polisyos/runtime/http/services/control_registry_providers.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/services/run_index.py"
+basename_matcher = "../../../src/polisyos/runtime/http/services/run_index.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/quality/approval.py"
+basename_matcher = "../../../src/polisyos/runtime/quality/approval.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/quality/prompt_tool_ledger.py"
+basename_matcher = "../../../src/polisyos/runtime/quality/prompt_tool_ledger.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/agent_sim/rl.py"
+basename_matcher = "../../../src/polisyos/foundry/agent_sim/rl.py"
+negated = false
+data = [
+	forward-annotation-syntax-error (F722),
+	undefined-name (F821),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/resilience.py"
+basename_matcher = "../../../src/polisyos/runtime/http/resilience.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/legal/batch/deterministic_spo_core.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/legal/batch/deterministic_spo_core.py"
+negated = false
+data = [
+	module-import-not-at-top-of-file (E402),
+	undefined-name (F821),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/prompts/causal_claims.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/prompts/causal_claims.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/transport_score.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/transport_score.py"
+negated = false
+data = [
+	hardcoded-sql-expression (S608),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/replay.py"
+basename_matcher = "../../../src/polisyos/runtime/replay.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/ukraine/test_adapters.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/ukraine/test_adapters.py"
+negated = false
+data = [
+	line-too-long (E501),
+	ambiguous-unicode-character-string (RUF001),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/core/audit/standalone_verifier_template.py"
+basename_matcher = "../../../src/polisyos/core/audit/standalone_verifier_template.py"
+negated = false
+data = [
+	print (T201),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/mutation_policy.py"
+basename_matcher = "../../../src/polisyos/runtime/http/mutation_policy.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_versioning.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/knowledge/skg_versioning.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/catalog/batch/benchmark.py"
+negated = false
+data = [
+	try-except-continue (S112),
+	hardcoded-sql-expression (S608),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/batch/checkpoints.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/catalog/batch/checkpoints.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/fail_closed_middleware.py"
+basename_matcher = "../../../src/polisyos/runtime/http/fail_closed_middleware.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/scientist/**"
+basename_matcher = "../../../src/polisyos/scientist/**"
+negated = false
+data = [
+	missing-type-function-argument (ANN001),
+	missing-type-kwargs (ANN003),
+	missing-return-type-undocumented-public-function (ANN201),
+	missing-return-type-private-function (ANN202),
+	missing-return-type-special-method (ANN204),
+	missing-return-type-static-method (ANN205),
+	any-type (ANN401),
+	assert (S101),
+	exec-builtin (S102),
+	hardcoded-password-string (S105),
+	hardcoded-password-func-arg (S106),
+	try-except-pass (S110),
+	try-except-continue (S112),
+	suspicious-non-cryptographic-random-usage (S311),
+	hashlib-insecure-hash-function (S324),
+	hardcoded-sql-expression (S608),
+	unused-loop-control-variable (B007),
+	empty-method-without-abstract-decorator (B027),
+	raise-without-from-inside-except (B904),
+	zip-without-explicit-strict (B905),
+	unnecessary-generator-list (C400),
+	unnecessary-generator-set (C401),
+	unnecessary-literal-within-tuple-call (C409),
+	unnecessary-comprehension (C416),
+	print (T201),
+	pytest-parameter-with-default-argument (PT028),
+	duplicate-isinstance-call (SIM101),
+	collapsible-if (SIM102),
+	needless-bool (SIM103),
+	suppressible-exception (SIM105),
+	if-else-block-instead-of-if-exp (SIM108),
+	reimplemented-builtin (SIM110),
+	multiple-with-statements (SIM117),
+	in-dict-keys (SIM118),
+	negate-equal-op (SIM201),
+	typing-only-first-party-import (TC001),
+	typing-only-third-party-import (TC002),
+	typing-only-standard-library-import (TC003),
+	invalid-argument-name (N803),
+	non-lowercase-variable-in-function (N806),
+	camelcase-imported-as-constant (N814),
+	mixed-case-variable-in-global-scope (N816),
+	error-suffix-on-exception-name (N818),
+	line-too-long (E501),
+	lambda-assignment (E731),
+	ambiguous-variable-name (E741),
+	unused-import (F401),
+	unused-variable (F841),
+	non-pep695-type-alias (UP040),
+	non-pep695-generic-class (UP046),
+	collection-literal-concatenation (RUF005),
+	zip-instead-of-pairwise (RUF007),
+	unsorted-dunder-all (RUF022),
+	useless-if-else (RUF034),
+	unnecessary-cast-to-int (RUF046),
+	unused-unpacked-variable (RUF059),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py"
+basename_matcher = "../../../src/polisyos/fabric/connectors/registry_core_parts.py"
+negated = false
+data = [
+	in-dict-keys (SIM118),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/services/task_runner.py"
+basename_matcher = "../../../src/polisyos/runtime/http/services/task_runner.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/quality/human_review.py"
+basename_matcher = "../../../src/polisyos/runtime/quality/human_review.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/release.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/ukraine/builders/release.py"
+negated = false
+data = [
+	missing-return-type-private-function (ANN202),
+	any-type (ANN401),
+	try-except-pass (S110),
+	hashlib-insecure-hash-function (S324),
+	hardcoded-sql-expression (S608),
+	line-too-long (E501),
+	undefined-local-with-import-star (F403),
+	undefined-local-with-import-star-usage (F405),
+	ambiguous-unicode-character-string (RUF001),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/prompts/mechanisms.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/prompts/mechanisms.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/agent_sim/temporal.py"
+basename_matcher = "../../../src/polisyos/foundry/agent_sim/temporal.py"
+negated = false
+data = [
+	forward-annotation-syntax-error (F722),
+	undefined-name (F821),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/agent_sim/policy.py"
+basename_matcher = "../../../src/polisyos/foundry/agent_sim/policy.py"
+negated = false
+data = [
+	forward-annotation-syntax-error (F722),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/catalog/knowledge/store.py"
+negated = false
+data = [
+	hardcoded-sql-expression (S608),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/core/**"
+basename_matcher = "../../../src/polisyos/core/**"
+negated = false
+data = [
+	any-type (ANN401),
+	typing-only-first-party-import (TC001),
+	typing-only-third-party-import (TC002),
+	typing-only-standard-library-import (TC003),
+	non-pep695-generic-class (UP046),
+	non-pep695-generic-function (UP047),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/ops/cloud/gcp/upload_gonka_secrets.py"
+basename_matcher = "../../../ops/cloud/gcp/upload_gonka_secrets.py"
+negated = false
+data = [
+	subprocess-without-shell-equals-true (S603),
+	print (T201),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/quality/authority_reconciliation.py"
+basename_matcher = "../../../src/polisyos/runtime/quality/authority_reconciliation.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/academic/batch/test_parser.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/academic/batch/test_parser.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/academic/batch/test_skg_versioning.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/academic/batch/test_skg_versioning.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/academic/batch/test_article_extraction_golden.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/academic/batch/test_article_extraction_golden.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/quality/evidence_spine.py"
+basename_matcher = "../../../src/polisyos/runtime/quality/evidence_spine.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/fulltext_resolver.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/fulltext_resolver.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/prompts/empirical_parameters.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/prompts/empirical_parameters.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/fabric/claims/conflicts/**"
+basename_matcher = "../../../src/polisyos/fabric/claims/conflicts/**"
+negated = false
+data = [
+	hardcoded-sql-expression (S608),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/core/security/authz.py"
+basename_matcher = "../../../src/polisyos/core/security/authz.py"
+negated = false
+data = [
+	any-type (ANN401),
+	typing-only-first-party-import (TC001),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/batch/publish.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/catalog/batch/publish.py"
+negated = false
+data = [
+	hardcoded-sql-expression (S608),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/routes/artifacts.py"
+basename_matcher = "../../../src/polisyos/runtime/http/routes/artifacts.py"
+negated = false
+data = [
+	function-call-in-default-argument (B008),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/quality/scenario_evidence_contract.py"
+basename_matcher = "../../../src/polisyos/runtime/quality/scenario_evidence_contract.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/ukraine/server.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/ukraine/server.py"
+negated = false
+data = [
+	subprocess-without-shell-equals-true (S603),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/ir/test_schema_catalog.py"
+basename_matcher = "../../../tests/unit/ir/test_schema_catalog.py"
+negated = false
+data = [
+	subprocess-without-shell-equals-true (S603),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/cli.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/cli.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/__init__.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/ukraine/builders/__init__.py"
+negated = false
+data = [
+	undefined-local-with-import-star (F403),
+	undefined-local-with-import-star-usage (F405),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/fabric/connectors/cache/_store_index.py"
+basename_matcher = "../../../src/polisyos/fabric/connectors/cache/_store_index.py"
+negated = false
+data = [
+	hardcoded-sql-expression (S608),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/schemas/abi_models.py"
+basename_matcher = "../../../src/polisyos/schemas/abi_models.py"
+negated = false
+data = [
+	typing-only-standard-library-import (TC003),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/integration/test_phase0_quality_validation.py"
+basename_matcher = "../../../tests/integration/test_phase0_quality_validation.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/fabric/world/store/snapshots.py"
+basename_matcher = "../../../src/polisyos/fabric/world/store/snapshots.py"
+negated = false
+data = [
+	hardcoded-sql-expression (S608),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/academic/batch/test_benchmark.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/academic/batch/test_benchmark.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/**"
+basename_matcher = "../../../tests/**"
+negated = false
+data = [
+	missing-type-function-argument (ANN001),
+	missing-type-args (ANN002),
+	missing-type-kwargs (ANN003),
+	missing-type-self (ANN101),
+	missing-type-cls (ANN102),
+	missing-return-type-undocumented-public-function (ANN201),
+	missing-return-type-private-function (ANN202),
+	missing-return-type-special-method (ANN204),
+	missing-return-type-static-method (ANN205),
+	missing-return-type-class-method (ANN206),
+	any-type (ANN401),
+	assert (S101),
+	hardcoded-temp-file (S108),
+	subprocess-without-shell-equals-true (S603),
+	start-process-with-partial-path (S607),
+	print (T201),
+	pytest-raises-too-broad (PT011),
+	pytest-composite-assertion (PT018),
+	collapsible-if (SIM102),
+	typing-only-first-party-import (TC001),
+	typing-only-third-party-import (TC002),
+	typing-only-standard-library-import (TC003),
+	module-import-not-at-top-of-file (E402),
+	line-too-long (E501),
+	unused-variable (F841),
+	non-pep695-generic-function (UP047),
+	unused-noqa (RUF100),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tools/quality/**"
+basename_matcher = "../../../tools/quality/**"
+negated = false
+data = [
+	missing-type-function-argument (ANN001),
+	any-type (ANN401),
+	assert (S101),
+	hardcoded-password-string (S105),
+	suspicious-xml-element-tree-usage (S314),
+	subprocess-without-shell-equals-true (S603),
+	start-process-with-partial-path (S607),
+	unused-loop-control-variable (B007),
+	duplicate-isinstance-call (SIM101),
+	collapsible-if (SIM102),
+	needless-bool (SIM103),
+	if-else-block-instead-of-if-exp (SIM108),
+	reimplemented-builtin (SIM110),
+	typing-only-standard-library-import (TC003),
+	module-import-not-at-top-of-file (E402),
+	line-too-long (E501),
+	replace-stdout-stderr (UP022),
+	collection-literal-concatenation (RUF005),
+	unused-noqa (RUF100),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/common.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/ukraine/builders/common.py"
+negated = false
+data = [
+	missing-return-type-private-function (ANN202),
+	any-type (ANN401),
+	try-except-pass (S110),
+	hashlib-insecure-hash-function (S324),
+	hardcoded-sql-expression (S608),
+	typing-only-first-party-import (TC001),
+	line-too-long (E501),
+	ambiguous-unicode-character-string (RUF001),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/quality/policy_design_case.py"
+basename_matcher = "../../../src/polisyos/runtime/quality/policy_design_case.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tools/cli.py"
+basename_matcher = "../../../tools/cli.py"
+negated = false
+data = [
+	assert (S101),
+	typing-only-standard-library-import (TC003),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/quality/closeout_compatibility.py"
+basename_matcher = "../../../src/polisyos/runtime/quality/closeout_compatibility.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/academic/batch/test_qc.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/academic/batch/test_qc.py"
+negated = false
+data = [
+	pytest-assert-in-except (PT017),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/scholar/**"
+basename_matcher = "../../../tests/unit/scholar/**"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/legal/batch/**"
+basename_matcher = "../../../src/polisyos/data_forge/domains/legal/batch/**"
+negated = false
+data = [
+	missing-type-function-argument (ANN001),
+	missing-return-type-undocumented-public-function (ANN201),
+	missing-return-type-private-function (ANN202),
+	any-type (ANN401),
+	assert (S101),
+	hardcoded-password-string (S105),
+	try-except-pass (S110),
+	try-except-continue (S112),
+	suspicious-non-cryptographic-random-usage (S311),
+	suspicious-xml-element-tree-usage (S314),
+	hashlib-insecure-hash-function (S324),
+	hardcoded-sql-expression (S608),
+	function-uses-loop-variable (B023),
+	collapsible-if (SIM102),
+	suppressible-exception (SIM105),
+	open-file-with-context-handler (SIM115),
+	typing-only-first-party-import (TC001),
+	typing-only-standard-library-import (TC003),
+	non-lowercase-variable-in-function (N806),
+	line-too-long (E501),
+	ambiguous-unicode-character-string (RUF001),
+	ambiguous-unicode-character-docstring (RUF002),
+	ambiguous-unicode-character-comment (RUF003),
+	mutable-class-default (RUF012),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/http/services/control/__init__.py"
+basename_matcher = "../../../src/polisyos/runtime/http/services/control/__init__.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/ukraine/adapters.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/ukraine/adapters.py"
+negated = false
+data = [
+	suspicious-xml-element-tree-usage (S314),
+	subprocess-without-shell-equals-true (S603),
+	hardcoded-sql-expression (S608),
+	collapsible-if (SIM102),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/resolve_finalize.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/resolve_finalize.py"
+negated = false
+data = [
+	collapsible-if (SIM102),
+	non-lowercase-variable-in-function (N806),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/__init__.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/knowledge/__init__.py"
+negated = false
+data = [
+	missing-return-type-private-function (ANN202),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/topic_select.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/topic_select.py"
+negated = false
+data = [
+	assert (S101),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tools/quality/validation/build_policy_design_case_wave35a.py"
+basename_matcher = "../../../tools/quality/validation/build_policy_design_case_wave35a.py"
+negated = false
+data = [
+	ambiguous-unicode-character-string (RUF001),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/academic/batch/test_doc_normalize.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/academic/batch/test_doc_normalize.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/runtime/quality/compliance.py"
+basename_matcher = "../../../src/polisyos/runtime/quality/compliance.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/prompts/screening.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/prompts/screening.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/core/**"
+basename_matcher = "../../../tests/unit/core/**"
+negated = false
+data = [
+	hardcoded-password-string (S105),
+	hardcoded-temp-file (S108),
+	subprocess-without-shell-equals-true (S603),
+	start-process-with-partial-path (S607),
+	assert-raises-exception (B017),
+	zip-without-explicit-strict (B905),
+	pytest-raises-too-broad (PT011),
+	pytest-raises-with-multiple-statements (PT012),
+	multiple-with-statements (SIM117),
+	typing-only-standard-library-import (TC003),
+	non-lowercase-variable-in-function (N806),
+	line-too-long (E501),
+	zip-instead-of-pairwise (RUF007),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/openalex/client.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/openalex/client.py"
+negated = false
+data = [
+	assert (S101),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+basename_matcher = "../../../src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+negated = false
+data = [
+	hashlib-insecure-hash-function (S324),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_registry.py"
+basename_matcher = "../../../tests/unit/data_forge/domains/catalog/knowledge/test_registry.py"
+negated = false
+data = [
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/canonical_resolver.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/knowledge/canonical_resolver.py"
+negated = false
+data = [
+	hardcoded-password-func-arg (S106),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/catalog/batch/source_registry.py"
+negated = false
+data = [
+	any-type (ANN401),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/registry.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/catalog/knowledge/registry.py"
+negated = false
+data = [
+	any-type (ANN401),
+	collapsible-if (SIM102),
+	unused-unpacked-variable (RUF059),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/best_snapshot.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/best_snapshot.py"
+negated = false
+data = [
+	missing-type-function-argument (ANN001),
+	any-type (ANN401),
+	hardcoded-password-default (S107),
+	hardcoded-sql-expression (S608),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/catalog/batch/config.py"
+negated = false
+data = [
+	collapsible-if (SIM102),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/lex/**"
+basename_matcher = "../../../src/polisyos/lex/**"
+negated = false
+data = [
+	missing-type-function-argument (ANN001),
+	missing-return-type-undocumented-public-function (ANN201),
+	missing-return-type-private-function (ANN202),
+	any-type (ANN401),
+	assert (S101),
+	hardcoded-password-string (S105),
+	try-except-pass (S110),
+	try-except-continue (S112),
+	suspicious-non-cryptographic-random-usage (S311),
+	suspicious-xml-element-tree-usage (S314),
+	hashlib-insecure-hash-function (S324),
+	hardcoded-sql-expression (S608),
+	function-uses-loop-variable (B023),
+	collapsible-if (SIM102),
+	suppressible-exception (SIM105),
+	open-file-with-context-handler (SIM115),
+	typing-only-first-party-import (TC001),
+	typing-only-standard-library-import (TC003),
+	non-lowercase-variable-in-function (N806),
+	line-too-long (E501),
+	ambiguous-unicode-character-string (RUF001),
+	ambiguous-unicode-character-docstring (RUF002),
+	ambiguous-unicode-character-comment (RUF003),
+	mutable-class-default (RUF012),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/tools/lib/**"
+basename_matcher = "../../../tools/lib/**"
+negated = false
+data = [
+	any-type (ANN401),
+	hardcoded-temp-file (S108),
+	suspicious-url-open-usage (S310),
+	subprocess-without-shell-equals-true (S603),
+	start-process-with-partial-path (S607),
+	typing-only-first-party-import (TC001),
+	typing-only-standard-library-import (TC003),
+	unnecessary-cast-to-int (RUF046),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/**"
+basename_matcher = "../../../src/polisyos/calibration/**"
+negated = false
+data = [
+	any-type (ANN401),
+	zip-without-explicit-strict (B905),
+	typing-only-first-party-import (TC001),
+	typing-only-standard-library-import (TC003),
+	line-too-long (E501),
+	collection-literal-concatenation (RUF005),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/core/governance/legal/backends/stub.py"
+basename_matcher = "../../../src/polisyos/core/governance/legal/backends/stub.py"
+negated = false
+data = [
+	hardcoded-password-func-arg (S106),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/agent_sim/wiring/contracts.py"
+basename_matcher = "../../../src/polisyos/foundry/agent_sim/wiring/contracts.py"
+negated = false
+data = [
+	undefined-name (F821),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_store.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/knowledge/skg_store.py"
+negated = false
+data = [
+	any-type (ANN401),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/ir/**"
+basename_matcher = "../../../src/polisyos/ir/**"
+negated = false
+data = [
+	any-type (ANN401),
+	collapsible-if (SIM102),
+	typing-only-first-party-import (TC001),
+	typing-only-standard-library-import (TC003),
+	line-too-long (E501),
+]
+
+	absolute_matcher = "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/data_forge/domains/academic/batch/claim_adjudicator.py"
+basename_matcher = "../../../src/polisyos/data_forge/domains/academic/batch/claim_adjudicator.py"
+negated = false
+data = [
+	any-type (ANN401),
+	open-file-with-context-handler (SIM115),
+	line-too-long (E501),
+]
+
+}
+linter.safety_table.forced_safe = []
+linter.safety_table.forced_unsafe = []
+linter.unresolved_target_version = 3.14
+linter.per_file_target_version = {}
+linter.preview = disabled
+linter.explicit_preview_rules = false
+linter.extension = ExtensionMapping({})
+linter.allowed_confusables = [
+	γ,
+	ρ,
+	α,
+	×,
+	е,
+	р,
+	у,
+	а,
+	∪,
+	–,
+	В,
+	о,
+	с,
+	−,
+	σ,
+	б,
+]
+linter.builtins = []
+linter.dummy_variable_rgx = ^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$
+linter.external = []
+linter.ignore_init_module_imports = true
+linter.logger_objects = []
+linter.namespace_packages = []
+linter.src = [
+	"/workspace/e02-E-continuation-20261006/policy-engine",
+	"/workspace/e02-E-continuation-20261006/policy-engine/src",
+]
+linter.tab_size = 4
+linter.line_length = 100
+linter.task_tags = [
+	TODO,
+	FIXME,
+	XXX,
+]
+linter.typing_modules = []
+linter.typing_extensions = true
+
+# Linter Plugins
+linter.flake8_annotations.mypy_init_return = false
+linter.flake8_annotations.suppress_dummy_args = false
+linter.flake8_annotations.suppress_none_returning = false
+linter.flake8_annotations.allow_star_arg_any = false
+linter.flake8_annotations.ignore_fully_untyped = false
+linter.flake8_bandit.hardcoded_tmp_directory = [
+	/tmp,
+	/var/tmp,
+	/dev/shm,
+]
+linter.flake8_bandit.check_typed_exception = false
+linter.flake8_bandit.extend_markup_names = []
+linter.flake8_bandit.allowed_markup_calls = []
+linter.flake8_bugbear.extend_immutable_calls = []
+linter.flake8_builtins.allowed_modules = []
+linter.flake8_builtins.ignorelist = []
+linter.flake8_builtins.strict_checking = false
+linter.flake8_comprehensions.allow_dict_calls_with_keyword_arguments = false
+linter.flake8_copyright.notice_rgx = (?i)Copyright\s+((?:\(C\)|©)\s+)?\d{4}((-|,\s)\d{4})*
+linter.flake8_copyright.author = none
+linter.flake8_copyright.min_file_size = 0
+linter.flake8_errmsg.max_string_length = 0
+linter.flake8_gettext.functions_names = [
+	_,
+	gettext,
+	ngettext,
+]
+linter.flake8_implicit_str_concat.allow_multiline = true
+linter.flake8_import_conventions.aliases = {
+	altair = alt,
+	holoviews = hv,
+	matplotlib = mpl,
+	matplotlib.pyplot = plt,
+	networkx = nx,
+	numpy = np,
+	numpy.typing = npt,
+	pandas = pd,
+	panel = pn,
+	plotly.express = px,
+	polars = pl,
+	pyarrow = pa,
+	seaborn = sns,
+	tensorflow = tf,
+	tkinter = tk,
+	xml.etree.ElementTree = ET,
+}
+linter.flake8_import_conventions.banned_aliases = {}
+linter.flake8_import_conventions.banned_from = []
+linter.flake8_pytest_style.fixture_parentheses = false
+linter.flake8_pytest_style.parametrize_names_type = tuple
+linter.flake8_pytest_style.parametrize_values_type = list
+linter.flake8_pytest_style.parametrize_values_row_type = tuple
+linter.flake8_pytest_style.raises_require_match_for = [
+	BaseException,
+	Exception,
+	ValueError,
+	OSError,
+	IOError,
+	EnvironmentError,
+	socket.error,
+]
+linter.flake8_pytest_style.raises_extend_require_match_for = []
+linter.flake8_pytest_style.mark_parentheses = false
+linter.flake8_quotes.inline_quotes = double
+linter.flake8_quotes.multiline_quotes = double
+linter.flake8_quotes.docstring_quotes = double
+linter.flake8_quotes.avoid_escape = true
+linter.flake8_self.ignore_names = [
+	_make,
+	_asdict,
+	_replace,
+	_fields,
+	_field_defaults,
+	_name_,
+	_value_,
+]
+linter.flake8_tidy_imports.ban_relative_imports = "parents"
+linter.flake8_tidy_imports.banned_api = {}
+linter.flake8_tidy_imports.banned_module_level_imports = []
+linter.flake8_type_checking.strict = false
+linter.flake8_type_checking.exempt_modules = [
+	typing,
+	typing_extensions,
+]
+linter.flake8_type_checking.runtime_required_base_classes = []
+linter.flake8_type_checking.runtime_required_decorators = []
+linter.flake8_type_checking.quote_annotations = false
+linter.flake8_unused_arguments.ignore_variadic_names = false
+linter.isort.required_imports = []
+linter.isort.combine_as_imports = false
+linter.isort.force_single_line = false
+linter.isort.force_sort_within_sections = false
+linter.isort.detect_same_package = true
+linter.isort.case_sensitive = false
+linter.isort.force_wrap_aliases = false
+linter.isort.force_to_top = []
+linter.isort.known_modules = {}
+linter.isort.order_by_type = true
+linter.isort.relative_imports_order = furthest_to_closest
+linter.isort.single_line_exclusions = []
+linter.isort.split_on_trailing_comma = true
+linter.isort.classes = []
+linter.isort.constants = []
+linter.isort.variables = []
+linter.isort.no_lines_before = []
+linter.isort.lines_after_imports = -1
+linter.isort.lines_between_types = 0
+linter.isort.forced_separate = []
+linter.isort.section_order = [
+	known { type = future },
+	known { type = standard_library },
+	known { type = third_party },
+	known { type = first_party },
+	known { type = local_folder },
+]
+linter.isort.default_section = known { type = third_party }
+linter.isort.no_sections = false
+linter.isort.from_first = false
+linter.isort.length_sort = false
+linter.isort.length_sort_straight = false
+linter.mccabe.max_complexity = 10
+linter.pep8_naming.ignore_names = [
+	setUp,
+	tearDown,
+	setUpClass,
+	tearDownClass,
+	setUpModule,
+	tearDownModule,
+	asyncSetUp,
+	asyncTearDown,
+	setUpTestData,
+	failureException,
+	longMessage,
+	maxDiff,
+]
+linter.pep8_naming.classmethod_decorators = []
+linter.pep8_naming.staticmethod_decorators = []
+linter.pycodestyle.max_line_length = 100
+linter.pycodestyle.max_doc_length = none
+linter.pycodestyle.ignore_overlong_task_comments = false
+linter.pyflakes.extend_generics = []
+linter.pyflakes.allowed_unused_imports = []
+linter.pylint.allow_magic_value_types = [
+	str,
+	bytes,
+]
+linter.pylint.allow_dunder_method_names = []
+linter.pylint.max_args = 5
+linter.pylint.max_positional_args = 5
+linter.pylint.max_returns = 6
+linter.pylint.max_bool_expr = 5
+linter.pylint.max_branches = 12
+linter.pylint.max_statements = 50
+linter.pylint.max_public_methods = 20
+linter.pylint.max_locals = 15
+linter.pylint.max_nested_blocks = 5
+linter.pyupgrade.keep_runtime_typing = false
+linter.ruff.parenthesize_tuple_in_subscript = false
+
+# Formatter Settings
+formatter.exclude = []
+formatter.unresolved_target_version = 3.14
+formatter.per_file_target_version = {}
+formatter.preview = disabled
+formatter.line_width = 100
+formatter.line_ending = auto
+formatter.indent_style = space
+formatter.indent_width = 4
+formatter.quote_style = double
+formatter.magic_trailing_comma = respect
+formatter.docstring_code_format = disabled
+formatter.docstring_code_line_width = dynamic
+
+# Analyze Settings
+analyze.exclude = []
+analyze.preview = disabled
+analyze.target_version = 3.14
+analyze.string_imports = disabled
+analyze.extension = ExtensionMapping({})
+analyze.include_dependencies = {}
+analyze.type_checking_imports = true

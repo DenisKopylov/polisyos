@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final3-independent-b2-20261007/review.py", line 178, in <module>
+    main()
+  File "/tmp/e02-E-final3-independent-b2-20261007/review.py", line 92, in main
+    metadata = actual['ROOT_environment_metadata_after']['metadata_rows']
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'metadata_rows'

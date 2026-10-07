@@ -1,0 +1,225 @@
+{
+  "schema": "policyos.e02.explicit_flat_literal_references.v1",
+  "files": [
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/admission-resume.stderr",
+      "portable_path": "source-freeze-publication/admission-resume.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/admission-resume.stdout",
+      "portable_path": "source-freeze-publication/admission-resume.stdout",
+      "bytes": 123265,
+      "sha256": "7458b1113513ed49db2c156ec0e215d8dbaffd13590c037151467b201e9dbd97",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/fetch-readback.stderr",
+      "portable_path": "source-freeze-publication/fetch-readback.stderr",
+      "bytes": 149,
+      "sha256": "412f476e112416865867e4f49c2e5a83dad72017f91ccb75f521590357efc874",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/fetch-readback.stdout",
+      "portable_path": "source-freeze-publication/fetch-readback.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/freeze.json",
+      "portable_path": "source-freeze-publication/freeze.json",
+      "bytes": 4697,
+      "sha256": "4d49a909e20e3311dd60eadff8f62c03a8bd0e5438d96004bf276c3ff5cb569c",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/publication-commands.json",
+      "portable_path": "source-freeze-publication/publication-commands.json",
+      "bytes": 1576,
+      "sha256": "b7e6ed28a24524d39e2865440850f23437743bceb29b09e141cfec40915fc230",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/publication-readback.json",
+      "portable_path": "source-freeze-publication/publication-readback.json",
+      "bytes": 2488,
+      "sha256": "c453139628edbeeb3af4fcb900ba7c49b06a195ac1d29f0f336d55b30d3d0a15",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/push.stderr",
+      "portable_path": "source-freeze-publication/push.stderr",
+      "bytes": 115,
+      "sha256": "601efcb840895745d79bd3bf92b22cb4b447d8301f92efe027bde0e7c32d0a7d",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/push.stdout",
+      "portable_path": "source-freeze-publication/push.stdout",
+      "bytes": 486,
+      "sha256": "5862b67d50ad6bc704a33b82376546b383611d5a339b331b001769794da34e0d",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/remote-ancestor.stderr",
+      "portable_path": "source-freeze-publication/remote-ancestor.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/remote-ancestor.stdout",
+      "portable_path": "source-freeze-publication/remote-ancestor.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/remote-readback.stderr",
+      "portable_path": "source-freeze-publication/remote-readback.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-source-freeze-b2f2f65e-20261007/remote-readback.stdout",
+      "portable_path": "source-freeze-publication/remote-readback.stdout",
+      "bytes": 86,
+      "sha256": "16c12be14b683fb438ddf58f141e100608250c5645582090364f0747289ec849",
+      "role": "complete original frozen b2 source publication/readback command or literal stream"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-final-publication-coordination-20261007/git-prepublication-readback.json",
+      "portable_path": "closed-flat-refs/git-prepublication-readback.json",
+      "bytes": 4197,
+      "sha256": "7ba7dd6719ed0248c7fbb335ec387d0faa45655fcabcf31ea666d7bdb3926893",
+      "role": "original closed readback or readiness index; old pending index remains historical distinct from final completion"
+    },
+    {
+      "source_path": "/tmp/e02-E-root-final-publication-coordination-20261007/fresh-G-6e8725-delta.json",
+      "portable_path": "closed-flat-refs/fresh-G-6e8725-delta.json",
+      "bytes": 5643,
+      "sha256": "367c1931bc1bd06cdd272ba7195d6dcdb993612a95f85f1f9f256628e6412f11",
+      "role": "original closed readback or readiness index; old pending index remains historical distinct from final completion"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-finished-packet-index-b2f2f65e-20261007.json",
+      "portable_path": "closed-flat-refs/e02-E-final3-finished-packet-index-b2f2f65e-20261007.json",
+      "bytes": 3964,
+      "sha256": "2686583a5c1422261332a889935784a2f4e21da59943ee096131943f04cb4356",
+      "role": "original closed readback or readiness index; old pending index remains historical distinct from final completion"
+    },
+    {
+      "source_path": "/tmp/e02-E-final3-finished-packet-index-b2f2f65e-20261007-v2.json",
+      "portable_path": "closed-flat-refs/e02-E-final3-finished-packet-index-b2f2f65e-20261007-v2.json",
+      "bytes": 4576,
+      "sha256": "bb145f9364c49780472f06982fe102c0dc417105b78aa6fc18e30a3eccb50d7e",
+      "role": "original closed readback or readiness index; old pending index remains historical distinct from final completion"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/prepare-flat-inventory.py.txt",
+      "portable_path": "r5-author-route-controls/prepare-flat-inventory.py.txt",
+      "bytes": 11056,
+      "sha256": "78e581dcd52fdd8b1d9b2aa536c3fe8ea212ab0d6466c7e3663fac651f569e2e",
+      "role": "actual metadata-only route/registered encoding admission controls and source; no numerical execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/close-final-input-queue.py.txt",
+      "portable_path": "r5-author-route-controls/close-final-input-queue.py.txt",
+      "bytes": 18070,
+      "sha256": "1916e76fb76e101ceec7f62ee3f74cfbf5848c6f7377fd007b5049d7820753f0",
+      "role": "actual metadata-only route/registered encoding admission controls and source; no numerical execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/probe-binary-storage-routes.py.txt",
+      "portable_path": "r5-author-route-controls/probe-binary-storage-routes.py.txt",
+      "bytes": 2657,
+      "sha256": "659bd908b2c75c965b43f308e057c59eb18df9d290c994c9b14fbaf002140d2b",
+      "role": "actual metadata-only route/registered encoding admission controls and source; no numerical execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/binary-storage-controls.stdout.json",
+      "portable_path": "r5-author-route-controls/binary-storage-controls.stdout.json",
+      "bytes": 1894,
+      "sha256": "57f2b1d22472383c36ac3d8a1dc834cd6ecf24f6147226f0b7080f4b91954a79",
+      "role": "actual metadata-only route/registered encoding admission controls and source; no numerical execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/binary-storage-controls.stderr.txt",
+      "portable_path": "r5-author-route-controls/binary-storage-controls.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata-only route/registered encoding admission controls and source; no numerical execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/probe-registered-storage.py.txt",
+      "portable_path": "r5-author-route-controls/probe-registered-storage.py.txt",
+      "bytes": 6248,
+      "sha256": "e4cd44860095ab0a675dea44c0d10f7df0712522a930da6f17138b5484b89b31",
+      "role": "actual metadata-only route/registered encoding admission controls and source; no numerical execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/registered-normal.stdout.json",
+      "portable_path": "r5-author-route-controls/registered-normal.stdout.json",
+      "bytes": 3059,
+      "sha256": "122a8a00f20041da5c25c36360dcecf817418093ad5019addac6b7783a86ed96",
+      "role": "actual metadata-only route/registered encoding admission controls and source; no numerical execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/registered-normal.stderr.txt",
+      "portable_path": "r5-author-route-controls/registered-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata-only route/registered encoding admission controls and source; no numerical execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/registered-optimized.stdout.json",
+      "portable_path": "r5-author-route-controls/registered-optimized.stdout.json",
+      "bytes": 3065,
+      "sha256": "13ab172de8a13cf9ca3b06b6afa08995a1662b20559e3acdcebd63ce435235e2",
+      "role": "actual metadata-only route/registered encoding admission controls and source; no numerical execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/registered-optimized.stderr.txt",
+      "portable_path": "r5-author-route-controls/registered-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual metadata-only route/registered encoding admission controls and source; no numerical execution"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/registered-storage-controls-normal/review.json",
+      "portable_path": "r5-author-route-controls/registered-storage-controls-normal/review.json",
+      "bytes": 3059,
+      "sha256": "122a8a00f20041da5c25c36360dcecf817418093ad5019addac6b7783a86ed96",
+      "role": "actual normal/-O registered encoding admission and sole decoded-identity guard removal"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/registered-storage-controls-optimized/review.json",
+      "portable_path": "r5-author-route-controls/registered-storage-controls-optimized/review.json",
+      "bytes": 3065,
+      "sha256": "13ab172de8a13cf9ca3b06b6afa08995a1662b20559e3acdcebd63ce435235e2",
+      "role": "actual normal/-O registered encoding admission and sole decoded-identity guard removal"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/registered-storage-controls-normal/sole-decoded-predicate-removal.py.txt",
+      "portable_path": "r5-author-route-controls/registered-storage-controls-normal/sole-decoded-predicate-removal.py.txt",
+      "bytes": 2839,
+      "sha256": "f788a52cbb6cec042b12178449b8f01fa4e67a8c104608f7fa08cb530347fbd5",
+      "role": "actual normal/-O registered encoding admission and sole decoded-identity guard removal"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-publication-r5-b2f2-stage/registered-storage-controls-optimized/sole-decoded-predicate-removal.py.txt",
+      "portable_path": "r5-author-route-controls/registered-storage-controls-optimized/sole-decoded-predicate-removal.py.txt",
+      "bytes": 2839,
+      "sha256": "f788a52cbb6cec042b12178449b8f01fa4e67a8c104608f7fa08cb530347fbd5",
+      "role": "actual normal/-O registered encoding admission and sole decoded-identity guard removal"
+    }
+  ],
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "source_native_numeric_execution": false
+}

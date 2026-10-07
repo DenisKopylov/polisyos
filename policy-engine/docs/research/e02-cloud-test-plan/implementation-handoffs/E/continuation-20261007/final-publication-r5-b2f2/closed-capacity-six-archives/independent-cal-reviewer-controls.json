@@ -1,0 +1,34 @@
+[
+  {
+    "control": "omission",
+    "outcome": "rejected",
+    "reason": "complete tar member count"
+  },
+  {
+    "control": "size_bool",
+    "outcome": "rejected",
+    "reason": "every tar member body/hash/mode/link/mtime/ownership/hardlink binding required"
+  },
+  {
+    "control": "forged_digest",
+    "outcome": "rejected",
+    "reason": "every tar member body/hash/mode/link/mtime/ownership/hardlink binding required"
+  },
+  {
+    "control": "mode",
+    "outcome": "rejected",
+    "reason": "every tar member body/hash/mode/link/mtime/ownership/hardlink binding required"
+  },
+  {
+    "control": "extra_member",
+    "outcome": "rejected",
+    "reason": "complete tar member count"
+  },
+  {
+    "control": "sole_readback_admission_removed",
+    "callback_count": 1,
+    "missing_member_re_admitted": true,
+    "property_outcome": "FAIL",
+    "removed_predicate_only": true
+  }
+]

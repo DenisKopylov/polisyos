@@ -10355,3 +10355,240 @@ async def test_nonblocked_scheduler_stop_still_reaches_n9_owner(tmp_path: Path) 
         "generation_cycle_n6_census_not_established:n6_census_issuer_not_appointed"
     )
     assert validate_generation_cycle_candidate_run(run) == ()
+
+
+def test_joint_port_two_refusals_persist_no_run_and_n8_refuses(
+    tmp_path: Path,
+) -> None:
+    """The actual N5 port and N8 consumer refuse a two-engine no-run result."""
+
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.generation_cycle import (
+        load_joint_simulation_result,
+        persist_joint_simulation_result,
+        simulation_evaluation_input_ref,
+    )
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        intervention_atom_content_hash,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        EnginePlan,
+        JointSimulationHorizonController,
+        JointSimulationResult,
+        build_content_bound_simulation_receipt,
+        verify_simulation_receipt,
+    )
+    from tools.quality.validation import (
+        check_layer3_gy_joint_simulation_horizon_contract as n5_contract,
+    )
+
+    store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
+    problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
+        ncm_ref,
+        runtime_hints={
+            "joint_simulation_horizon": {"start": 0, "end": 1, "step": 1},
+            "joint_simulation_baseline_state": {"firm_survival": 0.0},
+        },
+    )
+    request_builder = JointSimulationPort(
+        repo_root=tmp_path / "empty-repo",
+        cycle_substrate_context=context,
+        artifact_store=store,
+    )
+    with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+        owner_request = request_builder._build_joint_simulation_request(
+            candidate=candidate,
+            problem=problem,
+        )
+
+    assert tuple(plan.engine_kind for plan in owner_request.engine_plan) == (
+        "ncm_parallel_worlds",
+    )
+    system_dynamics_plan = EnginePlan(
+        engine_kind="system_dynamics",
+        objective_ref="objective://firm_survival",
+    )
+    ordered_request = owner_request.model_copy(
+        update={
+            "coupling_graph": n5_contract._coupling_graph("shared_resource"),
+            "engine_plan": (*owner_request.engine_plan, system_dynamics_plan),
+            "baseline_state": {"firm_survival": 0.0},
+        }
+    )
+    problem = problem.model_copy(
+        update={
+            "runtime_hints": {
+                **problem.runtime_hints,
+                "joint_simulation_request": ordered_request,
+            }
+        }
+    )
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    rebound_atoms = []
+    for atom in candidate.intervention_atoms:
+        draft = atom.model_copy(update={"problem_frame_ref": problem_ref})
+        rebound = draft.model_copy(
+            update={"content_hash": intervention_atom_content_hash(draft)}
+        )
+        rebound_atoms.append(type(atom).model_validate(rebound.model_dump(mode="python")))
+    candidate = SimpleNamespace(
+        candidate_id=candidate.candidate_id,
+        atom=rebound_atoms[0],
+        intervention_atoms=tuple(rebound_atoms),
+    )
+    selected_hashes = tuple(context.selected_registry_entry_hashes)
+    substrate_input_hash = gy_content_hash(
+        {
+            "design_problem_ref": problem_ref,
+            "substrate_registry_content_hash": context.substrate_registry_content_hash,
+            "world_model_record_content_hash": context.world_model_record_content_hash,
+            "selected_registry_entry_hashes": selected_hashes,
+        }
+    )
+    context = build_cycle_substrate_context(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_registry=context.substrate_registry,
+        selected_registry_entry_hashes=selected_hashes,
+        world_model_record=context.world_model_record,
+        intervention_substrate=context.intervention_substrate,
+        candidate_levers=context.candidate_levers,
+        transport_context=context.transport_context,
+        source_pack_content_hash=context.source_pack_content_hash,
+        substrate_input_content_hash=substrate_input_hash,
+    )
+
+    port = JointSimulationPort(
+        repo_root=tmp_path,
+        cycle_substrate_context=context,
+        artifact_store=store,
+    )
+    assert type(port._controller) is JointSimulationHorizonController
+
+    try:
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            # This is a pure N5 applicability assessment of the exact owner-built
+            # request. The subsequent direct port call may persist its no-run
+            # result, but neither refused plan can invoke a physical engine.
+            assessment = port._controller.assess_applicability(ordered_request)
+            assert assessment.status == "ineligible"
+            assert assessment.request_digest is not None
+            assert [
+                (item.engine_kind, item.decision, item.reason)
+                for item in assessment.engine_decisions
+            ] == [
+                (
+                    "ncm_parallel_worlds",
+                    "unsupported",
+                    "static_engine_cannot_ground_dynamic_horizon",
+                ),
+                (
+                    "system_dynamics",
+                    "unsupported",
+                    "system_dynamics_state_missing",
+                ),
+            ]
+
+            observation = port(
+                candidate=candidate,
+                problem=problem,
+                cycle_index=0,
+            )
+            assert observation.status == "simulation_blocked"
+            assert observation.simulation_result_ref is not None
+            assert observation.diagnostics["trajectory_count"] == 0
+            assert observation.diagnostics["engine_decisions"] == [
+                item.model_dump(mode="json") for item in assessment.engine_decisions
+            ]
+            assert store.verify(observation.simulation_result_ref.artifact_id).ok
+
+            n8 = generation_cycle_module._DefaultSimulationBoundFoundryValuePort(
+                repo_root=tmp_path,
+                cycle_substrate_context=context,
+                artifact_store=store,
+            )(
+                candidate=candidate,
+                simulation=observation,
+                problem=problem,
+                cycle_index=0,
+            )
+            assert n8.status == "value_blocked"
+            assert n8.value_ref is None
+            assert (
+                simulation_evaluation_input_ref(
+                    observation,
+                    artifact_store=store,
+                    candidate=candidate,
+                    problem=problem,
+                )
+                is None
+            )
+
+            with pytest.raises(
+                GenerationCycleError,
+                match="joint_simulation_result_trajectory_missing",
+            ):
+                load_joint_simulation_result(
+                    observation.simulation_result_ref,
+                    store=store,
+                    expected_world_model_record_content_hash=(
+                        context.world_model_record.content_hash
+                    ),
+                    expected_world_model_record_ref=(
+                        context.world_model_record.world_model_record_id
+                    ),
+                    expected_atom_ids=tuple(
+                        atom.intervention_id for atom in candidate.intervention_atoms
+                    ),
+                    expected_selected_outcomes=("firm_survival",),
+                )
+
+            # Re-read the actual typed no-run artifact, then test the CAS
+            # consumer against a receipt-valid copy carrying only a selected
+            # decision marker and no engine result.
+            actual_payload = canon.from_canonical_bytes(
+                store.get_bytes(observation.simulation_result_ref.artifact_id)
+            )
+            actual = JointSimulationResult.model_validate(actual_payload)
+            actual_content_payload = {
+                key: value for key, value in actual_payload.items() if key != "receipt"
+            }
+            actual._content_payload = actual_content_payload
+            verify_simulation_receipt(actual.receipt, actual_content_payload)
+            assert actual.trajectories == ()
+            assert actual.diagnostics["engine_run_claimed"] is False
+            assert not any(
+                item.decision == "selected" for item in actual.engine_decisions
+            )
+            copied_payload = copy.deepcopy(actual_content_payload)
+            copied_payload["engine_decisions"][0]["decision"] = "selected"
+            copied_receipt = build_content_bound_simulation_receipt(
+                engine_kind=actual.receipt.engine_kind,
+                payload=copied_payload,
+                diagnostics=copied_payload["diagnostics"],
+            )
+            copied_selected = JointSimulationResult.model_validate(
+                {**copied_payload, "receipt": copied_receipt.model_dump(mode="json")}
+            )
+            copied_selected._content_payload = copied_payload
+            copied_ref = persist_joint_simulation_result(copied_selected, store=store)
+            with pytest.raises(
+                GenerationCycleError,
+                match="joint_simulation_result_trajectory_missing",
+            ):
+                load_joint_simulation_result(
+                    copied_ref,
+                    store=store,
+                    expected_world_model_record_content_hash=(
+                        context.world_model_record.content_hash
+                    ),
+                    expected_world_model_record_ref=(
+                        context.world_model_record.world_model_record_id
+                    ),
+                    expected_atom_ids=tuple(
+                        atom.intervention_id for atom in candidate.intervention_atoms
+                    ),
+                    expected_selected_outcomes=("firm_survival",),
+                )
+    finally:
+        store.close()

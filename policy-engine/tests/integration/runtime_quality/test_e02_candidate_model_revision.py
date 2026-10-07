@@ -55,10 +55,13 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
     """
 
     pytest.importorskip("fastapi.testclient")
+    from dataclasses import replace
+
     from fastapi.testclient import TestClient
 
     from polisyos.core.artifacts.manifest import artifact_ref_identity_key
     from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.data_forge.read_api import catalog as catalog_api
     from polisyos.ir.analytics.ncm import (
         NCMSpecRef,
         candidate_ncm_spec_from_declaration,
@@ -71,6 +74,7 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
     from polisyos.runtime.http.services.control import (
         generation_cycle as generation_cycle_service,
     )
+    from polisyos.runtime.quality import substrate_registry
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationContextHandoff,
         CandidateSimulationContextOffer,
@@ -110,6 +114,33 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
     monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
     monkeypatch.setenv("JAX_PLATFORMS", "cpu")
     monkeypatch.setenv("OMP_NUM_THREADS", "1")
+
+    # The isolated checkout has no production Dataset Catalog. Give the actual
+    # app a fresh, bounded fixture catalog through its existing path owner.
+    catalog_root = tmp_path / "candidate-reentry-catalog"
+    catalog_api.build_slice0_fixture_catalog_graph(catalog_root).close()
+    curated_root = tmp_path / "candidate-reentry-curated"
+    curated_root.mkdir()
+    monkeypatch.setenv("POLISYOS_CURATED_DIR", curated_root.as_posix())
+    monkeypatch.setattr(
+        catalog_api,
+        "default_acquisition_overlay_path",
+        lambda _root: tmp_path / "absent-acquisition-overlay.duckdb",
+    )
+    default_catalog_paths = substrate_registry.default_substrate_catalog_paths
+    repo_root = REPO_ROOT.resolve()
+    monkeypatch.setattr(
+        substrate_registry,
+        "default_substrate_catalog_paths",
+        lambda root: (
+            replace(
+                default_catalog_paths(root),
+                l1_dcat_path=catalog_root / "catalog.duckdb",
+            )
+            if Path(root).resolve() == repo_root
+            else default_catalog_paths(root)
+        ),
+    )
 
     recording = next(
         item

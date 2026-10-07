@@ -1,0 +1,64 @@
+{
+  "schema": "policyos.e02.harness-input-repair.v1",
+  "target_candidate_sha": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "target_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "attempt_01": {
+    "command": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/candidate_pytest_runner.py",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/owner-budget-factory.junit.xml",
+      "-o",
+      "addopts=",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/unit/scientist/methods/search/test_service_owner_budget_factory.py"
+    ],
+    "process_exit_code": 1,
+    "pytest_collected": 10,
+    "pytest_junit_failures": 6,
+    "pytest_junit_errors": 0,
+    "interpreted_outcome": "HARNESS_INPUT_INCOMPLETE; all six test failures are FileNotFoundError on the same missing tracked runtime config, none are assertion failures",
+    "missing_input": "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+    "failure_origin": "candidate module polisyos.foundry.methods.catalog.dependency_authority reads _DIGEST_REGISTRY_PATH under candidate product root while fresh CAS restore imports SearchRunState",
+    "stdout": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/pytest.stdout.log",
+      "sha256": "453ddabdb3351d7d5c96c7b103b1d8664b3eae8259f6ee658c47db5ca539f13a",
+      "bytes": 35875
+    },
+    "stderr": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/pytest.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "junit": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/owner-budget-factory.junit.xml",
+      "sha256": "86c64bf6792990888c41856aa6f41a38db40ed67b25f05be77b30eefca5d9696",
+      "bytes": 33335
+    },
+    "runtime_origins_matched": 300,
+    "runtime_origin_problems": 0
+  },
+  "bounded_repair": {
+    "change": "Add one missing tracked configuration input only to the isolated candidate closure; no project source/test edit or dependency install.",
+    "path": "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+    "mode": "100644",
+    "git_blob": "caf4fa98a0669f6d81bd8b5db0014cb015b9492f",
+    "sha256": "186078f2cd5c24cdef007449109d5667f60f4f7949c9b663026e5658e538bb5b",
+    "bytes": 38632,
+    "reason_for_scope": "The thrown stack identifies this exact file. The source computes _DIGEST_REGISTRY_PATH as policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml. It is the only filesystem input missing in the observed failure; no broader architecture tree is being copied.",
+    "retrieval": "git cat-file from exact candidate SHA; not copied from live G checkout",
+    "new_source_manifest": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/source-manifest-repaired.json",
+    "new_source_file_count": 2926,
+    "source_verification": "PASS for extracted blob",
+    "materialization_correction": {
+      "pre_run_guard": "The first copy was staged at checkout/architecture/... instead of checkout/policy-engine/architecture/...; the repaired-source preflight correctly refused to start tests.",
+      "test_execution_on_misplaced_copy": false,
+      "preserved_original_copy": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/repair-01-misplaced-config-copy.toml",
+      "correct_candidate_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/checkout/policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+      "correct_candidate_sha256": "186078f2cd5c24cdef007449109d5667f60f4f7949c9b663026e5658e538bb5b",
+      "source_manifest_preflight": "PASS after correct placement"
+    }
+  },
+  "rerun_authorization": "one exact same candidate/file rerun after this recorded bounded repair; same existing G venv, no dependency changes"
+}

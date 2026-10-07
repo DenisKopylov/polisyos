@@ -1,0 +1,182 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import math
+import sys
+from pathlib import Path
+
+import numpy as np
+import polisyos.berl.adapters.conditional_shapley as source
+from polisyos.berl.adapters.conditional_shapley import (
+    GaussianJointLaw,
+    gaussian_conditional_moments,
+)
+
+EXPECTED_SOURCE_SHA256 = '78611ed4de5662c9994d648e6654be4df89176ef02e3f698cb5060a3b55168e4'
+EXPECTED_HELPER_HASHES = {'coalition': '931416a01a4fc3e8870c79c86c9fece0002f58aa2a6d931757061c83dfa08f67', 'protocol': '4117e55ba77d3466090fb18ae52c6301f876b2129617086eafa5334a003525ec'}
+module_path = Path(source.__file__).resolve()
+module_hash = hashlib.sha256(module_path.read_bytes()).hexdigest()
+# Resolve each imported helper through the exact selected-source package tree.
+selected_root = module_path.parents[3]
+helper_expected_paths = {
+    'coalition': selected_root / 'polisyos/berl/adapters/_coalition.py',
+    'protocol': selected_root / 'polisyos/berl/adapters/protocol.py',
+}
+helper_hashes = {
+    name: hashlib.sha256(path.read_bytes()).hexdigest()
+    for name, path in helper_expected_paths.items()
+}
+helper_module_keys = {
+    'coalition': 'polisyos.berl.adapters._coalition',
+    'protocol': 'polisyos.berl.adapters.protocol',
+}
+helper_origins = {
+    name: str(Path(sys.modules[key].__file__).resolve())
+    for name, key in helper_module_keys.items()
+}
+helper_origins_ok = all(
+    Path(helper_origins[name]) == helper_expected_paths[name].resolve()
+    for name in helper_module_keys
+)
+package_origins = {
+    name: str(Path(sys.modules[name].__file__).resolve())
+    for name in ('polisyos', 'polisyos.berl', 'polisyos.berl.adapters')
+}
+package_origins_ok = all(
+    Path(origin).is_relative_to(selected_root)
+    for origin in package_origins.values()
+)
+source_identity_ok = (
+    module_hash == EXPECTED_SOURCE_SHA256
+    and helper_hashes == EXPECTED_HELPER_HASHES
+    and helper_origins_ok
+    and package_origins_ok
+)
+
+features = ('x1', 'x2', 'x3')
+
+def moments(law: GaussianJointLaw, coalition: frozenset[str], observed: dict[str, float]):
+    return gaussian_conditional_moments(
+        law,
+        feature_order=features,
+        coalition=coalition,
+        observed=observed,
+    )
+
+def close(actual: float, expected: float, *, atol: float = 1e-12) -> bool:
+    return math.isclose(actual, expected, rel_tol=1e-12, abs_tol=atol)
+
+# Analytic witness: x1 = 1e-10*x3 exactly, x2 independent.
+target_law = GaussianJointLaw(
+    mean=(0.0, 0.0, 0.0),
+    covariance=(
+        (1.0e-20, 0.0, 1.0e-10),
+        (0.0, 1.0, 0.0),
+        (1.0e-10, 0.0, 1.0),
+    ),
+)
+target = moments(target_law, frozenset({'x1', 'x2'}), {'x1': 1.0e-11, 'x2': 0.0})
+target_actual = {'x3_mean': target.mean[2], 'x3_variance': target.covariance[2][2]}
+target_expected = {'x3_mean': 0.1, 'x3_variance': 0.0}
+target_mismatch = not (
+    close(target_actual['x3_mean'], target_expected['x3_mean'])
+    and close(target_actual['x3_variance'], target_expected['x3_variance'])
+)
+
+# Independent, ordinary-scale full-rank Gaussian positive control.
+well_scaled = GaussianJointLaw(
+    mean=(0.0, 0.0, 0.0),
+    covariance=((1.0, 0.0, 0.8), (0.0, 1.0, 0.0), (0.8, 0.0, 1.0)),
+)
+positive = moments(well_scaled, frozenset({'x1', 'x2'}), {'x1': 0.25, 'x2': 0.0})
+positive_actual = {'x3_mean': positive.mean[2], 'x3_variance': positive.covariance[2][2]}
+positive_expected = {'x3_mean': 0.2, 'x3_variance': 0.36}
+positive_ok = (
+    close(positive_actual['x3_mean'], positive_expected['x3_mean'])
+    and close(positive_actual['x3_variance'], positive_expected['x3_variance'])
+)
+
+# Exact, ordinary-scale singular-support positive control.
+well_scaled_singular = GaussianJointLaw(
+    mean=(0.0, 0.0, 0.0),
+    covariance=((1.0, 0.0, 1.0), (0.0, 1.0, 0.0), (1.0, 0.0, 1.0)),
+)
+singular_positive = moments(
+    well_scaled_singular,
+    frozenset({'x1', 'x2'}),
+    {'x1': 0.25, 'x2': 0.0},
+)
+singular_positive_actual = {
+    'x3_mean': singular_positive.mean[2],
+    'x3_variance': singular_positive.covariance[2][2],
+}
+singular_positive_ok = (
+    close(singular_positive_actual['x3_mean'], 0.25)
+    and close(singular_positive_actual['x3_variance'], 0.0)
+)
+
+# Ordinary-scale negative control: an impossible point on x1=x3 must be rejected.
+unsupported_rejected = False
+unsupported_error = None
+try:
+    moments(
+        well_scaled_singular,
+        frozenset({'x1', 'x3'}),
+        {'x1': 0.25, 'x3': 0.35},
+    )
+except ValueError as exc:
+    unsupported_rejected = 'outside the singular Gaussian support' in str(exc)
+    unsupported_error = f'{type(exc).__name__}: {exc}'
+
+result = {
+    'source_qualification': {
+        'conditional_shapley_path': str(module_path),
+        'conditional_shapley_sha256': module_hash,
+        'expected_conditional_shapley_sha256': EXPECTED_SOURCE_SHA256,
+        'helper_sha256': helper_hashes,
+        'helper_import_origins': helper_origins,
+        'package_stub_origins': package_origins,
+        'helper_origins_from_selected_source': helper_origins_ok,
+        'package_origins_from_selected_source': package_origins_ok,
+        'expected_helper_sha256': EXPECTED_HELPER_HASHES,
+        'selected_source_imports_only': source_identity_ok,
+        'numpy_version': np.__version__,
+        'numpy_path': str(Path(np.__file__).resolve()),
+        'pinv_signature': str(__import__('inspect').signature(np.linalg.pinv)),
+    },
+    'target_counterexample': {
+        'status': 'FAIL_REPRODUCED' if target_mismatch else 'NOT_REPRODUCED',
+        'input_mean': [0.0, 0.0, 0.0],
+        'input_covariance': [
+            [1.0e-20, 0.0, 1.0e-10],
+            [0.0, 1.0, 0.0],
+            [1.0e-10, 0.0, 1.0],
+        ],
+        'coalition': ['x1', 'x2'],
+        'observed': {'x1': 1.0e-11, 'x2': 0.0},
+        'analytically_expected': target_expected,
+        'runtime_returned': target_actual,
+        'property': 'conditioning on x1 fixes x3 at 0.1 with conditional variance 0',
+    },
+    'well_scaled_full_rank_positive_control': {
+        'status': 'PASS' if positive_ok else 'FAIL',
+        'expected': positive_expected,
+        'runtime_returned': positive_actual,
+    },
+    'well_scaled_singular_positive_control': {
+        'status': 'PASS' if singular_positive_ok else 'FAIL',
+        'expected': {'x3_mean': 0.25, 'x3_variance': 0.0},
+        'runtime_returned': singular_positive_actual,
+    },
+    'well_scaled_unsupported_negative_control': {
+        'status': 'PASS' if unsupported_rejected else 'FAIL',
+        'expected': 'ValueError outside singular Gaussian support',
+        'runtime_error': unsupported_error,
+    },
+}
+print(json.dumps(result, sort_keys=True, separators=(',', ':')))
+if not source_identity_ok or not positive_ok or not singular_positive_ok or not unsupported_rejected:
+    raise SystemExit(1)
+if not target_mismatch:
+    raise SystemExit(2)

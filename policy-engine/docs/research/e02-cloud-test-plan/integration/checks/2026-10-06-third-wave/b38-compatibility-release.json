@@ -1,0 +1,27 @@
+{
+  "breaking_classes_checked": [],
+  "contract_error_count": 0,
+  "contract_errors": [],
+  "finding_count": 1,
+  "findings": [
+    {
+      "check": "fragment-compatibility",
+      "detail": "",
+      "message": "no structured compatibility changes found in selected fragments",
+      "severity": "warning",
+      "subject": "release-fragments"
+    }
+  ],
+  "fragment_count": 1,
+  "fragments_dir": "_build/e02-g-continuation-20261006/reviewed-b38-release-fragments",
+  "mode": "report_only",
+  "phase": "repository-best-in-class-phase-5.10",
+  "policy": "architecture/gates/compatibility_release.toml",
+  "status": "reported",
+  "structured_compatibility_change_count": 0,
+  "summary": {
+    "compatibility_surfaces": 5,
+    "generated_families": 6,
+    "promotion_checks": 4
+  }
+}

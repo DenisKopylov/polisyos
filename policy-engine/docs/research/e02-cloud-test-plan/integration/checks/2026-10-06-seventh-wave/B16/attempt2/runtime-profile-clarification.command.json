@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/outputs/attempt2/runtime-profile-clarification.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/checkout-attempt2/policy-engine",
+  "environment_subset": {
+    "E02_CANDIDATE_INPUT_AFTER": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/outputs/attempt2/input-manifest-after.json",
+    "E02_CANDIDATE_INPUT_MANIFEST": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/inputs/attempt2/input-manifest-before.json",
+    "E02_CAPTURED_ORIGINS": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/outputs/attempt2/module-origins.json",
+    "E02_CAPTURED_TEST_STDOUT": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/outputs/attempt2/stdout.txt",
+    "E02_EXPECTED_SRC": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/checkout-attempt2/policy-engine/src",
+    "JAX_PLATFORMS": "cpu",
+    "JAX_PLATFORM_NAME": "cpu",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/runtime:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/checkout-attempt2/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/checkout-attempt2/policy-engine/tests",
+    "XLA_PYTHON_CLIENT_PREALLOCATE": "false"
+  },
+  "executable_realpath": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+  "executable_target": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+  "kind": "post-run runtime-profile observation; no tests are run",
+  "probe_script_sha256": "62cb8c56b682b64577c0efd6767d264cca515d5479a77c3f48e7dc355076cd08",
+  "run_before_sha256_before_observation": "bd8080a830591ee9ab159fa4cd650d6dfbc390ee84a40b89deebf817b8711d3a"
+}

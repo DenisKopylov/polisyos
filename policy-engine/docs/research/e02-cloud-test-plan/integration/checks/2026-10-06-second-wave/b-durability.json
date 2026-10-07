@@ -1,0 +1,120 @@
+{
+  "schema": "policyos.e02.g_focused_check.v1",
+  "candidate_sha": "2c52e1fe747627b227b5695e578b800cb7eade8b",
+  "candidate_tree": "9898e7ae4b7ec3a403b9a2e91cbcc7dcc475537c",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/current-b-durability-2c52.junit.xml",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/tmp-current-b-durability-2c52",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/pytest-cache-current-b-durability-2c52"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-durability/policy-engine",
+  "environment": {
+    "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "versions": {
+      "anyio": "4.12.0",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2"
+    },
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-durability/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-durability/policy-engine",
+    "numeric_threads": 1,
+    "platform": "macOS arm64"
+  },
+  "timeout_seconds": 120,
+  "outcome": "PASS",
+  "counts": {
+    "tests": 95,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "wall_seconds": 29.333,
+  "max_child_rss_bytes": 117784576,
+  "import_origins": [
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget.py",
+      "module": "polisyos.scientist.orchestration.engine.budget",
+      "sha256": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516",
+      "under_candidate": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "module": "polisyos.scientist.orchestration.engine.budget_ledger",
+      "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+      "under_candidate": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-b-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "module": "polisyos.scientist.orchestration.engine.budget_middleware",
+      "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0",
+      "under_candidate": true
+    }
+  ],
+  "source_and_test_hashes_before_after_unchanged": {
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-bootstrap.json": {
+      "bytes": 13596,
+      "sha256": "1db37db66055e170ccbc6ecf597f27021bbf20cb019a6ae34b71fbc9c093ca0f"
+    },
+    "src/polisyos/scientist/orchestration/engine/budget.py": {
+      "bytes": 6159,
+      "sha256": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516"
+    },
+    "src/polisyos/scientist/orchestration/engine/budget_ledger.py": {
+      "bytes": 26353,
+      "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f"
+    },
+    "src/polisyos/scientist/orchestration/engine/budget_middleware.py": {
+      "bytes": 6067,
+      "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0"
+    },
+    "tests/unit/scientist/mirror_contracts/test_budget_ledger.py": {
+      "bytes": 229,
+      "sha256": "27b668a1baad69ccd6ba840118a59141ff01bb1a78ef95834c87854e09ab4d82"
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py": {
+      "bytes": 16904,
+      "sha256": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc"
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py": {
+      "bytes": 13682,
+      "sha256": "aca02227a7c9d3a5ac6740cb9a7428785e324d97fc09d36fa036e6c8a6c965f4"
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py": {
+      "bytes": 17417,
+      "sha256": "f9a037cc70ab8c8b8eb61a5c26c2e16809d6fc20a8b438d819d69512a77b1bbc"
+    }
+  },
+  "production_data_used": false,
+  "dependencies_installed": false,
+  "outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-second-wave/b-durability.stdout",
+      "sha256": "96e3f08f2cf129ebd0b64fb7e261adc0c5113a0712b5e33567d79814b622cae1",
+      "bytes": 180
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-second-wave/b-durability.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-second-wave/b-durability.junit.xml",
+      "sha256": "3900405a26039dd976ab2d607d958d41d9d4cb61efde369f3a5faad50971407e",
+      "bytes": 17737
+    }
+  ],
+  "finding_closure": false,
+  "broad_replay": false
+}

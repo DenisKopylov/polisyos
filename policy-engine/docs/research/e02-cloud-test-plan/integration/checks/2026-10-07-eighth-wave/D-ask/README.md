@@ -1,0 +1,7 @@
+# Exact D direct-service ask rollback
+
+Candidate8c17/tree4b0b is recorded in receipt.md and both original contexts. Attempt1 has two import-time setup errors before assertions; the same-SHA corrected closure passed both cases. These are fresh G-local observations with separate independent review in ../reviews/G-D-ask-independent.md. This is direct NativeSearchService, with new service/CAS objects in the same process; SearchLoopRunner/public factory/independent-process recovery is UNRUN.
+
+Complete stdout/stderr/JUnit bytes for both attempts are losslessly stored as named UTF-8 members in deciding-output.json, with original byte lengths/hashes. Contexts are in results/. JSON decoding reproduces every original stream exactly; whitespace was not normalized. Context source paths describe the historical isolated archive, not a new current checkout. Git candidate/history is retained; the used archive may move to native Trash after publication/readback and reader release.
+
+The large source manifests and full module-origin maps remain ignored at policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/, with exact absolute paths and hashes in the contexts/receipt. Cloud availability of those local files is not established. The unique origin-check harness and all deciding receipts remain local. Source-copy bytes are reconstructible from immutable Git and are not duplicated here. This result is neither whole D code acceptance nor finding closure.

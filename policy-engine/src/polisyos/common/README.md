@@ -112,6 +112,29 @@ Run commands from the repository root `policy-engine/`.
 - Conceptual release gate:
   `uv run python tools/devx/workspace/core_runtime_basedpyright.py`
 
+## Shared executor ownership
+
+`async_tools.py` returns a `concurrent.futures.Future` compatible proxy. A job
+retains its logical reservation while its worker wrapper or synchronous done
+callbacks run, even after `result()` becomes available. Physical workers are
+counted separately. Nested submissions from that executor's worker or callback
+context receive `SharedExecutorReentrancyError` when capacity is fully reserved
+or occupied. Ordinary external callers can queue work. Late callbacks execute
+in their registering thread and carry the same reentry guard; existing callbacks
+retain registration order and execute in the completing thread. Callback
+exceptions follow the standard Future logging behavior.
+
+Every submission captures its own current context. Queue cancellation prevents
+unstarted work and notifies Future waiters; running callables and arbitrary
+callback waits remain cooperative. Shutdown closes admission before entering
+the base executor's shutdown lock, and no user callback runs under the admission
+lock. `run_blocking_async(..., unbounded=True)` explicitly represents an owner
+with no configured helper deadline. Omitted/None timeouts keep the existing
+default; combining `unbounded=True` with a float timeout is invalid.
+
+These helpers own execution/callback lifecycle, not tenant authority or external
+effect rollback. Callers retain their current publication and permission checks.
+
 ## Operability Links
 
 - [Common component SLO](../../../ops/components/common/slo.yaml)

@@ -1,0 +1,27 @@
+{
+  "cases": [
+    {
+      "classname": "",
+      "error": true,
+      "failure": false,
+      "name": "tests.integration.core_runtime.test_e02_hard_feasibility_before_voi",
+      "skipped": false,
+      "time": "0.000"
+    }
+  ],
+  "errors": 1,
+  "failures": 0,
+  "root_tag": "testsuites",
+  "skipped": 0,
+  "tests": 1,
+  "time": "8.504",
+  "legacy_outer_root_parser_totals": {
+    "tests": 0,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "time": null
+  },
+  "G_adjudication": "Derived parser correction only: nested suite records one collection-error testcase, zero executed product cases. Original ignored summary remains preserved; raw XML unchanged.",
+  "original_summary_sha256": "4380329d45b459dd562ea489d8c4b9714c65ba6a699d05b96dcf6050a4a09238"
+}

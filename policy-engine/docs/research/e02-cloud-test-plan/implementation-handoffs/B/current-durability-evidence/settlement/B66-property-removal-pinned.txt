@@ -1,0 +1,87 @@
+{
+  "mode": "removal",
+  "source_sha": "2c52e1fe747627b227b5695e578b800cb7eade8b",
+  "source_sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+  "property_removal": "existing = snapshot.spend_receipts.get(event_id) -> existing = None",
+  "path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/B66-property-removal-pinned.json",
+  "first_receipt": {
+    "event_id": "observed-producer-1:run",
+    "payload_digest": "04d60733afb726dd6fa136dd74db4e25b047900b2369c69a1181000c2e4111d0",
+    "key": "run",
+    "amount": "2",
+    "provider": "provider",
+    "revision": 1,
+    "committed_at": "2026-10-06T10:10:17.076169Z"
+  },
+  "second_receipt": {
+    "event_id": "observed-producer-1:run",
+    "payload_digest": "04d60733afb726dd6fa136dd74db4e25b047900b2369c69a1181000c2e4111d0",
+    "key": "run",
+    "amount": "2",
+    "provider": "provider",
+    "revision": 2,
+    "committed_at": "2026-10-06T10:10:17.078356Z"
+  },
+  "actual_fresh_reopen": {
+    "schema_version": "1.1",
+    "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+    "coordination_mode": "shared_posix_file_lock",
+    "ledger_id": "ledger:6eb2e79c67e055fc",
+    "revision": 2,
+    "updated_at": "2026-10-06T10:10:17.078596Z",
+    "last_writer": {
+      "host_id": "b878f4efbdfc",
+      "writer_id": "b878f4efbdfc:104205:B66-property-removal-pinned.json",
+      "pid": 104205
+    },
+    "recent_mutations": [
+      {
+        "revision": 2,
+        "operation": "settle_spend",
+        "key": "run",
+        "amount": "2",
+        "applied_amount": "2",
+        "provider": "provider",
+        "reserved": null,
+        "writer": {
+          "host_id": "b878f4efbdfc",
+          "writer_id": "b878f4efbdfc:104205:B66-property-removal-pinned.json",
+          "pid": 104205
+        },
+        "committed_at": "2026-10-06T10:10:17.078591Z"
+      }
+    ],
+    "state": {
+      "limits": {
+        "run": {
+          "key": "run",
+          "max_usd": "10",
+          "soft_limit_usd": null
+        }
+      },
+      "spent": {
+        "run": "4"
+      },
+      "provider_spent": {
+        "provider": "4"
+      },
+      "reserved": {}
+    },
+    "spend_receipts": {
+      "observed-producer-1:run": {
+        "event_id": "observed-producer-1:run",
+        "payload_digest": "04d60733afb726dd6fa136dd74db4e25b047900b2369c69a1181000c2e4111d0",
+        "key": "run",
+        "amount": "2",
+        "provider": "provider",
+        "revision": 2,
+        "committed_at": "2026-10-06T10:10:17.078356Z"
+      }
+    }
+  }
+}
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/settlement_removal.py", line 32, in <module>
+    assert state['state']['spent']['run'] == '2', 'same producer event was charged twice'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: same producer event was charged twice

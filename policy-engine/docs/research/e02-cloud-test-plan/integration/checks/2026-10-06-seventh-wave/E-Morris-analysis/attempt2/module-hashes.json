@@ -1,0 +1,45 @@
+{
+  "candidate": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+  "candidate_tree": "3e654b07a3228d1b3d2d0bb2a3a91ae792068090",
+  "modules": [
+    {
+      "bytes": 15037,
+      "candidate_git_blob": "3596f6b96d37dd2d256b43f11c980f23279f2043",
+      "matches_candidate_blob": true,
+      "name": "designs.py",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "sha256": "983304e49dda38688ea1f87e44775f67129fcf9337444c8458ef95ebaf04513c"
+    },
+    {
+      "bytes": 19431,
+      "candidate_git_blob": "964c3c5910956a59f053fdd7b73af628a1f13e9d",
+      "matches_candidate_blob": true,
+      "name": "analysis.py",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "sha256": "41ed0c540fd4b304455112261bded3797e2407bfc911d69ddf77ec152abafe60"
+    },
+    {
+      "bytes": 5426,
+      "candidate_git_blob": "8e75b7d9fdccaba0c564bb49874056dd20a8bba0",
+      "matches_candidate_blob": true,
+      "name": "morris_geometry.py",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+      "sha256": "c10fa072989243cd6352aac4db867d34b17b4cbb68fad175571d0ce93df99a6e"
+    },
+    {
+      "bytes": 4019,
+      "candidate_git_blob": "a6487dd0f7d36d7c989ae916705a4db75952dc0a",
+      "matches_candidate_blob": true,
+      "name": "sampling.py",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "sha256": "863384fc13da74d72d9bb7b5c4285c2103b2fc7f2a3895b6b6b383324515d574"
+    },
+    {
+      "bytes": 19542,
+      "name": "SALib.analyze.morris",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay/SALib/analyze/morris.py",
+      "sha256": "c81b5aefc88fea6e2b18b70fca65e6efd7a7dc37db63970ed35bc2c80ad6dde5",
+      "version": "1.5.2"
+    }
+  ]
+}

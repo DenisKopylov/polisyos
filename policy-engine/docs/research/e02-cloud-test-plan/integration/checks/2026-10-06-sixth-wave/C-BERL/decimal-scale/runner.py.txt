@@ -1,0 +1,112 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import platform
+import resource
+import subprocess
+import sys
+import time
+from datetime import datetime, timezone
+from pathlib import Path
+
+root = Path(__file__).resolve().parent
+probe = root / 'probe.py'
+selected = root / 'selected-source'
+stdout_path = root / 'stdout.txt'
+stderr_path = root / 'stderr.txt'
+execution_path = root / 'execution.json'
+timeout_seconds = 15.0
+process_env = {
+    'PATH': os.environ.get('PATH', '/usr/bin:/bin'),
+    'PYTHONPATH': str(selected),
+    'PYTHONDONTWRITEBYTECODE': '1',
+    'PYTHONNOUSERSITE': '1',
+    'OMP_NUM_THREADS': '1',
+    'OPENBLAS_NUM_THREADS': '1',
+    'MKL_NUM_THREADS': '1',
+    'VECLIB_MAXIMUM_THREADS': '1',
+    'LANG': 'C',
+    'LC_ALL': 'C',
+}
+command = [sys.executable, str(probe)]
+started = datetime.now(timezone.utc).isoformat()
+start = time.monotonic()
+proc = subprocess.Popen(
+    command,
+    cwd=root,
+    env=process_env,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
+)
+timed_out = False
+try:
+    stdout, stderr = proc.communicate(timeout=timeout_seconds)
+except subprocess.TimeoutExpired:
+    timed_out = True
+    proc.terminate()
+    try:
+        stdout, stderr = proc.communicate(timeout=1.0)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        stdout, stderr = proc.communicate()
+wall_seconds = time.monotonic() - start
+ended = datetime.now(timezone.utc).isoformat()
+stdout_path.write_bytes(stdout)
+stderr_path.write_bytes(stderr)
+rusage = resource.getrusage(resource.RUSAGE_CHILDREN)
+rss_raw = int(rusage.ru_maxrss)
+rss_bytes = rss_raw if platform.system() == 'Darwin' else rss_raw * 1024
+try:
+    semantic_output = json.loads(stdout.decode('utf-8'))
+except (UnicodeDecodeError, json.JSONDecodeError):
+    semantic_output = None
+exit_code = proc.returncode
+result = {
+    'command': command,
+    'cwd': str(root),
+    'interpreter': sys.executable,
+    'interpreter_version': sys.version,
+    'interpreter_prefix': sys.prefix,
+    'environment': process_env,
+    'start_utc': started,
+    'end_utc': ended,
+    'timeout_seconds': timeout_seconds,
+    'timed_out': timed_out,
+    'wall_seconds': wall_seconds,
+    'child_pid': proc.pid,
+    'exit_code': exit_code,
+    'peak_rss_raw': rss_raw,
+    'peak_rss_units': 'bytes' if platform.system() == 'Darwin' else 'KiB',
+    'peak_rss_mib': round(rss_bytes / (1024 * 1024), 3),
+    'stdout_path': str(stdout_path),
+    'stdout_bytes': len(stdout),
+    'stdout_sha256': hashlib.sha256(stdout).hexdigest(),
+    'stderr_path': str(stderr_path),
+    'stderr_bytes': len(stderr),
+    'stderr_sha256': hashlib.sha256(stderr).hexdigest(),
+    'semantic_output': semantic_output,
+    'resource_scope': 'one child probe only; runner performed no child command before the probe',
+}
+execution_path.write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
+print(json.dumps({
+    'exit_code': exit_code,
+    'timed_out': timed_out,
+    'wall_seconds': wall_seconds,
+    'peak_rss_mib': result['peak_rss_mib'],
+    'stdout_bytes': len(stdout),
+    'stdout_sha256': result['stdout_sha256'],
+    'stderr_bytes': len(stderr),
+    'stderr_sha256': result['stderr_sha256'],
+    'semantic_target_status': (
+        semantic_output or {}
+    ).get('target_counterexample', {}).get('status'),
+    'controls': {
+        'well_scaled_full_rank': (semantic_output or {}).get('well_scaled_full_rank_positive_control', {}).get('status'),
+        'well_scaled_singular': (semantic_output or {}).get('well_scaled_singular_positive_control', {}).get('status'),
+        'unsupported_negative': (semantic_output or {}).get('well_scaled_unsupported_negative_control', {}).get('status'),
+        'source_qualified': (semantic_output or {}).get('source_qualification', {}).get('selected_source_imports_only'),
+    },
+}, sort_keys=True))
+raise SystemExit(exit_code if not timed_out else 124)

@@ -1,0 +1,87 @@
+from pathlib import Path
+import subprocess
+import json
+import hashlib
+import sys
+import time
+
+root = Path.cwd()
+sha = 'b8d9115cdc6a55920c1e0a3cae2e5f9092010c27'
+receipt_root = Path(__file__).parent
+src = receipt_root / 'candidate'
+fixture = receipt_root / 'fixture'
+commands = []
+
+def git(args, cwd=root):
+    p = subprocess.run(['git', *args], cwd=cwd, capture_output=True)
+    commands.append({'argv': ['git', *args], 'cwd': str(cwd), 'exit': p.returncode,
+                     'stdout': p.stdout.decode(), 'stderr': p.stderr.decode()})
+    p.check_returncode()
+    return p.stdout
+
+paths = ['tools/__init__.py', 'tools/quality/__init__.py',
+         'tools/quality/validation/__init__.py',
+         'tools/quality/validation/schema_fqn_census.py']
+paths += [p.removeprefix('policy-engine/') for p in
+          git(['ls-tree', '-r', '--name-only', sha, '--', 'policy-engine/tools/lib']).decode().splitlines()
+          if p.endswith('.py')]
+identity = {}
+for path in paths:
+    raw = git(['show', sha + ':policy-engine/' + path])
+    q = src / path
+    q.parent.mkdir(parents=True, exist_ok=True)
+    if q.exists():
+        assert q.read_bytes() == raw
+    else:
+        q.write_bytes(raw)
+    identity[path] = hashlib.sha256(raw).hexdigest()
+
+sys.path.insert(0, str(src))
+from tools.quality.validation.schema_fqn_census import _git_status_paths, collect_census
+import tools.quality.validation.schema_fqn_census as module
+assert Path(module.__file__).is_relative_to(src)
+git(['init', '--quiet'], fixture)
+for path in ['a.py', 'b.py']:
+    (fixture / path).write_text('x = 1\n')
+git(['add', 'a.py', 'b.py'], fixture)
+commit = ['-c', 'user.name=G fixture', '-c', 'user.email=g-fixture@invalid',
+          '-c', 'commit.gpgsign=false', 'commit', '--quiet', '--no-verify', '-m']
+git([*commit, 'baseline fixture'], fixture)
+cases = []
+
+def check(name, expected):
+    started = time.monotonic()
+    actual, meta = _git_status_paths(fixture)
+    receipt, exitcode = collect_census(fixture)
+    result = {'name': name, 'expected_complete_changed_paths': expected,
+              'actual_status_paths': actual,
+              'actual_selected_working_tree_changes': receipt['selection']['working_tree_changes'],
+              'all_selected_count': receipt['selection']['selected_path_count'],
+              'actual_result': receipt['result'], 'actual_returncode': exitcode,
+              'actual_status_command_receipt': meta, 'property_holds': actual == expected,
+              'wall_seconds': time.monotonic() - started}
+    cases.append(result)
+    print(json.dumps(result))
+
+check('clean_positive', [])
+for path in ['a.py', 'b.py']:
+    (fixture / path).write_text('x = 2\n')
+check('two_unstaged_modifications', ['a.py', 'b.py'])
+git(['add', 'a.py', 'b.py'], fixture)
+check('two_staged_modifications', ['a.py', 'b.py'])
+git([*commit, 'record modified fixture'], fixture)
+git(['mv', 'a.py', 'c.py'], fixture)
+check('rename_positive', ['a.py', 'c.py'])
+assert cases[0]['property_holds'] and cases[3]['property_holds']
+assert not cases[1]['property_holds'] and not cases[2]['property_holds']
+assert all(hashlib.sha256((src / p).read_bytes()).hexdigest() == h for p, h in identity.items())
+origins = {n: str(m.__file__) for n, m in sys.modules.items()
+           if (n == 'tools' or n.startswith('tools.')) and getattr(m, '__file__', None)}
+assert all(Path(p).is_relative_to(src) for p in origins.values())
+result = {'candidate': sha, 'tree': git(['rev-parse', sha + '^{tree}']).decode().strip(),
+          'candidate_input_hashes': identity, 'module_origins': origins, 'python': sys.version,
+          'classification': 'NEW_CLASS: exact Git status denominator omits ordinary modified path',
+          'property_outcome': 'FAIL_REPRODUCED', 'fixture_commands': commands, 'cases': cases,
+          'limitation': 'Exact selected tools package/helpers only; static instrument path, no API or retirement authority; fixture history append-only, G refs untouched'}
+(receipt_root / 'receipt.json').write_text(json.dumps(result, indent=2) + '\n')
+print('receipt', receipt_root / 'receipt.json')

@@ -1,0 +1,8 @@
+{
+  "archive_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/checkpoint10-consumers-acdc",
+  "candidate_sha": "acdc3536f93f085d665a7b53460935525373d015",
+  "candidate_tree": "ff7cc9e6bb2cb0d826d977e7298020ee7af6e5cc",
+  "expected_tree": "ff7cc9e6bb2cb0d826d977e7298020ee7af6e5cc",
+  "mismatches": [],
+  "tracked_entries": 13777
+}

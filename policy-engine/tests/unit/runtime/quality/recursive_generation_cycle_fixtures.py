@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from importlib import import_module
 from pathlib import Path
 from typing import Any, cast
@@ -25,9 +26,14 @@ def _recursive_problem(node_ref: str) -> DesignProblem:
         ).read_text(encoding="utf-8")
     )["design_problem"]
     problem = DesignProblem.model_validate(payload)
+    design_problem_suffix = re.sub(
+        r"[^a-z0-9_]+",
+        "_",
+        node_ref.rsplit("/", 1)[-1].lower(),
+    ).strip("_")
     return problem.model_copy(
         update={
-            "design_problem_id": "recursive_" + node_ref.rsplit("/", 1)[-1],
+            "design_problem_id": f"recursive_{design_problem_suffix}",
             "objectives": [
                 problem.objectives[0].model_copy(update={"metric_id": "final_queue_length"})
             ],

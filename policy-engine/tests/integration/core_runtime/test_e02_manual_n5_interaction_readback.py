@@ -175,7 +175,9 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
     )
     if n5_refusal_case:
         profile_payload = profile.model_dump(mode="json", exclude={"content_hash"})
-        profile_payload["n5"]["horizon"] = {"start": 0, "end": 1, "step": 1}
+        profile_payload["n5"]["horizon"] = profile.n5.horizon.model_copy(
+            update={"end": 1}
+        ).model_dump(mode="json")
         profile = CandidateSimulationScenarioProfile.model_validate(
             {
                 **profile_payload,

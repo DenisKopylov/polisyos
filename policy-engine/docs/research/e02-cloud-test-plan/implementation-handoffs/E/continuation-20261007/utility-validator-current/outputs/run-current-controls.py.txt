@@ -1,0 +1,45 @@
+import ast,hashlib,json,os,subprocess,sys
+from pathlib import Path
+L=Path('/workspace/e02-E-frc-20261006');P=L/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary';O=Path('/tmp/e02-E-validator-format-current-r4');base='c29a58197a7a51f3605857e573de50a4f7a8da61';exe='/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python'
+env=os.environ.copy();env.update(PYTHONDONTWRITEBYTECODE='1',GIT_OPTIONAL_LOCKS='0');rows=[]
+def run(name,argv,expected=0):
+ r=subprocess.run(argv,cwd=L/'policy-engine',env=env,capture_output=True);(O/(name+'.stdout.txt')).write_bytes(r.stdout);(O/(name+'.stderr.txt')).write_bytes(r.stderr)
+ rows.append({'name':name,'argv':argv,'cwd':str(L/'policy-engine'),'exit_code':r.returncode,'expected_exit':expected})
+ if r.returncode!=expected:raise ValueError('actualCLIoutcome '+name)
+ if expected==0:
+  x=json.loads(r.stdout)
+  if x['validation']!='PASS' or len(x['controls'])!=14 or not all(c['refused'] for c in x['controls']):raise ValueError('actualhealthy14corruptioncontrols '+name)
+ return r
+for opt in (False,True):
+ command=[exe]+(['-O'] if opt else [])+[str(P/'validate.py')];mode='optimized' if opt else 'normal'
+ run('current-'+mode,command+['--publication-receipt',str(P/'implementation-handoff-format-current.json')])
+ failed=run('historical-default-'+mode,command,1)
+ if b'copy-index portable bytes mismatch' not in failed.stderr:raise ValueError('historicalsource mismatch refusal diagnostic')
+# Old exactGitprogram plus all220original literal inputs in an existing ignored fixture.
+F=L/'policy-engine/_build/e02-validator-format-legacy-c29-v2'
+if F.exists():raise ValueError('legacyfixture alreadyexists')
+frame=json.loads((O/'baseline-input-frame.json').read_bytes())
+ignored_cache=[];git_frames=[]
+for r in frame['frames']:
+ if '__pycache__' in Path(r['path']).parts:
+  ignored_cache.append(r);continue
+ git_frames.append(r)
+ rel=Path(r['path']).relative_to(P.relative_to(L));body=subprocess.check_output(['git','show',base+':'+r['path']],cwd=L,env=env)
+ if len(body)!=r['bytes'] or hashlib.sha256(body).hexdigest()!=r['sha256']:raise ValueError('exactoldGitframe')
+ f=F/rel;f.parent.mkdir(parents=True,exist_ok=True);f.write_bytes(body)
+for opt in (False,True):run('old-Git212-replay-'+('optimized' if opt else 'normal'),[exe]+(['-O'] if opt else [])+[str(F/'validate.py')])
+old=(F/'validate.py').read_bytes();new=(P/'validate.py').read_bytes()
+a={n.name:ast.dump(n,include_attributes=False) for n in ast.parse(old).body if isinstance(n,ast.FunctionDef)};b={n.name:ast.dump(n,include_attributes=False) for n in ast.parse(new).body if isinstance(n,ast.FunctionDef)}
+if set(a)!=set(b) or any(a[k]!=b[k] for k in a if k!='main'):raise ValueError('scientific/input/indexvalidation ASTbodychanged')
+# Every historical publication input stays literal except deliberatelyupdatedprogram.
+for r in frame['frames']:
+ if r['path']==str((P/'validate.py').relative_to(L)):continue
+ body=(L/r['path']).read_bytes()
+ if len(body)!=r['bytes'] or hashlib.sha256(body).hexdigest()!=r['sha256']:raise ValueError('historicalreceipt/index/output changed')
+md=json.loads((O/'environment-before.json').read_bytes());after=[]
+for r in md['metadata']:
+ body=Path(r['path']).read_bytes()
+ if len(body)!=r['bytes'] or hashlib.sha256(body).hexdigest()!=r['sha256']:raise ValueError('installedMETADATAchanged')
+ after.append({'path':r['path'],'bytes':len(body),'sha256':hashlib.sha256(body).hexdigest()})
+x={'schema':'policyos.e02.validator_format_current_controls.v1','sourcebase':base,'actualCLI':rows,'currentnormal_optimized_healthy14controls':True,'historicaldefaultnormal_optimized_refused':True,'actualoldGit212normal_optimized_replay14controls':True,'oldGitfixture':str(F),'oldGitfixture_files':len(git_frames),'oldGitfixture_bytes':sum(r['bytes'] for r in git_frames),'physical_baseline_files':frame['files'],'excluded_ignored_untracked_cache_frames':ignored_cache,'validation_function_AST_equal':True,'main_delta':'explicit optionalcurrentreceipt CLI selection only','historicalinputs_unchanged_exceptdeclaredprogram':True,'complete_metadata_count':len(after),'installedMETADATA_unchanged':True,'source_native_numeric_family_tests_executed':False,'ROOT_source_env_locks_written':False,'temporary_fixture_cleanup_candidate':str(F),'cleanup':'no nativeTrash available; preserve unique source/evidence; repeatingfixture only candidate listed'}
+(O/'current-controls.json').write_text(json.dumps(x,indent=2)+'\n');print(json.dumps(x,indent=2))

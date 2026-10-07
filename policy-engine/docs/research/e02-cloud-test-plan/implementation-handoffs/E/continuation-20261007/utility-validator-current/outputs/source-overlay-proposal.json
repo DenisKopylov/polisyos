@@ -1,0 +1,19 @@
+{
+  "scope": "scratch-only proposal, noownedsourceedit yet",
+  "old_SHA256": "21224439f7bc4d91e0fe0b5e447ea166e61bebf4d3f5ecbd29c1ca0dff5c5c0d",
+  "canonical_format_only_SHA256": "f16588650858c2714eb01d2f7cbed45e7126071cdf8cc0f161a0bb3233764830",
+  "current_proposal_SHA256": "d6586b6385b32b9779d9eb6486940b7f970d29135e4f4bf373c179393b9af01c",
+  "current_proposal_bytes": 8570,
+  "validate_and_validate_copy_index_AST_equal": true,
+  "main_behavior_delta": "only explicit optionalcurrentreceiptselection; legacydefaultremains",
+  "formatter_argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+    "format",
+    "--stdin-filename",
+    "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py",
+    "-"
+  ],
+  "formatter_exit": 0,
+  "old_receipt_index_unchanged": true,
+  "source_native_numeric_gate_execution": false
+}

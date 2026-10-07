@@ -1,0 +1,34 @@
+import hashlib,json,re
+from pathlib import Path
+O=Path('/tmp/e02-E-validator-format-current-r4');D=Path('/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current');S=Path('/tmp/e02-E-validator-format-independent-r4/publication-selection-2350.json')
+raw=S.read_bytes()
+if len(raw)!=14505 or hashlib.sha256(raw).hexdigest()!='8ffd7b4dcd5afe132087a6ecdcb405fcc525dd2cc0fa90775e56ec637e4329df':raise ValueError('fixed independent selection')
+s=json.loads(raw)
+if s['source']!='2350edfba4e71909fbc615fe3101793b1b13945a' or s['tree']!='fb4486cb39dc44b1ef09ea1e280df8b640b772ba' or s['base']!='c29a58197a7a51f3605857e573de50a4f7a8da61':raise ValueError('source identity')
+assets=s['assets'];admitted=[];paths=set();contents={};mapping={}
+for record in assets:
+ if not isinstance(record,dict) or type(record.get('bytes')) is not int or record['bytes']<0 or not isinstance(record.get('sha256'),str) or re.fullmatch('[0-9a-f]{64}',record['sha256']) is None:raise ValueError('typed complete asset')
+ portable=record.get('portable_path')
+ if not isinstance(portable,str) or Path(portable).is_absolute() or any(p in ('','.','..') for p in portable.split('/')) or portable.endswith('.py') or portable in paths:raise ValueError('portable complete member')
+ body=Path(record['path']).read_bytes()
+ if len(body)!=record['bytes'] or hashlib.sha256(body).hexdigest()!=record['sha256']:raise ValueError('independent original hash/size')
+ if not body and portable.endswith('.json'):raise ValueError('empty JSON role')
+ paths.add(portable);key=(record['bytes'],record['sha256']);contents.setdefault(key,body);admitted.append((record,body))
+if len(admitted)!=s['asset_count'] or sum(r['bytes'] for r,b in admitted)!=s['logical_bytes'] or len(contents)!=s['content_unique_count'] or sum(len(b) for b in contents.values())!=s['content_unique_bytes']:raise ValueError('complete independent member denominator')
+# No peer destination writes occurred until the complete chain, every member and aliases were admitted.
+index=json.loads((D/'copy-index.json').read_bytes());canonical={};logical=[]
+for record,body in admitted:
+ key=(record['bytes'],record['sha256']);target='independent-review/'+record['portable_path'];primary=canonical.setdefault(key,target);mapping[record['portable_path']]=primary
+ logical.append({'source_path':record['path'],'logical_portable_path':target,'stored_at':primary,'bytes':len(body),'sha256':record['sha256'],'original_role':record['role']})
+ if target!=primary:continue
+ f=D/target;f.parent.mkdir(parents=True,exist_ok=True);f.write_bytes(body);index['copies'].append({'source_path':record['path'],'portable_path':target,'bytes':len(body),'sha256':record['sha256'],'custody':'literal closed independent source2350 output; repeated selected content bound by independent-member-index'})
+for record in assets:
+ if 'content_alias_of' in record:
+  reference=record['content_alias_of']
+  if reference not in mapping or mapping[reference]!=mapping[record['portable_path']]:raise ValueError('declared alias custody')
+for source,portable in [(S,'independent-review/publication-selection-2350.json'),(O/'environment-selected-variables.json','outputs/environment-selected-variables.json'),(Path(__file__),'outputs/append-independent-source-review.py.txt')]:
+ body=source.read_bytes();target=D/portable;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(body);index['copies'].append({'source_path':str(source),'portable_path':portable,'bytes':len(body),'sha256':hashlib.sha256(body).hexdigest(),'custody':'literal original closed selector/current executor observation/copy recipe'})
+logical_bytes=(json.dumps({'schema':'policyos.e02.utility_independent_member_index.v1','logical_files':len(logical),'logical_bytes':sum(r['bytes'] for r in logical),'physical_carriers':len(canonical),'physical_bytes':s['content_unique_bytes'],'members':logical},indent=2)+'\n').encode();(D/'independent-member-index.json').write_bytes(logical_bytes)
+index['copied_files']=len(index['copies']);index['copied_bytes']=sum(r['bytes'] for r in index['copies']);ib=(json.dumps(index,indent=2)+'\n').encode();(D/'copy-index.json').write_bytes(ib)
+h=json.loads((D/'implementation-handoff.json').read_bytes());h['publication_copy_index']={'path':'copy-index.json','bytes':len(ib),'sha256':hashlib.sha256(ib).hexdigest()};h['publication_original_files']=index['copied_files'];h['publication_original_bytes']=index['copied_bytes'];h['independent_source_review']={'outcome':'GO','reviewer':'lint_r4 (not source author)','path':'independent-review/outputs/final-source-GO.json','bytes':2922,'sha256':'f41521d4b5efd65c1bf74720ec5411369d1b93f9dab497ea61a916cdea8827df','selection_path':'independent-review/publication-selection-2350.json','selection_bytes':14505,'selection_sha256':'8ffd7b4dcd5afe132087a6ecdcb405fcc525dd2cc0fa90775e56ec637e4329df','independent_malformed_source_controls_per_mode':21,'Git_callbacks_each':0,'source_current_CLI_controls_per_mode':14,'logical_members':34,'physical_carriers':20,'physical_bytes':252830,'scope':'bounded source/CLI/preflight/original Git replay/Ruff/format; no finding or globalgate acceptance'};h['independent_member_index']={'path':'independent-member-index.json','bytes':len(logical_bytes),'sha256':hashlib.sha256(logical_bytes).hexdigest()};h['predicate_basis']['independent_source_disposition']={'basis':'independently_reconciled','explanation':'Closed independent source2350 GO with actual21 malformed source controls per mode, original-reader compatibility and target canonical lint/format'};h['environment_input']['selected_variable_observation']='outputs/environment-selected-variables.json (post-execution executor observation; no added CPU/thread/process caps)';h['limitations'][0]='No scientific/backend/numerical/common wave or global gates rerun by this utility/source packet.';(D/'implementation-handoff.json').write_text(json.dumps(h,indent=2)+'\n')
+print(json.dumps({'copied_original_files':index['copied_files'],'copied_original_bytes':index['copied_bytes'],'independent_logical_members':len(logical),'independent_content_carriers':len(canonical),'independent_member_index_bytes':len(logical_bytes)}))

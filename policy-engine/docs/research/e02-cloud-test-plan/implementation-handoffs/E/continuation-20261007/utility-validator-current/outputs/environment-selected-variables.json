@@ -1,0 +1,20 @@
+{
+  "schema": "policyos.e02.utility_executor_selected_variables.v1",
+  "selected_variables": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "XLA_FLAGS": null,
+    "JAX_PLATFORM_NAME": null,
+    "JAX_ENABLE_X64": null,
+    "PYTHONDONTWRITEBYTECODE": null,
+    "GIT_OPTIONAL_LOCKS": null
+  },
+  "driver_command_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "GIT_OPTIONAL_LOCKS": "0"
+  },
+  "artificial_worker_process_cpu_caps_added": false,
+  "numeric_backend_checks_executed": false
+}

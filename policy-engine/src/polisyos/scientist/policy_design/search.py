@@ -238,6 +238,7 @@ class HierarchicalSearchCoordinator:
         candidate: PolicyCandidateSchema,
         *,
         structure_validator: Callable[[PolicyCandidateSchema], bool] | None = None,
+        initial_context: dict[str, Any] | None = None,
     ) -> list[StructureCandidate]:
         seeds: list[StructureCandidate] = []
         base_family = str(candidate.metadata.get("policy_family") or candidate.candidate_id)
@@ -273,7 +274,13 @@ class HierarchicalSearchCoordinator:
                 )
             )
 
-        seeds.extend(self._transfer_seed_candidates(candidate, base_family))
+        seeds.extend(
+            self._transfer_seed_candidates(
+                candidate,
+                base_family,
+                initial_context=initial_context,
+            )
+        )
         seeds.extend(self._rollout_mutation_seeds(candidate, base_family))
         if self._config.enable_hybrid_seeds:
             seeds.extend(self._hybrid_seed_candidates(candidate, base_family))
@@ -631,6 +638,7 @@ class HierarchicalSearchCoordinator:
         structures = self.generate_structure_candidates(
             candidate,
             structure_validator=structure_validator,
+            initial_context=initial_context,
         )
         state.structure_candidates = structures
         state.lessons_created.extend(self._record_rejection_lessons(structures, loop_id))
@@ -711,11 +719,15 @@ class HierarchicalSearchCoordinator:
         self,
         candidate: PolicyCandidateSchema,
         policy_family: str,
+        *,
+        initial_context: dict[str, Any] | None = None,
     ) -> list[StructureCandidate]:
         if self._pareto_registry is None:
             return []
         target_context = resolve_transfer_context(
-            candidate=candidate, run_id=candidate.candidate_id
+            candidate=candidate,
+            context=initial_context,
+            run_id=(candidate.candidate_id if initial_context is None else None),
         )
         bundle = self._pareto_registry.get_seed_bundle(
             target_context,

@@ -1,1 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="0" time="0.008" timestamp="2026-10-07T07:38:32.583806+00:00" hostname="b878f4efbdfc" /></testsuites>
+{
+  "schema": "e02.lossless_utf8/v1",
+  "original_name": "affected/native.xml",
+  "original_bytes": 238,
+  "original_sha256": "11af758ce4641e98ebda48b78cdc0c5b663ed648a2dd6f28236f1aebf21ed309",
+  "text": "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites name=\"pytest tests\"><testsuite name=\"pytest\" errors=\"0\" failures=\"0\" skipped=\"0\" tests=\"0\" time=\"0.008\" timestamp=\"2026-10-07T07:38:32.583806+00:00\" hostname=\"b878f4efbdfc\" /></testsuites>"
+}

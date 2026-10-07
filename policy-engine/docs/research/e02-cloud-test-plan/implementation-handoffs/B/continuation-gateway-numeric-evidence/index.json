@@ -107,9 +107,10 @@
       "original_sha256": "04d41f16460d83d53aade1c98295ae6c8ca78ff1d45c2d3a508b95d018686cf4",
       "original_bytes": 20647,
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.xml",
-      "sha256": "04d41f16460d83d53aade1c98295ae6c8ca78ff1d45c2d3a508b95d018686cf4",
-      "bytes": 20647,
-      "representation": "exact_bytes"
+      "sha256": "8e3dae12496d50ccbfca098b3ec1799eab79848f75a20b74e783ad34600d697f",
+      "bytes": 21202,
+      "representation": "lossless_utf8_wrapper",
+      "original_git_ref": "7447f461691c4fe081db7bf3d14ceb6ac5e3a044:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.xml"
     },
     {
       "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/before/wrapper.json",
@@ -143,9 +144,10 @@
       "original_sha256": "dc93eb3c9362550391b5c02b57299c8f742aaf0bd5b8330b47d60ad8fbc53834",
       "original_bytes": 5806,
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.xml",
-      "sha256": "dc93eb3c9362550391b5c02b57299c8f742aaf0bd5b8330b47d60ad8fbc53834",
-      "bytes": 5806,
-      "representation": "exact_bytes"
+      "sha256": "883fd7a27b2b5bcce8ebd0aeb0da83cbe090ae670572a1eeaa014b19aa0cd59e",
+      "bytes": 6219,
+      "representation": "lossless_utf8_wrapper",
+      "original_git_ref": "7447f461691c4fe081db7bf3d14ceb6ac5e3a044:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.xml"
     },
     {
       "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/candidate/wrapper.json",
@@ -179,9 +181,10 @@
       "original_sha256": "6018a037c1349a5600f4f3aebdbea1d5f3619b4c5a5e28d994690e3557cca00f",
       "original_bytes": 20647,
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.xml",
-      "sha256": "6018a037c1349a5600f4f3aebdbea1d5f3619b4c5a5e28d994690e3557cca00f",
-      "bytes": 20647,
-      "representation": "exact_bytes"
+      "sha256": "6db6dd1ee5807a9d104ffc05099478f34c2602e462d1bf3b33eb4e761bed3219",
+      "bytes": 21203,
+      "representation": "lossless_utf8_wrapper",
+      "original_git_ref": "7447f461691c4fe081db7bf3d14ceb6ac5e3a044:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.xml"
     },
     {
       "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/removal/wrapper.json",
@@ -215,9 +218,10 @@
       "original_sha256": "11af758ce4641e98ebda48b78cdc0c5b663ed648a2dd6f28236f1aebf21ed309",
       "original_bytes": 238,
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.xml",
-      "sha256": "11af758ce4641e98ebda48b78cdc0c5b663ed648a2dd6f28236f1aebf21ed309",
-      "bytes": 238,
-      "representation": "exact_bytes"
+      "sha256": "b0af7d4dc27a936b7d83975e6a075eb48aa20dc4c5a18602d86fd0fb038e4246",
+      "bytes": 469,
+      "representation": "lossless_utf8_wrapper",
+      "original_git_ref": "7447f461691c4fe081db7bf3d14ceb6ac5e3a044:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.xml"
     },
     {
       "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected/wrapper.json",
@@ -251,9 +255,10 @@
       "original_sha256": "4d9d7358108bbaddea4c5aa6590b67dfcaa884454b4fa0d81099eb721a0069de",
       "original_bytes": 111086,
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.xml",
-      "sha256": "4d9d7358108bbaddea4c5aa6590b67dfcaa884454b4fa0d81099eb721a0069de",
-      "bytes": 111086,
-      "representation": "exact_bytes"
+      "sha256": "9ba06e0fad696d951f05c58f15dee4dc6ac3482148baebc0861c93e0ee7eb5b1",
+      "bytes": 114799,
+      "representation": "lossless_utf8_wrapper",
+      "original_git_ref": "7447f461691c4fe081db7bf3d14ceb6ac5e3a044:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.xml"
     },
     {
       "source_path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current/raw/continuation-20261007/gateway-numeric/affected-qualified/wrapper.json",
@@ -281,6 +286,7 @@
     }
   ],
   "payload_count": 31,
-  "stored_payload_bytes": 3496983,
-  "source_custody_boundary": "Observed module census at end of pytest.main; no arbitrary live resource/child external readset claim"
+  "stored_payload_bytes": 3502451,
+  "source_custody_boundary": "Observed module census at end of pytest.main; no arbitrary live resource/child external readset claim",
+  "representation_note": "Native XML filenames are payload locators; representation=lossless_utf8_wrapper requires decoding JSON.text to recover exact native XML before XML parsing. Original raw and Git7447 bytes preserved. No output bytes normalized or discarded."
 }

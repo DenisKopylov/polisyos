@@ -1,0 +1,15 @@
+{
+  "schema": "e02.gateway_numeric.representation_forward/v1",
+  "original_evidence_sha": "7447f461691c4fe081db7bf3d14ceb6ac5e3a044",
+  "original_packaging_diff_check": "FAIL_native_JUnit_traceback_trailing_whitespace",
+  "original_runtime_source": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+  "change": "All five native XML payloads use existing losslessUTF8 wrapper at the same trackedpath; decode JSON.text before XML parser. No raw/test/source bytes changed and no path deleted.",
+  "native_outputs_changed": false,
+  "original_xml_sha256s": {
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/before/native.xml": "04d41f16460d83d53aade1c98295ae6c8ca78ff1d45c2d3a508b95d018686cf4",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/candidate/native.xml": "dc93eb3c9362550391b5c02b57299c8f742aaf0bd5b8330b47d60ad8fbc53834",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/removal/native.xml": "6018a037c1349a5600f4f3aebdbea1d5f3619b4c5a5e28d994690e3557cca00f",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected/native.xml": "11af758ce4641e98ebda48b78cdc0c5b663ed648a2dd6f28236f1aebf21ed309",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/affected-qualified/native.xml": "4d9d7358108bbaddea4c5aa6590b67dfcaa884454b4fa0d81099eb721a0069de"
+  }
+}

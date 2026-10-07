@@ -1664,6 +1664,7 @@ class GenerationCycleRecord(_StrictModel):
                 and self.value_port.candidate_id != selected
             )
             or self.counterexample.candidate_ref != selected
+            or self.voi_decision.candidate_id != selected
         ):
             raise ValueError("cycle_stage_candidate_mismatch")
         requirement = _cycle_acquisition_requirement(
@@ -9882,6 +9883,16 @@ def _validate_generation_cycle_run(
                 issues.append({"code": "blocked_generation_cycle_n9_admission_mismatch"})
 
     for index, cycle in enumerate(run.cycles):
+        if (
+            cycle.voi_decision.candidate_id != cycle.selected_candidate_ref
+            or cycle.voi_decision.terminal_kind != cycle.terminal_kind
+        ):
+            issues.append(
+                {
+                    "code": "voi_cycle_identity_mismatch",
+                    "cycle_index": index,
+                }
+            )
         if cycle.terminal_kind not in expected_denominator:
             issues.append(
                 {

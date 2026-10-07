@@ -69,6 +69,18 @@ def _snapshot(value: Any) -> Any:
     return value
 
 
+def _root_field_snapshot(state: ExperimentState) -> dict[str, Any]:
+    """Use the ordinary public getter and actual declared state field membership."""
+    name = "reports_index"
+    assert name in ExperimentState.model_fields
+    present = hasattr(state, name)
+    return {
+        "field": name,
+        "present": present,
+        "value": _snapshot(getattr(state, name)) if present else None,
+    }
+
+
 def _state(
     run_id: str, *, shared: bool = False, tag: str = "stable", validating: bool = False
 ) -> ExperimentState:
@@ -112,12 +124,16 @@ class _ModelNode:
         append: bool = False,
         copy_alias: bool = False,
         replace_validated_rows: bool = False,
+        delete_root_field: bool = False,
     ):
         self.field = field
         self.shared = shared
         self.append = append
         self.copy_alias = copy_alias
         self.replace_validated_rows = replace_validated_rows
+        self.delete_root_field = delete_root_field
+        self.trace_path: Path | None = None
+        self.root_before: dict[str, Any] | None = None
         self.copy_observation: dict[str, bool] | None = None
         self.calls = 0
         self.view: ExperimentState | None = None
@@ -140,7 +156,9 @@ class _ModelNode:
     def _produce(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         self.calls += 1
         self.view = state
+        self.trace_path = ctx.run.trace_path
         self.before = _snapshot(state.params)
+        self.root_before = _root_field_snapshot(state)
         holder = state.params["holder"]
         assert isinstance(holder, _Holder)
         assert isinstance(holder.leaf, _Leaf)
@@ -167,7 +185,9 @@ class _ModelNode:
             assert self.copy_observation["narrowed_shared_leaf"]
             self.view = state
             self.before = _snapshot(state.params)
-        if self.replace_validated_rows:
+        if self.delete_root_field:
+            del state.reports_index
+        elif self.replace_validated_rows:
             assert holder.model_config["validate_assignment"] is True
             holder.rows = [_Leaf(count=8, tag="assigned")]
             holder.rows.append(_Leaf(count=9, tag="appended"))
@@ -230,6 +250,16 @@ def _measure(tmp_path: Path, *, store, node, state, before, consumer, result) ->
         "producer_before": node.before,
         "producer_after": _snapshot(node.view.params) if node.view is not None else None,
         "producer_calls": node.calls,
+        "root_before": node.root_before,
+        "root_after": _root_field_snapshot(node.view) if node.view is not None else None,
+        "base_root": _root_field_snapshot(state),
+        "physical_cache_publications": [
+            json.loads(line)
+            for line in node.trace_path.read_text().splitlines()
+            if json.loads(line).get("event") == "NODE_CACHE_STORE"
+        ]
+        if node.trace_path is not None
+        else [],
         "producer_journal": node.journal_after,
         "shallow_copy_observation": node.copy_observation,
         "result_status": result.report.status,
@@ -471,3 +501,32 @@ def test_validating_model_stored_rows_preserve_all_subsequent_intents_on_reopen(
     assert _snapshot(applied.params) == expected_current
     assert _snapshot(current.params) == current_before
     assert node.calls == 1
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+def test_ordinary_root_field_deletion_refuses_before_real_publication(
+    tmp_path: Path, mode: str
+) -> None:
+    state = _state("R_required_root_delete")
+    before = _snapshot(state.params)
+    root_before = _root_field_snapshot(state)
+    assert root_before["present"]
+    node = _ModelNode(field="count", writes=[], shared=False, delete_root_field=True)
+    store, _run, consumer, result = _execute(tmp_path, mode=mode, node=node, state=state)
+    observed = _measure(
+        tmp_path,
+        store=store,
+        node=node,
+        state=state,
+        before=before,
+        consumer=consumer,
+        result=result,
+    )
+    assert observed["producer_calls"] == 1
+    assert observed["root_before"] == observed["root_after"] == observed["base_root"] == root_before
+    assert observed["base_after"] == before
+    assert observed["producer_after"] == observed["producer_before"]
+    assert observed["result_status"] == "fail"
+    assert observed["producer_journal"] == []
+    assert observed["physical_effects"] == observed["physical_completion_callbacks"] == []
+    assert observed["physical_cache_publications"] == []

@@ -9,6 +9,10 @@ consumer. Candidate-only values remain limited and cannot carry N9 authority.
 Set ``POLISYOS_E02_CANDIDATE_LIMITER_REMOVAL=1`` for the paired removal probe:
 it uses this same POST/N5/CAS/fresh-GET witness and strips only the N5 limiter
 from the real typed simulation observation before persisted replay.
+Set ``POLISYOS_E02_N5_REFUSAL_BRANCH_REMOVAL=1`` to remove the no-run status
+branch only from an in-memory copy of the fresh replay consumer. It preserves
+the input, receipt, owner refs, diagnostics, and persisted artifact; the
+ordinary reason/ref assertions must fail when that branch is removed.
 """
 
 from __future__ import annotations
@@ -17,6 +21,7 @@ import asyncio
 import os
 from collections.abc import Iterator
 from contextlib import contextmanager
+from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
@@ -58,6 +63,13 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
         raise ValueError(
             "POLISYOS_E02_CANDIDATE_LIMITER_REMOVAL must be unset or '1'"
         )
+    refusal_branch_removal_probe = os.environ.get(
+        "POLISYOS_E02_N5_REFUSAL_BRANCH_REMOVAL"
+    )
+    if refusal_branch_removal_probe not in {None, "1"}:
+        raise ValueError(
+            "POLISYOS_E02_N5_REFUSAL_BRANCH_REMOVAL must be unset or '1'"
+        )
 
     pytest.importorskip("fastapi.testclient")
     from fastapi.testclient import TestClient
@@ -83,6 +95,9 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
         CandidateSimulationSyntheticModelDeclarationV1,
         candidate_simulation_profile_ref,
     )
+    from polisyos.runtime.quality.conditional_simulation_replay import (
+        replay_conditional_simulation_values,
+    )
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContextArtifactOwner,
         VerifiedNLJobScope,
@@ -103,15 +118,23 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
     from polisyos.runtime.quality.generation_cycle import (
         GENERATION_CYCLE_SCHEMA_VERSION,
         GenerationCycleController,
+        GenerationCycleError,
         JointSimulationPort,
         SimulationPortObservation,
         ValuePortObservation,
         _DefaultSimulationBoundFoundryValuePort,
+        _load_joint_simulation_refusal_result,
         load_joint_simulation_result,
+        persist_joint_simulation_result,
         validate_generation_cycle_run_history,
     )
     from polisyos.runtime.quality.joint_simulation_horizon import (
+        EnginePlan,
+        JointSimulationHorizonController,
+        JointSimulationRequest,
         JointSimulationResult,
+        _simulation_value_packet,
+        build_content_bound_simulation_receipt,
         verify_simulation_receipt,
     )
     from polisyos.runtime.quality.recursive_generation_cycle import (
@@ -208,10 +231,19 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
         candidate_simulation_model_declarations=(model_declaration,),
     )
     n5_calls: list[str] = []
+    n5_requests: list[JointSimulationRequest] = []
     n8_calls: list[ValuePortObservation] = []
     limiter_removal_applied: list[str] = []
     original_n5 = JointSimulationPort.__call__
+    original_candidate_request_builder = JointSimulationPort._build_candidate_simulation_request
     original_n8 = _DefaultSimulationBoundFoundryValuePort.__call__
+
+    def capture_candidate_request(
+        port: JointSimulationPort, *args: Any, **kwargs: Any
+    ) -> JointSimulationRequest:
+        request = original_candidate_request_builder(port, *args, **kwargs)
+        n5_requests.append(request)
+        return request
 
     def observe_n5(
         port: object, *args: Any, **kwargs: Any
@@ -248,6 +280,11 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
         return observation
 
     monkeypatch.setattr(JointSimulationPort, "__call__", observe_n5)
+    monkeypatch.setattr(
+        JointSimulationPort,
+        "_build_candidate_simulation_request",
+        capture_candidate_request,
+    )
     monkeypatch.setattr(_DefaultSimulationBoundFoundryValuePort, "__call__", observe_n8)
 
     with owner_scoped_test_client(first_app) as client:
@@ -534,6 +571,10 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
                     assert refusal.engine_kind == "ncm_parallel_worlds"
                     assert refusal.decision == "unsupported"
                     assert refusal.reason == "static_engine_cannot_ground_dynamic_horizon"
+                    assert n5_requests
+                    assert result.promotion_ready_value_packet == _simulation_value_packet(
+                        n5_requests[0], result.engine_decisions
+                    )
                     assert cycle.simulation.authority_blockers
                     assert cycle.value_port.value_ref is None
                     assert not cycle.value_port.conditional_interaction_evidence
@@ -703,6 +744,70 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
     # stable job identity and is carried in the Core manifest's control_job_id.
     run_path = f"/api/v1/runs/{core_run_id}"
     with owner_scoped_test_client(fresh_app) as fresh_client:
+        if n5_refusal_case and refusal_branch_removal_probe == "1":
+            import ast
+            import inspect
+            import textwrap
+
+            from polisyos.runtime.quality import (
+                conditional_simulation_replay as replay_module,
+            )
+
+            source = textwrap.dedent(inspect.getsource(replay_module._replay_cycle))
+            tree = ast.parse(source)
+
+            class RemoveNoRunConsumerBranch(ast.NodeTransformer):
+                """Replace only the exact no-run branch predicate with false."""
+
+                removed_count = 0
+
+                def visit_If(self, node: ast.If) -> ast.If:
+                    test = node.test
+                    if (
+                        isinstance(test, ast.Compare)
+                        and isinstance(test.left, ast.Attribute)
+                        and isinstance(test.left.value, ast.Name)
+                        and test.left.value.id == "simulation"
+                        and test.left.attr == "status"
+                        and len(test.ops) == 1
+                        and isinstance(test.ops[0], ast.Eq)
+                        and len(test.comparators) == 1
+                        and isinstance(test.comparators[0], ast.Constant)
+                        and test.comparators[0].value == "simulation_blocked"
+                    ):
+                        self.removed_count += 1
+                        node.test = ast.Constant(value=False)
+                    return self.generic_visit(node)
+
+            branch_removal = RemoveNoRunConsumerBranch()
+            transformed_tree = branch_removal.visit(tree)
+            assert branch_removal.removed_count == 1
+            assert isinstance(transformed_tree, ast.Module)
+            transformed_tree.body.insert(
+                0,
+                ast.ImportFrom(
+                    module="__future__",
+                    names=[ast.alias(name="annotations")],
+                    level=0,
+                ),
+            )
+            ast.fix_missing_locations(transformed_tree)
+            original_replay_cycle = replay_module._replay_cycle
+            namespace = original_replay_cycle.__globals__.copy()
+            exec(  # noqa: S102 - the test compiles one exact AST predicate mutation
+                compile(
+                    transformed_tree,
+                    inspect.getsourcefile(original_replay_cycle) or "<R1 replay probe>",
+                    "exec",
+                ),
+                namespace,
+            )
+            monkeypatch.setattr(
+                replay_module,
+                "_replay_cycle",
+                namespace[original_replay_cycle.__name__],
+            )
+
         response = fresh_client.get(run_path)
         assert response.status_code == 200, response.text
         run = response.json()["run"]
@@ -728,46 +833,45 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
             assert observation["evaluation_mode"] == "simulate_only"
             assert observation["authority_purpose"] == "conditional_simulation_only"
             assert observation.get("conditional_interaction_evidence") is None
-            assert "conditional_simulation_replay_refused" in observation[
-                "authority_blockers"
-            ], observation
-            assert row.get("n5_result_ref") is None
+            assert observation["reason"] == "static_engine_cannot_ground_dynamic_horizon"
+            required_refusal_blockers = {
+                "simulation_only_k_sim_not_world_evidence",
+                "candidate_scenario_n5_only",
+                "n5_execution_not_performed",
+                "static_engine_cannot_ground_dynamic_horizon",
+            }
+            assert required_refusal_blockers.issubset(
+                set(observation["authority_blockers"])
+            ), observation
+            assert ArtifactRef.model_validate(row["n5_result_ref"]).artifact_id == (
+                n5_result_ref.artifact_id
+            )
+            assert row["profile_config_ref"] == input_record.profile_config_ref
+            assert row["world_model_record_id"] == str(world_model_record_id)
+            assert row["world_model_record_content_hash"] == (
+                input_record.materialization.world_model_record_hash
+            )
 
-            # The public RunDetails projection refuses a conditional value, while
-            # its Core-owned compiled output retains the exact N5 refusal. Read it
-            # through the ordinary artifact-content surface before checking CAS.
+            # A Core-owned compiled output remains available through the
+            # tenant-scoped CAS reader, while the ordinary public artifact
+            # surface blocks it without an authority-surface signal.
             artifact_response = fresh_client.get(
                 f"/api/v1/artifacts/{compiled_ref.artifact_id}/content",
                 params={"max_bytes": 2_000_000},
                 headers={"Accept": "application/json"},
             )
-            assert artifact_response.status_code == 200, artifact_response.text
-            public_content = artifact_response.json()["artifact"]
-            assert public_content["artifact_id"] == str(compiled_ref.artifact_id)
-            assert public_content["mode"] == "json"
-            assert public_content["truncated"] is False
-            public_payload = public_content["preview"]
-            assert isinstance(public_payload, dict)
-            public_compiled = CompiledRecursiveGenerationCycleRun.model_validate(
-                public_payload
-            )
-            public_run = public_compiled.recursive_run
-            assert type(public_run) is RecursiveGenerationCycleRun
-            public_leaf = next(
-                node for node in public_run.leaf_nodes if node.node_ref == node_ref
-            )
-            assert public_leaf.cycle_run is not None
-            public_cycle = public_leaf.cycle_run.cycles[0]
-            assert public_cycle.simulation.status == "simulation_blocked"
-            assert public_cycle.value_port.status == "value_blocked"
-            assert public_cycle.simulation.simulation_result_ref == n5_result_ref
-            assert public_cycle.simulation.diagnostics["engine_decisions"][0][
-                "reason"
-            ] == (
-                "static_engine_cannot_ground_dynamic_horizon"
-            )
+            assert artifact_response.status_code == 409, artifact_response.text
+            artifact_refusal = artifact_response.json()
+            assert artifact_refusal["code"] == "authority_surface_admission_blocked"
+            decision = artifact_refusal["authority_surface_decision"]
+            assert decision["surface"] == "artifact"
+            assert decision["reason"] == "authority_surface_signal_missing"
+            assert decision["blocking"] is True
+            assert decision["visible_downgrade"] is True
 
-            # The same fresh app's store agrees with the API-visible artifact.
+            # Read both owned artifacts under the exact tenant scope. The
+            # compiled history retains its grounding gap and the exact
+            # receipt-bound N5 refusal even though the artifact route is gated.
             with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
                 persisted_compiled_payload = canon.from_canonical_bytes(
                     fresh_context.store.get_bytes(compiled_ref)
@@ -775,7 +879,21 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
                 persisted_result_payload = canon.from_canonical_bytes(
                     fresh_context.store.get_bytes(n5_result_ref)
                 )
-            assert persisted_compiled_payload == public_payload
+            assert isinstance(persisted_compiled_payload, dict)
+            persisted_compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+                persisted_compiled_payload
+            )
+            persisted_run = persisted_compiled.recursive_run
+            assert type(persisted_run) is RecursiveGenerationCycleRun
+            persisted_leaf = next(
+                node for node in persisted_run.leaf_nodes if node.node_ref == node_ref
+            )
+            assert persisted_leaf.cycle_run is not None
+            persisted_cycle = persisted_leaf.cycle_run.cycles[0]
+            assert persisted_cycle.simulation.status == "simulation_blocked"
+            assert persisted_cycle.value_port.status == "value_blocked"
+            assert persisted_cycle.simulation.simulation_result_ref == n5_result_ref
+            assert persisted_cycle.grounding.issue_codes == ("cgf_disposition_missing",)
             assert isinstance(persisted_result_payload, dict)
             persisted_result = JointSimulationResult.model_validate(
                 persisted_result_payload
@@ -806,6 +924,195 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
             assert refusal.engine_kind == "ncm_parallel_worlds"
             assert refusal.decision == "unsupported"
             assert refusal.reason == "static_engine_cannot_ground_dynamic_horizon"
+
+            # Exercise the actual replay row as well as its public projection:
+            # a no-run has a verified N5 result but no execution or selected
+            # engine identity. This remains a candidate-limited refusal.
+            fresh_service = fresh_app.state._control_service
+            fresh_admission_owner = (
+                fresh_service._cycle_substrate_context_admission_owner
+            )
+            assert fresh_admission_owner is not None
+            with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
+                replay_rows = replay_conditional_simulation_values(
+                    persisted_run,
+                    store=fresh_context.store,
+                    context_owner=CycleSubstrateContextArtifactOwner(
+                        store=fresh_context.store
+                    ),
+                    admission_owner=fresh_admission_owner,
+                    expected_job_id=completed.job_id,
+                    expected_run_id=str(completed.run_id),
+                    expected_tenant_id=TENANT_ID,
+                    expected_cell_id=CELL_ID,
+                )
+            assert len(replay_rows) == 1
+            replay_row = replay_rows[0]
+            assert replay_row.n5_result_ref is not None
+            assert replay_row.n5_result_ref.artifact_id == n5_result_ref.artifact_id
+            assert replay_row.n5_receipt_payload_hash == persisted_result.receipt.payload_hash
+            assert replay_row.n5_execution_ref is None
+            assert replay_row.trajectory_count == 0
+            assert replay_row.selected_engine_kind is None
+            assert replay_row.selected_method_fqn is None
+            assert replay_row.selected_objective_ref is None
+            assert replay_row.observation.status == "value_blocked"
+            assert replay_row.observation.reason == (
+                "static_engine_cannot_ground_dynamic_horizon"
+            )
+            assert required_refusal_blockers.issubset(
+                set(replay_row.observation.authority_blockers)
+            )
+
+            owner_n5_request = n5_requests[0]
+
+            def reject_receipt_valid_mutation(
+                mutate: Any,
+                *,
+                expected_code: str,
+                expected_message: str | None = None,
+            ) -> None:
+                payload = deepcopy(persisted_result_payload)
+                payload.pop("receipt")
+                mutate(payload)
+                signed_receipt = build_content_bound_simulation_receipt(
+                    engine_kind=persisted_result.receipt.engine_kind,
+                    payload=payload,
+                    diagnostics=payload["diagnostics"],
+                )
+                signed_result = JointSimulationResult.model_validate(
+                    {
+                        **payload,
+                        "receipt": signed_receipt.model_dump(mode="json"),
+                    }
+                )
+                signed_result._content_payload = payload
+                with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
+                    mutated_ref = persist_joint_simulation_result(
+                        signed_result,
+                        store=fresh_context.store,
+                    )
+                    with pytest.raises(GenerationCycleError) as refusal_error:
+                        _load_joint_simulation_refusal_result(
+                            mutated_ref,
+                            store=fresh_context.store,
+                            request=owner_n5_request,
+                            expected_receipt_payload_hash=signed_receipt.payload_hash,
+                        )
+                assert refusal_error.value.code == expected_code
+                if expected_message is not None:
+                    assert expected_message in str(refusal_error.value)
+
+            def add_fake_selected_decision(payload: dict[str, Any]) -> None:
+                payload["engine_decisions"][0]["decision"] = "selected"
+
+            reject_receipt_valid_mutation(
+                add_fake_selected_decision,
+                expected_code="joint_simulation_result_integrity_invalid",
+                expected_message="refusal_request_or_result_mismatch",
+            )
+
+            def change_wmr_occurrence(payload: dict[str, Any]) -> None:
+                payload["world_model_record_ref"] = "world-model-record://foreign-occurrence"
+
+            reject_receipt_valid_mutation(
+                change_wmr_occurrence,
+                expected_code="joint_simulation_result_wmr_mismatch",
+            )
+
+            def change_horizon(payload: dict[str, Any]) -> None:
+                payload["horizon"]["end"] += 1
+
+            reject_receipt_valid_mutation(
+                change_horizon,
+                expected_code="joint_simulation_result_integrity_invalid",
+                expected_message="refusal_request_or_result_mismatch",
+            )
+
+            def add_numeric_packet_header(payload: dict[str, Any]) -> None:
+                payload["promotion_ready_value_packet"]["value"] = {
+                    "amount": 0.0,
+                    "unit": "USD",
+                }
+
+            reject_receipt_valid_mutation(
+                add_numeric_packet_header,
+                expected_code="joint_simulation_result_integrity_invalid",
+                expected_message="refusal_request_or_result_mismatch",
+            )
+
+            # A separate generic-reader positive uses the genuine owner request
+            # with two distinct ineligible engine plans. Neither engine runs;
+            # the controller's receipt identifies the first refused decision,
+            # and the shared CAS reader must preserve that exact binding.
+            assert tuple(plan.engine_kind for plan in owner_n5_request.engine_plan) == (
+                "ncm_parallel_worlds",
+            )
+            missing_program_graph_spec = EnginePlan(
+                engine_kind="program_graph",
+                objective_ref=f"objective://{owner_n5_request.selected_outcomes[0]}",
+                eligibility_conditions=("acyclic", "state_transition"),
+            )
+            two_engine_request = owner_n5_request.model_copy(
+                update={
+                    "engine_plan": (
+                        *owner_n5_request.engine_plan,
+                        missing_program_graph_spec,
+                    )
+                }
+            )
+            refusal_controller = JointSimulationHorizonController()
+            two_engine_applicability = refusal_controller.assess_applicability(
+                two_engine_request
+            )
+            assert two_engine_applicability.status == "ineligible"
+            assert tuple(
+                decision.engine_kind
+                for decision in two_engine_applicability.engine_decisions
+            ) == ("ncm_parallel_worlds", "program_graph")
+            assert all(
+                decision.decision != "selected"
+                for decision in two_engine_applicability.engine_decisions
+            )
+            assert "program_graph_runtime_binding_missing" in (
+                two_engine_applicability.engine_decisions[1].blockers
+            )
+
+            two_engine_result = refusal_controller.run(two_engine_request)
+            assert two_engine_result.engine_decisions == (
+                two_engine_applicability.engine_decisions
+            )
+            assert two_engine_result.receipt.trajectory_count == 0
+            assert two_engine_result.trajectories == ()
+            assert two_engine_result.diagnostics["engine_run_claimed"] is False
+            assert two_engine_result.receipt.engine_kind == (
+                two_engine_result.engine_decisions[0].engine_kind
+            )
+            assert two_engine_result.receipt.engine_kind != (
+                two_engine_result.engine_decisions[-1].engine_kind
+            )
+            assert two_engine_result.promotion_ready_value_packet == (
+                _simulation_value_packet(
+                    two_engine_request,
+                    two_engine_applicability.engine_decisions,
+                )
+            )
+            with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
+                two_engine_ref = persist_joint_simulation_result(
+                    two_engine_result,
+                    store=fresh_context.store,
+                )
+                two_engine_readback = _load_joint_simulation_refusal_result(
+                    two_engine_ref,
+                    store=fresh_context.store,
+                    request=two_engine_request,
+                    expected_receipt_payload_hash=(
+                        two_engine_result.receipt.payload_hash
+                    ),
+                )
+            assert two_engine_readback.model_dump(mode="json") == (
+                two_engine_result.model_dump(mode="json")
+            )
             expected_n8_calls = 0
         elif limiter_removal_probe == "1":
             assert observation["status"] == "value_blocked", observation

@@ -1,0 +1,12 @@
+{
+  "candidate_sha": "c0084cd530c1dbe01eedfb9b5c24f055954a97be",
+  "candidate_tree": "9bbaa69dc195dd38adb04c9d52fc4cd700824bc7",
+  "scientific_tests_target_sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+  "source_runtime_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "documentary_delta_only": true,
+  "changed_paths": [
+    "policy-engine/docs/reference/foundry/economic-baseline-profile.md"
+  ],
+  "same_runtime_tests_fragment": true,
+  "no_new_numerical_invocation_claim": true
+}

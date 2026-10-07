@@ -1,0 +1,855 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "n6-terminal-projection-history",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CYC-05"
+  ],
+  "slice_base_sha": "93a6c61d28a87bc7a05f8e9bb9edbc73e30cc75c",
+  "implementation_commits": [
+    "0539d6ac1f01614ddb8cbeb7334679bee54231be",
+    "f029201ee6162065757486b21058ee85badd057f"
+  ],
+  "candidate_tree_sha": "7d3b1795b7760d6b30ddc37f34426452f63b6415",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_terminal_status_readback.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "check_id": "initial-history-harness-attempt-0bf76",
+      "name": "Initial four-case attempt before correcting the test assumption about v3 versus source-limited v4",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n6-terminal-projection-history-frozen-red/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n6-terminal-projection-history-frozen-red/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_terminal_status_readback.py"
+      ],
+      "target_sha": "0bf76b82a17bc897af765d4682f50f53a02909d5",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n6-terminal-projection-history-frozen-red:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "input_closure": {
+        "candidate_sha": "0bf76b82a17bc897af765d4682f50f53a02909d5",
+        "candidate_tree_sha": "ac8bb0c0b397a6cc29034f67306494408ad748d4",
+        "test_blob": "d10bca3437a673d8ddb3281afe754ee6e0763b36",
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-terminal-projection-history-frozen-red/receipt.json",
+          "bytes": 3331,
+          "sha256": "d27523bd5ad543aa6ff3cdd9736b1c7f0cdb279b5a20277e5840543e05223e74"
+        }
+      },
+      "outcome": "FAIL",
+      "output": {
+        "record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/n6-terminal-projection-checks.json",
+        "check_id": "initial-history-harness-attempt-0bf76",
+        "outcome_detail": {
+          "junit_summary": {
+            "tests": 4,
+            "passed": 1,
+            "failures": 3,
+            "errors": 0,
+            "skipped": 0
+          },
+          "interpretation": "The three parameterized producer cases reached their expected terminal/refinement/iteration assertions, then failed at a test assumption that every run uses the default v3 schema; actual source-limited runs emitted v4. The separate partial-admissible control passed. This is a test-harness mismatch, not evidence about the history-projection defect.",
+          "artifacts": {
+            "e02_origin.py": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-terminal-projection-history-frozen-red/e02_origin.py",
+              "bytes": 656,
+              "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+            },
+            "junit.xml": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-terminal-projection-history-frozen-red/junit.xml",
+              "bytes": 7984,
+              "sha256": "34e3335ebb8bc2ada672bd0163a1d66106f9a9cc98444a47b65f1f9905c213aa"
+            },
+            "origins.json": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-terminal-projection-history-frozen-red/origins.json",
+              "bytes": 1095,
+              "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+            },
+            "receipt.json": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-terminal-projection-history-frozen-red/receipt.json",
+              "bytes": 3331,
+              "sha256": "d27523bd5ad543aa6ff3cdd9736b1c7f0cdb279b5a20277e5840543e05223e74"
+            },
+            "stderr.txt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-terminal-projection-history-frozen-red/stderr.txt",
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout.txt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-terminal-projection-history-frozen-red/stdout.txt",
+              "bytes": 7100,
+              "sha256": "133783d9f688e028681c3899074cda602f17d221208fe085cdd4d921f50f41b9"
+            }
+          },
+          "runner_identity_note": "Six copied files include receipt, stdout, empty stderr, JUnit, origins.json full runtime identity and e02_origin.py origin hook."
+        }
+      }
+    },
+    {
+      "check_id": "meaningful-history-projection-red-93a6",
+      "name": "Corrected four-case run that reached the history-reader property-removal witness",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n6-terminal-projection-drift-real-producer-red/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n6-terminal-projection-drift-real-producer-red/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_terminal_status_readback.py"
+      ],
+      "target_sha": "93a6c61d28a87bc7a05f8e9bb9edbc73e30cc75c",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n6-terminal-projection-drift-real-producer-red:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "input_closure": {
+        "candidate_sha": "93a6c61d28a87bc7a05f8e9bb9edbc73e30cc75c",
+        "candidate_tree_sha": "13b86bfafb3f409affe2f36f344ffa0784975d68",
+        "source_blob": "34b805f16e40f8138696533630e8e7ceb1b1b1e1",
+        "test_blob": "7979e595530cb6e33a2838ded74fdae8a0fdda69",
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-terminal-projection-drift-real-producer-red/receipt.json",
+          "bytes": 4192,
+          "sha256": "abb33b7c6999a227d6cab58635866ddb09e20f1a30e6ec1019cdacb115cd6674"
+        }
+      },
+      "outcome": "FAIL",
+      "output": {
+        "record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/n6-terminal-projection-checks.json",
+        "check_id": "meaningful-history-projection-red-93a6",
+        "outcome_detail": {
+          "junit_summary": {
+            "tests": 4,
+            "passed": 1,
+            "failures": 3,
+            "errors": 0,
+            "skipped": 0
+          },
+          "interpretation": "For each of frontier_stable, budget_exhausted, and grounded_abstention, actual N6 producer output and positive JSON history round-trip assertions ran first. The first negative mutation changed only search_iteration.status; validate_generation_cycle_run_history returned an empty issue tuple instead of generation_cycle_terminal_projection_mismatch. The test then stopped at that first failed negative, so later refinement-decision and VOI-terminal mutations in those parameter cases were not reached. The workspace partial-admissible stop control passed. This is a genuine pre-fix source red, distinct from the earlier schema-assumption failure.",
+          "artifacts": {
+            "e02_origin.py": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-terminal-projection-drift-real-producer-red/e02_origin.py",
+              "bytes": 656,
+              "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+            },
+            "junit.xml": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-terminal-projection-drift-real-producer-red/junit.xml",
+              "bytes": 19273,
+              "sha256": "0296ea65640c3363d173a4e72dbd16dc21b4d692c5fd29fc77c5fc395bd59b32"
+            },
+            "origins.json": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-terminal-projection-drift-real-producer-red/origins.json",
+              "bytes": 1095,
+              "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+            },
+            "receipt.json": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-terminal-projection-drift-real-producer-red/receipt.json",
+              "bytes": 4192,
+              "sha256": "abb33b7c6999a227d6cab58635866ddb09e20f1a30e6ec1019cdacb115cd6674"
+            },
+            "stderr.txt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-terminal-projection-drift-real-producer-red/stderr.txt",
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout.txt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-terminal-projection-drift-real-producer-red/stdout.txt",
+              "bytes": 18035,
+              "sha256": "b6d6160605e66c25eb61f2e94144af02f769ee4b8258b80d9bcea3218de62d47"
+            }
+          },
+          "property_removal_witness": "The status field and terminal markers remain present while only the status projection changes; the pre-fix history validator still returns no issue.",
+          "runner_identity_note": "Six copied files include receipt, stdout, empty stderr, JUnit, origins.json full runtime identity and e02_origin.py origin hook."
+        }
+      }
+    },
+    {
+      "check_id": "post-fix-terminal-history-wave",
+      "name": "Superseded standalone four-case history/readback plan",
+      "command": "UNRUN as a standalone four-case process; its bounded history cases are included in the later nine-case execution at f029201ee6162065757486b21058ee85badd057f.",
+      "target_sha": "0539d6ac1f01614ddb8cbeb7334679bee54231be",
+      "environment": {
+        "state": "UNRUN",
+        "reason": "No separate four-case-only process was launched; the relevant five B29 history cases were later run inside the complete nine-case selection."
+      },
+      "input_closure": {
+        "candidate_sha": "0539d6ac1f01614ddb8cbeb7334679bee54231be",
+        "candidate_tree_sha": "7bcc4d065c7f6615540bfaf204529b60bdb01b4b",
+        "source_blob": "18f6cbc8cf3fe2e44ba6d0ed944bf6420d970d0d",
+        "test_blob": "7979e595530cb6e33a2838ded74fdae8a0fdda69",
+        "selector": "policy-engine/tests/integration/core_runtime/test_e02_terminal_status_readback.py",
+        "prior_red_candidate": "93a6c61d28a87bc7a05f8e9bb9edbc73e30cc75c"
+      },
+      "outcome": "UNRUN",
+      "output": {
+        "record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/n6-terminal-projection-checks.json",
+        "check_id": "post-fix-terminal-history-wave",
+        "outcome_detail": {
+          "state": "UNRUN_STANDALONE",
+          "superseded_by_check_id": "post-fix-nine-case-terminal-history-wave-f029",
+          "scope_note": "The final run includes the earlier three terminal cases and partial-admissible control, plus the final-block override and four compatibility controls."
+        }
+      }
+    },
+    {
+      "check_id": "superseded-standalone-five-case-terminal-history-plan",
+      "name": "Superseded standalone five-case history/readback plan",
+      "command": "UNRUN as a standalone five-case process; the five focused B29 cases are included in the later nine-case execution at f029201ee6162065757486b21058ee85badd057f.",
+      "target_sha": "f029201ee6162065757486b21058ee85badd057f",
+      "environment": {
+        "state": "UNRUN",
+        "reason": "No isolated five-case-only process was launched; all five focused B29 cases were included in the completed nine-case selection at this committed candidate."
+      },
+      "input_closure": {
+        "source_candidate_sha": "0539d6ac1f01614ddb8cbeb7334679bee54231be",
+        "source_candidate_tree_sha": "7bcc4d065c7f6615540bfaf204529b60bdb01b4b",
+        "source_blob": "18f6cbc8cf3fe2e44ba6d0ed944bf6420d970d0d",
+        "test_path": "policy-engine/tests/integration/core_runtime/test_e02_terminal_status_readback.py",
+        "test_commit": "f029201ee6162065757486b21058ee85badd057f",
+        "test_blob": "e04d9c55d5f5a249c89dab4a8f88c408bdeb2e86",
+        "test_candidate_sha": "f029201ee6162065757486b21058ee85badd057f",
+        "test_candidate_tree_sha": "7d3b1795b7760d6b30ddc37f34426452f63b6415",
+        "test_commit_state": "committed; standalone five-case command not run separately"
+      },
+      "outcome": "UNRUN",
+      "output": {
+        "record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/n6-terminal-projection-checks.json",
+        "check_id": "superseded-standalone-five-case-terminal-history-plan",
+        "outcome_detail": {
+          "state": "UNRUN_STANDALONE",
+          "superseded_by_check_id": "post-fix-nine-case-terminal-history-wave-f029",
+          "target_cases": [
+            "three source-produced terminal cases: frontier-stable, budget-exhausted, actual-abstention",
+            "repeated-candidate final-block override fixture",
+            "workspace partial-admissible stop-not-abstention control"
+          ],
+          "fixture_boundary": "The final-block test clones only the prior candidate atom content_hash to induce fake_cycle_same_candidate_repeated; it does not assert full candidate-byte identity."
+        }
+      }
+    },
+    {
+      "check_id": "post-fix-nine-case-terminal-history-wave-f029",
+      "name": "Frozen nine-case history/readback and compatibility wave on committed test candidate",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n6-stop-history-frozen-f029/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n6-stop-history-frozen-f029/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_terminal_status_readback.py",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_blocked_terminal_semantics_remain_enforced_in_history",
+        "tests/unit/runtime/quality/test_e02_interaction_history_epoch.py::test_actual_default_n5_n8_interaction_history_is_versioned_and_replayable",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_nonblocked_scheduler_stop_still_reaches_n9_owner"
+      ],
+      "target_sha": "f029201ee6162065757486b21058ee85badd057f",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n6-stop-history-frozen-f029:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "input_closure": {
+        "source_candidate_sha": "0539d6ac1f01614ddb8cbeb7334679bee54231be",
+        "source_candidate_tree_sha": "7bcc4d065c7f6615540bfaf204529b60bdb01b4b",
+        "source_blob": "18f6cbc8cf3fe2e44ba6d0ed944bf6420d970d0d",
+        "test_candidate_sha": "f029201ee6162065757486b21058ee85badd057f",
+        "test_candidate_tree_sha": "7d3b1795b7760d6b30ddc37f34426452f63b6415",
+        "test_blob": "e04d9c55d5f5a249c89dab4a8f88c408bdeb2e86",
+        "test_path": "policy-engine/tests/integration/core_runtime/test_e02_terminal_status_readback.py",
+        "selector_groups": {
+          "focused_B29_cases": [
+            "frontier-stable",
+            "budget-exhausted",
+            "actual-abstention",
+            "repeated-candidate final-block override",
+            "workspace partial-admissible stop-not-abstention"
+          ],
+          "compatibility_controls": [
+            "all current and pinned historical N6 runs replay byte-exactly",
+            "frozen v3 blocked-terminal history semantics",
+            "actual default N5/N8 interaction history versioning/readback",
+            "nonblocked scheduler stop reaches N9 owner"
+          ]
+        },
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-stop-history-frozen-f029/receipt.json",
+          "bytes": 6132,
+          "sha256": "11f00869884c16393945ae2af4e4167a313a8371139c98aeebeee8b11014f1e2"
+        }
+      },
+      "outcome": "PASS",
+      "output": {
+        "exit_code": 0,
+        "wall_s": 23.248035666998476,
+        "junit_summary": {
+          "tests": 9,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "passed": 9
+        },
+        "stdout_summary": "9 passed; 1 PytestWarning: record_property is incompatible with junit_family=xunit2.",
+        "artifacts": {
+          "receipt.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-stop-history-frozen-f029/receipt.json",
+            "bytes": 6132,
+            "sha256": "11f00869884c16393945ae2af4e4167a313a8371139c98aeebeee8b11014f1e2"
+          },
+          "stdout.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-stop-history-frozen-f029/stdout.txt",
+            "bytes": 636,
+            "sha256": "3c8224df5dbd0ffc6e07b86fc312495beadf579da3565645ef8a0dcb1e57f7a5"
+          },
+          "stderr.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-stop-history-frozen-f029/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit.xml": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-stop-history-frozen-f029/junit.xml",
+            "bytes": 1951,
+            "sha256": "a4250cb4933635e9c35bbdcacd4f0d81aff479282e01596c2d34d38db2e94876"
+          },
+          "origins.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-stop-history-frozen-f029/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          },
+          "e02_origin.py": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-stop-history-frozen-f029/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          }
+        },
+        "scope": "The bounded N6 persisted-history projection and listed compatibility controls only. Does not establish Atlas rendering, ordinary served recursive consumer enumeration, or finding-wide B29 closure."
+      }
+    },
+    {
+      "check_id": "affected-paths-ruff-f029",
+      "name": "Ruff check on the five affected source/test paths at f029",
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/runtime/quality/generation_cycle.py",
+        "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "src/polisyos/runtime/quality/conditional_simulation_replay.py",
+        "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+        "tests/integration/core_runtime/test_e02_terminal_status_readback.py"
+      ],
+      "target_sha": "f029201ee6162065757486b21058ee85badd057f",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine"
+      },
+      "input_closure": {
+        "candidate_sha": "f029201ee6162065757486b21058ee85badd057f",
+        "candidate_tree_sha": "7d3b1795b7760d6b30ddc37f34426452f63b6415",
+        "paths": [
+          "src/polisyos/runtime/quality/generation_cycle.py",
+          "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "src/polisyos/runtime/quality/conditional_simulation_replay.py",
+          "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+          "tests/integration/core_runtime/test_e02_terminal_status_readback.py"
+        ],
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-terminal-projection-ruff-f029/receipt.json",
+          "bytes": 4552,
+          "sha256": "44bd454b2395aa376f274c3f30cd786a977fe6ec12e658f8a5edb676ab97792b"
+        }
+      },
+      "outcome": "PASS",
+      "output": {
+        "exit_code": 0,
+        "wall_s": 0.2185847500222735,
+        "stdout": "All checks passed!",
+        "artifacts": {
+          "receipt.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-terminal-projection-ruff-f029/receipt.json",
+            "bytes": 4552,
+            "sha256": "44bd454b2395aa376f274c3f30cd786a977fe6ec12e658f8a5edb676ab97792b"
+          },
+          "stdout.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-terminal-projection-ruff-f029/stdout.txt",
+            "bytes": 19,
+            "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+          },
+          "stderr.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-terminal-projection-ruff-f029/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        "scope": "Lint only; the five paths include the N6 source/test and neighboring N5/N8 affected paths. No test or broad architecture claim."
+      }
+    }
+  ],
+  "property": {
+    "statement": "Persisted current N6 history must preserve the terminal meaning across the VOI terminal, refinement decision, and search-iteration status. Frontier-stable, budget-exhausted, grounded-abstention, and partial-admissible stops must remain distinct. A valid final run-level blocked disposition is checked by its own projection rules.",
+    "runtime_path": [
+      "GenerationCycleController produces a typed GenerationCycleRun and cycle records.",
+      "GenerationCycleRun JSON history is validated by validate_generation_cycle_run_history / _validate_generation_cycle_run.",
+      "The validator derives the expected stop projection from the complete SearchTerminalKind map; the repeated-candidate final-block case follows separate blocked projection validation."
+    ],
+    "proxy_divergence": "At the pre-fix 93a6 candidate, changing only persisted search_iteration.status while retaining the terminal kind, VOI stop, and refinement decision returned no history issue. Checking that a history payload replays or that marker fields exist therefore did not prove projection agreement.",
+    "negative_controls": [
+      "The pre-fix test mutates only serialized search_iteration.status for frontier-stable, budget-exhausted, and true-abstention producer cases; this exposed the missing validation, and the pre-fix loop stopped on that first missing issue.",
+      "The completed f029 nine-case wave passes the three real terminal cases, final-block override, partial-admissible control, and four compatibility controls. The final-block case preserves the existing fake_cycle_same_candidate_repeated issue and tests dedicated tampered block projections.",
+      "The repeated-candidate fixture clones only the prior candidate atom content_hash; it does not assert full candidate payload identity or establish Atlas/recursive behavior."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "surface_missing",
+  "limitations_and_next_owner": {
+    "finding_id": "B29",
+    "finding_state": "limited",
+    "criterion_check_state": "UNRUN",
+    "bounded_history_projection_check_state": "PASS",
+    "current_candidate": {
+      "source_sha": "0539d6ac1f01614ddb8cbeb7334679bee54231be",
+      "source_tree": "7bcc4d065c7f6615540bfaf204529b60bdb01b4b",
+      "test_sha": "f029201ee6162065757486b21058ee85badd057f",
+      "test_tree": "7d3b1795b7760d6b30ddc37f34426452f63b6415"
+    },
+    "remaining": [
+      "The bounded N6 history reader now recomputes the stop/refinement and iteration projections from the typed terminal map; the nine-case wave passed against source 0539 plus test companion f029.",
+      "The full B29 meaning distinction across stable frontier, complete/partial, budget exhaustion, true abstention, and limited-candidate states remains unestablished end-to-end in Atlas/recursive consumers.",
+      "Atlas rendered status and ordinary served recursive producer enumeration/independent graph walk remain not established; root N9 authority/currentness and owner-bound graph-time semantics are outside this evidence.",
+      "No B29 finding-wide closure is claimed; closure_ids remains empty pending the appropriate owner decision and remaining consumer evidence."
+    ],
+    "next_owner": "CYC-05/A runtime owner may interpret the bounded history result; Atlas/recursive consumer owner must supply genuine end-to-end enumeration/readback if required by the original B29 criterion.",
+    "last_executed_candidate": "f029201ee6162065757486b21058ee85badd057f/tree 7d3b1795b7760d6b30ddc37f34426452f63b6415; the earlier 93a6 3F/1P meaningful red remains historical and is not this run."
+  },
+  "finding_ids": [
+    "B29"
+  ],
+  "slice_base_tree_sha": "13b86bfafb3f409affe2f36f344ffa0784975d68",
+  "candidate_sha": "f029201ee6162065757486b21058ee85badd057f",
+  "source_pin": {
+    "source_path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "source_blob": "18f6cbc8cf3fe2e44ba6d0ed944bf6420d970d0d",
+    "source_commit": "0539d6ac1f01614ddb8cbeb7334679bee54231be",
+    "source_tree": "7bcc4d065c7f6615540bfaf204529b60bdb01b4b",
+    "test_source_path": "policy-engine/tests/integration/core_runtime/test_e02_terminal_status_readback.py",
+    "test_blob_at_base": "7979e595530cb6e33a2838ded74fdae8a0fdda69",
+    "source_diff_sha256": "1361350889ac84c8d94a65f1038fef7679d665538e6494dc3be110941a41b7f1",
+    "test_companion_commit": "f029201ee6162065757486b21058ee85badd057f",
+    "test_companion_tree": "7d3b1795b7760d6b30ddc37f34426452f63b6415",
+    "test_blob_at_candidate": "e04d9c55d5f5a249c89dab4a8f88c408bdeb2e86",
+    "test_diff_sha256": "7ff3921acc4fab3d72740e4a99a4c9a5ec05c674a452baa4c68ebbdfaeaa1278",
+    "source_review_candidate_sha": "0539d6ac1f01614ddb8cbeb7334679bee54231be",
+    "source_review_candidate_tree": "7bcc4d065c7f6615540bfaf204529b60bdb01b4b",
+    "source_review_candidate_blob": "18f6cbc8cf3fe2e44ba6d0ed944bf6420d970d0d",
+    "slice_candidate_sha": "f029201ee6162065757486b21058ee85badd057f",
+    "slice_candidate_tree": "7d3b1795b7760d6b30ddc37f34426452f63b6415"
+  },
+  "test_companion_commits": [
+    "0bf76b82a17bc897af765d4682f50f53a02909d5",
+    "93a6c61d28a87bc7a05f8e9bb9edbc73e30cc75c",
+    "f029201ee6162065757486b21058ee85badd057f"
+  ],
+  "source_test_footprint": {
+    "slice_base_sha": "93a6c61d28a87bc7a05f8e9bb9edbc73e30cc75c",
+    "slice_base_tree_sha": "13b86bfafb3f409affe2f36f344ffa0784975d68",
+    "normative_candidate_sha": "f029201ee6162065757486b21058ee85badd057f",
+    "normative_candidate_tree_sha": "7d3b1795b7760d6b30ddc37f34426452f63b6415",
+    "implementation_commits": [
+      "0539d6ac1f01614ddb8cbeb7334679bee54231be",
+      "f029201ee6162065757486b21058ee85badd057f"
+    ],
+    "owned_changed_paths": [
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_terminal_status_readback.py"
+    ],
+    "owned_path_count": 2,
+    "owned_only_diff_sha256": "0dead57a6092bfdb1c496a6376d13487a818b991a021ce46bc82ff83e50d8435",
+    "owned_path_diffs": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "base_blob": "34b805f16e40f8138696533630e8e7ceb1b1b1e1",
+        "candidate_blob": "18f6cbc8cf3fe2e44ba6d0ed944bf6420d970d0d",
+        "numstat_additions": 41,
+        "numstat_deletions": 0,
+        "implementation_commit": "0539d6ac1f01614ddb8cbeb7334679bee54231be"
+      },
+      {
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_terminal_status_readback.py",
+        "base_blob": "7979e595530cb6e33a2838ded74fdae8a0fdda69",
+        "candidate_blob": "e04d9c55d5f5a249c89dab4a8f88c408bdeb2e86",
+        "numstat_additions": 108,
+        "numstat_deletions": 10,
+        "implementation_commit": "f029201ee6162065757486b21058ee85badd057f"
+      }
+    ],
+    "full_git_range": {
+      "base_sha": "93a6c61d28a87bc7a05f8e9bb9edbc73e30cc75c",
+      "base_tree_sha": "13b86bfafb3f409affe2f36f344ffa0784975d68",
+      "candidate_sha": "f029201ee6162065757486b21058ee85badd057f",
+      "candidate_tree_sha": "7d3b1795b7760d6b30ddc37f34426452f63b6415",
+      "full_range_diff_sha256": "e637dfa5d5563f9002bed9c4ac904465b22cbb7c8f0a37ee5c98d8d8d98e19b7",
+      "git_changed_path_count": 3,
+      "git_changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "base_blob": "34b805f16e40f8138696533630e8e7ceb1b1b1e1",
+          "candidate_blob": "18f6cbc8cf3fe2e44ba6d0ed944bf6420d970d0d",
+          "numstat_additions": 41,
+          "numstat_deletions": 0,
+          "ownership": "B29-owned"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+          "base_blob": "c173309af1fa38490b595988da11a664c085f253",
+          "candidate_blob": "d14c106d5cbbd7d07e32e9d15c3b3618a59af9d6",
+          "numstat_additions": 341,
+          "numstat_deletions": 34,
+          "ownership": "foreign B04/N5 same-assembly companion from 16d0; not B29-owned and not in the nine-case argv"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/integration/core_runtime/test_e02_terminal_status_readback.py",
+          "base_blob": "7979e595530cb6e33a2838ded74fdae8a0fdda69",
+          "candidate_blob": "e04d9c55d5f5a249c89dab4a8f88c408bdeb2e86",
+          "numstat_additions": 108,
+          "numstat_deletions": 10,
+          "ownership": "B29-owned"
+        }
+      ],
+      "file_type_denominator": {
+        "python": 3,
+        "total": 3
+      },
+      "numstat_total": {
+        "additions": 490,
+        "deletions": 44,
+        "paths": 3
+      }
+    },
+    "foreign_same_assembly_companion": {
+      "commit": "16d0b70c44a9ada815d54ba4a5e98a6e5f48f36b",
+      "tree": "82268b941b53ff479a1b12c6c384b032103935d4",
+      "path": "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+      "base_blob": "c173309af1fa38490b595988da11a664c085f253",
+      "candidate_blob": "d14c106d5cbbd7d07e32e9d15c3b3618a59af9d6",
+      "range_numstat_additions": 341,
+      "range_numstat_deletions": 34,
+      "slice": "B04/N5 fresh Core readback companion, separate from B29",
+      "current_n6_wave_included": false,
+      "treatment": "Named as foreign assembly context; excluded from the two B29-owned changed_paths and from the B29 owned-only diff."
+    },
+    "prior_test_candidates": [
+      {
+        "commit": "0bf76b82a17bc897af765d4682f50f53a02909d5",
+        "tree": "ac8bb0c0b397a6cc29034f67306494408ad748d4",
+        "blob": "d10bca3437a673d8ddb3281afe754ee6e0763b36",
+        "role": "initial B29 test candidate before the v3/v4 harness correction"
+      },
+      {
+        "commit": "93a6c61d28a87bc7a05f8e9bb9edbc73e30cc75c",
+        "tree": "13b86bfafb3f409affe2f36f344ffa0784975d68",
+        "blob": "7979e595530cb6e33a2838ded74fdae8a0fdda69",
+        "role": "pre-fix B29 test candidate and slice base"
+      }
+    ],
+    "mandatory_doc_companions": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n6-terminal-projection-history.json",
+        "state": "packet companion; not included in f029 Git tree"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/n6-terminal-projection-checks.json",
+        "state": "packet companion; not included in f029 Git tree"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-stop-history-frozen-f029/",
+        "state": "six-file evidence bundle; not included in f029 Git tree"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-terminal-projection-ruff-f029/",
+        "state": "three-file Ruff evidence bundle; not included in f029 Git tree"
+      }
+    ],
+    "source_change": "41 additions in one runtime source file, committed at 0539; source review is frozen specifically at 0539 and source blob remains unchanged at f029.",
+    "test_change": "The maintained B29 test file is committed at f029 with 108 additions and 10 deletions against its 93a6 baseline blob.",
+    "scope_note": "The full 93a6..f029 Git range has three changed files because the first-parent assembly includes the foreign 16d0 B04/N5 test. B29 owns exactly the two paths listed in owned_changed_paths.",
+    "owned_path_file_type_denominator": {
+      "python": 2,
+      "total": 2
+    },
+    "owned_numstat_total": {
+      "additions": 149,
+      "deletions": 10,
+      "paths": 2
+    },
+    "foreign_companion_commit": "16d0b70c44a9ada815d54ba4a5e98a6e5f48f36b"
+  },
+  "criterion_source": {
+    "finding_id": "B29",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+    "lines_inclusive": [
+      565,
+      578
+    ],
+    "criterion_summary": "Keep frontier-stable, complete/partial, budget-exhausted, true-abstention, and limited-candidate meanings distinct across representations; history readback and Atlas must not turn a successful bounded result into abstention. Original criterion also states that UI rendering itself was not tested."
+  },
+  "finding_outcome": {
+    "B29": "limited; bounded N6 history projection verification PASS, broader Atlas/recursive consumer criterion not established, no closure adjudicated"
+  },
+  "evidence_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/n6-terminal-projection-checks.json",
+  "independent_review_context": {
+    "reviewer": "root/atomic_composition",
+    "base_sha": "93a6c61d28a87bc7a05f8e9bb9edbc73e30cc75c",
+    "candidate_sha": "0539d6ac1f01614ddb8cbeb7334679bee54231be",
+    "binary_diff_sha256": "1361350889ac84c8d94a65f1038fef7679d665538e6494dc3be110941a41b7f1",
+    "decision": "GO_BOUNDED_SOURCE_DELTA",
+    "initial_binary_diff_sha256": "fef2c12987dd695a1b53098e6fb21fbe9ba9369444a6127e38e2797af8dd6c3b",
+    "initial_decision": "NO_GO; initial final-block-override concern, superseded by corrected review on the same immutable diff",
+    "git_review_artifact": null,
+    "note": "These are hashes of diff bytes, not Git commit SHAs. No separate tracked review artifact exists.",
+    "candidate_tree_sha": "7bcc4d065c7f6615540bfaf204529b60bdb01b4b"
+  },
+  "pattern_pass": {
+    "relevant_patterns": [
+      "P04",
+      "P07",
+      "P08",
+      "P10",
+      "P29",
+      "P32",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "anti_pattern": "The pre-fix history validator accepted a persisted status projection that disagreed with the typed terminal while all marker fields remained present (P38); the initial source review also surfaced the valid final-block exception that must remain separately checked (P40).",
+    "target_pattern": "One generic validator derives expected refinement and iteration projections from the complete typed terminal map, while retaining the run-level blocked projection rules; test the actual persisted history reader with a mutated sibling projection.",
+    "residual": "The bounded history recomputation and its focused nine-case suite now pass. Atlas/recursive consumer enumeration and the complete B29 distinction matrix remain not established; no finding-wide closure is claimed."
+  },
+  "followup_test_candidate": {
+    "source_candidate": {
+      "sha": "0539d6ac1f01614ddb8cbeb7334679bee54231be",
+      "tree": "7bcc4d065c7f6615540bfaf204529b60bdb01b4b",
+      "blob": "18f6cbc8cf3fe2e44ba6d0ed944bf6420d970d0d"
+    },
+    "test_path": "policy-engine/tests/integration/core_runtime/test_e02_terminal_status_readback.py",
+    "test_candidate_sha": "f029201ee6162065757486b21058ee85badd057f",
+    "test_candidate_tree": "7d3b1795b7760d6b30ddc37f34426452f63b6415",
+    "test_blob": "e04d9c55d5f5a249c89dab4a8f88c408bdeb2e86",
+    "test_diff_sha256": "7ff3921acc4fab3d72740e4a99a4c9a5ec05c674a452baa4c68ebbdfaeaa1278",
+    "test_status": "committed and read back from f029; source unchanged from 0539",
+    "added_case": {
+      "name": "test_repeated_candidate_hash_stop_block_projection_survives_history_readback",
+      "fixture_mechanism": "The later fixture candidate carries only the first candidate atom content_hash; complete candidate payload bytes are not asserted equal.",
+      "expected_history": "Exactly the existing fake_cycle_same_candidate_repeated issue for the valid final block, with no generation_cycle_terminal_projection_mismatch; tampered block decision and reason have dedicated rejection checks.",
+      "verification": "PASS as part of nine-case suite at f029; not genuine content identity or B29 finding-wide closure."
+    },
+    "nonclaim": "The 93a6 3F/1P receipt remains historical for the earlier four-case test candidate. It is not the post-fix f029 test execution.",
+    "slice_candidate_sha": "f029201ee6162065757486b21058ee85badd057f",
+    "slice_candidate_tree": "7d3b1795b7760d6b30ddc37f34426452f63b6415"
+  },
+  "behavioral_evidence": {
+    "initial_attempt": "0bf76b82a17bc897af765d4682f50f53a02909d5/tree ac8bb0c0b397a6cc29034f67306494408ad748d4 failed 3/4 because the test assumed v3 while the bounded producer emitted v4; one partial-admissible control passed.",
+    "pre_fix_red": "93a6c61d28a87bc7a05f8e9bb9edbc73e30cc75c/tree 13b86bfafb3f409affe2f36f344ffa0784975d68: 3 failures, 1 pass. Positive producer/history readback passed, then changing only search_iteration.status was not rejected. Historical pre-fix source/test evidence.",
+    "post_fix": {
+      "source_candidate_sha": "0539d6ac1f01614ddb8cbeb7334679bee54231be",
+      "source_candidate_tree": "7bcc4d065c7f6615540bfaf204529b60bdb01b4b",
+      "test_candidate_sha": "f029201ee6162065757486b21058ee85badd057f",
+      "test_candidate_tree": "7d3b1795b7760d6b30ddc37f34426452f63b6415",
+      "test_blob": "e04d9c55d5f5a249c89dab4a8f88c408bdeb2e86",
+      "state": "PASS",
+      "check_id": "post-fix-nine-case-terminal-history-wave-f029",
+      "junit_summary": {
+        "tests": 9,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "passed": 9
+      },
+      "warning": "One PytestWarning: record_property is incompatible with junit_family xunit2; all nine tests passed."
+    }
+  },
+  "coverage_boundary": {
+    "B29_state": "limited; bounded history projection verified, full finding criterion remains open",
+    "closure_ids": [],
+    "predicate_basis": "recomputed for the bounded current-schema N6 history projection only; broader Atlas/recursive predicates are not established",
+    "current_test_matrix": [
+      "Five focused B29 cases: frontier-stable, budget-exhausted, actual-abstention, repeated-candidate final-block override, and partial-admissible stop-not-abstention.",
+      "Four compatibility controls: current/pinned byte-exact replay, frozen v3 block semantics, actual v5 N5/N8 epoch readback, and nonblocked stop reaching N9 owner."
+    ],
+    "not_established": [
+      "full B29 end-to-end distinction matrix across Atlas/recursive consumers",
+      "Atlas rendered status",
+      "ordinary served multi-node recursive producer and independent graph walk",
+      "root N9 currentness or authority",
+      "physical graph-time or owner-bound time-grid semantics"
+    ],
+    "next_owner": "CYC-05/A runtime owner for bounded result interpretation; Atlas/recursive consumer owner for genuine full consumer enumeration if required by the original criterion.",
+    "bounded_history_execution": {
+      "check_id": "post-fix-nine-case-terminal-history-wave-f029",
+      "candidate_sha": "f029201ee6162065757486b21058ee85badd057f",
+      "candidate_tree": "7d3b1795b7760d6b30ddc37f34426452f63b6415",
+      "outcome": "PASS",
+      "junit_summary": {
+        "tests": 9,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "passed": 9
+      },
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-stop-history-frozen-f029/receipt.json",
+      "receipt_sha256": "11f00869884c16393945ae2af4e4167a313a8371139c98aeebeee8b11014f1e2"
+    },
+    "final_block_case": {
+      "test": "test_repeated_candidate_hash_stop_block_projection_survives_history_readback",
+      "test_blob": "e04d9c55d5f5a249c89dab4a8f88c408bdeb2e86",
+      "state": "PASS",
+      "scope": "A bounded synthetic fixture induces fake_cycle_same_candidate_repeated by cloning only the prior candidate atom content_hash. History readback preserves that existing issue and rejects a false terminal-projection-mismatch; tampered block decision/reason projections are checked.",
+      "limitation": "The fixture does not prove full candidate-byte identity, ordinary Atlas/recursive behavior, or B29 closure."
+    }
+  },
+  "frozen_source_review": {
+    "review_candidate_sha": "0539d6ac1f01614ddb8cbeb7334679bee54231be",
+    "review_candidate_tree_sha": "7bcc4d065c7f6615540bfaf204529b60bdb01b4b",
+    "source_path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "source_blob": "18f6cbc8cf3fe2e44ba6d0ed944bf6420d970d0d",
+    "base_sha": "93a6c61d28a87bc7a05f8e9bb9edbc73e30cc75c",
+    "base_tree_sha": "13b86bfafb3f409affe2f36f344ffa0784975d68",
+    "binary_diff_sha256": "1361350889ac84c8d94a65f1038fef7679d665538e6494dc3be110941a41b7f1",
+    "decision": "GO_BOUNDED_SOURCE_DELTA",
+    "note": "This source-only review remains pinned to 0539; the normative slice candidate is the later source+test assembly at f029."
+  },
+  "documentation_companions": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n6-terminal-projection-history.json",
+      "state": "packet companion; not included in f029 Git tree"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/n6-terminal-projection-checks.json",
+      "state": "packet companion; not included in f029 Git tree"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-stop-history-frozen-f029/",
+      "state": "six-file evidence bundle; not included in f029 Git tree"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n6-terminal-projection-ruff-f029/",
+      "state": "three-file Ruff evidence bundle; not included in f029 Git tree"
+    }
+  ],
+  "changed_paths_scope": "B29-owned implementation and maintained test paths only; the complete 93a6..f029 Git range also includes a separately attributed B04/N5 test companion from 16d0, enumerated in source_test_footprint.full_git_range.",
+  "foreign_assembly_companion_commits": [
+    "16d0b70c44a9ada815d54ba4a5e98a6e5f48f36b"
+  ],
+  "review_decisions": [
+    {
+      "review_id": "source-corrected-go-0539",
+      "subject": "N6 persisted stop-projection invariant",
+      "decision": "GO_BOUNDED_SOURCE_DELTA",
+      "base_sha": "93a6c61d28a87bc7a05f8e9bb9edbc73e30cc75c",
+      "base_tree_sha": "13b86bfafb3f409affe2f36f344ffa0784975d68",
+      "diff_sha256": "1361350889ac84c8d94a65f1038fef7679d665538e6494dc3be110941a41b7f1",
+      "actual_candidate": {
+        "sha": "0539d6ac1f01614ddb8cbeb7334679bee54231be",
+        "tree": "7bcc4d065c7f6615540bfaf204529b60bdb01b4b",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "blob": "18f6cbc8cf3fe2e44ba6d0ed944bf6420d970d0d"
+      },
+      "reviewer": "root/atomic_composition",
+      "judgment": "Current-schema N6 stop projections are checked against the complete typed SearchTerminalKind map. The final run-level blocked terminal is validated by its separate block checks and is exempt from reapplying the prior VOI-stop projection.",
+      "scope": "One source file, 41 added lines; no finding-wide closure or Atlas behavior claim.",
+      "review_artifact": "No Git review commit or separate tracked review artifact exists; this diff SHA-256 identifies reviewed bytes, not a commit."
+    },
+    {
+      "review_id": "test-corrected-go-f029",
+      "subject": "B29 final-block history test delta",
+      "decision": "GO_BOUNDED_TEST_DELTA",
+      "base_sha": "16d0b70c44a9ada815d54ba4a5e98a6e5f48f36b",
+      "base_tree_sha": "82268b941b53ff479a1b12c6c384b032103935d4",
+      "diff_sha256": "7ff3921acc4fab3d72740e4a99a4c9a5ec05c674a452baa4c68ebbdfaeaa1278",
+      "actual_candidate": {
+        "sha": "f029201ee6162065757486b21058ee85badd057f",
+        "tree": "7d3b1795b7760d6b30ddc37f34426452f63b6415",
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_terminal_status_readback.py",
+        "blob": "e04d9c55d5f5a249c89dab4a8f88c408bdeb2e86"
+      },
+      "reviewer": "Independent test reviewer; identity not separately supplied in the record",
+      "judgment": "The final-block history case expects the existing fake_cycle_same_candidate_repeated issue, excludes only a spurious generation_cycle_terminal_projection_mismatch, and separately checks tampered block decision/reason projections.",
+      "scope": "Fixture-induced cloned atom.content_hash only; this is not complete candidate-byte identity, Atlas/recursive evidence, or B29 closure.",
+      "review_artifact": "The supplied record provides the diff SHA-256 but does not reference a separate review artifact; the diff hash is not a Git commit."
+    }
+  ],
+  "historical_unfrozen_reviews": [
+    {
+      "review_id": "source-initial-no-go-unfrozen",
+      "subject": "N6 terminal-block override source interpretation",
+      "decision": "NO_GO",
+      "base_sha": "93a6c61d28a87bc7a05f8e9bb9edbc73e30cc75c",
+      "base_tree_sha": "13b86bfafb3f409affe2f36f344ffa0784975d68",
+      "diff_sha256": "fef2c12987dd695a1b53098e6fb21fbe9ba9369444a6127e38e2797af8dd6c3b",
+      "actual_candidate": null,
+      "candidate_identity_note": "The review diff was not independently bound to a retained immutable candidate; do not attribute this initial NO-GO to source commit 0539.",
+      "reviewer": "root/atomic_composition, as reported by root",
+      "judgment": "Initial assessment questioned whether the final run-level blocked disposition could override a terminal-stop projection. This earlier review is preserved, not presented as the final review.",
+      "classification": "historical_unfrozen_review"
+    },
+    {
+      "review_id": "test-initial-no-go-unfrozen",
+      "subject": "B29 final-block fixture expected history issues",
+      "decision": "NO_GO",
+      "base_sha": "16d0b70c44a9ada815d54ba4a5e98a6e5f48f36b",
+      "base_tree_sha": "82268b941b53ff479a1b12c6c384b032103935d4",
+      "diff_sha256": "7752227c2736758e17862376bc65cd06fe262e4ace8244b6484d5fb267ebd06a",
+      "actual_candidate": null,
+      "candidate_identity_note": "Intermediate draft bytes were not retained as a Git object; this review hash is not the final f029 test candidate.",
+      "reviewer": "Independent reviewer, identity not separately supplied",
+      "judgment": "The intermediate draft expected no history issue for a valid final run-level block, overlooking the existing fake_cycle_same_candidate_repeated diagnostic. The draft was corrected to require exactly that existing diagnostic and reject only a false terminal-projection mismatch.",
+      "classification": "historical_unfrozen_review"
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+FFF.                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_n6_terminal_decision_and_iteration_survive_history_readback[frontier-stable] _
+
+value_port = <class 'tests.unit.runtime.quality.test_generation_cycle._ReadyValuePort'>
+expected_terminal = 'frontier_stable', expected_decision = 'stop'
+expected_iteration = 'stopped'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("value_port", "expected_terminal", "expected_decision", "expected_iteration"),
+        [
+            (_ReadyValuePort, "frontier_stable", "stop", "stopped"),
+            (_BudgetExhaustedValuePort, "budget_exhausted", "stop", "stopped"),
+            (PendingN8ValuePort, "grounded_abstention", "abstain", "abstained"),
+        ],
+        ids=("frontier-stable", "budget-exhausted", "actual-abstention"),
+    )
+    async def test_n6_terminal_decision_and_iteration_survive_history_readback(
+        value_port: type[Any],
+        expected_terminal: str,
+        expected_decision: str,
+        expected_iteration: str,
+    ) -> None:
+        """A real bounded N6 run retains each terminal's distinct typed projection."""
+    
+        problem = _problem(f"e02_b29_{expected_terminal}")
+        run = await GenerationCycleController(
+            generation_port=_CounterexampleAwareGenerator(),
+            grounding_port=_StableShadowGrounding(),
+            value_port=value_port(),
+        ).run(problem, budget_state=_budget(), max_cycles=1)
+    
+        cycle = run.cycles[0]
+        assert cycle.terminal_kind == expected_terminal
+        assert cycle.voi_decision.next_action == "stop"
+        assert cycle.refinement_decision.decision == expected_decision
+        assert cycle.search_iteration.status == expected_iteration
+>       assert run.schema_version == generation.GENERATION_CYCLE_SCHEMA_VERSION
+E       AssertionError: assert 'policyos.run...controller.v4' == 'policyos.run...controller.v3'
+E         
+E         Skipping 36 identical leading characters in diff, use -v to show
+E         - ntroller.v3
+E         ?           ^
+E         + ntroller.v4
+E         ?           ^
+
+tests/integration/core_runtime/test_e02_terminal_status_readback.py:66: AssertionError
+_ test_n6_terminal_decision_and_iteration_survive_history_readback[budget-exhausted] _
+
+value_port = <class 'tests.unit.runtime.quality.test_generation_cycle._BudgetExhaustedValuePort'>
+expected_terminal = 'budget_exhausted', expected_decision = 'stop'
+expected_iteration = 'stopped'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("value_port", "expected_terminal", "expected_decision", "expected_iteration"),
+        [
+            (_ReadyValuePort, "frontier_stable", "stop", "stopped"),
+            (_BudgetExhaustedValuePort, "budget_exhausted", "stop", "stopped"),
+            (PendingN8ValuePort, "grounded_abstention", "abstain", "abstained"),
+        ],
+        ids=("frontier-stable", "budget-exhausted", "actual-abstention"),
+    )
+    async def test_n6_terminal_decision_and_iteration_survive_history_readback(
+        value_port: type[Any],
+        expected_terminal: str,
+        expected_decision: str,
+        expected_iteration: str,
+    ) -> None:
+        """A real bounded N6 run retains each terminal's distinct typed projection."""
+    
+        problem = _problem(f"e02_b29_{expected_terminal}")
+        run = await GenerationCycleController(
+            generation_port=_CounterexampleAwareGenerator(),
+            grounding_port=_StableShadowGrounding(),
+            value_port=value_port(),
+        ).run(problem, budget_state=_budget(), max_cycles=1)
+    
+        cycle = run.cycles[0]
+        assert cycle.terminal_kind == expected_terminal
+        assert cycle.voi_decision.next_action == "stop"
+        assert cycle.refinement_decision.decision == expected_decision
+        assert cycle.search_iteration.status == expected_iteration
+>       assert run.schema_version == generation.GENERATION_CYCLE_SCHEMA_VERSION
+E       AssertionError: assert 'policyos.run...controller.v4' == 'policyos.run...controller.v3'
+E         
+E         Skipping 36 identical leading characters in diff, use -v to show
+E         - ntroller.v3
+E         ?           ^
+E         + ntroller.v4
+E         ?           ^
+
+tests/integration/core_runtime/test_e02_terminal_status_readback.py:66: AssertionError
+_ test_n6_terminal_decision_and_iteration_survive_history_readback[actual-abstention] _
+
+value_port = <class 'polisyos.runtime.quality.generation_cycle.PendingN8ValuePort'>
+expected_terminal = 'grounded_abstention', expected_decision = 'abstain'
+expected_iteration = 'abstained'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("value_port", "expected_terminal", "expected_decision", "expected_iteration"),
+        [
+            (_ReadyValuePort, "frontier_stable", "stop", "stopped"),
+            (_BudgetExhaustedValuePort, "budget_exhausted", "stop", "stopped"),
+            (PendingN8ValuePort, "grounded_abstention", "abstain", "abstained"),
+        ],
+        ids=("frontier-stable", "budget-exhausted", "actual-abstention"),
+    )
+    async def test_n6_terminal_decision_and_iteration_survive_history_readback(
+        value_port: type[Any],
+        expected_terminal: str,
+        expected_decision: str,
+        expected_iteration: str,
+    ) -> None:
+        """A real bounded N6 run retains each terminal's distinct typed projection."""
+    
+        problem = _problem(f"e02_b29_{expected_terminal}")
+        run = await GenerationCycleController(
+            generation_port=_CounterexampleAwareGenerator(),
+            grounding_port=_StableShadowGrounding(),
+            value_port=value_port(),
+        ).run(problem, budget_state=_budget(), max_cycles=1)
+    
+        cycle = run.cycles[0]
+        assert cycle.terminal_kind == expected_terminal
+        assert cycle.voi_decision.next_action == "stop"
+        assert cycle.refinement_decision.decision == expected_decision
+        assert cycle.search_iteration.status == expected_iteration
+>       assert run.schema_version == generation.GENERATION_CYCLE_SCHEMA_VERSION
+E       AssertionError: assert 'policyos.run...controller.v4' == 'policyos.run...controller.v3'
+E         
+E         Skipping 36 identical leading characters in diff, use -v to show
+E         - ntroller.v3
+E         ?           ^
+E         + ntroller.v4
+E         ?           ^
+
+tests/integration/core_runtime/test_e02_terminal_status_readback.py:66: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/core_runtime/test_e02_terminal_status_readback.py::test_n6_terminal_decision_and_iteration_survive_history_readback[frontier-stable]
+FAILED tests/integration/core_runtime/test_e02_terminal_status_readback.py::test_n6_terminal_decision_and_iteration_survive_history_readback[budget-exhausted]
+FAILED tests/integration/core_runtime/test_e02_terminal_status_readback.py::test_n6_terminal_decision_and_iteration_survive_history_readback[actual-abstention]
+3 failed, 1 passed in 13.08s

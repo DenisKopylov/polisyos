@@ -1,0 +1,1119 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "n5-refusal-core-readback",
+  "finding_ids": [
+    "B04"
+  ],
+  "closure_ids": [],
+  "bundle_ids": [
+    "CYC-02"
+  ],
+  "slice_base_sha": "ad99c27bf282df1f59f427ec75b55133b3e7b7c3",
+  "slice_base_tree_sha": "f1046f0f4c811392ebde50c722cf6c16fbbf70bf",
+  "source_base_commit": "ad99c27bf282df1f59f427ec75b55133b3e7b7c3",
+  "source_base_tree_sha": "f1046f0f4c811392ebde50c722cf6c16fbbf70bf",
+  "implementation_commits": [
+    "975a3b2b97979f36c0af5d2ea98e757e2fe88c99",
+    "16d0b70c44a9ada815d54ba4a5e98a6e5f48f36b"
+  ],
+  "candidate_sha": "16d0b70c44a9ada815d54ba4a5e98a6e5f48f36b",
+  "candidate_tree_sha": "82268b941b53ff479a1b12c6c384b032103935d4",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/conditional_simulation_replay.py",
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_terminal_status_readback.py"
+  ],
+  "superseded_historical_snapshot": {
+    "candidate_sha": "07b9ba4a6b6afa4503390c6f30457e3d5a46f8fd",
+    "candidate_tree_sha": "00d447aae649eb3ad886ca1e87e1c2d6dca0878d",
+    "slice_base_sha": "fed0376fbbf6428fd6b42b2b48b5b80561274627",
+    "slice_base_tree_sha": "47e4327518d1c5129681d1a369417bcd97b088d9",
+    "implementation_commits_as_recorded_then": [
+      "07b9ba4a6b6afa4503390c6f30457e3d5a46f8fd",
+      "3e8e6cbba9f3f2cb4ebba19e40cd822c4e93337a",
+      "ad99c27bf282df1f59f427ec75b55133b3e7b7c3"
+    ],
+    "changed_paths_as_recorded_then": [
+      "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py"
+    ],
+    "historical_checks": [
+      "#/checks/0",
+      "#/checks/1",
+      "#/checks/2"
+    ],
+    "historical_partial_observation": "execution_tracking/0/initial_observation recorded IN_PROGRESS and UNRUN before its final output existed; it is retained as a timestamped partial observation and is superseded by the completed PASS at #/checks/3.",
+    "status": "superseded by the source-backed 16d0 candidate binding above; historical check outcomes remain unchanged"
+  },
+  "baseline_cells": [],
+  "checks": [
+    {
+      "check_id": "n5-refusal-core-get-content-binding-07b9",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-refusal-core-GET-and-content-binding-current/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-refusal-core-GET-and-content-binding-current/pytest-basetemp tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get tests/unit/remediation/test_cyc_02.py::test_n5_result_has_reopenable_cas_reference tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-refusal-core-GET-and-content-binding-current/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-refusal-core-GET-and-content-binding-current/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get",
+        "tests/unit/remediation/test_cyc_02.py::test_n5_result_has_reopenable_cas_reference",
+        "tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity"
+      ],
+      "target_sha": "07b9ba4a6b6afa4503390c6f30457e3d5a46f8fd",
+      "target_tree_sha": "00d447aae649eb3ad886ca1e87e1c2d6dca0878d",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "package_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-refusal-core-GET-and-content-binding-current:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_environment": {},
+        "import_origins_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-and-content-binding-current/origins.json",
+        "workspace_dirty_before_and_after": [
+          " M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json"
+        ]
+      },
+      "input_closure": {
+        "slice_base": {
+          "commit": "fed0376fbbf6428fd6b42b2b48b5b80561274627",
+          "tree": "47e4327518d1c5129681d1a369417bcd97b088d9"
+        },
+        "tested_candidate": {
+          "commit": "07b9ba4a6b6afa4503390c6f30457e3d5a46f8fd",
+          "tree": "00d447aae649eb3ad886ca1e87e1c2d6dca0878d"
+        },
+        "selected_test_inputs": [
+          {
+            "selector": "tests.integration.core_runtime.test_e02_manual_n5_interaction_readback::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get",
+            "path": "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+            "git_blob_at_target": "2ce0295e19ca0654b9447952b5b46bc3ea95165a"
+          },
+          {
+            "selector": "tests.unit.remediation.test_cyc_02::test_n5_result_has_reopenable_cas_reference",
+            "path": "policy-engine/tests/unit/remediation/test_cyc_02.py",
+            "git_blob_at_target": "3a265b00e1e099f074e83965c3a4600e0e11dda2"
+          },
+          {
+            "selector": "tests.unit.remediation.test_cyc_02::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+            "path": "policy-engine/tests/unit/remediation/test_cyc_02.py",
+            "git_blob_at_target": "3a265b00e1e099f074e83965c3a4600e0e11dda2"
+          }
+        ],
+        "runtime_source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+            "git_blob_at_target": "1e735f2322a1f15fc8cb6a439d8231b2dc19c898"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob_at_target": "f07a836f2dcb38971bf28e18ae0fd477662a009e"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "git_blob_at_target": "f5dc2873aab2e2a58b9167f5ea27e2186957f1d4"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/candidate_simulation.py",
+            "git_blob_at_target": "9435d465d5035e658e66d6cbd0aa78452a2ecac6"
+          },
+          {
+            "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+            "git_blob_at_target": "72127a25ff25d4a034d376ba1452f54e96914931"
+          },
+          {
+            "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+            "git_blob_at_target": "3c76237c88f4a667ab71e9e70037eb91a1d83f10"
+          }
+        ],
+        "source_boundary": "All listed runtime-source blobs are identical at the slice base and tested target; the 07b9 commit changes the selected integration test only. The target tree SHA binds the complete tree beyond these named imports."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "summary": "The deciding invocation exited 1: 3 passed, 1 failed, 0 errors, 0 skipped in 45.27s; runner wall time 49.178867875016294s.",
+        "junit_counts": {
+          "tests": 4,
+          "passed": 3,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "case_results": [
+          {
+            "selector": "tests.integration.core_runtime.test_e02_manual_n5_interaction_readback::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[conditional-result]",
+            "outcome": "PASS",
+            "property_result": "The bounded conditional N5 result was served through a fresh RunDetails GET."
+          },
+          {
+            "selector": "tests.integration.core_runtime.test_e02_manual_n5_interaction_readback::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[static-engine-refusal]",
+            "outcome": "FAIL",
+            "property_result": "The profile fixture raised candidate_simulation_profile_content_hash_mismatch during CandidateSimulationScenarioProfile validation before N5 was invoked. No static-engine refusal was produced or observed in the GET."
+          },
+          {
+            "selector": "tests.unit.remediation.test_cyc_02::test_n5_result_has_reopenable_cas_reference",
+            "outcome": "PASS",
+            "property_result": "The N5 result reference is reopenable through the CAS path."
+          },
+          {
+            "selector": "tests.unit.remediation.test_cyc_02::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+            "outcome": "PASS",
+            "property_result": "Fresh-process default-N8 readback binds CAS content and identity; the pinned test contains and exercises 14 negative-consumer variants."
+          }
+        ],
+        "interpretation": "The run establishes bounded conditional result readback, reopenable CAS reference, and fresh-process content/identity binding with 14 negative variants. It does not establish that a static N5 refusal survives into or remains readable from the projection because that branch failed during fixture profile validation before N5 execution.",
+        "artifacts": {
+          "receipt.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-and-content-binding-current/receipt.json",
+            "sha256": "e35953b16044691748053adaac43e35b39ae0e1455f3da62a0561e8ae408c556",
+            "bytes": 3063
+          },
+          "stdout.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-and-content-binding-current/stdout.txt",
+            "sha256": "b670bfb19b656ad6a120d1323222bdc5da4c1099917c9e1e1973dcdc318c5a37",
+            "bytes": 7687
+          },
+          "stderr.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-and-content-binding-current/stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          "junit.xml": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-and-content-binding-current/junit.xml",
+            "sha256": "1efe8a3f1b7a91207c410ca4fa46ace5029dced0df5792c1f101a4ed13e87a9a",
+            "bytes": 8496
+          },
+          "origins.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-and-content-binding-current/origins.json",
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+            "bytes": 1095
+          },
+          "e02_origin.py": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-and-content-binding-current/e02_origin.py",
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+            "bytes": 656
+          }
+        },
+        "canonical_evidence_folder": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-and-content-binding-current",
+        "artifact_copy_owner": "compiler_retirement copied the six standard run outputs once; basetemp/CAS artifacts were not copied."
+      }
+    },
+    {
+      "check_id": "n5-static-refusal-run-details-3e8e",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-refusal-core-GET-normalized-profile/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-refusal-core-GET-normalized-profile/pytest-basetemp 'tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[static-engine-refusal]'",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-refusal-core-GET-normalized-profile/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-refusal-core-GET-normalized-profile/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[static-engine-refusal]"
+      ],
+      "target_sha": "3e8e6cbba9f3f2cb4ebba19e40cd822c4e93337a",
+      "target_tree_sha": "e5b090a46395df04228af9d59dcbf66a56169b0c",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "package_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-refusal-core-GET-normalized-profile:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_environment": {},
+        "import_origins_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-normalized-profile/origins.json",
+        "workspace_dirty_before": [
+          " M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json"
+        ],
+        "workspace_dirty_after": [
+          " M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json"
+        ]
+      },
+      "input_closure": {
+        "prior_candidate": {
+          "commit": "07b9ba4a6b6afa4503390c6f30457e3d5a46f8fd",
+          "tree": "00d447aae649eb3ad886ca1e87e1c2d6dca0878d"
+        },
+        "tested_candidate": {
+          "commit": "3e8e6cbba9f3f2cb4ebba19e40cd822c4e93337a",
+          "tree": "e5b090a46395df04228af9d59dcbf66a56169b0c"
+        },
+        "selected_test_input": {
+          "selector": "tests.integration.core_runtime.test_e02_manual_n5_interaction_readback::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[static-engine-refusal]",
+          "path": "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+          "git_blob_at_target": "606795f916544c167054881372eb6739e40102a5"
+        },
+        "runtime_source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/routes/artifacts.py",
+            "git_blob_at_target": "f20a3db2df9cdb3f74c1ad7bf6728d8d1bcb9ca3"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+            "git_blob_at_target": "1e735f2322a1f15fc8cb6a439d8231b2dc19c898"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob_at_target": "f07a836f2dcb38971bf28e18ae0fd477662a009e"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/conditional_simulation_replay.py",
+            "git_blob_at_target": "49860221dd050487c845d293d255ffeaf9cfe344"
+          }
+        ],
+        "source_state_note": "This run is the first actual static refusal projection check after the 07b9 profile-hash failure."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "summary": "pytest exit=1; JUnit 0/1 passed, 1 failed, 0 errors, 0 skipped; testcase 5.332s; runner wall_s=20.205492499982938.",
+        "junit_counts": {
+          "tests": 1,
+          "passed": 0,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "case_results": [
+          {
+            "selector": "tests.integration.core_runtime.test_e02_manual_n5_interaction_readback::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[static-engine-refusal]",
+            "outcome": "FAIL",
+            "property_result": "Assertions before the failure observed one N5 call, zero N8 calls, GET status 200, value_blocked, value_ref null, predicate_basis not_established, simulate_only, conditional_simulation_only, and conditional_simulation_replay_refused. At line 734, ArtifactRef.model_validate(row[\"n5_result_ref\"]) received None."
+          }
+        ],
+        "failure_detail": {
+          "point": "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py:734",
+          "exception": "pydantic_core.ValidationError: ArtifactRef received None for row[\"n5_result_ref\"].",
+          "interpretation": "No N5 numerical result ref exists on this refusal row. Do not fix the test by inventing a result artifact ref; typed refusal details in the existing RunDetails projection are the scoped source follow-up."
+        },
+        "assessment": "The static N5 refusal ran and the fresh Core RunDetails GET returned the blocked observation. The test then made an invalid expectation: it tried to parse row.n5_result_ref as an ArtifactRef even though the refused path has no numeric N5 result reference. This is not a successful artifact-content readback.",
+        "artifacts": {
+          "receipt.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-normalized-profile/receipt.json",
+            "bytes": 2861,
+            "sha256": "601e9e39a18c89a5058642befac613032fc0380ac27b8c2d2b4c9492266a8a27"
+          },
+          "stdout.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-normalized-profile/stdout.txt",
+            "bytes": 88179,
+            "sha256": "caadcbfe094a74262a8103ed9acf8b2671a3310f2229b239755fbfe60b64c4b6"
+          },
+          "stderr.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-normalized-profile/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit.xml": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-normalized-profile/junit.xml",
+            "bytes": 37378,
+            "sha256": "b1b5eb664c6ca6c568077236824e55da2b3a91fec3adf2b58f165e3649747846"
+          },
+          "origins.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-normalized-profile/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          },
+          "e02_origin.py": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-normalized-profile/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          }
+        },
+        "canonical_evidence_folder": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-normalized-profile",
+        "artifact_copy_owner": "compiler_retirement copied the six standard output files once; raw basetemp/CAS content was not copied."
+      }
+    },
+    {
+      "check_id": "n5-refusal-artifact-history-core-get-ad99",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-refusal-core-artifact-history-current/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-refusal-core-artifact-history-current/pytest-basetemp 'tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[static-engine-refusal]'",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-refusal-core-artifact-history-current/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-refusal-core-artifact-history-current/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[static-engine-refusal]"
+      ],
+      "target_sha": "ad99c27bf282df1f59f427ec75b55133b3e7b7c3",
+      "target_tree_sha": "f1046f0f4c811392ebde50c722cf6c16fbbf70bf",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "package_versions": {
+          "pytest": "9.0.2",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3"
+        },
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-refusal-core-artifact-history-current:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_environment": {},
+        "import_origins_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-artifact-history-current/origins.json",
+        "workspace_dirty_before": [
+          " M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-and-content-binding-current/",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-refusal-core-readback.json",
+          "?? policy-engine/tests/integration/core_runtime/test_e02_terminal_status_readback.py"
+        ],
+        "workspace_dirty_after": [
+          " M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-and-content-binding-current/",
+          "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-refusal-core-readback.json",
+          "?? policy-engine/tests/integration/core_runtime/test_e02_terminal_status_readback.py"
+        ]
+      },
+      "input_closure": {
+        "prior_candidate": {
+          "commit": "3e8e6cbba9f3f2cb4ebba19e40cd822c4e93337a",
+          "tree": "e5b090a46395df04228af9d59dcbf66a56169b0c"
+        },
+        "tested_candidate": {
+          "commit": "ad99c27bf282df1f59f427ec75b55133b3e7b7c3",
+          "tree": "f1046f0f4c811392ebde50c722cf6c16fbbf70bf"
+        },
+        "selected_test_input": {
+          "selector": "tests.integration.core_runtime.test_e02_manual_n5_interaction_readback::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[static-engine-refusal]",
+          "path": "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+          "git_blob_at_target": "c173309af1fa38490b595988da11a664c085f253"
+        },
+        "runtime_source_pins": [
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/routes/artifacts.py",
+            "git_blob_at_target": "f20a3db2df9cdb3f74c1ad7bf6728d8d1bcb9ca3"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+            "git_blob_at_target": "1e735f2322a1f15fc8cb6a439d8231b2dc19c898"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "git_blob_at_target": "f07a836f2dcb38971bf28e18ae0fd477662a009e"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/conditional_simulation_replay.py",
+            "git_blob_at_target": "49860221dd050487c845d293d255ffeaf9cfe344"
+          }
+        ],
+        "source_state_note": "At the ad99 target, the later typed-refusal source changes were not included: the refusal and Core RunDetails assertions passed, then the public raw artifact GET correctly returned 409 without authority_signal. The later 16d0b70 run verifies the typed refusal/CAS/Core GET path; the Atlas consumer remains unestablished."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "summary": "pytest exit=1; JUnit 0/1 passed, 1 failed, 0 errors, 0 skipped; testcase 5.332s; runner wall_s=24.0127078340156.",
+        "junit_counts": {
+          "tests": 1,
+          "passed": 0,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "case_results": [
+          {
+            "selector": "tests.integration.core_runtime.test_e02_manual_n5_interaction_readback::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[static-engine-refusal]",
+            "outcome": "FAIL",
+            "property_result": "The test reached a static N5 refusal, zero N8 calls, a successful fresh Core RunDetails GET, and a refusal observation with n5_result_ref null. The subsequent raw artifact-content request returned 409 authority_surface_admission_blocked with reason authority_surface_signal_missing. The request lacked an authority_signal; this is the expected fail-closed negative for that request."
+          }
+        ],
+        "failure_detail": {
+          "point": "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py:744",
+          "exception": "AssertionError: artifact_response.status_code was 409, expected 200.",
+          "raw_gate": {
+            "status": "blocked",
+            "code": "authority_surface_admission_blocked",
+            "reason": "authority_surface_signal_missing",
+            "surface": "artifact",
+            "purpose": "runtime_closeout_authority",
+            "authority_result": "not_applicable",
+            "consumed_authority_boundary": false,
+            "s12_issue_codes": [
+              "cgf_disposition_missing"
+            ],
+            "request_supplied_authority_signal": false,
+            "request": {
+              "method": "GET",
+              "path": "/api/v1/artifacts/sha256:5084a1b2017a8d9dd57f2304ab5ea94cbbb467257b017798ffd7d116ec8d9784/content",
+              "query": {
+                "max_bytes": 2000000
+              },
+              "headers": {
+                "Accept": "application/json"
+              },
+              "authority_signal": "not supplied"
+            }
+          },
+          "interpretation": "No raw artifact bytes were read. The composed authority surface gate denied this request because it supplied no authority signal; this denial is retained as a correct negative and is not a reason to relax the gate."
+        },
+        "assessment": "The N5 refusal and fresh Core RunDetails readback passed before the raw artifact-content route. That route correctly failed closed with HTTP 409 because no authority_signal was supplied; the test incorrectly asserted 200. Keep the raw artifact gate unchanged.",
+        "artifacts": {
+          "receipt.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-artifact-history-current/receipt.json",
+            "bytes": 3617,
+            "sha256": "28fd3f0a00cab9c1445c684877ad59a87ea7713c97bf109d1438371cf7ceb5b2"
+          },
+          "stdout.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-artifact-history-current/stdout.txt",
+            "bytes": 89871,
+            "sha256": "977d3a0bb7855b8b5c563504c623694cf1b9f0a6a45e4680c0ca9e4a981daf1b"
+          },
+          "stderr.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-artifact-history-current/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit.xml": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-artifact-history-current/junit.xml",
+            "bytes": 40903,
+            "sha256": "a8a7d0839d0530e7c877582238571080841a220e156ada4d22bd8e42523d17a1"
+          },
+          "origins.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-artifact-history-current/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          },
+          "e02_origin.py": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-artifact-history-current/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          }
+        },
+        "canonical_evidence_folder": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-artifact-history-current",
+        "artifact_copy_owner": "compiler_retirement copied the six standard output files once; raw basetemp/CAS content was not copied."
+      }
+    },
+    {
+      "check_id": "n5-no-run-bridge-frozen-16d0",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-no-run-bridge-frozen-16d0/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-no-run-bridge-frozen-16d0/pytest-basetemp tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py tests/unit/remediation/test_cyc_02.py::test_n5_result_has_reopenable_cas_reference tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-no-run-bridge-frozen-16d0/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-no-run-bridge-frozen-16d0/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+        "tests/unit/remediation/test_cyc_02.py::test_n5_result_has_reopenable_cas_reference",
+        "tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity"
+      ],
+      "target_sha": "16d0b70c44a9ada815d54ba4a5e98a6e5f48f36b",
+      "target_tree_sha": "82268b941b53ff479a1b12c6c384b032103935d4",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-no-run-bridge-frozen-16d0:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_environment": {},
+        "launcher": {
+          "path": "policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "sha256": "679f3fcc294eb3081845d80a91b00693fc0823bacb50543ec28067adccd34078"
+        }
+      },
+      "input_closure": {
+        "slice_base_commit": "ad99c27bf282df1f59f427ec75b55133b3e7b7c3",
+        "slice_base_tree": "f1046f0f4c811392ebde50c722cf6c16fbbf70bf",
+        "candidate_source_blobs": {
+          "policy-engine/src/polisyos/runtime/quality/conditional_simulation_replay.py": "fe8696e7111b1c6354c1e996dea282291b814b1e",
+          "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": "18f6cbc8cf3fe2e44ba6d0ed944bf6420d970d0d",
+          "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py": "cb6b7ea4b03e7d90c76f75f8672c03ebb9bdc8cb"
+        },
+        "selected_test_blobs": {
+          "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py": "d14c106d5cbbd7d07e32e9d15c3b3618a59af9d6",
+          "policy-engine/tests/unit/remediation/test_cyc_02.py": "3a265b00e1e099f074e83965c3a4600e0e11dda2"
+        },
+        "selected_cases": [
+          "tests.integration.core_runtime.test_e02_manual_n5_interaction_readback::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[conditional-result]",
+          "tests.integration.core_runtime.test_e02_manual_n5_interaction_readback::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[static-engine-refusal]",
+          "tests.unit.remediation.test_cyc_02::test_n5_result_has_reopenable_cas_reference",
+          "tests.unit.remediation.test_cyc_02::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity"
+        ],
+        "candidate_scope_note": "The exact target tree includes N6 terminal-projection changes. This invocation covers only the two manual N5 parameters and the two existing CAS/content-binding tests named above."
+      },
+      "outcome": "PASS",
+      "output": {
+        "summary": "pytest exit=0; 4 passed, 0 failed, 0 errors, 0 skipped in 58.11s; runner wall_s=62.11878587497631.",
+        "junit_counts": {
+          "tests": 4,
+          "passed": 4,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "case_results": [
+          {
+            "selector": "tests.integration.core_runtime.test_e02_manual_n5_interaction_readback::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[conditional-result]",
+            "outcome": "PASS",
+            "property_result": "The bounded conditional N5 path survives persisted RunDetails and fresh GET."
+          },
+          {
+            "selector": "tests.integration.core_runtime.test_e02_manual_n5_interaction_readback::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[static-engine-refusal]",
+            "outcome": "PASS",
+            "property_result": "The actual static N5 refusal is content-bound in CAS and its typed result reference, blocked status, reason, and authority blockers survive fresh Core RunDetails GET; the persisted compiled run and result are reopened under the fixture tenant scope, and the owner-bound replay row has no N5 execution ref or selected engine identity."
+          },
+          {
+            "selector": "tests.unit.remediation.test_cyc_02::test_n5_result_has_reopenable_cas_reference",
+            "outcome": "PASS",
+            "property_result": "The N5 result ref reopens from CAS."
+          },
+          {
+            "selector": "tests.unit.remediation.test_cyc_02::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+            "outcome": "PASS",
+            "property_result": "Fresh-process default-N8 readback binds CAS bytes and identity; its 14 malformed, foreign, and missing-content variants fail closed."
+          }
+        ],
+        "negative_controls": [
+          "The raw artifact-content route without authority_signal remains blocked with HTTP 409 authority_surface_signal_missing; the test reads the owned artifacts through the tenant-scoped CAS owner path instead.",
+          "A foreign-tenant RunDetails GET remains blocked with HTTP 403 run_tenant_mismatch."
+        ],
+        "interpretation": "This run establishes the exercised synthetic refusal transition from producer through persisted CAS content to the fresh Core RunDetails consumer, plus fresh-process default-N8 CAS identity checks. It does not establish the separately named authorized Atlas consumer.",
+        "artifacts": {
+          "receipt.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-verified-16d0/receipt.json",
+            "bytes": 5259,
+            "sha256": "57f8414c16c1a11669818b2c8d77fa86b27bfd36b9178979d3f2e09aa0a1f239"
+          },
+          "stdout.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-verified-16d0/stdout.txt",
+            "bytes": 99,
+            "sha256": "57297c8783bd9d9deb6f5801ce34ec70ddbcbf4ed57c271287e89a33ffd96f22"
+          },
+          "stderr.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-verified-16d0/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit.xml": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-verified-16d0/junit.xml",
+            "bytes": 951,
+            "sha256": "d8322b16d63ef8ec814ba35832d23005d0902ae127124da81d03af19599ed05c"
+          },
+          "origins.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-verified-16d0/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          },
+          "e02_origin.py": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-verified-16d0/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          }
+        },
+        "canonical_evidence_folder": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-verified-16d0",
+        "artifact_copy_owner": "compiler_retirement copied the six completed standard outputs once; basetemp/CAS payloads were not copied."
+      }
+    },
+    {
+      "check_id": "n5-refusal-consumer-R1-frozen-16d0",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python -m pytest -p e02_origin -o addopts= --import-mode=importlib --strict-markers -q --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-refusal-consumer-R1-frozen-16d0/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-refusal-consumer-R1-frozen-16d0/pytest-basetemp tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[static-engine-refusal]",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-refusal-consumer-R1-frozen-16d0/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-refusal-consumer-R1-frozen-16d0/pytest-basetemp",
+        "tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[static-engine-refusal]"
+      ],
+      "target_sha": "16d0b70c44a9ada815d54ba4a5e98a6e5f48f36b",
+      "target_tree_sha": "82268b941b53ff479a1b12c6c384b032103935d4",
+      "environment": {
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+        "variables": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n5-refusal-consumer-R1-frozen-16d0:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "JAX_PLATFORMS": "cpu"
+        },
+        "probe_environment": {
+          "POLISYOS_E02_N5_REFUSAL_BRANCH_REMOVAL": "1"
+        },
+        "launcher": {
+          "path": "policy-engine/_build/e02-A-continuation-20261007/run_check_refusal_removal.py",
+          "sha256": "103fcd59ff2f543396e9d9b9c6606b2ace1972d8d3714e619d8895a348b07500"
+        }
+      },
+      "input_closure": {
+        "target_candidate_sha": "16d0b70c44a9ada815d54ba4a5e98a6e5f48f36b",
+        "target_tree_sha": "82268b941b53ff479a1b12c6c384b032103935d4",
+        "test_blob": "d14c106d5cbbd7d07e32e9d15c3b3618a59af9d6",
+        "case": "static-engine-refusal",
+        "mutation": "The test AST-transforms an in-memory copy of conditional_simulation_replay._replay_cycle and replaces the one exact simulation.status == 'simulation_blocked' if-predicate with False; the tracked source files are unchanged.",
+        "source_unchanged": true
+      },
+      "outcome": "FAIL",
+      "output": {
+        "summary": "The recorded pytest invocation exited 1; 0/1 passed, 1 failed, 0 errors, 0 skipped; testcase 5.298s and runner wall_s=20.0983273749589. The output-capture harness completed; its zero exit status does not override the pytest/JUnit failure.",
+        "junit_counts": {
+          "tests": 1,
+          "passed": 0,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "case_results": [
+          {
+            "selector": "tests.integration.core_runtime.test_e02_manual_n5_interaction_readback::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[static-engine-refusal]",
+            "outcome": "FAIL",
+            "failure_point": "test_e02_manual_n5_interaction_readback.py:836",
+            "expected": "static_engine_cannot_ground_dynamic_horizon",
+            "observed": "The persisted N5 candidate basis failed owner-bound replay; no conditional value is projected."
+          }
+        ],
+        "removal_probe": {
+          "probe_outcome": "PASS",
+          "reason": "With the named in-memory consumer branch predicate forced false, the fresh GET no longer projected the exact static-engine refusal reason and the maintained assertion failed at line 836.",
+          "ast_match_count": 1,
+          "branch_predicate_replaced_with": false,
+          "source_bytes_changed": false,
+          "later_assertions_not_reached": [
+            "The row.n5_result_ref equality assertion at line 846 was not reached because execution failed at line 836; this probe does not independently establish that result-ref assertion after branch removal."
+          ]
+        },
+        "interpretation": "This is a successful remove-the-property-keep-the-markers falsifier for the exact refusal-reason projection branch: pytest correctly fails when that branch is removed in memory. It is a FAIL test outcome and a PASS removal-probe result. Do not infer ref disappearance from this run.",
+        "artifacts": {
+          "receipt.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-R1-removal-16d0/receipt.json",
+            "bytes": 5516,
+            "sha256": "665e70ec6a098eb3e601d027954ff7926208b3ad8bf486834ddbd351157aa35a"
+          },
+          "stdout.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-R1-removal-16d0/stdout.txt",
+            "bytes": 92399,
+            "sha256": "fedc73e4201d4d1d7494ed8b8845638e9d91597e012c1891bf719f3a14b4d4d3"
+          },
+          "stderr.txt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-R1-removal-16d0/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "junit.xml": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-R1-removal-16d0/junit.xml",
+            "bytes": 41570,
+            "sha256": "a4c0d783de01c2e39a52390e1e07946adc8e633bb80221ff9664af218d3ad088"
+          },
+          "origins.json": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-R1-removal-16d0/origins.json",
+            "bytes": 1095,
+            "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+          },
+          "e02_origin.py": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-R1-removal-16d0/e02_origin.py",
+            "bytes": 656,
+            "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+          }
+        },
+        "canonical_evidence_folder": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-R1-removal-16d0",
+        "artifact_copy_owner": "compiler_retirement copied the six completed standard outputs once; basetemp/CAS payloads were not copied."
+      }
+    }
+  ],
+  "check_catalogue_ref": "policyos.e02.n5_refusal_core_readback.v1#/checks/0",
+  "source_criteria": [
+    {
+      "id": "B04",
+      "bundle": "CYC-02",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CYC-02.md",
+      "section": "B04",
+      "cited_original_source": "B_r19 lines 241-252, transcribed in full by the CYC-02 B04 source block",
+      "source_file_sha256": "b6a2fab8ca0061746ee6ce017fc6d341a1a34707b97244bf1307a81e0a703029",
+      "source_git_blob_at_target": "b6c034fb40a7d89629ff2c99a9a7be90f99ee824",
+      "source_handoff_locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-intake.json#/source_criteria/0",
+      "criterion_scope": "Persisted numerical content remains readable after process completion/reopening and by another authorized consumer; tampered content, another model, and unavailable reference are rejected; refusal history remains in the projection."
+    }
+  ],
+  "source_history": {
+    "test_witness_commit": "07b9ba4a6b6afa4503390c6f30457e3d5a46f8fd",
+    "test_witness_blob": "2ce0295e19ca0654b9447952b5b46bc3ea95165a",
+    "runtime_source_blobs_unchanged_from_slice_base": true,
+    "post_run_test_only_commit": "3e8e6cbba9f3f2cb4ebba19e40cd822c4e93337a",
+    "post_run_test_only_tree": "e5b090a46395df04228af9d59dcbf66a56169b0c",
+    "post_run_test_blob": "606795f916544c167054881372eb6739e40102a5",
+    "post_run_status": "The 3e8e candidate failed at the refusal-row n5_result_ref assertion; ad99 passed its Core RunDetails assertions and then received the correct guarded 409 for an authority-less raw artifact request. On the reviewed 16d0b70 candidate, the four selected producer/CAS/Core GET/N8 cases passed. The separate R1 in-memory branch-removal falsifier produced the expected pytest assertion failure at line 836; this is a successful removal witness, not a production-run failure. Overall B04 remains limited because actual authorized Atlas consumption is not established.",
+    "ad99_test_only_commit": "ad99c27bf282df1f59f427ec75b55133b3e7b7c3",
+    "ad99_test_blob": "c173309af1fa38490b595988da11a664c085f253",
+    "source_changes_after_ad99": {
+      "status": "SOURCE_COMMITTED; BOUNDED_SELECTED_TESTS_PASS; ATLAS_CONSUMER_NOT_ESTABLISHED",
+      "paths": [
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/conditional_simulation_replay.py",
+        "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py"
+      ],
+      "scope": "The committed source and test candidate passes the selected synthetic N5 refusal/CAS/Core GET path. The raw artifact gate remains unchanged and still denies the authority-less public-content request. Actual authorized Atlas consumption remains unestablished.",
+      "test_paths": [
+        "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+        "policy-engine/tests/integration/core_runtime/test_e02_terminal_status_readback.py"
+      ],
+      "base_commit": "ad99c27bf282df1f59f427ec75b55133b3e7b7c3",
+      "base_tree": "f1046f0f4c811392ebde50c722cf6c16fbbf70bf",
+      "source_commit": "975a3b2b97979f36c0af5d2ea98e757e2fe88c99",
+      "source_tree": "44c5abb9245f975f1e4c29f79cd41796558b9504",
+      "test_commit": "16d0b70c44a9ada815d54ba4a5e98a6e5f48f36b",
+      "test_tree": "82268b941b53ff479a1b12c6c384b032103935d4",
+      "completed_outcome": "The four selected cases passed; overall B04 remains limited pending an actual authorized Atlas consumer readback"
+    }
+  },
+  "property": {
+    "statement": "B04 requires the narrowed numeric result to remain readable from persisted content after process completion/reopening and through another authorized consumer, while retaining refusal history in the projection.",
+    "runtime_path": [
+      "Actual HTTP generation-cycle route serves the conditional N5 fixture and reads the persisted RunDetails projection.",
+      "N5 reference can be reopened from the CAS by the existing CAS-reference test.",
+      "A separate producer/consumer-process test runs the canonical N5 producer and actual default N8 consumer against CAS-persisted bytes and identity.",
+      "On the frozen 16d0b70 candidate, the static-engine refusal actually ran, its content-bound result was persisted/reopened from tenant-scoped CAS, and the refusal reason, result ref, blockers, and value_blocked status survived a fresh Core RunDetails GET.",
+      "At 3e8e, the actual static N5 refusal produced a value_blocked observation and the fresh Core RunDetails GET returned 200; the test then incorrectly required a numeric N5 result ArtifactRef on a refused row and failed because the ref was null.",
+      "At ad99, the maintained assertion expected n5_result_ref to be null and the RunDetails refusal assertions passed. A later raw artifact-content request, without authority_signal, was correctly denied with 409 authority_surface_signal_missing; no artifact bytes were read.",
+      "At 16d0b70, the raw artifact-content request without authority_signal still returned the expected guarded 409, while the integration test reopened both owned CAS artifacts under the fixture tenant scope and the owner-bound replay row preserved the no-run distinction."
+    ],
+    "proxy_divergence": "A CAS reference or metadata marker can be present while bytes, sibling receipt hash, WMR, atom/outcome, or selected engine identity is wrong. The 14 negative variants exercise content/identity rejection in the fresh-process N8 consumer. The 3e8 assertion treated a result-ref field as a proxy for the refusal record even though that old path produced no numeric result; 16d0 now persists a receipt-bound refusal result. The ad99 raw-content assertion treated a 200 status as a proxy for admissible artifact access; with no authority signal the actual composed gate correctly denies it. The R1 removal probe replaced one exact no-run branch predicate with false in an in-memory AST copy: the fresh GET lost the exact refusal reason and the maintained assertion failed at line 836, even though route/projection markers remained.",
+    "negative_controls": [
+      {
+        "control": "Four content-bound refusal mutations were re-signed with a valid receipt and then rejected by the actual refusal-result loader: a fake selected engine decision, foreign world-model-record occurrence, changed horizon, and injected numeric packet amount/unit. The tests assert refusal_request_or_result_mismatch for the fake decision, changed horizon, and injected numeric packet, and joint_simulation_result_wmr_mismatch for the foreign occurrence.",
+        "basis": "recomputed",
+        "evidence_ref": "#/checks/3",
+        "source_ref": "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py@d14c106d5cbbd7d07e32e9d15c3b3618a59af9d6"
+      },
+      {
+        "control": "The fresh-process N8 consumer rejects all 14 named variants: explicit_empty_candidate_atoms, absent_candidate_atom_mismatch, sibling_digest_mismatch, sibling_digest_missing, unknown_outcome, foreign_wmr_id, foreign_wmr_hash, missing_cas_ref, identity_no_selected_decision, identity_multiple_selected_decisions, identity_receipt_engine, identity_trajectory_identity, missing_selected_point_outcome, and tampered_cas_bytes. Each remains value_blocked with no value or method-selection receipt.",
+        "basis": "recomputed",
+        "evidence_ref": "#/checks/3",
+        "source_ref": "policy-engine/tests/unit/remediation/test_cyc_02.py@3a265b00e1e099f074e83965c3a4600e0e11dda2"
+      },
+      {
+        "control": "The R1 in-memory removal sets the actual simulation.status == 'simulation_blocked' branch predicate to False. The maintained fresh-GET assertion then fails because the exact static-engine refusal reason is replaced by a generic owner-replay failure; this proves reason dependence only. The later result-ref assertion is not reached, so R1 makes no independent claim about ref disappearance.",
+        "basis": "recomputed",
+        "evidence_ref": "#/checks/4"
+      }
+    ],
+    "authority_boundary": "This fixture-backed result does not establish causal correctness, production profile/manifest scope, the separately named authorized Atlas consumer, N9 refusal/currentness, publication authority, or real-world action permission. The raw artifact GET denial is a fail-closed behavior and must remain. This packet uses tenant-scoped CAS owner reads and does not bypass the public artifact gate."
+  },
+  "predicate_basis": "not_established",
+  "predicate_annotations": [
+    {
+      "predicate": "Conditional N5 result and CAS content/identity are readable by the tested consumers",
+      "basis": "recomputed",
+      "scope": "synthetic fixture; actual HTTP GET, reopened CAS reference, and fresh-process default N8"
+    },
+    {
+      "predicate": "Fourteen N8 malformed/foreign identity/content variants fail closed",
+      "basis": "recomputed",
+      "scope": "complete variant set declared in the pinned test blob 3a265b00e1e099f074e83965c3a4600e0e11dda2"
+    },
+    {
+      "predicate": "Static N5 refusal status and blocker survive in the fresh Core RunDetails projection",
+      "basis": "recomputed",
+      "scope": "16d0b70 four-case run: the actual refusal result ref, value_blocked status, static-engine refusal reason, authority blockers, and no-run replay row survived the fresh Core GET; owned CAS content was reopened under the fixture tenant scope. The public artifact-content route remains blocked without authority_signal."
+    },
+    {
+      "predicate": "The tested fixture Core/N8 consumers can read the persisted refusal artifact content and bind it to the source/result identity",
+      "basis": "recomputed",
+      "scope": "16d0b70 fresh Core GET plus tenant-scoped CAS reopen; separate fresh-process default N8 content/identity check and 14 negative variants. The public raw artifact route still requires authority_signal."
+    },
+    {
+      "predicate": "The separately named authorized Atlas consumer reads and binds the persisted refusal content",
+      "basis": "not_established",
+      "scope": "No actual Atlas consumer invocation or artifact readback is in these receipts."
+    },
+    {
+      "predicate": "Full B04 across production manifest/profile and all authorized consumers",
+      "basis": "not_established",
+      "scope": "The actual authorized Atlas consumer remains unestablished, and this fixture does not establish a production profile/manifest or every authorized consumer."
+    }
+  ],
+  "capability_state_or_finding_state": "consumer_missing",
+  "finding_outcome": "limited",
+  "capability_state_detail": "The 16d0b70 run passed the exercised synthetic N5 refusal producer, content-bound CAS result, tenant-scoped reopen, fresh Core RunDetails GET, and fresh-process default-N8 identity checks with 14 negative variants. The R1 removal probe made the exact refusal reason disappear when the in-memory no-run branch was removed, and the maintained assertion failed as intended. B04 remains limited because the source criterion also names Atlas and no actual authorized Atlas consumer readback is established; the raw artifact-content endpoint remains fail-closed without authority_signal.",
+  "limitations_and_next_owner": [
+    "The 07b9 static-refusal parameter failed before N5 at profile content-hash validation.",
+    "The 3e8 run reached actual refusal and fresh RunDetails GET, then failed at line 734 because it parsed a null n5_result_ref as an ArtifactRef. A refusal has no numeric N5 result ref; typed refusal details should be modeled in existing RunDetails fields rather than fabricating a result ref.",
+    "The ad99 run changed the test to expect a null n5_result_ref. Its refusal and Core RunDetails assertions passed; the subsequent raw artifact GET returned a correct guarded 409 authority_surface_signal_missing because no authority_signal was supplied. Preserve this raw gate and keep this test result classified as FAIL because it asserted 200.",
+    "The 16d0b70 source/test candidate passed the selected fixture-backed producer-to-CAS-to-fresh-Core-GET transition and the separate fresh-process N8 consumer tests. The actual authorized Atlas consumer named by the source criterion remains unestablished, so this evidence does not close B04.",
+    "The R1 run is a deliberate in-memory AST removal probe: pytest FAIL at line 836 is the expected witness that the exact refusal-reason property depends on the branch. The later row.n5_result_ref assertion at line 846 was not reached, so this probe does not establish that assertion independently.",
+    "The successful paths are synthetic. A production profile/manifest and actual Atlas consumer surface are not established.",
+    "B05/N9 refusal and valid signed currentness receipt, B08 empirical-effect/comparator semantics, and B26 higher-order consumer remain separate and are not tested or closed by this packet."
+  ],
+  "finding_scope": {
+    "finding": "B04",
+    "bundle": "CYC-02",
+    "outcome": "limited",
+    "closure_now": "not_adjudicated",
+    "closure_ids": [],
+    "explicit_nonclaims": [
+      "B05",
+      "B08",
+      "B26",
+      "ordinary L6 closure"
+    ]
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P10",
+      "P29",
+      "P32",
+      "P37",
+      "P38",
+      "P41"
+    ],
+    "existing_risks": [
+      "P01/P02: the run covers fixture HTTP, persisted CAS, and N8 consumer paths but not a production-wide bridge/profile surface.",
+      "P05: the raw artifact gate blocked an authority-less request with 409; keep the guard and do not grant authority through a projection.",
+      "P10/P29: the 16d0b70 normal case proves the refusal reason/ref/status through the persisted Core GET; the R1 in-memory branch removal makes that reason disappear and the exact assertion fail at line 836. The later result-ref assertion was not reached by R1.",
+      "P32/P38: content-bound N8 negatives remain valid; the public raw-content request without authority_signal remains a guarded 409, while the positive result read uses the tenant-scoped CAS owner and fresh Core/N8 consumers.",
+      "P37/P41: each check is bound to its exact target SHA/tree and full retained output hashes; the synthetic verification passes, while the separate Atlas authorized consumer remains unestablished."
+    ],
+    "target_pattern": "Record the actual synthetic refusal producer, receipt-bound CAS content, tenant-scoped owner read, fresh Core GET, and fresh N8 consumer as bounded evidence; record the in-memory branch-removal falsifier and retain the exact Atlas consumer limitation.",
+    "missing_capability_labels": [
+      "consumer_missing"
+    ],
+    "acceptance_signal": "The selected synthetic Core/N8 verification is complete. B04 remains limited until an actual authorized Atlas consumer reads and binds the persisted refusal content or the named Atlas surface is explicitly adjudicated out of scope. Preserve the raw artifact route 409 without authority_signal; do not loosen the gate."
+  },
+  "evidence_refs": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-and-content-binding-current/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-and-content-binding-current/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-and-content-binding-current/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-and-content-binding-current/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-and-content-binding-current/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-and-content-binding-current/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-normalized-profile/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-normalized-profile/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-normalized-profile/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-normalized-profile/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-normalized-profile/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-GET-normalized-profile/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-artifact-history-current/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-artifact-history-current/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-artifact-history-current/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-artifact-history-current/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-artifact-history-current/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-core-artifact-history-current/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-verified-16d0/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-verified-16d0/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-verified-16d0/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-verified-16d0/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-verified-16d0/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-verified-16d0/e02_origin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-R1-removal-16d0/receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-R1-removal-16d0/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-R1-removal-16d0/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-R1-removal-16d0/junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-R1-removal-16d0/origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave3/evidence/n5-refusal-consumer-R1-removal-16d0/e02_origin.py"
+  ],
+  "baseline_cell_scope_note": "No baseline cell is claimed in this B04 evidence packet; the source criterion is cited directly by bundle and line span.",
+  "predicate_basis_detail": "The selected synthetic conditional and refusal result/CAS/Core GET/N8 predicates are recomputed and pass; the R1 removal falsifier confirms the exact refusal-reason assertion changes when its branch is removed. The aggregate B04 predicate remains not_established because actual authorized Atlas consumption, production profile/manifest scope, and all authorized consumers are not established.",
+  "acceptance_signal": "The next closure-relevant evidence must come from the actual authorized Atlas consumer reading and binding the persisted refusal content, or an explicit adjudication that this named consumer surface is out of scope. Keep the public artifact-content route blocked without authority_signal; B04 remains limited until the remaining consumer boundary is resolved.",
+  "snapshot_footprint": {
+    "candidate_diff_base": {
+      "commit": "ad99c27bf282df1f59f427ec75b55133b3e7b7c3",
+      "tree": "f1046f0f4c811392ebde50c722cf6c16fbbf70bf"
+    },
+    "full_git_delta_path_count": 5,
+    "full_git_delta_paths_ref": "#/current_candidate/diff_from_base/changed_paths",
+    "mechanism_paths_count": 4,
+    "mechanism_path_breakdown": {
+      "production_source_paths": 3,
+      "test_paths": 1
+    },
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/runtime/quality/conditional_simulation_replay.py",
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py"
+    ],
+    "scope_note": "The B04 source commit 975a changes the three source paths and the B04 test commit 16d0 changes the manual N5 test. The full ad99-to-16d0 tree delta also includes the separate N6 terminal-status test and the generation_cycle.py B29 dependency commit 0539; the file-level mechanism count does not assign every hunk in that shared file to B04.",
+    "historical_initial_mechanism_snapshot": {
+      "base_commit": "fed0376fbbf6428fd6b42b2b48b5b80561274627",
+      "base_tree": "47e4327518d1c5129681d1a369417bcd97b088d9",
+      "candidate_commit": "07b9ba4a6b6afa4503390c6f30457e3d5a46f8fd",
+      "candidate_tree": "00d447aae649eb3ad886ca1e87e1c2d6dca0878d",
+      "mechanism_paths_count": 1,
+      "mechanism_paths": [
+        "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py"
+      ],
+      "meaning": "This was the earlier test-only witness snapshot; it is retained for history and does not describe the current source-backed candidate."
+    },
+    "mandatory_companion_documentation_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-refusal-core-readback.json"
+    ],
+    "evidence_retention": "The 07b9, 3e8e, ad99, 16d0 four-case, and 16d0 R1 invocations each retain their six standard outputs in separate folders. Ignored basetemp/CAS payloads were not copied. Per-run JUnit counts remain separate; the R1 pytest failure and removal-probe result are separately recorded."
+  },
+  "execution_target_note": "The top-level candidate SHA/tree bind the current source-backed test target 16d0b70/tree 82268b9 (source base ad99). The earlier 07b9/3e8/ad99 snapshots and their outcomes remain in checks/0–2 and superseded_historical_snapshot. execution_tracking/0/initial_observation is a historical IN_PROGRESS/UNRUN capture; its final outcome is PASS at checks/3. Checks/3 and /4 are separate invocations on 16d0; the R1 removal witness passes its detector objective while pytest fails at the intended refusal-reason assertion. JUnit counts are per invocation and are not summed across rows.",
+  "current_candidate": {
+    "candidate_sha": "16d0b70c44a9ada815d54ba4a5e98a6e5f48f36b",
+    "candidate_tree_sha": "82268b941b53ff479a1b12c6c384b032103935d4",
+    "branch": "codex/e02-A-delivery-attached",
+    "base_commit": "ad99c27bf282df1f59f427ec75b55133b3e7b7c3",
+    "base_tree_sha": "f1046f0f4c811392ebde50c722cf6c16fbbf70bf",
+    "commits_since_base": [
+      "0bf76b82a17bc897af765d4682f50f53a02909d5",
+      "975a3b2b97979f36c0af5d2ea98e757e2fe88c99",
+      "93a6c61d28a87bc7a05f8e9bb9edbc73e30cc75c",
+      "0539d6ac1f01614ddb8cbeb7334679bee54231be",
+      "16d0b70c44a9ada815d54ba4a5e98a6e5f48f36b"
+    ],
+    "diff_from_base": {
+      "changed_paths": [
+        "policy-engine/src/polisyos/runtime/quality/conditional_simulation_replay.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+        "policy-engine/tests/integration/core_runtime/test_e02_terminal_status_readback.py"
+      ],
+      "added_lines": 792,
+      "deleted_lines": 91,
+      "note": "This exact candidate delta also contains N6 terminal-projection work; the B04 invocation selects the two N5 parameters and the two existing CAS/content-binding cases only."
+    },
+    "B04_source_commit": {
+      "commit": "975a3b2b97979f36c0af5d2ea98e757e2fe88c99",
+      "tree": "44c5abb9245f975f1e4c29f79cd41796558b9504",
+      "review": {
+        "reviewer": "/root/atomic_composition",
+        "sha256": "b55ba61e21a173ba79a21ef09364cc2e898cb4df4595f575b1eb4f412542f228"
+      },
+      "source_blobs": {
+        "policy-engine/src/polisyos/runtime/quality/conditional_simulation_replay.py": "fe8696e7111b1c6354c1e996dea282291b814b1e",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": "34b805f16e40f8138696533630e8e7ceb1b1b1e1",
+        "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py": "cb6b7ea4b03e7d90c76f75f8672c03ebb9bdc8cb"
+      }
+    },
+    "B04_test_commit": {
+      "commit": "16d0b70c44a9ada815d54ba4a5e98a6e5f48f36b",
+      "tree": "82268b941b53ff479a1b12c6c384b032103935d4",
+      "test_blob": "d14c106d5cbbd7d07e32e9d15c3b3618a59af9d6",
+      "commit_diff": {
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_manual_n5_interaction_readback.py",
+        "added_lines": 341,
+        "deleted_lines": 34
+      },
+      "review": {
+        "reviewer": "/root/n5_intake",
+        "sha256": "f0eb8289e25ea7e97a8c1adabe710c0fdaa0ddcc9e5c58c8cfdc7d1b0e850b93"
+      }
+    }
+  },
+  "execution_tracking": [
+    {
+      "run_id": "n5-no-run-bridge-frozen-16d0",
+      "status": "COMPLETE",
+      "completed_outcome": "PASS",
+      "target_sha": "16d0b70c44a9ada815d54ba4a5e98a6e5f48f36b",
+      "target_tree_sha": "82268b941b53ff479a1b12c6c384b032103935d4",
+      "output_directory": "policy-engine/_build/e02-A-continuation-20261007/n5-no-run-bridge-frozen-16d0",
+      "selected_cases": [
+        "tests.integration.core_runtime.test_e02_manual_n5_interaction_readback::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[conditional-result]",
+        "tests.integration.core_runtime.test_e02_manual_n5_interaction_readback::test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get[static-engine-refusal]",
+        "tests.unit.remediation.test_cyc_02::test_n5_result_has_reopenable_cas_reference",
+        "tests.unit.remediation.test_cyc_02::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity"
+      ],
+      "initial_observation": {
+        "status": "IN_PROGRESS",
+        "completed_outcome_at_observation": "UNRUN",
+        "stdout_bytes_at_capture": 3,
+        "stderr_bytes_at_capture": 0,
+        "junit_available": false,
+        "receipt_available": false,
+        "meaning": "This was an earlier partial observation only; the run later completed and its final receipt is recorded at checks/3."
+      },
+      "reviewed_source_and_test": "The 975a3b2 source and 16d0b70 test commits have independent bounded reviews recorded above; the final execution result is separately recorded at checks/3.",
+      "final_check_ref": "#/checks/3"
+    },
+    {
+      "run_id": "n5-refusal-consumer-R1-frozen-16d0",
+      "status": "COMPLETE",
+      "completed_outcome": "FAIL",
+      "removal_probe_outcome": "PASS",
+      "target_sha": "16d0b70c44a9ada815d54ba4a5e98a6e5f48f36b",
+      "target_tree_sha": "82268b941b53ff479a1b12c6c384b032103935d4",
+      "final_check_ref": "#/checks/4",
+      "note": "The pytest failure is the expected semantic detector response to the in-memory AST branch removal. It is not a source-candidate run failure and does not prove the later result-ref assertion."
+    }
+  ],
+  "planned_removal_probe": {
+    "status": "EXECUTED; REMOVAL WITNESS PASS; PYTEST OUTCOME FAIL",
+    "target_property": "The B04 refusal witness must fail when its actual in-memory N5 refusal branch is removed, even while the surrounding route and projection markers remain.",
+    "control": "Set POLISYOS_E02_N5_REFUSAL_BRANCH_REMOVAL=1; the test replaced exactly one simulation.status == 'simulation_blocked' predicate with False in an in-memory AST copy of _replay_cycle.",
+    "result": "The fresh GET lost the exact static-engine refusal reason and the test failed at line 836. The later n5_result_ref assertion at line 846 was not reached; no ref-disappearance claim is made.",
+    "check_ref": "#/checks/4"
+  },
+  "current_source_worktree": {
+    "head_sha": "f029201ee6162065757486b21058ee85badd057f",
+    "head_tree_sha": "7d3b1795b7760d6b30ddc37f34426452f63b6415",
+    "dirty_source_paths": [],
+    "run_status": "The B04 receipts target 16d0b70/tree 82268b9. The current f029201 descendant has identical B04 source and manual-N5 test blobs; its only commit-path difference from 16d0 is the separate N6 terminal-status test. No new full-tree B04 run is claimed.",
+    "current_b04_blobs_match_test_target": true,
+    "changed_paths_after_test_target": [
+      "policy-engine/tests/integration/core_runtime/test_e02_terminal_status_readback.py"
+    ],
+    "dirty_test_paths": [],
+    "source_base_commit": "ad99c27bf282df1f59f427ec75b55133b3e7b7c3",
+    "source_base_tree_sha": "f1046f0f4c811392ebde50c722cf6c16fbbf70bf"
+  }
+}

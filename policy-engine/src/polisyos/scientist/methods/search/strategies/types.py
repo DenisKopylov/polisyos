@@ -10,7 +10,7 @@ from enum import Enum
 from typing import Any
 from uuid import uuid4
 
-from polisyos.common.serialization import finite_real_scalar
+from polisyos.common.serialization import _finite_checkpoint_json_number, finite_real_scalar
 from polisyos.scientist.methods.search.objective import ObjectiveValue
 
 NormalizedVector = tuple[float, ...]
@@ -187,7 +187,11 @@ class StrategyState:
     @classmethod
     def from_artifact(cls, data: bytes) -> StrategyState:
         try:
-            payload = json.loads(data.decode("utf-8"), parse_constant=_refuse_json_constant)
+            payload = json.loads(
+                data.decode("utf-8"),
+                parse_float=_finite_checkpoint_json_number,
+                parse_constant=_finite_checkpoint_json_number,
+            )
             if not isinstance(payload, dict):
                 raise ValueError("Strategy artifact must be an object")
             if "schema_version" in payload and payload["schema_version"] != "strategy_state.v2":
@@ -216,7 +220,3 @@ class StrategyState:
             return cls(**payload)
         except (UnicodeError, KeyError, TypeError, ValueError) as exc:
             raise ValueError(f"Invalid strategy artifact: {exc}") from exc
-
-
-def _refuse_json_constant(value: str) -> None:
-    raise ValueError(f"Non-finite JSON value: {value}")

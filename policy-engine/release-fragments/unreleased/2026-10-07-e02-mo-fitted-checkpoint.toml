@@ -1,0 +1,30 @@
+id = "2026-10-07-e02-mo-fitted-checkpoint"
+title = "Restore complete multi-objective fitted checkpoints"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+change_class = "persisted-artifact-format"
+surface_classification = "internal: internal-only"
+summary = "Multi-objective checkpoints serialize slots configuration, preserve the complete fitted CPU GP corpus/transforms/parameters and owned RNG, and refuse malformed or foreign state before changing the receiving strategy."
+evidence = ["tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py", "tests/unit/scientist/methods/search/strategies/test_state_inventory.py", "docs/how-to/search-checkpoint-profile-compatibility.md"]
+compatibility = "Existing StrategyState codec and optimizer signatures remain unchanged. Complete MO profile 1 binds exact installed numerical backend/runtime, objective names/directions, configuration, search space, reference and fitted corpus/model content. Missing or unknown MO profiles refuse; no silent reconstruction of absent learned parameters or RNG is supported."
+migration = "Keep the original checkpoint and refusal. Use its recorded supported implementation/environment for exact continuation, or create an explicitly new run from original evaluated inputs. Never edit profile, backend, configuration or basis markers to force a resume."
+api = "No new optimizer, GP library, public export or storage subsystem is introduced. Restore performs no MLL fit and preserves the existing MO CPU policy of one fit per subsequent ask."
+limitations = "Numerical checkpoint profile 1 covers the ordinary CPU SingleTaskGP/ModelListGP with Normalize and corpus-derived Standardize on the exact recorded backend; it does not establish GPU, custom-transform, cross-version or concurrent-thread global Torch RNG compatibility. Sequential calls preserve the ambient stream and independent replicas. Optional backend absence is UNRUN for numerical verification; synthetic oracle measurements do not establish production evaluator truth or tenant reuse authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+runbook_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+
+[[compatibility_change]]
+id = "mo-fitted-checkpoint-profile-1"
+change_class = "persisted-artifact-format"
+impact = "breaking"
+surface = "internal: internal-only"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "Incomplete internal profiles refuse; preserve their recorded implementation and environment for exact continuation."
+release_note = "MO profile 1 restores complete fitted CPU model and RNG state without refitting; unversioned or incomplete state refuses with an explicit recorded-reader or new-run recipe."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+runbook_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]

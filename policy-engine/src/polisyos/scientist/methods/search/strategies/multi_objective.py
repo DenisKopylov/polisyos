@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+import hashlib
 import io
+import json
 import math
+from collections.abc import Mapping
+from contextlib import contextmanager
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
+from importlib.metadata import version
 from typing import Any
 
 from polisyos.common.logger import get_logger
@@ -155,9 +160,9 @@ class MOBayesianOptimizer(BaseSearchStrategy):
                 return self._random_candidate(source="random_insufficient_data")
             try:
                 X, Y = self._prepare_training_data(train_set)
-                self._update_ref_point(Y)
-                self._fit_model_list(X, Y)
-                candidate, acq_value = self._optimize_ehvi(soft_limit=soft, batch_size=1)
+                with self._owned_torch_random():
+                    self._fit_model_list(X, Y)
+                    candidate, acq_value = self._optimize_ehvi(soft_limit=soft, batch_size=1)
                 return self._tensor_to_candidate(
                     candidate.squeeze(0),
                     source="ehvi",
@@ -211,9 +216,9 @@ class MOBayesianOptimizer(BaseSearchStrategy):
                 ]
             try:
                 X, Y = self._prepare_training_data(train_set)
-                self._update_ref_point(Y)
-                self._fit_model_list(X, Y)
-                candidates, _ = self._optimize_ehvi(soft_limit=soft, batch_size=batch_size)
+                with self._owned_torch_random():
+                    self._fit_model_list(X, Y)
+                    candidates, _ = self._optimize_ehvi(soft_limit=soft, batch_size=batch_size)
                 return [
                     self._tensor_to_candidate(candidates[idx], source="batch_qehvi")
                     for idx in range(batch_size)
@@ -306,47 +311,301 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         return result.assessment if result is not None else None
 
     def get_state(self) -> StrategyState:
-        model_state: bytes | None = None
-        if self._model is not None and self._botorch_ready:
+        """Persist the existing CPU refit-per-ask optimizer, including its fitted model."""
+        base = super().get_state()
+        profile = self._state_profile()
+        metadata: dict[str, Any] = {
+            **base.metadata,
+            "mo_state_version": 1,
+            "profile": profile,
+            "backend": self._backend_identity() if self._botorch_ready else None,
+            "config": asdict(self._config),
+            "objective_names": list(self._objective_names),
+            "directions": [direction.value for direction in self._directions],
+            "ref_point": self._ref_point.tolist() if self._ref_point is not None else None,
+            "train_X": None,
+            "train_Y": None,
+        }
+        model_state = None
+        if self._model is not None:
+            self._assert_model_corpus(self._model, self._train_X, self._train_Y)
             buffer = io.BytesIO()
             self._torch.save(self._model.state_dict(), buffer)
             model_state = buffer.getvalue()
-
-        rng_state = super().get_state().rng_state
-        if self._torch_rng is not None:
-            rng_state = {
-                **rng_state,
-                "torch": self._torch_rng.get_state().tolist(),
-            }
-        metadata: dict[str, Any] = {
-            "config": self._config.__dict__,
-            "objective_names": self._objective_names,
-            "directions": [direction.value for direction in self._directions],
-            "ref_point": self._ref_point.tolist() if self._ref_point is not None else None,
-        }
-        if self._train_X is not None and self._train_Y is not None:
             metadata["train_X"] = self._train_X.tolist()
             metadata["train_Y"] = self._train_Y.tolist()
+        elif self._train_X is not None or self._train_Y is not None:
+            raise ValueError("MO checkpoint has training data without a fitted model")
+        metadata["model_state_sha256"] = (
+            hashlib.sha256(model_state).hexdigest() if model_state is not None else None
+        )
+        metadata["corpus_sha256"] = self._corpus_digest(metadata)
+        rng_state = dict(base.rng_state)
+        if self._torch_rng is not None:
+            rng_state["torch"] = self._torch_rng.get_state().tolist()
         return StrategyState(
-            strategy_name="MOBayesianOptimizer",
-            iteration=self._iteration,
-            rng_state=rng_state,
-            model_state=model_state,
-            metadata=metadata,
+            "MOBayesianOptimizer", self._iteration, rng_state, model_state, metadata
         )
 
     def set_state(self, state: StrategyState) -> None:
+        """Validate a complete numerical continuation before changing live state."""
+        meta = state.metadata
+        if (
+            not isinstance(meta, Mapping)
+            or type(meta.get("mo_state_version")) is not int
+            or meta["mo_state_version"] != 1
+            or meta.get("profile") != self._state_profile()
+            or meta.get("backend") != (self._backend_identity() if self._botorch_ready else None)
+        ):
+            raise ValueError("MO checkpoint profile/backend is unsupported or changed")
+        if (
+            meta.get("objective_names") != self._objective_names
+            or meta.get("directions") != [direction.value for direction in self._directions]
+            or meta.get("space") != self._space.sobol_space_fingerprint()
+        ):
+            raise ValueError("MO checkpoint objective or search-space basis changed")
+        cfg = meta.get("config")
+        expected = asdict(self._config)
+        if not isinstance(cfg, Mapping) or set(cfg) != set(expected):
+            raise ValueError("MO checkpoint configuration is incomplete")
+        for key, value in expected.items():
+            actual = cfg[key]
+            if isinstance(value, int) and type(actual) is not int:
+                raise ValueError("MO checkpoint integer configuration is invalid")
+            if isinstance(value, float) and finite_real_scalar(actual) is None:
+                raise ValueError("MO checkpoint numeric configuration is invalid")
+            if key != "seed" and actual != value:
+                raise ValueError("MO checkpoint configuration changed")
+        if cfg["ref_point"] is not None and (
+            _finite_vector(cfg["ref_point"]) is None
+            or len(cfg["ref_point"]) != len(self._objective_names)
+        ):
+            raise ValueError("MO checkpoint configured reference is invalid")
+        if type(cfg["seed"]) is not int or cfg["seed"] != meta.get("seed"):
+            raise ValueError("MO checkpoint seed basis changed")
+        if meta.get("corpus_sha256") != self._corpus_digest(meta):
+            raise ValueError("MO checkpoint corpus differs from its saved content binding")
+        if state.model_state is not None and not isinstance(state.model_state, bytes):
+            raise ValueError("MO checkpoint model requires bytes or null")
+        expected_digest = (
+            hashlib.sha256(state.model_state).hexdigest() if state.model_state is not None else None
+        )
+        if meta.get("model_state_sha256") != expected_digest:
+            raise ValueError("MO checkpoint fitted model content changed")
+        torch_rng = None
+        if self._botorch_ready:
+            raw_rng = state.rng_state.get("torch") if isinstance(state.rng_state, Mapping) else None
+            if not isinstance(raw_rng, list) or any(
+                type(v) is not int or not 0 <= v <= 255 for v in raw_rng
+            ):
+                raise ValueError("MO checkpoint Torch RNG bytes are invalid")
+            try:
+                torch_rng = self._torch.Generator()
+                torch_rng.set_state(self._torch.tensor(raw_rng, dtype=self._torch.uint8))
+            except (RuntimeError, TypeError) as exc:
+                raise ValueError("MO checkpoint Torch RNG state is invalid") from exc
+        elif isinstance(state.rng_state, Mapping) and "torch" in state.rng_state:
+            raise ValueError("MO checkpoint requires its original numerical backend")
+        reference = meta.get("ref_point")
+        if reference is not None:
+            admitted_reference = _finite_vector(reference)
+            if admitted_reference is None or len(admitted_reference) != len(self._objective_names):
+                raise ValueError("MO checkpoint reference is invalid")
+            if not self._botorch_ready:
+                raise ValueError("MO checkpoint reference requires its original numerical backend")
+            if cfg["ref_point"] is not None and admitted_reference != _finite_vector(
+                cfg["ref_point"]
+            ):
+                raise ValueError("MO checkpoint configured reference basis changed")
+            reference = self._torch.tensor(
+                admitted_reference, dtype=self._torch.float64, device=self._device
+            )
+        model = X = Y = None
+        if state.model_state is not None:
+            if not self._botorch_ready or reference is None:
+                raise ValueError("MO checkpoint fitted model lacks its numerical basis")
+            X, Y = self._checkpoint_tensors(meta)
+            if tuple(reference.tolist()) != self._reference_point_values(Y.tolist()):
+                raise ValueError("MO checkpoint fitted reference/corpus basis changed")
+            try:
+                weights = self._torch.load(
+                    io.BytesIO(state.model_state), weights_only=True, map_location=self._device
+                )
+                if not isinstance(weights, Mapping) or any(
+                    not self._torch.is_tensor(value) for value in weights.values()
+                ):
+                    raise ValueError("MO checkpoint learned state is malformed")
+                models = []
+                for index in range(len(self._objective_names)):
+                    input_transform = Normalize(d=self._space.dim)
+                    outcome_transform = Standardize(m=1)
+                    for name, transform in (
+                        ("input_transform", input_transform),
+                        ("outcome_transform", outcome_transform),
+                    ):
+                        prefix = f"models.{index}.{name}."
+                        transform.load_state_dict(
+                            {
+                                key[len(prefix) :]: value
+                                for key, value in weights.items()
+                                if key.startswith(prefix)
+                            },
+                            strict=True,
+                        )
+                        transform.eval()
+                    models.append(
+                        SingleTaskGP(
+                            train_X=X,
+                            train_Y=Y[:, index : index + 1],
+                            input_transform=input_transform,
+                            outcome_transform=outcome_transform,
+                        )
+                    )
+                model = ModelListGP(*models)
+                defaults = model.state_dict()
+                for key, value in weights.items():
+                    if (
+                        key not in defaults
+                        or value.dtype != defaults[key].dtype
+                        or value.shape != defaults[key].shape
+                    ):
+                        raise ValueError("MO checkpoint learned tensor type/shape changed")
+                    if not self._torch.isfinite(value).all() and (
+                        key not in defaults or not self._torch.equal(value, defaults[key])
+                    ):
+                        raise ValueError("MO checkpoint nonfinite learned state changed")
+                model.load_state_dict(weights, strict=True)
+                if any(
+                    not self._torch.equal(value, model.state_dict()[key])
+                    for key, value in weights.items()
+                ):
+                    raise ValueError("MO checkpoint shared likelihood state is inconsistent")
+                if any(not self._torch.isfinite(value).all() for value in model.parameters()):
+                    raise ValueError("MO checkpoint fitted parameter is nonfinite")
+                model.eval()
+                self._assert_model_corpus(model, X, Y)
+            except Exception as exc:
+                raise ValueError("MO checkpoint fitted numerical model is invalid") from exc
+        elif meta.get("train_X") is not None or meta.get("train_Y") is not None:
+            raise ValueError("MO checkpoint lost its fitted model")
         super().set_state(state)
+        self._config.seed = cfg["seed"]
+        self._torch_rng = torch_rng
+        self._ref_point = reference
+        self._model, self._train_X, self._train_Y = model, X, Y
+
+    def _state_profile(self) -> str:
         if not self._botorch_ready:
+            return "mo.random_or_sobol.no_botorch.v1"
+        if self._device != "cpu":
+            raise ValueError("MO checkpoint supports the existing CPU numerical profile only")
+        return "mo.single_task_gp.cpu.refit_each_ask.v1"
+
+    @staticmethod
+    def _backend_identity() -> dict[str, str]:
+        return {
+            **{name: version(name) for name in ("torch", "botorch", "gpytorch")},
+            "torch_runtime": str(require_torch().__version__),
+        }
+
+    @staticmethod
+    def _corpus_digest(meta) -> str:
+        try:
+            return hashlib.sha256(
+                json.dumps(
+                    {
+                        key: meta[key]
+                        for key in (
+                            "profile",
+                            "backend",
+                            "config",
+                            "objective_names",
+                            "directions",
+                            "space",
+                            "seed",
+                            "ref_point",
+                            "train_X",
+                            "train_Y",
+                        )
+                    },
+                    sort_keys=True,
+                    allow_nan=False,
+                ).encode()
+            ).hexdigest()
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("MO checkpoint content basis is incomplete or nonfinite") from exc
+
+    def _checkpoint_tensors(self, meta):
+        matrices = []
+        for name, dimension in (
+            ("train_X", self._space.dim),
+            ("train_Y", len(self._objective_names)),
+        ):
+            rows = meta.get(name)
+            if (
+                not isinstance(rows, list)
+                or not rows
+                or any(
+                    not isinstance(row, list)
+                    or len(row) != dimension
+                    or any(finite_real_scalar(value) is None for value in row)
+                    for row in rows
+                )
+            ):
+                raise ValueError("MO checkpoint tensors require complete finite numerical rows")
+            matrices.append(
+                self._torch.tensor(rows, dtype=self._torch.float64, device=self._device)
+            )
+        X, Y = matrices
+        if (
+            len(X) != len(Y)
+            or len(X) > self._config.max_train_size
+            or (X < 0).any()
+            or (X > 1).any()
+        ):
+            raise ValueError("MO checkpoint tensor shape/range changed")
+        return X, Y
+
+    def _assert_model_corpus(self, model, X, Y) -> None:
+        if X is None or Y is None or len(model.models) != len(self._objective_names):
+            raise ValueError("MO fitted corpus is missing")
+        with self._torch.no_grad():
+            for index, component in enumerate(model.models):
+                if any(not self._torch.isfinite(value).all() for value in component.parameters()):
+                    raise ValueError("MO fitted parameter is nonfinite")
+                actual_X = component.train_inputs[0]
+                transformed_X = component.transform_inputs(X)
+                if not any(
+                    expected.shape == actual_X.shape and self._torch.equal(expected, actual_X)
+                    for expected in (X, transformed_X)
+                ):
+                    raise ValueError("MO fitted inputs differ from the saved corpus")
+                expected_Y = component.outcome_transform(Y[:, index : index + 1])[0].squeeze(-1)
+                if not self._torch.allclose(
+                    component.train_targets, expected_Y, rtol=1e-12, atol=1e-12
+                ):
+                    raise ValueError("MO fitted targets differ from their transform/corpus")
+                if (
+                    not (component.covar_module.lengthscale > 0).all()
+                    or not (component.likelihood.noise > 0).all()
+                    or not (component.input_transform._coefficient > 0).all()
+                    or not (component.outcome_transform.stdvs > 0).all()
+                ):
+                    raise ValueError("MO fitted numerical scales are invalid")
+
+    @contextmanager
+    def _owned_torch_random(self):
+        if self._device != "cpu":
+            yield
             return
-        torch_rng_state = state.rng_state.get("torch")
-        if self._torch_rng is not None and torch_rng_state is not None:
-            self._torch_rng.set_state(self._torch.tensor(torch_rng_state, dtype=self._torch.uint8))
-        ref_point = state.metadata.get("ref_point")
-        if ref_point is not None:
-            self._ref_point = self._torch.tensor(ref_point, dtype=self._torch.float64)
-            if self._device != "cpu":
-                self._ref_point = self._ref_point.to(self._device)
+        # Existing CPU acquisition/refit path owns this stream; ambient Torch
+        # RNG and independently seeded replicas retain their own continuation.
+        with self._torch.random.fork_rng(devices=[]):
+            self._torch.set_rng_state(self._torch_rng.get_state())
+            try:
+                yield
+            finally:
+                self._torch_rng.set_state(self._torch.get_rng_state())
 
     def _select_training_subset(self, evaluations: list[Evaluation]) -> list[Evaluation]:
         filtered = self._admit_objective_rows(evaluations, for_training=True)
@@ -374,8 +633,6 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         if self._device != "cpu":
             X = X.to(self._device)
             Y = Y.to(self._device)
-        self._train_X = X
-        self._train_Y = Y
         return X, Y
 
     def _objective_vector(self, evaluation: Evaluation) -> list[float]:
@@ -450,6 +707,11 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         return admitted
 
     def _fit_model_list(self, X, Y) -> None:
+        reference = self._torch.tensor(
+            self._reference_point_values(Y.detach().cpu().tolist()),
+            dtype=self._torch.float64,
+            device=self._device,
+        )
         models = [
             SingleTaskGP(
                 train_X=X,
@@ -459,9 +721,12 @@ class MOBayesianOptimizer(BaseSearchStrategy):
             )
             for idx in range(len(self._objective_names))
         ]
-        self._model = ModelListGP(*models)
-        mll = SumMarginalLogLikelihood(self._model.likelihood, self._model)
+        model = ModelListGP(*models)
+        mll = SumMarginalLogLikelihood(model.likelihood, model)
         fit_gpytorch_mll(mll)
+        # A failed refit must retain the previous coherent model/corpus/reference
+        # so its ordinary random-fallback checkpoint remains resumable.
+        self._model, self._train_X, self._train_Y, self._ref_point = model, X, Y, reference
 
     def _reference_configuration(self) -> tuple[tuple[float, ...] | None, float | None]:
         """Admit configured numeric reference inputs before any tensor arithmetic."""

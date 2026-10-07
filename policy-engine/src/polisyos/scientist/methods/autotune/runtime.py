@@ -335,6 +335,7 @@ class SearchLoopRunner:
         if type(spec.candidate_generator).__module__ not in {
             "polisyos.scientist.methods.autotune.bayesian_generator",
             "polisyos.scientist.methods.search.sensitivity_adapter",
+            "polisyos.scientist.methods.search.strategies.adapter",
         }:
             return payload
         from polisyos.scientist.methods.autotune.bayesian_generator import (
@@ -343,11 +344,12 @@ class SearchLoopRunner:
         from polisyos.scientist.methods.search.sensitivity_adapter import (
             SensitivityAwareCandidateGenerator,
         )
+        from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
 
         generator = spec.candidate_generator
         adapter = generator if type(generator) is SensitivityAwareCandidateGenerator else None
         base = adapter._base if adapter is not None else generator
-        if type(base) is not BayesianCandidateGenerator:
+        if type(base) not in (BayesianCandidateGenerator, StrategyAdapter):
             return payload
         candidate = dict(payload)
         if "_sensitivity" in candidate:

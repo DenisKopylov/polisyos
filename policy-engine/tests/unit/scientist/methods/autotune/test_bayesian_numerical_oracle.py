@@ -1,14 +1,18 @@
 """Independent physical arithmetic and actual public adapter numerical consumers."""
 
+import json
 from unittest.mock import patch
 
 import pytest
 
+from polisyos.core import artifacts
 from polisyos.scientist.methods.autotune.bayesian_generator import (
     BayesianCandidateGenerator,
     SearchSpace,
 )
 from polisyos.scientist.methods.autotune.models import BenchmarkSplit, MetricDirection
+from polisyos.scientist.methods.search.controller import SearchIteration
+from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
 from polisyos.scientist.methods.search.strategies import bayesian as module
 from polisyos.scientist.methods.search.strategies.types import StrategyState
 
@@ -166,3 +170,103 @@ def test_absent_and_declared_boolean_stage_contract_is_preserved(present, value,
     if present:
         entry["stage_a_passed"] = value
     assert generator._history_to_evaluations([entry])[0].is_valid is valid
+
+
+@pytest.mark.parametrize("direction", [MetricDirection.MINIMIZE, MetricDirection.MAXIMIZE])
+def test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal(
+    tmp_path, direction
+):
+    """Both original history forms cross the public caller without identity loss."""
+
+    def receiver():
+        return BayesianCandidateGenerator(
+            SearchSpace([{"name": "x", "lower": 0, "upper": 10}]),
+            primary_metric="cost",
+            direction=direction,
+            compare_split=BenchmarkSplit.SELECTION,
+            n_initial=4,
+            seed=31,
+        )
+
+    history = []
+    for i, (x, cost) in enumerate([(2, 20.0), (4, 8.0), (6, 4.0), (8, 8.0)], start=1):
+        identity = {
+            "candidate_id": f"sha256:{i:064x}",
+            "evaluation_id": f"sha256:{i + 100:064x}",
+            "origin": "declared-mixed-public-caller-fixture",
+            "split": "selection",
+        }
+        candidate = {"x": x, "_strategy_metadata": identity}
+        outcome = {**identity, "params": {"x": x}, "cost": cost}
+        if i % 2:
+            history.append(
+                {
+                    "candidate": candidate,
+                    "stage_a_passed": True,
+                    "stage_b_result": outcome,
+                }
+            )
+        else:
+            history.append(
+                SearchIteration(
+                    iteration=i,
+                    candidate=candidate,
+                    objective_value=cost,
+                    objective_details=[
+                        ObjectiveValue("cost", cost, OptimizationDirection(direction.value))
+                    ],
+                    is_promising=True,
+                    stage_a_passed=True,
+                    stage_b_result=outcome,
+                    duration_seconds=0.1,
+                )
+            )
+    # This fifth input has no measured outcome and must not supply a numeric zero.
+    history.append({"candidate": {"x": 1}, "stage_a_passed": True})
+    generator = receiver()
+    assert generator.botorch_available and generator._optimizer._model is None
+    expected_x = [[0.2], [0.4], [0.6], [0.8]]
+    sign = -1 if direction == MetricDirection.MINIMIZE else 1
+    expected_y = [[sign * cost] for cost in (20.0, 8.0, 4.0, 8.0)]
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    with patch.object(module, "fit_gpytorch_mll", wraps=module.fit_gpytorch_mll) as fit:
+        first = generator.generate(history, None, {})
+        assert first["_strategy_metadata"]["source"] == "bayesian_acquisition"
+        strategy = generator._optimizer
+        assert strategy._fitted_train_X.tolist() == expected_x
+        assert strategy._fitted_train_y_bo.tolist() == expected_y
+        assert len(strategy._fitted_record_ids) == 4
+        state = generator.get_state()
+        assert len(state["history_rows"]) == 5
+        assert state["history_rows"][4]["evaluation"] is None
+        for i, row in enumerate(state["history_rows"][:4], start=1):
+            evaluation = row["evaluation"]
+            assert evaluation["candidate_id"] == f"sha256:{i:064x}"
+            assert evaluation["metadata"]["evaluation_id"] == f"sha256:{i + 100:064x}"
+            assert evaluation["metadata"]["origin"] == "declared-mixed-public-caller-fixture"
+            assert evaluation["metadata"]["split"] == "selection"
+            assert evaluation["params"]["x"] == (2, 4, 6, 8)[i - 1]
+        ref = store.put_bytes(
+            json.dumps(state, sort_keys=True, allow_nan=False).encode(),
+            artifacts.PutOptions(kind="search.generator_state", media_type="application/json"),
+        )
+        fresh_store = artifacts.FileSystemCAS(tmp_path / "cas")
+        fresh = receiver()
+        fresh.set_state(json.loads(fresh_store.get_bytes(ref)))
+        assert fit.call_count == 1, "Fresh restoration must load actual fitted state without MLL"
+        assert fresh._optimizer._fitted_train_X.tolist() == expected_x
+        assert fresh._optimizer._fitted_train_y_bo.tolist() == expected_y
+        next_live = generator.generate(history, None, {})
+        next_fresh = fresh.generate(history, None, {})
+        assert next_live["_strategy_metadata"]["source"] == "bayesian_acquisition"
+        assert next_fresh["_strategy_metadata"]["source"] == "bayesian_acquisition"
+        assert next_live["x"] == next_fresh["x"]
+        assert fit.call_count == 1, "An unchanged complete corpus does not justify a refit"
+    print(
+        "ACTUAL_MIXED_HISTORY_PUBLIC_CAS",
+        direction.value,
+        str(ref.artifact_id),
+        expected_x,
+        expected_y,
+        next_fresh["x"],
+    )

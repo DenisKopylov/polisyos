@@ -13,15 +13,14 @@ import asyncio
 import hashlib
 import inspect
 import json
-import math
 from copy import deepcopy
 from datetime import UTC, datetime
-from decimal import Decimal
 from pathlib import Path
 from types import CodeType
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
+from polisyos.common.serialization import _finite_checkpoint_json_number
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.manifest_profile import artifact_manifest_profile_sha256
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
@@ -51,23 +50,16 @@ logger = get_logger(__name__)
 def _decode_checkpoint(data: bytes) -> Any:
     """Refuse wire underflow before JSON decoding can turn nonzero into zero."""
 
-    def number(token: str) -> float:
-        value = float(token)
-        if not math.isfinite(value):
-            raise ValueError("search_resume_numeric_out_of_range")
-        if value == 0 and Decimal(token) != 0:
-            raise ValueError("search_resume_numeric_underflow")
-        return value
-
-    def constant(token: str) -> Any:
-        raise ValueError(f"search_resume_invalid_numeric_constant:{token}")
-
-    raw = json.loads(data, parse_float=number, parse_constant=constant)
+    raw = json.loads(
+        data,
+        parse_float=_finite_checkpoint_json_number,
+        parse_constant=_finite_checkpoint_json_number,
+    )
 
     def tagged_numbers(value: Any) -> None:
         if isinstance(value, dict):
             if value.get("_type") == "float" and isinstance(value.get("repr"), str):
-                number(value["repr"])
+                _finite_checkpoint_json_number(value["repr"])
             for item in value.values():
                 tagged_numbers(item)
         elif isinstance(value, list):
@@ -514,6 +506,9 @@ class NativeSearchService:
         self._validate_native_candidate_identity(
             state, pending, set(saved.completed_candidate_ids), generator_state
         )
+        validate_history = getattr(generator, "validate_checkpoint_history", None)
+        if callable(validate_history):
+            validate_history(state.history, generator_state)
         # Strategies own atomic admission of their numerical/RNG state. No run
         # ledger or candidate ownership changes precede that admission.
         restore_generator(generator_state)

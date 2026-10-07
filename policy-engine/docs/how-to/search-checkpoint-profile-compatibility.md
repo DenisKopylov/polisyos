@@ -83,6 +83,23 @@ The Gaussian cache retains its admitted integer/float representation; this
 change widens refusal for unsupported state without silently migrating it.
 Retain the refused artifact for diagnosis and restore a supported checkpoint.
 
+## Grid continuation profile
+
+Grid continuation requires `grid_state_version=1`, the original search-space
+basis, `points_per_dim`, `max_candidates`, actual grid size and a strict integer
+cursor from zero through that size. A cursor equal to the size restores an
+exhausted grid and the next scalar request keeps `StrategyExhaustedError`.
+Boolean, fractional, string, negative, missing and out-of-range cursors refuse;
+changed grid density or cutoff refuses instead of silently selecting a different
+next subject. Grid admission completes before Base RNG or iteration changes.
+
+Historical unversioned Grid checkpoints lack the cutoff/profile binding. They
+are refused by this receiver. Retain the original artifact and use its recorded
+implementation for exact continuation, or start an explicitly new grid run with
+the owner-selected configuration. Do not fill in missing fields or change
+markers to force a resume. Supported profile 1 uses the existing
+`strategy_state.v2` artifact; no new storage or optimizer is introduced.
+
 ## Embedding convergence measurement profiles
 
 `ConvergenceDetector.check_with_text` requires an explicitly declared nonblank
@@ -111,6 +128,45 @@ semantic convergence; a default revision or module/class name is not a migration
 Numeric convergence and configured hard-stop reasons retain their existing
 behavior. Deterministic fixture profiles prove the bounded cosine/freshness
 mechanism and do not validate a scientific embedding model or threshold.
+
+## Multi-objective continuation profile
+
+`MOBayesianOptimizer` requires `mo_state_version=1`. The supported numerical
+profile `mo.single_task_gp.cpu.refit_each_ask.v1` records the exact installed
+Torch/BoTorch/GPyTorch versions and Torch runtime flavor, objective names and
+directions, configuration, search-space identity, original seed, reference,
+raw direction-normalized training corpus and fitted-model content bindings.
+The reference must agree with the existing configured or fitted-corpus policy.
+
+Restore recreates the existing `ModelListGP` of `SingleTaskGP` components and
+loads their fitted mean/kernel/likelihood/noise parameters and ordinary
+`Normalize` / corpus-derived `Standardize` buffers. It reconciles the actual
+training coordinates and transformed targets without MLL fitting. The next
+normal ask retains the existing MO policy of one fit per ask; this is distinct
+from the single-objective optimizer's same-basis conditioning profile.
+
+The existing `strategy_state.v2` artifact and optimizer signatures stay in use.
+Slots configuration now serializes through its dataclass fields. Incomplete,
+unversioned, unknown or foreign MO state refuses before Base RNG, iteration,
+corpus or fitted model changes. Retain the original artifact and use the
+recorded supported implementation/backend for exact continuation, or start an
+explicitly new run from the original evaluated inputs. Do not add or edit
+markers to manufacture a compatible continuation.
+
+The actual backend-absent profile `mo.random_or_sobol.no_botorch.v1` can retain
+its baseline state; it is not a fitted numerical checkpoint and cannot silently
+cross into the numerical profile. Numerical verification remains `UNRUN` when
+the optional backend is missing. Non-CPU checkpoint export/import refuses
+explicitly; no GPU, custom-transform or cross-version equivalence is established.
+Sequential CPU calls preserve the ambient Torch stream and separately seeded
+replicas; process-global `fork_rng` does not establish concurrent-thread isolation.
+
+The defining witness is
+`tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py`: actual
+CAS/fresh reader, eight distinct synthetic utility/cost measurements, independent
+NumPy mean and full covariance for both fitted components, restored next EHVI,
+fit cadence and marker-preserving corruption controls. These are bounded
+numerical fixtures, not production evaluation history or source/tenant authority.
 
 ## Operator checks
 

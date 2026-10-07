@@ -191,3 +191,86 @@ def test_valid_cas_legacy_native_nonfinite_refuses_before_pointer_publication(
     record_property("fresh_legacy_native_refusal", response.stdout)
     assert result["status"] == "refused" and result["unchanged"]
     assert "Native embedding row 0 coordinate 0 must be finite" in result["reason"]
+
+
+@pytest.mark.parametrize("intake", ["empty", "invalid", "unavailable", "nonempty"])
+def test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake(
+    tmp_path, record_property, intake
+):
+    pytest.importorskip("hnswlib")
+    from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
+    from polisyos.scientist.methods.search.strategies.transfer import (
+        TransferLearningManager,
+    )
+    from tests.unit.scientist.methods.search.strategies.test_transfer import (
+        changed_history,
+        measured_history,
+    )
+
+    store, index, _, source, target, originals, _ = measured_history(tmp_path, count=2)
+
+    def change(payload):
+        if intake == "empty":
+            payload["evaluations"].clear()
+        elif intake == "invalid":
+            for row in payload["evaluations"]:
+                row["scalar_score"] = False
+        elif intake == "unavailable":
+            payload["schema_version"] = "unsupported"
+
+    persisted = changed_history(store, source, change)
+    snapshot = store.get_verified_snapshot(persisted.history_ref)
+    assert snapshot.manifest.kind == "search.transfer.history"
+    assert snapshot.manifest.media_type == "application/json"
+    payload = canon.from_canonical_bytes(snapshot.data)
+    assert len(payload["evaluations"]) == (0 if intake == "empty" else 2)
+    metadata = persisted.model_dump(mode="json", exclude={"history_ref", "embedding"})
+    metadata["history_ref"] = persisted.history_ref.model_dump(mode="json")
+    index.add(persisted.run_id, persisted.embedding, metadata)
+    bundle = index.save_to_artifact(store)
+
+    # A fresh native generation and fresh CAS owner supply the ordinary bridge.
+    # This is a reader fixture, not a change to the empty register_run policy.
+    reopened_store = FileSystemCAS(store.root)
+    reopened_index = VectorMemoryStore(dim=2, max_elements=10)
+    reopened_index.load_from_artifact(reopened_store, bundle)
+    manager = TransferLearningManager(reopened_store, reopened_index)
+    discovered = manager.find_similar_runs(target)
+    assert len(discovered) == 1 and discovered[0].history_ref == persisted.history_ref
+    bridge = WarmStartBridge(manager, max_evals=2, top_k_runs=1)
+    rows = bridge.load_warm_start(target)
+    report = bridge.last_load_report
+    counts = {
+        name: report[name] for name in ("loaded", "accepted", "rejected", "unavailable", "selected")
+    }
+    expected = {
+        "empty": dict(loaded=0, accepted=0, rejected=0, unavailable=0, selected=0),
+        "invalid": dict(loaded=2, accepted=0, rejected=2, unavailable=0, selected=0),
+        "unavailable": dict(loaded=0, accepted=0, rejected=0, unavailable=1, selected=0),
+        "nonempty": dict(loaded=2, accepted=2, rejected=0, unavailable=0, selected=2),
+    }
+    assert counts == expected[intake]
+    assert len(rows) == expected[intake]["selected"]
+    if intake in ("empty", "nonempty"):
+        assert report["rejections"] == []
+    elif intake == "invalid":
+        assert len(report["rejections"]) == 2
+        assert all(
+            "scalar_score must be a finite JSON number" in r["reason"] for r in report["rejections"]
+        )
+    else:
+        assert "Unsupported transfer history codec" in report["rejections"][0]["reason"]
+    if intake == "nonempty":
+        assert {row.candidate_id for row in rows} == {row.candidate_id for row in originals}
+    record_property(
+        "persisted_intake_receipt",
+        json.dumps(
+            {
+                "intake": intake,
+                "history_ref": persisted.history_ref.model_dump(mode="json"),
+                "bundle_ref": bundle.model_dump(mode="json"),
+                "report": report,
+            },
+            sort_keys=True,
+        ),
+    )

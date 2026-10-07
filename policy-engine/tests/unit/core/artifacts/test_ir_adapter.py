@@ -10,6 +10,7 @@ from polisyos.core.artifacts.ir_adapter import (
     ensure_ir_artifact_store,
 )
 from polisyos.core.artifacts.manifest import CanonInfo as CoreCanonInfo
+from polisyos.core.artifacts.manifest import SchemaInfo as CoreSchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.ir.analytics.backtest import (
@@ -51,6 +52,7 @@ class MalformedProfileArtifactStore:
 
     def __init__(self, canon):
         self.canon = canon
+        self.byte_reads = 0
 
     def get_manifest(self, artifact_id):
         del artifact_id
@@ -58,6 +60,7 @@ class MalformedProfileArtifactStore:
 
     def get_bytes(self, artifact_id):
         del artifact_id
+        self.byte_reads += 1
         return b'{"value":1}'
 
 
@@ -378,26 +381,39 @@ def test_ir_json_reader_obeys_a_too_low_persisted_profile_depth(tmp_path) -> Non
         get_json_artifact(core_store, ref.artifact_id)
 
 
-def test_ir_json_reader_uses_historical_depth_only_when_profile_is_absent(tmp_path) -> None:
+def test_ir_json_reader_rejects_unprofiled_bytes_even_with_legacy_markers(
+    tmp_path, monkeypatch
+) -> None:
     core_store = FileSystemCAS(tmp_path / ".polisyos")
-    shallow = {"legacy": True}
-    shallow_ref = core_store.put_bytes(
-        ir_to_canonical_bytes(shallow),
-        PutOptions(kind="test.ir-legacy-profile", media_type="application/json"),
+    payload_bytes = b'{"legacy":true}'
+    ref = core_store.put_bytes(
+        payload_bytes,
+        PutOptions(
+            kind="ir.legacy-json",
+            media_type="application/json",
+            schema=CoreSchemaInfo(name="polisyos.ir.legacy-json", version="1.0"),
+        ),
     )
-    shallow_manifest = core_store.get_manifest(shallow_ref)
-    assert shallow_manifest.canon is None
-    assert get_json_artifact(core_store, shallow_ref.artifact_id) == shallow
 
-    deep = _nested_list(129)
-    deep_ref = core_store.put_bytes(
-        ir_to_canonical_bytes(deep, IRCanonSpec(max_depth=129)),
-        PutOptions(kind="test.ir-legacy-depth", media_type="application/json"),
-    )
-    deep_manifest = core_store.get_manifest(deep_ref)
-    assert deep_manifest.canon is None
-    with pytest.raises(IRCanonViolation, match="max_depth=128"):
-        get_json_artifact(core_store, deep_ref.artifact_id)
+    manifest = core_store.get_manifest(ref)
+    assert manifest.canon is None
+    assert manifest.kind == "ir.legacy-json"
+    assert manifest.artifact_schema == CoreSchemaInfo(name="polisyos.ir.legacy-json", version="1.0")
+    assert core_store.get_bytes(ref) == payload_bytes
+
+    get_bytes = core_store.get_bytes
+    byte_reads = 0
+
+    def track_get_bytes(artifact_id):
+        nonlocal byte_reads
+        byte_reads += 1
+        return get_bytes(artifact_id)
+
+    monkeypatch.setattr(core_store, "get_bytes", track_get_bytes)
+
+    with pytest.raises(IRCanonViolation, match="unsupported_ir_canon_profile"):
+        get_json_artifact(core_store, ref.artifact_id)
+    assert byte_reads == 0
 
 
 @pytest.mark.parametrize(
@@ -408,7 +424,9 @@ def test_ir_json_reader_uses_historical_depth_only_when_profile_is_absent(tmp_pa
         CoreCanonInfo(max_depth=-1),
     ],
 )
-def test_ir_json_reader_rejects_unsupported_persisted_profiles(tmp_path, canon) -> None:
+def test_ir_json_reader_rejects_unsupported_persisted_profiles(
+    tmp_path, canon, monkeypatch
+) -> None:
     core_store = FileSystemCAS(tmp_path / ".polisyos")
     ref = core_store.put_bytes(
         b'{"value":1}',
@@ -418,9 +436,19 @@ def test_ir_json_reader_rejects_unsupported_persisted_profiles(tmp_path, canon) 
             canon=canon,
         ),
     )
+    get_bytes = core_store.get_bytes
+    byte_reads = 0
+
+    def track_get_bytes(artifact_id):
+        nonlocal byte_reads
+        byte_reads += 1
+        return get_bytes(artifact_id)
+
+    monkeypatch.setattr(core_store, "get_bytes", track_get_bytes)
 
     with pytest.raises(IRCanonViolation, match="unsupported_ir_canon_profile"):
         get_json_artifact(core_store, ref.artifact_id)
+    assert byte_reads == 0
 
 
 @pytest.mark.parametrize("canon", [{"max_depth": "129"}, {"max_depth": 129}])
@@ -429,6 +457,7 @@ def test_ir_json_reader_rejects_malformed_profile_parameters(canon) -> None:
 
     with pytest.raises(IRCanonViolation, match="unsupported_ir_canon_profile"):
         get_json_artifact(store, "sha256:" + "a" * 64)
+    assert store.byte_reads == 0
 
 
 @pytest.mark.parametrize(

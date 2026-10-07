@@ -28,8 +28,6 @@ from .contracts import (
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-_HISTORICAL_CANON_MAX_DEPTH = 128
-
 
 def put_json_artifact(
     store: ArtifactStore,
@@ -174,15 +172,13 @@ def _manifest_canon(store: Any, artifact_id: ArtifactID) -> Any | None:
 
 
 def get_json_artifact(store: ArtifactStore, artifact_id: ArtifactID) -> Any:
-    """Read IR-canonical JSON using its persisted profile or the legacy default."""
+    """Read IR-canonical JSON only when its supported profile is persisted."""
     normalized_id = ArtifactID.model_validate(str(artifact_id))
     canon = _manifest_canon(store, normalized_id)
-    max_depth = (
-        _validated_ir_canon_info(canon).max_depth
-        if canon is not None
-        else _HISTORICAL_CANON_MAX_DEPTH
-    )
-    return from_canonical_bytes(store.get_bytes(normalized_id), max_depth=max_depth)
+    if canon is None:
+        raise CanonViolation("unsupported_ir_canon_profile")
+    profile = _validated_ir_canon_info(canon)
+    return from_canonical_bytes(store.get_bytes(normalized_id), max_depth=profile.max_depth)
 
 
 def normalize_input_sequence(inputs: Sequence[Any] | None) -> list[InputRef]:

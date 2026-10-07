@@ -1,0 +1,8 @@
+{
+  "target": "/workspace/e02-E-doe-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet",
+  "copies": 95,
+  "total_bytes": 1400549,
+  "selected_members": 87,
+  "paths": 97,
+  "copy_index_sha256": "5431f24a33a6020582fb51d003e9952cd43ab98ab89449de0621ed6ea37588ea"
+}

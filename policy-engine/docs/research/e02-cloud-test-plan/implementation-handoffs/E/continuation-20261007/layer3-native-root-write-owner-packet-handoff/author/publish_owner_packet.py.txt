@@ -1,0 +1,52 @@
+from __future__ import annotations
+import hashlib,json,shutil,subprocess
+from collections import Counter
+from pathlib import Path
+OUT=Path(__file__).resolve().parent
+LANE=Path('/workspace/e02-E-doe-20261006')
+PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet'
+TARGET=LANE/PREFIX
+ANCHORS=[
+ ('author-v1',OUT/'publication-selection.json','ebfdd337de6bc01dada000fc7b6f03f596c32002c1618c51331b57b940ff32d3'),
+ ('proposal-v2',OUT/'publication-selection-v2-delta.json','8119bdf2b024de276f7934d73f13def95b0764a1b97879ef6473346252ba2d30'),
+ ('observer-v3',OUT/'publication-selection-v3-delta.json','73e9e8dd0dad41b4261cbef4886366f5386905c24964592b4f344cfb63b7ff2f'),
+ ('independent',Path('/tmp/e02-E-layer3-owner-independent-64d/publication-selection-independent-owner-v3.json'),'5ed47c2265fda072074b338a073ba78970ff8a23337bafedfdc87d3e21185d00'),
+]
+def h(b):return hashlib.sha256(b).hexdigest()
+def req(c,m):
+ if not c:raise ValueError(m)
+records=[];selectors=[];logical=[]
+for group,p,digest in ANCHORS:
+ b=p.read_bytes();req(h(b)==digest,'selector changed '+group);d=json.loads(b)
+ req(d['asset_count']==len(d['assets']) and d['total_bytes']==sum(x['bytes'] for x in d['assets']),'selector retotal '+group)
+ selectors.append({'group':group,'original_path':str(p),'copied_path':PREFIX+'/selectors/'+group+'.json','bytes':len(b),'sha256':digest})
+ for x in d['assets']:
+  origin=Path(x.get('original_path',x.get('path')));relative=Path(x['portable_path'])
+  req(not relative.is_absolute() and '..' not in relative.parts,'bad copied path')
+  literal=origin.read_bytes();req(len(literal)==x['bytes'] and h(literal)==x['sha256'],'selected input changed '+str(origin))
+  dest=PREFIX+'/'+group+'/'+relative.as_posix()
+  logical.append((group,str(origin),relative.as_posix(),x['bytes'],x['sha256']))
+  records.append({'group':group,'original_path':str(origin),'copied_path':dest,'bytes':len(literal),'sha256':h(literal)})
+req(len(records)==87,'complete original member denominator')
+req(len({x['copied_path'] for x in records})==87,'copy path collision')
+req(not TARGET.exists(),'fresh publication prefix required')
+# All source admission is complete before the first publication write.
+TARGET.mkdir(parents=True)
+for x in records+selectors:
+ dest=LANE/x['copied_path'];dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(x['original_path'],dest)
+ literal=dest.read_bytes();req(len(literal)==x['bytes'] and h(literal)==x['sha256'],'copy readback')
+ # Selected Python code is archival text; actual JSON always parses.
+ req(dest.suffix!='.py','no active code permitted')
+ if dest.suffix=='.json':json.loads(literal)
+extra=[]
+for name in ['doe-publication-resume.json','doe-publication-resume.stderr.txt','publish_owner_packet.py.txt']:
+ p=OUT/name;b=p.read_bytes();dest=TARGET/'publication'/name;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(b)
+ extra.append({'original_path':str(p),'copied_path':dest.relative_to(LANE).as_posix(),'bytes':len(b),'sha256':h(b)})
+validator='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/validate_review_copies.py.txt'
+vb=(LANE/validator).read_bytes();dest=TARGET/'validate_review_copies.py.txt';dest.write_bytes(vb)
+extra.append({'original_path':str(LANE/validator),'copied_path':dest.relative_to(LANE).as_posix(),'bytes':len(vb),'sha256':h(vb),'existing_canonical_validator':'reused unchanged from prior independently reviewed DOC packet'})
+index={'schema':'policyos.e02.literal_owner_packet_copy_index.v1','source_commit':'64d7444a18c55df7b88b71b7699a2f1b25ca24bd','source_tree':'aef23574d3162abb19bf5a1c67d02624ff9d4d1d','doc_base_commit':'7537ef95beed07d02a3b72343b082ff3b7fd14e2','selector_inputs':selectors,'selected_member_count':87,'selected_member_multiset':dict(Counter(x[0] for x in logical)),'records':records+selectors+extra,'copies':len(records+selectors+extra),'total_bytes':sum(x['bytes'] for x in records+selectors+extra),'declared_source_paths_are_historical':'original_path is an immutable original-capture custody reference, not a claim the proposed runtime consumer opens cloud scratch','current_packet':'observer-v3/owner-packet-v3.json','current_unapplied_patch':'proposal-v2/canonical-owner-test-isolation-v2.patch','independent':'independent/independent-final-owner-review-v3.json','status_boundary':'bounded proposal GO; actual full native fixture selectors UNRUN; individual running backend caller/P41 not_established; no finding/gate closure','original_outcomes_preserved':['V1 actual late admission source-copy before refusal CHANGE_REQUIRED','V2 observer invalid-base removal wrong location label preserved raw and precisely qualified by V3','prepare.v1 G8constantalias observer ERROR preserved','current native29 generated inputs changed while HEAD64d/aef unchanged; actual native run not input-immutable']}
+(TARGET/'copy-index.json').write_text(json.dumps(index,indent=2)+'\n')
+readme='''# Native Layer3 default-root write owner packet\n\nThe current G6/G7/G8 repo-quality tests pass their physical product checkout to readiness validators with `write=True`. The running backend observed 29 tracked generated JSON inputs change while HEAD remained `64d7444a` / tree `aef23574`. Source inspection establishes the write class; the individual actual native caller and P41 attribution remain `not_established`. The current backend has no terminal outcome in these frozen observations.\n\nUse `observer-v3/owner-packet-v3.json` and `proposal-v2/canonical-owner-test-isolation-v2.patch`. The patch is UNAPPLIED and belongs to canonical G/tools test owners; E changed no shared validator/runtime/test writer. It replaces the three test-module roots with a temporary immutable Git source snapshot and admits archive destination before copying. Complete product snapshots cost space once per readiness module; no environment/worktree is created. Full native fixture selectors remain UNRUN, and nested explicit/implicit default-root conformance reads prevent claiming complete input isolation.\n\nThe independent receipt gives bounded GO for the proposal and actual tiny controls. Exact original writer helpers write all 81 declared paths into isolated stand-ins: healthy source mutations are zero; binding removal restores 28/29/24 source mutations. Five corrected author fixture controls and six independent controls measure admission ordering using tiny test-double Git archives. They do not execute native runtime bundle constructors.\n\nThe original late-admission V1 proposal, wrong V2 observer location label, and staging ERROR remain historical bytes. Current V3 qualifies those observations explicitly. Seventeen neighboring Layer3 direct default-root calls remain a canonical owner class task; this packet does not close the whole suite. Finding ledger statuses and code/finding acceptance are unchanged.\n\n`copy-index.json` binds all 87 selected member rows, four original selectors and admission/recipe/unchanged existing validator. Archive scripts are `.py.txt`; every actual JSON parses. The previous reviewed copy validator is reused unchanged for immutable Git plus current-byte custody.\n'''
+(TARGET/'README.md').write_text(readme)
+print(json.dumps({'target':str(TARGET),'copies':index['copies'],'total_bytes':index['total_bytes'],'selected_members':87,'paths':len([p for p in TARGET.rglob('*') if p.is_file()]),'copy_index_sha256':h((TARGET/'copy-index.json').read_bytes())},indent=2))

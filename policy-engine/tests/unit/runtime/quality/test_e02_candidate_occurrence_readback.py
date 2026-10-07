@@ -346,7 +346,12 @@ async def test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readba
     )
     assert len(replayed_runs) == 1
     replayed_run = replayed_runs[0]
-    assert replayed_run == produced_run
+    # Compare the persisted projection: CandidateSummary.value_receipt is an
+    # intentionally excluded in-memory cache, not part of the CAS artifact.
+    wire_spec = canon.CanonSpec(forbid_floats=False)
+    assert canon.to_canonical_bytes(
+        replayed_run.model_dump(mode="json"), wire_spec
+    ) == canon.to_canonical_bytes(produced_run.model_dump(mode="json"), wire_spec)
     assert tuple(
         (row.candidate_id, row.content_hash, row.cycle_index)
         for row in replayed_run.candidate_summaries
@@ -355,6 +360,8 @@ async def test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readba
         ("candidate_same_subject", "sha256:" + "2" * 64, 1),
     )
     latest = replayed_run.candidate_summaries[1]
+    assert produced_run.candidate_summaries[1].value_receipt is not None
+    assert latest.value_receipt is None
     assert _current_candidate_summaries(replayed_run.candidate_summaries) == (latest,)
     front_ids = tuple(
         candidate_id

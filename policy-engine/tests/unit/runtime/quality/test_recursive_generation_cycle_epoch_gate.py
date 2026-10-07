@@ -631,6 +631,19 @@ def _scan_python_source(
     source_path: str,
 ) -> tuple[tuple[_CallSite, ...], tuple[_CallSite, ...], tuple[str, ...]]:
     tree = ast.parse(source, filename=source_path)
+
+    def _literal_mapping_keys(expression: ast.expr) -> frozenset[str] | None:
+        """Return complete string keys only for a literal mapping expression."""
+
+        if not isinstance(expression, ast.Dict):
+            return None
+        keys: set[str] = set()
+        for key in expression.keys:
+            if not isinstance(key, ast.Constant) or not isinstance(key.value, str):
+                return None
+            keys.add(key.value)
+        return frozenset(keys)
+
     bindings: dict[str, set[str]] = {}
     assignments: list[tuple[str, ast.expr]] = []
     binding_ambiguities: list[str] = []
@@ -672,6 +685,126 @@ def _scan_python_source(
                 changed = True
         if not changed:
             break
+
+    expansion_names = {
+        keyword.value.id
+        for call in ast.walk(tree)
+        if isinstance(call, ast.Call)
+        for keyword in call.keywords
+        if keyword.arg is None and isinstance(keyword.value, ast.Name)
+    }
+    allowed_expansion_loads = {
+        id(keyword.value)
+        for call in ast.walk(tree)
+        if isinstance(call, ast.Call)
+        for keyword in call.keywords
+        if keyword.arg is None and isinstance(keyword.value, ast.Name)
+    }
+    mapping_assignments: dict[tuple[tuple[str, ...], str], list[frozenset[str] | None]] = {}
+    unresolved_mapping_bindings: set[tuple[tuple[str, ...], str]] = set()
+    recognized_mapping_stores: set[int] = set()
+
+    class _MappingBindingVisitor(ast.NodeVisitor):
+        def __init__(self) -> None:
+            self.scope: list[str] = []
+
+        def _visit_scope(self, node: ast.AST, name: str) -> None:
+            self.scope.append(name)
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                arguments = node.args
+                argument_names = (
+                    item.arg
+                    for item in (
+                        *arguments.posonlyargs,
+                        *arguments.args,
+                        *arguments.kwonlyargs,
+                        *([arguments.vararg] if arguments.vararg is not None else []),
+                        *([arguments.kwarg] if arguments.kwarg is not None else []),
+                    )
+                )
+                unresolved_mapping_bindings.update(
+                    (tuple(self.scope), item)
+                    for item in argument_names
+                    if item in expansion_names
+                )
+            self.generic_visit(node)
+            self.scope.pop()
+
+        def visit_ClassDef(self, node: ast.ClassDef) -> None:  # noqa: N802
+            self._visit_scope(node, node.name)
+
+        def visit_FunctionDef(self, node: ast.FunctionDef) -> None:  # noqa: N802
+            self._visit_scope(node, node.name)
+
+        def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:  # noqa: N802
+            self._visit_scope(node, node.name)
+
+        def _record_assignment(self, target: ast.expr, value: ast.expr) -> None:
+            if isinstance(target, ast.Name) and target.id in expansion_names:
+                name = target.id
+                recognized_mapping_stores.add(id(target))
+                key = (tuple(self.scope), name)
+                keys = _literal_mapping_keys(value)
+                mapping_assignments.setdefault(key, []).append(keys)
+                if keys is None:
+                    unresolved_mapping_bindings.add(key)
+                return
+            for item in ast.walk(target):
+                if isinstance(item, ast.Name) and item.id in expansion_names:
+                    unresolved_mapping_bindings.add((tuple(self.scope), item.id))
+
+        def visit_Assign(self, node: ast.Assign) -> None:  # noqa: N802
+            for target in node.targets:
+                self._record_assignment(target, node.value)
+            self.generic_visit(node)
+
+        def visit_AnnAssign(self, node: ast.AnnAssign) -> None:  # noqa: N802
+            if node.value is not None:
+                self._record_assignment(node.target, node.value)
+            else:
+                for item in ast.walk(node.target):
+                    if isinstance(item, ast.Name) and item.id in expansion_names:
+                        unresolved_mapping_bindings.add((tuple(self.scope), item.id))
+            self.generic_visit(node)
+
+        def visit_Global(self, node: ast.Global) -> None:  # noqa: N802
+            for name in node.names:
+                if name in expansion_names:
+                    unresolved_mapping_bindings.add((tuple(self.scope), name))
+                    unresolved_mapping_bindings.add(((), name))
+
+        def visit_Nonlocal(self, node: ast.Nonlocal) -> None:  # noqa: N802
+            for name in node.names:
+                if name in expansion_names:
+                    unresolved_mapping_bindings.add((tuple(self.scope), name))
+
+        def visit_Name(self, node: ast.Name) -> None:  # noqa: N802
+            if node.id in expansion_names:
+                key = (tuple(self.scope), node.id)
+                if isinstance(node.ctx, ast.Load):
+                    if id(node) not in allowed_expansion_loads:
+                        unresolved_mapping_bindings.add(key)
+                elif id(node) not in recognized_mapping_stores:
+                    # Augmented, loop, destructuring, and deletion writes are not literal bindings.
+                    unresolved_mapping_bindings.add(key)
+
+    _MappingBindingVisitor().visit(tree)
+    for unresolved_scope, name in tuple(unresolved_mapping_bindings):
+        for binding_scope, binding_name in mapping_assignments:
+            if (
+                binding_name == name
+                and len(binding_scope) < len(unresolved_scope)
+                and unresolved_scope[: len(binding_scope)] == binding_scope
+            ):
+                # A nested closure can mutate or otherwise escape the outer mapping.
+                unresolved_mapping_bindings.add((binding_scope, name))
+    literal_mapping_keys_by_scope = {
+        key: frozenset().union(*values)
+        for key, values in mapping_assignments.items()
+        if values
+        and key not in unresolved_mapping_bindings
+        and all(value is not None for value in values)
+    }
 
     constructors: list[_CallSite] = []
     promotion_calls: list[_CallSite] = []
@@ -718,13 +851,30 @@ def _scan_python_source(
             self._visit_scope(node, node.name, self._arguments(node))
 
         def visit_Call(self, node: ast.Call) -> None:  # noqa: N802
-            keywords = frozenset(item.arg for item in node.keywords if item.arg is not None)
+            keywords = {item.arg for item in node.keywords if item.arg is not None}
+            unresolved_expansion = False
+            active_shadows = frozenset().union(*self.shadowed)
+            for item in node.keywords:
+                if item.arg is not None:
+                    continue
+                if isinstance(item.value, ast.Dict):
+                    expanded = _literal_mapping_keys(item.value)
+                elif isinstance(item.value, ast.Name) and item.value.id not in active_shadows:
+                    expanded = literal_mapping_keys_by_scope.get(
+                        (tuple(self.scope), item.value.id)
+                    )
+                else:
+                    expanded = None
+                if expanded is None or keywords.intersection(expanded):
+                    unresolved_expansion = True
+                else:
+                    keywords.update(expanded)
             row = _CallSite(
                 module=module,
                 source_path=source_path,
                 enclosing=".".join(self.scope),
                 target="",
-                keyword_names=keywords,
+                keyword_names=frozenset(keywords),
                 has_keyword_expansion=any(item.arg is None for item in node.keywords),
                 authority_scope=next(
                     (
@@ -747,10 +897,18 @@ def _scan_python_source(
                     constructors.append(
                         _CallSite(**{**row.__dict__, "target": next(iter(matched))})
                     )
+                    if unresolved_expansion:
+                        ambiguous.append(
+                            f"{source_path}:{node.lineno}:unresolved_constructor_keyword_expansion"
+                        )
             elif _PROMOTION_PORT_TARGET in resolved:
                 promotion_calls.append(
                     _CallSite(**{**row.__dict__, "target": "self._promotion_port"})
                 )
+                if unresolved_expansion:
+                    ambiguous.append(
+                        f"{source_path}:{node.lineno}:unresolved_promotion_keyword_expansion"
+                    )
             else:
                 rendered = ast.unparse(node.func)
                 inline_constructor = (
@@ -883,6 +1041,10 @@ def _assert_constructor_contract(
     ambiguous: tuple[str, ...],
 ) -> None:
     assert ambiguous == ()
+    # These are the accepted production owner roles, not a copy of whatever the
+    # current source scan happens to observe. Each leaf constructor stays behind
+    # its HTTP/recursive, per-node, or admitted acquisition bridge; N9 is derived
+    # only inside the canonical cycle owner.
     expected_production = {
         (
             "polisyos.runtime.http.services.control.generation_cycle",
@@ -912,11 +1074,31 @@ def _assert_constructor_contract(
             frozenset(
                 {
                     "generation_port",
+                    "eval_safety_verifier",
                     "repo_root",
                     "model_id",
                     "cycle_substrate_context",
+                    "candidate_simulation_handoff",
+                    "candidate_simulation_currentness_resolver",
                     "promotion_runtime",
                     "value_port",
+                    "artifact_store",
+                }
+            ),
+        ),
+        (
+            "polisyos.runtime.quality.acquisition_world_growth",
+            "src/polisyos/runtime/quality/acquisition_world_growth.py",
+            "AcquisitionWorldGrowthBridge.resume",
+            "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+            frozenset(
+                {
+                    "repo_root",
+                    "model_id",
+                    "promotion_runtime",
+                    "cycle_substrate_context",
+                    "candidate_simulation_handoff",
+                    "candidate_simulation_currentness_resolver",
                 }
             ),
         ),
@@ -925,7 +1107,16 @@ def _assert_constructor_contract(
             "src/polisyos/runtime/quality/generation_cycle.py",
             "GenerationCycleController.__init__",
             "polisyos.runtime.quality.promotion_sequence.CanonicalN9PromotionPort",
-            frozenset({"repo_root", "promotion_runtime", "epoch_n9_evidence_resolver"}),
+            frozenset(
+                {
+                    "repo_root",
+                    "context_provider",
+                    "promotion_runtime",
+                    "epoch_n9_evidence_resolver",
+                    "measurement_catalog",
+                    "measurement_providers",
+                }
+            ),
         ),
     }
     observed_production = {
@@ -1108,7 +1299,18 @@ def _assert_constructor_contract(
     }
     assert observed_verification == expected_verification
     assert len(constructors) == len(expected_production) + len(expected_verification)
-    assert not any(row.has_keyword_expansion for row in constructors)
+    assert {
+        (row.module, row.source_path, row.enclosing, row.target)
+        for row in constructors
+        if row.has_keyword_expansion
+    } == {
+        (
+            "polisyos.runtime.quality.acquisition_world_growth",
+            "src/polisyos/runtime/quality/acquisition_world_growth.py",
+            "AcquisitionWorldGrowthBridge.resume",
+            "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+        )
+    }
     expected_promotion_calls = {
         (
             "polisyos.runtime.quality.generation_cycle",
@@ -1324,16 +1526,23 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
         design_problem_ref=problem_ref,
     )
 
-    def actual_n5_input_ref(
+    from polisyos.core.artifacts.protocol import ArtifactStore
+
+    def fixture_eval_input_ref_for_currentness(
         observation: object,
+        *,
+        artifact_store: ArtifactStore | None = None,
     ) -> object:
+        """Return the persisted test-fixture input used by this currentness probe."""
+
+        del artifact_store
         assert observation is simulation
         return fixture.execution_context.evaluation_input_refs[0]
 
     monkeypatch.setattr(
         generation_cycle_owner,
         "simulation_evaluation_input_ref",
-        actual_n5_input_ref,
+        fixture_eval_input_ref_for_currentness,
     )
 
     class CurrentStateResolver:
@@ -1642,9 +1851,18 @@ async def test_http_recursive_route_carries_one_cycle_context_without_manual_con
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """HTTP → recursion → N6 must retain one content-bound substrate envelope."""
+    """Direct service call retains the bound context and refuses before N5.
+
+    The legacy test name is retained for the documented selector. This does not
+    exercise ASGI, N5 execution, N8 evaluation, or N9 admission.
+    """
 
     from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
+    from polisyos.runtime.quality.generation_cycle import (
+        JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
+        JointSimulationPort,
+        _DefaultSimulationBoundFoundryValuePort,
+    )
     from tests.unit.runtime.quality.test_generation_cycle import (
         REPO_ROOT,
         _budget,
@@ -1675,14 +1893,30 @@ async def test_http_recursive_route_carries_one_cycle_context_without_manual_con
 
     monkeypatch.setattr(StrangleReceipt, "recompute", source_scan_must_not_run)
 
+    def n5_must_not_run(*_args: object, **_kwargs: object) -> None:
+        pytest.fail("grounding refusal unexpectedly reached N5")
+
+    def n8_must_not_run(*_args: object, **_kwargs: object) -> None:
+        pytest.fail("grounding refusal unexpectedly reached N8")
+
+    monkeypatch.setattr(JointSimulationPort, "prepare_candidate", n5_must_not_run)
+    monkeypatch.setattr(JointSimulationPort, "__call__", n5_must_not_run)
+    monkeypatch.setattr(
+        _DefaultSimulationBoundFoundryValuePort,
+        "__call__",
+        n8_must_not_run,
+    )
+
     class _ContextFixtureN4Port(N4GenerationPort):
         def __init__(self) -> None:
             super().__init__(model_id="fixture-model")
             self.calls = 0
+            self.problem_refs: list[str] = []
 
         async def __call__(self, problem, *, cycle_index):
-            del problem, cycle_index
+            assert cycle_index == 0
             self.calls += 1
+            self.problem_refs.append(gy_content_hash(problem.model_dump(mode="json")))
             return _GenerationResult(
                 status="generated",
                 candidates=(candidate,),
@@ -1722,41 +1956,46 @@ async def test_http_recursive_route_carries_one_cycle_context_without_manual_con
     assert compiled.recursive_run.leaf_nodes[0].cycle_run is not None
     leaf_cycle = compiled.recursive_run.leaf_nodes[0].cycle_run
     assert leaf_cycle.cycles
-    simulation = leaf_cycle.cycles[0].simulation
+    assert len(leaf_cycle.candidate_summaries) == 1
+    candidate_summary = leaf_cycle.candidate_summaries[0]
+    assert candidate_summary.n5_applicability is not None
+    assert candidate_summary.n5_applicability.status == "not_established"
+    assert candidate_summary.n5_applicability.blockers == (
+        "n5_grounding_prerequisite_not_met",
+    )
+    cycle = leaf_cycle.cycles[0]
+    simulation = cycle.simulation
     assert leaf_cycle.strangle_receipt.status == "not_established"
     assert leaf_cycle.promotion_port.status == "not_promoted"
     assert leaf_cycle.promotion_port.reason == (
-        "generation_cycle_n6_census_not_established:n6_census_issuer_not_appointed"
+        "generation_cycle_blocked_before_n9:"
+        "n5_preflight_blocked:n5_grounding_prerequisite_not_met"
     )
+    assert cycle.grounding.status == "grounding_unavailable"
+    assert cycle.grounding.issue_codes == ("cgf_disposition_missing",)
     assert simulation.status == "simulation_blocked"
-    assert simulation.authority_blockers == ("joint_simulation_ncm_spec_missing",)
-    assert simulation.world_model_record is substrate_context.world_model_record
-    assert simulation.world_model_record.content_hash == (
-        substrate_context.world_model_record_content_hash
-    )
+    assert simulation.authority_blockers == ("n5_grounding_prerequisite_not_met",)
+    assert simulation.diagnostics["n5_preflight"] == "blocked"
+    assert simulation.world_model_record is None
+    assert simulation.k_world_ref_before is None
+    assert simulation.k_world_ref_after is None
+    assert simulation.simulation_ref is None
+    assert simulation.simulation_result_ref is None
+    assert cycle.value_port.status == "value_blocked"
+    assert cycle.value_port.evaluation_mode is None
+    assert cycle.value_port.value_ref is None
     assert n4_port.calls == 1
+    assert n4_port.problem_refs == [substrate_context.design_problem_ref]
 
     assert compiled.cycle_substrate_context_ref == substrate_context.content_hash
     assert compiled.recursive_run.root_design_problem_ref == substrate_context.design_problem_ref
-    leaf = compiled.recursive_run.leaf_nodes[0]
-    assert leaf.cycle_run is not None
-    assert leaf.cycle_run.cycles
-    leaf_simulation = leaf.cycle_run.cycles[0].simulation
-    assert leaf_simulation.world_model_record is substrate_context.world_model_record
-    assert leaf_simulation.world_model_record.content_hash == (
-        substrate_context.world_model_record_content_hash
-    )
-    assert leaf_simulation.world_model_record.world_model_record_id == (
-        substrate_context.world_model_record.world_model_record_id
-    )
-    assert leaf_simulation.k_world_ref_before == substrate_context.world_model_record_content_hash
-    assert leaf_simulation.k_world_ref_after == substrate_context.world_model_record_content_hash
-    assert leaf_simulation.diagnostics["world_model_record_id"] == (
-        substrate_context.world_model_record.world_model_record_id
-    )
-    assert leaf_simulation.diagnostics["world_model_record_content_hash"] == (
-        substrate_context.world_model_record_content_hash
-    )
+    assert cycle.design_problem_ref == substrate_context.design_problem_ref
+    artifact_kinds = {
+        runtime.store.get_manifest(artifact_id).kind
+        for artifact_id in runtime.store.iter_artifact_ids()
+    }
+    assert JOINT_SIMULATION_RESULT_ARTIFACT_KIND not in artifact_kinds
+    assert "runtime.promotion.pre_n9_epoch_validity_subject" not in artifact_kinds
 
     foreign_problem = problem.model_copy(
         update={"design_problem_id": "foreign_http_recursive_problem"}
@@ -1771,6 +2010,7 @@ async def test_http_recursive_route_carries_one_cycle_context_without_manual_con
         "build_design_problem_from_nl_request",
         compile_foreign,
     )
+    foreign_n4_port = _ContextFixtureN4Port()
     with pytest.raises(DesignProblemAuthorityError) as exc_info:
         await generation_cycle_service.compile_and_run_recursive_generation_cycle(
             raw_request=foreign_problem.nl_provenance.raw_request,
@@ -1782,20 +2022,30 @@ async def test_http_recursive_route_carries_one_cycle_context_without_manual_con
             root_evaluation_context=None,
             eval_safety_verifier=_NeverCalledVerifier(),
             cycle_substrate_context=substrate_context,
-            root_n4_generation_port=_ContextFixtureN4Port(),
+            root_n4_generation_port=foreign_n4_port,
             promotion_runtime=runtime,
             repo_root=REPO_ROOT,
         )
     assert getattr(exc_info.value, "code", None) == "cycle_substrate_design_problem_mismatch"
+    assert foreign_n4_port.calls == 0
 
 
 @pytest.mark.asyncio
-async def test_http_recursive_route_carries_one_context_to_n5_owner_block(
+async def test_direct_service_refuses_unbound_shadow_marker_before_n5(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """HTTP → leaf → N5 must retain the one owner WMR on a typed NCM block."""
+    """A shape-valid shadow marker without problem scope cannot enter N5.
 
+    The separate NCM-missing-after-genuine-grounding goal remains UNRUN: it needs
+    an owner-grounded N4 result and a context whose bound WMR has no NCM source.
+    """
+
+    from polisyos.runtime.quality.generation_cycle import (
+        JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
+        JointSimulationPort,
+        _DefaultSimulationBoundFoundryValuePort,
+    )
     from tests.unit.runtime.quality.test_generation_cycle import (
         REPO_ROOT,
         _budget,
@@ -1810,16 +2060,32 @@ async def test_http_recursive_route_carries_one_context_to_n5_owner_block(
 
     class _NeverCalledVerifier:
         def require_admission(self, *_args, **_kwargs):
-            raise AssertionError("owner-blocked N5 path unexpectedly called EvalSafety verifier")
+            raise AssertionError("unbound shadow marker unexpectedly reached EvalSafety")
 
-    class _BoundN4Port(N4GenerationPort):
+    def n5_must_not_run(*_args: object, **_kwargs: object) -> None:
+        pytest.fail("unbound shadow marker unexpectedly reached N5")
+
+    def n8_must_not_run(*_args: object, **_kwargs: object) -> None:
+        pytest.fail("unbound shadow marker unexpectedly reached N8")
+
+    monkeypatch.setattr(JointSimulationPort, "prepare_candidate", n5_must_not_run)
+    monkeypatch.setattr(JointSimulationPort, "__call__", n5_must_not_run)
+    monkeypatch.setattr(
+        _DefaultSimulationBoundFoundryValuePort,
+        "__call__",
+        n8_must_not_run,
+    )
+
+    class _MarkerOnlyN4Port(N4GenerationPort):
         def __init__(self) -> None:
             super().__init__(model_id="fixture-model")
             self.calls = 0
+            self.problem_refs: list[str] = []
 
         async def __call__(self, problem, *, cycle_index):
-            del problem, cycle_index
+            assert cycle_index == 0
             self.calls += 1
+            self.problem_refs.append(gy_content_hash(problem.model_dump(mode="json")))
             return _GenerationResult(
                 status="generated",
                 candidates=(candidate,),
@@ -1840,6 +2106,7 @@ async def test_http_recursive_route_carries_one_context_to_n5_owner_block(
                         shadow_atom_content_hash=candidate.atom.content_hash,
                     ),
                 ),
+                # Deliberately omit design_problem_ref: a marker cannot bind itself.
             )
 
     async def compile_problem(**kwargs):
@@ -1851,7 +2118,7 @@ async def test_http_recursive_route_carries_one_context_to_n5_owner_block(
         "build_design_problem_from_nl_request",
         compile_problem,
     )
-    n4_port = _BoundN4Port()
+    n4_port = _MarkerOnlyN4Port()
     compiled = await generation_cycle_service.compile_and_run_recursive_generation_cycle(
         raw_request=problem.nl_provenance.raw_request,
         context={},
@@ -1874,25 +2141,43 @@ async def test_http_recursive_route_carries_one_context_to_n5_owner_block(
     )
 
     assert n4_port.calls == 1
+    assert n4_port.problem_refs == [substrate_context.design_problem_ref]
     assert compiled.cycle_substrate_context_ref == substrate_context.content_hash
+    assert compiled.recursive_run.root_design_problem_ref == substrate_context.design_problem_ref
     leaf = compiled.recursive_run.leaf_nodes[0]
     assert leaf.cycle_run is not None
     assert leaf.cycle_run.cycles
-    assert leaf.cycle_run.cycles[0].value_port.evaluation_mode == "simulate_only"
-    assert leaf.cycle_run.promotion_port.status != "promoted"
-    simulation = leaf.cycle_run.cycles[0].simulation
-    assert simulation.status == "simulation_blocked"
-    assert simulation.authority_blockers == ("joint_simulation_ncm_spec_missing",)
-    assert simulation.world_model_record is substrate_context.world_model_record
-    assert simulation.diagnostics["world_model_record_id"] == (
-        substrate_context.world_model_record.world_model_record_id
+    cycle = leaf.cycle_run.cycles[0]
+    assert cycle.design_problem_ref == substrate_context.design_problem_ref
+    assert cycle.grounding.status == "grounding_unavailable"
+    assert cycle.grounding.issue_codes == (
+        "generation_result_problem_scope_unestablished",
     )
-    assert simulation.diagnostics["world_model_record_content_hash"] == (
-        substrate_context.world_model_record.content_hash
+    assert cycle.simulation.status == "simulation_blocked"
+    assert cycle.simulation.authority_blockers == (
+        "n5_grounding_prerequisite_not_met",
     )
-    assert simulation.k_world_ref_before == substrate_context.world_model_record.content_hash
-    assert simulation.k_world_ref_after == substrate_context.world_model_record.content_hash
-    assert simulation.simulation_ref is None
+    assert cycle.simulation.diagnostics["n5_preflight"] == "blocked"
+    assert cycle.simulation.world_model_record is None
+    assert cycle.simulation.k_world_ref_before is None
+    assert cycle.simulation.k_world_ref_after is None
+    assert cycle.simulation.simulation_ref is None
+    assert cycle.simulation.simulation_result_ref is None
+    assert cycle.value_port.status == "value_blocked"
+    assert cycle.value_port.evaluation_mode is None
+    assert cycle.value_port.value_ref is None
+    assert leaf.cycle_run.promotion_port.status == "not_promoted"
+    assert leaf.cycle_run.promotion_port.reason == (
+        "generation_cycle_blocked_before_n9:"
+        "n5_preflight_blocked:n5_grounding_prerequisite_not_met"
+    )
+    assert leaf.cycle_run.strangle_receipt.status == "not_established"
+    artifact_kinds = {
+        runtime.store.get_manifest(artifact_id).kind
+        for artifact_id in runtime.store.iter_artifact_ids()
+    }
+    assert JOINT_SIMULATION_RESULT_ARTIFACT_KIND not in artifact_kinds
+    assert "runtime.promotion.pre_n9_epoch_validity_subject" not in artifact_kinds
 
 
 @pytest.mark.asyncio
@@ -2224,6 +2509,144 @@ class Probe:
     assert dynamic_ports[0].keyword_names == frozenset(
         {"admitted_batch", "problem", "deployment_identity"}
     )
+
+    static_expansion_source = '''
+from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+
+class AcquisitionWorldGrowthBridge:
+    def resume(self):
+        controller_kwargs: dict[str, object] = {}
+        if context_refresh:
+            controller_kwargs = {"cycle_substrate_context": context}
+        else:
+            controller_kwargs = {
+                "candidate_simulation_handoff": handoff,
+                "candidate_simulation_currentness_resolver": currentness_resolver,
+            }
+        return GenerationCycleController(
+            repo_root=repo_root,
+            model_id=model_id,
+            promotion_runtime=promotion_runtime,
+            **controller_kwargs,
+        )
+'''
+    static_expansion, _, static_expansion_ambiguity = _scan_python_source(
+        source=static_expansion_source,
+        module="polisyos.runtime.quality.acquisition_world_growth",
+        source_path="src/polisyos/runtime/quality/acquisition_world_growth.py",
+    )
+    assert static_expansion_ambiguity == ()
+    assert len(static_expansion) == 1
+    assert static_expansion[0].has_keyword_expansion
+    acquisition_call = next(
+        row
+        for row in constructors
+        if row.source_path == "src/polisyos/runtime/quality/acquisition_world_growth.py"
+    )
+    assert static_expansion[0].keyword_names == acquisition_call.keyword_names
+
+    extra_literal_source = static_expansion_source.replace(
+        '"candidate_simulation_currentness_resolver": currentness_resolver,',
+        '"candidate_simulation_currentness_resolver": currentness_resolver,\n'
+        '                "unreviewed_owner_keyword": untrusted_value,',
+    )
+    extra_literal, _, extra_literal_ambiguity = _scan_python_source(
+        source=extra_literal_source,
+        module="polisyos.runtime.quality.acquisition_world_growth",
+        source_path="src/polisyos/runtime/quality/acquisition_world_growth.py",
+    )
+    assert extra_literal_ambiguity == ()
+    assert len(extra_literal) == 1
+    assert "unreviewed_owner_keyword" in extra_literal[0].keyword_names
+    with pytest.raises(AssertionError):
+        _assert_constructor_contract(
+            tuple(extra_literal[0] if row == acquisition_call else row for row in constructors),
+            tuple(promotion_calls),
+            tuple(ambiguous),
+        )
+
+    dynamic_expansion, _, dynamic_expansion_ambiguity = _scan_python_source(
+        source='''
+from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+
+class AcquisitionWorldGrowthBridge:
+    def resume(self, runtime_kwargs):
+        controller_kwargs: dict[str, object] = {}
+        controller_kwargs.update(runtime_kwargs)
+        return GenerationCycleController(
+            repo_root=repo_root,
+            model_id=model_id,
+            promotion_runtime=promotion_runtime,
+            **controller_kwargs,
+        )
+''',
+        module="polisyos.runtime.quality.acquisition_world_growth",
+        source_path="src/polisyos/runtime/quality/acquisition_world_growth.py",
+    )
+    assert len(dynamic_expansion) == 1
+    assert dynamic_expansion[0].has_keyword_expansion
+    assert any(
+        "unresolved_constructor_keyword_expansion" in row
+        for row in dynamic_expansion_ambiguity
+    )
+    with pytest.raises(AssertionError):
+        _assert_constructor_contract(
+            (*constructors, *dynamic_expansion),
+            tuple(promotion_calls),
+            tuple(dynamic_expansion_ambiguity),
+        )
+
+    dynamic_name_expansion, _, dynamic_name_ambiguity = _scan_python_source(
+        source='''
+from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+
+class AcquisitionWorldGrowthBridge:
+    def resume(self, runtime_kwargs):
+        return GenerationCycleController(
+            repo_root=repo_root,
+            model_id=model_id,
+            promotion_runtime=promotion_runtime,
+            **runtime_kwargs,
+        )
+''',
+        module="polisyos.runtime.quality.acquisition_world_growth",
+        source_path="src/polisyos/runtime/quality/acquisition_world_growth.py",
+    )
+    assert len(dynamic_name_expansion) == 1
+    assert dynamic_name_expansion[0].has_keyword_expansion
+    assert any(
+        "unresolved_constructor_keyword_expansion" in row
+        for row in dynamic_name_ambiguity
+    )
+    with pytest.raises(AssertionError):
+        _assert_constructor_contract(
+            (*constructors, *dynamic_name_expansion),
+            tuple(promotion_calls),
+            tuple(dynamic_name_ambiguity),
+        )
+
+    unwrapped_constructor, _, unwrapped_ambiguity = _scan_python_source(
+        source='''
+from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+
+def unreviewed_bridge():
+    return GenerationCycleController(
+        repo_root=repo_root,
+        model_id=model_id,
+        promotion_runtime=promotion_runtime,
+    )
+''',
+        module="polisyos.runtime.quality.unreviewed_bridge",
+        source_path="src/polisyos/runtime/quality/unreviewed_bridge.py",
+    )
+    assert unwrapped_ambiguity == ()
+    assert len(unwrapped_constructor) == 1
+    with pytest.raises(AssertionError):
+        _assert_constructor_contract(
+            (*constructors, *unwrapped_constructor),
+            tuple(promotion_calls),
+            tuple(ambiguous),
+        )
 
     missing_runtime = tuple(
         replace(

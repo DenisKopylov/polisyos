@@ -3,8 +3,8 @@
   "payload_files": [
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/README.md",
-      "bytes": 3000,
-      "sha256": "a252eaa5645bd63fd72144f9b1b2c6afe8d5e3e1a5b39f06f70cb819abc7e14a"
+      "bytes": 3127,
+      "sha256": "776d46e9bd24a95d3d743a060ff09aeb68c3ebfb391cb74ce8e7adb91641e4d4"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/check-output.txt",
@@ -18,11 +18,11 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-custody.json",
-      "bytes": 4810,
-      "sha256": "1485e37881dfe6fff22ffc05ad14c5e4e71559b3546e1cc45d26963bf6e89394"
+      "bytes": 5026,
+      "sha256": "4cea8f57ac0e17b4984fc4c5449c16feaf295aa6f878f2b1d36b72e2b6c11dc0"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/current_cohort_inventory.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/current_cohort_inventory.source.txt",
       "bytes": 22420,
       "sha256": "869afd5e4f6e3acdb665dec5193c936655bc6747c26e7b870dd8ee56f94bc104"
     },
@@ -52,7 +52,7 @@
       "sha256": "5f4caa290be5998bec369f1a0f942b0983237c4483f63378b65a12b6728fe718"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/test_real_phase_journal.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/test_real_phase_journal.source.txt",
       "bytes": 135,
       "sha256": "fa51a8abe4f1b9ff320980fe1a32f197b1ae5609bedc49155a0fd210aa3ed5bd"
     },
@@ -83,6 +83,6 @@
     }
   ],
   "payload_count": 16,
-  "payload_bytes": 85809,
+  "payload_bytes": 86152,
   "index_self": "This index is an additional implementation file; its own binding is in the later handoff."
 }

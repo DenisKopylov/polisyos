@@ -10,13 +10,13 @@
     },
     {
       "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/current_cohort_inventory.py",
-      "retained_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/current_cohort_inventory.py",
+      "retained_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/current_cohort_inventory.source.txt",
       "bytes": 22420,
       "sha256": "869afd5e4f6e3acdb665dec5193c936655bc6747c26e7b870dd8ee56f94bc104"
     },
     {
       "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py",
-      "retained_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/test_real_phase_journal.py",
+      "retained_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/test_real_phase_journal.source.txt",
       "bytes": 135,
       "sha256": "fa51a8abe4f1b9ff320980fe1a32f197b1ae5609bedc49155a0fd210aa3ed5bd"
     },
@@ -62,5 +62,6 @@
       "bytes": 3015,
       "sha256": "56262daf90bc7a13a9de1ff7042564fc783588d7f75067ff2e898164af2bd7e2"
     }
-  ]
+  ],
+  "input_role": "Python fixture and observer inputs are preserved as .source.txt, not collected as new tests or run as package helpers. Original bytes and original execution paths remain unchanged."
 }

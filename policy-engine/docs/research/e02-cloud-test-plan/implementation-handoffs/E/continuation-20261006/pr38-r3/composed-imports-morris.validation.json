@@ -1,0 +1,35 @@
+{
+  "source_candidate": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+  "scope": "Metadata binding only; independent runtime oracle/removal controls are separate",
+  "controls": [
+    {
+      "control": "healthy",
+      "status": "PASS"
+    },
+    {
+      "control": "tree",
+      "status": "FAIL as required",
+      "reason": "Tree differs"
+    },
+    {
+      "control": "footprint",
+      "status": "FAIL as required",
+      "reason": "Footprint differs"
+    },
+    {
+      "control": "asset_size",
+      "status": "FAIL as required",
+      "reason": "Asset differs"
+    },
+    {
+      "control": "asset_hash",
+      "status": "FAIL as required",
+      "reason": "Asset differs"
+    },
+    {
+      "control": "cases",
+      "status": "FAIL as required",
+      "reason": "Actual JUnit denominator differs"
+    }
+  ]
+}

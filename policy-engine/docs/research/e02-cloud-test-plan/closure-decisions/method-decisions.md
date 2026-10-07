@@ -213,6 +213,8 @@ owner, сохранить provenance и consumer semantics, уменьшить �
 
 ### D-M4 — Funnel continuation and authoritative resource charging
 
+Current B120 qualification: D680’s canonical owner→public SearchLoopRunner→CAS/fresh resume is verified by G’s10-case exact-source run; original B120 does not require universal deployment/invoice truth. The older funnel/promotion observations below retain their pinned scope and do not block that bounded B120 mechanism. FUN-01/02/03 and B164 remain separate; code acceptance and integrated replay are pending.
+
 **Finding IDs.** FUN-01:B156; FUN-01:B158; FUN-01:B159; FUN-02:B157; FUN-02:B160; FUN-02:B162; FUN-02:B165; FUN-03:B161; FUN-03:B163; FUN-03:B164; CTL-01:B118; CTL-01:B119; CTL-03:B120; CTL-03:B121; CTL-03:B123
 
 **Свойство.** Continuation only follows a newly bound condition; empty/unmeasured/zero/invalid interval remain distinct. Stage verdict and aggregate verdict are separate. A budget charge exists only when the authoritative owner ledger debits it for the bound run/candidate.

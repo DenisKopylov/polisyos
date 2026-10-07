@@ -1,0 +1,45 @@
+{
+  "checks": [
+    {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/ruff",
+        "check",
+        "--config",
+        "/workspace/e02-B-current-runtime/policy-engine/pyproject.toml",
+        "/tmp/e02-B-tenth-wave-20261007/inspect-consumer-delta.source.txt"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime",
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": "",
+      "scope": "New metadata source instrument only; no product/whole-B gate.",
+      "driver_sha256": "b65d4405eeadf290d31f0beb948104bb301426379836be082b6dfbac6ce23029"
+    },
+    {
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/ruff",
+        "format",
+        "--check",
+        "--config",
+        "/workspace/e02-B-current-runtime/policy-engine/pyproject.toml",
+        "/tmp/e02-B-tenth-wave-20261007/inspect-consumer-delta.source.txt"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime",
+      "exit_code": 0,
+      "stdout": "1 file already formatted\n",
+      "stderr": "",
+      "scope": "New metadata source instrument only; no product/whole-B gate.",
+      "driver_sha256": "b65d4405eeadf290d31f0beb948104bb301426379836be082b6dfbac6ce23029"
+    }
+  ],
+  "earlier_preparation": "Initial unformatted metadata driver format-check returned FAIL and was corrected by Ruff; its normalized AST equals the formatted input. Both earlier source-only and final source-only stdout bytes are equal. No native was run.",
+  "earlier_input": {
+    "path": "/tmp/e02-B-tenth-wave-20261007/inspect-before-format.source.txt",
+    "sha256": "06789d00de4f683f1026298e03fd9e27b380ddc28f68bb13a550aab7f80dee2c",
+    "bytes": 8947
+  },
+  "final_input": {
+    "sha256": "b65d4405eeadf290d31f0beb948104bb301426379836be082b6dfbac6ce23029",
+    "bytes": 9709
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "payload_count": 8,
+  "payload_bytes": 166749,
+  "payloads": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-consumer-seams-20261007/README.md",
+      "bytes": 10256,
+      "sha256": "faf8bb3b5cd658f897cd0635abbe1227fb589a7388eb0c29c80cec893d084b68",
+      "git_blob": "9b89a759a9f9bdc9e124c02fbdc0ae7e85a03ef7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-consumer-seams-20261007/baseline-navigation.json",
+      "bytes": 134595,
+      "sha256": "33c8fcea98871b0e0fcef79526d9bf9d160e53aa6524cbb72d230702cffbda02",
+      "git_blob": "d1abec1114e211d7009d8722d85a2ac523e51a6d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-consumer-seams-20261007/check.txt",
+      "bytes": 898,
+      "sha256": "803deb8640e3eecf98c591a48784d7ba8f83d920ec4d37c697e4a165c9bc25e1",
+      "git_blob": "43677253e62c80c5930bbbebedbfe47502638934"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-consumer-seams-20261007/import-check.txt",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "git_blob": "4b77a2bc39db327d4a0589d0613bd93b280ce634"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-consumer-seams-20261007/inspect-consumer-delta.source.txt",
+      "bytes": 9709,
+      "sha256": "b65d4405eeadf290d31f0beb948104bb301426379836be082b6dfbac6ce23029",
+      "git_blob": "40e5a54ccf2f3d85d5ff025288b721610b2c99ad"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-consumer-seams-20261007/profile.json",
+      "bytes": 1102,
+      "sha256": "755316475a5765f972e322e126deb52150f6039dcc46f9c78c9d41e686d0ab89",
+      "git_blob": "5d331c46fffe9c4d6aebb8fc352d178d8d7199bf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-consumer-seams-20261007/review.json",
+      "bytes": 8278,
+      "sha256": "cce6729db57320e90818766e312a7e7f06c1917855082f9c2b618b3a9df9065b",
+      "git_blob": "406eb23dbaa7cf737eed0277918ee0f1d650c695"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-consumer-seams-20261007/style-check.json",
+      "bytes": 1799,
+      "sha256": "9c0eb0e4406d655fc26acc2b4008a032b16616abe8cbed988972d5e29717ab37",
+      "git_blob": "ae5aa8a8e02b47d0a0dca6e6c1c27f972f2884b4"
+    }
+  ],
+  "source_and_test_writes": [],
+  "new_runtime": "UNRUN_BY_THIS_REVIEWER",
+  "index_self_excluded": true
+}

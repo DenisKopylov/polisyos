@@ -473,8 +473,13 @@ def collect(args: argparse.Namespace) -> dict[str, object]:
         row["binding_predicates"] = predicates
         if receipt["outcome"] not in {"PASS", "FAIL", "ERROR", "SKIP", "UNRUN"}:
             issues.append({"job": job["name"], "reason": "unknown check outcome"})
-        if receipt["outcome"] == "PASS" and receipt["exit_code"] != 0:
-            issues.append({"job": job["name"], "reason": "PASS conflicts with command failure"})
+        if receipt["outcome"] in {"PASS", "SKIP"} and receipt["exit_code"] != 0:
+            issues.append(
+                {
+                    "job": job["name"],
+                    "reason": receipt["outcome"] + " conflicts with command failure",
+                }
+            )
         source_frames.append(receipt["source_identity_before"])
         config_hashes.append(receipt["git_input_config"]["sha256"])
         variables = receipt["environment"]["selected_variables"]

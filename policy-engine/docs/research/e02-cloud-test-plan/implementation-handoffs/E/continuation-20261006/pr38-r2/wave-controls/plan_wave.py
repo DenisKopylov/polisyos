@@ -158,6 +158,8 @@ def family_for(path: str) -> str | None:
         or (relative.startswith("scientist/nodes/builtins/simulate/") and "welfare" in relative)
     ):
         return "CAL_and_welfare_consumer"
+    if relative == "ir/test_posterior_summary.py":
+        return "MC_joint_law_support_and_Scientist_consumer"
     if relative.startswith("foundry/uncertainty/") or (
         relative.startswith("scientist/nodes/") and "propagate_uncertainty" in relative
     ):

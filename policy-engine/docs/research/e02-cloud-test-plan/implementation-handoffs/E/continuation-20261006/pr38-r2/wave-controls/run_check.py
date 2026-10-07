@@ -188,7 +188,13 @@ def main() -> int:
     outcome = "PASS" if exit_code == 0 and immutable else "FAIL"
     if error is not None:
         outcome = "UNRUN"
-    elif counts is not None and counts["cases"] and counts["skipped"] == counts["cases"]:
+    elif (
+        exit_code == 0
+        and immutable
+        and counts is not None
+        and counts["cases"]
+        and counts["skipped"] == counts["cases"]
+    ):
         outcome = "SKIP"
     packages = {}
     for name in (

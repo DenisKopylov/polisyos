@@ -163,9 +163,7 @@ class _ShadowedIteratorSource:
 
         with open(field_names["effect_path"], "a", encoding="utf-8") as output:
             output.write("body\n")
-        return {
-            "product": {name: _DATA_GETTER(state, name, state) for name in field_names}
-        }
+        return {"product": {name: _DATA_GETTER(state, name, state) for name in field_names}}
 
 
 def _closure_collision_source(field_name):

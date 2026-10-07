@@ -56,6 +56,11 @@ Python's function symbol table binds the no-rebinding premise, including
 exception names, definitions, imports and pattern captures. Generic functions
 with a separate type-parameter scope are outside this getter profile and refuse
 through the existing typed identity boundary.
+Getter aliases and captured selector/iterator names must resolve to this
+function's actual global/free bindings, with nonlocals taking precedence.
+Runtime parameters, local/comprehension shadows and ambiguous same-name
+recursive captures cannot supply the asserted immutable selector or builtin.
+Those profiles refuse before a scientific body runs.
 
 An opaque builtin can return a runtime namespace without exposing its selected
 members to this graph. The real `sys._getframe().f_globals["math"]` checkpoint

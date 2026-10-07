@@ -278,6 +278,34 @@ def _data_field_getattr(
         for parameter in parameters
         if scopes[0].lookup(parameter).is_assigned() or scopes[0].lookup(parameter).is_imported()
     )
+    root_captures = inspect.getclosurevars(function)
+    root_bindings = root_captures.builtins | root_captures.globals | root_captures.nonlocals
+    missing = object()
+
+    def root_capture(identifier: str) -> Any:
+        if identifier in rebound:
+            return missing
+        try:
+            symbol = scopes[0].lookup(identifier)
+        except KeyError:
+            return missing
+        if (
+            symbol.is_parameter()
+            or symbol.is_local()
+            or symbol.is_assigned()
+            or symbol.is_imported()
+            or not (symbol.is_global() or symbol.is_free())
+        ):
+            return missing
+        value = root_bindings.get(identifier, missing)
+        # Recursive globals cannot stand in for a parameter/local or overwrite
+        # this function's actual nonlocal binding. Ambiguous captures refuse.
+        if value is missing or captures.get(identifier, missing) is not value:
+            return missing
+        return value
+
+    if root_capture(name) is not builtins.getattr:
+        return None
     fields: set[str] = set()
     targets: set[str] = set()
     uses = [
@@ -313,8 +341,8 @@ def _data_field_getattr(
         if isinstance(selector, ast.Constant):
             selected = (selector.value,)
         elif isinstance(selector, ast.Name):
-            captured = captures.get(selector.id)
-            if isinstance(captured, str) and selector.id not in rebound:
+            captured = root_capture(selector.id)
+            if isinstance(captured, str):
                 selected = (captured,)
             else:
                 for comprehension in nodes:
@@ -334,7 +362,7 @@ def _data_field_getattr(
                             and isinstance(generator.iter, ast.Name)
                             and generator.iter.id not in rebound
                         ):
-                            selected = captures.get(generator.iter.id)
+                            selected = root_capture(generator.iter.id)
         if (
             not isinstance(selected, (tuple, frozenset))
             or not selected

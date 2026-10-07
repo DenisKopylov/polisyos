@@ -65,5 +65,5 @@ for name in m.METADATA:
 program=re.sub(r'^FIXED_METADATA = .*$',lambda match:'FIXED_METADATA = '+repr(fixed),program,count=1,flags=re.MULTILINE)
 (S/'copy-closed-controls.py.txt').write_text(program)
 # Validate complete staged packet via its final actual module, before any publication target write.
-f=load(S/'copy-closed-controls.py.txt');f.validate(S/'manifest.json',f.strict_json((S/'manifest.json').read_bytes()))
+f=load(S/'copy-closed-controls.py.txt');f.validate(S/'manifest.json',f.strict_json((S/'manifest.json').read_bytes()), 'stage')
 print(json.dumps(summary|{'family_member_counts':{s['family']:s['members'] for s in expected},'source_execution':False},indent=2))

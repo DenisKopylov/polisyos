@@ -10,7 +10,7 @@ EXPECTED = [{'family': 'terminal-backend', 'path': '/workspace/e02-E-pr38-r3-rec
 FIXED_HEADER = {'schema': 'policyos.e02.closed_controls_selector_custody.v1', 'publication_base': '5739c0fa4037ddf91fbca425e3fd3190dc7aa969', 'publication_base_tree': '835e7f612368f3c1d7b67a9e2caf918ce7cd0038', 'proposed_git_prefix': 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls', 'own_lane_before': {'head': '5739c0fa4037ddf91fbca425e3fd3190dc7aa969', 'tree': '835e7f612368f3c1d7b67a9e2caf918ce7cd0038', 'tracked_status': '', 'observed_at': '2026-10-07T15:00:33.010763+00:00', 'atomic': False, 'scope': 'read-only sequential HEAD/tree/physical tracked status; no input freeze or native caller assertion'}, 'own_lane_after': {'head': '5739c0fa4037ddf91fbca425e3fd3190dc7aa969', 'tree': '835e7f612368f3c1d7b67a9e2caf918ce7cd0038', 'tracked_status': '', 'observed_at': '2026-10-07T15:00:33.971455+00:00', 'atomic': False, 'scope': 'read-only sequential HEAD/tree/physical tracked status; no input freeze or native caller assertion'}, 'ROOT_before': {'head': '57790f050e0e6583c5bd25d4474326ea1aece9aa', 'tree': '3d6bb296e96e737dcd03aa4a92f18c578deaefd8', 'tracked_status': '', 'observed_at': '2026-10-07T15:00:32.982184+00:00', 'atomic': False, 'scope': 'read-only sequential HEAD/tree/physical tracked status; no input freeze or native caller assertion'}, 'ROOT_after': {'head': '57790f050e0e6583c5bd25d4474326ea1aece9aa', 'tree': '3d6bb296e96e737dcd03aa4a92f18c578deaefd8', 'tracked_status': '', 'observed_at': '2026-10-07T15:00:33.946025+00:00', 'atomic': False, 'scope': 'read-only sequential HEAD/tree/physical tracked status; no input freeze or native caller assertion'}, 'environment': {'python': '3.12.14', 'platform': 'Linux-6.18.44-x86_64-with-glibc2.41', 'backend': 'stdlib byte/JSON/gzip custody only; no numerical backend invocation'}, 'source_native_numeric_globalgate_execution': False, 'ROOT_source_env_locks_outputs_written': False, 'new_active_Python': 0, 'final_source_wave_or_finding_acceptance': False, 'predicate_basis': {'original_selector_identity': {'basis': 'recomputed', 'explanation': 'all24 exact selectors/readback receipts size/hash and original member schemas fixed'}, 'all_logical_occurrences_and_aliases': {'basis': 'recomputed', 'explanation': 'complete rawselected record Counter including flat declared files and compressed decoded originals'}, 'physical_and_decoded_bytes': {'basis': 'recomputed', 'explanation': 'literal stored bytes/hash and eachgzip full decompressed original bytes/hash before destination writes'}, 'metadata_program_and_counts': {'basis': 'recomputed', 'explanation': 'complete mandatory companions, cached executing program bytes, strict recursive typed JSON header/qualification and denominators'}, 'closed_original_independent_observations': {'basis': 'independently_reconciled', 'explanation': 'selected original author/peer receipts retained; no gate rerun by this carrier'}, 'ROOT_temporal_HEAD_tree_status': {'basis': 'recomputed', 'explanation': 'read-only sequential temporal observation, not atomic input freeze'}, 'native_caller_full_input_P41': {'basis': 'not_established', 'explanation': 'no whole-input reconstruction or actual native caller attribution by publication'}, 'final_source_finding_and_institutional_authority': {'basis': 'not_established', 'explanation': 'pending newsource/reviews/finalwave/current54; code accepted separately from finding closure'}}}
 QUALIFICATION = {'schema': 'policyos.e02.closed_controls_qualification.v1', 'scope': 'Literal closed receipts, member/alias custody and declared historical observations only. This carrier runs no source, native, numeric, global gate or cleanup action.', 'historical_source_epochs': ['64d7444a18c55df7b88b71b7699a2f1b25ca24bd', '31782b55f8f35556cfc581449b040c393f00c78f'], 'terminal_backend': {'original_actual_exit_code': 137, 'actual_JUnit_present': False, 'retrospective_native_PASS': False, 'termination_cause': 'not_established; source-bound terminal decoder and status custody distinct from method/case outcome'}, 'root317': {'wave': 'closed historical observation, nine failing cases; later source/wave not accepted by this carrier', 'Ruff': 'FAIL:143 foreign diagnostics on seven paths; E zero', 'format': 'FAIL:seven foreign paths; E zero', 'workspace_verify': 'one PASS,one FAIL,13 UNRUN across15 stages', 'CI_parity': 'zero PASS,one FAIL,23 UNRUN across24 stages'}, 'MC_b6': {'actual_three_gates': 'FAIL observations retained; exact scope and full moderate receipts selected', 'projected_generated_patch': 'comparison oracle only; no application to integration', 'runtime_API_binding_cause': 'not_established; current reason correction retained', 'private_raw_static_and_source_trees': 'ignored references/reopen recipes only'}, 'source_d003': {'scope': 'complete static/input qualification, test-only change; no graph or native gate repeat', 'tracked_source_and_handoff': 'd003 source and62f4 receipt remain ROOT-owned Git references; no duplicated31-path handoff'}, 'utility2350_and5739': {'source_GO': 'bounded independent utility source/CLI GO', 'DOC_GO': 'independent literal byte custody only', 'finding_or_global_PASS': False}, 'ROOT_observations': {'before': {'head': '57790f050e0e6583c5bd25d4474326ea1aece9aa', 'tree': '3d6bb296e96e737dcd03aa4a92f18c578deaefd8', 'tracked_status': '', 'observed_at': '2026-10-07T15:00:32.982184+00:00', 'atomic': False, 'scope': 'read-only sequential HEAD/tree/physical tracked status; no input freeze or native caller assertion'}, 'after': {'head': '57790f050e0e6583c5bd25d4474326ea1aece9aa', 'tree': '3d6bb296e96e737dcd03aa4a92f18c578deaefd8', 'tracked_status': '', 'observed_at': '2026-10-07T15:00:33.946025+00:00', 'atomic': False, 'scope': 'read-only sequential HEAD/tree/physical tracked status; no input freeze or native caller assertion'}, 'whole_input_identity': 'not_established', 'native_caller_P41': 'not_established', 'old_generated_29_path_drift': 'frozen historical64d observation; no retrospective sourcefreeze waiver'}, 'pending': {'new_IR_ratio_runtime_owner_actions': 'canonical E writer/reviews pending; not accepted here', 'actual_calibration_fit_bridge': 'canonical E writer/review pending; not accepted here', 'final_source_freeze_numeric_wave_and_current54': 'pending separate root decision layer'}, 'source_tests_native_numeric_globalgate_executed': False, 'ROOT_source_env_locks_outputs_written': False, 'cleanup_or_remote_body_updated': False, 'formal_G_or_finding_closure': False, 'new_active_Python': 0}
 PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls'
-FIXED_METADATA = {'build-stage.py.txt': {'bytes': 9704, 'sha256': '15e8ab133d89ca2723bf8781319cce3271befff5340533872caedf1fedb193e6'}, 'README.md': {'bytes': 1105, 'sha256': 'cde63c89104615605d6a0a58f08885fec6a4f831bed9f146654d2c59d8c34cd0'}, 'qualification.json': {'bytes': 3329, 'sha256': '51919f6b15e9502cdccbe38ba4ad7a1fe74f4b1341d6b131db7441dfd55db387'}, 'resume-admission.json': {'bytes': 123184, 'sha256': '206d10896d307cee43659ec4c81b2462062139ef28add3074e8f46cd5eb2c4b4'}, 'resume-admission.stderr.txt': {'bytes': 0, 'sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}, 'resume-first-unavailable.stdout.txt': {'bytes': 0, 'sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}, 'resume-first-unavailable.stderr.txt': {'bytes': 89, 'sha256': '5cce6898caa1f93dce366ac03531afa74f1596d35b5092119406821dbe29ecf4'}}
+FIXED_METADATA = {'build-stage.py.txt': {'bytes': 9713, 'sha256': '38e4b4b21f4c9aa38d24a973541271eb306296cc38fbce227b6056a3af0bc8aa'}, 'README.md': {'bytes': 1318, 'sha256': '6b5c218e98c8e7c0b3e698e3729a1d2a3dc77de7a21d5aa748435cb85a094215'}, 'qualification.json': {'bytes': 3329, 'sha256': '51919f6b15e9502cdccbe38ba4ad7a1fe74f4b1341d6b131db7441dfd55db387'}, 'resume-admission.json': {'bytes': 123184, 'sha256': '206d10896d307cee43659ec4c81b2462062139ef28add3074e8f46cd5eb2c4b4'}, 'resume-admission.stderr.txt': {'bytes': 0, 'sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}, 'resume-first-unavailable.stdout.txt': {'bytes': 0, 'sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}, 'resume-first-unavailable.stderr.txt': {'bytes': 89, 'sha256': '5cce6898caa1f93dce366ac03531afa74f1596d35b5092119406821dbe29ecf4'}}
 METADATA = ['manifest.json', 'copy-closed-controls.py.txt', 'build-stage.py.txt', 'README.md', 'qualification.json', 'build.stdout.json', 'resume-admission.json', 'resume-admission.stderr.txt', 'resume-first-unavailable.stdout.txt', 'resume-first-unavailable.stderr.txt']
 DYNAMIC_KEYS = ['selection_inputs', 'logical_count', 'original_logical_bytes', 'stored_logical_bytes', 'unique_payload_files', 'unique_payload_bytes', 'deduplicated_occurrences', 'logical_sources', 'canonical_copies', 'qualification']
 
@@ -126,14 +126,32 @@ def carriers(rows):
             out.append({'stored': row['stored'], 'destination': destination})
     return logical, out
 
-def recompute_expected(p, manifest):
+def carrier_root(p, manifest, layout):
+    if layout not in ('stage', 'published'):
+        raise ValueError('explicit admitted carrier layout required')
+    primary = p.parent / 'payload' if layout == 'stage' else p.parent
+    other = p.parent if layout == 'stage' else p.parent / 'payload'
+    relatives = []
+    for row in manifest['canonical_copies']:
+        rel = row['destination']
+        if not isinstance(rel, str) or Path(rel).is_absolute() or any(part in ('', '.', '..') for part in rel.split('/')) or '\\' in rel or rel.endswith('.py'):
+            raise ValueError('pure full carrier route preflight')
+        relatives.append(rel)
+    if any((other / rel).exists() for rel in relatives):
+        raise ValueError('ambiguous stage/published carrier layout')
+    if any(not (primary / rel).is_file() for rel in relatives):
+        raise ValueError('incomplete or wrong explicit carrier layout')
+    return primary
+
+
+def recompute_expected(p, manifest, payload_root):
     lookup = {}
     for row in manifest['canonical_copies']:
         ref = identity(row['stored'])
         rel = row['destination']
         if not isinstance(rel, str) or Path(rel).is_absolute() or any(part in ('', '.', '..') for part in rel.split('/')) or '\\' in rel or rel.endswith('.py'):
             raise ValueError('unsafe staged carrier path')
-        body = (p.parent / 'payload' / rel).read_bytes()
+        body = (payload_root / rel).read_bytes()
         if passive('x', rel, body) != 'x/' + rel:
             raise ValueError('passive carrier format')
         if len(body) != ref['bytes'] or sha(body) != ref['sha256']:
@@ -146,7 +164,7 @@ def recompute_expected(p, manifest):
         expected.append(selector_row(spec))
     return expected
 
-def validate(p, manifest):
+def validate(p, manifest, layout):
     if set(manifest) != set(FIXED_HEADER) | set(DYNAMIC_KEYS):
         raise ValueError('complete publication metadata keys')
     if canonical({key: manifest[key] for key in FIXED_HEADER}) != canonical(FIXED_HEADER):
@@ -155,7 +173,8 @@ def validate(p, manifest):
         raise ValueError('typed lifecycle/check/finding/authority claims')
     if canonical(manifest['selection_inputs']) != canonical(EXPECTED):
         raise ValueError('fixed full original selector vector')
-    expected = recompute_expected(p, manifest)
+    payload_root = carrier_root(p, manifest, layout)
+    expected = recompute_expected(p, manifest, payload_root)
     fields = ('family', 'selection_source_path', 'member_class', 'original', 'stored', 'storage_mode', 'logical_destination', 'selected_record')
     got = collections.Counter(canonical({key: row[key] for key in fields}) for row in manifest['logical_sources'])
     want = collections.Counter(canonical(row) for row in expected)
@@ -174,11 +193,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--manifest', required=True)
     parser.add_argument('--destination-root', required=True)
+    parser.add_argument('--layout', choices=('stage', 'published'), required=True)
     args = parser.parse_args()
     p = Path(args.manifest)
     raw = p.read_bytes()
     manifest = strict_json(raw)
-    counts = validate(p, manifest)
+    counts = validate(p, manifest, args.layout)
+    payload_root = carrier_root(p, manifest, args.layout)
     metadata = {name: (p.parent / name).read_bytes() for name in METADATA}
     if metadata['manifest.json'] != raw:
         raise ValueError('manifest changed during observation')
@@ -197,7 +218,7 @@ def main():
         raise ValueError('complete actual build summary')
     payload = {}
     for row in manifest['canonical_copies']:
-        body = (p.parent / 'payload' / row['destination']).read_bytes()
+        body = (payload_root / row['destination']).read_bytes()
         if len(body) != row['stored']['bytes'] or sha(body) != row['stored']['sha256']:
             raise ValueError('cached complete carrier identity before writes')
         payload[row['destination']] = body
@@ -212,7 +233,7 @@ def main():
         destination = target / name
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes(body)
-    print(json.dumps(summary | {'outcome': 'PASS literal DOC custody only', 'destination': str(target), 'source_native_numeric_gate_execution': False}, indent=2))
+    print(json.dumps(summary | {'outcome': 'PASS literal DOC custody only', 'destination': str(target), 'source_native_numeric_gate_execution': False, 'explicit_carrier_layout': args.layout}, indent=2))
 
 if __name__ == '__main__':
     main()

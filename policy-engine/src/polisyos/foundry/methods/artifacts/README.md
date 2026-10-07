@@ -61,6 +61,9 @@ function's actual global/free bindings, with nonlocals taking precedence.
 Runtime parameters, local/comprehension shadows and ambiguous same-name
 recursive captures cannot supply the asserted immutable selector or builtin.
 Those profiles refuse before a scientific body runs.
+The getter family is selected from both actual root bindings and recursive
+captures. Replacing a flattened capture with another builtin cannot skip the
+actual root getter's admission checks.
 
 An opaque builtin can return a runtime namespace without exposing its selected
 members to this graph. The real `sys._getframe().f_globals["math"]` checkpoint

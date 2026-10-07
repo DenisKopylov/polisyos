@@ -78,6 +78,12 @@ def _instructions(code: CodeType) -> Iterator[dis.Instruction]:
             yield from _instructions(constant)
 
 
+def _root_function_captures(function: FunctionType) -> dict[str, Any]:
+    """Resolve the actual root namespace, preserving nonlocal precedence."""
+    captures = inspect.getclosurevars(function)
+    return {**captures.builtins, **captures.globals, **captures.nonlocals}
+
+
 def _function_captures(function: FunctionType) -> dict[str, Any]:
     captures = inspect.getclosurevars(function)
     result = dict(captures.globals) | dict(captures.nonlocals) | dict(captures.builtins)
@@ -278,8 +284,7 @@ def _data_field_getattr(
         for parameter in parameters
         if scopes[0].lookup(parameter).is_assigned() or scopes[0].lookup(parameter).is_imported()
     )
-    root_captures = inspect.getclosurevars(function)
-    root_bindings = root_captures.builtins | root_captures.globals | root_captures.nonlocals
+    root_bindings = _root_function_captures(function)
     missing = object()
 
     def root_capture(identifier: str) -> Any:
@@ -493,6 +498,11 @@ def _project(value: Any, *, strict: bool, visiting: set[int]) -> Any:
                 }
             else:
                 captures = _function_captures(value)
+                root_getters = {
+                    name
+                    for name, item in _root_function_captures(value).items()
+                    if item is builtins.getattr
+                }
                 result["captures"] = {
                     name: (
                         _module_capture(value, name, item, strict=strict, visiting=visiting)
@@ -500,7 +510,7 @@ def _project(value: Any, *, strict: bool, visiting: set[int]) -> Any:
                         else (
                             _data_field_getattr(value, name, captures) or _unavailable(item, strict)
                         )
-                        if item is builtins.getattr
+                        if item is builtins.getattr or name in root_getters
                         else _project(item, strict=strict, visiting=visiting)
                     )
                     for name, item in sorted(captures.items())

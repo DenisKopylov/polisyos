@@ -1,0 +1,100 @@
+{
+  "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+  "source_tree": "b6bd2579e39857b91e03deb333cbc8f4609e800d",
+  "native_subprocess_results": [
+    {
+      "name": "results-importer",
+      "actual_capture_exit_code": 0,
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/load_cli.py",
+        "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/run_check.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+        "--repo",
+        "/workspace/e02-E-cal05-20261006",
+        "--candidate",
+        "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+        "--cwd",
+        "/workspace/e02-E-cal05-20261006/policy-engine",
+        "--output",
+        "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/results-importer",
+        "--name",
+        "results-importer",
+        "--",
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-c",
+        "print(\"tiny edge importer positive\")"
+      ],
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/edge-results-importer.stdout.txt",
+        "bytes": 248,
+        "sha256": "cb099e91946b908f69f5ea195306f317d73e9e204a95a10d69a37ae72400d2b3"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/edge-results-importer.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "numeric-skip-exit7",
+      "actual_capture_exit_code": 7,
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/load_cli.py",
+        "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/run_check.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+        "--repo",
+        "/workspace/e02-E-cal05-20261006",
+        "--candidate",
+        "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+        "--cwd",
+        "/workspace/e02-E-cal05-20261006/policy-engine",
+        "--output",
+        "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/numeric-skip-exit7",
+        "--name",
+        "numeric-skip-exit7",
+        "--junit",
+        "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/checks/numeric-skip-exit7/pytest.xml",
+        "--",
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip_then_exit7_admitted.py",
+        "--basetemp",
+        "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/actual-skipped-JUnit-command-exit7-admitted-wave/temporary/numeric-skip-exit7"
+      ],
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/edge-numeric-skip-exit7.stdout.txt",
+        "bytes": 500,
+        "sha256": "aaba3fc6d49c309ca4ea4bc012845713c3777a1fc30c440b2842e8502094df1b"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/edge-numeric-skip-exit7.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "actual_command_exit_code": 7,
+  "actual_JUnit_counts": {
+    "cases": 2,
+    "passed": 0,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 2
+  },
+  "reported_check_outcome": "SKIP",
+  "collector_state": "CONTROL_COMPLETE_BOUND",
+  "collector_numeric_outcomes": {
+    "SKIP": 1
+  },
+  "collector_issues": [],
+  "independent_expected_process_outcome": "FAIL",
+  "independent_property_outcome": "FAIL",
+  "control_only": true,
+  "common_wave_executed": false,
+  "fixture": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/skip_then_exit7_admitted.py",
+    "bytes": 692,
+    "sha256": "2b2483069b43b9fe18d6ffb13f335aa36b5dabc8fa84b4a12e27c8610b88bd9a"
+  }
+}

@@ -1,0 +1,138 @@
+from __future__ import annotations
+import argparse,ast,copy,hashlib,json,os,subprocess,sys,time,types
+from pathlib import Path
+R=Path('/workspace/e02-E-cal05-20261006');P=R/'policy-engine';S=Path('/workspace/e02-E-pr38-r3-receipts/harness-independent-r3');SRC=S/'sources';PY=Path('/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python')
+SHA='f3ec0335e992fa7a5107000224f8ba6deefd02e5';TREE='b6bd2579e39857b91e03deb333cbc8f4609e800d'; PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/'
+def load(n):
+ m=types.ModuleType('independent_'+n);m.__file__=str(P/'docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls'/n);exec(compile((SRC/n).read_bytes(),m.__file__,'exec'),m.__dict__);return m
+plan=load('plan_wave.py'); collect=load('collect_wave.py');runcheck=load('run_check.py')
+def asset(p):
+ p=Path(p);b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def save(n,v):
+ p=S/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(v,indent=2,default=str)+'\n')
+def git(*a):return subprocess.check_output(['git',*a],cwd=R,text=True).strip()
+def case(n,f):
+ try:v=f();assert v is not False;row={'case':n,'outcome':'PASS','observed':v}
+ except Exception as e:row={'case':n,'outcome':'FAIL','error_type':type(e).__name__,'reason':str(e)}
+ cases.append(row);return row
+cases=[]
+# Actual planning only. The current pinned source must match every caller-visible helper.
+assert git('rev-parse','HEAD')==SHA
+assert not git('status','--porcelain=v1','--untracked-files=no')
+args=argparse.Namespace(repo=R,candidate=SHA,comparison_base='198076863e143dea9f89f02734b13d50dae3eed5',output_root=S/'NEVER_EXECUTED_COMMON_PLAN',no_owner_packets=False)
+actual_plan=plan.prepare(args);save('actual-prepare-plan.json',actual_plan)
+assert not Path(actual_plan['output_root']).exists()
+case('actual_prepare_only_complete_inputs',lambda: {'native_files':actual_plan['native_test_path_count'],'owner_packet_inputs':len(actual_plan['owner_packet_extra_inputs']),'full_python_lint_denominator':len(actual_plan['changed_python_lint_paths']),'missing':actual_plan['missing_required_paths'],'output_was_not_created':not Path(actual_plan['output_root']).exists()} if not actual_plan['missing_required_paths'] else False)
+case('numeric_only_active_metrics_zero',lambda: all(j['environment'].get('POLISYOS_METRICS_PORT')=='0' for j in actual_plan['jobs'] if j['kind']=='numerical') and all('POLISYOS_METRICS_PORT' not in j['environment'] for j in actual_plan['jobs'] if j['kind']!='numerical'))
+case('complete_lint_recomputed_from_Git',lambda: actual_plan['changed_python_lint_paths']==[p.removeprefix('policy-engine/') for p in git('diff','--name-only','--diff-filter=ACMR',args.comparison_base,SHA,'--','policy-engine').splitlines() if p.endswith('.py') and p in set(git('ls-tree','-r','--name-only',SHA).splitlines())])
+for path,expected in actual_plan['source_test_assets'].items():
+ b=subprocess.check_output(['git','show',SHA+':'+path],cwd=R);assert expected=={'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+case('plan_test_and_owner_packet_exact_Git_bytes',lambda: {'test_assets':len(actual_plan['source_test_assets']),'owner_packets':len(actual_plan['owner_packet_extra_inputs'])})
+# Bad source admission before Git callback, then remove only actual preflight while names remain present.
+orig_git=plan.git;calls=[]
+def git_spy(*a):calls.append(a);raise RuntimeError('Git callback reached')
+plan.git=git_spy
+bad=copy.copy(args);bad.comparison_base='--help'
+try:plan.prepare(bad)
+except ValueError:pass
+else:raise AssertionError('invalid reference admitted')
+assert calls==[]
+case('invalid_plan_refusal_before_Git_callback',lambda: {'callback_count':len(calls)})
+orig_admit=plan.admit_plan_refs;plan.admit_plan_refs=lambda a:None
+try:plan.prepare(bad)
+except RuntimeError:pass
+else:raise AssertionError('callback discriminator did not trip')
+assert len(calls)==1
+case('remove_plan_preflight_reaches_callback_with_markers_present',lambda: {'callback_count':len(calls),'negative_gate_outcome':'FAIL','admit_plan_refs_present':hasattr(plan,'admit_plan_refs'),'prepare_present':hasattr(plan,'prepare')})
+plan.git=orig_git;plan.admit_plan_refs=orig_admit
+# Source argument filters preserve valid immutable reads but reject Git-option/path escapes before subprocess.
+for mod in (plan,collect,runcheck):
+ for arg in ('--help',SHA+':../AGENTS.md',SHA+':/absolute/path',SHA+':x/../y'):
+  try:mod._admit_git_object_arguments(('show',arg))
+  except ValueError:pass
+  else:raise AssertionError('bad Git object argument admitted '+arg)
+ mod._admit_git_object_arguments(('show',SHA+':AGENTS.md'))
+ mod._admit_git_object_arguments(('rev-parse','--show-toplevel'))
+case('all_three_object_inlets_refuse_options_and_path_escape',lambda: {'modules':3,'invalid_each':4,'valid_immutable_and_information_flag_each':2})
+# Scratch admission: actual existing leaf and parent are preserved; no callback is launched.
+existing=S/'existing-pytest-base';existing.mkdir();(existing/'unique.txt').write_text('retain me')
+try:plan.admit_numeric_scratch({'kind':'numerical','argv':['pytest','--basetemp',str(existing)]})
+except RuntimeError:pass
+else:raise AssertionError('existing pytest base admitted')
+assert (existing/'unique.txt').read_text()=='retain me'
+case('existing_scratch_refuses_without_removing_unique_data',lambda: {'retained':asset(existing/'unique.txt')})
+# Native child process capture: four tiny commands, never broad selectors. No source/checkout mutation.
+wave=S/'tiny-native-wave';wave.mkdir();native=[
+ ('results-importer','importer',[str(PY),'-c','print("tiny importer positive")'],None),
+ ('numeric-mixed','numerical',[str(PY),'-m','pytest','-q','--confcutdir',str(S),'--junitxml',str(wave/'checks/numeric-mixed/pytest.xml'),'--basetemp',str(wave/'temporary/numeric-mixed'),str(S/'tiny_cases.py')],wave/'checks/numeric-mixed/pytest.xml'),
+ ('numeric-skip','numerical',[str(PY),'-m','pytest','-q','--confcutdir',str(S),'--junitxml',str(wave/'checks/numeric-skip/pytest.xml'),'--basetemp',str(wave/'temporary/numeric-skip'),str(S/'tiny_skip.py')],wave/'checks/numeric-skip/pytest.xml'),
+ ('missing-backend','gate',[str(S/'deliberately-missing-executable')],None),
+]
+started=time.time();save('tiny-native-wave/wave-started.json',{'candidate_sha':SHA,'started_unix':started})
+env=plan.runtime_environment(R)
+for k in plan.CAP_VARIABLES:env.pop(k,None)
+env.pop('POLISYOS_METRICS_PORT',None)
+jobs=[];running=[]
+for name,kind,cmd,xml in native:
+ out=wave/'checks'/name;out.mkdir(parents=True)
+ spec={'name':name,'kind':kind,'argv':cmd,'cwd':str(P),'output':str(out),'junit':None if xml is None else str(xml),'environment':{'TMPDIR':str(wave/'tmp-env'/name)}}
+ if kind=='numerical':spec['environment']['POLISYOS_METRICS_PORT']='0'
+ jobs.append(spec);local={**env,**spec['environment']};Path(local['TMPDIR']).mkdir(parents=True)
+ argv=[str(PY),str(S/'load_cli.py'),str(SRC/'run_check.py'),str(P/PREFIX.removeprefix('policy-engine/')/'run_check.py'),'--repo',str(R),'--candidate',SHA,'--cwd',str(P),'--output',str(out),'--name',name]
+ if xml is not None:argv+=['--junit',str(xml)]
+ argv+=['--',*cmd]
+ stdout=(S/(name+'.capture.stdout.txt')).open('wb');stderr=(S/(name+'.capture.stderr.txt')).open('wb')
+ process=subprocess.Popen(argv,cwd=P,env=local,stdout=stdout,stderr=stderr);running.append((name,process,stdout,stderr,argv))
+results=[]
+for name,process,stdout,stderr,argv in running:
+ code=process.wait();stdout.close();stderr.close();results.append({'name':name,'argv':argv,'exit_code':code,'stdout':asset(S/(name+'.capture.stdout.txt')),'stderr':asset(S/(name+'.capture.stderr.txt'))})
+save('tiny-native-run-results.json',results)
+receipts={j['name']:json.loads((Path(j['output'])/(j['name']+'.json')).read_text()) for j in jobs}
+case('native_failure_error_skip_counts_recomputed_from_actual_pytest',lambda: receipts['numeric-mixed']['counts']=={'cases':4,'passed':1,'failed':1,'errors':1,'skipped':1} and receipts['numeric-mixed']['outcome']=='FAIL' and receipts['numeric-mixed']['exit_code']==1)
+case('all_native_cases_skipped_are_SKIP_not_PASS',lambda: receipts['numeric-skip']['outcome']=='SKIP' and receipts['numeric-skip']['counts']=={'cases':2,'passed':0,'failed':0,'errors':0,'skipped':2})
+case('unavailable_command_is_UNRUN_not_PASS',lambda: receipts['missing-backend']['outcome']=='UNRUN' and receipts['missing-backend']['exit_code']==127)
+case('native_receipts_source_environment_and_full_output_bound',lambda: all(r['source_immutable'] and r['candidate_sha']==SHA and r['candidate_tree_sha']==TREE and r['git_input_config']['stable'] and r['stdout_bytes']==Path(r['stdout_path']).stat().st_size and r['stdout_sha256']==hashlib.sha256(Path(r['stdout_path']).read_bytes()).hexdigest() for r in receipts.values()))
+control_plan={'candidate_sha':SHA,'candidate_tree_sha':TREE,'output_root':str(wave),'jobs':jobs,'owner_packet_extra_inputs':[],'groups':{'synthetic_protocol_control':[]},'tracked_all_path_count':len(git('ls-tree','-r','--name-only',SHA).splitlines()),'native_test_path_count':0,'test_input_path_count_including_owner_packets':2,'source_runtime_input_path_count':actual_plan['source_runtime_input_path_count'],'changed_python_lint_paths':actual_plan['changed_python_lint_paths'],'collector_control_only':True}
+save('tiny-native-wave/plan.json',control_plan);save('tiny-native-wave/execution-complete.json',{'candidate_sha':SHA,'numerical_codes':[1,0],'gate_codes':[127],'finding_closure':False})
+cargs=argparse.Namespace(repo=R,candidate=SHA,wave_root=wave,publication_root=S/'collection-positive',freeze_receipt=None,max_moderate_bytes=8*1024*1024,capture_incomplete=False)
+positive=collect.collect(cargs);save('collection-positive-observed.json',positive)
+case('collector_preserves_actual_failed_and_skipped_and_UNRUN_outcomes',lambda: positive['collection_state']=='CONTROL_COMPLETE_BOUND' and positive['numeric_counts']=={'cases':6,'passed':1,'failed':1,'errors':1,'skipped':3} and positive['numeric_outcome_counts']=={'FAIL':1,'SKIP':1} and positive['non_numeric_outcome_counts']=={'PASS':1,'UNRUN':1} and positive['numeric_results_are_new_candidate_only'] is False and positive['finding_closure'] is False)
+# Corrupt fields: leave every receipt, producer, XML, store and marker present.
+def corrupt(n,mutate,expected_reason):
+ target=wave/'checks/numeric-mixed/numeric-mixed.json';original=target.read_bytes();r=json.loads(original);mutate(r);target.write_text(json.dumps(r));a=copy.copy(cargs);a.publication_root=S/('collection-'+n)
+ try:
+  result=collect.collect(a)
+  assert result['collection_state']=='CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT'
+  assert any(expected_reason in x['reason'] for x in result['issues'])
+  return {'state':result['collection_state'],'issues':result['issues']}
+ finally:target.write_bytes(original)
+case('integrity_present_forged_counts_refused',lambda:corrupt('forged-count',lambda r:r['counts'].update(failed=0,passed=2),'JUnit receipt counts mismatch'))
+case('forged_PASS_despite_actual_failure_refused',lambda:corrupt('forged-PASS',lambda r:r.update(outcome='PASS',exit_code=0),'PASS conflicts with actual failed/error cases'))
+case('wrong_candidate_tree_refused',lambda:corrupt('wrong-tree',lambda r:r.update(candidate_tree_sha='0'*40),'binding/input drift'))
+case('wrong_stdout_hash_refused',lambda:corrupt('wrong-stdout',lambda r:r.update(stdout_sha256='0'*64),'stdout custody mismatch'))
+case('numeric_quota_field_detected',lambda:corrupt('quota',lambda r:r['environment']['selected_variables'].update(OMP_NUM_THREADS='1'),'numerical quota inherited'))
+# Importer fail-fast remains terminal but successor outcome UNRUN, not fabricated PASS.
+stop=S/'importer-stop-wave';stop.mkdir();stop_plan=copy.deepcopy(control_plan);stop_plan['output_root']=str(stop)
+for j in stop_plan['jobs']:
+ j['output']=str(stop/'checks'/j['name']);j['junit']=None if not j['junit'] else str(stop/'checks'/j['name']/'pytest.xml')
+save('importer-stop-wave/plan.json',stop_plan);save('importer-stop-wave/wave-started.json',{'candidate_sha':SHA,'started_unix':started});save('importer-stop-wave/not-started-after-importer.json',{'candidate_sha':SHA,'reason':'actual control importer failure'})
+# Missing importer receipt is explicitly UNRUN as well; no actual broad importer invoked.
+a=copy.copy(cargs);a.wave_root=stop;a.publication_root=S/'collection-importer-stop';stopped=collect.collect(a)
+case('importer_terminal_missing_successors_preserved_UNRUN',lambda: all(r['outcome']=='UNRUN' and 'importer fail-fast' in r['absence_reason'] for r in stopped['jobs']) and not stopped['numeric_counts']['cases'])
+# Effective collector removal: retain count fields, JUnit input and declared PASS, remove only actual-count comparison predicates.
+original_source=(SRC/'collect_wave.py').read_text();removed=original_source.replace('if counts != receipt["counts"]:', 'if False:').replace('if receipt["outcome"] == "PASS" and (counts["failed"] or counts["errors"]):','if False:')
+assert removed!=original_source and 'PASS conflicts with actual failed/error cases' in removed and 'JUnit receipt counts mismatch' in removed
+mutated=types.ModuleType('removed_count_predicate');mutated.__file__=collect.__file__;exec(compile(removed,mutated.__file__,'exec'),mutated.__dict__)
+p=wave/'checks/numeric-mixed/numeric-mixed.json';orig=p.read_bytes();r=json.loads(orig);r.update(outcome='PASS',exit_code=0);r['counts'].update(failed=0,errors=0,passed=3);p.write_text(json.dumps(r));completion=wave/'execution-complete.json';old_completion=completion.read_bytes();terminal=json.loads(old_completion);terminal['numerical_codes']=[0,0];completion.write_text(json.dumps(terminal))
+try:
+ a=copy.copy(cargs);a.publication_root=S/'collection-count-removal';removed_result=mutated.collect(a)
+ assert removed_result['collection_state']=='CONTROL_COMPLETE_BOUND'
+ assert removed_result['numeric_counts']['failed']==removed_result['numeric_counts']['errors']==1
+ case('remove_actual_count_predicate_keeps_markers_but_accepts_forged_PASS',lambda:{'negative_gate_outcome':'FAIL','observed_state':removed_result['collection_state'],'actual_counts':removed_result['numeric_counts'],'reported_job_outcome':next(x['outcome'] for x in removed_result['jobs'] if x['name']=='numeric-mixed')})
+finally:p.write_bytes(orig);completion.write_bytes(old_completion)
+# Final source/input guard; no source/Git mutation by verifier.
+assert git('rev-parse','HEAD')==SHA
+assert not git('status','--porcelain=v1','--untracked-files=no')
+save('harness-results-part1.json',{'source_sha':SHA,'source_tree':TREE,'cases':cases,'case_count':len(cases),'fail_count':sum(x['outcome']=='FAIL' for x in cases),'actual_plan_executed':False,'tiny_control_only':True,'full_wave_finding_closure':False,'fixture_source_bindings':[asset(S/'tiny_cases.py'),asset(S/'tiny_skip.py'),asset(S/'load_cli.py')]})
+print(json.dumps({'cases':len(cases),'failures':sum(x['outcome']=='FAIL' for x in cases),'receipt':str(S/'harness-results-part1.json')}))
+raise SystemExit(1 if any(x['outcome']=='FAIL' for x in cases) else 0)

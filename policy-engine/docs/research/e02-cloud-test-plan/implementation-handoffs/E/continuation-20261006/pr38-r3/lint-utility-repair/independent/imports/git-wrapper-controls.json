@@ -1,0 +1,3702 @@
+{
+  "schema": "policyos.e02.independent_git_wrapper_controls.v1",
+  "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+  "wrapper_denominator": 53,
+  "invalid_controls": 530,
+  "all_bad_child_calls": 0,
+  "named_ref_classes": {
+    "strict_full_SHA": 5,
+    "legacy_named_available": 48
+  },
+  "rows": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-validator-v3/validate_binding_v3.py",
+      "inlet": "git_bytes",
+      "source_sha256": "1011ff6fbfca2e7823ae7aa9404344f8191c90c77a292199924560d5c22e6f18",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-independent/review_packet.py",
+      "inlet": "git",
+      "source_sha256": "fae241555a14bb25e8a12cb1cc0b745d9740033203fbebe17284c6f9d3415719",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-independent/review_assembly.py",
+      "inlet": "git",
+      "source_sha256": "24c461461f6ecb94892d9d95d73c6b3b603c9164d4c5e2b015e063b873fc600a",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-author/_external/common-wave-publication-prep/collect_wave_v3_final.py",
+      "inlet": "git_bytes",
+      "source_sha256": "16de75e1fb3c5994b9347dc9e8874f43efa5f453002709b9fcb7174534494b39",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/_external/common-wave-publication-prep/collect_wave_v4.py",
+      "inlet": "git_bytes",
+      "source_sha256": "c9ece35b694a91e5cbdf4d0212eaab3345689c5301c0707d566fd5d9df9e7aba",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/audit_inputs.py",
+      "inlet": "git",
+      "source_sha256": "1fc36df885892666f5ea7bbc9850d0270d249d755c84273a71e00303227bf9f6",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/build_packet.py",
+      "inlet": "git",
+      "source_sha256": "ed01ca54a70c903d927ee3ba8956e8bf7ad2fa742321c18cca552632585daa8a",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/validate.py",
+      "inlet": "git",
+      "source_sha256": "8f240d24f72129e097a73b9eb2be2c3679fb7e6d5919aaf57c019031619377ee",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "REFUSED_before_child"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/build_final.py",
+      "inlet": "git",
+      "source_sha256": "64e6206b76f6a6f0e2fa377097408710fb591e7be7cde1e9ec01bd925cd54a23",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/validate.py",
+      "inlet": "git",
+      "source_sha256": "1b35ed520e7abf0af69766053b1950a24c4ac807f785c16ff9e1209a0dbbbc7a",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "REFUSED_before_child"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/git-inputs-b5/criteria-f445-v1/build_packet.py",
+      "inlet": "git",
+      "source_sha256": "ed01ca54a70c903d927ee3ba8956e8bf7ad2fa742321c18cca552632585daa8a",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/git-inputs-b5/criteria-f445-v1/validate.py",
+      "inlet": "git",
+      "source_sha256": "8f240d24f72129e097a73b9eb2be2c3679fb7e6d5919aaf57c019031619377ee",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "REFUSED_before_child"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/review_publication.py",
+      "inlet": "git",
+      "source_sha256": "e918094ef054eafa8a51e50e7dbe481796d1cb8f12441c58d5491cd5f94b854e",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/validate_independently_f445.py",
+      "inlet": "git",
+      "source_sha256": "c192b866d8e8afc2573e7459f69953583a7b014f41b779bfcf38768445846f59",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "REFUSED_before_child"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/current-consumer-trace/trace.py",
+      "inlet": "git",
+      "source_sha256": "0469c2f9fa251339c18d325c12edc58586c0d9cd3961aef1ab60d7966960ee16",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/baseline_falsifier.py",
+      "inlet": "git",
+      "source_sha256": "58105c4614013fd87dc8ccde1d9a82ec22399152ea94e06baf81f4e68b2ebb13",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/finalize_review.py",
+      "inlet": "git",
+      "source_sha256": "61e368db08f028643758c3d8c3774f5222a56539403f59850ecc0cf2a6248de4",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/run_review.py",
+      "inlet": "git",
+      "source_sha256": "eb8e6c859e4a0b012e91b1d9d0d6b16cbb4fe3e6f0becfbd45b96354813b377e",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/trace.py",
+      "inlet": "git",
+      "source_sha256": "fb347aa9d16cebb88a8ac788d7ea5a3a091acdc9aff0398865e160185a19afbc",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave.py",
+      "inlet": "git_bytes",
+      "source_sha256": "c91df2f6b9a87180c79554e2483cac940aeedc6d816f771ed68a841a7e171fcf",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave_v2.py",
+      "inlet": "git_bytes",
+      "source_sha256": "ef499ff87bfb13a946e1225776b81f4ee97542ee89efcf14f97974d5231d7c9a",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/audit_inputs.py",
+      "inlet": "git",
+      "source_sha256": "2bed8f2f1cf3d650479b6080bde452eee98c9e86491c4716868d1ebd92b0d3a3",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/review_assembly.py",
+      "inlet": "git",
+      "source_sha256": "6e75c36d58a758663dc2e0d30c89df55ac62e7197a54cd203d185ac4763735a9",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/exact-Git-inputs/build_final.py",
+      "inlet": "git",
+      "source_sha256": "64e6206b76f6a6f0e2fa377097408710fb591e7be7cde1e9ec01bd925cd54a23",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/exact-Git-inputs/validate.py",
+      "inlet": "git",
+      "source_sha256": "1b35ed520e7abf0af69766053b1950a24c4ac807f785c16ff9e1209a0dbbbc7a",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "REFUSED_before_child"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt1-used.py",
+      "inlet": "git",
+      "source_sha256": "a6b40144748b60e8ca93a2082b0ccb5ba5fcf812250a1e41d8d112b1299eff83",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt2-used.py",
+      "inlet": "git",
+      "source_sha256": "cee5c2c8d482c0ce748f323cb2f3943fbf170dee5f0161930427dfe0327bc0a3",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt3-used.py",
+      "inlet": "git",
+      "source_sha256": "bc6145dc3f6c4219d7cfe03d8952877713de0556a15cb9198a1ba474409f7f7c",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt4-used.py",
+      "inlet": "git",
+      "source_sha256": "018b071ba3051f2ba27027ca660596b5bfe37c961efc04e4a6d0ce814dd95048",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt5-used.py",
+      "inlet": "git",
+      "source_sha256": "a26a9a2fa4cc512b2ffce8b5584bb1b5ec7d65399ef0ba936a6291effe9b4a88",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt6-used.py",
+      "inlet": "git",
+      "source_sha256": "f4a2f60b6819dfa61d4d0ae12672e7440677b1e78002f234ec8088044d5afd83",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.py",
+      "inlet": "git",
+      "source_sha256": "6d098940998166dbf4e28109ef7dad981c19f6f013d0d4dd402310c92665798f",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/g-checkpoint11-assembly-independent/review_delta.py",
+      "inlet": "git",
+      "source_sha256": "c89971a03fcbdde35027f80dc66543d8a53891ff4c47031efe43b9b150f18aba",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/plan_wave.py",
+      "inlet": "git_result",
+      "source_sha256": "a2360662d060b73c184d9d793a3eab722918a1486c08322dfdaca9b89ffd87e1",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/run_check.py",
+      "inlet": "git_result",
+      "source_sha256": "e3efc142e3b84a1099cd6500130c926a707cbdbf73754dee627ec502eae879b5",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/plan_wave.py",
+      "inlet": "git_result",
+      "source_sha256": "a2360662d060b73c184d9d793a3eab722918a1486c08322dfdaca9b89ffd87e1",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/run_check.py",
+      "inlet": "git_result",
+      "source_sha256": "e3efc142e3b84a1099cd6500130c926a707cbdbf73754dee627ec502eae879b5",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/plan_wave.py",
+      "inlet": "git_result",
+      "source_sha256": "b18c0febfdb4105b0fa1f6b01b16db146d34e110f6dd95a033d7ab3fbcea18d3",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/run_check.py",
+      "inlet": "git_result",
+      "source_sha256": "e3efc142e3b84a1099cd6500130c926a707cbdbf73754dee627ec502eae879b5",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/plan_wave.py",
+      "inlet": "git_result",
+      "source_sha256": "a2360662d060b73c184d9d793a3eab722918a1486c08322dfdaca9b89ffd87e1",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/run_check.py",
+      "inlet": "git_result",
+      "source_sha256": "e3efc142e3b84a1099cd6500130c926a707cbdbf73754dee627ec502eae879b5",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/review_harness.py",
+      "inlet": "git",
+      "source_sha256": "8ab525823e4fe4c2f632f8f0f4980e39ffa61d38afceaa025eb860604a005584",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/run_review.py",
+      "inlet": "git",
+      "source_sha256": "938ff45f4d6da6e9bc1f516b6f474e27782ff4546a6ef49979970fb79a25d710",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/run_review.py",
+      "inlet": "git",
+      "source_sha256": "ca5115164b6d7580d7882837828007c3203cd047c1e1dfa17786ec84e235ee5b",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/lint-publication-independent/classify_lint.py",
+      "inlet": "git",
+      "source_sha256": "056350a766a999724dcc9b8a463dde4fe3bc065051df1bdfe3b3caf61999036b",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/edge_probe.py",
+      "inlet": "git",
+      "source_sha256": "e97bee91d228ba20f1ef732ad2631a7276abf3e6532dfe11bdcee94b37b89d44",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/review_owned_companion.py",
+      "inlet": "git",
+      "source_sha256": "055a96aa9384de3bace201fdb4d41744c0c21eb22f497727a0e8249dbd2b4742",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/adapt_publication_freeze.py",
+      "inlet": "git_bytes",
+      "source_sha256": "ba7be8869cc5752bfd477071b661afbb2f61e6c9d764233bccd81bd59112eb8f",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-author/ddm/prepare_companion.py",
+      "inlet": "git",
+      "source_sha256": "61a2ba0e899d216317cc8b34ad2e1f1d459fce04bcfb0f58522d5d5b6f1376f5",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/review.py",
+      "inlet": "git",
+      "source_sha256": "1cc74e5c33593a3146cf72c99d54148454a6c812daa37815a3468a1ad71b3a5a",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "inlet": "git_bytes",
+      "source_sha256": "c9ece35b694a91e5cbdf4d0212eaab3345689c5301c0707d566fd5d9df9e7aba",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "inlet": "git_result",
+      "source_sha256": "02c5412b012f34e69e24abddb8530b25e66c1076529c9ce9630329aa1fe8024c",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "inlet": "git_result",
+      "source_sha256": "c729c909ee6ec31daef9750b786e4515d38e078153031e6e08a299ae7fffa503",
+      "healthy_object_argv": "PASS",
+      "invalid_refusals": [
+        {
+          "case": "show_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "rev_parse_option",
+          "error": "ValueError",
+          "reason": "Git object reference must never be an option",
+          "child_calls": 0
+        },
+        {
+          "case": "empty",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "NUL",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "None",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "bool",
+          "error": "ValueError",
+          "reason": "Git object argument must be a nonempty string",
+          "child_calls": 0
+        },
+        {
+          "case": "absolute_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "parent_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "empty_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        },
+        {
+          "case": "noncanonical_path",
+          "error": "ValueError",
+          "reason": "Git object path must be repository relative",
+          "child_calls": 0
+        }
+      ],
+      "named_ref_scope": "legacy_named_ref_available"
+    }
+  ],
+  "property_removal": [
+    {
+      "scope": "generic",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-validator-v3/validate_binding_v3.py",
+      "inlet": "git_bytes",
+      "required_negative_gate": "FAIL",
+      "discriminator": "PASS",
+      "child_calls": 1,
+      "reason": "admission property removed but marker/API retained"
+    },
+    {
+      "scope": "strict",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/validate.py",
+      "inlet": "git",
+      "required_negative_gate": "FAIL",
+      "discriminator": "PASS",
+      "child_calls": 1,
+      "reason": "admission property removed but marker/API retained"
+    }
+  ],
+  "actual_Git_positive": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/validate.py",
+    "object": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4:AGENTS.md",
+    "bytes": 22656,
+    "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+    "oracle": "independent git cat-file blob bytes"
+  },
+  "limits": [
+    "Actual wrapper AST/admission/argv exercised with terminal child spy; only representative immutable read uses real Git backend.",
+    "Named legacy refs remain explicitly available in48 retired wrapper variants; live strict admissions require full immutable SHA.",
+    "Does not execute all229 builder bodies, confer finding closure or replace criteria/historical byte-guard controls."
+  ]
+}

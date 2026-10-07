@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Protocol, cast
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from pydantic import ValidationError
 
@@ -36,10 +35,14 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_CALIBRATION_REPORT_REF,
     INPUT_DATA_SNAPSHOT_REF,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 logger = get_logger(__name__)
 
@@ -52,11 +55,11 @@ class _PropagationFunction(Protocol):
 
     _sensitivity_map: dict[str, dict[str, float]]
 
-    def __call__(self, **current_params: Any) -> dict[str, Any]: ...
+    def __call__(self, **current_params: object) -> dict[str, Any]: ...
 
 
 def _has_missing_output(result: PropagationResult) -> bool:
-    """Read the method-neutral missing-output signal from a propagation result."""
+    "Read the method-neutral missing-output signal from a propagation result."
     return result.diagnostics.get("missing_output") is True
 
 
@@ -196,9 +199,11 @@ class PropagateUncertaintyNode:
             ref = persist_uncertainty_envelope(ctx.store, item.envelope)
             persisted_envelope = load_uncertainty_envelope(ctx.store, ref)
             verify_mean_certificate(persisted_envelope)
-            if item.diagnostics.get("output_coverage_complete") is False:
-                if persisted_envelope.gate_eligible:
-                    raise ValueError("incomplete execution cannot publish a gating envelope")
+            if (
+                item.diagnostics.get("output_coverage_complete") is False
+                and persisted_envelope.gate_eligible
+            ):
+                raise ValueError("incomplete execution cannot publish a gating envelope")
             envelope_refs[item.metric_id] = ref
             artifacts.append(ref)
 
@@ -283,7 +288,7 @@ class PropagateUncertaintyNode:
         )
 
 
-def _load_model(ctx: ExecutionContext, ref: ArtifactRef, model_cls):
+def _load_model(ctx: ExecutionContext, ref: ArtifactRef, model_cls: object) -> object:
     payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
     return model_cls.model_validate(payload)
 
@@ -362,7 +367,7 @@ def _build_propagation_fn(
         base_metric_values=frozen,
     )
 
-    def _fn(**current_params: Any) -> dict[str, Any]:
+    def _fn(**current_params: object) -> dict[str, Any]:
         result = dict(frozen)
         for metric_id in metric_ids:
             base_value = frozen[metric_id]

@@ -1,0 +1,47 @@
+{
+  "schema": "policyos.e02.utility_publication_validation.v1",
+  "implementation_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+  "implementation_tree": "a4e4793be4d1aec6adea623b930a65304ab42d64",
+  "published_handoff_sha": "4ed6a4324c53275afb00d9fc380cd29e0cca556c",
+  "published_handoff_tree": "43e60bdd118830806d53bb2e813198e08aa88681",
+  "records": [
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-publication-4ed6/published-handoff-normal.stdout",
+      "bytes": 667,
+      "sha256": "52136173dfdb095054ced195514341ee0e41e512fa97747b5247277570abdeab"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-publication-4ed6/published-handoff-normal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-publication-4ed6/published-handoff-optimized.stdout",
+      "bytes": 667,
+      "sha256": "52136173dfdb095054ced195514341ee0e41e512fa97747b5247277570abdeab"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-publication-4ed6/published-handoff-optimized.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-publication-4ed6/published-handoff-validation.json",
+      "bytes": 1783,
+      "sha256": "57f2ce860c5ed9e6da99222c0d5dd2ac1fcd7cf36c7ffe7bc7e6cd867f59cccc"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-publication-4ed6/published-handoff-remote-readback.json",
+      "bytes": 2564,
+      "sha256": "f46129a5c7eba80ba175c605c7e6e24d7b970d8e86375d20f985cb28c9b35589"
+    }
+  ],
+  "git_publication_checked": "PASS",
+  "validator_modes": [
+    "normal",
+    "python -O"
+  ],
+  "corrupt_controls_per_mode": 11,
+  "scope": "Actual pinned current-copy/Git validator and source/denominator binding of the preceding immutable handoff. This supplement makes no claim about its own future commit SHA or numerical finding closure.",
+  "finding_closure": false
+}

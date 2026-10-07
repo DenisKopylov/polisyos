@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -20,7 +21,68 @@ class BindingAdmissionError(ValueError):
     """Refuse metadata that attributes valid bytes to the wrong source role."""
 
 
+def _admit_require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+_NO_PATH = object()
+
+
+def admit_source(sha: object, path: object = _NO_PATH) -> None:
+    """Refuse unbound or option-like Git objects before any child process."""
+    _admit_require(
+        isinstance(sha, str) and re.fullmatch(r"[0-9a-f]{40}", sha) is not None,
+        "source requires an exact commit SHA",
+    )
+    if path is not _NO_PATH:
+        _admit_require(isinstance(path, str) and bool(path), "source path requires a string")
+        _admit_require(
+            not any(character.isspace() or character == "\0" for character in path),
+            "source path contains ambiguous characters",
+        )
+        relative = Path(path)
+        _admit_require(
+            not relative.is_absolute()
+            and bool(relative.parts)
+            and relative.as_posix() == path
+            and ".." not in relative.parts,
+            "source path must be repository relative",
+        )
+        _admit_require(not path.startswith("-") and ":" not in path, "source path is ambiguous")
+
+
+def _admit_git_object_arguments(arguments: tuple[str, ...]) -> None:
+    """Keep object reads from interpreting record refs as Git options.
+
+    Named/abbreviated refs remain available to retired source-pinned replay
+    scripts; live packet admissions separately require full immutable SHAs.
+    """
+    if not arguments or arguments[0] not in {"show", "rev-parse"}:
+        return
+    safe_information_flags = {"--show-toplevel", "--git-dir", "--git-common-dir"}
+    for value in arguments[1:]:
+        if not isinstance(value, str) or not value or "\0" in value:
+            raise ValueError("Git object argument must be a nonempty string")
+        if value.startswith("-"):
+            if arguments[0] == "rev-parse" and value in safe_information_flags:
+                continue
+            raise ValueError("Git object reference must never be an option")
+        if ":" in value:
+            _, relative = value.split(":", 1)
+            path = Path(relative)
+            if (
+                not path.parts
+                or path.is_absolute()
+                or ".." in path.parts
+                or path.as_posix() != relative
+                or "\0" in relative
+            ):
+                raise ValueError("Git object path must be repository relative")
+
+
 def git_bytes(*arguments: str) -> bytes:
+    _admit_git_object_arguments(arguments)
     executable = shutil.which("git")
     if executable is None:
         raise FileNotFoundError("Git is unavailable")
@@ -56,6 +118,7 @@ def admit_pin(pin: dict) -> None:
 
 
 def admit_git_ref(ref: dict, *, expected_commit: str, expected_path: str) -> None:
+    admit_source(ref["commit"], ref["path"])
     if ref["commit"] != expected_commit:
         raise BindingAdmissionError("Git ref candidate differs from its declared current role")
     if ref["path"] != expected_path:
@@ -70,6 +133,16 @@ def admit_git_ref(ref: dict, *, expected_commit: str, expected_path: str) -> Non
 
 
 def validate(binding: dict, packet: dict) -> None:
+    # Visit all record-provided object references before any child callback.
+    pending = [binding, packet]
+    while pending:
+        value = pending.pop()
+        if isinstance(value, dict):
+            if "commit" in value and "path" in value:
+                admit_source(value["commit"], value["path"])
+            pending.extend(value.values())
+        elif isinstance(value, list):
+            pending.extend(value)
     admit_pin(binding["current_committed_source"])
     admit_pin(packet["current_committed_source"])
     canonical_binding, _ = load_original()

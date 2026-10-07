@@ -3,8 +3,6 @@
 from importlib import import_module
 from typing import TYPE_CHECKING
 
-from polisyos.ir.analytics import UncertaintyEnvelope
-
 from ..calibration.report import load_calibration_report as load_foundry_calibration_report
 from .config import AdaptiveStoppingConfig, PropagationConfig
 from .fabric_quality import FabricUncertaintyContext, fabric_uncertainty_context_from_decision_data
@@ -20,6 +18,8 @@ from .sampling_admission import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.ir.analytics import UncertaintyEnvelope
+
     from .covariance import (
         CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
         CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,

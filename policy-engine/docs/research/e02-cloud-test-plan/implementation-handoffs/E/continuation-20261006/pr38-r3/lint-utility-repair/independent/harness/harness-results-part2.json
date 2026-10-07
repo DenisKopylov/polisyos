@@ -1,0 +1,166 @@
+{
+  "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+  "source_tree": "b6bd2579e39857b91e03deb333cbc8f4609e800d",
+  "cases": [
+    {
+      "case": "native_uncapped_child_then_actual_failure_preserves_successor_UNRUN",
+      "outcome": "PASS",
+      "observed": true
+    },
+    {
+      "case": "healthy_all_actual_successors_execute_and_return_zero",
+      "outcome": "PASS",
+      "observed": true
+    },
+    {
+      "case": "remove_uncapping_assignment_preserves_markers_but_native_child_detects_actual_caps",
+      "outcome": "PASS",
+      "observed": {
+        "negative_gate_outcome": "FAIL",
+        "actual_caps": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "VECLIB_MAXIMUM_THREADS": "1",
+          "BLIS_NUM_THREADS": "1"
+        },
+        "outer_exit": 1,
+        "declared_marker_caps": null
+      }
+    },
+    {
+      "case": "remove_failfast_preserves_markers_but_late_successor_executes_and_false_zero_detected",
+      "outcome": "PASS",
+      "observed": {
+        "negative_gate_outcome": "FAIL",
+        "outer_exit": 0,
+        "step_outcomes": [
+          "PASS",
+          "FAIL",
+          "PASS"
+        ],
+        "successor_exists": true
+      }
+    },
+    {
+      "case": "nested_verify_actual_failfast_preserves_both_CI_and_verify_successors_UNRUN",
+      "outcome": "PASS",
+      "observed": true
+    },
+    {
+      "case": "control_receipts_never_assert_doctor_full_CI_or_finding_closure",
+      "outcome": "PASS",
+      "observed": true
+    },
+    {
+      "case": "collector_owner-relative-escape_refuses_before_Git_and_copy",
+      "outcome": "PASS",
+      "observed": {
+        "callback_count": 0,
+        "publication_created": false
+      }
+    },
+    {
+      "case": "remove_collector_owner-relative-escape_preflight_keeps_helpers_but_reaches_Git",
+      "outcome": "PASS",
+      "observed": {
+        "callback_count": 1,
+        "negative_gate_outcome": "FAIL",
+        "admit_source_present": true,
+        "collect_present": true
+      }
+    },
+    {
+      "case": "collector_owner-option-like_refuses_before_Git_and_copy",
+      "outcome": "PASS",
+      "observed": {
+        "callback_count": 0,
+        "publication_created": false
+      }
+    },
+    {
+      "case": "remove_collector_owner-option-like_preflight_keeps_helpers_but_reaches_Git",
+      "outcome": "PASS",
+      "observed": {
+        "callback_count": 1,
+        "negative_gate_outcome": "FAIL",
+        "admit_source_present": true,
+        "collect_present": true
+      }
+    },
+    {
+      "case": "collector_freeze-source-option_refuses_before_Git_and_copy",
+      "outcome": "PASS",
+      "observed": {
+        "callback_count": 0,
+        "publication_created": false
+      }
+    },
+    {
+      "case": "remove_collector_freeze-source-option_preflight_keeps_helpers_but_reaches_Git",
+      "outcome": "PASS",
+      "observed": {
+        "callback_count": 1,
+        "negative_gate_outcome": "FAIL",
+        "admit_source_present": true,
+        "collect_present": true
+      }
+    },
+    {
+      "case": "collector_freeze-review-absolute_refuses_before_Git_and_copy",
+      "outcome": "PASS",
+      "observed": {
+        "callback_count": 0,
+        "publication_created": false
+      }
+    },
+    {
+      "case": "remove_collector_freeze-review-absolute_preflight_keeps_helpers_but_reaches_Git",
+      "outcome": "PASS",
+      "observed": {
+        "callback_count": 1,
+        "negative_gate_outcome": "FAIL",
+        "admit_source_present": true,
+        "collect_present": true
+      }
+    },
+    {
+      "case": "final_f3ec_harness_bytes_equal_reviewed90c6",
+      "outcome": "PASS",
+      "observed": {
+        "harness_files": 4,
+        "equal": true
+      }
+    },
+    {
+      "case": "source_HEAD_and_tracked_worktree_immutable_after_all_controls",
+      "outcome": "PASS",
+      "observed": {
+        "HEAD": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+        "tracked_status": ""
+      }
+    }
+  ],
+  "case_count": 16,
+  "fail_count": 0,
+  "tiny_factory_controls_only": true,
+  "canonical_full_umbrella_executed": false,
+  "control_source_bindings": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny_uncapped_environment.py",
+      "bytes": 477,
+      "sha256": "1b25743ee608109fbf7a237270dfe85c9ecc91e19e5083cae079227065e94103"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella_tiny_driver.py",
+      "bytes": 4172,
+      "sha256": "d8f846511c963e9e4db61e4a38629aa06e140f36d4dedb0ef71b9b24f646bede"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/probe_harness_part2.py",
+      "bytes": 8996,
+      "sha256": "8ba505c3d05b7e8056b063f1cb1fd5cb11c7234ae22a0403a6447543484eadb4"
+    }
+  ]
+}

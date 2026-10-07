@@ -1,0 +1,41 @@
+[
+  {
+    "name": "current-index-74d045-normal",
+    "command": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/lint-independent/current_index_control.py",
+      "--source-root",
+      "/workspace/e02-E-pr38-r3-receipts/lint-independent/source-f3ec",
+      "--repo",
+      "/workspace/e02-E-cal05-20261006",
+      "--census",
+      "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-229-index-74d045.json"
+    ],
+    "actual_validator_source_identical_f3ec_74": true,
+    "exit_code": 0,
+    "stdout_bytes": 819,
+    "stdout_sha256": "854bd656731a6f5b48260d54659d2b5460745fcbc88f153fda7074fcc666f66b",
+    "stderr_bytes": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "current-index-74d045-optimized",
+    "command": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "-O",
+      "/workspace/e02-E-pr38-r3-receipts/lint-independent/current_index_control.py",
+      "--source-root",
+      "/workspace/e02-E-pr38-r3-receipts/lint-independent/source-f3ec",
+      "--repo",
+      "/workspace/e02-E-cal05-20261006",
+      "--census",
+      "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-229-index-74d045.json"
+    ],
+    "actual_validator_source_identical_f3ec_74": true,
+    "exit_code": 0,
+    "stdout_bytes": 819,
+    "stdout_sha256": "9fd39cc45989e0417f465c4b35bcb090b15297644f4e83613e330679cdff9740",
+    "stderr_bytes": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

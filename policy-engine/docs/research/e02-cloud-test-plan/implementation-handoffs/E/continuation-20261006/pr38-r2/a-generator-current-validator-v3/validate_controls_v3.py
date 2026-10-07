@@ -149,8 +149,9 @@ def main() -> int:
         "original_index_unchanged": True,
         "checks": rows,
         "preparation_snapshot_note": (
-            "Original packet's NOT_LAUNCHED describes its preparation time; actual corrected wave "
-            "is now RUNNING separately. This validator does not inspect or classify that wave."
+            "Original packet's NOT_LAUNCHED describes its preparation tim"
+            "e; actual corrected wave is now RUNNING separately. This val"
+            "idator does not inspect or classify that wave."
         ),
     }
     encoded = json.dumps(result, indent=2) + "\n"

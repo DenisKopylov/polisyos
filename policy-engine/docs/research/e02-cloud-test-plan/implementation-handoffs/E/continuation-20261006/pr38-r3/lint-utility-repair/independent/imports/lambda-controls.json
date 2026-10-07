@@ -1,0 +1,955 @@
+{
+  "schema": "policyos.e02.independent_lambda_capture_controls.v1",
+  "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+  "actual_lambda_rows": 21,
+  "results": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/audit_outputs.py",
+      "line": 408,
+      "signature": "*, bad=bad, gate=gate",
+      "source_sha256": "4c00bf523349e5758833a8ddea0bdc2dacc58c42765af0d11a92d2c90fb96acf",
+      "capture_names": [
+        "bad",
+        "gate"
+      ],
+      "after_loop_outputs": [
+        {
+          "args": [
+            "receipt1",
+            {
+              "marker": 1
+            }
+          ],
+          "kwargs": {}
+        },
+        {
+          "args": [
+            "receipt2",
+            {
+              "marker": 2
+            }
+          ],
+          "kwargs": {}
+        }
+      ],
+      "captured_rows": [
+        {
+          "bad": {
+            "marker": 1
+          },
+          "gate": "gate1"
+        },
+        {
+          "bad": {
+            "marker": 2
+          },
+          "gate": "gate2"
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/audit_outputs.py",
+      "line": 430,
+      "signature": "*, bad=bad, gate=gate",
+      "source_sha256": "4c00bf523349e5758833a8ddea0bdc2dacc58c42765af0d11a92d2c90fb96acf",
+      "capture_names": [
+        "bad",
+        "gate"
+      ],
+      "after_loop_outputs": [
+        {
+          "args": [
+            "receipt1",
+            {
+              "marker": 1
+            }
+          ],
+          "kwargs": {}
+        },
+        {
+          "args": [
+            "receipt2",
+            {
+              "marker": 2
+            }
+          ],
+          "kwargs": {}
+        }
+      ],
+      "captured_rows": [
+        {
+          "bad": {
+            "marker": 1
+          },
+          "gate": "gate1"
+        },
+        {
+          "bad": {
+            "marker": 2
+          },
+          "gate": "gate2"
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/audit_outputs.py",
+      "line": 408,
+      "signature": "*, bad=bad, gate=gate",
+      "source_sha256": "8099bfa96ddba1f95efd36723c197629bc71988b47ea83d57ca1e0f83f20fcfb",
+      "capture_names": [
+        "bad",
+        "gate"
+      ],
+      "after_loop_outputs": [
+        {
+          "args": [
+            "receipt1",
+            {
+              "marker": 1
+            }
+          ],
+          "kwargs": {}
+        },
+        {
+          "args": [
+            "receipt2",
+            {
+              "marker": 2
+            }
+          ],
+          "kwargs": {}
+        }
+      ],
+      "captured_rows": [
+        {
+          "bad": {
+            "marker": 1
+          },
+          "gate": "gate1"
+        },
+        {
+          "bad": {
+            "marker": 2
+          },
+          "gate": "gate2"
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/audit_outputs.py",
+      "line": 430,
+      "signature": "*, bad=bad, gate=gate",
+      "source_sha256": "8099bfa96ddba1f95efd36723c197629bc71988b47ea83d57ca1e0f83f20fcfb",
+      "capture_names": [
+        "bad",
+        "gate"
+      ],
+      "after_loop_outputs": [
+        {
+          "args": [
+            "receipt1",
+            {
+              "marker": 1
+            }
+          ],
+          "kwargs": {}
+        },
+        {
+          "args": [
+            "receipt2",
+            {
+              "marker": 2
+            }
+          ],
+          "kwargs": {}
+        }
+      ],
+      "captured_rows": [
+        {
+          "bad": {
+            "marker": 1
+          },
+          "gate": "gate1"
+        },
+        {
+          "bad": {
+            "marker": 2
+          },
+          "gate": "gate2"
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/review_assembly.py",
+      "line": 592,
+      "signature": "altered=altered",
+      "source_sha256": "6e75c36d58a758663dc2e0d30c89df55ac62e7197a54cd203d185ac4763735a9",
+      "capture_names": [
+        "altered"
+      ],
+      "after_loop_outputs": [
+        {
+          "args": [
+            {
+              "marker": 1
+            }
+          ],
+          "kwargs": {}
+        },
+        {
+          "args": [
+            {
+              "marker": 2
+            }
+          ],
+          "kwargs": {}
+        }
+      ],
+      "captured_rows": [
+        {
+          "altered": {
+            "marker": 1
+          }
+        },
+        {
+          "altered": {
+            "marker": 2
+          }
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/review_assembly.py",
+      "line": 601,
+      "signature": "altered=altered",
+      "source_sha256": "6e75c36d58a758663dc2e0d30c89df55ac62e7197a54cd203d185ac4763735a9",
+      "capture_names": [
+        "altered"
+      ],
+      "after_loop_outputs": [
+        {
+          "args": [
+            {
+              "marker": 1
+            }
+          ],
+          "kwargs": {}
+        },
+        {
+          "args": [
+            {
+              "marker": 2
+            }
+          ],
+          "kwargs": {}
+        }
+      ],
+      "captured_rows": [
+        {
+          "altered": {
+            "marker": 1
+          }
+        },
+        {
+          "altered": {
+            "marker": 2
+          }
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/g-checkpoint11-assembly-independent/review_delta.py",
+      "line": 398,
+      "signature": "bad=bad",
+      "source_sha256": "c89971a03fcbdde35027f80dc66543d8a53891ff4c47031efe43b9b150f18aba",
+      "capture_names": [
+        "bad"
+      ],
+      "after_loop_outputs": [
+        {
+          "args": [
+            {
+              "marker": 1
+            }
+          ],
+          "kwargs": {}
+        },
+        {
+          "args": [
+            {
+              "marker": 2
+            }
+          ],
+          "kwargs": {}
+        }
+      ],
+      "captured_rows": [
+        {
+          "bad": {
+            "marker": 1
+          }
+        },
+        {
+          "bad": {
+            "marker": 2
+          }
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/g-checkpoint11-assembly-independent/review_delta.py",
+      "line": 425,
+      "signature": "bad=bad",
+      "source_sha256": "c89971a03fcbdde35027f80dc66543d8a53891ff4c47031efe43b9b150f18aba",
+      "capture_names": [
+        "bad"
+      ],
+      "after_loop_outputs": [
+        {
+          "args": [
+            {
+              "marker": 1
+            }
+          ],
+          "kwargs": {}
+        },
+        {
+          "args": [
+            {
+              "marker": 2
+            }
+          ],
+          "kwargs": {}
+        }
+      ],
+      "captured_rows": [
+        {
+          "bad": {
+            "marker": 1
+          }
+        },
+        {
+          "bad": {
+            "marker": 2
+          }
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/g-checkpoint11-assembly-independent/review_delta.py",
+      "line": 442,
+      "signature": "bad=bad",
+      "source_sha256": "c89971a03fcbdde35027f80dc66543d8a53891ff4c47031efe43b9b150f18aba",
+      "capture_names": [
+        "bad"
+      ],
+      "after_loop_outputs": [
+        {
+          "args": [
+            {
+              "marker": 1
+            }
+          ],
+          "kwargs": {}
+        },
+        {
+          "args": [
+            {
+              "marker": 2
+            }
+          ],
+          "kwargs": {}
+        }
+      ],
+      "captured_rows": [
+        {
+          "bad": {
+            "marker": 1
+          }
+        },
+        {
+          "bad": {
+            "marker": 2
+          }
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/cal_probe.py",
+      "line": 188,
+      "signature": "values, *, replacement=replacement",
+      "source_sha256": "0a4e2d076984fa12dc2dacb269e1c9192009ff18f5cca9e24bc008551f5f2e3c",
+      "capture_names": [
+        "replacement"
+      ],
+      "after_loop_outputs": [
+        {
+          "return": null,
+          "values": {
+            "revenue": {
+              "marker": 1
+            }
+          }
+        },
+        {
+          "return": null,
+          "values": {
+            "revenue": {
+              "marker": 2
+            }
+          }
+        }
+      ],
+      "captured_rows": [
+        {
+          "replacement": {
+            "marker": 1
+          }
+        },
+        {
+          "replacement": {
+            "marker": 2
+          }
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe_independent.py",
+      "line": 170,
+      "signature": "ref=ref",
+      "source_sha256": "bb9291ee3f756e21f760ce3fb69428bb8f9de243c6b612e82537d181cf7476c4",
+      "capture_names": [
+        "ref"
+      ],
+      "after_loop_outputs": [
+        {
+          "args": [
+            {
+              "root": "same-store"
+            },
+            {
+              "marker": 1
+            }
+          ],
+          "kwargs": {}
+        },
+        {
+          "args": [
+            {
+              "root": "same-store"
+            },
+            {
+              "marker": 2
+            }
+          ],
+          "kwargs": {}
+        }
+      ],
+      "captured_rows": [
+        {
+          "ref": {
+            "marker": 1
+          }
+        },
+        {
+          "ref": {
+            "marker": 2
+          }
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe_independent.py",
+      "line": 299,
+      "signature": "x=x, y=y, p=p",
+      "source_sha256": "bb9291ee3f756e21f760ce3fb69428bb8f9de243c6b612e82537d181cf7476c4",
+      "capture_names": [
+        "x",
+        "y",
+        "p"
+      ],
+      "after_loop_outputs": [
+        {
+          "args": [
+            {
+              "marker": 1
+            },
+            {
+              "marker": 1
+            },
+            {
+              "marker": 1
+            }
+          ],
+          "kwargs": {}
+        },
+        {
+          "args": [
+            {
+              "marker": 2
+            },
+            {
+              "marker": 2
+            },
+            {
+              "marker": 2
+            }
+          ],
+          "kwargs": {}
+        }
+      ],
+      "captured_rows": [
+        {
+          "x": {
+            "marker": 1
+          },
+          "y": {
+            "marker": 1
+          },
+          "p": {
+            "marker": 1
+          }
+        },
+        {
+          "x": {
+            "marker": 2
+          },
+          "y": {
+            "marker": 2
+          },
+          "p": {
+            "marker": 2
+          }
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe_independent.py",
+      "line": 333,
+      "signature": "forged=forged",
+      "source_sha256": "bb9291ee3f756e21f760ce3fb69428bb8f9de243c6b612e82537d181cf7476c4",
+      "capture_names": [
+        "forged"
+      ],
+      "after_loop_outputs": [
+        {
+          "args": [
+            [
+              "cas",
+              "same-store"
+            ],
+            {
+              "marker": 1
+            }
+          ],
+          "kwargs": {}
+        },
+        {
+          "args": [
+            [
+              "cas",
+              "same-store"
+            ],
+            {
+              "marker": 2
+            }
+          ],
+          "kwargs": {}
+        }
+      ],
+      "captured_rows": [
+        {
+          "forged": {
+            "marker": 1
+          }
+        },
+        {
+          "forged": {
+            "marker": 2
+          }
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe_independent.py",
+      "line": 372,
+      "signature": "law=law, seed=seed",
+      "source_sha256": "bb9291ee3f756e21f760ce3fb69428bb8f9de243c6b612e82537d181cf7476c4",
+      "capture_names": [
+        "law",
+        "seed"
+      ],
+      "after_loop_outputs": [
+        {
+          "args": [
+            {
+              "x": [
+                0,
+                1
+              ]
+            },
+            "<function <lambda>.<locals>.<lambda> at 0x7f7fdaa7afb0>"
+          ],
+          "kwargs": {
+            "method": "sobol",
+            "input_law": {
+              "marker": 1
+            },
+            "seed": 101
+          }
+        },
+        {
+          "args": [
+            {
+              "x": [
+                0,
+                1
+              ]
+            },
+            "<function <lambda>.<locals>.<lambda> at 0x7f7fdaa7acf0>"
+          ],
+          "kwargs": {
+            "method": "sobol",
+            "input_law": {
+              "marker": 2
+            },
+            "seed": 102
+          }
+        }
+      ],
+      "captured_rows": [
+        {
+          "law": {
+            "marker": 1
+          },
+          "seed": 101
+        },
+        {
+          "law": {
+            "marker": 2
+          },
+          "seed": 102
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-gaussian-independent.py",
+      "line": 110,
+      "signature": "*, calls=calls, **p",
+      "source_sha256": "970ff4a014033e4f1a7b935d384b807f3fc49eea0a8e1b3be53f7fbc8b370b16",
+      "capture_names": [
+        "calls"
+      ],
+      "after_loop_outputs": [
+        {
+          "y": 5
+        },
+        {
+          "y": 5
+        }
+      ],
+      "captured_rows": [
+        {
+          "calls": [
+            {
+              "a": 3,
+              "b": 2,
+              "x": 0.25
+            }
+          ]
+        },
+        {
+          "calls": [
+            {
+              "a": 3,
+              "b": 2,
+              "x": 0.25
+            }
+          ]
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/pcl_probe.attempt1.py",
+      "line": 191,
+      "signature": "*, forged=forged",
+      "source_sha256": "069377efb2eaca15b35886bfcf3ca51cd9b6c38cf41ace1f8bf0246663e4c0bd",
+      "capture_names": [
+        "forged"
+      ],
+      "after_loop_outputs": [
+        {
+          "args": [
+            [
+              "cas",
+              "same-store"
+            ],
+            {
+              "marker": 1
+            }
+          ],
+          "kwargs": {}
+        },
+        {
+          "args": [
+            [
+              "cas",
+              "same-store"
+            ],
+            {
+              "marker": 2
+            }
+          ],
+          "kwargs": {}
+        }
+      ],
+      "captured_rows": [
+        {
+          "forged": {
+            "marker": 1
+          }
+        },
+        {
+          "forged": {
+            "marker": 2
+          }
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/pcl_probe.py",
+      "line": 191,
+      "signature": "*, forged=forged",
+      "source_sha256": "5226cc2fe121375e5f31f4b4362d145128143624bfb313caf6f2a7c4a62f4161",
+      "capture_names": [
+        "forged"
+      ],
+      "after_loop_outputs": [
+        {
+          "args": [
+            [
+              "cas",
+              "same-store"
+            ],
+            {
+              "marker": 1
+            }
+          ],
+          "kwargs": {}
+        },
+        {
+          "args": [
+            [
+              "cas",
+              "same-store"
+            ],
+            {
+              "marker": 2
+            }
+          ],
+          "kwargs": {}
+        }
+      ],
+      "captured_rows": [
+        {
+          "forged": {
+            "marker": 1
+          }
+        },
+        {
+          "forged": {
+            "marker": 2
+          }
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/admission_probe.py",
+      "line": 164,
+      "signature": "*, probabilities=probabilities, uniforms=uniforms",
+      "source_sha256": "c6928e4ea47427af39d06760e8bc484c54b6cafafcbc5ec051021095d4e9db81",
+      "capture_names": [
+        "probabilities",
+        "uniforms"
+      ],
+      "after_loop_outputs": [
+        {
+          "args": [
+            {
+              "marker": 1
+            },
+            {
+              "marker": 1
+            }
+          ],
+          "kwargs": {}
+        },
+        {
+          "args": [
+            {
+              "marker": 2
+            },
+            {
+              "marker": 2
+            }
+          ],
+          "kwargs": {}
+        }
+      ],
+      "captured_rows": [
+        {
+          "probabilities": {
+            "marker": 1
+          },
+          "uniforms": {
+            "marker": 1
+          }
+        },
+        {
+          "probabilities": {
+            "marker": 2
+          },
+          "uniforms": {
+            "marker": 2
+          }
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/native_mc_export_probe.py",
+      "line": 102,
+      "signature": "*, calls=calls, **p",
+      "source_sha256": "8eb36a0a1c4cc0c2ed27a0f1d86719a8550f079cc10044dbdd2b7faa4e06d412",
+      "capture_names": [
+        "calls"
+      ],
+      "after_loop_outputs": [
+        {
+          "y": 5
+        },
+        {
+          "y": 5
+        }
+      ],
+      "captured_rows": [
+        {
+          "calls": [
+            [
+              3.0,
+              2.0
+            ]
+          ]
+        },
+        {
+          "calls": [
+            [
+              3.0,
+              2.0
+            ]
+          ]
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/native_mc_pinned5cd_probe.py",
+      "line": 133,
+      "signature": "*, calls=calls, **p",
+      "source_sha256": "e748dc14a91487231ed6cafc6d63fad1b490814979e67a6d60b4246d2810d9ec",
+      "capture_names": [
+        "calls"
+      ],
+      "after_loop_outputs": [
+        {
+          "y": 5
+        },
+        {
+          "y": 5
+        }
+      ],
+      "captured_rows": [
+        {
+          "calls": [
+            [
+              3.0,
+              2.0
+            ]
+          ]
+        },
+        {
+          "calls": [
+            [
+              3.0,
+              2.0
+            ]
+          ]
+        }
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/nonzero_support_independent_probe.py",
+      "line": 188,
+      "signature": "*, calls=calls, **p",
+      "source_sha256": "baa6829aa824bd8a9abaa0da78682665a1868a18405087517fe6038d44daa5cb",
+      "capture_names": [
+        "calls"
+      ],
+      "after_loop_outputs": [
+        {
+          "y": 0.25
+        },
+        {
+          "y": 0.25
+        }
+      ],
+      "captured_rows": [
+        {
+          "calls": [
+            {
+              "a": 3,
+              "b": 2,
+              "x": 0.25
+            }
+          ]
+        },
+        {
+          "calls": [
+            {
+              "a": 3,
+              "b": 2,
+              "x": 0.25
+            }
+          ]
+        }
+      ],
+      "outcome": "PASS"
+    }
+  ],
+  "removal": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-gaussian-independent.py",
+    "line": 110,
+    "negative_gate_outcome": "FAIL",
+    "discriminator": "PASS",
+    "reason": "lambda counters share the last loop list"
+  },
+  "limitations": "Actual candidate lambda argument/body semantics exercised with isolated terminal consumers; captured values differ after loop. Does not execute real validators/backends inside every lambda or confer law/consumer authority."
+}

@@ -1,0 +1,134 @@
+{
+  "files": [
+    {
+      "path": "checks/numeric-skip/numeric-skip.json",
+      "bytes": 8525,
+      "sha256": "9b1c0fd06575c4a29219fdfb48a13571abcf1111272f89fe7f6dfd96c84bb48a"
+    },
+    {
+      "path": "checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "18f17401214f5aca68d1133e8722cc5030eacaed51c99154b1c5d3b163402069"
+    },
+    {
+      "path": "checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "d03d7cf2022cf86ead69d685fa709f46f9c00503d5ef81cc0354b6d3213edb81"
+    },
+    {
+      "path": "checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 7084,
+      "sha256": "840f2e3d5fa7bec602b4ff3cd00dc71ae0b17df66c0b3eb54a9084aa8aefb185"
+    },
+    {
+      "path": "checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "b2414bff2c7e9edada036e1f3daad77219557d988a497443fd002c01aca313b9"
+    },
+    {
+      "path": "checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "bcdb8f21af0671c5aa25c37d0a70dade5ea6cda0c8378c7124229c70b9da27f3"
+    },
+    {
+      "path": "checks/results-importer/results-importer.json",
+      "bytes": 8130,
+      "sha256": "b1fab5dd82fbf0817bd5f5b5990ed5ad89e61ba0f2253777e3671fe859915ca4"
+    },
+    {
+      "path": "checks/results-importer/results-importer.stdout.txt",
+      "bytes": 34,
+      "sha256": "9c8858a55f13cdcaae3456207f0f881c6828538c39bbb290c602d4b6ff516119"
+    },
+    {
+      "path": "cleanup-candidates.json",
+      "bytes": 1207,
+      "sha256": "c4c7c0b2dbc002a510554bc0bd263aba44af61cfd5c538d567b01fe1adc66e0d"
+    },
+    {
+      "path": "execution-complete.json",
+      "bytes": 155,
+      "sha256": "37f09d7a80bccf6dfad167a8eb7380849f452996a9cfd09b6cec6065a881abe6"
+    },
+    {
+      "path": "plan.json",
+      "bytes": 44079,
+      "sha256": "edc51effe5691ec6187d91a679b2b916d9c4115af2c953a6934f56958cf3813f"
+    },
+    {
+      "path": "publication-receipt.json",
+      "bytes": 26779,
+      "sha256": "dd95ded4bfea103f6a7c14f9129fe61f91b69561bb0d8d3310f315c4b0da56f4"
+    },
+    {
+      "path": "raw-custody.json",
+      "bytes": 667,
+      "sha256": "fe1805d5ce1c6a8e581513f0fe9694cc9383c5f73c1574776e1fcf2575d8f751"
+    },
+    {
+      "path": "wave-started.json",
+      "bytes": 104,
+      "sha256": "011bbb227f6ee6b43a649f97d3fa994eaf7f22f6242036a35864e3e95008d5d2"
+    }
+  ],
+  "file_count": 14,
+  "total_bytes": 98630,
+  "self_index_excluded": true,
+  "wave_source_assets": [
+    {
+      "path": "plan.json",
+      "bytes": 44079,
+      "sha256": "edc51effe5691ec6187d91a679b2b916d9c4115af2c953a6934f56958cf3813f"
+    },
+    {
+      "path": "wave-started.json",
+      "bytes": 104,
+      "sha256": "011bbb227f6ee6b43a649f97d3fa994eaf7f22f6242036a35864e3e95008d5d2"
+    },
+    {
+      "path": "execution-complete.json",
+      "bytes": 155,
+      "sha256": "37f09d7a80bccf6dfad167a8eb7380849f452996a9cfd09b6cec6065a881abe6"
+    },
+    {
+      "path": "checks/results-importer/results-importer.json",
+      "bytes": 8130,
+      "sha256": "b1fab5dd82fbf0817bd5f5b5990ed5ad89e61ba0f2253777e3671fe859915ca4"
+    },
+    {
+      "path": "checks/results-importer/results-importer.stdout.txt",
+      "bytes": 34,
+      "sha256": "9c8858a55f13cdcaae3456207f0f881c6828538c39bbb290c602d4b6ff516119"
+    },
+    {
+      "path": "checks/numeric-skip/numeric-skip.json",
+      "bytes": 8525,
+      "sha256": "9b1c0fd06575c4a29219fdfb48a13571abcf1111272f89fe7f6dfd96c84bb48a"
+    },
+    {
+      "path": "checks/numeric-skip/numeric-skip.stdout.txt",
+      "bytes": 99,
+      "sha256": "18f17401214f5aca68d1133e8722cc5030eacaed51c99154b1c5d3b163402069"
+    },
+    {
+      "path": "checks/numeric-skip/pytest.xml",
+      "bytes": 834,
+      "sha256": "d03d7cf2022cf86ead69d685fa709f46f9c00503d5ef81cc0354b6d3213edb81"
+    },
+    {
+      "path": "checks/numeric-skip-exit7/numeric-skip-exit7.json",
+      "bytes": 7084,
+      "sha256": "840f2e3d5fa7bec602b4ff3cd00dc71ae0b17df66c0b3eb54a9084aa8aefb185"
+    },
+    {
+      "path": "checks/numeric-skip-exit7/numeric-skip-exit7.stdout.txt",
+      "bytes": 99,
+      "sha256": "b2414bff2c7e9edada036e1f3daad77219557d988a497443fd002c01aca313b9"
+    },
+    {
+      "path": "checks/numeric-skip-exit7/pytest.xml",
+      "bytes": 834,
+      "sha256": "bcdb8f21af0671c5aa25c37d0a70dade5ea6cda0c8378c7124229c70b9da27f3"
+    }
+  ]
+}

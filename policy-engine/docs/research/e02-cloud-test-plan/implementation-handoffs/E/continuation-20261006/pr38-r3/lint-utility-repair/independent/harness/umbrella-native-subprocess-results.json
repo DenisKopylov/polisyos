@@ -1,0 +1,172 @@
+[
+  {
+    "variant": "failfast",
+    "command": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella_tiny_driver.py",
+      "failfast"
+    ],
+    "exit_code": 7,
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast.stdout.txt",
+      "bytes": 167,
+      "sha256": "2edc582a540eac342622d2778b124cd6b940d185d486d985b94a0d81d25c516b"
+    },
+    "stderr": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stages": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/stages.json",
+      "bytes": 2925,
+      "sha256": "13b994cafb2ca5584f9544f4fe26e26cf0c786e91a8238dd09bebcad0a47cc03"
+    },
+    "driver_receipt": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/driver-receipt.json",
+      "bytes": 400,
+      "sha256": "b503c5d1376df706c28880e0d5acdb6276127136c2e3db4b5e2f8707a727df50"
+    },
+    "executed_source": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-failfast/executed-umbrella-source.py.txt",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    }
+  },
+  {
+    "variant": "success",
+    "command": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella_tiny_driver.py",
+      "success"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success.stdout.txt",
+      "bytes": 202,
+      "sha256": "1ab518a8633ca735881dd8580c94a5eec6bb65020f31d41433ff9109a050faf9"
+    },
+    "stderr": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stages": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/stages.json",
+      "bytes": 2773,
+      "sha256": "e87bc0c196307c097639988ad976ead02bf41dfa84d48a63e1886e947431d214"
+    },
+    "driver_receipt": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/driver-receipt.json",
+      "bytes": 399,
+      "sha256": "d75e4d0b7f6fa641833017d3d853291cba280d80d11cc3d474706d3429f12137"
+    },
+    "executed_source": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-success/executed-umbrella-source.py.txt",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    }
+  },
+  {
+    "variant": "remove-cap-property",
+    "command": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella_tiny_driver.py",
+      "remove-cap-property"
+    ],
+    "exit_code": 1,
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property.stdout.txt",
+      "bytes": 1358,
+      "sha256": "70acf0adce950268b796984831707ad3cf925b7b1239863640b1e36598f7f595"
+    },
+    "stderr": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stages": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/stages.json",
+      "bytes": 3755,
+      "sha256": "295e4b44f495a5bf69bc0d4beffaddf80e55aa6ed1be10ec36dd2ec4c3eddade"
+    },
+    "driver_receipt": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/driver-receipt.json",
+      "bytes": 411,
+      "sha256": "5f3c65dc082875d7e335aa89966b3fcdd45f2d655cb7de3eb072b8286b523e27"
+    },
+    "executed_source": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-cap-property/executed-umbrella-source.py.txt",
+      "bytes": 7261,
+      "sha256": "068026f94e01176ebeb8c01c4b0c24582445f428003fbf47387235528626e7b3"
+    }
+  },
+  {
+    "variant": "remove-failfast-property",
+    "command": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella_tiny_driver.py",
+      "remove-failfast-property"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property.stdout.txt",
+      "bytes": 202,
+      "sha256": "cef9c69c0c4bca8ec9199e2f9920076a23fee14c031ae5625263cc4a072ab895"
+    },
+    "stderr": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stages": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/stages.json",
+      "bytes": 3073,
+      "sha256": "f401ad9256e17c1cb6b9175266b872b4fe1d43dca910ea168a420908a580a631"
+    },
+    "driver_receipt": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/driver-receipt.json",
+      "bytes": 416,
+      "sha256": "3fa561ac02b16caee50fd42aa7b4cc7bca3579cbbc36e0a4d0f2d7d5d52e9805"
+    },
+    "executed_source": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-remove-failfast-property/executed-umbrella-source.py.txt",
+      "bytes": 7325,
+      "sha256": "8ebb3496a293d6206764ac6a99548e6815f7fce25fd02547fa9aac61edac8ec3"
+    }
+  },
+  {
+    "variant": "nested-failfast",
+    "command": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella_tiny_driver.py",
+      "nested-failfast"
+    ],
+    "exit_code": 7,
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast.stdout.txt",
+      "bytes": 167,
+      "sha256": "647541696005d7578d0bd7241adc27fa9235de1156ae759c0624950e7e56774e"
+    },
+    "stderr": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stages": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/stages.json",
+      "bytes": 4488,
+      "sha256": "3faab4a0917b153edb3a55e2f6d805e9555426f39ca1aef2b73475afce2d9ea3"
+    },
+    "driver_receipt": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/driver-receipt.json",
+      "bytes": 407,
+      "sha256": "939fee5991d04e51099bc1b84ec2fc847cb42aa62db1d02176869da1cbf8a950"
+    },
+    "executed_source": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/umbrella-nested-failfast/executed-umbrella-source.py.txt",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    }
+  }
+]

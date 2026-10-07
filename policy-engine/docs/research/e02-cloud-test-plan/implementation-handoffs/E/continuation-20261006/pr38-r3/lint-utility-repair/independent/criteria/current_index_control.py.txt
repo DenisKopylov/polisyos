@@ -1,0 +1,51 @@
+"""Bind a complete current utility index to a frozen code candidate."""
+
+import argparse
+import copy
+import importlib.util
+import json
+import sys
+from pathlib import Path
+
+
+def require(condition, reason):
+    if not condition:
+        raise ValueError(reason)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--source-root", type=Path, required=True)
+    parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--census", type=Path, required=True)
+    args = parser.parse_args()
+    census = json.loads(args.census.read_text())
+    path = args.source_root / "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/validate_review_copies.py"
+    spec = importlib.util.spec_from_file_location("immutable_current_index_validator", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    expected = {r["path"] for r in census["utility_rows"]}
+    records = [{"copied_path": r["path"], "bytes": r["candidate_bytes"], "sha256": r["candidate_sha256"]} for r in census["utility_rows"]]
+
+    def complete(values):
+        require(len(values) == len(expected) == 229, "complete current utility denominator")
+        require({r["copied_path"] for r in values} == expected, "complete exact current utility path set")
+        module.validate(args.repo, values, census["candidate"])
+
+    complete(records)
+    outcomes = []
+    damaged = copy.deepcopy(records)
+    damaged[-1]["sha256"] = "0" * 64
+    tests = [("corrupt-last-digest", damaged), ("omitted-last-record", records[:-1]), ("duplicate-record", [*records[:-1], records[0]])]
+    for name, values in tests:
+        try:
+            complete(values)
+        except ValueError as error:
+            outcomes.append({"name": name, "outcome": "REFUSED", "reason": str(error)})
+        else:
+            raise ValueError("forged utility index admitted:" + name)
+    sys.stdout.write(json.dumps({"candidate": census["candidate"], "tree": census["tree"], "optimized": sys.flags.optimize, "scope": "new complete current utility index; historical copied indexes remain unchanged", "records": len(records), "current_and_git": "PASS", "negative_controls": outcomes}, indent=2) + "\n")
+
+
+if __name__ == "__main__":
+    main()

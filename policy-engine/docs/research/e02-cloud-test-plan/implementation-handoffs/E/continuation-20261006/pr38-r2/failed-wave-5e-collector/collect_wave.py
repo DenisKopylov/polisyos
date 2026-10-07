@@ -6,6 +6,7 @@ import argparse
 import ast
 import hashlib
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -50,7 +51,37 @@ def inside(root: Path, path: Path) -> Path:
     return resolved
 
 
+def _admit_git_object_arguments(arguments: tuple[str, ...]) -> None:
+    """Keep object reads from interpreting record refs as Git options.
+
+    Named/abbreviated refs remain available to retired source-pinned replay
+    scripts; live packet admissions separately require full immutable SHAs.
+    """
+    if not arguments or arguments[0] not in {"show", "rev-parse"}:
+        return
+    safe_information_flags = {"--show-toplevel", "--git-dir", "--git-common-dir"}
+    for value in arguments[1:]:
+        if not isinstance(value, str) or not value or "\0" in value:
+            raise ValueError("Git object argument must be a nonempty string")
+        if value.startswith("-"):
+            if arguments[0] == "rev-parse" and value in safe_information_flags:
+                continue
+            raise ValueError("Git object reference must never be an option")
+        if ":" in value:
+            _, relative = value.split(":", 1)
+            path = Path(relative)
+            if (
+                not path.parts
+                or path.is_absolute()
+                or ".." in path.parts
+                or path.as_posix() != relative
+                or "\0" in relative
+            ):
+                raise ValueError("Git object path must be repository relative")
+
+
 def git_bytes(repo: Path, *argv: str) -> bytes:
+    _admit_git_object_arguments(argv)
     executable = shutil.which("git")
     if executable is None:
         raise FileNotFoundError("Git unavailable")
@@ -236,7 +267,39 @@ def expected_umbrella_scopes(repo: Path, candidate: str, gate: str) -> list[dict
     return [scope("ci-parity", []), scope("verify", ["--backend-only", "--skip-doctor"])]
 
 
+def _admit_require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+_NO_PATH = object()
+
+
+def admit_source(sha: object, path: object = _NO_PATH) -> None:
+    """Refuse unbound or option-like Git objects before any child process."""
+    _admit_require(
+        isinstance(sha, str) and re.fullmatch(r"[0-9a-f]{40}", sha) is not None,
+        "source requires an exact commit SHA",
+    )
+    if path is not _NO_PATH:
+        _admit_require(isinstance(path, str) and bool(path), "source path requires a string")
+        _admit_require(
+            not any(character.isspace() or character == "\0" for character in path),
+            "source path contains ambiguous characters",
+        )
+        relative = Path(path)
+        _admit_require(
+            not relative.is_absolute()
+            and bool(relative.parts)
+            and relative.as_posix() == path
+            and ".." not in relative.parts,
+            "source path must be repository relative",
+        )
+        _admit_require(not path.startswith("-") and ":" not in path, "source path is ambiguous")
+
+
 def collect(args: argparse.Namespace) -> dict[str, object]:
+    admit_source(args.candidate)
     wave = args.wave_root.resolve()
     repo = args.repo.resolve()
     publication = args.publication_root
@@ -247,6 +310,15 @@ def collect(args: argparse.Namespace) -> dict[str, object]:
     candidate = args.candidate
     if plan["candidate_sha"] != candidate:
         raise RuntimeError("plan is not the requested exact frozen candidate")
+    for packet in plan["owner_packet_extra_inputs"]:
+        admit_source(candidate, packet["source"])
+    admitted_freeze_path = getattr(args, "freeze_receipt", None)
+    if admitted_freeze_path is not None:
+        admitted_freeze_path = inside(admitted_freeze_path.parent.resolve(), admitted_freeze_path)
+        admitted_freeze = read_json(admitted_freeze_path)
+        admit_source(admitted_freeze["frozen_sha"])
+        for review in admitted_freeze["reviews"]:
+            admit_source(candidate, review["path"])
     tree = git_bytes(repo, "rev-parse", candidate + "^{tree}").decode().strip()
     if plan["candidate_tree_sha"] != tree:
         raise RuntimeError("candidate tree identity mismatch")
@@ -401,8 +473,13 @@ def collect(args: argparse.Namespace) -> dict[str, object]:
         row["binding_predicates"] = predicates
         if receipt["outcome"] not in {"PASS", "FAIL", "ERROR", "SKIP", "UNRUN"}:
             issues.append({"job": job["name"], "reason": "unknown check outcome"})
-        if receipt["outcome"] == "PASS" and receipt["exit_code"] != 0:
-            issues.append({"job": job["name"], "reason": "PASS conflicts with command failure"})
+        if receipt["outcome"] in {"PASS", "SKIP"} and receipt["exit_code"] != 0:
+            issues.append(
+                {
+                    "job": job["name"],
+                    "reason": receipt["outcome"] + " conflicts with command failure",
+                }
+            )
         source_frames.append(receipt["source_identity_before"])
         config_hashes.append(receipt["git_input_config"]["sha256"])
         variables = receipt["environment"]["selected_variables"]
@@ -657,15 +734,16 @@ def collect(args: argparse.Namespace) -> dict[str, object]:
             "Separate; ledger statuses not reclassified by check counts."
         ),
         "cleanup_policy": (
-            "Only candidate list; no deletion or Trash action. Preserve unique deciding "
-            "bytes/code/docs. Check no active users before repeatables move to native Trash; "
-            "without Trash keep exact candidates."
+            "Only candidate list; no deletion or Trash action. Preserve u"
+            "nique deciding bytes/code/docs. Check no active users before"
+            " repeatables move to native Trash; without Trash keep exact "
+            "candidates."
         ),
         "cleanup_candidates": cleanup,
         "raw_local_input_limitation": (
-            "Raw graph/private config remain outside Git; exact command/source/hash/size "
-            "and complete moderate stdout are published. Do not promote the bounded static "
-            "proxy to runtime proof."
+            "Raw graph/private config remain outside Git; exact command/s"
+            "ource/hash/size and complete moderate stdout are published. "
+            "Do not promote the bounded static proxy to runtime proof."
         ),
     }
     write_json(publication / "publication-receipt.json", result)

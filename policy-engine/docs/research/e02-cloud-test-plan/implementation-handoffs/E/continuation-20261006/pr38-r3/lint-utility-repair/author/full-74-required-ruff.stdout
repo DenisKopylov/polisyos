@@ -1,0 +1,758 @@
+[
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 23,
+      "row": 13
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from __future__ import annotations\n\nimport ast\nimport importlib.util\nimport json\nimport shutil\nimport subprocess\nimport sys\nfrom collections import Counter\nfrom pathlib import Path, PurePosixPath\nfrom typing import Any\n\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 15
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 3
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 3,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "E401",
+    "end_location": {
+      "column": 97,
+      "row": 1
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import datetime\nimport hashlib\nimport json\nimport os\nimport resource\nimport subprocess\nimport sys\nimport time\nimport xml.etree.ElementTree as ET",
+          "end_location": {
+            "column": 97,
+            "row": 1
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        }
+      ],
+      "message": "Split imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "Multiple imports on one line",
+    "noqa_row": 1,
+    "url": "https://docs.astral.sh/ruff/rules/multiple-imports-on-one-line"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 25,
+      "row": 2
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import datetime\nimport hashlib\nimport json\nimport os\nimport resource\nimport subprocess\nimport sys\nimport time\nimport xml.etree.ElementTree as ET\nfrom pathlib import Path\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 1,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "S607",
+    "end_location": {
+      "column": 59,
+      "row": 8
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 8
+    },
+    "message": "Starting a process with a partial executable path",
+    "noqa_row": 8,
+    "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+  },
+  {
+    "cell": null,
+    "code": "S607",
+    "end_location": {
+      "column": 67,
+      "row": 9
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+    "fix": null,
+    "location": {
+      "column": 32,
+      "row": 9
+    },
+    "message": "Starting a process with a partial executable path",
+    "noqa_row": 9,
+    "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 11,
+      "row": 10
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 10
+    },
+    "message": "Missing return type annotation for public function `status`",
+    "noqa_row": 10,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "S607",
+    "end_location": {
+      "column": 68,
+      "row": 11
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+    "fix": null,
+    "location": {
+      "column": 36,
+      "row": 11
+    },
+    "message": "Starting a process with a partial executable path",
+    "noqa_row": 11,
+    "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+  },
+  {
+    "cell": null,
+    "code": "S101",
+    "end_location": {
+      "column": 7,
+      "row": 12
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 12
+    },
+    "message": "Use of `assert` detected",
+    "noqa_row": 12,
+    "url": "https://docs.astral.sh/ruff/rules/assert"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 105,
+      "row": 15
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 15
+    },
+    "message": "Line too long (104 > 100)",
+    "noqa_row": 15,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "S603",
+    "end_location": {
+      "column": 25,
+      "row": 22
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+    "fix": null,
+    "location": {
+      "column": 11,
+      "row": 22
+    },
+    "message": "`subprocess` call: check for execution of untrusted input",
+    "noqa_row": 22,
+    "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 106,
+      "row": 22
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 22
+    },
+    "message": "Line too long (105 > 100)",
+    "noqa_row": 22,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "S314",
+    "end_location": {
+      "column": 23,
+      "row": 24
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+    "fix": null,
+    "location": {
+      "column": 10,
+      "row": 24
+    },
+    "message": "Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents",
+    "noqa_row": 24,
+    "url": "https://docs.astral.sh/ruff/rules/suspicious-xml-element-tree-usage"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 112,
+      "row": 31
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 31
+    },
+    "message": "Line too long (111 > 100)",
+    "noqa_row": 31,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 225,
+      "row": 32
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 32
+    },
+    "message": "Line too long (224 > 100)",
+    "noqa_row": 32,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 153,
+      "row": 33
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 33
+    },
+    "message": "Line too long (152 > 100)",
+    "noqa_row": 33,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "T201",
+    "end_location": {
+      "column": 6,
+      "row": 35
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 36
+          },
+          "location": {
+            "column": 1,
+            "row": 35
+          }
+        }
+      ],
+      "message": "Remove `print`"
+    },
+    "location": {
+      "column": 1,
+      "row": 35
+    },
+    "message": "`print` found",
+    "noqa_row": 35,
+    "url": "https://docs.astral.sh/ruff/rules/print"
+  },
+  {
+    "cell": null,
+    "code": "T201",
+    "end_location": {
+      "column": 6,
+      "row": 36
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 37
+          },
+          "location": {
+            "column": 1,
+            "row": 36
+          }
+        }
+      ],
+      "message": "Remove `print`"
+    },
+    "location": {
+      "column": 1,
+      "row": 36
+    },
+    "message": "`print` found",
+    "noqa_row": 36,
+    "url": "https://docs.astral.sh/ruff/rules/print"
+  },
+  {
+    "cell": null,
+    "code": "E401",
+    "end_location": {
+      "column": 42,
+      "row": 2
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import hashlib\nimport json\nimport os\nimport subprocess\nimport sys",
+          "end_location": {
+            "column": 42,
+            "row": 2
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Split imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 2
+    },
+    "message": "Multiple imports on one line",
+    "noqa_row": 2,
+    "url": "https://docs.astral.sh/ruff/rules/multiple-imports-on-one-line"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 84,
+      "row": 6
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import hashlib\nimport json\nimport os\nimport subprocess\nimport sys\nfrom decimal import Decimal\nfrom pathlib import Path\n\nfrom polisyos.scientist.orchestration.engine import budget_ledger as module\nfrom polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 7
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 2
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 2,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "S101",
+    "end_location": {
+      "column": 7,
+      "row": 10
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 10
+    },
+    "message": "Use of `assert` detected",
+    "noqa_row": 10,
+    "url": "https://docs.astral.sh/ruff/rules/assert"
+  },
+  {
+    "cell": null,
+    "code": "S101",
+    "end_location": {
+      "column": 7,
+      "row": 12
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 12
+    },
+    "message": "Use of `assert` detected",
+    "noqa_row": 12,
+    "url": "https://docs.astral.sh/ruff/rules/assert"
+  },
+  {
+    "cell": null,
+    "code": "S603",
+    "end_location": {
+      "column": 39,
+      "row": 13
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+    "fix": null,
+    "location": {
+      "column": 16,
+      "row": 13
+    },
+    "message": "`subprocess` call: check for execution of untrusted input",
+    "noqa_row": 13,
+    "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+  },
+  {
+    "cell": null,
+    "code": "S607",
+    "end_location": {
+      "column": 143,
+      "row": 13
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+    "fix": null,
+    "location": {
+      "column": 40,
+      "row": 13
+    },
+    "message": "Starting a process with a partial executable path",
+    "noqa_row": 13,
+    "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 153,
+      "row": 13
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 13
+    },
+    "message": "Line too long (152 > 100)",
+    "noqa_row": 13,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "S101",
+    "end_location": {
+      "column": 7,
+      "row": 14
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 14
+    },
+    "message": "Use of `assert` detected",
+    "noqa_row": 14,
+    "url": "https://docs.astral.sh/ruff/rules/assert"
+  },
+  {
+    "cell": null,
+    "code": "S101",
+    "end_location": {
+      "column": 7,
+      "row": 17
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 17
+    },
+    "message": "Use of `assert` detected",
+    "noqa_row": 17,
+    "url": "https://docs.astral.sh/ruff/rules/assert"
+  },
+  {
+    "cell": null,
+    "code": "S102",
+    "end_location": {
+      "column": 9,
+      "row": 20
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 20
+    },
+    "message": "Use of `exec` detected",
+    "noqa_row": 20,
+    "url": "https://docs.astral.sh/ruff/rules/exec-builtin"
+  },
+  {
+    "cell": null,
+    "code": "S101",
+    "end_location": {
+      "column": 11,
+      "row": 22
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 22
+    },
+    "message": "Use of `assert` detected",
+    "noqa_row": 22,
+    "url": "https://docs.astral.sh/ruff/rules/assert"
+  },
+  {
+    "cell": null,
+    "code": "C408",
+    "end_location": {
+      "column": 168,
+      "row": 25
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "{'event_id': 'observed-producer-1:run','key': 'run','amount': Decimal('2'),'provider': 'provider','payload_digest': hashlib.sha256(b'actual immutable result').hexdigest()}",
+          "end_location": {
+            "column": 168,
+            "row": 25
+          },
+          "location": {
+            "column": 8,
+            "row": 25
+          }
+        }
+      ],
+      "message": "Rewrite as a literal"
+    },
+    "location": {
+      "column": 8,
+      "row": 25
+    },
+    "message": "Unnecessary `dict()` call (rewrite as a literal)",
+    "noqa_row": 25,
+    "url": "https://docs.astral.sh/ruff/rules/unnecessary-collection-call"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 168,
+      "row": 25
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 25
+    },
+    "message": "Line too long (167 > 100)",
+    "noqa_row": 25,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "S603",
+    "end_location": {
+      "column": 24,
+      "row": 29
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+    "fix": null,
+    "location": {
+      "column": 10,
+      "row": 29
+    },
+    "message": "`subprocess` call: check for execution of untrusted input",
+    "noqa_row": 29,
+    "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 480,
+      "row": 29
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 29
+    },
+    "message": "Line too long (479 > 100)",
+    "noqa_row": 29,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "T201",
+    "end_location": {
+      "column": 6,
+      "row": 31
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 32
+          },
+          "location": {
+            "column": 1,
+            "row": 31
+          }
+        }
+      ],
+      "message": "Remove `print`"
+    },
+    "location": {
+      "column": 1,
+      "row": 31
+    },
+    "message": "`print` found",
+    "noqa_row": 31,
+    "url": "https://docs.astral.sh/ruff/rules/print"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 362,
+      "row": 31
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 31
+    },
+    "message": "Line too long (361 > 100)",
+    "noqa_row": 31,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "S101",
+    "end_location": {
+      "column": 7,
+      "row": 32
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 32
+    },
+    "message": "Use of `assert` detected",
+    "noqa_row": 32,
+    "url": "https://docs.astral.sh/ruff/rules/assert"
+  },
+  {
+    "cell": null,
+    "code": "S101",
+    "end_location": {
+      "column": 7,
+      "row": 33
+    },
+    "filename": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 33
+    },
+    "message": "Use of `assert` detected",
+    "noqa_row": 33,
+    "url": "https://docs.astral.sh/ruff/rules/assert"
+  }
+]

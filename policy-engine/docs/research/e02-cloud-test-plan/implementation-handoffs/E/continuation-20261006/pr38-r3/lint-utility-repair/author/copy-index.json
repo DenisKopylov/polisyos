@@ -1,0 +1,279 @@
+{
+  "schema": "policyos.e02.moderate_author_copy_index.v1",
+  "source_candidate_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+  "records": [
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/builder-replay-dispositions.json",
+      "bytes": 212471,
+      "sha256": "3c8d42a927d15c7ad27b03def3166b2877cb17455e661644ccdc7f368d8f3fa4"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/collector-protocol.py.txt",
+      "bytes": 3188,
+      "sha256": "6cced4bf39793be08f92a1a70d58257a026d15d634f67386b71fa8ab128f5dde"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/current-f3-protocol-wave/checks/results-import/results-import.json",
+      "bytes": 7681,
+      "sha256": "3c121c1f054a2fda19ac81b6f614b767bbd1d6231952c9fe46dc265db1e066d9"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/current-f3-protocol-wave/checks/results-import/results-import.stdout.txt",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/current-f3-protocol-wave/execution-complete.json",
+      "bytes": 103,
+      "sha256": "15b7cce7eda42a7635e7389f2dae5a746ebd2cf8c407ac8946952b31ac310dd3"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/current-f3-protocol-wave/plan.json",
+      "bytes": 998,
+      "sha256": "da07f645ec8f99ad96f7277d9819b685f1814e60fa37d3d2a6032cf23f7a4d8b"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/current-f3-protocol-wave/wave-started.json",
+      "bytes": 98,
+      "sha256": "3d17254baadfb488e3fa998c5490bc9253f883c5b8c43c64acf273f848335066"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/edited-builder-census.json",
+      "bytes": 99592,
+      "sha256": "d224a157d19c8ff16a22fc9edab2d24fdba85a08adf2f44773571f6530e0864d"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-format.stdout",
+      "bytes": 439,
+      "sha256": "da4ea975c04974151b74b8f819b4312ef53764d63fb0d9377359105ad24fcaa1"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-invocations.json",
+      "bytes": 131937,
+      "sha256": "c599b27eea6efe551480799c25fef526a8ba2b7f754a46d0f6743cc76a9572a9"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-ruff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-74-required-ruff.stdout",
+      "bytes": 22268,
+      "sha256": "d7c3d807f94748bc886743b5c067a1bddc7e29e5b241135e2876c040f5b41373"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-f3-required-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-f3-required-format.stdout.txt",
+      "bytes": 439,
+      "sha256": "da4ea975c04974151b74b8f819b4312ef53764d63fb0d9377359105ad24fcaa1"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-f3-required-invocations.json",
+      "bytes": 130777,
+      "sha256": "957ef02a40ac89d5be9a43ce842b7ea062a9fe19346f402ee64dd6d37555ebb9"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-f3-required-ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/full-f3-required-ruff.stdout.json",
+      "bytes": 22268,
+      "sha256": "d7c3d807f94748bc886743b5c067a1bddc7e29e5b241135e2876c040f5b41373"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/generic-git-inlets.json",
+      "bytes": 15621,
+      "sha256": "456f02d5828dd1c2beb70a07d862b999570eee2aba9462261ff1fabcfddd397a"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/git-admission-census.json",
+      "bytes": 153215,
+      "sha256": "75a6b680145e450fe6b5f33ef68d7ae9657e668981db9c2890c949966f793503"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/builder-replay.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/builder-replay.stdout",
+      "bytes": 100,
+      "sha256": "d71bc15a55fd20a94cf004f4431a2c2f1d4e5f92f2d8012af4421732b0090b64"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/builder-validator.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/builder-validator.stdout",
+      "bytes": 1207,
+      "sha256": "c0fefa0167423b7dad9036848173178d479bcaec2c43f77529c2dfaa71cb6d9b"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/ddm-release-git-builder.stderr",
+      "bytes": 331,
+      "sha256": "e170a027347e8ab9c525243708d7c55edb56a628f5a5847d4e43e8aa9ad79a52"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/ddm-release-git-builder.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/f3-collector-protocol.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/f3-collector-protocol.stdout",
+      "bytes": 3099,
+      "sha256": "bbc94381597494919a3ac432f9922b7004a0cf0a867c93ba3f5b2354f84579c0"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/f3-run-check.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/f3-run-check.stdout",
+      "bytes": 288,
+      "sha256": "abf9523cbbf6a0693391191a75b1d55ccb121042e071ce9d1daafa0c9c5f8f16"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/f445-mirror-git-builder.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/f445-mirror-git-builder.stdout",
+      "bytes": 100,
+      "sha256": "d71bc15a55fd20a94cf004f4431a2c2f1d4e5f92f2d8012af4421732b0090b64"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/immutable-criteria-optimized.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/immutable-criteria-optimized.stdout",
+      "bytes": 3647,
+      "sha256": "d0f5aa75f0267c5fc149df279d00988edf4d6f1f0c96813150e1f4f22d567ad9"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/immutable-criteria.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/immutable-criteria.stdout",
+      "bytes": 3647,
+      "sha256": "d0f5aa75f0267c5fc149df279d00988edf4d6f1f0c96813150e1f4f22d567ad9"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/immutable-historical-copies.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/immutable-historical-copies.stdout",
+      "bytes": 245,
+      "sha256": "e90a5336657bb16d98e080243875203df8a6b16887072162e36f2929a3cb3113"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/immutable-probe.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/immutable-probe.stdout",
+      "bytes": 3446,
+      "sha256": "3e1680661425498143f742752ebbbdcfa607c72f592ef8ea0439505c7ef1fce9"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/public-owner-git-builder.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/outputs/public-owner-git-builder.stdout",
+      "bytes": 215,
+      "sha256": "8ffcaef1383080096711dd360cc23d3b2d7d8c12a8b50b6a1bcce8489b731d53"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/protocol-publication-healthy-f3/checks/results-import/results-import.json",
+      "bytes": 7681,
+      "sha256": "3c121c1f054a2fda19ac81b6f614b767bbd1d6231952c9fe46dc265db1e066d9"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/protocol-publication-healthy-f3/checks/results-import/results-import.stdout.txt",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/protocol-publication-healthy-f3/cleanup-candidates.json",
+      "bytes": 306,
+      "sha256": "096a69103ccd02934b4d4b5a4d2008ec636a6d21b8ce4dc9a030534f61d9342c"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/protocol-publication-healthy-f3/copy-index.json",
+      "bytes": 2204,
+      "sha256": "752fca5812b4671a857ca68307ec68794cb80b783d1a8dbf127aa45c74f73843"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/protocol-publication-healthy-f3/execution-complete.json",
+      "bytes": 103,
+      "sha256": "15b7cce7eda42a7635e7389f2dae5a746ebd2cf8c407ac8946952b31ac310dd3"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/protocol-publication-healthy-f3/plan.json",
+      "bytes": 998,
+      "sha256": "da07f645ec8f99ad96f7277d9819b685f1814e60fa37d3d2a6032cf23f7a4d8b"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/protocol-publication-healthy-f3/publication-receipt.json",
+      "bytes": 9711,
+      "sha256": "4c537c2c1930ff8b7933fc3ba6ba7a9d663e0071e871cce51e8abcef51ea5331"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/protocol-publication-healthy-f3/raw-custody.json",
+      "bytes": 223,
+      "sha256": "877442fe2bc9c8182fa86fbf4dd05d28b908a3bc9bbadcc297c1723653270c25"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/protocol-publication-healthy-f3/wave-started.json",
+      "bytes": 98,
+      "sha256": "3d17254baadfb488e3fa998c5490bc9253f883c5b8c43c64acf273f848335066"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/source-inputs.json",
+      "bytes": 82982,
+      "sha256": "fb83fffc9fcdbcb809136dd0a3a081953fcdf65964ec256084b572c0e4da6d06"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/utility-probe.py.txt",
+      "bytes": 8795,
+      "sha256": "426f5fb1d83882b1ec200863cab92e36eda09130afddba4ae2da44e56d99c742"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/author/validate-new-handoff.py.txt",
+      "bytes": 4789,
+      "sha256": "6711b054f011bd150f9928cff636f643f8465a4c895e85b2ea076b16391fbde2"
+    }
+  ],
+  "self_excluded": true,
+  "historical_outputs_not_rewritten": true,
+  "scope": "Exact moderate author output copies. Each original command/source scope is declared in the handoff; these utility outputs do not establish numerical finding closure."
+}

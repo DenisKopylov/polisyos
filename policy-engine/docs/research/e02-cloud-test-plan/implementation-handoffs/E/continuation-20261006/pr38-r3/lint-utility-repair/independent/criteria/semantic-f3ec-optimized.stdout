@@ -1,0 +1,119 @@
+{
+  "optimized": 1,
+  "source_root": "/workspace/e02-E-pr38-r3-receipts/lint-independent/source-f3ec",
+  "archive": "/workspace/e02-E-pr38-r3-receipts/lint-independent/historical-e9",
+  "stdout": {
+    "actual_call_count": 184,
+    "actual_helper_variants": 1,
+    "control_cases": 12,
+    "rows": [
+      {
+        "signature_sha256": "c458dce180e00af58be77baf6c308523423760b5329b5c052c95a162a688e038",
+        "bytes": 1,
+        "flush": false
+      },
+      {
+        "signature_sha256": "c458dce180e00af58be77baf6c308523423760b5329b5c052c95a162a688e038",
+        "bytes": 1,
+        "flush": true
+      },
+      {
+        "signature_sha256": "c458dce180e00af58be77baf6c308523423760b5329b5c052c95a162a688e038",
+        "bytes": 1,
+        "flush": false
+      },
+      {
+        "signature_sha256": "c458dce180e00af58be77baf6c308523423760b5329b5c052c95a162a688e038",
+        "bytes": 1,
+        "flush": true
+      },
+      {
+        "signature_sha256": "c458dce180e00af58be77baf6c308523423760b5329b5c052c95a162a688e038",
+        "bytes": 6,
+        "flush": false
+      },
+      {
+        "signature_sha256": "c458dce180e00af58be77baf6c308523423760b5329b5c052c95a162a688e038",
+        "bytes": 6,
+        "flush": true
+      },
+      {
+        "signature_sha256": "c458dce180e00af58be77baf6c308523423760b5329b5c052c95a162a688e038",
+        "bytes": 30,
+        "flush": false
+      },
+      {
+        "signature_sha256": "c458dce180e00af58be77baf6c308523423760b5329b5c052c95a162a688e038",
+        "bytes": 30,
+        "flush": true
+      },
+      {
+        "signature_sha256": "c458dce180e00af58be77baf6c308523423760b5329b5c052c95a162a688e038",
+        "bytes": 28,
+        "flush": false
+      },
+      {
+        "signature_sha256": "c458dce180e00af58be77baf6c308523423760b5329b5c052c95a162a688e038",
+        "bytes": 28,
+        "flush": true
+      },
+      {
+        "signature_sha256": "c458dce180e00af58be77baf6c308523423760b5329b5c052c95a162a688e038",
+        "bytes": 34,
+        "flush": false
+      },
+      {
+        "signature_sha256": "c458dce180e00af58be77baf6c308523423760b5329b5c052c95a162a688e038",
+        "bytes": 34,
+        "flush": true
+      }
+    ],
+    "scope": "actual positional/flush shapes and completed serializations; arbitrary side-effectful __str__ is not claimed"
+  },
+  "copy_validator": {
+    "historical_records": 154,
+    "historical": "PASS",
+    "corrupt_refusals": [
+      "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "bytes:-1",
+      "copied_path:../outside",
+      "bytes:True"
+    ],
+    "current_old_index": "REFUSED",
+    "current_old_index_reason": "Review current copy differs from pinned Git: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/cal_probe.py",
+    "malformed_revision_cases": 7,
+    "malformed_record_cases": 5,
+    "malformed_revision_git_callbacks": 0
+  },
+  "XML": {
+    "real_input": {
+      "local_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "source_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "source_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+      "evidence_git_commit": "ddcdfd9c220ba57e37c8abf52b976a7184c384f9",
+      "binding_state": "EXACT_COMMITTED_EVIDENCE_INPUT_SOURCE_A9_SEPARATE",
+      "bytes": 65800,
+      "sha256": "47db97d2898e824976d7cc1d001a12d15e8a1d14c2163a057f0bb69b7422163f",
+      "evidence_git_tree": "1c5e1bd9ecdd619ae99ae978231aa296875bd1b1",
+      "git_blob": "64a5da28ea451ffd73ae34ae28c404aa37343920"
+    },
+    "real_testcases": 315,
+    "entity_control": "REFUSED",
+    "reason": "EntitiesForbidden"
+  },
+  "executables": {
+    "resolver_modules": 96,
+    "actual_variants": 1,
+    "subprocess_calls": 226,
+    "shell_true": 0,
+    "real_git_absolute": "PASS",
+    "absent_executable": "REFUSED",
+    "absent_executable_child_spawns": 0
+  },
+  "delegated_review_classes": [
+    "unmatched original assertion predicates",
+    "escaped closure captures",
+    "complete dynamic Git-ref wrapper class"
+  ]
+}

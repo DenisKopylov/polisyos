@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Recompute all54 denominator/owners/source bindings; no mutable source edits."""
+"Recompute all54 denominator/owners/source bindings; no mutable source edits."
 
 import argparse
 import collections
@@ -9,7 +9,27 @@ import hashlib
 import io
 import json
 import pathlib
+import re
+import shutil
 import subprocess
+import sys
+from pathlib import Path
+
+
+def _resolve_executable(name: str) -> str:
+    "Resolve an admitted executable and refuse an unavailable program before invocation."
+    resolved = shutil.which(name)
+    if resolved is None:
+        raise RuntimeError(f"required utility executable unavailable: {name}")
+    return str(Path(resolved).resolve())
+
+
+def _write_stdout(*values: object, flush: bool = False) -> None:
+    "Emit the existing CLI text and optionally flush without logging side effects."
+    sys.stdout.write(" ".join(str(value) for value in values) + "\n")
+    if flush:
+        sys.stdout.flush()
+
 
 HERE = pathlib.Path(__file__).resolve().parent
 E02 = "policy-engine/docs/research/e02-cloud-test-plan/"
@@ -17,20 +37,91 @@ E = E02 + "implementation-handoffs/E/"
 CONT = E + "continuation-20261006/"
 
 
-def require(ok, why):
+def require(ok: bool, why: object) -> None:
     if not ok:
         raise ValueError(why)
 
 
-def git(repo, *args):
-    return subprocess.check_output(["git", "-C", str(repo), *args])
+_NO_PATH = object()
 
 
-def load(repo, sha, path):
+def admit_source(sha: object, path: object = _NO_PATH) -> None:
+    """Refuse unbound or option-like Git objects before any child process."""
+    require(
+        isinstance(sha, str) and re.fullmatch(r"[0-9a-f]{40}", sha) is not None,
+        "source requires an exact commit SHA",
+    )
+    if path is not _NO_PATH:
+        require(isinstance(path, str) and bool(path), "source path requires a string")
+        require(
+            not any(character.isspace() or character == "\0" for character in path),
+            "source path contains ambiguous characters",
+        )
+        relative = Path(path)
+        require(
+            not relative.is_absolute()
+            and bool(relative.parts)
+            and relative.as_posix() == path
+            and ".." not in relative.parts,
+            "source path must be repository relative",
+        )
+        require(not path.startswith("-") and ":" not in path, "source path is ambiguous")
+
+
+def _admit_git_object_arguments(arguments: tuple[str, ...]) -> None:
+    """Keep object reads from interpreting record refs as Git options.
+
+    Named/abbreviated refs remain available to retired source-pinned replay
+    scripts; live packet admissions separately require full immutable SHAs.
+    """
+    if not arguments or arguments[0] not in {"show", "rev-parse"}:
+        return
+    safe_information_flags = {"--show-toplevel", "--git-dir", "--git-common-dir"}
+    for value in arguments[1:]:
+        if not isinstance(value, str) or not value or "\0" in value:
+            raise ValueError("Git object argument must be a nonempty string")
+        if value.startswith("-"):
+            if arguments[0] == "rev-parse" and value in safe_information_flags:
+                continue
+            raise ValueError("Git object reference must never be an option")
+        if ":" in value:
+            _, relative = value.split(":", 1)
+            path = Path(relative)
+            if (
+                not path.parts
+                or path.is_absolute()
+                or ".." in path.parts
+                or path.as_posix() != relative
+                or "\0" in relative
+            ):
+                raise ValueError("Git object path must be repository relative")
+
+
+def git(repo: object, *args: str) -> bytes:
+    _admit_git_object_arguments(args)
+    require(
+        len(args) == 2 and args[0] in {"show", "rev-parse"},
+        "only read-only object Git commands admitted",
+    )
+    object_name = args[1]
+    if ":" in object_name:
+        sha, path = object_name.split(":", 1)
+        admit_source(sha, path)
+    else:
+        admit_source(object_name.removesuffix("^{tree}"))
+    return subprocess.check_output([_resolve_executable("git"), "-C", str(repo), *args])  # noqa: S603 - admitted exact Git objects; no shell
+
+
+def load(repo: object, sha: str, path: object) -> object:
     return json.loads(git(repo, "show", f"{sha}:{path}"))
 
 
-def check(packet, index, repo):
+def check(packet: object, index: object, repo: object) -> dict[str, object]:
+    # Admit all record-provided Git references before the first child callback.
+    admit_source(packet["input_snapshot_sha"])
+    admit_source(packet["assembled_source_sha"])
+    for record in index["inputs"]:
+        admit_source(record["source_sha"], record["path"])
     snapshot = packet["input_snapshot_sha"]
     source = packet["assembled_source_sha"]
     require(
@@ -50,8 +141,7 @@ def check(packet, index, repo):
         key = f"{record['source_sha']}:{record['path']}"
         data = git(repo, "show", key)
         require(
-            len(data) == record["bytes"]
-            and hashlib.sha256(data).hexdigest() == record["sha256"],
+            len(data) == record["bytes"] and hashlib.sha256(data).hexdigest() == record["sha256"],
             "source input size/hash mismatch:" + key,
         )
         require(
@@ -111,8 +201,7 @@ def check(packet, index, repo):
         )
     require(sum(len(r["bundle_ids"]) for r in rows) == 55, "55 ID-to-bundle links")
     require(
-        packet["denominator"]
-        == {"bundles": 22, "findings": 54, "ID_to_bundle_links": 55},
+        packet["denominator"] == {"bundles": 22, "findings": 54, "ID_to_bundle_links": 55},
         "declared denominator mismatch",
     )
     for row in rows:
@@ -156,14 +245,12 @@ def check(packet, index, repo):
             "missing family evidence:" + fid,
         )
         require(
-            row["gate_predicate_basis"]
-            == packet["family_evidence"][row["family_evidence"]]["P37"],
+            row["gate_predicate_basis"] == packet["family_evidence"][row["family_evidence"]]["P37"],
             "P37 basis drift:" + fid,
         )
         for bid in row["bundle_ids"]:
             require(
-                row["bundle_writers"][bid]
-                == bundle_owner[bid]["initial_writer_family"],
+                row["bundle_writers"][bid] == bundle_owner[bid]["initial_writer_family"],
                 "writer mutation:" + fid,
             )
             card = bundles[bid]["criterion_card"]
@@ -177,11 +264,7 @@ def check(packet, index, repo):
                 (snapshot, criterion["path"]) in indexed,
                 "unbound original source criterion:" + fid,
             )
-            original = (
-                git(repo, "show", snapshot + ":" + criterion["path"])
-                .decode()
-                .splitlines()
-            )
+            original = git(repo, "show", snapshot + ":" + criterion["path"]).decode().splitlines()
             start, end = criterion["lines"]
             block = ("\n".join(original[start - 1 : end]) + "\n").encode()
             require(
@@ -194,8 +277,7 @@ def check(packet, index, repo):
         "ledger counts",
     )
     require(
-        packet["ledger_status_counts_preserved"]
-        == {"partial": 49, "held": 4, "closed": 1},
+        packet["ledger_status_counts_preserved"] == {"partial": 49, "held": 4, "closed": 1},
         "declared ledger counts",
     )
     held = {r["id"] for r in rows if r["ledger_status_preserved"] == "held"}
@@ -210,8 +292,7 @@ def check(packet, index, repo):
     )
     require(
         sum(
-            r["historical_bounded_proposal"]
-            and r["ledger_status_preserved"] == "partial"
+            r["historical_bounded_proposal"] and r["ledger_status_preserved"] == "partial"
             for r in rows
         )
         == 32,
@@ -229,8 +310,7 @@ def check(packet, index, repo):
     for fid in ["B166", "B169", "B170"]:
         row = next(r for r in rows if r["id"] == fid)
         require(
-            "0983" in row["current_property_status"]
-            and "GO" in row["current_property_status"],
+            "0983" in row["current_property_status"] and "GO" in row["current_property_status"],
             "BKT corrective source review omitted:" + fid,
         )
     row = next(r for r in rows if r["id"] == "B198")
@@ -248,8 +328,7 @@ def check(packet, index, repo):
     for fid in ("B188", "B192", "B194"):
         row = next(r for r in rows if r["id"] == fid)
         require(
-            "welfare sibling law defect"
-            in row["implementation_residual_or_external_boundary"]
+            "welfare sibling law defect" in row["implementation_residual_or_external_boundary"]
             and "Normal" in row["implementation_residual_or_external_boundary"],
             "welfare code classfix hidden by externalhold:" + fid,
         )
@@ -259,8 +338,7 @@ def check(packet, index, repo):
     )
     semantic = load(repo, snapshot, CONT + "pr38-r2/ir-semantic-owner-decision.json")
     require(
-        semantic["canonical_owner"] is None
-        and semantic["decision_state"] == "unratified",
+        semantic["canonical_owner"] is None and semantic["decision_state"] == "unratified",
         "unexpected semantic authority requires refreshed packet",
     )
     assembly = load(repo, snapshot, CONT + "pr38-r2/reviewed-five-slice-assembly.json")
@@ -276,9 +354,7 @@ def check(packet, index, repo):
         )
         require(
             meta["implementation_tree"]
-            == git(repo, "rev-parse", c["implementation_sha"] + "^{tree}")
-            .decode()
-            .strip(),
+            == git(repo, "rev-parse", c["implementation_sha"] + "^{tree}").decode().strip(),
             "component tree mismatch",
         )
     require(
@@ -288,9 +364,7 @@ def check(packet, index, repo):
         "corrective BKT source admission mismatch",
     )
     require(
-        packet["family_evidence"]["FRC"]["assembled_state"].startswith(
-            "source-present"
-        ),
+        packet["family_evidence"]["FRC"]["assembled_state"].startswith("source-present"),
         "FRC merged source omitted",
     )
     require(
@@ -337,7 +411,7 @@ def check(packet, index, repo):
     }
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", type=pathlib.Path, required=True)
     parser.add_argument("--negative", action="store_true")
@@ -348,32 +422,30 @@ def main():
     negatives = []
     if args.negative:
 
-        def mutate_owner(p, i):
+        def mutate_owner(p: object, i: int) -> None:
             p["rows"][0]["source_closure_owner_literal"] = "present-but-fake-owner"
 
-        def mutate_ledger(p, i):
-            next(r for r in p["rows"] if r["id"] == "B197")[
-                "ledger_status_preserved"
-            ] = "closed"
+        def mutate_ledger(p: object, i: int) -> None:
+            next(r for r in p["rows"] if r["id"] == "B197")["ledger_status_preserved"] = "closed"
 
-        def mutate_bundle(p, i):
+        def mutate_bundle(p: object, i: int) -> None:
             p["rows"][0]["bundle_ids"].append(p["rows"][0]["bundle_ids"][0])
 
-        def mutate_hash(p, i):
+        def mutate_hash(p: object, i: int) -> None:
             i["inputs"][0]["sha256"] = "0" * 64
 
-        def hide_code(p, i):
+        def hide_code(p: object, i: int) -> None:
             next(r for r in p["rows"] if r["id"] == "B197")[
                 "implementation_residual_or_external_boundary"
             ] = "Only external source authority hold; no code work"
 
-        def mutate_source(p, i):
+        def mutate_source(p: object, i: int) -> None:
             p["assembled_source_tree"] = "0" * 40
 
-        def mutate_closed_regression(p, i):
-            next(r for r in p["rows"] if r["id"] == "B198")[
-                "next_verifiable_result"
-            ] = "Owner accepts or rejects a new closure proposal"
+        def mutate_closed_regression(p: object, i: int) -> None:
+            next(r for r in p["rows"] if r["id"] == "B198")["next_verifiable_result"] = (
+                "Owner accepts or rejects a new closure proposal"
+            )
 
         for name, mutator in [
             ("owner", mutate_owner),
@@ -390,9 +462,7 @@ def main():
             try:
                 check(altered, altered_index, args.repo)
             except ValueError as exc:
-                negatives.append(
-                    {"control": name, "state": "REJECTED", "reason": str(exc)}
-                )
+                negatives.append({"control": name, "state": "REJECTED", "reason": str(exc)})
             else:
                 raise AssertionError("negative accepted:" + name)
     output = {
@@ -401,7 +471,7 @@ def main():
         "mutations": "in-memory only; source and deciding inputs unchanged",
     }
     (HERE / "validation.json").write_text(json.dumps(output, indent=2) + "\n")
-    print(json.dumps(output))
+    _write_stdout(json.dumps(output))
 
 
 if __name__ == "__main__":

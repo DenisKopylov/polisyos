@@ -1,0 +1,84 @@
+from __future__ import annotations
+import argparse, copy, hashlib, json, os, subprocess, sys, types
+from pathlib import Path
+R = Path('/workspace/e02-E-cal05-20261006'); P = R / 'policy-engine'
+S = Path('/workspace/e02-E-pr38-r3-receipts/harness-independent-r3'); SRC = S / 'sources'
+PY = Path('/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python')
+SHA = 'f3ec0335e992fa7a5107000224f8ba6deefd02e5'; TREE = 'b6bd2579e39857b91e03deb333cbc8f4609e800d'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/'
+def asset(p):
+    p=Path(p); b=p.read_bytes(); return {'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def save(n,v): (S/n).write_text(json.dumps(v,indent=2,default=str)+'\n')
+def load(name):
+    m=types.ModuleType('independent_part2_'+name); m.__file__=str(R/PREFIX/name); exec(compile((SRC/name).read_bytes(),m.__file__,'exec'),m.__dict__); return m
+cases=[]
+def case(name,f):
+    try: value=f(); assert value is not False; r={'case':name,'outcome':'PASS','observed':value}
+    except Exception as e: r={'case':name,'outcome':'FAIL','error_type':type(e).__name__,'reason':str(e)}
+    cases.append(r); return r
+plan=load('plan_wave.py'); collect=load('collect_wave.py')
+# Fresh tiny subprocesses use actual canonical run_command and actual ordered umbrella recorder.
+env=plan.runtime_environment(R)
+for name in plan.CAP_VARIABLES: env.pop(name,None)
+env.pop('POLISYOS_METRICS_PORT',None)
+running=[]
+for variant in ('failfast','success','remove-cap-property','remove-failfast-property','nested-failfast'):
+    argv=[str(PY),str(S/'umbrella_tiny_driver.py'),variant]
+    out=(S/('umbrella-'+variant+'.stdout.txt')).open('wb');err=(S/('umbrella-'+variant+'.stderr.txt')).open('wb')
+    proc=subprocess.Popen(argv,cwd=P,env=env,stdout=out,stderr=err); running.append((variant,proc,out,err,argv))
+results=[]
+for variant,proc,out,err,argv in running:
+    code=proc.wait(); out.close();err.close();root=S/('umbrella-'+variant)
+    r={'variant':variant,'command':argv,'exit_code':code,'stdout':asset(S/('umbrella-'+variant+'.stdout.txt')),'stderr':asset(S/('umbrella-'+variant+'.stderr.txt')),'stages':asset(root/'stages.json'),'driver_receipt':asset(root/'driver-receipt.json'),'executed_source':asset(root/'executed-umbrella-source.py.txt')}
+    results.append(r)
+save('umbrella-native-subprocess-results.json',results)
+def obs(variant): return json.loads((S/('umbrella-'+variant)/'stages.json').read_text())
+healthy=obs('failfast'); successful=obs('success'); cap=obs('remove-cap-property'); nofast=obs('remove-failfast-property'); nested=obs('nested-failfast')
+case('native_uncapped_child_then_actual_failure_preserves_successor_UNRUN',lambda: healthy['exit_code']==7 and [r['outcome'] for r in healthy['scopes'][0]['steps']]==['PASS','FAIL','UNRUN'] and json.loads((S/'umbrella-failfast/observed-child-environment.json').read_text())=={} and not (S/'umbrella-failfast/successor-ran.txt').exists())
+case('healthy_all_actual_successors_execute_and_return_zero',lambda: successful['exit_code']==0 and all(r['outcome']=='PASS' for r in successful['scopes'][0]['steps']) and (S/'umbrella-success/successor-ran.txt').read_text()=='successor actually executed\n')
+case('remove_uncapping_assignment_preserves_markers_but_native_child_detects_actual_caps',lambda: {'negative_gate_outcome':'FAIL','actual_caps':json.loads((S/'umbrella-remove-cap-property/observed-child-environment.json').read_text()),'outer_exit':cap['exit_code'],'declared_marker_caps':cap['numerical_thread_caps']} if cap['exit_code']==1 and [r['outcome'] for r in cap['scopes'][0]['steps']]==['FAIL','UNRUN','UNRUN'] and cap['numerical_thread_caps'] is None and cap['required_steps_preserved'] is True and json.loads((S/'umbrella-remove-cap-property/observed-child-environment.json').read_text())=={'OMP_NUM_THREADS':'1','OPENBLAS_NUM_THREADS':'1','MKL_NUM_THREADS':'1','NUMEXPR_NUM_THREADS':'1','VECLIB_MAXIMUM_THREADS':'1','BLIS_NUM_THREADS':'1'} else False)
+case('remove_failfast_preserves_markers_but_late_successor_executes_and_false_zero_detected',lambda: {'negative_gate_outcome':'FAIL','outer_exit':nofast['exit_code'],'step_outcomes':[r['outcome'] for r in nofast['scopes'][0]['steps']],'successor_exists':(S/'umbrella-remove-failfast-property/successor-ran.txt').exists()} if nofast['exit_code']==0 and [r['outcome'] for r in nofast['scopes'][0]['steps']]==['PASS','FAIL','PASS'] and (S/'umbrella-remove-failfast-property/successor-ran.txt').exists() and nofast['required_steps_preserved'] is True and nofast['finding_closure'] is False else False)
+case('nested_verify_actual_failfast_preserves_both_CI_and_verify_successors_UNRUN',lambda: nested['exit_code']==7 and len(nested['scopes'])==2 and [r['outcome'] for r in nested['scopes'][0]['steps']]==['FAIL','UNRUN'] and [r['outcome'] for r in nested['scopes'][1]['steps']]==['PASS','FAIL','UNRUN'] and not (S/'umbrella-nested-failfast/successor-ran.txt').exists() and not (S/'umbrella-nested-failfast/ci-successor-ran.txt').exists())
+case('control_receipts_never_assert_doctor_full_CI_or_finding_closure',lambda: all(x['doctor_is_full_ci'] is False and x['finding_closure'] is False for x in (healthy,successful,cap,nofast,nested)))
+# Metadata source references must be admitted before Git children or publication copies.
+baseplan=json.loads((S/'tiny-native-wave/plan.json').read_text())
+class CallbackReached(RuntimeError): pass
+for label,packet,freeze in (
+    ('owner-relative-escape',{'source':'../outside.py'},None),
+    ('owner-option-like',{'source':'--help'},None),
+    ('freeze-source-option',None,{'frozen_sha':'--help','reviews':[]}),
+    ('freeze-review-absolute',None,{'frozen_sha':SHA,'reviews':[{'path':'/outside.py'}]}),
+):
+    wave=S/('source-admission-'+label);wave.mkdir(); declared=copy.deepcopy(baseplan);declared['output_root']=str(wave);declared['owner_packet_extra_inputs']=[] if packet is None else [packet];(wave/'plan.json').write_text(json.dumps(declared))
+    freeze_path=None
+    if freeze is not None:freeze_path=wave/'external-freeze.json';freeze_path.write_text(json.dumps(freeze))
+    args=argparse.Namespace(repo=R,candidate=SHA,wave_root=wave,publication_root=S/('source-admission-publication-'+label),freeze_receipt=freeze_path,max_moderate_bytes=8*1024*1024,capture_incomplete=True)
+    calls=[];original=collect.git_bytes
+    def spy(*a):calls.append(a);raise CallbackReached('Git callback reached')
+    collect.git_bytes=spy
+    try:
+        try: collect.collect(args)
+        except ValueError: pass
+        else: raise AssertionError('malformed source reference was admitted')
+        assert calls==[] and not args.publication_root.exists()
+        case('collector_'+label+'_refuses_before_Git_and_copy',lambda:{'callback_count':len(calls),'publication_created':args.publication_root.exists()})
+        admitted=collect._admit_require;collect._admit_require=lambda condition,reason:None
+        try:
+            try:collect.collect(args)
+            except CallbackReached:pass
+            else:raise AssertionError('removal did not reach actual Git callback inlet')
+            assert len(calls)==1 and not args.publication_root.exists()
+            case('remove_collector_'+label+'_preflight_keeps_helpers_but_reaches_Git',lambda:{'callback_count':len(calls),'negative_gate_outcome':'FAIL','admit_source_present':hasattr(collect,'admit_source'),'collect_present':hasattr(collect,'collect')})
+        finally:collect._admit_require=admitted
+    finally:collect.git_bytes=original
+# Pin final immutable source and no product writes. Historical90 delta has zero harness-body changes.
+for name in ('plan_wave.py','run_check.py','collect_wave.py','uncapped_umbrella.py'):
+    current=subprocess.check_output(['git','show',SHA+':'+PREFIX+name],cwd=R)
+    earlier=subprocess.check_output(['git','show','90c6f82ab8c9ca056f69635487f299bea6245862:'+PREFIX+name],cwd=R)
+    assert current==earlier==(SRC/name).read_bytes()
+case('final_f3ec_harness_bytes_equal_reviewed90c6',lambda:{'harness_files':4,'equal':True})
+head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=R,text=True).strip();status=subprocess.check_output(['git','status','--porcelain=v1','--untracked-files=no'],cwd=R,text=True)
+case('source_HEAD_and_tracked_worktree_immutable_after_all_controls',lambda: {'HEAD':head,'tracked_status':status} if head==SHA and not status else False)
+save('harness-results-part2.json',{'source_sha':SHA,'source_tree':TREE,'cases':cases,'case_count':len(cases),'fail_count':sum(c['outcome']!='PASS' for c in cases),'tiny_factory_controls_only':True,'canonical_full_umbrella_executed':False,'control_source_bindings':[asset(S/x) for x in ('tiny_uncapped_environment.py','umbrella_tiny_driver.py','probe_harness_part2.py')]})
+print(json.dumps({'cases':len(cases),'failures':sum(c['outcome']!='PASS' for c in cases),'receipt':str(S/'harness-results-part2.json')}))
+raise SystemExit(any(c['outcome']!='PASS' for c in cases))

@@ -1,0 +1,99 @@
+from __future__ import annotations
+import argparse,ast,copy,hashlib,json,os,subprocess,sys,time,types
+from pathlib import Path
+R=Path('/workspace/e02-E-cal05-20261006');P=R/'policy-engine';S=Path('/workspace/e02-E-pr38-r3-receipts/harness-independent-r3');D=S/'delta-74d04528';PY=Path('/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python');SHA='74d0452848a7461d82ea7f150f126631d9fc8399';TREE='a4e4793be4d1aec6adea623b930a65304ab42d64';F3='f3ec0335e992fa7a5107000224f8ba6deefd02e5';PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/'
+def load(name,data=None):
+ m=types.ModuleType('corrective_'+name);m.__file__=str(R/PREFIX/name);exec(compile((D/name).read_bytes() if data is None else data,m.__file__,'exec'),m.__dict__);return m
+plan=load('plan_wave.py');collect=load('collect_wave.py')
+def asset(p):
+ p=Path(p);b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def save(n,obj):
+ p=D/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(obj,indent=2,default=str)+'\n')
+cases=[]
+def case(n,f):
+ try:v=f();assert v is not False;row={'case':n,'outcome':'PASS','observed':v}
+ except Exception as e:row={'case':n,'outcome':'FAIL','error_type':type(e).__name__,'reason':str(e)}
+ cases.append(row);return row
+assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=R,text=True).strip()==SHA
+assert not subprocess.check_output(['git','status','--porcelain=v1','--untracked-files=no'],cwd=R,text=True)
+# Delta-native prepare only, never execute the broad wave.
+args=argparse.Namespace(repo=R,candidate=SHA,comparison_base='198076863e143dea9f89f02734b13d50dae3eed5',output_root=D/'NEVER_EXECUTED_COMMON_PLAN',no_owner_packets=False)
+prepared=plan.prepare(args);save('actual-prepare-plan.json',prepared)
+posterior='policy-engine/tests/unit/ir/test_posterior_summary.py';group='MC_joint_law_support_and_Scientist_consumer'
+case('exact_posterior_test_maps_to_MC_and_is_in_actual_prepared_input',lambda: {'family':plan.family_for(posterior),'native_file_count':prepared['native_test_path_count'],'exact_posterior_asset':prepared['source_test_assets'].get(posterior),'unexecuted':not args.output_root.exists()} if plan.family_for(posterior)==group and posterior in prepared['groups'][group] and not args.output_root.exists() else False)
+original_family=plan.family_for;plan.family_for=lambda path:None if path==posterior else original_family(path)
+try:
+ removed_plan=plan.prepare(args);case('remove_selector_keeps_markers_but_actual_test_omitted',lambda: {'negative_gate_outcome':'FAIL','posterior_omitted':posterior not in removed_plan['groups'][group],'family_for_present':hasattr(plan,'family_for'),'native_file_count':removed_plan['native_test_path_count']} if posterior not in removed_plan['groups'][group] else False)
+finally:plan.family_for=original_family
+case('prepare_current_full_denominator_and_numeric_only_PORT0',lambda: {'native_files':prepared['native_test_path_count'],'owner_packets':len(prepared['owner_packet_extra_inputs']),'python_paths':len(prepared['changed_python_lint_paths']),'missing':prepared['missing_required_paths']} if not prepared['missing_required_paths'] and all(j['environment'].get('POLISYOS_METRICS_PORT')=='0' for j in prepared['jobs'] if j['kind']=='numerical') and all('POLISYOS_METRICS_PORT' not in j['environment'] for j in prepared['jobs'] if j['kind']!='numerical') else False)
+# Inspect every changed sibling guard as exact AST and independent truth table.
+paths=subprocess.check_output(['git','diff','--name-only',F3,SHA],cwd=R,text=True).splitlines();runner_guards=[];collector_guards=[];sibling_results=[]
+for path in paths:
+ if path.endswith('plan_wave.py'):continue
+ source=subprocess.check_output(['git','show',SHA+':'+path],cwd=R);module=ast.parse(source)
+ if 'run_check' in Path(path).name:
+  main=next(x for x in module.body if isinstance(x,ast.FunctionDef) and x.name=='main')
+  skipif=next(x for x in ast.walk(main) if isinstance(x,ast.If) and any(isinstance(y,ast.Assign) and any(isinstance(z,ast.Name) and z.id=='outcome' for z in y.targets) and isinstance(y.value,ast.Constant) and y.value.value=='SKIP' for y in x.body))
+  guard=ast.dump(skipif.test,include_attributes=False);runner_guards.append(guard)
+  expr=compile(ast.Expression(skipif.test),path,'eval');table=[]
+  for exitcode,immutable,counts,expected in [(0,True,{'cases':2,'skipped':2},True),(7,True,{'cases':2,'skipped':2},False),(0,False,{'cases':2,'skipped':2},False),(0,True,{'cases':2,'skipped':1},False),(0,True,{'cases':0,'skipped':0},False),(0,True,None,False)]:
+   observed=bool(eval(expr,{'exit_code':exitcode,'immutable':immutable,'counts':counts}));assert observed==expected;table.append({'exit':exitcode,'immutable':immutable,'counts':counts,'allows_SKIP':observed})
+  sibling_results.append({'path':path,'kind':'runner_SKIP_guard','truth_table':table,'guard':guard})
+ else:
+  matching=[]
+  for node in ast.walk(module):
+   if not isinstance(node,ast.If):continue
+   if 'command failure' in ast.unparse(node) and 'receipt' in ast.unparse(node.test) and 'exit_code' in ast.unparse(node.test):matching.append(node)
+  node=matching[0];guard=ast.dump(node.test,include_attributes=False);collector_guards.append(guard);expr=compile(ast.Expression(node.test),path,'eval');table=[]
+  for outcome,exitcode,expected in [('SKIP',7,True),('SKIP',0,False),('PASS',7,True),('PASS',0,False),('FAIL',7,False),('UNRUN',127,False)]:
+   value=bool(eval(expr,{'receipt':{'outcome':outcome,'exit_code':exitcode}}));assert value==expected;table.append({'outcome':outcome,'exit':exitcode,'refuses':value})
+  sibling_results.append({'path':path,'kind':'collector_command_status_guard','truth_table':table,'guard':guard})
+case('all_five_runner_and_five_collector_siblings_same_real_predicate',lambda: {'runner_count':len(runner_guards),'collector_count':len(collector_guards),'identical_AST_guards':len(set(runner_guards))==1 and len(set(collector_guards))==1,'truth_table_rows':len(sibling_results)*6} if len(runner_guards)==5 and len(collector_guards)==5 and len(set(runner_guards))==1 and len(set(collector_guards))==1 else False)
+save('all-sibling-status-predicates.json',sibling_results)
+# Native current runner: real exit0 skips, real exit7 following skips, surgically removed status guard.
+source=(D/'run_check.py').read_text();old='        exit_code == 0\n        and immutable\n';assert source.count(old)==1
+removed=source.replace(old,'        immutable\n');(D/'run_check-status-property-removed.py.txt').write_text(removed)
+wave=D/'native-corrective-wave';wave.mkdir();started=time.time();save('native-corrective-wave/wave-started.json',{'candidate_sha':SHA,'started_unix':started})
+configs=[('results-importer','importer',False,0),('numeric-skip','numerical',False,0),('numeric-skip-exit7','numerical',False,7),('numeric-status-property-removed','numerical',True,7)]
+env=plan.runtime_environment(R)
+for k in plan.CAP_VARIABLES:env.pop(k,None)
+env.pop('POLISYOS_METRICS_PORT',None);running=[];jobs=[]
+for name,kind,is_removed,exitcode in configs:
+ out=wave/'checks'/name;out.mkdir(parents=True);xml=out/'pytest.xml' if kind=='numerical' else None;temporary=wave/'temporary'/name
+ if kind=='numerical':
+  driver=D/(name+'-actual-driver.py');driver.write_text('import subprocess\nargv='+repr([str(PY),'-m','pytest','-q','--confcutdir',str(S),'--junitxml',str(xml),'--basetemp',str(temporary),str(S/'tiny_skip.py')])+'\nresult=subprocess.run(argv,check=True)\nassert result.returncode==0\nraise SystemExit('+str(exitcode)+')\n');cmd=[str(PY),str(driver),'--basetemp',str(temporary)]
+ else:cmd=[str(PY),'-c','print("tiny corrective importer positive")']
+ localenv={'TMPDIR':str(wave/'tmp-env'/name)};Path(localenv['TMPDIR']).mkdir(parents=True)
+ if kind=='numerical':localenv['POLISYOS_METRICS_PORT']='0'
+ job={'name':name,'kind':kind,'argv':cmd,'cwd':str(P),'output':str(out),'junit':str(xml) if xml else None,'environment':localenv};jobs.append(job)
+ observer=D/'run_check-status-property-removed.py.txt' if is_removed else D/'run_check.py'
+ argv=[str(PY),str(S/'load_cli.py'),str(observer),str(R/PREFIX/'run_check.py'),'--repo',str(R),'--candidate',SHA,'--cwd',str(P),'--output',str(out),'--name',name]
+ if xml:argv+=['--junit',str(xml)]
+ argv+=['--',*cmd];stdout=(D/(name+'.capture.stdout.txt')).open('xb');stderr=(D/(name+'.capture.stderr.txt')).open('xb');proc=subprocess.Popen(argv,cwd=P,env={**env,**localenv},stdout=stdout,stderr=stderr);running.append((name,proc,stdout,stderr,argv))
+results=[]
+for name,proc,stdout,stderr,argv in running:
+ code=proc.wait();stdout.close();stderr.close();results.append({'name':name,'command':argv,'exit_code':code,'stdout':asset(D/(name+'.capture.stdout.txt')),'stderr':asset(D/(name+'.capture.stderr.txt'))})
+save('native-subprocess-results.json',results)
+receipts={j['name']:json.loads((Path(j['output'])/(j['name']+'.json')).read_text()) for j in jobs}
+case('actual_healthy_exit0_all_skip_remains_SKIP',lambda:receipts['numeric-skip']['outcome']=='SKIP' and receipts['numeric-skip']['exit_code']==0 and receipts['numeric-skip']['counts']=={'cases':2,'passed':0,'failed':0,'errors':0,'skipped':2})
+case('actual_exit7_after_all_skip_is_FAIL_with_individual_skips_retained',lambda:receipts['numeric-skip-exit7']['outcome']=='FAIL' and receipts['numeric-skip-exit7']['exit_code']==7 and receipts['numeric-skip-exit7']['counts']=={'cases':2,'passed':0,'failed':0,'errors':0,'skipped':2})
+case('remove_runner_status_guard_keeps_markers_but_wrong_SKIP_restored',lambda:{'negative_gate_outcome':'FAIL','observed_check_outcome':receipts['numeric-status-property-removed']['outcome'],'observed_exit':receipts['numeric-status-property-removed']['exit_code'],'all_individual_cases_skip':receipts['numeric-status-property-removed']['counts']['skipped']==2} if receipts['numeric-status-property-removed']['outcome']=='SKIP' and receipts['numeric-status-property-removed']['exit_code']==7 else False)
+case('all_native_corrective_receipts_exact_source_and_numeric_PORT0',lambda:all(r['source_immutable'] and r['candidate_sha']==SHA and r['candidate_tree_sha']==TREE and r['environment']['selected_variables']['POLISYOS_METRICS_PORT']==('0' if name.startswith('numeric-') else None) for name,r in receipts.items()))
+# Healthy collector excludes the intentional removed-runner variant until its explicit adversarial control.
+control=json.loads((S/'tiny-native-wave/plan.json').read_text());control.update(candidate_sha=SHA,candidate_tree_sha=TREE,output_root=str(wave),jobs=jobs[:3]);save('native-corrective-wave/plan.json',control);save('native-corrective-wave/execution-complete.json',{'candidate_sha':SHA,'numerical_codes':[0,7],'gate_codes':[],'finding_closure':False})
+a=argparse.Namespace(repo=R,candidate=SHA,wave_root=wave,publication_root=D/'collection-current-positive',freeze_receipt=None,max_moderate_bytes=8*1024*1024,capture_incomplete=False)
+positive=collect.collect(a);save('current-positive-collector.json',positive)
+case('current_collector_retains_SKIP_and_process_FAIL_as_distinct_outcomes',lambda:positive['collection_state']=='CONTROL_COMPLETE_BOUND' and positive['numeric_outcome_counts']=={'SKIP':1,'FAIL':1} and positive['numeric_counts']=={'cases':4,'passed':0,'failed':0,'errors':0,'skipped':4} and not positive['issues'])
+# Present-but-forged SKIP with actual nonzero command is refused by current collector.
+target=Path(jobs[2]['output'])/'numeric-skip-exit7.json';original=target.read_bytes();forged=json.loads(original);forged['outcome']='SKIP';target.write_text(json.dumps(forged));b=copy.copy(a);b.publication_root=D/'collection-current-forged-SKIP'
+try:
+ refusal=collect.collect(b);save('current-forged-SKIP-collector.json',refusal)
+ case('current_collector_refuses_forged_SKIP_nonzero_before_authority',lambda:{'collection_state':refusal['collection_state'],'issues':refusal['issues']} if refusal['collection_state']=='CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT' and any(x['reason']=='SKIP conflicts with command failure' for x in refusal['issues']) else False)
+ # Remove only the sibling collector status check; all outcome/count/source markers remain.
+ source=(D/'collect_wave.py').read_text();predicate='        if receipt["outcome"] in {"PASS", "SKIP"} and receipt["exit_code"] != 0:';assert source.count(predicate)==1;mutant=source.replace(predicate,'        if False:');(D/'collect_wave-status-property-removed.py.txt').write_text(mutant);removed_collect=load('collect_wave.py',mutant)
+ c=copy.copy(a);c.publication_root=D/'collection-removed-status-property';accepted=removed_collect.collect(c);save('removed-status-property-collector.json',accepted)
+ case('remove_collector_status_predicate_keeps_markers_but_accepts_contradictory_SKIP',lambda:{'negative_gate_outcome':'FAIL','state':accepted['collection_state'],'numeric_outcomes':accepted['numeric_outcome_counts']} if accepted['collection_state']=='CONTROL_COMPLETE_BOUND' and accepted['numeric_outcome_counts']=={'SKIP':2} else False)
+finally:target.write_bytes(original)
+case('final_candidate_HEAD_and_tracked_source_immutable',lambda:subprocess.check_output(['git','rev-parse','HEAD'],cwd=R,text=True).strip()==SHA and not subprocess.check_output(['git','status','--porcelain=v1','--untracked-files=no'],cwd=R,text=True))
+save('corrective-review-results.json',{'candidate_sha':SHA,'candidate_tree':TREE,'cases':cases,'case_count':len(cases),'fail_count':sum(r['outcome']!='PASS' for r in cases),'actual_prepare_only':True,'full_common_wave_executed':False,'all_native_commands_tiny_control':True,'source_and_control_bindings':[asset(D/n) for n in ('probe_current_outcomes.py','run_check-status-property-removed.py.txt','collect_wave-status-property-removed.py.txt')]})
+print(json.dumps({'cases':len(cases),'failures':sum(r['outcome']!='PASS' for r in cases),'receipt':str(D/'corrective-review-results.json')}));raise SystemExit(any(r['outcome']!='PASS' for r in cases))

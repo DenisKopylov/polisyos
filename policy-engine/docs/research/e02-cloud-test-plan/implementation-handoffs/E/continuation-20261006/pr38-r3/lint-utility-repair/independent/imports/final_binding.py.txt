@@ -1,0 +1,49 @@
+"""Rebind immutable predicate/capture/Git class checks to the final small delta."""
+import ast
+import hashlib
+import json
+import subprocess
+import sys
+from pathlib import Path
+REPO=Path('/workspace/e02-E-cal05-20261006');ROOT=Path('/workspace/e02-E-pr38-r3-receipts/import-lint-independent');OLD='f3ec0335e992fa7a5107000224f8ba6deefd02e5';FINAL='74d0452848a7461d82ea7f150f126631d9fc8399';BASE='8047bfdbb1a7e8c4b031384acf6b45e302591620'
+def require(value,reason):
+ if not value:raise AssertionError(reason)
+def git(*args):return subprocess.check_output(['/usr/bin/git',*args],cwd=REPO)
+def read(ref,path):return git('show',ref+':'+path)
+def dump(node):return ast.dump(node,include_attributes=False)
+paths=json.loads(Path('/workspace/e02-E-pr38-r3-receipts/lint-r4/source-inputs.json').read_text())['owned_paths'];bindings=[];guard_bindings=[]
+def guard_nodes(tree):
+ return [dump(n) for n in ast.walk(tree) if isinstance(n,ast.If) and any(isinstance(x,ast.Raise) and x.exc is not None and ((isinstance(x.exc,ast.Name) and x.exc.id=='AssertionError') or (isinstance(x.exc,ast.Call) and isinstance(x.exc.func,ast.Name) and x.exc.func.id=='AssertionError')) for x in ast.walk(n))]
+for path in paths:
+ a=read(OLD,path);b=read(FINAL,path);old=ast.parse(a);new=ast.parse(b)
+ for name in ['_admit_git_object_arguments','_resolve_executable','admit_source','_admit_require']:
+  av=[dump(n) for n in old.body if isinstance(n,ast.FunctionDef) and n.name==name];bv=[dump(n) for n in new.body if isinstance(n,ast.FunctionDef) and n.name==name];require(av==bv,'inlet changed:'+path+':'+name)
+ old_asserts=[dump(n) for n in ast.walk(old) if isinstance(n,ast.Assert)];new_asserts=[dump(n) for n in ast.walk(new) if isinstance(n,ast.Assert)];require(old_asserts==new_asserts==[],'bare assertion returned')
+ require(guard_nodes(old)==guard_nodes(new),'always-on guard changed:'+path)
+ guard_bindings.append({'path':path,'guard_nodes':len(guard_nodes(new)),'guard_AST_sha256':hashlib.sha256(json.dumps(guard_nodes(new),sort_keys=True).encode()).hexdigest()})
+ if a!=b:bindings.append({'path':path,'old_sha256':hashlib.sha256(a).hexdigest(),'final_sha256':hashlib.sha256(b).hexdigest()})
+capture_paths=set(row['path'] for row in json.loads((ROOT/'closure-controls.json').read_text())['results'])|set(row['path'] for row in json.loads((ROOT/'lambda-controls.json').read_text())['results'])
+capture_bindings=[]
+for path in sorted(capture_paths):
+ a=read(OLD,path);b=read(FINAL,path);require(a==b,'capture source changed:'+path);capture_bindings.append({'path':path,'exact_source_sha256':hashlib.sha256(b).hexdigest()})
+wrapper_bindings=[]
+for row in json.loads(Path('/workspace/e02-E-pr38-r3-receipts/lint-r4/generic-git-inlets.json').read_text()):
+ path=row['path'];name=row['inlet'];old=ast.parse(read(OLD,path));new=ast.parse(read(FINAL,path));av=[dump(n) for n in ast.walk(old) if isinstance(n,ast.FunctionDef) and n.name==name];bv=[dump(n) for n in ast.walk(new) if isinstance(n,ast.FunctionDef) and n.name==name];require(av==bv and av,'wrapper changed:'+path+':'+name);wrapper_bindings.append({'path':path,'inlet':name,'function_AST_sha256':hashlib.sha256(json.dumps(bv,sort_keys=True).encode()).hexdigest()})
+delta=git('diff','--name-only',OLD,FINAL).decode().splitlines();require(len(delta)==11,'final delta denominator changed')
+# Actual outcome admission fragments across all five runners, isolated from launches.
+runners=[p for p in delta if p.endswith('/run_check.py')];collectors=[p for p in delta if '/collect_wave' in p];require(len(runners)==len(collectors)==5,'runner/collector companion incomplete')
+runner_rows=[]
+for path in runners:
+ tree=ast.parse(read(FINAL,path));fn=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='main');start=next(i for i,n in enumerate(fn.body) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='outcome' for t in n.targets));nodes=fn.body[start:start+2]
+ for exit_code,immutable,wanted in [(0,True,'SKIP'),(7,True,'FAIL'),(0,False,'FAIL')]:
+  namespace={'exit_code':exit_code,'immutable':immutable,'error':None,'counts':{'cases':2,'skipped':2}};exec(compile(ast.fix_missing_locations(ast.Module(body=nodes,type_ignores=[])),'<actual-runner-status>','exec'),namespace);require(namespace['outcome']==wanted,'bad source status admitted as SKIP');runner_rows.append({'path':path,'exit_code':exit_code,'immutable':immutable,'outcome':namespace['outcome']})
+collector_rows=[]
+for path in collectors:
+ tree=ast.parse(read(FINAL,path));node=next(n for n in ast.walk(tree) if isinstance(n,ast.If) and "receipt['outcome'] in {'PASS', 'SKIP'}" in ast.unparse(n.test))
+ for outcome,exit_code,expected in [('SKIP',0,False),('SKIP',7,True),('PASS',7,True),('UNRUN',None,False)]:
+  ns={'receipt':{'outcome':outcome,'exit_code':exit_code},'issues':[],'job':{'name':'fixture'}};exec(compile(ast.fix_missing_locations(ast.Module(body=[node],type_ignores=[])),'<actual-collector-status-admission>','exec'),ns);require(bool(ns['issues'])==expected,'inconsistent check status passed collector');collector_rows.append({'path':path,'outcome':outcome,'exit_code':exit_code,'issues':ns['issues']})
+full_paths=git('diff','--name-only',BASE,FINAL).decode().splitlines();footprint=[]
+for path in full_paths:
+ body=read(FINAL,path);footprint.append({'path':path,'git_blob':git('rev-parse',FINAL+':'+path).decode().strip(),'sha256':hashlib.sha256(body).hexdigest(),'bytes':len(body)})
+out={'schema':'policyos.e02.independent_final_delta_binding.v1','source_sha':FINAL,'source_tree':git('rev-parse',FINAL+'^{tree}').decode().strip(),'base':BASE,'utility_denominator':len(paths),'full_changed_path_count':len(full_paths),'full_footprint':footprint,'reused_class_source':OLD,'changed_utility_files':bindings,'complete_delta_paths':delta,'runner_fragment_cases':runner_rows,'collector_fragment_cases':collector_rows,'assertion_and_Git_admission_helper_AST_unchanged':True,'all229_always_on_guard_AST_unchanged':True,'guard_bindings':guard_bindings,'exact_capture_source_bindings':capture_bindings,'all53_wrapper_function_AST_unchanged':True,'wrapper_bindings':wrapper_bindings,'limits':['Whole runners/collectors native positive/negative selectors are tested independently by DoE owner; these are exact current predicate fragments, not full pipeline replay.','New IR test selector source is assigned to MC_joint_law_support_and_Scientist_consumer; it does not accept IR semantics or finding closure.','Historical evidence byte preservation/current validators/global gates owned by criteria_r4/root.']}
+(ROOT/'final74-binding.json').write_text(json.dumps(out,indent=2)+'\n');sys.stdout.write(json.dumps({k:v for k,v in out.items() if k not in ['full_footprint','changed_utility_files','runner_fragment_cases','collector_fragment_cases','guard_bindings','exact_capture_source_bindings','wrapper_bindings']},indent=2)+'\n')

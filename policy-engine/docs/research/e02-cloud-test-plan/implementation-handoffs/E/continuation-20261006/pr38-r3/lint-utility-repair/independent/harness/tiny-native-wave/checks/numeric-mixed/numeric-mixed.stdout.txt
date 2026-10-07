@@ -1,0 +1,22 @@
+.FEs                                                                     [100%]
+==================================== ERRORS ====================================
+_____________________ ERROR at setup of test_control_error _____________________
+
+    @pytest.fixture
+    def broken_fixture():
+>       raise RuntimeError("deliberate fixture error")
+E       RuntimeError: deliberate fixture error
+
+../../e02-E-pr38-r3-receipts/harness-independent-r3/tiny_cases.py:11: RuntimeError
+=================================== FAILURES ===================================
+_____________________________ test_control_failed ______________________________
+
+    def test_control_failed():
+>       assert 2 + 2 == 5
+E       assert (2 + 2) == 5
+
+../../e02-E-pr38-r3-receipts/harness-independent-r3/tiny_cases.py:7: AssertionError
+=========================== short test summary info ============================
+FAILED ../../e02-E-pr38-r3-receipts/harness-independent-r3/tiny_cases.py::test_control_failed
+ERROR ../../e02-E-pr38-r3-receipts/harness-independent-r3/tiny_cases.py::test_control_error
+1 failed, 1 passed, 1 skipped, 1 error in 0.30s

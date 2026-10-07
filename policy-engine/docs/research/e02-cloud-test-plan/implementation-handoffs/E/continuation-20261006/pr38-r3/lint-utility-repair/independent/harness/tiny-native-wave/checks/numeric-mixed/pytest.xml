@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="1" skipped="1" tests="4" time="0.092" timestamp="2026-10-07T08:03:48.371882+00:00" hostname="b5f0914494dc"><testcase classname="e02-E-pr38-r3-receipts.harness-independent-r3.tiny_cases" name="test_control_pass" time="0.001" /><testcase classname="e02-E-pr38-r3-receipts.harness-independent-r3.tiny_cases" name="test_control_failed" time="0.001"><failure message="assert (2 + 2) == 5">def test_control_failed():
+&gt;       assert 2 + 2 == 5
+E       assert (2 + 2) == 5
+
+../../e02-E-pr38-r3-receipts/harness-independent-r3/tiny_cases.py:7: AssertionError</failure></testcase><testcase classname="e02-E-pr38-r3-receipts.harness-independent-r3.tiny_cases" name="test_control_error" time="0.001"><error message="failed on setup with &quot;RuntimeError: deliberate fixture error&quot;">@pytest.fixture
+    def broken_fixture():
+&gt;       raise RuntimeError("deliberate fixture error")
+E       RuntimeError: deliberate fixture error
+
+../../e02-E-pr38-r3-receipts/harness-independent-r3/tiny_cases.py:11: RuntimeError</error></testcase><testcase classname="e02-E-pr38-r3-receipts.harness-independent-r3.tiny_cases" name="test_control_skip" time="0.000"><skipped type="pytest.skip" message="deliberate bounded backend skip">/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny_cases.py:16: deliberate bounded backend skip</skipped></testcase></testsuite></testsuites>

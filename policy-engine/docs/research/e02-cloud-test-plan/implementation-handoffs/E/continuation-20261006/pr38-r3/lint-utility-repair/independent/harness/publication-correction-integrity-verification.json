@@ -1,0 +1,34 @@
+{
+  "candidate": "74d0452848a7461d82ea7f150f126631d9fc8399",
+  "tree": "a4e4793be4d1aec6adea623b930a65304ab42d64",
+  "review": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-independent-review-74d04528-v2.json",
+    "bytes": 74344,
+    "sha256": "535df26c28dcfc1c22c36e1f71f32351e037676054ab653b506608d8b3277d53"
+  },
+  "packet": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-review-publication-packet-v2.json",
+    "bytes": 48658,
+    "sha256": "2de181a5dcf5832554326f659341fb0eeffec48c4566733df12fde3bbfc99746"
+  },
+  "current_assets_checked": 180,
+  "outcome": "PASS",
+  "current_asset_hash_size_errors": [],
+  "historical_mismatch_retained": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/build-final-review.stdout.txt",
+      "historical_declared": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/build-final-review.stdout.txt",
+        "bytes": 212,
+        "sha256": "87c3deee020c6cc5f41c41e214fc754e3f248589a180d2bc67c16a82c6282665"
+      },
+      "current_closed_capture": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/build-final-review.stdout.txt",
+        "bytes": 212,
+        "sha256": "87c3deee020c6cc5f41c41e214fc754e3f248589a180d2bc67c16a82c6282665"
+      }
+    }
+  ],
+  "source_or_numeric_wave_changed": false,
+  "generic_publication_only": true
+}

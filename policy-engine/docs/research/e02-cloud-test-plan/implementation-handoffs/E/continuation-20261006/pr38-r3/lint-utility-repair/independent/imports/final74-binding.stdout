@@ -1,0 +1,30 @@
+{
+  "schema": "policyos.e02.independent_final_delta_binding.v1",
+  "source_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+  "source_tree": "a4e4793be4d1aec6adea623b930a65304ab42d64",
+  "base": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+  "utility_denominator": 229,
+  "full_changed_path_count": 215,
+  "reused_class_source": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+  "complete_delta_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-author/_external/common-wave-publication-prep/collect_wave_v3_final.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/_external/common-wave-publication-prep/collect_wave_v4.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave_v2.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/run_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/run_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/run_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/run_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py"
+  ],
+  "assertion_and_Git_admission_helper_AST_unchanged": true,
+  "all229_always_on_guard_AST_unchanged": true,
+  "all53_wrapper_function_AST_unchanged": true,
+  "limits": [
+    "Whole runners/collectors native positive/negative selectors are tested independently by DoE owner; these are exact current predicate fragments, not full pipeline replay.",
+    "New IR test selector source is assigned to MC_joint_law_support_and_Scientist_consumer; it does not accept IR semantics or finding closure.",
+    "Historical evidence byte preservation/current validators/global gates owned by criteria_r4/root."
+  ]
+}

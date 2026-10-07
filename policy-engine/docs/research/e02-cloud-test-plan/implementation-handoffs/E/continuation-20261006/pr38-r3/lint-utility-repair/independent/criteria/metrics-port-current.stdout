@@ -1,0 +1,26 @@
+{
+  "otel_enabled": true,
+  "metrics_exporter": "prometheus",
+  "servers": [
+    {
+      "configured_port": 0,
+      "actual_port": 42223,
+      "thread_alive": true,
+      "http_status": 200,
+      "metric_value": 1
+    },
+    {
+      "configured_port": 0,
+      "actual_port": 34683,
+      "thread_alive": true,
+      "http_status": 200,
+      "metric_value": 2
+    }
+  ],
+  "fixed_port_collision_control": {
+    "outcome": "REFUSED",
+    "class": "OSError",
+    "reason": "[Errno 98] Address already in use"
+  },
+  "cpu_worker_thread_caps": "not introduced"
+}

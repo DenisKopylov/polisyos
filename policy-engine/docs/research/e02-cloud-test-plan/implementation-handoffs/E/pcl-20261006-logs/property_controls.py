@@ -77,7 +77,10 @@ def main() -> int:
             "-o",
             "addopts=",
             "-q",
-            "tests/unit/calibration/test_continuous_persistence.py::test_content_valid_fake_result_rejected_after_cas_reopen",
+            (
+                "tests/unit/calibration/test_continuous_persistence.py::test_"
+                "content_valid_fake_result_rejected_after_cas_reopen"
+            ),
         ]
     )
 

@@ -1,0 +1,241 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "continuation-b-a-cost-consumer-20261007",
+  "closure_ids": [],
+  "finding_ids": [
+    "B66"
+  ],
+  "bundle_ids": [
+    "LLM-01"
+  ],
+  "slice_base_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+  "implementation_commits": [
+    "2c7a6398efc773a18bf04abd7d119b6462a8809b",
+    "00e12b9a20c6c74dda9051bd016b501e4e7a8de8"
+  ],
+  "candidate_tree_sha": "521f11ed81757fbfc16cb90f02faab168dbdbc03",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/actual-four-case-quantities.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/baseline-navigation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/owner-packet.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/run-native.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/source-context.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/wrapper.json",
+    "policy-engine/tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py"
+  ],
+  "production_changed_paths": [],
+  "baseline_cells": [
+    "F01-P026",
+    "F03-P066",
+    "F03-P091",
+    "F05-P047",
+    "F07-P027",
+    "F07-P084",
+    "F10-P031",
+    "F13-P104",
+    "F15-P032"
+  ],
+  "baseline_navigation": {
+    "git_sha": "00e12b9a20c6c74dda9051bd016b501e4e7a8de8",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/baseline-navigation.json",
+    "sha256": "aa9e977faa9aea4ae40dd716f31093ead75abf31556dde73dfba34f99bfe5038",
+    "bytes": 53697
+  },
+  "owner_packet": {
+    "git_sha": "00e12b9a20c6c74dda9051bd016b501e4e7a8de8",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/owner-packet.json",
+    "sha256": "5ccf4ef1d0dc3a7c967210422091fdedce199e9ffe9db62e71444712515d001e",
+    "bytes": 13568
+  },
+  "checks": [
+    {
+      "id": "real-typed-B-through-A-helper-four",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-B-runtime-continuation-20261007/run_b_a.py"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "2c7a6398efc773a18bf04abd7d119b6462a8809b",
+      "product_source_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+      "environment": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null,
+        "PYTHONPATH": "/workspace/e02-B-current-runtime/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "PYTEST_ADDOPTS": null,
+        "POLISYOS_METRICS_PORT": "0",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "input_closure": {
+        "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "driver": {
+          "git_sha": "00e12b9a20c6c74dda9051bd016b501e4e7a8de8",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/run-native.source.txt",
+          "sha256": "73c2280b0eb4d6b994528f1513191a6c770bce70bcd2ef6807757dd5604e64f7",
+          "bytes": 3650
+        },
+        "native_input": {
+          "path": "/workspace/e02-B-current-runtime/policy-engine/tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py",
+          "sha256": "ee41bd7df1c2123b8b4748a645646cc6240c4619b77e9305d93a698714389770",
+          "bytes": 7886
+        },
+        "actual_loaded_source_environment": {
+          "git_sha": "00e12b9a20c6c74dda9051bd016b501e4e7a8de8",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/source-context.json",
+          "sha256": "b37d7363e913aa5fe12b0ab448f6999d6dbec648a50dcfef410404acb90e4649",
+          "bytes": 764468
+        },
+        "actual_full_argv_wait4": {
+          "git_sha": "00e12b9a20c6c74dda9051bd016b501e4e7a8de8",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/wrapper.json",
+          "sha256": "973426bb91cbf98bde74b643517d057b17f1e961374986b645eb8e9fa6baaacc",
+          "bytes": 2326
+        },
+        "pytest": "actual wholeunique file4cases; -c/dev/null --noconftest PYTEST_DISABLE_PLUGIN_AUTOLOAD1, no automatic test-source fallback",
+        "fixtures": "Separate optional/mandatory real fsynced JSONL SDK operations, genuine Gateway typed parse, actual Traced/enforcer/middleware/new initializedledger+fresh snapshot. No productiondataset, custom financial law, money mocks or external HTTP used."
+      },
+      "outcome": "FAIL",
+      "exit": 1,
+      "case_counts": {
+        "PASS": 3,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "wall_s": 34.752363566018175,
+      "max_rss_kib": 741564,
+      "output": {
+        "git_sha": "00e12b9a20c6c74dda9051bd016b501e4e7a8de8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/native.txt",
+        "sha256": "674c6f26b084418ff9fc9cf961252c4e32a6205ae0f901e63c1c58f71c23211e",
+        "bytes": 21529
+      },
+      "junit": {
+        "git_sha": "00e12b9a20c6c74dda9051bd016b501e4e7a8de8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/native.xml",
+        "sha256": "8d151883c8dda5376ce5c674f7aadd2c6e4a45162241b558e1efb94e0fcdc2bc",
+        "bytes": 1844
+      },
+      "wrapper": {
+        "git_sha": "00e12b9a20c6c74dda9051bd016b501e4e7a8de8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/wrapper.json",
+        "sha256": "973426bb91cbf98bde74b643517d057b17f1e961374986b645eb8e9fa6baaacc",
+        "bytes": 2326
+      },
+      "deciding_output": "actual unknown A cost0.0 vs observerNone finalassert; mandatory unknown cost_unknown/fresh-providerrefusal; reportedzero/.02/estimated controls3PASS; bodysetup property premises observed."
+    }
+  ],
+  "property": {
+    "statement": "Optional cost projection preserves unknown versus actual reportedzero/known estimate; mandatory typed accounting and actual localledger facts remain separately attributable.",
+    "runtime_path": [
+      "fsynced local SDK → genuine Gateway typed parse",
+      "Traced optional observer → unchanged A response_shapes._sum_call_events",
+      "separate genuine Traced → LLMBudgetEnforcer/BudgetMiddleware → real FileBudgetLedger obligation/ACK → fresh readback/refusal"
+    ],
+    "proxy_divergence": "Unknown actual observer eventNone becomes A numeric0 despite actual mandatory produceramountNone and persistedcost_unknown; reportedzero actualACK0 matches scalar0 onlyinitsknownprofile.",
+    "negative_controls": [
+      "Unknown finalassert retained nativeFAIL with actualfileeffect/freshledger and nextproviderblock.",
+      "Reportedzero/positive/estimate allactualknownreceipt/readback controlsPASS."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_qualification": {
+    "native_local_FS/event/receipt": "recomputed",
+    "configured_local_ledger_contract": "independently_reconciled",
+    "served_budget_admission": "not_established",
+    "external_billing_reuse_permission": "not_established"
+  },
+  "capability_state_or_finding_state": "B66 helper consumer OPEN witness; B typed producer localknown/unknown controls verified; actual served recursive-cycle budget consumer requires A/G input. Formal closure remains[]",
+  "limitations_and_next_owner": [
+    "A owns response_shapes/nl_pipeline/servedcycle; no A edits. Current served route dispatches recursive compiler/cycle, so legacy helperFAIL does not prove current served budget-admission outcome.",
+    "Two independent physical operations perprofile notone billableflight; no raw response-text tiny numeric parser claim.",
+    "A/G needs authenticated admittedNL fixture+configuredmodel/preflight+actual N4 responsecomposition and servedbudget/readback; ownerpacket gives typed input/negative.",
+    "DUR/B-W05 upcoming lower wire candidate may change dependency; this nativeexecution binds originalf796 exactly and must not be relabeled futurecandidate.",
+    "Independent reviewer root/otherauthor; codeacceptance separate formalfindingclosure."
+  ],
+  "evidence_files": [
+    {
+      "git_sha": "00e12b9a20c6c74dda9051bd016b501e4e7a8de8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/actual-four-case-quantities.json",
+      "bytes": 27823,
+      "sha256": "dc2c45bd45d79aaffb145e8c9b6990f56452315454c0e8b90bae6f7f2e0ddf95"
+    },
+    {
+      "git_sha": "00e12b9a20c6c74dda9051bd016b501e4e7a8de8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/baseline-navigation.json",
+      "bytes": 53697,
+      "sha256": "aa9e977faa9aea4ae40dd716f31093ead75abf31556dde73dfba34f99bfe5038"
+    },
+    {
+      "git_sha": "00e12b9a20c6c74dda9051bd016b501e4e7a8de8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/native.txt",
+      "bytes": 21529,
+      "sha256": "674c6f26b084418ff9fc9cf961252c4e32a6205ae0f901e63c1c58f71c23211e"
+    },
+    {
+      "git_sha": "00e12b9a20c6c74dda9051bd016b501e4e7a8de8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/native.xml",
+      "bytes": 1844,
+      "sha256": "8d151883c8dda5376ce5c674f7aadd2c6e4a45162241b558e1efb94e0fcdc2bc"
+    },
+    {
+      "git_sha": "00e12b9a20c6c74dda9051bd016b501e4e7a8de8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/owner-packet.json",
+      "bytes": 13568,
+      "sha256": "5ccf4ef1d0dc3a7c967210422091fdedce199e9ffe9db62e71444712515d001e"
+    },
+    {
+      "git_sha": "00e12b9a20c6c74dda9051bd016b501e4e7a8de8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/run-native.source.txt",
+      "bytes": 3650,
+      "sha256": "73c2280b0eb4d6b994528f1513191a6c770bce70bcd2ef6807757dd5604e64f7"
+    },
+    {
+      "git_sha": "00e12b9a20c6c74dda9051bd016b501e4e7a8de8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/source-context.json",
+      "bytes": 764468,
+      "sha256": "b37d7363e913aa5fe12b0ab448f6999d6dbec648a50dcfef410404acb90e4649"
+    },
+    {
+      "git_sha": "00e12b9a20c6c74dda9051bd016b501e4e7a8de8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/wrapper.json",
+      "bytes": 2326,
+      "sha256": "973426bb91cbf98bde74b643517d057b17f1e961374986b645eb8e9fa6baaacc"
+    },
+    {
+      "git_sha": "00e12b9a20c6c74dda9051bd016b501e4e7a8de8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/index.json",
+      "sha256": "e15c08a84738976b010ae315df32e6362142d4b9d9f6aca16ae31df7b41441d9",
+      "bytes": 2306
+    }
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P01",
+      "P10",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "bucket": "same costconfidence class consumer seam; no institutionalrule invention",
+    "red_provenance": "New unchanged productionf796/newtest2c nativecounterexample, not inheritedRED attribution"
+  },
+  "replay": {
+    "driver_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/run-native.source.txt",
+    "path_adaptation": "Captured driver ROOT/BASE/testpath must be rebound to exact admittedlocalcheckout/freshscratch. SOURCE staysf796 until explicitdependency replay; no executable unresolvedplaceholder recipe."
+  }
+}

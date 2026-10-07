@@ -1,0 +1,1 @@
+{"body": "{\"model\": \"gpt-4o\", \"messages\": [{\"role\": \"user\", \"content\": \"actual request\"}], \"max_tokens\": 2}", "idempotency_key": "19b88321409943e0b2c65c91ebf1d2a4"}

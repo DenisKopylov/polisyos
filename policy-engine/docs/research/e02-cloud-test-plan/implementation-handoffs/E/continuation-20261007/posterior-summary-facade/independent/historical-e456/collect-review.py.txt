@@ -1,0 +1,26 @@
+from __future__ import annotations
+import hashlib,json
+from pathlib import Path
+import xml.etree.ElementTree as ET
+O=Path(__file__).parent
+s=json.loads((O/'selectors.json').read_bytes());n=json.loads((O/'native-and-import-probes.json').read_bytes());a=json.loads((O/'actual-caller-removal.json').read_bytes());i=json.loads((O/'import-edges.json').read_bytes());d=json.loads((O/'dynamic-import-edges.json').read_bytes())
+if s['source']!=n['source']or s['tree']!=n['tree']or s['before']!=s['after']or n['before']!=n['after']or s['before']['paths']!=n['before']['paths']:raise ValueError('source/guard denominator mismatch')
+cases=[]
+for c in ET.parse(O/'pytest.xml').getroot().findall('.//testcase'):
+ status='FAIL'if c.find('failure')is not None else 'ERROR'if c.find('error')is not None else 'SKIP'if c.find('skipped')is not None else 'PASS';cases.append({'classname':c.get('classname'),'name':c.get('name'),'outcome':status})
+if cases != s['cases'] or s['exit_code'] != 0 or len(cases) != 93 or any(x['outcome'] != 'PASS' for x in cases):
+ raise ValueError('closed native JUnit mismatch')
+refs=[]
+for filename in('selectors.json','pytest.xml','pytest.stdout.txt','pytest.stderr.txt','native-and-import-probes.json','native-and-import-probes.stdout.txt','native-and-import-probes.stderr.txt','actual-caller-removal.json','actual-caller-removal.stdout.txt','actual-caller-removal.stderr.txt','import-edges.json','dynamic-import-edges.json'):
+ b=(O/filename).read_bytes();refs.append({'path':str(O/filename),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+r={'schema':'e02-independent-public-summary-facade-source-review:1','source':s['source'],'tree':s['tree'],'base':s['base'],'source_disposition':'CHANGE_REQUIRED','runtime_companion_disposition':'GO','complete_footprint':s['before']['paths'],'peer_native_counts':s['counts'],'peer_controls':n['counts'],'present_fake_actual_changed_callers':a['controls'],'old_proxy_and_binding_controls':n['controls'],'new_Core_import_finding':i['new_unadmitted_Core_edge'],'complete_static_and_literal_dynamic_census':[str(O/'import-edges.json'),str(O/'dynamic-import-edges.json')],
+ 'required_correction':{'owner':'E Root writer of edited test','path':'policy-engine/tests/unit/calibration/test_evidence_facades.py','actual_policy':'architecture/packages/core.toml: public_surface.supported_entrypoints','minimal_result':'Use existing `from polisyos.core import artifacts as core_artifacts` for FileSystemCAS/PutOptions/SchemaInfo throughout the edited test; no Core export/baseline/schema change.'},
+ 'source_semantics_reuse':n['reviewed_ecde_reuse'],'requirements':[
+ {'property':'Canonical public lazy producer/return-DTO binding','basis':'recomputed','explanation':'Exact same function/class object, cold lazy binding, both actual changed IR callers use the public producer; sole branch removal retains export markers but makes resolution fail.'},
+ {'property':'Asymmetric finite-corpus functionals and fresh CAS content','basis':'independently_reconciled','explanation':'99 zeros +100 independently gives mean1/median0/equal-tail[0,0]; actual retained rows and fresh Profile2 readback. Two-atom 1:2 finite lower level independently exceeds1/3 and returns atom1; interpolation proxy differs.'},
+ {'property':'Typed CAS kind/schema/raw finite-real identity','basis':'recomputed','explanation':'Wrong selected kind and integrity-valid wrong manifest kind/name/version refuse; bool raw CAS and public producer refuse.'},
+ {'property':'Full four changed Python import footprint','basis':'recomputed','explanation':'Complete Import/ImportFrom and literal dynamic AST records compared exact base/candidate. New SchemaInfo imports unadmitted Core.artifacts. Test backing-owner oracle dynamic lookup is explicitly recorded separately from real public consumer route.'},
+ {'property':'Scientific/posterior source/fit/noise/coverage/institutional authority','basis':'not_established','explanation':'Finite retained corpus/DTO/presence/credible flags do not establish these authorities; outputs non-gating.'},
+ {'property':'Upstream CAL9147 compatibility/final source freeze/common wave/G finding acceptance','basis':'not_established','explanation':'This six-path companion does not accept upstream returned-ref defect; new common wave UNRUN and canonical generated/public-surface companion owner remains G.'}],
+ 'complete_deciding_refs':refs,'source_written':False,'root_env_packages_written':False,'finding_closure':False,'new_common_wave':'UNRUN','scope':'Independent bounded facade/import companion only. Historical93PASS/15controls and actual fake/removal failures remain exact e456 observations; corrective append needs delta acceptance.'}
+(O/'review.json').write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({'source_disposition':r['source_disposition'],'runtime_companion':'GO','review_bytes':(O/'review.json').stat().st_size,'review_sha256':hashlib.sha256((O/'review.json').read_bytes()).hexdigest()},indent=2))

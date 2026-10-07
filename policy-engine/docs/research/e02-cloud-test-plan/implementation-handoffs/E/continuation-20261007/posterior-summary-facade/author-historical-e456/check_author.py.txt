@@ -1,0 +1,30 @@
+from pathlib import Path
+import subprocess,json,hashlib,os,time,email.parser
+r=Path('/workspace/e02-E-continuation-20261006');pe=r/'policy-engine';d=Path(__file__).parent;py=pe/'.venv/bin/python';env=os.environ.copy();env.update(PYTHONPATH=str(pe/'src'),PYTHONDONTWRITEBYTECODE='1',TMPDIR=str(d/'tmp'),RUFF_CACHE_DIR=str(d/'ruff-cache'))
+for x in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS','POLISYOS_PYTEST_WORKERS','POLISYOS_PYTEST_DIST','PYTEST_ADDOPTS']:env.pop(x,None)
+def sha(b):return hashlib.sha256(b).hexdigest()
+def ref(p):
+ b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':sha(b)}
+def git(*a):return subprocess.run(['git',*a],cwd=r,capture_output=True,check=True).stdout
+paths=['policy-engine/src/polisyos/foundry/uncertainty/__init__.py','policy-engine/src/polisyos/foundry/uncertainty/README.md','policy-engine/tests/unit/calibration/test_evidence_facades.py','policy-engine/tests/unit/ir/test_posterior_summary.py','policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py','policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-facade.toml']
+before=[ref(r/p) for p in paths]
+meta=[ref(p) for p in sorted((pe/'.venv/lib').glob('python*/site-packages/*.dist-info/METADATA'))]
+checks=[]
+def capture(name,cmd,expect=0):
+ started=time.time()
+ with (d/f'{name}.stdout.txt').open('xb') as o,(d/f'{name}.stderr.txt').open('xb') as e:p=subprocess.run(cmd,cwd=pe,env=env,stdout=o,stderr=e)
+ x={'name':name,'argv':cmd,'cwd':str(pe),'exit_code':p.returncode,'expected_exit':expect,'wall_seconds':time.time()-started,'stdout':ref(d/f'{name}.stdout.txt'),'stderr':ref(d/f'{name}.stderr.txt')};checks.append(x)
+ if p.returncode!=expect:raise RuntimeError(name+' unexpected exit '+str(p.returncode))
+ return x
+oldsrc=git('show','f5c2845851aeb1591de9c73db6de392656656e96:policy-engine/src/polisyos/foundry/uncertainty/__init__.py');(d/'old-f5-facade.py.txt').write_bytes(oldsrc)
+program='''import sys,types,json\nfrom pathlib import Path\nimport polisyos.foundry.uncertainty as current\nsource=Path(sys.argv[1]).read_bytes()\nold=types.ModuleType(current.__name__);old.__package__=current.__package__;old.__path__=current.__path__\nexec(compile(source,sys.argv[1],"exec"),old.__dict__)\nout={}\nfor name in ["BayesianCalibrationPosteriorSummary","summarize_bayesian_calibration_posterior"]:\n try:getattr(old,name)\n except AttributeError as e:out[name]={"outcome":"REFUSED_MISSING_EXPORT","error":str(e)}\n else:raise RuntimeError("baseline falsifier changed")\nprint(json.dumps(out,indent=2))\n'''
+(d/'old_public_caller_probe.py.txt').write_text(program)
+capture('old-public-caller',[str(py),str(d/'old_public_caller_probe.py.txt'),str(d/'old-f5-facade.py.txt')])
+capture('affected-caller-pytest',[str(py),'-m','pytest','-q','-o',f'cache_dir={d}/pytest-cache','--basetemp',str(d/'pytest-fixtures'),'--junitxml',str(d/'pytest.xml'),'tests/unit/calibration/test_evidence_facades.py','tests/unit/ir/test_posterior_summary.py','tests/unit/ir/test_uncertainty_posterior_composition.py'])
+py_paths=[p.removeprefix('policy-engine/') for p in paths if p.endswith('.py')]
+capture('ruff',[str(py),'-m','ruff','check','--output-format','json',*py_paths]);capture('format-check',[str(py),'-m','ruff','format','--check',*py_paths])
+after=[ref(r/p) for p in paths]
+if before!=after:raise RuntimeError('source mutation during checks')
+if meta!=[ref(p) for p in sorted((pe/'.venv/lib').glob('python*/site-packages/*.dist-info/METADATA'))]:raise RuntimeError('ROOT207 metadata mutation')
+x={'schema':'policyos.e02.Root_summary_facade_author_checks.v1','base':'f5c2845851aeb1591de9c73db6de392656656e96','base_tree':git('rev-parse','HEAD^{tree}').decode().strip(),'source_state':'AUTHORED_UNCOMMITTED; candidate/tree not claimed until source commit','footprint':paths,'source_before':before,'source_after':after,'root_metadata':meta,'metadata_count':len(meta),'metadata_unchanged':True,'checks':checks,'selected_environment':{k:env.get(k) for k in ['PYTHONPATH','PYTHONDONTWRITEBYTECODE','TMPDIR','RUFF_CACHE_DIR']},'architecture_global':'UNRUN pending final freeze; use actual admitted uncertainty facade, no contract/exception edits','independent_review':'UNRUN','finding_closure':False}
+(d/'author-checks.json').write_text(json.dumps(x,indent=2)+'\n');print(json.dumps({'checks':[{k:z[k] for k in ['name','exit_code','wall_seconds']} for z in checks],'source_unchanged':before==after,'ROOT207':len(meta)},indent=2))

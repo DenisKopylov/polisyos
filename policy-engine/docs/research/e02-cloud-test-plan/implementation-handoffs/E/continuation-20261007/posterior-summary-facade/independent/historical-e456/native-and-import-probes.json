@@ -1,0 +1,273 @@
+{
+  "schema": "e02-independent-public-summary-facade-controls:1",
+  "source": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+  "tree": "bd28dc54bc31b5a339c3f51d51c06c2a101cfd5e",
+  "base": "f5c2845851aeb1591de9c73db6de392656656e96",
+  "source_disposition": "CHANGE_REQUIRED",
+  "runtime_companion_disposition": "GO",
+  "before": {
+    "source": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+    "tree": "bd28dc54bc31b5a339c3f51d51c06c2a101cfd5e",
+    "paths": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-facade.toml",
+        "bytes": 1236,
+        "sha256": "28bb46a8dec6f12cb06fbb7618cf3380f705ca4ac9604ba27d5a1b2e31135af5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+        "bytes": 6219,
+        "sha256": "0832ecd5bbc8547964979208616724f12a8ef0cb438d3b4aba977ff3c402a155"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+        "bytes": 4481,
+        "sha256": "1011225c9518c1128e036582abe261281abcff9177a8359034fcf2c7e5c67bf9"
+      },
+      {
+        "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+        "bytes": 9029,
+        "sha256": "3df2f70a6c8e7ad84a7cac75dc3d821dba1d74110fb259b6f98f7a14b6d7c104"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+        "bytes": 15730,
+        "sha256": "9d1bd32281485debb044882b01b4d8be9209c9794a8686e76b0e140bf73244d9"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+        "bytes": 14451,
+        "sha256": "ae932dd1153f0272b38a748aabcd2adb53fae267268b85d867ee8198bcbf3642"
+      }
+    ],
+    "status": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/confidenceLedgerRiskSpendTwin.browser.test.tsx/confidence-ledger-native-Chromium-visibility-proof-admits-the-baseline-through-the-native-finite-paint-grammar-1.png\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-01.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-02.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-03.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-14.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-36.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-41.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-44.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-48.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-53.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-62.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/root.lock\n"
+  },
+  "after": {
+    "source": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+    "tree": "bd28dc54bc31b5a339c3f51d51c06c2a101cfd5e",
+    "paths": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-facade.toml",
+        "bytes": 1236,
+        "sha256": "28bb46a8dec6f12cb06fbb7618cf3380f705ca4ac9604ba27d5a1b2e31135af5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+        "bytes": 6219,
+        "sha256": "0832ecd5bbc8547964979208616724f12a8ef0cb438d3b4aba977ff3c402a155"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+        "bytes": 4481,
+        "sha256": "1011225c9518c1128e036582abe261281abcff9177a8359034fcf2c7e5c67bf9"
+      },
+      {
+        "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+        "bytes": 9029,
+        "sha256": "3df2f70a6c8e7ad84a7cac75dc3d821dba1d74110fb259b6f98f7a14b6d7c104"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+        "bytes": 15730,
+        "sha256": "9d1bd32281485debb044882b01b4d8be9209c9794a8686e76b0e140bf73244d9"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+        "bytes": 14451,
+        "sha256": "ae932dd1153f0272b38a748aabcd2adb53fae267268b85d867ee8198bcbf3642"
+      }
+    ],
+    "status": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/confidenceLedgerRiskSpendTwin.browser.test.tsx/confidence-ledger-native-Chromium-visibility-proof-admits-the-baseline-through-the-native-finite-paint-grammar-1.png\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-01.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-02.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-03.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-14.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-36.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-41.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-44.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-48.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-53.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-62.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/root.lock\n"
+  },
+  "controls": [
+    {
+      "case": "cold_lazy_function_and_return_DTO_identity",
+      "check_status": "PASS",
+      "cold_globals": {
+        "summarize_bayesian_calibration_posterior": false,
+        "BayesianCalibrationPosteriorSummary": false
+      },
+      "function_identity": true,
+      "DTO_identity": true,
+      "declared_exports": true
+    },
+    {
+      "case": "actual_public_producer_DTO_fresh_CAS_asymmetric_law",
+      "check_status": "PASS",
+      "mean_oracle": "1",
+      "actual_mean": 1.0,
+      "point": 0.0,
+      "interval": [
+        0.0,
+        0.0
+      ],
+      "gate_eligible": false,
+      "draw_count": 100,
+      "fresh_ref": {
+        "artifact_id": "sha256:c616e3d085cf8a67b44cf6c0687c1fb5f06718e136430e4ce1196abcd85ba7ce",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      }
+    },
+    {
+      "case": "wrong_kind_actual_valid_content_CAS_refusal",
+      "check_status": "PASS",
+      "ref": {
+        "artifact_id": "sha256:c616e3d085cf8a67b44cf6c0687c1fb5f06718e136430e4ce1196abcd85ba7ce",
+        "kind": "funnel.calibration_report",
+        "media_type": "application/json"
+      },
+      "refusal": "posterior summary CAS kind/schema/content is invalid"
+    },
+    {
+      "case": "wrong_schema_name_actual_valid_content_CAS_refusal",
+      "check_status": "PASS",
+      "ref": {
+        "artifact_id": "sha256:c616e3d085cf8a67b44cf6c0687c1fb5f06718e136430e4ce1196abcd85ba7ce",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "refusal": "posterior summary CAS kind/schema/content is invalid"
+    },
+    {
+      "case": "wrong_schema_version_actual_valid_content_CAS_refusal",
+      "check_status": "PASS",
+      "ref": {
+        "artifact_id": "sha256:c616e3d085cf8a67b44cf6c0687c1fb5f06718e136430e4ce1196abcd85ba7ce",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "refusal": "posterior summary CAS kind/schema/content is invalid"
+    },
+    {
+      "case": "selected_wrong_kind_with_healthy_payload_refuses",
+      "check_status": "PASS",
+      "refusal": "posterior summary CAS kind/schema/content is invalid"
+    },
+    {
+      "case": "raw_bool_integrity_valid_CAS_payload_refuses_before_coercion",
+      "check_status": "PASS",
+      "ref": {
+        "artifact_id": "sha256:37a68e557bef9ab4c3b850851bbfc140b27c85b51219f75035b1179deb38b9ac",
+        "kind": "ir.uncertainty_envelope",
+        "media_type": "application/json"
+      },
+      "refusal": "posterior summary raw carrier requires finite real non-bool values"
+    },
+    {
+      "case": "actual_public_producer_bool_draw_refusal",
+      "check_status": "PASS",
+      "refusal": "posterior draws require one finite real non-bool row axis"
+    },
+    {
+      "case": "public_finite_ratio_atom_diverges_from_interpolated_summary_proxy",
+      "check_status": "PASS",
+      "binary64_lower_level_hex": "0x1.5c28f5c28f5c2p-2",
+      "exact_first_cumulative_mass": "1/3",
+      "named_mean": 0.6666666666666666,
+      "median": 1.0,
+      "actual_interval": [
+        1.0,
+        1.0
+      ],
+      "old_interpolation_proxy_interval": [
+        0.33999999999999997,
+        0.66
+      ]
+    },
+    {
+      "case": "present_fake_public_function_retains_DTO_exports_but_breaks_mean_oracle",
+      "check_status": "PASS",
+      "defining_property_outcome": "FAIL",
+      "typed_result": true,
+      "public_name_present": true,
+      "exports_markers_retained": true,
+      "actual_fake_mean": 0.0,
+      "required_mean": 1.0
+    },
+    {
+      "case": "sole_lazy_binding_removal_summarize_bayesian_calibration_posterior",
+      "check_status": "PASS",
+      "defining_property_outcome": "FAIL",
+      "failure": "AttributeError",
+      "__all___and_export_set_retained": true,
+      "actual_binding_removed_only": true
+    },
+    {
+      "case": "sole_lazy_binding_removal_BayesianCalibrationPosteriorSummary",
+      "check_status": "PASS",
+      "defining_property_outcome": "FAIL",
+      "failure": "AttributeError",
+      "__all___and_export_set_retained": true,
+      "actual_binding_removed_only": true
+    },
+    {
+      "case": "exact_base_public_binding_missing_summarize_bayesian_calibration_posterior",
+      "check_status": "PASS",
+      "historical_defining_property_outcome": "FAIL",
+      "base": "f5c2845851aeb1591de9c73db6de392656656e96",
+      "failure": "AttributeError"
+    },
+    {
+      "case": "exact_base_public_binding_missing_BayesianCalibrationPosteriorSummary",
+      "check_status": "PASS",
+      "historical_defining_property_outcome": "FAIL",
+      "base": "f5c2845851aeb1591de9c73db6de392656656e96",
+      "failure": "AttributeError"
+    },
+    {
+      "case": "current_AST_new_deep_Core_symbol_refused_by_actual_declared_entrypoints",
+      "check_status": "PASS",
+      "current_source_disposition": "CHANGE_REQUIRED",
+      "edge": {
+        "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+        "line": 14,
+        "module": "polisyos.core.artifacts",
+        "name": "SchemaInfo",
+        "alias": null,
+        "level": 0
+      },
+      "refusal": "not a declared canonical Core entrypoint: polisyos.core.artifacts",
+      "historical_existing_names": [
+        "FileSystemCAS",
+        "PutOptions"
+      ],
+      "minimal_class_fix": "from polisyos.core import artifacts as core_artifacts; use existing three bindings"
+    }
+  ],
+  "counts": {
+    "controls": 15,
+    "PASS": 15
+  },
+  "reviewed_ecde_reuse": [
+    {
+      "name": "IR_composition",
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "bytes": 94084,
+      "sha256": "5a28f2336e7903c9d67344e08f3b82176fb789e5ffaa307fc01d4341930b3c1d",
+      "exact_ecde_body_equal": true
+    },
+    {
+      "name": "IR_profile",
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "bytes": 31271,
+      "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d",
+      "exact_ecde_body_equal": true
+    }
+  ],
+  "source_written": false,
+  "environment": {
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "cwd": "/workspace"
+  },
+  "finding_closure": false,
+  "upstream_CAL_9147_accepted": false,
+  "limitations": [
+    "No full architecture/global/type/HMC or common wave rerun.",
+    "Core newly added deep symbol requires class repair before source acceptance.",
+    "Formal generated public-surface admission and scientific/G finding authority remain separate."
+  ]
+}

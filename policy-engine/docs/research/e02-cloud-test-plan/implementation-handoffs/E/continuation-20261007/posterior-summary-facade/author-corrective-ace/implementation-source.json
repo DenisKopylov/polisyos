@@ -1,0 +1,17 @@
+{
+  "schema": "policyos.e02.Root_facade_import_corrective_source.v1",
+  "base": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+  "candidate": "ace655f4c97fdbfb2fed0b22de7a54caa3ac31b1",
+  "tree": "954620fc97fb377ca17be3db3592b10b66849a3e",
+  "complete_footprint": [
+    "policy-engine/tests/unit/calibration/test_evidence_facades.py"
+  ],
+  "current_receipt": "/tmp/e02-E-root-summary-facade-core-companion-20261007/receipt.json",
+  "property": "Edited facade test uses admittedCore-root artifacts module for all actualCAS consumers; existing producer identity oracle reuses already-loaded canonical module.",
+  "author_native_cases": 6,
+  "author_current_ruff_format": "PASS",
+  "independent_review": "UNRUN",
+  "new_common_wave": "UNRUN",
+  "upstream_fit_source_review": "PENDING returnedref correctiveappend",
+  "ledger_or_Gacceptance": false
+}

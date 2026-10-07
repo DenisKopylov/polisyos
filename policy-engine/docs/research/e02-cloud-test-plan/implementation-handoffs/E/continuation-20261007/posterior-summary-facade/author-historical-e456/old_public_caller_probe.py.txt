@@ -1,0 +1,12 @@
+import sys,types,json
+from pathlib import Path
+import polisyos.foundry.uncertainty as current
+source=Path(sys.argv[1]).read_bytes()
+old=types.ModuleType(current.__name__);old.__package__=current.__package__;old.__path__=current.__path__
+exec(compile(source,sys.argv[1],"exec"),old.__dict__)
+out={}
+for name in ["BayesianCalibrationPosteriorSummary","summarize_bayesian_calibration_posterior"]:
+ try:getattr(old,name)
+ except AttributeError as e:out[name]={"outcome":"REFUSED_MISSING_EXPORT","error":str(e)}
+ else:raise RuntimeError("baseline falsifier changed")
+print(json.dumps(out,indent=2))

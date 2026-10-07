@@ -1,0 +1,32 @@
+from __future__ import annotations
+import hashlib,json,os,subprocess,sys,time
+from pathlib import Path
+import xml.etree.ElementTree as ET
+ROOT=Path('/workspace/e02-E-continuation-20261006');OUT=Path(__file__).parent
+SHA='e4566c56f1d05479e4d8bc5bba562d701c17e5bc';TREE='bd28dc54bc31b5a339c3f51d51c06c2a101cfd5e';BASE='f5c2845851aeb1591de9c73db6de392656656e96'
+def guard():
+ sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip();tree=subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=ROOT,text=True).strip()
+ if(sha,tree)!=(SHA,TREE):raise ValueError('source identity moved')
+ paths=subprocess.check_output(['git','diff','--name-only',BASE,SHA],cwd=ROOT,text=True).splitlines()
+ if len(paths)!=6:raise ValueError('six paths required')
+ rows=[]
+ for p in paths:
+  b=(ROOT/p).read_bytes()
+  if b!=subprocess.check_output(['git','show',f'{SHA}:{p}'],cwd=ROOT):raise ValueError('physical source differs')
+  rows.append({'path':p,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+ return {'sha':sha,'tree':tree,'paths':rows,'status':subprocess.check_output(['git','status','--porcelain=v1','-uall'],cwd=ROOT,text=True)}
+before=guard()
+selectors=['tests/unit/calibration/test_evidence_facades.py','tests/unit/ir/test_posterior_summary.py','tests/unit/ir/test_uncertainty_posterior_composition.py']
+for p in ['cache','benchmarks','tmp']:(OUT/p).mkdir(exist_ok=True)
+env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',PYTHONPATH=str(ROOT/'policy-engine/src'),TMPDIR=str(OUT/'tmp'),UV_NO_SYNC='1',UV_PROJECT_ENVIRONMENT=str(ROOT/'policy-engine/.venv'))
+argv=[sys.executable,'-m','pytest','-q',*selectors,'--junitxml',str(OUT/'pytest.xml'),'--basetemp',str(OUT/'pytest-base'),'-o',f'cache_dir={OUT/"cache"}',f'--benchmark-storage=file://{OUT/"benchmarks"}']
+start=time.time()
+with (OUT/'pytest.stdout.txt').open('wb')as out,(OUT/'pytest.stderr.txt').open('wb')as err:p=subprocess.run(argv,cwd=ROOT/'policy-engine',env=env,stdout=out,stderr=err)
+counts={'cases':0,'PASS':0,'FAIL':0,'ERROR':0,'SKIP':0};cases=[]
+for c in ET.parse(OUT/'pytest.xml').getroot().findall('.//testcase'):
+ status='FAIL'if c.find('failure')is not None else 'ERROR'if c.find('error')is not None else 'SKIP'if c.find('skipped')is not None else 'PASS';counts['cases']+=1;counts[status]+=1;cases.append({'classname':c.get('classname'),'name':c.get('name'),'outcome':status})
+after=guard()
+if before!=after:raise ValueError('guard changed during selected native tests')
+r={'schema':'e02-independent-summary-facade-native-selectors:1','source':SHA,'tree':TREE,'base':BASE,'argv':argv,'cwd':str(ROOT/'policy-engine'),'exit_code':p.returncode,'wall_seconds':time.time()-start,'env':{k:env.get(k)for k in('PYTHONPATH','PYTHONDONTWRITEBYTECODE','TMPDIR','UV_NO_SYNC','UV_PROJECT_ENVIRONMENT','OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','XLA_FLAGS')},'before':before,'after':after,'counts':counts,'cases':cases,'scope':'Changed facade and both actual changed IR callers; no HMC/fullwave or upstream CAL acceptance','finding_closure':False}
+(OUT/'selectors.json').write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({'exit_code':p.returncode,'counts':counts,'source_unchanged':True}));
+if p.returncode:raise SystemExit(p.returncode)

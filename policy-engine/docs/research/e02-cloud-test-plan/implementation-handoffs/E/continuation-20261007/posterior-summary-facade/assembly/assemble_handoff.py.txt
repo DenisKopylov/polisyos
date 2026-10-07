@@ -1,0 +1,97 @@
+from pathlib import Path
+from collections import Counter
+import hashlib,json,subprocess,xml.etree.ElementTree as ET
+
+STAGE=Path(__file__).parent
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+OUT=STAGE/'portable'
+BASE='f5c2845851aeb1591de9c73db6de392656656e96'
+CANDIDATE='ace655f4c97fdbfb2fed0b22de7a54caa3ac31b1'
+TREE='954620fc97fb377ca17be3db3592b10b66849a3e'
+HISTORICAL='e4566c56f1d05479e4d8bc5bba562d701c17e5bc'
+PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/posterior-summary-facade'
+AUTHOR=Path('/tmp/e02-E-root-summary-facade-author-20261007')
+CORE=Path('/tmp/e02-E-root-summary-facade-core-companion-20261007')
+PEER=Path('/tmp/e02-E-summary-facade-ace655-independent-20261007/publication-selection.json')
+TEMPLATE=Path('/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/handoff/validate-handoff.py.txt')
+AUTHOR_NAMES=['affected-caller-pytest.stderr.txt','affected-caller-pytest.stdout.txt','author-checks.json','check_author.py','commit.stderr.txt','commit.stdout.txt','format-check.stderr.txt','format-check.stdout.txt','format.json','format.stderr.txt','format.stdout.txt','implementation-source.json','old-f5-facade.py.txt','old-public-caller.stderr.txt','old-public-caller.stdout.txt','old_public_caller_probe.py.txt','pytest.xml','ruff.stderr.txt','ruff.stdout.txt']
+CORE_NAMES=['affected-facade.stderr.txt','affected-facade.stdout.txt','commit.stderr.txt','commit.stdout.txt','format-check.stderr.txt','format-check.stdout.txt','format.stderr.txt','format.stdout.txt','implementation-source.json','pytest.xml','receipt.json','ruff.stderr.txt','ruff.stdout.txt']
+
+def sha(data):return hashlib.sha256(data).hexdigest()
+def canon(value):return json.dumps(value,sort_keys=True,ensure_ascii=False,separators=(',',':'),allow_nan=False)
+def row(path,portable,role):
+    data=path.read_bytes()
+    return {'source_path':str(path),'portable_path':portable,'bytes':len(data),'sha256':sha(data),'role':role}
+def git(*argv):return subprocess.check_output(['git','--no-optional-locks',*argv],cwd=ROOT)
+def write_json(path,value):path.write_text(json.dumps(value,indent=2)+'\n')
+def counts(path):
+    r=ET.parse(path).getroot();suites=[r]if r.tag=='testsuite'else list(r.iter('testsuite'))
+    return {k:sum(int(s.get(k,0))for s in suites)for k in ('tests','failures','errors','skipped')}
+
+assert not OUT.exists(),'fresh assembly only'
+assert sorted(p.name for p in AUTHOR.iterdir()if p.is_file())==AUTHOR_NAMES
+assert sorted(p.name for p in CORE.iterdir()if p.is_file())==CORE_NAMES
+source_old=json.loads((AUTHOR/'implementation-source.json').read_text())
+assert source_old['candidate']==HISTORICAL
+paths=sorted(source_old['complete_footprint'])
+assert git('rev-parse',CANDIDATE+'^{tree}').decode().strip()==TREE
+actual_paths=sorted(git('diff','--name-only',BASE,CANDIDATE).decode().splitlines())
+assert actual_paths==paths and len(paths)==6
+footprint=[]
+for p in paths:
+    data=git('show',CANDIDATE+':'+p)
+    footprint.append({'path':p,'bytes':len(data),'sha256':sha(data),'git_blob':git('rev-parse',CANDIDATE+':'+p).decode().strip()})
+peer_data=PEER.read_bytes();peer=json.loads(peer_data)
+assert peer['candidate']==CANDIDATE and peer['candidate_tree']==TREE and peer['base']==BASE and peer['source_disposition']=='GO'
+assert type(peer['file_count'])is int and peer['file_count']==44 and len(peer['assets'])==44
+assert sum(x['bytes']for x in peer['assets'])==peer['total_bytes']==249715
+review=json.loads(Path(peer['assets'][0]['source_path']).read_text())
+assert review['source_disposition']=='GO' and review['source']==CANDIDATE and review['tree']==TREE
+assert review['current_native_counts']=={'cases':6,'PASS':6,'FAIL':0,'ERROR':0,'SKIP':0}
+assert counts(AUTHOR/'pytest.xml')=={'tests':93,'failures':0,'errors':0,'skipped':0}
+assert counts(CORE/'pytest.xml')==counts(Path('/tmp/e02-E-summary-facade-ace655-independent-20261007/pytest.xml'))=={'tests':6,'failures':0,'errors':0,'skipped':0}
+assets=[]
+for directory,names,sub,role in [(AUTHOR,AUTHOR_NAMES,'author-historical-e456','historical e456 root-author complete moderate output'),(CORE,CORE_NAMES,'author-corrective-ace','ace corrective root-author complete moderate output')]:
+    for name in names:
+        portable=name+'.txt'if name.endswith('.py')else name
+        r=row(directory/name,sub+'/'+portable,role)
+        r['original_selected_record']={'source_path':str(directory/name),'path':name,'bytes':r['bytes'],'sha256':r['sha256']}
+        assets.append(r)
+for original in peer['assets']:
+    r=row(Path(original['source_path']),'independent/'+original['path'],'independent current ace GO or explicitly historical e456/observer output')
+    assert r['bytes']==original['bytes']and r['sha256']==original['sha256']
+    r['original_selected_record']=original
+    assets.append(r)
+assets.append(row(PEER,'independent/publication-selection.json','complete original44member peer selector'))
+assert len(assets)==77
+summary={'schema':'policyos.e02.posterior_summary_facade_exact_source_assembly.v1','base':BASE,'base_tree':git('rev-parse',BASE+'^{tree}').decode().strip(),'candidate':CANDIDATE,'tree':TREE,'implementation_commits':[HISTORICAL,CANDIDATE],'full_footprint':footprint,'path_count':6,'python_path_count':4,'native_case_observations':{'historical_e456_author':93,'historical_e456_independent':93,'current_ace_author':6,'current_ace_independent':6,'counts_are_not_added':True},'original_member_counts':{'author_historical':19,'author_corrective':13,'independent_selected':44,'independent_original_selector':1},'underlying_ecde_reuse':{'source':'ecde9d2d8d9d13cba87420930105e378010a1acc','tree':'41d52f7b26d7d10757b479f55dd412d97fa051c4','scope':'canonical uncertainty.py and posterior_summary.py numerical bodies reviewed independently and unchanged by sixpath facade slice','existing_tracked_Git_handoff':'DOE220 source handoff; no duplicated ecde census/HMC/CAS fixtures'},'ROOT_source_environment_or_native_execution_by_assembly':False,'raw_CAS_fixtures_cache_or_metadata_tree_copied':False,'source_scientific_global_finding_acceptance':False}
+write_json(STAGE/'source-assembly.json',summary)
+assets.append(row(STAGE/'source-assembly.json','assembly/source-assembly.json','read-only immutable Git/source and original-output reconciliation'))
+assets.append(row(Path(__file__),'assembly/assemble_handoff.py.txt','exact passive source handoff assembly recipe'))
+assert len(assets)==79
+# Complete original logical Counter is retained even when content bytes repeat.
+source_counter=sorted(Counter(canon({'source_path':r['source_path'],'portable_path':r['portable_path'],'bytes':r['bytes'],'sha256':r['sha256'],'role':r['role'],'original_selected_record':r.get('original_selected_record')})for r in assets).items())
+copies=[];unique={}
+for r in assets:
+    key=(r['sha256'],r['bytes'])
+    if key not in unique:
+        unique[key]=r['portable_path'];copies.append({'source_path':r['source_path'],'destination':r['portable_path'],'bytes':r['bytes'],'sha256':r['sha256']})
+    r['canonical_destination']=unique[key];r['deduplicated']=r['portable_path']!=unique[key]
+index={'schema':'policyos.e02.moderate_literal_copy_index.v1','assets':assets,'copies':copies,'logical_count':len(assets),'copied_files':len(copies),'copied_bytes':sum(r['bytes']for r in copies),'complete_logical_source_Counter':source_counter,'Counter_sha256':sha(canon(source_counter).encode()),'source_chain_membership':summary['original_member_counts'],'assembly_companions':2,'no_original_source_records_rewritten':True}
+OUT.mkdir()
+for r in copies:
+    data=Path(r['source_path']).read_bytes();assert len(data)==r['bytes']and sha(data)==r['sha256']
+    destination=OUT/r['destination'];destination.parent.mkdir(parents=True,exist_ok=True);destination.write_bytes(data)
+write_json(OUT/'copy-index.json',index)
+readme='''This source-first handoff binds the six-path posterior-summary facade slice at ace655f4c97fdbfb2fed0b22de7a54caa3ac31b1, tree954620fc97fb377ca17be3db3592b10b66849a3e. The source commits precede this evidence publication; no future evidence SHA is claimed.\n\nThe original e45693-case observations and ace6-case observations remain separate. Independent source GO covers canonical public producer/DTO identity, actual changed public callers, fresh typed CAS finite-law readback and complete import-class correction. Scientific source/fit/noise/coverage authority, upstream CAL, generated companions, next source freeze/common wave and G original-finding decisions remain separate.\n\nThe complete logical source membership, literal content deduplication and every original output hash/role are in copy-index.json. All scripts are passive .py.txt. No CAS fixture/cache/environment/census tree is copied.\n\nAfter publication, run the archived validator against this directory: python3 -B validate-handoff.py.txt .; optimized replay uses python3 -O -B with the same arguments. Its custody functions are byte-identical to the independently reviewed c229 handoff validator; only the fixed scoped metadata changes.\n'''
+(OUT/'README.md').write_text(readme)
+index_data=(OUT/'copy-index.json').read_bytes();readme_data=(OUT/'README.md').read_bytes()
+known={'schema':'policyos.e02.posterior_summary_facade_handoff.v1','publication_prefix':PREFIX,'base':BASE,'base_tree':summary['base_tree'],'candidate':CANDIDATE,'tree':TREE,'implementation_commits':[HISTORICAL,CANDIDATE],'canonical_writer':'E Root narrow Foundry uncertainty facade; source e456 plus owned Core-route companion ace','original_ID_companions':['B201','B202'],'full_source_footprint':footprint,'source_footprint':{'paths':6,'python_paths':4,'bytes':sum(r['bytes']for r in footprint),'no_numerical_producer_codec_or_algorithm_changed':True},'complete_source_membership':{**summary['original_member_counts'],'assembly_companions':2,'logical_occurrences':len(assets)},'copy_index':{'bytes':len(index_data),'sha256':sha(index_data)},'deciding_output_count':len(assets),'deciding_unique_files':len(copies),'deciding_unique_bytes':index['copied_bytes'],'runtime_property':'Existing supported Foundry uncertainty facade lazily exposes identical summarize_bayesian_calibration_posterior and BayesianCalibrationPosteriorSummary objects; two actual IR caller paths use that public binding and persist/reopen exact finite draws with separate named mean/median/equal-tail functionals.','runtime_property_paths':['polisyos.foundry.uncertainty.__getattr__','tests/unit/calibration/test_evidence_facades.py::test_public_posterior_summary_reopens_exact_cas_and_refuses_wrong_kind','tests/unit/ir/test_posterior_summary.py::test_asymmetric_native_adapter_fresh_read_keeps_independent_functionals','tests/unit/ir/test_uncertainty_posterior_composition.py::test_zero_spread_moment_projection_is_finite_non_gating'],'native_case_observations':summary['native_case_observations'],'independent_review':{'disposition':'GO bounded sixpath source only','candidate':CANDIDATE,'tree':TREE,'review':{'source_path':peer['assets'][0]['source_path'],'bytes':peer['assets'][0]['bytes'],'sha256':peer['assets'][0]['sha256']},'selector':{'source_path':str(PEER),'bytes':len(peer_data),'sha256':sha(peer_data)},'old_e456_disposition':'CHANGE_REQUIRED: runtime healthy but newly introduced private Core import/backing-owner dynamic edge; corrected append-only ace','mathematical_source_reuse':summary['underlying_ecde_reuse']},'independent_oracles':['99zero draws plus100: mean1, median0, equal-tail[0,0]; all100 retained atoms reopen from typed CAS','1:2 two-atom binary64 cumulative-level selection diverges from the old interpolating proxy without expanding interval around the mean','Cold lazy public producer and return DTO resolve to the canonical owner objects; five unchanged source files reuse exact e456 review'], 'adversarial_and_removal_controls':['Integrity-valid wrong CAS kind/schema/name/version and raw bool law refuse on actual fresh reader','Present fake public producer retains name/DTO/export markers yet actual two immutable changed caller functions fail; one actual spy callback each','Sole lazy-arm and facade-name removal breaks canonical public producer binding','Present Core-root markers plus deep SchemaInfo constructor preserve native CAS PASS but exact architecture inlet refuses; sole declared-import predicate removal re-admits it','Fake Core-root SchemaInfo retains symbols but actual fresh CAS reader fails'], 'qualification':{'scope':'sixpath facade/source companions and moderate second-handoff custody only','Root_or_leaf_source_environment_locks_written_by_assembly':False,'source_native_numeric_global_gate_executed_by_assembly':False,'new_common_wave':'UNRUN','source_frozen_for_common_wave':False,'full_global_architecture_reexecution':False,'scientific_source_fit_noise_coverage_authority':False,'finding_closure_or_formal_G_acceptance':False,'B197_configured_source_fit_consumer_claimed':False,'upstream_CAL_9147_77_or_returnedref_source_acceptance':'not_established by this sixpath packet; separate source/review','generated_public_surface':'surface_missing: release fragment public_surface_inventory_reviewed=false; G canonical regeneration after accepted integrated source','historical_status_and_ledger':'Unchanged historical49partial/4held/B198closed; original-row owner intake remains separate from code GO','repeated_counts':'Historical93 and current6 are distinct observations, never a fresh99-case wave'},'environment_input_identity':{'author_saved_ROOT_metadata_count':207,'author_saved_ROOT_metadata_unchanged':True,'canonical_environment_source':'author-historical-e456/author-checks.json exact207 metadata/hash/environment/argv record; current observations inside original independent receipts','production_data':'no production source law/history copied; finite scientific witnesses do not confer source authority'},'predicate_basis':{'public_function_and_DTO_identity':{'basis':'independently_reconciled','explanation':'Independent cold canonical identity and actual two caller bindings, present-fake/removal controls'},'finite_functionals_and_CAS_raw_readback':{'basis':'independently_reconciled','explanation':'Independent native asymmetric and atom/interpolation-divergent law fixtures; exact unchanged ecde defining property reused'},'complete_source_import_class':{'basis':'independently_reconciled','explanation':'Independent complete four-Python AST/dynamic census plus deep-constructor adversary/property-removal'},'source_candidate_tree_and_sixpath_footprint':{'basis':'recomputed','explanation':'Read-only exact Git base/candidate/tree/diff and six literal Git blobs reconciled to independent footprint'},'original_member_Counter_and_content_dedup':{'basis':'recomputed','explanation':'Complete19author/13corrective/44peer+selector and two assembly companions; aliases/raw roles bound in fixed copy-index'},'literal_original_deciding_bytes':{'basis':'recomputed','explanation':'Each copied original rehashed with exact size and all repeats retained; independent thin custody still pending'},'source_scientific_fit_noise_and_B197_authority':{'basis':'not_established','explanation':'Finite law/public-binding fixture has no authority over real configured source/fit/consumer'},'final_wave_generated_surface_and_G_findings':{'basis':'not_established','explanation':'No finalfreeze/native/global wave or canonical shared generator/owner acceptance executed by assembly'}},'limitations':['Code GO is separate from finding closure, institutional authority and global gates','No upstream CAL returnedref/fitted source join acceptance from adjacency','No new numerical method, envelope/profile validator or CAS codec/store copy','Generated inventory companions remain canonical G-owned; prospective patch is comparison-only'], 'next_owner':{'E_Root':'Thin independently review this moderate secondhandoff, commit separately after source ace; integrate separately reviewed upstream CAL then freeze exact final source','G':'Fetch source/evidence, accept code and each original finding separately; regenerate shared public inventory after accepted integration source'},'complete_metadata_companions':['implementation-handoff.json','copy-index.json','validate-handoff.py.txt','README.md'],'future_self_SHA_included':False,'metadata_readme_identity':{'bytes':len(readme_data),'sha256':sha(readme_data)},'validator_mechanism_reuse':{'source':str(TEMPLATE),'candidate':'a30eb1a82345fe3139bf2c5dc77ac664eb6f98ea','scope':'unchanged sha/canonical/strict/validate functions; only fixed KNOWN metadata specializes this source-family receipt'}}
+body=TEMPLATE.read_text().split('def sha(b):',1)[1]
+program="import hashlib,json,sys\nfrom pathlib import Path\nTRUSTED=Path(__file__).read_bytes()\nKNOWN = "+repr(known)+"\ndef sha(b):"+body
+(OUT/'validate-handoff.py.txt').write_text(program)
+program_data=(OUT/'validate-handoff.py.txt').read_bytes()
+hand={**known,'validator_identity':{'bytes':len(program_data),'sha256':sha(program_data)}}
+write_json(OUT/'implementation-handoff.json',hand)
+write_json(STAGE/'assembly-closeout.json',{'schema':'policyos.e02.posterior_summary_facade_assembly_closeout.v1','portable_prefix':str(OUT),'proposed_Git_prefix':PREFIX,'candidate':CANDIDATE,'tree':TREE,'logical_outputs':len(assets),'copies':len(copies),'copied_bytes':index['copied_bytes'],'full_proposed_paths':len(list(OUT.rglob('*')))-len([p for p in OUT.rglob('*')if p.is_dir()]),'active_Python_paths':[],'source_executed':False,'source_candidate_before_evidence':True,'complete_original_Counter_sha256':index['Counter_sha256'],'metadata':[{ 'path':str(OUT/name),'bytes':len((OUT/name).read_bytes()),'sha256':sha((OUT/name).read_bytes())}for name in known['complete_metadata_companions']]})
+print(json.dumps(json.loads((STAGE/'assembly-closeout.json').read_text()),indent=2))

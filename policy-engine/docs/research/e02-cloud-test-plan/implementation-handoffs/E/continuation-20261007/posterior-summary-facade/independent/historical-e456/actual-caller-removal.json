@@ -1,0 +1,47 @@
+{
+  "schema": "e02-independent-exact-changed-callers-present-fake-control:1",
+  "source": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+  "controls": [
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "source": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+      "test": "test_asymmetric_native_adapter_fresh_read_keeps_independent_functionals",
+      "source_sha256": "9d1bd32281485debb044882b01b4d8be9209c9794a8686e76b0e140bf73244d9",
+      "property_outcome": "FAIL",
+      "actual_public_spy_callbacks": 1,
+      "failure": "independent present-but-fake public producer refusal",
+      "public_name_and_DTO_and_export_markers_retained": true
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "source": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+      "test": "test_zero_spread_moment_projection_is_finite_non_gating",
+      "source_sha256": "ae932dd1153f0272b38a748aabcd2adb53fae267268b85d867ee8198bcbf3642",
+      "property_outcome": "FAIL",
+      "actual_public_spy_callbacks": 1,
+      "failure": "independent present-but-fake public producer refusal",
+      "public_name_and_DTO_and_export_markers_retained": true
+    }
+  ],
+  "actual_calls": [
+    {
+      "kwargs": [
+        "context"
+      ],
+      "coordinate_count": 1
+    },
+    {
+      "kwargs": [
+        "context",
+        "credible_mass",
+        "draw_ids",
+        "sample_axis",
+        "weights"
+      ],
+      "coordinate_count": 1
+    }
+  ],
+  "check_status": "PASS",
+  "source_written": false,
+  "scope": "Two exact immutable native caller functions, public binding only mutated in this isolated process; no whole suite/reimplementation."
+}

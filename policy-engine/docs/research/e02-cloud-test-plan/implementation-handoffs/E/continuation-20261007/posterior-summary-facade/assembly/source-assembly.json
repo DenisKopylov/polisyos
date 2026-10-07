@@ -1,0 +1,73 @@
+{
+  "schema": "policyos.e02.posterior_summary_facade_exact_source_assembly.v1",
+  "base": "f5c2845851aeb1591de9c73db6de392656656e96",
+  "base_tree": "c1bd578d9ae57a90282f442dd65314e074f57fe9",
+  "candidate": "ace655f4c97fdbfb2fed0b22de7a54caa3ac31b1",
+  "tree": "954620fc97fb377ca17be3db3592b10b66849a3e",
+  "implementation_commits": [
+    "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+    "ace655f4c97fdbfb2fed0b22de7a54caa3ac31b1"
+  ],
+  "full_footprint": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-facade.toml",
+      "bytes": 1236,
+      "sha256": "28bb46a8dec6f12cb06fbb7618cf3380f705ca4ac9604ba27d5a1b2e31135af5",
+      "git_blob": "796df31e5cd02f5d71b6c5b41dd764dd868aabad"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "bytes": 6219,
+      "sha256": "0832ecd5bbc8547964979208616724f12a8ef0cb438d3b4aba977ff3c402a155",
+      "git_blob": "30fce8f90c2d6ae83af2b5221e3ec50fd18f88cb"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "bytes": 4481,
+      "sha256": "1011225c9518c1128e036582abe261281abcff9177a8359034fcf2c7e5c67bf9",
+      "git_blob": "de4f977f6bb09ac89a4bac84412ad71266b83484"
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "bytes": 9314,
+      "sha256": "728909258a25e96510b3b9b93957fc14ae217869d1ec61f527997909d26c021a",
+      "git_blob": "a189fd8d4a2a8d853ddf797b8840dbfd33eec491"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "bytes": 15730,
+      "sha256": "9d1bd32281485debb044882b01b4d8be9209c9794a8686e76b0e140bf73244d9",
+      "git_blob": "2f6f3b20ed9af91389859ed380b56627b27e6b68"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+      "bytes": 14451,
+      "sha256": "ae932dd1153f0272b38a748aabcd2adb53fae267268b85d867ee8198bcbf3642",
+      "git_blob": "91c64a39aade054c5dcdfbed9600db3554d7fdc8"
+    }
+  ],
+  "path_count": 6,
+  "python_path_count": 4,
+  "native_case_observations": {
+    "historical_e456_author": 93,
+    "historical_e456_independent": 93,
+    "current_ace_author": 6,
+    "current_ace_independent": 6,
+    "counts_are_not_added": true
+  },
+  "original_member_counts": {
+    "author_historical": 19,
+    "author_corrective": 13,
+    "independent_selected": 44,
+    "independent_original_selector": 1
+  },
+  "underlying_ecde_reuse": {
+    "source": "ecde9d2d8d9d13cba87420930105e378010a1acc",
+    "tree": "41d52f7b26d7d10757b479f55dd412d97fa051c4",
+    "scope": "canonical uncertainty.py and posterior_summary.py numerical bodies reviewed independently and unchanged by sixpath facade slice",
+    "existing_tracked_Git_handoff": "DOE220 source handoff; no duplicated ecde census/HMC/CAS fixtures"
+  },
+  "ROOT_source_environment_or_native_execution_by_assembly": false,
+  "raw_CAS_fixtures_cache_or_metadata_tree_copied": false,
+  "source_scientific_global_finding_acceptance": false
+}

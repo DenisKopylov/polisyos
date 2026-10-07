@@ -1,0 +1,87 @@
+from __future__ import annotations
+import ast,copy,hashlib,json,subprocess,sys,tomllib
+from pathlib import Path
+ROOT=Path('/workspace/e02-E-continuation-20261006');O=Path(__file__).parent
+SHA='ace655f4c97fdbfb2fed0b22de7a54caa3ac31b1';TREE='954620fc97fb377ca17be3db3592b10b66849a3e';BASE='f5c2845851aeb1591de9c73db6de392656656e96';PARENT='e4566c56f1d05479e4d8bc5bba562d701c17e5bc'
+def git(*args):return subprocess.check_output(['git',*args],cwd=ROOT)
+def guard():
+ if git('rev-parse','HEAD').decode().strip()!=SHA or git('rev-parse','HEAD^{tree}').decode().strip()!=TREE:raise ValueError('source moved')
+ paths=git('diff','--name-only',BASE,SHA).decode().splitlines()
+ if len(paths)!=6:raise ValueError('six union source paths required')
+ out=[]
+ for path in paths:
+  b=(ROOT/path).read_bytes()
+  if b!=git('show',f'{SHA}:{path}'):raise ValueError('physical source differs')
+  out.append({'path':path,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+ return {'source':SHA,'tree':TREE,'paths':out,'status':git('status','--porcelain=v1','-uall').decode()}
+before=guard();delta=git('diff','--name-only',PARENT,SHA).decode().splitlines()
+testpath='policy-engine/tests/unit/calibration/test_evidence_facades.py'
+if delta!=[testpath]:raise ValueError('one test-only correction expected')
+policy_path='policy-engine/architecture/packages/core.toml';policy=git('show',f'{SHA}:{policy_path}');supported=tomllib.loads(policy.decode())['public_surface']['supported_entrypoints']
+def admit_core_imports(body):
+ seen=[]
+ for n in ast.walk(ast.parse(body)):
+  target=n.module if isinstance(n,ast.ImportFrom) else None
+  if target and target.startswith('polisyos.core'):
+   if target not in supported:raise ValueError('Core import is not a declared supported entrypoint: '+target)
+   seen.append({'module':target,'names':[a.name for a in n.names]})
+ return seen
+body=git('show',f'{SHA}:{testpath}').decode();core_edges=admit_core_imports(body)
+if core_edges!=[{'module':'polisyos.core','names':['artifacts']},{'module':'polisyos.core','names':['canon']}]:raise ValueError('exact two existing Core-root module routes required')
+from polisyos.core import artifacts as core_artifacts
+from polisyos.foundry import uncertainty as public
+from polisyos.ir import analytics as ir
+if public.summarize_bayesian_calibration_posterior.__module__!='polisyos.foundry.calibration.uncertainty_adapter':raise ValueError('producer owner identity mismatch')
+owner=sys.modules[public.summarize_bayesian_calibration_posterior.__module__]
+if public.summarize_bayesian_calibration_posterior is not owner.summarize_bayesian_calibration_posterior or public.BayesianCalibrationPosteriorSummary is not owner.BayesianCalibrationPosteriorSummary:raise ValueError('canonical producer/type identity mismatch')
+rows=[]
+for path in before['paths']:
+ if path['path']==testpath:continue
+ if git('show',f'{SHA}:{path["path"]}')!=git('show',f'{PARENT}:{path["path"]}'):raise ValueError('non-test dependency changed')
+rows.append({'case':'one_test_delta_five_other_source_paths_byte_equal_e456','status':'PASS','delta':delta,'reused_runtime_source':'e4566c56f1d05479e4d8bc5bba562d701c17e5bc'})
+for path in('policy-engine/src/polisyos/ir/analytics/uncertainty.py','policy-engine/src/polisyos/ir/analytics/posterior_summary.py'):
+ if git('show',f'{SHA}:{path}')!=git('show','ecde9d2d8d9d13cba87420930105e378010a1acc:'+path):raise ValueError('reviewed ecde math dependency changed')
+rows.append({'case':'ecde_math_dependency_reuse','status':'PASS','exact_source':'ecde9d2d8d9d13cba87420930105e378010a1acc','math_test_repeated':False})
+# Exact static and literal-dynamic imports on the full four-Python union.
+edges=[];dynamic=[]
+for path in [r['path']for r in before['paths']if r['path'].endswith('.py')]:
+ raw=git('show',f'{SHA}:{path}').decode();tree=ast.parse(raw)
+ for n in ast.walk(tree):
+  if isinstance(n,ast.ImportFrom):
+   for a in n.names:edges.append({'path':path,'line':n.lineno,'target':n.module,'name':a.name,'alias':a.asname,'level':n.level})
+  elif isinstance(n,ast.Import):
+   for a in n.names:edges.append({'path':path,'line':n.lineno,'target':a.name,'name':None,'alias':a.asname,'level':0})
+  elif isinstance(n,ast.Call)and isinstance(n.func,(ast.Name,ast.Attribute))and(n.func.id if isinstance(n.func,ast.Name)else n.func.attr)=='import_module'and n.args and isinstance(n.args[0],ast.Constant)and isinstance(n.args[0].value,str):
+   dynamic.append({'path':path,'line':n.lineno,'target':n.args[0].value,'expression':ast.unparse(n)})
+ if path==testpath:
+  if any(r['path']==path and r['target']=='polisyos.foundry.calibration.uncertainty_adapter'for r in dynamic):raise ValueError('new backing-owner dynamic test import remains')
+  if any(isinstance(n,ast.Name)and n.id in{'FileSystemCAS','PutOptions','SchemaInfo'}for n in ast.walk(tree)):raise ValueError('direct deep-name consumer remains')
+(O/'import-edges.json').write_text(json.dumps({'schema':'e02-corrective-four-Python-complete-import-edges:1','source':SHA,'tree':TREE,'base':BASE,'static_edges':edges,'literal_dynamic_edges':dynamic,'Core_supported_entrypoints':supported,'Core_policy_sha256':hashlib.sha256(policy).hexdigest(),'full_architecture_gate_reexecuted':False},indent=2)+'\n')
+rows.append({'case':'complete_four_Python_static_and_dynamic_imports','status':'PASS','Core_canonical_module_edges':core_edges,'new_test_backing_owner_dynamic_edge_removed':True})
+# Same marker/module/class content can execute correctly while a deep import violates the architecture inlet.
+mutant=body.replace('from polisyos.core import artifacts as core_artifacts','from polisyos.core import artifacts as core_artifacts\nfrom polisyos.core.artifacts import SchemaInfo',1).replace('core_artifacts.SchemaInfo(','SchemaInfo(',1)
+if mutant==body:raise ValueError('deep-route adversary ineffective')
+try:admit_core_imports(mutant)
+except ValueError as exc:refusal=str(exc)
+else:raise ValueError('present-root-marker deep-route adversary admitted')
+ns={'__name__':'independent_exact_actual_facade_test','__file__':str(ROOT/testpath)};exec(compile(mutant,'<only-Core-route-adversary>','exec'),ns)
+ns['test_public_posterior_summary_reopens_exact_cas_and_refuses_wrong_kind'](O/'deep-route-fixture')
+rows.append({'case':'present_root_marker_actual_deep_schema_constructor_refused','status':'PASS','architecture_admission':'REFUSE','refusal':refusal,'root_module_marker_retained':True,'actual_mutated_native_CAS_reader_test':'PASS','proxy_divergence':'Runtime same-object CAS test passes; exact declared architecture import still refuses.'})
+removed=lambda raw:[]
+if removed(mutant)!=[]:raise ValueError('removal ineffective')
+rows.append({'case':'sole_declared_Core_import_predicate_removal_re_admits_deep_constructor','status':'PASS','defining_property_outcome':'FAIL','Core_policy_and_root_marker_and_body_retained':True,'only_admission_binding_removed':True,'false_source_import_admitted':True})
+# Present-but-fake root artifact name cannot supply the reader/schema property.
+real_schema=core_artifacts.SchemaInfo
+def fake_schema(*args,**kwargs):return real_schema(name='funnel.calibration_report',version='1.1')
+ns={'__name__':'independent_exact_current_facade_test','__file__':str(ROOT/testpath)};exec(compile(body,'<actual-corrected-test>','exec'),ns)
+try:
+ core_artifacts.SchemaInfo=fake_schema
+ try:ns['test_public_posterior_summary_reopens_exact_cas_and_refuses_wrong_kind'](O/'fake-schema-fixture')
+ except ValueError as exc:failure=str(exc)
+ else:raise ValueError('fake root SchemaInfo did not falsify healthy readback')
+finally:core_artifacts.SchemaInfo=real_schema
+rows.append({'case':'present_fake_Core_root_schema_binding_breaks_real_fresh_CAS_reader','status':'PASS','defining_property_outcome':'FAIL','root_module_and_name_markers_retained':True,'actual_native_failure':failure})
+after=guard()
+if before!=after:raise ValueError('source guard drift')
+r={'schema':'e02-independent-summary-facade-corrective-delta:1','source':SHA,'tree':TREE,'base':BASE,'parent':PARENT,'source_disposition':'GO','before':before,'after':after,'controls':rows,'counts':{'PASS':len(rows)},'canonical_type_identity':True,'source_written':False,'root_env_package_writer':False,'finding_closure':False,'upstream_CAL9147_accepted':False,'full_architecture_gate':'UNRUN','scope':'One test-only corrective delta and complete four-Python import census; unchanged e456 runtime/caller and ecde math reused explicitly. Independent affected six cases are separate receipt.'}
+(O/'delta-review.json').write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({'source_disposition':'GO','controls':len(rows),'source_unchanged':True}))

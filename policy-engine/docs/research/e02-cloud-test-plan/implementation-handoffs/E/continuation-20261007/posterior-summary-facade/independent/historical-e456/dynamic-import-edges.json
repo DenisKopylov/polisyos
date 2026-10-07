@@ -1,0 +1,172 @@
+{
+  "schema": "e02-independent-four-path-dynamic-import-census:1",
+  "candidate": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+  "base": "f5c2845851aeb1591de9c73db6de392656656e96",
+  "complete_literal_dynamic_rows": [
+    {
+      "source": "f5c2845851aeb1591de9c73db6de392656656e96",
+      "label": "base",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 73,
+      "target_literal": "..calibration.bayesian_fit_bridge",
+      "expression": "import_module('..calibration.bayesian_fit_bridge', __name__)",
+      "source_sha256": "d12e0948c1816acae51bbe5519e767622a2e6a24d907b31f04e0f7b7ca0e803e"
+    },
+    {
+      "source": "f5c2845851aeb1591de9c73db6de392656656e96",
+      "label": "base",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 77,
+      "target_literal": ".covariance",
+      "expression": "import_module('.covariance', __name__)",
+      "source_sha256": "d12e0948c1816acae51bbe5519e767622a2e6a24d907b31f04e0f7b7ca0e803e"
+    },
+    {
+      "source": "f5c2845851aeb1591de9c73db6de392656656e96",
+      "label": "base",
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 18,
+      "target_literal": "polisyos.foundry.calibration.report",
+      "expression": "importlib.import_module('polisyos.foundry.calibration.report')",
+      "source_sha256": "3ab297f03ba01b390086d82e59c05dfabb8628cd47619c89edbac824387ec6da"
+    },
+    {
+      "source": "f5c2845851aeb1591de9c73db6de392656656e96",
+      "label": "base",
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 19,
+      "target_literal": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+      "expression": "importlib.import_module('polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty')",
+      "source_sha256": "3ab297f03ba01b390086d82e59c05dfabb8628cd47619c89edbac824387ec6da"
+    },
+    {
+      "source": "f5c2845851aeb1591de9c73db6de392656656e96",
+      "label": "base",
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 38,
+      "target_literal": "polisyos.calibration.forecast_bridge",
+      "expression": "importlib.import_module('polisyos.calibration.forecast_bridge')",
+      "source_sha256": "3ab297f03ba01b390086d82e59c05dfabb8628cd47619c89edbac824387ec6da"
+    },
+    {
+      "source": "f5c2845851aeb1591de9c73db6de392656656e96",
+      "label": "base",
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 86,
+      "target_literal": "polisyos.foundry.uncertainty.sampling_admission",
+      "expression": "importlib.import_module('polisyos.foundry.uncertainty.sampling_admission')",
+      "source_sha256": "3ab297f03ba01b390086d82e59c05dfabb8628cd47619c89edbac824387ec6da"
+    },
+    {
+      "source": "f5c2845851aeb1591de9c73db6de392656656e96",
+      "label": "base",
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 120,
+      "target_literal": "polisyos.foundry.uncertainty.sampling_admission",
+      "expression": "importlib.import_module('polisyos.foundry.uncertainty.sampling_admission')",
+      "source_sha256": "3ab297f03ba01b390086d82e59c05dfabb8628cd47619c89edbac824387ec6da"
+    },
+    {
+      "source": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+      "label": "candidate",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 81,
+      "target_literal": "..calibration.bayesian_fit_bridge",
+      "expression": "import_module('..calibration.bayesian_fit_bridge', __name__)",
+      "source_sha256": "1011225c9518c1128e036582abe261281abcff9177a8359034fcf2c7e5c67bf9"
+    },
+    {
+      "source": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+      "label": "candidate",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 85,
+      "target_literal": "..calibration.uncertainty_adapter",
+      "expression": "import_module('..calibration.uncertainty_adapter', __name__)",
+      "source_sha256": "1011225c9518c1128e036582abe261281abcff9177a8359034fcf2c7e5c67bf9"
+    },
+    {
+      "source": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+      "label": "candidate",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 89,
+      "target_literal": ".covariance",
+      "expression": "import_module('.covariance', __name__)",
+      "source_sha256": "1011225c9518c1128e036582abe261281abcff9177a8359034fcf2c7e5c67bf9"
+    },
+    {
+      "source": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+      "label": "candidate",
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 23,
+      "target_literal": "polisyos.foundry.calibration.uncertainty_adapter",
+      "expression": "importlib.import_module('polisyos.foundry.calibration.uncertainty_adapter')",
+      "source_sha256": "3df2f70a6c8e7ad84a7cac75dc3d821dba1d74110fb259b6f98f7a14b6d7c104"
+    },
+    {
+      "source": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+      "label": "candidate",
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 67,
+      "target_literal": "polisyos.foundry.calibration.report",
+      "expression": "importlib.import_module('polisyos.foundry.calibration.report')",
+      "source_sha256": "3df2f70a6c8e7ad84a7cac75dc3d821dba1d74110fb259b6f98f7a14b6d7c104"
+    },
+    {
+      "source": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+      "label": "candidate",
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 68,
+      "target_literal": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+      "expression": "importlib.import_module('polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty')",
+      "source_sha256": "3df2f70a6c8e7ad84a7cac75dc3d821dba1d74110fb259b6f98f7a14b6d7c104"
+    },
+    {
+      "source": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+      "label": "candidate",
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 87,
+      "target_literal": "polisyos.calibration.forecast_bridge",
+      "expression": "importlib.import_module('polisyos.calibration.forecast_bridge')",
+      "source_sha256": "3df2f70a6c8e7ad84a7cac75dc3d821dba1d74110fb259b6f98f7a14b6d7c104"
+    },
+    {
+      "source": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+      "label": "candidate",
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 135,
+      "target_literal": "polisyos.foundry.uncertainty.sampling_admission",
+      "expression": "importlib.import_module('polisyos.foundry.uncertainty.sampling_admission')",
+      "source_sha256": "3df2f70a6c8e7ad84a7cac75dc3d821dba1d74110fb259b6f98f7a14b6d7c104"
+    },
+    {
+      "source": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+      "label": "candidate",
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 169,
+      "target_literal": "polisyos.foundry.uncertainty.sampling_admission",
+      "expression": "importlib.import_module('polisyos.foundry.uncertainty.sampling_admission')",
+      "source_sha256": "3df2f70a6c8e7ad84a7cac75dc3d821dba1d74110fb259b6f98f7a14b6d7c104"
+    }
+  ],
+  "added_literal_dynamic_edges": [
+    {
+      "source": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+      "label": "candidate",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "line": 85,
+      "target_literal": "..calibration.uncertainty_adapter",
+      "expression": "import_module('..calibration.uncertainty_adapter', __name__)",
+      "source_sha256": "1011225c9518c1128e036582abe261281abcff9177a8359034fcf2c7e5c67bf9"
+    },
+    {
+      "source": "e4566c56f1d05479e4d8bc5bba562d701c17e5bc",
+      "label": "candidate",
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "line": 23,
+      "target_literal": "polisyos.foundry.calibration.uncertainty_adapter",
+      "expression": "importlib.import_module('polisyos.foundry.calibration.uncertainty_adapter')",
+      "source_sha256": "3df2f70a6c8e7ad84a7cac75dc3d821dba1d74110fb259b6f98f7a14b6d7c104"
+    }
+  ],
+  "scope": "Full four changed Python ASTs; complement to complete Import/ImportFrom edges. Public-module relative owner loading and test canonical backing-owner identity oracle are distinct from migrated public consumers. No whole architecture gate or new exception admission claimed."
+}

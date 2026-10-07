@@ -1,0 +1,11 @@
+{
+  "source_disposition": "GO",
+  "source": "ace655f4c97fdbfb2fed0b22de7a54caa3ac31b1",
+  "tree": "954620fc97fb377ca17be3db3592b10b66849a3e",
+  "current_native_cases": 6,
+  "current_delta_controls": 6,
+  "bound_input_negatives": 10,
+  "optimized": 0,
+  "review_bytes": 10915,
+  "review_sha256": "04cefff0ecfb4cd1ffbe94dcb87fd38af2398f5074238d9283606f3c16558e0a"
+}

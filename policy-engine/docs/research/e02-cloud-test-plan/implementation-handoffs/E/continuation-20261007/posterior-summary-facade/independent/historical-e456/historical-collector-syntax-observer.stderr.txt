@@ -1,0 +1,4 @@
+  File "/tmp/e02-E-summary-facade-e456-independent-20261007/collect-review.py", line 11
+    if cases!=s['cases']or s['exit_code']!=0or len(cases)!=93or any(x['outcome']!='PASS'for x in cases):raise ValueError('closed native JUnit mismatch')
+                                            ^
+SyntaxError: invalid octal literal

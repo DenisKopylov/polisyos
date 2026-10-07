@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/oracle-r4/probe_morris_candidate.py", line 80, in <module>
+    exercise('four_valid_rows_beyond_admitted_one_trajectory',lambda:analysis.analyze_sensitivity(plan,raw,y),refused=True)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r3-receipts/oracle-r4/probe_morris_candidate.py", line 73, in exercise
+    raise AssertionError(case+': missing actual-work refusal')
+AssertionError: four_valid_rows_beyond_admitted_one_trajectory: missing actual-work refusal

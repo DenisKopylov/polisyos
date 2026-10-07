@@ -1,0 +1,780 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="18" skipped="0" tests="21" time="1.274" timestamp="2026-10-07T07:26:22.158282+00:00" hostname="b5f0914494dc"><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_healthy_two_row_point_analysis_keeps_one_trajectory_limit" time="0.009" /><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_extra_valid_trajectories_refuse_before_native_work[False-point]" time="0.002"><failure message="AssertionError: actual-work admission must precede native analysis">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f3358222c40&gt;
+boundary = 'point', override = False
+
+    @pytest.mark.parametrize(
+        "boundary", ["point", "preparation", "identity", "geometry", "PCA", "stability", "persist"]
+    )
+    @pytest.mark.parametrize("override", [False, True])
+    def test_extra_valid_trajectories_refuse_before_native_work(monkeypatch, boundary, override):
+        plan = _plan(allow_large_run=override, max_estimated_runs=100)
+        samples, outputs = _two_trajectories()
+        backend_calls: list[str] = []
+    
+        def forbidden(*args, **kwargs):
+            backend_calls.append("native_analysis_or_PCA")
+            raise AssertionError("actual-work admission must precede native analysis")
+    
+        monkeypatch.setattr(morris, "analyze", forbidden)
+        monkeypatch.setattr(MultiOutputAnalyzer, "_run_pca", forbidden)
+        entrypoints = {
+            "point": lambda: analysis.analyze_sensitivity(plan, samples, outputs),
+            "preparation": lambda: analysis._prepare_analysis_inputs(plan, samples, outputs),
+            "identity": lambda: analysis._analysis_identity(plan, samples, outputs),
+            "geometry": lambda: _validate_morris_plan_samples(plan, samples),
+            "PCA": lambda: MultiOutputAnalyzer().analyze(
+                plan, samples, np.column_stack([outputs, 3.0 * outputs])
+            ),
+            "stability": lambda: RankingStabilityChecker(n_bootstrap=5).check(plan, samples, outputs),
+            # None is deliberate: refusal must precede result inspection/store use.
+            "persist": lambda: _persist_analysis(None, plan, samples, outputs, None),
+        }
+    
+        with pytest.raises(ValueError, match="actual Morris analysis rows exceed admitted plan"):
+&gt;           entrypoints[boundary]()
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:93: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:80: in &lt;lambda&gt;
+    "point": lambda: analysis.analyze_sensitivity(plan, samples, outputs),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/doe/analysis.py:100: in analyze_sensitivity
+    salib_result = morris_analyzer.analyze(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = ({'bounds': [[0.0, 1.0]], 'names': ['x'], 'num_vars': 1}, array([[0.        ],
+       [0.66666667],
+       [0.33333333],
+       [1.        ]]), array([0.        , 1.33333333, 0.66666667, 2.        ]))
+kwargs = {'conf_level': 0.95, 'num_levels': 4, 'seed': 2392636306}
+
+    def forbidden(*args, **kwargs):
+        backend_calls.append("native_analysis_or_PCA")
+&gt;       raise AssertionError("actual-work admission must precede native analysis")
+E       AssertionError: actual-work admission must precede native analysis
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:75: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_extra_valid_trajectories_refuse_before_native_work[False-preparation]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f3358226d50&gt;
+boundary = 'preparation', override = False
+
+    @pytest.mark.parametrize(
+        "boundary", ["point", "preparation", "identity", "geometry", "PCA", "stability", "persist"]
+    )
+    @pytest.mark.parametrize("override", [False, True])
+    def test_extra_valid_trajectories_refuse_before_native_work(monkeypatch, boundary, override):
+        plan = _plan(allow_large_run=override, max_estimated_runs=100)
+        samples, outputs = _two_trajectories()
+        backend_calls: list[str] = []
+    
+        def forbidden(*args, **kwargs):
+            backend_calls.append("native_analysis_or_PCA")
+            raise AssertionError("actual-work admission must precede native analysis")
+    
+        monkeypatch.setattr(morris, "analyze", forbidden)
+        monkeypatch.setattr(MultiOutputAnalyzer, "_run_pca", forbidden)
+        entrypoints = {
+            "point": lambda: analysis.analyze_sensitivity(plan, samples, outputs),
+            "preparation": lambda: analysis._prepare_analysis_inputs(plan, samples, outputs),
+            "identity": lambda: analysis._analysis_identity(plan, samples, outputs),
+            "geometry": lambda: _validate_morris_plan_samples(plan, samples),
+            "PCA": lambda: MultiOutputAnalyzer().analyze(
+                plan, samples, np.column_stack([outputs, 3.0 * outputs])
+            ),
+            "stability": lambda: RankingStabilityChecker(n_bootstrap=5).check(plan, samples, outputs),
+            # None is deliberate: refusal must precede result inspection/store use.
+            "persist": lambda: _persist_analysis(None, plan, samples, outputs, None),
+        }
+    
+&gt;       with pytest.raises(ValueError, match="actual Morris analysis rows exceed admitted plan"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:92: Failed</failure></testcase><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_extra_valid_trajectories_refuse_before_native_work[False-identity]" time="0.002"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f333968d150&gt;
+boundary = 'identity', override = False
+
+    @pytest.mark.parametrize(
+        "boundary", ["point", "preparation", "identity", "geometry", "PCA", "stability", "persist"]
+    )
+    @pytest.mark.parametrize("override", [False, True])
+    def test_extra_valid_trajectories_refuse_before_native_work(monkeypatch, boundary, override):
+        plan = _plan(allow_large_run=override, max_estimated_runs=100)
+        samples, outputs = _two_trajectories()
+        backend_calls: list[str] = []
+    
+        def forbidden(*args, **kwargs):
+            backend_calls.append("native_analysis_or_PCA")
+            raise AssertionError("actual-work admission must precede native analysis")
+    
+        monkeypatch.setattr(morris, "analyze", forbidden)
+        monkeypatch.setattr(MultiOutputAnalyzer, "_run_pca", forbidden)
+        entrypoints = {
+            "point": lambda: analysis.analyze_sensitivity(plan, samples, outputs),
+            "preparation": lambda: analysis._prepare_analysis_inputs(plan, samples, outputs),
+            "identity": lambda: analysis._analysis_identity(plan, samples, outputs),
+            "geometry": lambda: _validate_morris_plan_samples(plan, samples),
+            "PCA": lambda: MultiOutputAnalyzer().analyze(
+                plan, samples, np.column_stack([outputs, 3.0 * outputs])
+            ),
+            "stability": lambda: RankingStabilityChecker(n_bootstrap=5).check(plan, samples, outputs),
+            # None is deliberate: refusal must precede result inspection/store use.
+            "persist": lambda: _persist_analysis(None, plan, samples, outputs, None),
+        }
+    
+&gt;       with pytest.raises(ValueError, match="actual Morris analysis rows exceed admitted plan"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:92: Failed</failure></testcase><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_extra_valid_trajectories_refuse_before_native_work[False-geometry]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f333968d6a0&gt;
+boundary = 'geometry', override = False
+
+    @pytest.mark.parametrize(
+        "boundary", ["point", "preparation", "identity", "geometry", "PCA", "stability", "persist"]
+    )
+    @pytest.mark.parametrize("override", [False, True])
+    def test_extra_valid_trajectories_refuse_before_native_work(monkeypatch, boundary, override):
+        plan = _plan(allow_large_run=override, max_estimated_runs=100)
+        samples, outputs = _two_trajectories()
+        backend_calls: list[str] = []
+    
+        def forbidden(*args, **kwargs):
+            backend_calls.append("native_analysis_or_PCA")
+            raise AssertionError("actual-work admission must precede native analysis")
+    
+        monkeypatch.setattr(morris, "analyze", forbidden)
+        monkeypatch.setattr(MultiOutputAnalyzer, "_run_pca", forbidden)
+        entrypoints = {
+            "point": lambda: analysis.analyze_sensitivity(plan, samples, outputs),
+            "preparation": lambda: analysis._prepare_analysis_inputs(plan, samples, outputs),
+            "identity": lambda: analysis._analysis_identity(plan, samples, outputs),
+            "geometry": lambda: _validate_morris_plan_samples(plan, samples),
+            "PCA": lambda: MultiOutputAnalyzer().analyze(
+                plan, samples, np.column_stack([outputs, 3.0 * outputs])
+            ),
+            "stability": lambda: RankingStabilityChecker(n_bootstrap=5).check(plan, samples, outputs),
+            # None is deliberate: refusal must precede result inspection/store use.
+            "persist": lambda: _persist_analysis(None, plan, samples, outputs, None),
+        }
+    
+&gt;       with pytest.raises(ValueError, match="actual Morris analysis rows exceed admitted plan"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:92: Failed</failure></testcase><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_extra_valid_trajectories_refuse_before_native_work[False-PCA]" time="0.001"><failure message="AssertionError: actual-work admission must precede native analysis">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f333965fc50&gt;
+boundary = 'PCA', override = False
+
+    @pytest.mark.parametrize(
+        "boundary", ["point", "preparation", "identity", "geometry", "PCA", "stability", "persist"]
+    )
+    @pytest.mark.parametrize("override", [False, True])
+    def test_extra_valid_trajectories_refuse_before_native_work(monkeypatch, boundary, override):
+        plan = _plan(allow_large_run=override, max_estimated_runs=100)
+        samples, outputs = _two_trajectories()
+        backend_calls: list[str] = []
+    
+        def forbidden(*args, **kwargs):
+            backend_calls.append("native_analysis_or_PCA")
+            raise AssertionError("actual-work admission must precede native analysis")
+    
+        monkeypatch.setattr(morris, "analyze", forbidden)
+        monkeypatch.setattr(MultiOutputAnalyzer, "_run_pca", forbidden)
+        entrypoints = {
+            "point": lambda: analysis.analyze_sensitivity(plan, samples, outputs),
+            "preparation": lambda: analysis._prepare_analysis_inputs(plan, samples, outputs),
+            "identity": lambda: analysis._analysis_identity(plan, samples, outputs),
+            "geometry": lambda: _validate_morris_plan_samples(plan, samples),
+            "PCA": lambda: MultiOutputAnalyzer().analyze(
+                plan, samples, np.column_stack([outputs, 3.0 * outputs])
+            ),
+            "stability": lambda: RankingStabilityChecker(n_bootstrap=5).check(plan, samples, outputs),
+            # None is deliberate: refusal must precede result inspection/store use.
+            "persist": lambda: _persist_analysis(None, plan, samples, outputs, None),
+        }
+    
+        with pytest.raises(ValueError, match="actual Morris analysis rows exceed admitted plan"):
+&gt;           entrypoints[boundary]()
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:93: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:84: in &lt;lambda&gt;
+    "PCA": lambda: MultiOutputAnalyzer().analyze(
+src/polisyos/scientist/methods/doe/multi_output.py:110: in analyze
+    components, variance_ratio = self._run_pca(active_outputs)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (&lt;polisyos.scientist.methods.doe.multi_output.MultiOutputAnalyzer object at 0x7f33595bbb60&gt;, array([[0.        , 0.        ],
+       [1.33333333, 4.        ],
+       [0.66666667, 2.        ],
+       [2.        , 6.        ]]))
+kwargs = {}
+
+    def forbidden(*args, **kwargs):
+        backend_calls.append("native_analysis_or_PCA")
+&gt;       raise AssertionError("actual-work admission must precede native analysis")
+E       AssertionError: actual-work admission must precede native analysis
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:75: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_extra_valid_trajectories_refuse_before_native_work[False-stability]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f33395c0650&gt;
+boundary = 'stability', override = False
+
+    @pytest.mark.parametrize(
+        "boundary", ["point", "preparation", "identity", "geometry", "PCA", "stability", "persist"]
+    )
+    @pytest.mark.parametrize("override", [False, True])
+    def test_extra_valid_trajectories_refuse_before_native_work(monkeypatch, boundary, override):
+        plan = _plan(allow_large_run=override, max_estimated_runs=100)
+        samples, outputs = _two_trajectories()
+        backend_calls: list[str] = []
+    
+        def forbidden(*args, **kwargs):
+            backend_calls.append("native_analysis_or_PCA")
+            raise AssertionError("actual-work admission must precede native analysis")
+    
+        monkeypatch.setattr(morris, "analyze", forbidden)
+        monkeypatch.setattr(MultiOutputAnalyzer, "_run_pca", forbidden)
+        entrypoints = {
+            "point": lambda: analysis.analyze_sensitivity(plan, samples, outputs),
+            "preparation": lambda: analysis._prepare_analysis_inputs(plan, samples, outputs),
+            "identity": lambda: analysis._analysis_identity(plan, samples, outputs),
+            "geometry": lambda: _validate_morris_plan_samples(plan, samples),
+            "PCA": lambda: MultiOutputAnalyzer().analyze(
+                plan, samples, np.column_stack([outputs, 3.0 * outputs])
+            ),
+            "stability": lambda: RankingStabilityChecker(n_bootstrap=5).check(plan, samples, outputs),
+            # None is deliberate: refusal must precede result inspection/store use.
+            "persist": lambda: _persist_analysis(None, plan, samples, outputs, None),
+        }
+    
+&gt;       with pytest.raises(ValueError, match="actual Morris analysis rows exceed admitted plan"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:92: Failed</failure></testcase><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_extra_valid_trajectories_refuse_before_native_work[False-persist]" time="0.001"><failure message="AttributeError: 'NoneType' object has no attribute 'metadata'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f3339722a80&gt;
+boundary = 'persist', override = False
+
+    @pytest.mark.parametrize(
+        "boundary", ["point", "preparation", "identity", "geometry", "PCA", "stability", "persist"]
+    )
+    @pytest.mark.parametrize("override", [False, True])
+    def test_extra_valid_trajectories_refuse_before_native_work(monkeypatch, boundary, override):
+        plan = _plan(allow_large_run=override, max_estimated_runs=100)
+        samples, outputs = _two_trajectories()
+        backend_calls: list[str] = []
+    
+        def forbidden(*args, **kwargs):
+            backend_calls.append("native_analysis_or_PCA")
+            raise AssertionError("actual-work admission must precede native analysis")
+    
+        monkeypatch.setattr(morris, "analyze", forbidden)
+        monkeypatch.setattr(MultiOutputAnalyzer, "_run_pca", forbidden)
+        entrypoints = {
+            "point": lambda: analysis.analyze_sensitivity(plan, samples, outputs),
+            "preparation": lambda: analysis._prepare_analysis_inputs(plan, samples, outputs),
+            "identity": lambda: analysis._analysis_identity(plan, samples, outputs),
+            "geometry": lambda: _validate_morris_plan_samples(plan, samples),
+            "PCA": lambda: MultiOutputAnalyzer().analyze(
+                plan, samples, np.column_stack([outputs, 3.0 * outputs])
+            ),
+            "stability": lambda: RankingStabilityChecker(n_bootstrap=5).check(plan, samples, outputs),
+            # None is deliberate: refusal must precede result inspection/store use.
+            "persist": lambda: _persist_analysis(None, plan, samples, outputs, None),
+        }
+    
+        with pytest.raises(ValueError, match="actual Morris analysis rows exceed admitted plan"):
+&gt;           entrypoints[boundary]()
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:93: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:89: in &lt;lambda&gt;
+    "persist": lambda: _persist_analysis(None, plan, samples, outputs, None),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/doe/_receipt.py:52: in _persist_analysis
+    if any(result.metadata.get(key) != value for key, value in identity.items()):
+       ^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;dict_itemiterator object at 0x7f3339712570&gt;
+
+&gt;   if any(result.metadata.get(key) != value for key, value in identity.items()):
+           ^^^^^^^^^^^^^^^
+E   AttributeError: 'NoneType' object has no attribute 'metadata'
+
+src/polisyos/scientist/methods/doe/_receipt.py:52: AttributeError</failure></testcase><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_extra_valid_trajectories_refuse_before_native_work[True-point]" time="0.002"><failure message="AssertionError: actual-work admission must precede native analysis">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f3339723b60&gt;
+boundary = 'point', override = True
+
+    @pytest.mark.parametrize(
+        "boundary", ["point", "preparation", "identity", "geometry", "PCA", "stability", "persist"]
+    )
+    @pytest.mark.parametrize("override", [False, True])
+    def test_extra_valid_trajectories_refuse_before_native_work(monkeypatch, boundary, override):
+        plan = _plan(allow_large_run=override, max_estimated_runs=100)
+        samples, outputs = _two_trajectories()
+        backend_calls: list[str] = []
+    
+        def forbidden(*args, **kwargs):
+            backend_calls.append("native_analysis_or_PCA")
+            raise AssertionError("actual-work admission must precede native analysis")
+    
+        monkeypatch.setattr(morris, "analyze", forbidden)
+        monkeypatch.setattr(MultiOutputAnalyzer, "_run_pca", forbidden)
+        entrypoints = {
+            "point": lambda: analysis.analyze_sensitivity(plan, samples, outputs),
+            "preparation": lambda: analysis._prepare_analysis_inputs(plan, samples, outputs),
+            "identity": lambda: analysis._analysis_identity(plan, samples, outputs),
+            "geometry": lambda: _validate_morris_plan_samples(plan, samples),
+            "PCA": lambda: MultiOutputAnalyzer().analyze(
+                plan, samples, np.column_stack([outputs, 3.0 * outputs])
+            ),
+            "stability": lambda: RankingStabilityChecker(n_bootstrap=5).check(plan, samples, outputs),
+            # None is deliberate: refusal must precede result inspection/store use.
+            "persist": lambda: _persist_analysis(None, plan, samples, outputs, None),
+        }
+    
+        with pytest.raises(ValueError, match="actual Morris analysis rows exceed admitted plan"):
+&gt;           entrypoints[boundary]()
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:93: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:80: in &lt;lambda&gt;
+    "point": lambda: analysis.analyze_sensitivity(plan, samples, outputs),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/doe/analysis.py:100: in analyze_sensitivity
+    salib_result = morris_analyzer.analyze(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = ({'bounds': [[0.0, 1.0]], 'names': ['x'], 'num_vars': 1}, array([[0.        ],
+       [0.66666667],
+       [0.33333333],
+       [1.        ]]), array([0.        , 1.33333333, 0.66666667, 2.        ]))
+kwargs = {'conf_level': 0.95, 'num_levels': 4, 'seed': 2392636306}
+
+    def forbidden(*args, **kwargs):
+        backend_calls.append("native_analysis_or_PCA")
+&gt;       raise AssertionError("actual-work admission must precede native analysis")
+E       AssertionError: actual-work admission must precede native analysis
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:75: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_extra_valid_trajectories_refuse_before_native_work[True-preparation]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f33395952b0&gt;
+boundary = 'preparation', override = True
+
+    @pytest.mark.parametrize(
+        "boundary", ["point", "preparation", "identity", "geometry", "PCA", "stability", "persist"]
+    )
+    @pytest.mark.parametrize("override", [False, True])
+    def test_extra_valid_trajectories_refuse_before_native_work(monkeypatch, boundary, override):
+        plan = _plan(allow_large_run=override, max_estimated_runs=100)
+        samples, outputs = _two_trajectories()
+        backend_calls: list[str] = []
+    
+        def forbidden(*args, **kwargs):
+            backend_calls.append("native_analysis_or_PCA")
+            raise AssertionError("actual-work admission must precede native analysis")
+    
+        monkeypatch.setattr(morris, "analyze", forbidden)
+        monkeypatch.setattr(MultiOutputAnalyzer, "_run_pca", forbidden)
+        entrypoints = {
+            "point": lambda: analysis.analyze_sensitivity(plan, samples, outputs),
+            "preparation": lambda: analysis._prepare_analysis_inputs(plan, samples, outputs),
+            "identity": lambda: analysis._analysis_identity(plan, samples, outputs),
+            "geometry": lambda: _validate_morris_plan_samples(plan, samples),
+            "PCA": lambda: MultiOutputAnalyzer().analyze(
+                plan, samples, np.column_stack([outputs, 3.0 * outputs])
+            ),
+            "stability": lambda: RankingStabilityChecker(n_bootstrap=5).check(plan, samples, outputs),
+            # None is deliberate: refusal must precede result inspection/store use.
+            "persist": lambda: _persist_analysis(None, plan, samples, outputs, None),
+        }
+    
+&gt;       with pytest.raises(ValueError, match="actual Morris analysis rows exceed admitted plan"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:92: Failed</failure></testcase><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_extra_valid_trajectories_refuse_before_native_work[True-identity]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f3339595630&gt;
+boundary = 'identity', override = True
+
+    @pytest.mark.parametrize(
+        "boundary", ["point", "preparation", "identity", "geometry", "PCA", "stability", "persist"]
+    )
+    @pytest.mark.parametrize("override", [False, True])
+    def test_extra_valid_trajectories_refuse_before_native_work(monkeypatch, boundary, override):
+        plan = _plan(allow_large_run=override, max_estimated_runs=100)
+        samples, outputs = _two_trajectories()
+        backend_calls: list[str] = []
+    
+        def forbidden(*args, **kwargs):
+            backend_calls.append("native_analysis_or_PCA")
+            raise AssertionError("actual-work admission must precede native analysis")
+    
+        monkeypatch.setattr(morris, "analyze", forbidden)
+        monkeypatch.setattr(MultiOutputAnalyzer, "_run_pca", forbidden)
+        entrypoints = {
+            "point": lambda: analysis.analyze_sensitivity(plan, samples, outputs),
+            "preparation": lambda: analysis._prepare_analysis_inputs(plan, samples, outputs),
+            "identity": lambda: analysis._analysis_identity(plan, samples, outputs),
+            "geometry": lambda: _validate_morris_plan_samples(plan, samples),
+            "PCA": lambda: MultiOutputAnalyzer().analyze(
+                plan, samples, np.column_stack([outputs, 3.0 * outputs])
+            ),
+            "stability": lambda: RankingStabilityChecker(n_bootstrap=5).check(plan, samples, outputs),
+            # None is deliberate: refusal must precede result inspection/store use.
+            "persist": lambda: _persist_analysis(None, plan, samples, outputs, None),
+        }
+    
+&gt;       with pytest.raises(ValueError, match="actual Morris analysis rows exceed admitted plan"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:92: Failed</failure></testcase><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_extra_valid_trajectories_refuse_before_native_work[True-geometry]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f33396c5a50&gt;
+boundary = 'geometry', override = True
+
+    @pytest.mark.parametrize(
+        "boundary", ["point", "preparation", "identity", "geometry", "PCA", "stability", "persist"]
+    )
+    @pytest.mark.parametrize("override", [False, True])
+    def test_extra_valid_trajectories_refuse_before_native_work(monkeypatch, boundary, override):
+        plan = _plan(allow_large_run=override, max_estimated_runs=100)
+        samples, outputs = _two_trajectories()
+        backend_calls: list[str] = []
+    
+        def forbidden(*args, **kwargs):
+            backend_calls.append("native_analysis_or_PCA")
+            raise AssertionError("actual-work admission must precede native analysis")
+    
+        monkeypatch.setattr(morris, "analyze", forbidden)
+        monkeypatch.setattr(MultiOutputAnalyzer, "_run_pca", forbidden)
+        entrypoints = {
+            "point": lambda: analysis.analyze_sensitivity(plan, samples, outputs),
+            "preparation": lambda: analysis._prepare_analysis_inputs(plan, samples, outputs),
+            "identity": lambda: analysis._analysis_identity(plan, samples, outputs),
+            "geometry": lambda: _validate_morris_plan_samples(plan, samples),
+            "PCA": lambda: MultiOutputAnalyzer().analyze(
+                plan, samples, np.column_stack([outputs, 3.0 * outputs])
+            ),
+            "stability": lambda: RankingStabilityChecker(n_bootstrap=5).check(plan, samples, outputs),
+            # None is deliberate: refusal must precede result inspection/store use.
+            "persist": lambda: _persist_analysis(None, plan, samples, outputs, None),
+        }
+    
+&gt;       with pytest.raises(ValueError, match="actual Morris analysis rows exceed admitted plan"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:92: Failed</failure></testcase><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_extra_valid_trajectories_refuse_before_native_work[True-PCA]" time="0.001"><failure message="AssertionError: actual-work admission must precede native analysis">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f333967c950&gt;
+boundary = 'PCA', override = True
+
+    @pytest.mark.parametrize(
+        "boundary", ["point", "preparation", "identity", "geometry", "PCA", "stability", "persist"]
+    )
+    @pytest.mark.parametrize("override", [False, True])
+    def test_extra_valid_trajectories_refuse_before_native_work(monkeypatch, boundary, override):
+        plan = _plan(allow_large_run=override, max_estimated_runs=100)
+        samples, outputs = _two_trajectories()
+        backend_calls: list[str] = []
+    
+        def forbidden(*args, **kwargs):
+            backend_calls.append("native_analysis_or_PCA")
+            raise AssertionError("actual-work admission must precede native analysis")
+    
+        monkeypatch.setattr(morris, "analyze", forbidden)
+        monkeypatch.setattr(MultiOutputAnalyzer, "_run_pca", forbidden)
+        entrypoints = {
+            "point": lambda: analysis.analyze_sensitivity(plan, samples, outputs),
+            "preparation": lambda: analysis._prepare_analysis_inputs(plan, samples, outputs),
+            "identity": lambda: analysis._analysis_identity(plan, samples, outputs),
+            "geometry": lambda: _validate_morris_plan_samples(plan, samples),
+            "PCA": lambda: MultiOutputAnalyzer().analyze(
+                plan, samples, np.column_stack([outputs, 3.0 * outputs])
+            ),
+            "stability": lambda: RankingStabilityChecker(n_bootstrap=5).check(plan, samples, outputs),
+            # None is deliberate: refusal must precede result inspection/store use.
+            "persist": lambda: _persist_analysis(None, plan, samples, outputs, None),
+        }
+    
+        with pytest.raises(ValueError, match="actual Morris analysis rows exceed admitted plan"):
+&gt;           entrypoints[boundary]()
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:93: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:84: in &lt;lambda&gt;
+    "PCA": lambda: MultiOutputAnalyzer().analyze(
+src/polisyos/scientist/methods/doe/multi_output.py:110: in analyze
+    components, variance_ratio = self._run_pca(active_outputs)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (&lt;polisyos.scientist.methods.doe.multi_output.MultiOutputAnalyzer object at 0x7f33397b3ed0&gt;, array([[0.        , 0.        ],
+       [1.33333333, 4.        ],
+       [0.66666667, 2.        ],
+       [2.        , 6.        ]]))
+kwargs = {}
+
+    def forbidden(*args, **kwargs):
+        backend_calls.append("native_analysis_or_PCA")
+&gt;       raise AssertionError("actual-work admission must precede native analysis")
+E       AssertionError: actual-work admission must precede native analysis
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:75: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_extra_valid_trajectories_refuse_before_native_work[True-stability]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f33396e9850&gt;
+boundary = 'stability', override = True
+
+    @pytest.mark.parametrize(
+        "boundary", ["point", "preparation", "identity", "geometry", "PCA", "stability", "persist"]
+    )
+    @pytest.mark.parametrize("override", [False, True])
+    def test_extra_valid_trajectories_refuse_before_native_work(monkeypatch, boundary, override):
+        plan = _plan(allow_large_run=override, max_estimated_runs=100)
+        samples, outputs = _two_trajectories()
+        backend_calls: list[str] = []
+    
+        def forbidden(*args, **kwargs):
+            backend_calls.append("native_analysis_or_PCA")
+            raise AssertionError("actual-work admission must precede native analysis")
+    
+        monkeypatch.setattr(morris, "analyze", forbidden)
+        monkeypatch.setattr(MultiOutputAnalyzer, "_run_pca", forbidden)
+        entrypoints = {
+            "point": lambda: analysis.analyze_sensitivity(plan, samples, outputs),
+            "preparation": lambda: analysis._prepare_analysis_inputs(plan, samples, outputs),
+            "identity": lambda: analysis._analysis_identity(plan, samples, outputs),
+            "geometry": lambda: _validate_morris_plan_samples(plan, samples),
+            "PCA": lambda: MultiOutputAnalyzer().analyze(
+                plan, samples, np.column_stack([outputs, 3.0 * outputs])
+            ),
+            "stability": lambda: RankingStabilityChecker(n_bootstrap=5).check(plan, samples, outputs),
+            # None is deliberate: refusal must precede result inspection/store use.
+            "persist": lambda: _persist_analysis(None, plan, samples, outputs, None),
+        }
+    
+&gt;       with pytest.raises(ValueError, match="actual Morris analysis rows exceed admitted plan"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:92: Failed</failure></testcase><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_extra_valid_trajectories_refuse_before_native_work[True-persist]" time="0.001"><failure message="AttributeError: 'NoneType' object has no attribute 'metadata'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f33396edc80&gt;
+boundary = 'persist', override = True
+
+    @pytest.mark.parametrize(
+        "boundary", ["point", "preparation", "identity", "geometry", "PCA", "stability", "persist"]
+    )
+    @pytest.mark.parametrize("override", [False, True])
+    def test_extra_valid_trajectories_refuse_before_native_work(monkeypatch, boundary, override):
+        plan = _plan(allow_large_run=override, max_estimated_runs=100)
+        samples, outputs = _two_trajectories()
+        backend_calls: list[str] = []
+    
+        def forbidden(*args, **kwargs):
+            backend_calls.append("native_analysis_or_PCA")
+            raise AssertionError("actual-work admission must precede native analysis")
+    
+        monkeypatch.setattr(morris, "analyze", forbidden)
+        monkeypatch.setattr(MultiOutputAnalyzer, "_run_pca", forbidden)
+        entrypoints = {
+            "point": lambda: analysis.analyze_sensitivity(plan, samples, outputs),
+            "preparation": lambda: analysis._prepare_analysis_inputs(plan, samples, outputs),
+            "identity": lambda: analysis._analysis_identity(plan, samples, outputs),
+            "geometry": lambda: _validate_morris_plan_samples(plan, samples),
+            "PCA": lambda: MultiOutputAnalyzer().analyze(
+                plan, samples, np.column_stack([outputs, 3.0 * outputs])
+            ),
+            "stability": lambda: RankingStabilityChecker(n_bootstrap=5).check(plan, samples, outputs),
+            # None is deliberate: refusal must precede result inspection/store use.
+            "persist": lambda: _persist_analysis(None, plan, samples, outputs, None),
+        }
+    
+        with pytest.raises(ValueError, match="actual Morris analysis rows exceed admitted plan"):
+&gt;           entrypoints[boundary]()
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:93: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:89: in &lt;lambda&gt;
+    "persist": lambda: _persist_analysis(None, plan, samples, outputs, None),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/doe/_receipt.py:52: in _persist_analysis
+    if any(result.metadata.get(key) != value for key, value in identity.items()):
+       ^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;dict_itemiterator object at 0x7f3339713470&gt;
+
+&gt;   if any(result.metadata.get(key) != value for key, value in identity.items()):
+           ^^^^^^^^^^^^^^^
+E   AttributeError: 'NoneType' object has no attribute 'metadata'
+
+src/polisyos/scientist/methods/doe/_receipt.py:52: AttributeError</failure></testcase><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_failed_extra_trajectory_cannot_shrink_into_admitted_work[drop_failed]" time="0.002"><failure message="AssertionError: failure policy must not erase excess original work">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f33396ecb50&gt;
+policy = 'drop_failed'
+
+    @pytest.mark.parametrize("policy", ["drop_failed", "impute_baseline"])
+    def test_failed_extra_trajectory_cannot_shrink_into_admitted_work(monkeypatch, policy):
+        plan = _plan(run_failure_policy=policy, min_success_rate=0.5)
+        samples, outputs = _two_trajectories()
+        outputs[2:] = np.nan
+        calls: list[int] = []
+    
+        def forbidden(*args, **kwargs):
+            calls.append(1)
+            raise AssertionError("failure policy must not erase excess original work")
+    
+        monkeypatch.setattr(morris, "analyze", forbidden)
+        with pytest.raises(ValueError, match="actual Morris analysis rows exceed admitted plan"):
+&gt;           analysis.analyze_sensitivity(plan, samples, outputs)
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/doe/analysis.py:100: in analyze_sensitivity
+    salib_result = morris_analyzer.analyze(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = ({'bounds': [[0.0, 1.0]], 'names': ['x'], 'num_vars': 1}, array([[0.        ],
+       [0.66666667]]), array([0.        , 1.33333333]))
+kwargs = {'conf_level': 0.95, 'num_levels': 4, 'seed': 2392636306}
+
+    def forbidden(*args, **kwargs):
+        calls.append(1)
+&gt;       raise AssertionError("failure policy must not erase excess original work")
+E       AssertionError: failure policy must not erase excess original work
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:106: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_failed_extra_trajectory_cannot_shrink_into_admitted_work[impute_baseline]" time="0.002"><failure message="AssertionError: failure policy must not erase excess original work">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f33396f16d0&gt;
+policy = 'impute_baseline'
+
+    @pytest.mark.parametrize("policy", ["drop_failed", "impute_baseline"])
+    def test_failed_extra_trajectory_cannot_shrink_into_admitted_work(monkeypatch, policy):
+        plan = _plan(run_failure_policy=policy, min_success_rate=0.5)
+        samples, outputs = _two_trajectories()
+        outputs[2:] = np.nan
+        calls: list[int] = []
+    
+        def forbidden(*args, **kwargs):
+            calls.append(1)
+            raise AssertionError("failure policy must not erase excess original work")
+    
+        monkeypatch.setattr(morris, "analyze", forbidden)
+        with pytest.raises(ValueError, match="actual Morris analysis rows exceed admitted plan"):
+&gt;           analysis.analyze_sensitivity(plan, samples, outputs)
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/doe/analysis.py:100: in analyze_sensitivity
+    salib_result = morris_analyzer.analyze(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = ({'bounds': [[0.0, 1.0]], 'names': ['x'], 'num_vars': 1}, array([[0.        ],
+       [0.66666667],
+       [0.33333333],
+       [1.        ]]), array([0.        , 1.33333333, 0.66666667, 0.66666667]))
+kwargs = {'conf_level': 0.95, 'num_levels': 4, 'seed': 2392636306}
+
+    def forbidden(*args, **kwargs):
+        calls.append(1)
+&gt;       raise AssertionError("failure policy must not erase excess original work")
+E       AssertionError: failure policy must not erase excess original work
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:106: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_explicit_larger_plan_admits_same_rows_and_preserves_effect_oracle" time="0.003" /><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_admitted_original_work_keeps_whole_trajectory_drop_accounting" time="0.003" /><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_fresh_receipt_reopen_binds_actual_work_and_refuses_forged_smaller_plan" time="0.027"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: 'actual Morris analysis rows exceed admitted plan'&#10;  Actual message: 'Persisted DOE sensitivity result does not reproduce'">store = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f33398eeba0&gt;
+
+    def test_fresh_receipt_reopen_binds_actual_work_and_refuses_forged_smaller_plan(store):
+        samples, outputs = _two_trajectories()
+        plan = _plan(trajectories=2)
+        result = analysis.analyze_sensitivity(plan, samples, outputs)
+        ref = _persist_analysis(store, plan, samples, outputs, result)
+        fresh = FileSystemCAS(store.root)
+        reopened = _load_analysis(fresh, ref)
+    
+        assert reopened == result
+        assert reopened.metadata["ordered_samples_sha256"] == result.metadata["ordered_samples_sha256"]
+        assert reopened.metadata["analysis_id"] == result.metadata["analysis_id"]
+        payload = json.loads(fresh.get_bytes(ref))
+        payload["plan"]["n_trajectories"] = 1
+        payload["plan"]["max_estimated_runs"] = 2
+        forged = put_json_artifact(store, payload, kind="doe_sensitivity_analysis")
+        assert fresh.verify(forged).ok
+        with pytest.raises(ValueError, match="actual Morris analysis rows exceed admitted plan"):
+&gt;           _load_analysis(fresh, forged)
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:159: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f3339708b90&gt;
+ref = ArtifactRef(artifact_id=ArtifactID(root='sha256:4cda8e43c2cb2f30f8628b4979934bf2276ed45c50263ea1df2301c2627c7197'), kind='doe_sensitivity_analysis', media_type='application/json', manifest_profile_sha256=None)
+
+    def _load_analysis(store: ArtifactStore, ref: ArtifactRef) -&gt; SensitivityResult:
+        """Resolve exact kind/schema/bytes and reproduce the analysis before consumption."""
+        from polisyos.core.canon import from_canonical_bytes
+    
+        manifest = store.get_manifest(ref)
+        if (
+            manifest.kind != _KIND
+            or manifest.media_type != "application/json"
+            or manifest.artifact_schema is None
+            or manifest.artifact_schema.name != _KIND
+            or manifest.artifact_schema.version != _VERSION
+        ):
+            raise ValueError("Expected a DOE sensitivity analysis artifact kind/schema")
+        if not store.verify(ref).ok:
+            raise ValueError("DOE sensitivity analysis artifact integrity failed")
+        receipt = _AnalysisReceipt.model_validate(from_canonical_bytes(store.get_bytes(ref)))
+        if receipt.plan.seed is None:
+            raise ValueError("Persisted DOE analysis requires an explicit replay seed")
+        samples = np.asarray(receipt.samples, dtype=float)
+        outputs = np.asarray(receipt.outputs, dtype=float)
+        reproduced = analyze_sensitivity(receipt.plan, samples, outputs)
+        if reproduced.model_dump(mode="json") != receipt.result.model_dump(mode="json"):
+&gt;           raise ValueError("Persisted DOE sensitivity result does not reproduce")
+E           ValueError: Persisted DOE sensitivity result does not reproduce
+
+src/polisyos/scientist/methods/doe/_receipt.py:95: ValueError
+
+During handling of the above exception, another exception occurred:
+
+store = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7f33398eeba0&gt;
+
+    def test_fresh_receipt_reopen_binds_actual_work_and_refuses_forged_smaller_plan(store):
+        samples, outputs = _two_trajectories()
+        plan = _plan(trajectories=2)
+        result = analysis.analyze_sensitivity(plan, samples, outputs)
+        ref = _persist_analysis(store, plan, samples, outputs, result)
+        fresh = FileSystemCAS(store.root)
+        reopened = _load_analysis(fresh, ref)
+    
+        assert reopened == result
+        assert reopened.metadata["ordered_samples_sha256"] == result.metadata["ordered_samples_sha256"]
+        assert reopened.metadata["analysis_id"] == result.metadata["analysis_id"]
+        payload = json.loads(fresh.get_bytes(ref))
+        payload["plan"]["n_trajectories"] = 1
+        payload["plan"]["max_estimated_runs"] = 2
+        forged = put_json_artifact(store, payload, kind="doe_sensitivity_analysis")
+        assert fresh.verify(forged).ok
+&gt;       with pytest.raises(ValueError, match="actual Morris analysis rows exceed admitted plan"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'actual Morris analysis rows exceed admitted plan'
+E         Actual message: 'Persisted DOE sensitivity result does not reproduce'
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:158: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.doe.test_morris_analysis_admission" name="test_removing_actual_work_property_reopens_excess_native_analysis" time="0.001"><failure message="TypeError: _admit_sensitivity_plan() missing 1 required keyword-only argument: 'actual_run_count'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f33396f2df0&gt;
+
+    def test_removing_actual_work_property_reopens_excess_native_analysis(monkeypatch):
+        # Keep the existing helper and all imported aliases. Remove only its
+        # actual-work predicate while retaining the structural snapshot validation.
+        def structural_only(plan, *, actual_run_count=None):
+            return SensitivityPlan.model_validate(plan.model_dump(mode="python"))
+    
+        monkeypatch.setattr(designs._admit_sensitivity_plan, "__code__", structural_only.__code__)
+        samples, outputs = _two_trajectories()
+&gt;       result = analysis.analyze_sensitivity(_plan(), samples, outputs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/doe/test_morris_analysis_admission.py:170: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+plan = SensitivityPlan(parameters=['x'], method=&lt;SensitivityMethod.MORRIS: 'morris'&gt;, parameter_specs=[ParameterSpec(name='x'...seed=None, uncertainty_scope='sampling_only', top_k=[1, 3], simulated_rank_draws=1999, studentized_inner_resamples=99))
+samples = array([[0.        ],
+       [0.66666667],
+       [0.33333333],
+       [1.        ]])
+outputs = array([0.        , 1.33333333, 0.66666667, 2.        ])
+
+    def analyze_sensitivity(
+        plan: SensitivityPlan,
+        samples: np.ndarray,
+        outputs: np.ndarray,
+        *,
+        preparation_context: _PreparedAnalysisInputs | None = None,
+    ) -&gt; SensitivityResult:
+        """Summarize sampled runs into Morris, Sobol, or FAST sensitivity statistics."""
+&gt;       plan = _admit_sensitivity_plan(plan)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: _admit_sensitivity_plan() missing 1 required keyword-only argument: 'actual_run_count'
+
+src/polisyos/scientist/methods/doe/analysis.py:44: TypeError</failure></testcase></testsuite></testsuites>

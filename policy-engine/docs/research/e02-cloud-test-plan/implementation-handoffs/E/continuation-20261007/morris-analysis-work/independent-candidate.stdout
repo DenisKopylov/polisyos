@@ -1,0 +1,19 @@
+{
+  "sha": "5840d477346912b0502689a3eeeb6504e6bc2711",
+  "cases": 11,
+  "all_checks": "PASS",
+  "removal": {
+    "outcome": "PASS",
+    "negative_gate_outcome": "FAIL",
+    "assertion": "actual-work invariant removed but analyzer reached four rows",
+    "SALib_calls": [
+      4
+    ],
+    "total_runs": 4,
+    "declared_runs": 2,
+    "mu_star": {
+      "x": 2.0
+    },
+    "scope": "actual-work admission removed; plan construction and metadata remain present"
+  }
+}

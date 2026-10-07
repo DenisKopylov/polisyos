@@ -52,7 +52,13 @@ PYTHONPATH=src:. uv run python tools/quality/diagnostics/verify_scm_v3_fullspec.
 ## State-read diagnostic output
 
 `check_state_reads.py` accepts the existing `NodeSpec` and `OutputAwareNodeSpec`
-constructors in direct `_SPEC` assignments, including annotated assignments.
+constructors in one unambiguous direct module `_SPEC` assignment, including
+annotated assignments. The admission inventories syntactic `_SPEC` writes before
+reading the declaration. Multiple writes, nested/dead declarations, destructuring,
+or other unsupported binding forms return `UNRUN`; their read sets are never
+unioned. Function-local or unreachable declarations cannot supply a module read.
+The profile is deliberately conservative: a harmless local shadow or a valid last
+rebind also remains undecided, rather than claiming Python reachability analysis.
 It checks direct `state` reads in synchronous or asynchronous `execute` functions.
 No node declarations or runtime authority are changed by this AST check.
 
@@ -68,6 +74,11 @@ its spec constructor or read expression is unsupported. Do not treat `2` as an
 empty set or success. Literal list/tuple reads and the existing static f-string
 prefix interpretation are supported; dynamic constructors, unpacked arguments,
 nonliteral read expressions, aliases and indirect runtime reads remain undecided.
+Zero declarations retain an empty static declared set, so the original missing-read
+failure still applies. No recognized execute reads makes no runtime absence claim.
+This is a static source predicate: dynamic writes, spec-object/list mutation and
+actual runtime reaching definitions are outside the diagnostic, even after a
+single declaration is admitted.
 
 Git runs enumerate tracked files under the two declared builtin roots, retaining
 missing members as failed read attempts. Non-Git fixtures enumerate their complete

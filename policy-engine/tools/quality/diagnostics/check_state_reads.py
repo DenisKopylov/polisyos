@@ -89,7 +89,10 @@ def _string_subscript(node: ast.AST) -> str | None:
 def _extract_execute_requirements(tree: ast.Module) -> ReadRequirements:
     visitor = _StateReadVisitor()
     for parsed in ast.walk(tree):
-        if isinstance(parsed, (ast.FunctionDef, ast.AsyncFunctionDef)) and parsed.name == "execute":
+        if (
+            isinstance(parsed, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and parsed.name == "execute"
+        ):
             visitor.visit(parsed)
     return ReadRequirements(exact=visitor.exact, prefix=visitor.prefix)
 
@@ -109,34 +112,75 @@ def _read_value_to_path(value: ast.AST) -> str | None:
     return None
 
 
+def _is_spec_binding(node: ast.AST) -> bool:
+    """Recognize syntactic writes without deciding execution or lexical reachability."""
+    if isinstance(node, ast.Name):
+        return node.id == "_SPEC" and isinstance(node.ctx, (ast.Store, ast.Del))
+    if isinstance(node, ast.alias):
+        return (node.asname or node.name.split(".", 1)[0]) == "_SPEC"
+    if isinstance(node, ast.arg):
+        return node.arg == "_SPEC"
+    if isinstance(node, ast.MatchMapping):
+        return node.rest == "_SPEC"
+    # Other parsed name-bearing nodes bind definitions, captures or type parameters.
+    return getattr(node, "name", None) == "_SPEC"
+
+
+def _extract_spec_binding(tree: ast.Module) -> ast.Assign | ast.AnnAssign | None:
+    """Admit one direct declaration; unsupported or ambiguous bindings stay undecided."""
+    bindings = [node for node in ast.walk(tree) if _is_spec_binding(node)]
+    if not bindings:
+        return None
+    if len(bindings) != 1:
+        raise ValueError("ambiguous_spec_binding")
+    binding = bindings[0]
+    parents = {
+        child: node for node in ast.walk(tree) for child in ast.iter_child_nodes(node)
+    }
+    declaration = parents.get(binding)
+    if not isinstance(binding, ast.Name) or not isinstance(binding.ctx, ast.Store):
+        raise ValueError("unsupported_spec_binding")
+    if not isinstance(declaration, (ast.Assign, ast.AnnAssign)):
+        raise ValueError("unsupported_spec_binding")
+    if parents.get(declaration) is not tree:
+        raise ValueError("unsupported_spec_binding_scope")
+    targets = (
+        [declaration.target]
+        if isinstance(declaration, ast.AnnAssign)
+        else declaration.targets
+    )
+    if len(targets) != 1 or targets[0] is not binding:
+        raise ValueError("unsupported_spec_binding")
+    return declaration
+
+
 def _extract_spec_reads(tree: ast.Module) -> tuple[set[str], set[str]]:
     exact: set[str] = set()
     prefix: set[str] = set()
-    for parsed in ast.walk(tree):
-        if not isinstance(parsed, (ast.Assign, ast.AnnAssign)):
+    declaration = _extract_spec_binding(tree)
+    if declaration is None:
+        return exact, prefix
+    if not (
+        isinstance(declaration.value, ast.Call)
+        and isinstance(declaration.value.func, ast.Name)
+        and declaration.value.func.id in _NODE_SPEC_CONSTRUCTORS
+    ):
+        raise ValueError("unsupported_spec_constructor")
+    if declaration.value.args or any(
+        kw.arg is None for kw in declaration.value.keywords
+    ):
+        raise ValueError("unsupported_spec_arguments")
+    for kw in declaration.value.keywords:
+        if kw.arg != "state_reads":
             continue
-        targets = [parsed.target] if isinstance(parsed, ast.AnnAssign) else parsed.targets
-        if not any(isinstance(target, ast.Name) and target.id == "_SPEC" for target in targets):
-            continue
-        if not (
-            isinstance(parsed.value, ast.Call)
-            and isinstance(parsed.value.func, ast.Name)
-            and parsed.value.func.id in _NODE_SPEC_CONSTRUCTORS
-        ):
-            raise ValueError("unsupported_spec_constructor")
-        if parsed.value.args or any(kw.arg is None for kw in parsed.value.keywords):
-            raise ValueError("unsupported_spec_arguments")
-        for kw in parsed.value.keywords:
-            if kw.arg != "state_reads":
-                continue
-            if not isinstance(kw.value, (ast.List, ast.Tuple)):
-                raise ValueError("unsupported_state_reads_expression")
-            for entry in kw.value.elts:
-                path = _read_value_to_path(entry)
-                if not path:
-                    raise ValueError("unsupported_state_reads_entry")
-                exact.add(path)
-                prefix.add(path.split(".", 1)[0])
+        if not isinstance(kw.value, (ast.List, ast.Tuple)):
+            raise ValueError("unsupported_state_reads_expression")
+        for entry in kw.value.elts:
+            path = _read_value_to_path(entry)
+            if not path:
+                raise ValueError("unsupported_state_reads_entry")
+            exact.add(path)
+            prefix.add(path.split(".", 1)[0])
     return exact, prefix
 
 
@@ -182,7 +226,9 @@ def main() -> int:
             try:
                 tree = ast.parse(measured_read_text(file_path, encoding="utf-8"))
             except (OSError, UnicodeError, SyntaxError) as error:
-                incomplete.append({"path": str(file_path), "reason": type(error).__name__})
+                incomplete.append(
+                    {"path": str(file_path), "reason": type(error).__name__}
+                )
                 continue
             try:
                 spec_exact, spec_prefix = _extract_spec_reads(tree)
@@ -214,10 +260,13 @@ def main() -> int:
             }
         )
         receipt["unresolved_by_construction"].append(
-            "Only direct state-name reads in sync/async execute and Assign/AnnAssign "
-            "unqualified _SPEC calls to "
+            "Only direct state-name reads in sync/async execute and one unambiguous "
+            "direct module Assign/AnnAssign unqualified _SPEC call to "
             "NodeSpec/OutputAwareNodeSpec are interpreted; aliases, indirect reads, "
-            "runtime dispatch and files outside the declared selector are undecided."
+            "runtime dispatch, dynamic writes/object mutation and files outside the "
+            "declared selector are undecided. Nested/dead or multiple syntactic "
+            "_SPEC bindings are unresolved rather than unioned; reachability and "
+            "runtime reaching definitions are not established."
         )
         print("state_reads measurement: " + json.dumps(receipt, sort_keys=True))
     for issue in errors:

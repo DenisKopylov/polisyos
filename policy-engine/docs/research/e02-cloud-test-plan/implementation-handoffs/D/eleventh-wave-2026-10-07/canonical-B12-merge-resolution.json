@@ -1,0 +1,32 @@
+{
+  "schema": "D.e02.canonical-B12-merge-resolution.v1",
+  "D_parent": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+  "G_parent": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+  "merge_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "resolution": "Retain exact already-adopted canonical B additive1.2 successor bytes; G1.1 precedes existing completion/intent successor. No D-authored ledger changes.",
+  "predicate_basis": "independently_reconciled",
+  "paths": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "selected_from": "D_parent HEAD beforemerge; canonicalB f0111 successor",
+      "bytes": 59381,
+      "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+      "git_blob": "edc20aeef614fa3486868b04fc4be03ace992893"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "selected_from": "D_parent HEAD beforemerge; canonicalB f0111 successor",
+      "bytes": 10751,
+      "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+      "git_blob": "596731c164fc1ad264b4f157f74b58cf73f7c513"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "selected_from": "D_parent HEAD beforemerge; canonicalB f0111 successor",
+      "bytes": 13720,
+      "sha256": "2cd4013df96e19c5620ad8d05cf6d79151f0c532eb00b1d4638ea6975bec8a01",
+      "git_blob": "a8a6ad561cc598fb72c7fd6c0e2170b0d11dd36f"
+    }
+  ],
+  "formal_acceptance": false
+}

@@ -1,0 +1,37 @@
+{
+  "branch": "codex/e02-D-oct07-continuation",
+  "status": "## codex/e02-D-oct07-continuation\n",
+  "refs": {
+    "HEAD": {
+      "sha": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+      "tree": "82ca9b751e508437ee557a6bda2fe529a45ac8b0"
+    },
+    "origin/main": {
+      "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "origin/codex/e02-integration": {
+      "sha": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+      "tree": "dc1a7697f506b23f2db0f1c80bf929fd2d6a2e0d"
+    },
+    "origin/codex/e02-D-oct07-continuation": {
+      "sha": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+      "tree": "82ca9b751e508437ee557a6bda2fe529a45ac8b0"
+    },
+    "68070854bddba2593efaef59a107a3cbe3b08d4d": {
+      "sha": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e"
+    }
+  },
+  "cleanup_rule": "current user nativeTrash only; no unavailableTrash deletion",
+  "merge_base": {
+    "returncode": 0,
+    "stdout": "198076863e143dea9f89f02734b13d50dae3eed5\n",
+    "stderr": ""
+  },
+  "D_in_G": {
+    "returncode": 1,
+    "stdout": "",
+    "stderr": ""
+  }
+}

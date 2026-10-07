@@ -1,0 +1,2 @@
+[codex/e02-F-fry-20261006 6beacc8b4] docs(foundry): clarify IR layout ownership and compatibility lifecycle
+ 3 files changed, 42 insertions(+), 8 deletions(-)

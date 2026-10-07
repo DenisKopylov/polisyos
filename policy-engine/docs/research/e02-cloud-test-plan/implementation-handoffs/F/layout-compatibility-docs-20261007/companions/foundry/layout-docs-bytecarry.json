@@ -1,0 +1,60 @@
+{
+  "schema": "e02.F.layout.docs_only_bytecarry.v1",
+  "outcome": "PASS",
+  "base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+  "candidate_sha": "6beacc8b42dacabff214901919203323f07d1fef",
+  "candidate_tree": "64dc785b6bf29659e94acdd7cf3100c02179e2c0",
+  "complete_changed_paths": [
+    "policy-engine/docs/reference/foundry/state.md",
+    "policy-engine/src/polisyos/foundry/methods/README.md",
+    "policy-engine/src/polisyos/foundry/methods/compiler/README.md"
+  ],
+  "tracked_Python_input_denominator": {
+    "paths_under": [
+      "policy-engine/src/",
+      "policy-engine/tools/",
+      "policy-engine/workers/"
+    ],
+    "file_type": ".py",
+    "count": 3148,
+    "all_Git_blobs_equal_base_and_prior519": true
+  },
+  "actual_runtime_delta": [],
+  "prior_installed_source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "source_binding_rule": "Complete Git tree census compares every admitted Python path, not sample hashes. Existing installed519 receipts stay original-source evidence; no fresh installed run here.",
+  "commands": [
+    [
+      "git",
+      "-C",
+      "/workspace/e02-F-fry-20261006",
+      "ls-tree",
+      "-r",
+      "-z",
+      "25cdea9064ddea2c3a812fd68670076bd4b088cb"
+    ],
+    [
+      "git",
+      "-C",
+      "/workspace/e02-F-fry-20261006",
+      "ls-tree",
+      "-r",
+      "-z",
+      "6beacc8b42dacabff214901919203323f07d1fef"
+    ],
+    [
+      "git",
+      "-C",
+      "/workspace/e02-F-fry-20261006",
+      "ls-tree",
+      "-r",
+      "-z",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82"
+    ]
+  ],
+  "mechanism_change": false,
+  "classification_policy_input": {
+    "path": "policy-engine/architecture/public_surface/contract.toml",
+    "git_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5"
+  },
+  "shims_registry_unchanged": true
+}

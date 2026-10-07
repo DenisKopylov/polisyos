@@ -1,0 +1,292 @@
+{
+  "schema": "policyos.e02.E.composed_consumer_owner_packet_receipt.v1",
+  "publication_base": {
+    "commit": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+    "tree": "d4e6c6bf1565cc66a7eba12c115989b87aadf9c0"
+  },
+  "measured_candidate": {
+    "commit": "b5dfc94866b3fc8b1d781ef95beac0d806f6b6c4",
+    "tree": "9b2e27afa9b2b313b045868a645432a53943a151"
+  },
+  "candidate_to_publication_delta": [
+    "M\tpolicy-engine/docs/research/e02-cloud-test-plan/closure-decisions/E.md",
+    "M\tpolicy-engine/docs/research/e02-cloud-test-plan/closure-decisions/semantic-decisions.md",
+    "M\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/E.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/README.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/decision.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/E-consumers-after-owner-exports.patch",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/README.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/canonical-owner-exports.patch",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/affected-consumers.stderr",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/affected-consumers.stdout",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/affected-consumers.xml",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/all-python-delta.stdout",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/architecture-full.stderr",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/architecture-full.stdout",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/core-artifact-routes.stderr",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/core-artifact-routes.stdout",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/core-artifact-routes.xml",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/deep-import-after.stdout",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/deep-import-before.stdout",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/format.stderr",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/format.stdout",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/pnpm-install.stderr",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/pnpm-install.stdout",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/publication-diff-check.stderr",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/publication-diff-check.stdout",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/publication-format.stderr",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/publication-format.stdout",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/publication-ruff.stderr",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/publication-ruff.stdout",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/ruff.stderr",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/ruff.stdout",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/validation.stderr",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/validation.stdout",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/core-route-removal.py",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/core-route-removal.stderr",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/core-route-removal.stdout",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/core-route-removal.xml",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/deep-import-collector.py",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/full-python-delta.py",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/public-export-probe.py",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/environment.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/import-census.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/E-consumers-after-owner-exports.patch",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/architecture-current.stderr.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/architecture-current.stdout.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/architecture-current/architecture-negative-results.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/canonical-owner-exports.patch",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/copy-index.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/final-E-consumers-after-owner-exports.patch",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/final-canonical-owner-exports.patch",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/final-overlay-inputs.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/final-overlay.stderr.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/final-overlay.stdout.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/final-overlay.xml",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/final-unadmitted-exports.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/final-unadmitted-exports.stderr.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/final-unadmitted-exports.stdout.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/old-analytics-exports.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/overlay-inputs.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/overlay.stderr.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/overlay.stdout.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/overlay.xml",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/owner-packet-review.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/owner_export_final_overlay.py.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/owner_export_overlay.py.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/probe_current_architecture_negative.py.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/probe_final_unadmitted_exports.py.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/test_owner_export_final_routes.py.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/test_owner_export_routes.py.txt",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/root-review.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/root-review.stderr",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/root-review.stdout",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/root-review.xml",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/owner-export-packet.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/public-export-probe.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/decisions/B201-B202-E-owner-2026-10-07.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/decisions/B201-B202-E-owner-2026-10-07.md",
+    "M\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/E.md"
+  ],
+  "source_writers": {
+    "FRC_E": "forecast_owner/forecast_bridge",
+    "A": "generation_cycle.py and HTTP run_lifecycle.py; unchanged by packet",
+    "generator": "canonical runtime/OpenAPI/IR generators; no generated file hand edit"
+  },
+  "consumer_checks": {
+    "unpatched": {
+      "total": 37,
+      "PASS": 29,
+      "FAIL": 8,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "isolated_A_packet_overlay": {
+      "total": 37,
+      "PASS": 37,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    }
+  },
+  "scope": "Affected E/FRC and A selectors on composed upstream, plus owner-ready global successor/static/generator packets. Overlay is not installed default or HTTP authority; no global gate PASS or finding closure follows.",
+  "check_to_finding_separation": {
+    "B32": "historical partial; original history/verifier/defaultA closure pending",
+    "LA-051": "historical partial shared FRC bundles; real A fresh verifier/purpose status still owner-dependent"
+  },
+  "next_owners": [
+    {
+      "owner": "A",
+      "next_result": "Apply/review typed status/reason packet; resolve and independently recompute native persisted evidence, persist own verifier decision and reverify fresh default/HTTP reads. Missing ref versus resolved floor failure stay distinct; denied causal/treatment/policy purposes remain denied."
+    },
+    {
+      "owner": "canonical IR/Core/API generator owners",
+      "next_result": "Regenerate exact FeedbackSolveResult/_manifest/OpenAPI affected contracts via canonical generators, validate complete emitted input set; target component receipt is not full CI PASS."
+    },
+    {
+      "owner": "A/B",
+      "next_result": "Repair their exact current lint publication utilities; retain not_established P41 attribution unless exact slice-base command/input intersection replay proves otherwise."
+    },
+    {
+      "owner": "E root",
+      "next_result": "After all current source reviews including B201/B202, freeze one candidate and run defining wave plus seven gates and all available successor stages once."
+    }
+  ],
+  "assets": [
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/root-composed-frc/receipt.json",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/root-composed-frc/receipt.json",
+      "bytes": 1902,
+      "sha256": "ac4754d9c973528b8f819125d0f80c281b126d2d67e8f3d21b8a3ebfe1494d09"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/root-composed-frc/stdout.txt",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/root-composed-frc/stdout.txt",
+      "bytes": 26661,
+      "sha256": "81bd22b42c19c39e5e63e625734761d8c89652e01ac7e474defe64bf5059d267"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/root-composed-frc/stderr.txt",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/root-composed-frc/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/root-composed-frc/pytest.xml",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/root-composed-frc/pytest.xml",
+      "bytes": 31371,
+      "sha256": "f9a4c88bade7bcd519f0f4b0da15d2bfe4d70be6cdf99e95a0081c5f7d5b252a"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/root-composed-frc-overlay/receipt.json",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/root-composed-frc-overlay/receipt.json",
+      "bytes": 2512,
+      "sha256": "448fb2791e3b5645e05eab00d2aa108deba4070b44dcf75291544b52e71698f8"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/root-composed-frc-overlay/stdout.txt",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/root-composed-frc-overlay/stdout.txt",
+      "bytes": 100,
+      "sha256": "1bd7a9e8a91e4694a2dec5a411b4d5ac3452d56d5379cbdb297d6c4e2e9845e0"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/root-composed-frc-overlay/stderr.txt",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/root-composed-frc-overlay/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/root-composed-frc-overlay/pytest.xml",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/root-composed-frc-overlay/pytest.xml",
+      "bytes": 6299,
+      "sha256": "b16ae96cb30ec5d16859fb91a4a0ec303dc399476969f6759699ef93291604a8"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/root-composed-frc-overlay/patch.stdout.txt",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/root-composed-frc-overlay/patch.stdout.txt",
+      "bytes": 77,
+      "sha256": "c4594f3f3536d6a3640135375ccca41dbaf02a246f7283224b6e8a4ad4fb75b0"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/root-composed-frc-overlay/patch.stderr.txt",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/root-composed-frc-overlay/patch.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/root-composed-frc-overlay/a_packet_overlay.py",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/root-composed-frc-overlay/a_packet_overlay.py.txt",
+      "bytes": 704,
+      "sha256": "e1bfd232a98e2846a4855d74e98ee3132c8b6d616b42797d14a2b62c2834113e"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/gate-queue-current.json",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/readonly-owner-packets/gate-queue-current.json",
+      "bytes": 168637,
+      "sha256": "859694c16ab33c59fb357e51b7033f913bb43e5b5b36dd919076494f5be7be1a"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/gate-successor-readiness.json",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/readonly-owner-packets/gate-successor-readiness.json",
+      "bytes": 94329,
+      "sha256": "8d6bd49768da3d011b25fb8c2db2c7b6d9d3ceb41d7e8b39f01308b6ca1a2fe9"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/static-runtime-witness-map.json",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/readonly-owner-packets/static-runtime-witness-map.json",
+      "bytes": 20077,
+      "sha256": "92bb6032b5e7378b5ed0c4d6f4efc93a99ba72fee70d853978f9c5f22c70c7da"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/generator-owner-packet.json",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/readonly-owner-packets/owner-generator-c309/generator-owner-packet.json",
+      "bytes": 32578,
+      "sha256": "f271b4cf47f49f305621c28619a1cf24f8c9c86b61fffe534e4d71319f074945"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/abi-target-r1/component-receipt.json",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/readonly-owner-packets/owner-generator-c309/abi-target-r1/component-receipt.json",
+      "bytes": 53707,
+      "sha256": "4006003b0c33ab6c5a816236ca4f4590e4b7366aab198ca5510c41866c14569c"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/abi-target-r1/feedback_solve_result.diff.txt",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/readonly-owner-packets/owner-generator-c309/abi-target-r1/feedback_solve_result.diff.txt",
+      "bytes": 2800,
+      "sha256": "66bb39deb2c0187e69377d1c955005b01e303148f38fbee8e1ca4862da7101c3"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/abi-target-r1/target-only-manifest.diff.txt",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/readonly-owner-packets/owner-generator-c309/abi-target-r1/target-only-manifest.diff.txt",
+      "bytes": 1051,
+      "sha256": "e71577f74275a0a66e3f86da385e2d2edacde30a4f64571be0631431fe221f5c"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi-complete-r1/openapi.diff.txt",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/readonly-owner-packets/owner-generator-c309/openapi-complete-r1/openapi.diff.txt",
+      "bytes": 5722,
+      "sha256": "8a1f4073dc0be4fdfc8510c1e76ed1ce27bf382655254dd7691948b32744c6a5"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi-complete-r1/openapi-leaf-diff.json",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/readonly-owner-packets/owner-generator-c309/openapi-complete-r1/openapi-leaf-diff.json",
+      "bytes": 4387,
+      "sha256": "67530ba28d61100933a3eacec3f4e3c69959e59a1fb3eb92fa5a30c50dc00bdd"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi-complete-r1/emit.stdout.txt",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/readonly-owner-packets/owner-generator-c309/openapi-complete-r1/emit.stdout.txt",
+      "bytes": 110,
+      "sha256": "91ec80686cce6dcbc5a00c60ada157087c90685065eb92138383ee05176bbe1e"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi-complete-r1/emit.stderr.txt",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/readonly-owner-packets/owner-generator-c309/openapi-complete-r1/emit.stderr.txt",
+      "bytes": 6851,
+      "sha256": "eb1ac5ca3918aaa48074f35c35eced8fc550242d2eda28eaedc73655b11a41d1"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/tool-final-observations.json",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/readonly-owner-packets/owner-generator-c309/tool-final-observations.json",
+      "bytes": 1292,
+      "sha256": "72def7baf0a8db632da0e681d421d4b3a5b2895daff1b4a7e67e8995d3dd6d73"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/readonly-packet-index.json",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-frc-owner-packets/readonly-owner-packets/source-copy-index.json",
+      "bytes": 3029,
+      "sha256": "470c3ef0d73e317b1e5169874a9b299a26e950d82abeb6526052d2d113214e5d"
+    }
+  ],
+  "large_raw_policy": "Complete 2.8MB OpenAPI emitted JSON and 171MB static raw remain scratch/ignored with exact refs in moderate packets; no duplicate raw Git dump.",
+  "cleanup_candidates": [
+    "/workspace/e02-E-pr38-r3-receipts/root-composed-frc/pytest-temp",
+    "/workspace/e02-E-pr38-r3-receipts/root-composed-frc-overlay/pytest-temp",
+    "/workspace/e02-E-pr38-r3-receipts/root-composed-frc-overlay/policy-engine",
+    "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi/runtime-scratch",
+    "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi-complete-r1/runtime-scratch"
+  ],
+  "cleanup_state": "No native Trash; preserve all candidates and unique deciding data; no permanent deletion."
+}

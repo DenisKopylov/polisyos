@@ -1,0 +1,463 @@
+{
+  "schema": "policyos.e02.E.canonical-generator-affected-contract-packet.v1",
+  "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+  "source_tree": "46d18477c016c43d5b23bfbbad65dc97b28007af",
+  "observed_publication_sha_after_emit": "e17c6322ac17e1d19aabd18b8ef9ecb8ed230bcb",
+  "observed_publication_tree_after_emit": "36bdb0035d0b718e109414c5cd829415bdfcc4d9",
+  "live_root_after_packet_correction": {
+    "sha": "b5dfc94866b3fc8b1d781ef95beac0d806f6b6c4",
+    "tree": "9b2e27afa9b2b313b045868a645432a53943a151",
+    "delta_after_emission_observation": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris.validation-v2.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-overlay-import-plugin.py.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-owner-contract.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-status-reason-tests.py.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-status-reason.patch.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-core-route-overlay.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-core-route-overlay.stderr",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-core-route-overlay.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-core-route-overlay.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-core-route-unpatched.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-core-route-unpatched.stderr",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-core-route-unpatched.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-core-route-unpatched.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-patch-check.stderr",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-patch-check.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-property-removal.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-property-removal.stderr",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-property-removal.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/a-property-removal.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/format.stderr",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/format.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/importer.stderr",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/importer.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.stderr",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/native-core-route-final.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/ruff.stderr",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/checks/ruff.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/deciding-output-index.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/evidence-delta-copy-index.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/evidence-delta-review/frc-evidence-delta-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/evidence-delta-review/frc-evidence-delta.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/evidence-delta-review/frc-evidence-delta.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/evidence-delta-review/probe_evidence_delta.py.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/evidence-utility-format.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/evidence-utility-ruff.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/implementation-handoff.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-output-copy-index.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-overlay-inputs.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-overlay.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-overlay.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-overlay.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-patch-application.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-patch-application.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-unpatched.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-unpatched.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/A-unpatched.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/candidate-1eba-final.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/candidate-1eba-final.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/frc-independent-review-1eba9f9e.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/independent_A_overlay.py.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/native-fRC-review-results.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/independent-review/probe_native_frc.py.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/output-index-validation.stdout",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/publication-state.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/run-frc-check.py.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/validate.py",
+      "policy-engine/tests/_helpers/forecast.py",
+      "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py"
+    ],
+    "role": "Later source/evidence merges are outside emitted c309 observation; final frozen global workflow must recompute them"
+  },
+  "tracked_status_after": "",
+  "source_mode": "No tracked product/schema/generator/docs writes by observer. External retained scratch only. Parent published docs-only composed witness files during second emit; exact observed metadata delta and two-byte-equal emissions recorded.",
+  "publication_delta_during_emission": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris.validation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris/composed-pytest.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris/composed-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris/composed-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris/composed-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris/environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris/root-import-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris/root-import-review.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris/root-import-review.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris/root-import-review.xml"
+  ],
+  "native_observer_execution": {
+    "ABI_target_component": {
+      "exit_code": 0,
+      "receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/abi-target-r1/component-receipt.json",
+        "bytes": 53707,
+        "sha256": "4006003b0c33ab6c5a816236ca4f4590e4b7366aab198ca5510c41866c14569c"
+      },
+      "loaded_origin_bindings": 118,
+      "claim": "One pure model payload plus target-only manifest diagnostic, not full ABI gate"
+    },
+    "OpenAPI_first_supported_emit": {
+      "exit_code": 0,
+      "tool_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/tool-final-observations.json",
+        "bytes": 1292,
+        "sha256": "72def7baf0a8db632da0e681d421d4b3a5b2895daff1b4a7e67e8995d3dd6d73"
+      },
+      "output": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi/runtime_api_v1.openapi.json",
+        "bytes": 2812414,
+        "sha256": "be26b254ac46b1b59ae8974cdead4f6b20da34ee22ca3fca4d9bcfeea403af88"
+      },
+      "console_custody": "Tool console chunk truncated; output artifact and successful native completion exact; no complete separate historical stderr retained"
+    },
+    "OpenAPI_repeat_complete_console": {
+      "observer_exit_code": 1,
+      "native_exit_code_receipt": "not_established by lost in-memory variable after final HEAD assertion; completion path stdout and valid output observed, no fabricated native PASS",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "tools/ops_runners/runtime/export_runtime_openapi.py",
+        "--output",
+        "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi-complete-r1/runtime_api_v1.openapi.json",
+        "--scratch-root",
+        "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi-complete-r1/runtime-scratch"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "environment_add": {
+        "PYTHONPATH": "src:."
+      },
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi-complete-r1/emit.stdout.txt",
+        "bytes": 110,
+        "sha256": "91ec80686cce6dcbc5a00c60ada157087c90685065eb92138383ee05176bbe1e"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi-complete-r1/emit.stderr.txt",
+        "bytes": 6851,
+        "sha256": "eb1ac5ca3918aaa48074f35c35eced8fc550242d2eda28eaedc73655b11a41d1"
+      },
+      "output": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi-complete-r1/runtime_api_v1.openapi.json",
+        "bytes": 2812414,
+        "sha256": "be26b254ac46b1b59ae8974cdead4f6b20da34ee22ca3fca4d9bcfeea403af88"
+      },
+      "assertion_error": "Outer observer HEAD-before/after assertion failed after emitter completed because parent evidence commit advanced. Product source unchanged; captured raw output matches first emission exactly.",
+      "repeat_reason": "Correct missing complete stdout/stderr custody; no broad/global or third emit"
+    },
+    "first_ABI_observer_error": {
+      "check_outcome": "ERROR",
+      "reason": "select_abi_entries requires filters; initial observer omitted it before generation. Corrected additive v2 source passes None.",
+      "original_stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/abi.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "original_stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/abi.stderr.txt",
+        "bytes": 366,
+        "sha256": "79bfed61deb9ce535f20cb249f3336c96b6172cf39f0b37304b53914a64ef51f"
+      },
+      "corrective_observer": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/probe_abi_component_v2.py",
+        "bytes": 5554,
+        "sha256": "39abd59c327284cc725ce50b381a3bfbddafcc4b40199807dc0f1e6df0982ef4"
+      }
+    }
+  },
+  "ABI_exact_changed_contract": {
+    "schema": "schemas/snapshots/ir/feedback_solve_result.schema.json",
+    "registry_fqn": "polisyos.core.contracts.foundry.FeedbackSolveResult",
+    "actual_changed_nested_reference_definitions": [
+      "EquilibriumMultiplicityReportRef",
+      "FeedbackConvergenceCertificateRef",
+      "FeedbackJacobianDiagnosticsRef",
+      "FeedbackTraceRef",
+      "ParameterOverrideBundleRef"
+    ],
+    "root_property_source": "src/polisyos/core/artifacts/manifest.py::ArtifactRef.manifest_profile_sha256",
+    "root_property": "nullable sha256:<64 lowercase hex>, defaultNone in validation schema; inherited through five nested reference definitions. Source exclude_if=None pertains serialization, does not remove validation-schema property.",
+    "generator_transitive_basis": "gen_schema._load_or_generate_entry_payload recomputes model_json_schema(mode=validation,by_alias=True), so defining FeedbackSolveResult file hash alone is insufficient",
+    "old_and_new_target_manifest_entries": {
+      "before": {
+        "aliases": [],
+        "compat_mode": "strict",
+        "fqn": "polisyos.core.contracts.foundry.FeedbackSolveResult",
+        "lifecycle": "active",
+        "priority": "p2",
+        "schema_file": "feedback_solve_result.schema.json",
+        "schema_version": "1.0",
+        "sha256_full": "2eda896e68fe545c6d0d59285689d7dba9add644cb3fad8b39c3f4bb7e0cdc0a",
+        "sha256_semantic": "609f10efec3694f01ed79e9230e6dab20a8b7eac8b531e5d61cb64262ffba55d",
+        "version_field": "schema_version"
+      },
+      "after": {
+        "fqn": "polisyos.core.contracts.foundry.FeedbackSolveResult",
+        "schema_file": "feedback_solve_result.schema.json",
+        "schema_version": "1.0",
+        "priority": "p2",
+        "compat_mode": "strict",
+        "version_field": "schema_version",
+        "aliases": [],
+        "lifecycle": "active",
+        "sha256_full": "ff7ee9d123bcd11e4f2d41c1c8c548b676b15df70eaa83e1b81103759ebd1a93",
+        "sha256_semantic": "155188bb3635d6e8e4ab2c3430223d512348924dc2c326c05fa54e37b25d42d7"
+      }
+    },
+    "manifest_exact_scope": "Target-only serialized model full+semantic hash change induces conditional IR _manifest content_hash; other models retained from committed manifest. Full ABI generation must recompute all selected entries.",
+    "schema_diff": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/abi-target-r1/feedback_solve_result.diff.txt",
+      "bytes": 2800,
+      "sha256": "66bb39deb2c0187e69377d1c955005b01e303148f38fbee8e1ca4862da7101c3"
+    },
+    "manifest_diff": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/abi-target-r1/target-only-manifest.diff.txt",
+      "bytes": 1051,
+      "sha256": "e71577f74275a0a66e3f86da385e2d2edacde30a4f64571be0631431fe221f5c"
+    },
+    "next_owner": "Core ArtifactRef/Feedback DTO compatibility owner + IR ABI registry/schema generator owners; G integration publisher",
+    "next_verifiable_result": "Owner regenerates via existing canonical tool, validates reader directionality/compatibility classification as needed, verifies entire ABI registry/manifest/reference bytes and reruns CI doctor/full successors."
+  },
+  "OpenAPI_exact_changed_projection": {
+    "committed_schema_bytes": 2812414,
+    "committed_schema_sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a",
+    "canonical_emitted_schema": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi-complete-r1/runtime_api_v1.openapi.json",
+      "bytes": 2812414,
+      "sha256": "be26b254ac46b1b59ae8974cdead4f6b20da34ee22ca3fca4d9bcfeea403af88"
+    },
+    "same_bytes_between_both_emissions": true,
+    "leaf_change_count": 10,
+    "leaf_changes": [
+      {
+        "path": "/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/projection_hash",
+        "before": "sha256:4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee",
+        "after": "sha256:e15e22343a76dbd46d993da42e5182b3a00faef519500f41aee7a2f1ad44b25d"
+      },
+      {
+        "path": "/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/replay_address",
+        "before": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Afe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+        "after": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3Ae15e22343a76dbd46d993da42e5182b3a00faef519500f41aee7a2f1ad44b25d&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Ae7fd3d5b6e5df2455f14918543d9787e2ebf4634b26f85ad86056dcc18487449"
+      },
+      {
+        "path": "/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/replay_pins/projection_hash",
+        "before": "sha256:4eeb3067bf27dd1e13ea84edc90fe8b974d0dc3f7030c6dba864ee990c7f30ee",
+        "after": "sha256:e15e22343a76dbd46d993da42e5182b3a00faef519500f41aee7a2f1ad44b25d"
+      },
+      {
+        "path": "/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/replay_pins/source_dependency_hash",
+        "before": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+        "after": "sha256:e7fd3d5b6e5df2455f14918543d9787e2ebf4634b26f85ad86056dcc18487449"
+      },
+      {
+        "path": "/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/source/validation/bound_dependency_aggregate_identity",
+        "before": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+        "after": "sha256:e7fd3d5b6e5df2455f14918543d9787e2ebf4634b26f85ad86056dcc18487449"
+      },
+      {
+        "path": "/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/source/validation/bound_dependency_count",
+        "before": 1489,
+        "after": 1493
+      },
+      {
+        "path": "/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/source/validation/worker_validation_receipt_hash",
+        "before": "sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2",
+        "after": "sha256:1ce9294aefcdcf88577114faa3c3edae6b0ef066a143e258dd36b5a57415d9ac"
+      },
+      {
+        "path": "/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/source_dependency_hash",
+        "before": "sha256:fe16e5f1294f07c2e176796ec3d6e11a7d2b4decf4329d38877df555af9eda4b",
+        "after": "sha256:e7fd3d5b6e5df2455f14918543d9787e2ebf4634b26f85ad86056dcc18487449"
+      },
+      {
+        "path": "/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/worker_validation_receipt_hash",
+        "before": "sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2",
+        "after": "sha256:1ce9294aefcdcf88577114faa3c3edae6b0ef066a143e258dd36b5a57415d9ac"
+      },
+      {
+        "path": "/paths//api/v1/exports/governed-projections/confidence-ledger-risk-spend/get/responses/200/content/application/json/examples/default/value/worker_validation_receipt_ref",
+        "before": "owner-validation:sha256:c272fccfe1dfcb5ada6aff2d71e9d4ecba6340d17d070651633f6ee0023537c2",
+        "after": "owner-validation:sha256:1ce9294aefcdcf88577114faa3c3edae6b0ef066a143e258dd36b5a57415d9ac"
+      }
+    ],
+    "unified_diff": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi-complete-r1/openapi.diff.txt",
+      "bytes": 5722,
+      "sha256": "8a1f4073dc0be4fdfc8510c1e76ed1ce27bf382655254dd7691948b32744c6a5"
+    },
+    "next_owner": "A/runtime API + runtime/client canonical generator owner/G",
+    "next_verifiable_result": "Generator-owned OpenAPI output and package-client family regenerated from admitted app/validator source; full contract verifier with client scope and fresh endpoint consumer tests separately.",
+    "limitations": "Rendering app.openapi is not executing endpoint, default forecast consumer, CAS evidence verifier or HTTP persistence/readback; it gives no causal/treatment/policy authority."
+  },
+  "supported_source_isolated_emit_commands": {
+    "OpenAPI": {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "tools/ops_runners/runtime/export_runtime_openapi.py",
+        "--output",
+        "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi-complete-r1/runtime_api_v1.openapi.json",
+        "--scratch-root",
+        "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi-complete-r1/runtime-scratch"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "fresh_path_required": true,
+      "retain_scratch": true
+    },
+    "runtime_package_client": {
+      "argv": [
+        "corepack",
+        "pnpm",
+        "--dir",
+        "/workspace/e02-E-continuation-20261006/policy-engine/packages/runtime-api-client",
+        "run",
+        "generate",
+        "--",
+        "--openapi",
+        "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi-complete-r1/runtime_api_v1.openapi.json",
+        "--output-root",
+        "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/client-isolated-unrun"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "check_outcome": "UNRUN; supported generator command read from actual verifier; no early client/global generation run"
+    },
+    "ABI_CLI": "--output-dir overrides snapshots only; non-check main still writes docs/reference/ir/schema-catalog.md and docs/reference/schemas.md. Therefore unsupported as source-isolated non-check emit; pure function diagnostic explicitly scoped. Canonical owner should use original full regen under lease."
+  },
+  "canonical_owner_final_commands": [
+    {
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "argv": [
+        "uv",
+        "run",
+        "--extra",
+        "ml",
+        "polisyos-tools",
+        "diagnostics",
+        "gen-schema"
+      ]
+    },
+    {
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "argv": [
+        "uv",
+        "run",
+        "--extra",
+        "ml",
+        "polisyos-tools",
+        "diagnostics",
+        "gen-schema",
+        "--check"
+      ]
+    },
+    {
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "environment_add": {
+        "PYTHONPATH": "src:."
+      },
+      "argv": [
+        "uv",
+        "run",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "python",
+        "tools/ops_runners/runtime/export_runtime_openapi.py",
+        "--output",
+        "schemas/runtime_api_v1.openapi.json",
+        "--scratch-root",
+        "/workspace/e02-E-pr38-r3-receipts/canonical-owner-openapi-runtime-scratch"
+      ]
+    },
+    {
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "argv": [
+        "uv",
+        "run",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "python",
+        "tools/ops_runners/runtime/check_runtime_api_contract.py"
+      ]
+    }
+  ],
+  "source_bindings": [
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "git_blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10",
+      "bytes": 12758,
+      "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d"
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+      "git_blob": "bf726135da4552663c8e15e5be9fe341c85cf539",
+      "bytes": 61265,
+      "sha256": "02a038f9e8272fe168f5c5a3d9ea46919e1f4309fa308693bb8fe63d08c0438d"
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "git_blob": "8aa65f3fb57aee60eecdcb8834737e4c74427bff",
+      "bytes": 27101,
+      "sha256": "651884b092b690b868c8501e7a5cc34d19f7d68cad2b65cd1180ae928b50c835"
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+      "git_blob": "b4c79ac48ca420425b91cbf4c47ac794a37eaba8",
+      "bytes": 23635,
+      "sha256": "6d1b8f48e20853415dbd9109d0b0662f3d9ca199e2d15c36292823b2e7c1d72e"
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/tools/quality/diagnostics/generate_ir_reference_catalog.py",
+      "git_blob": "40cdebf82921f87b1d3bd8601291f03ad7fe635e",
+      "bytes": 10707,
+      "sha256": "f4b8184a1052a76f7d54a6e729757478eced3c8213b88326ca652f604a213c27"
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+      "git_blob": "04416db33c86bd5610fd33893ad6867db7a9f22f",
+      "bytes": 1793,
+      "sha256": "daeff9a91f19662a9f21788f73bd002659059f2ca3804ac03a258294185255da"
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "git_blob": "37ceb13937e36ab6c237595a74e7be70ca987c8d",
+      "bytes": 7528,
+      "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1"
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/src/polisyos/runtime/http/app.py",
+      "git_blob": "8a4cf8347d16ee64d1923152ce074266de132dfa",
+      "bytes": 23110,
+      "sha256": "4d3ebc492b943a12b8cf339fde81f5f40c61d932a1958032e80d1d651e8bad24"
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/architecture/generated_artifacts.toml",
+      "git_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+      "bytes": 253707,
+      "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0"
+    }
+  ],
+  "shared_mutable_seams": [
+    "Configured app factory bootstraps global Prometheus exporter; actual already-in-use warning observed. Serialize active app-factory/bootstrap checks sharing metrics port; do not impose numeric CPU/thread quotas.",
+    "Configured CAS export roots are explicit distinct retained paths; do not reuse them.",
+    "Full runtime-client verifier uses TemporaryDirectory internally. Isolated package generator --output-root avoids implicit scratch removal. Canonical owner cleanup contract/source repair may be needed for user native Trash requirement; do not permanently delete used scratch."
+  ],
+  "P41": "not_established for historical full gate cause/ownership without exact slice-base full replay. Current direct schema/emit differential is a bounded source observation, not inherited red waiver.",
+  "cleanup_candidates": [
+    "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi/runtime-scratch",
+    "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi-complete-r1/runtime-scratch",
+    "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/abi"
+  ],
+  "cleanup_policy": "No native Trash available: list retained inactive fixture/cache candidates only; preserve code, unique deciding artifacts/docs, do not permanently delete."
+}

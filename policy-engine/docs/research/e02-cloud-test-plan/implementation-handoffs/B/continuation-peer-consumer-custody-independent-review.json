@@ -39,7 +39,7 @@
       "environment": {
         "cwd": "/workspace/e02-B-current-cas-generation",
         "actual_attached_checkout_head": "a058426e743e8ce8c88c0b4469451b3180458915",
-        "instrument_interpreter": "/usr/local/bin/python3 (stdlib metadata parser; no candidate imports)",
+        "instrument_interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
         "candidate_runtime": "UNRUN by this reviewer",
         "read_method": "Explicit immutable git show/diff-tree/cat-file identities; SHA256/length/JSON/XML/physical-byte reconciliation",
         "Git_headers": {
@@ -67,7 +67,8 @@
           }
         },
         "numeric_caps_added": false,
-        "execution_profile_boundary": "Peer native profiles are read from their original source-specific receipts; no new receiver execution."
+        "execution_profile_boundary": "Peer native profiles are read from their original source-specific receipts; no new receiver execution.",
+        "instrument_interpreter_role": "Actual python3 executable for stdlib-only metadata audit; no candidate imports"
       },
       "input_closure": {
         "exact_peer_receipts": [
@@ -138,7 +139,7 @@
       "environment": {
         "cwd": "/workspace/e02-B-current-cas-generation",
         "actual_attached_checkout_head": "a058426e743e8ce8c88c0b4469451b3180458915",
-        "instrument_interpreter": "/usr/local/bin/python3 (stdlib metadata parser; no candidate imports)",
+        "instrument_interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
         "candidate_runtime": "UNRUN by this reviewer",
         "read_method": "Explicit immutable git show/diff-tree/cat-file identities; SHA256/length/JSON/XML/physical-byte reconciliation",
         "Git_headers": {
@@ -166,7 +167,8 @@
           }
         },
         "numeric_caps_added": false,
-        "execution_profile_boundary": "Peer native profiles are read from their original source-specific receipts; no new receiver execution."
+        "execution_profile_boundary": "Peer native profiles are read from their original source-specific receipts; no new receiver execution.",
+        "instrument_interpreter_role": "Actual python3 executable for stdlib-only metadata audit; no candidate imports"
       },
       "input_closure": {
         "exact_peer_receipts": [
@@ -237,7 +239,7 @@
       "environment": {
         "cwd": "/workspace/e02-B-current-cas-generation",
         "actual_attached_checkout_head": "a058426e743e8ce8c88c0b4469451b3180458915",
-        "instrument_interpreter": "/usr/local/bin/python3 (stdlib metadata parser; no candidate imports)",
+        "instrument_interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
         "candidate_runtime": "UNRUN by this reviewer",
         "read_method": "Explicit immutable git show/diff-tree/cat-file identities; SHA256/length/JSON/XML/physical-byte reconciliation",
         "Git_headers": {
@@ -265,7 +267,8 @@
           }
         },
         "numeric_caps_added": false,
-        "execution_profile_boundary": "Peer native profiles are read from their original source-specific receipts; no new receiver execution."
+        "execution_profile_boundary": "Peer native profiles are read from their original source-specific receipts; no new receiver execution.",
+        "instrument_interpreter_role": "Actual python3 executable for stdlib-only metadata audit; no candidate imports"
       },
       "input_closure": {
         "exact_peer_receipts": [
@@ -357,7 +360,8 @@
     "Gateway current15 uses recorded --noconftest/-o addopts= finite profile; neither profile is relabelled whole-B canonical execution.",
     "Loaded file-backed origin hooks do not prove universal reads/calls/finalization. Current numeric all15 physical files are reconciled with original nullable wire projection, not a schema/default waiver.",
     "Historical Gateway30/removals and earlier source/gate failures remain at original refs. No P41 inherited-red waiver, whole-B acceptance or production dataset claim.",
-    "ROOT/G decides integrated code/criterion closure; EXE owns separate pending generic model mutation repair. Original peer logs are referenced once, not duplicated."
+    "ROOT/G decides integrated code/criterion closure; EXE owns separate pending generic model mutation repair. Original peer logs are referenced once, not duplicated.",
+    "Unpublished predecessor receipt fc28 used an incorrect literal /usr/local/bin/python3 environment locator. This forward correction records actual /opt/codex python3 without changing deciding instruments, outputs, implementation tree or runtime targets; predecessor retained append-only."
   ],
   "evidence_index": {
     "git_sha": "1adbcc9b13d19ae7dbb85be35e18f7b5f6c785e9",

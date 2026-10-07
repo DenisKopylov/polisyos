@@ -1,0 +1,24 @@
+{"errors": [], "findings": [], "selected_fragments": ["/workspace/e02-F-tmle-20261006/policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml"]}
+## [e02-consumer-fixture] - 2026-10-07
+
+### Added
+- `foundry-causal`: Verify persisted native TMLE through confidence and value consumers: One registered native TMLE MethodJob binds report and envelope CAS lineage for fresh ConfidencePass and value projection readers, including sibling CAS failures and source relabeling controls.
+
+## Compatibility Notes
+- Production sources, enum/schema, method signature, cache, folds, and authority policy are unchanged. The fixture retains numerical SUCCESS and CI while asserting non-gating causal disposition and an honest upstream value-contract refusal.
+
+## Change Classes
+- internal
+
+## Supported Surface Classification
+- internal: regression fixture and consumer documentation; no runtime contract or facade changes
+
+## Migration Notes
+- No caller migration. Use the source-bound receipt for the tested consumer window. Do not infer genuine identification, positive value eligibility, or B56 study-wide resource admission from this fixture.
+
+## Known Limitations
+- Accepted causal-identification issuer/verification/input bridge and native TMLE value projection contract remain owner dependencies. Actual admitted common-study workload and budget remain UNRUN.
+
+## Structured Compatibility Changes
+- `internal` / `compatible` / internal: native TMLE consumer verification and documentation: Verify the existing candidate/refusal disposition against real persisted native TMLE output without new identification authority or value contract. (owner: team-polisyos; version owner: team-polisyos; deprecation: not_applicable)
+

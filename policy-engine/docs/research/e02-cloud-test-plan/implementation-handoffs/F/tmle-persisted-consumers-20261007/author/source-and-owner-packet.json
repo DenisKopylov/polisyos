@@ -1,0 +1,415 @@
+{
+  "schema": "policyos.e02.consumer_source_and_owner_packet.v1",
+  "candidate_sha": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+  "candidate_tree": "ccfe80dbcb149a8e7109255d0c5a98bb36111c1d",
+  "native_test_source": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+  "root_product_source": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "dependency_carrier": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+  "fetched_G_input": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+  "provider_denominator": 9,
+  "provider_byte_equivalence": [
+    [
+      {
+        "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+        "bytes": 31650,
+        "sha256": "778e4cd01700c3f96e1d5480ef8e2f17a2e85c3febc5f418b18440859610d828",
+        "git_blob": "8a8bfea424e1f3a0a3c1c8c21a42bf08ed6496d7"
+      },
+      {
+        "git_ref": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+        "bytes": 31650,
+        "sha256": "778e4cd01700c3f96e1d5480ef8e2f17a2e85c3febc5f418b18440859610d828",
+        "git_blob": "8a8bfea424e1f3a0a3c1c8c21a42bf08ed6496d7"
+      },
+      {
+        "git_ref": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+        "bytes": 31650,
+        "sha256": "778e4cd01700c3f96e1d5480ef8e2f17a2e85c3febc5f418b18440859610d828",
+        "git_blob": "8a8bfea424e1f3a0a3c1c8c21a42bf08ed6496d7"
+      }
+    ],
+    [
+      {
+        "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+        "bytes": 59964,
+        "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+        "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a"
+      },
+      {
+        "git_ref": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+        "bytes": 59964,
+        "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+        "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a"
+      },
+      {
+        "git_ref": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+        "bytes": 59964,
+        "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+        "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a"
+      }
+    ],
+    [
+      {
+        "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+        "bytes": 22295,
+        "sha256": "92fb3ac07d2363197d3bd642562985a59386562e7798272dfd6cd9987a6ad86d",
+        "git_blob": "cff094ea943bb51bbb238e684e1075eff9514d7e"
+      },
+      {
+        "git_ref": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+        "bytes": 22295,
+        "sha256": "92fb3ac07d2363197d3bd642562985a59386562e7798272dfd6cd9987a6ad86d",
+        "git_blob": "cff094ea943bb51bbb238e684e1075eff9514d7e"
+      },
+      {
+        "git_ref": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+        "bytes": 22295,
+        "sha256": "92fb3ac07d2363197d3bd642562985a59386562e7798272dfd6cd9987a6ad86d",
+        "git_blob": "cff094ea943bb51bbb238e684e1075eff9514d7e"
+      }
+    ],
+    [
+      {
+        "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "bytes": 76407,
+        "sha256": "0c94715bbf1e0b04a6076a770acce717d55ee60dee53a561a99a8e63448398b8",
+        "git_blob": "874a75fd95bbd920db2b6fd56457d25a23b22589"
+      },
+      {
+        "git_ref": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+        "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "bytes": 76407,
+        "sha256": "0c94715bbf1e0b04a6076a770acce717d55ee60dee53a561a99a8e63448398b8",
+        "git_blob": "874a75fd95bbd920db2b6fd56457d25a23b22589"
+      },
+      {
+        "git_ref": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+        "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "bytes": 76407,
+        "sha256": "0c94715bbf1e0b04a6076a770acce717d55ee60dee53a561a99a8e63448398b8",
+        "git_blob": "874a75fd95bbd920db2b6fd56457d25a23b22589"
+      }
+    ],
+    [
+      {
+        "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "bytes": 84428,
+        "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7",
+        "git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7"
+      },
+      {
+        "git_ref": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "bytes": 84428,
+        "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7",
+        "git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7"
+      },
+      {
+        "git_ref": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "bytes": 84428,
+        "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7",
+        "git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7"
+      }
+    ],
+    [
+      {
+        "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+        "bytes": 10787,
+        "sha256": "8859ef8c96a2db6b7ed99af5524815ff2027753a24a6b7e482367a14a8470f74",
+        "git_blob": "8e16e8d76aeb8f4efe05589c1e084111d4479ee7"
+      },
+      {
+        "git_ref": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+        "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+        "bytes": 10787,
+        "sha256": "8859ef8c96a2db6b7ed99af5524815ff2027753a24a6b7e482367a14a8470f74",
+        "git_blob": "8e16e8d76aeb8f4efe05589c1e084111d4479ee7"
+      },
+      {
+        "git_ref": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+        "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+        "bytes": 10787,
+        "sha256": "8859ef8c96a2db6b7ed99af5524815ff2027753a24a6b7e482367a14a8470f74",
+        "git_blob": "8e16e8d76aeb8f4efe05589c1e084111d4479ee7"
+      }
+    ],
+    [
+      {
+        "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+        "bytes": 18448,
+        "sha256": "183f8b40599955fdb790632b1fa3c5d3b7004bf5eef421c27a00a9ec67e19b40",
+        "git_blob": "99500dba7526c987be9e6e7bbc320ec844fb7a13"
+      },
+      {
+        "git_ref": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+        "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+        "bytes": 18448,
+        "sha256": "183f8b40599955fdb790632b1fa3c5d3b7004bf5eef421c27a00a9ec67e19b40",
+        "git_blob": "99500dba7526c987be9e6e7bbc320ec844fb7a13"
+      },
+      {
+        "git_ref": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+        "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+        "bytes": 18448,
+        "sha256": "183f8b40599955fdb790632b1fa3c5d3b7004bf5eef421c27a00a9ec67e19b40",
+        "git_blob": "99500dba7526c987be9e6e7bbc320ec844fb7a13"
+      }
+    ],
+    [
+      {
+        "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+        "bytes": 29575,
+        "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd",
+        "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb"
+      },
+      {
+        "git_ref": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+        "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+        "bytes": 29575,
+        "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd",
+        "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb"
+      },
+      {
+        "git_ref": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+        "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+        "bytes": 29575,
+        "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd",
+        "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb"
+      }
+    ],
+    [
+      {
+        "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "path": "policy-engine/src/polisyos/scientist/compute/job_spec.py",
+        "bytes": 2662,
+        "sha256": "c409c976c98b57247d9469a9f33a295e099188d15abf5dbc6a0edb72422ce2f4",
+        "git_blob": "420fe9cb32ed4eec6e6f120c9a96c200e312b3d2"
+      },
+      {
+        "git_ref": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+        "path": "policy-engine/src/polisyos/scientist/compute/job_spec.py",
+        "bytes": 2662,
+        "sha256": "c409c976c98b57247d9469a9f33a295e099188d15abf5dbc6a0edb72422ce2f4",
+        "git_blob": "420fe9cb32ed4eec6e6f120c9a96c200e312b3d2"
+      },
+      {
+        "git_ref": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+        "path": "policy-engine/src/polisyos/scientist/compute/job_spec.py",
+        "bytes": 2662,
+        "sha256": "c409c976c98b57247d9469a9f33a295e099188d15abf5dbc6a0edb72422ce2f4",
+        "git_blob": "420fe9cb32ed4eec6e6f120c9a96c200e312b3d2"
+      }
+    ]
+  ],
+  "runtime_inspected_denominator": 3,
+  "runtime_byte_equivalence": [
+    [
+      {
+        "git_ref": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "bytes": 347497,
+        "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+        "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218"
+      },
+      {
+        "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "bytes": 347497,
+        "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+        "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218"
+      },
+      {
+        "git_ref": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "bytes": 347497,
+        "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+        "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218"
+      },
+      {
+        "git_ref": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "bytes": 347497,
+        "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+        "git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218"
+      }
+    ],
+    [
+      {
+        "git_ref": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/evaluation_safety.py",
+        "bytes": 85385,
+        "sha256": "bc12bb95f5381d4f2b0235ce3cdb8705a27051a8bb33cf628ca10ab402af36cd",
+        "git_blob": "efa454a8eaf663b2d393bbc0b51c4920fc345a27"
+      },
+      {
+        "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/evaluation_safety.py",
+        "bytes": 85385,
+        "sha256": "bc12bb95f5381d4f2b0235ce3cdb8705a27051a8bb33cf628ca10ab402af36cd",
+        "git_blob": "efa454a8eaf663b2d393bbc0b51c4920fc345a27"
+      },
+      {
+        "git_ref": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/evaluation_safety.py",
+        "bytes": 85385,
+        "sha256": "bc12bb95f5381d4f2b0235ce3cdb8705a27051a8bb33cf628ca10ab402af36cd",
+        "git_blob": "efa454a8eaf663b2d393bbc0b51c4920fc345a27"
+      },
+      {
+        "git_ref": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/evaluation_safety.py",
+        "bytes": 85385,
+        "sha256": "bc12bb95f5381d4f2b0235ce3cdb8705a27051a8bb33cf628ca10ab402af36cd",
+        "git_blob": "efa454a8eaf663b2d393bbc0b51c4920fc345a27"
+      }
+    ],
+    [
+      {
+        "git_ref": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+        "path": "policy-engine/src/polisyos/pdc/_impl/evaluation_safety.py",
+        "bytes": 9436,
+        "sha256": "87831ae9b6b4b1ec331d97ae3ed8ac85d7bc013f3103804202d8a6297267e031",
+        "git_blob": "e05611289505432f90550aac85375976b38800ad"
+      },
+      {
+        "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+        "path": "policy-engine/src/polisyos/pdc/_impl/evaluation_safety.py",
+        "bytes": 9436,
+        "sha256": "87831ae9b6b4b1ec331d97ae3ed8ac85d7bc013f3103804202d8a6297267e031",
+        "git_blob": "e05611289505432f90550aac85375976b38800ad"
+      },
+      {
+        "git_ref": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+        "path": "policy-engine/src/polisyos/pdc/_impl/evaluation_safety.py",
+        "bytes": 9436,
+        "sha256": "87831ae9b6b4b1ec331d97ae3ed8ac85d7bc013f3103804202d8a6297267e031",
+        "git_blob": "e05611289505432f90550aac85375976b38800ad"
+      },
+      {
+        "git_ref": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+        "path": "policy-engine/src/polisyos/pdc/_impl/evaluation_safety.py",
+        "bytes": 9436,
+        "sha256": "87831ae9b6b4b1ec331d97ae3ed8ac85d7bc013f3103804202d8a6297267e031",
+        "git_blob": "e05611289505432f90550aac85375976b38800ad"
+      }
+    ]
+  ],
+  "metadata_only_delta": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml"
+  ],
+  "new_source_paths": [
+    {
+      "git_ref": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+      "path": "policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py",
+      "bytes": 15094,
+      "sha256": "fb7b806dd6f97e9eb2ecf7196eaf58441ab26e2af6b497d3d635d7d6602e2c25",
+      "git_blob": "c28ad8bda927967ab25c7c4f76ebc3f25a98b12f"
+    },
+    {
+      "git_ref": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+      "path": "policy-engine/docs/reference/foundry/tmle-persisted-consumers.md",
+      "bytes": 5649,
+      "sha256": "66fe2054b47d264fae28d6b2aa239b01d9f6ecb44dfd45894aa8c5afbf5b4a84",
+      "git_blob": "1ce1bb146ec63c9b693b70e4552b51c5a239e061"
+    },
+    {
+      "git_ref": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml",
+      "bytes": 1890,
+      "sha256": "9798ce1fac3ee3f201dff83a17119582953ddf8eb235338574c421c063c3431e",
+      "git_blob": "fe5f0b5da0e72cea83256abacc1eca4a108fd0d2"
+    }
+  ],
+  "original_card": {
+    "git_ref": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FIT-01.md",
+    "bytes": 14761,
+    "sha256": "af58e73e27d8417f9744dbf93a8adb8bb3badaf979d70c16ab924d76a4358075",
+    "git_blob": "9a7c550c56937430370253621bbd0a84c2fea3ec"
+  },
+  "continuation_instructions": {
+    "git_ref": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/COMMON.md",
+    "bytes": 8565,
+    "sha256": "f408d34394bab5f708df7afb6f59195588b5fc394b8304434c9e2fbe2238be79",
+    "git_blob": "d549b92b6a33efc32ffcb7c27261538f06a8e26e"
+  },
+  "scope": "These named maintained consumers/default suppliers are inspected; no repository-wide absence or external-client census is inferred.",
+  "missing_owner_packets": [
+    {
+      "plane": "statistical_identification",
+      "outcome": "UNRUN",
+      "owner": "existing causal identification/IR semantic owner coordinated by ROOT/C",
+      "producer": "existing ProofBundle and proof_bundle_from_identification_result project identification results; they are not the accepted gate admission input",
+      "consumer": "CausalEffectReport.to_uncertainty_envelope and ConfidencePass.validate",
+      "source_boundary": "IR report converter has no accepted identification verifier input; current Confidence causal-purpose role remains blocked",
+      "required_input": [
+        "accepted existing issuer/verifier API and exact artifact/input contract",
+        "content-bound observation source, graph, estimand type, treatment contrast, target/population and current revision",
+        "actual producer-issued positive receipt and fresh consumer challenge"
+      ],
+      "negative_falsifier": "Missing, fake, stale and swapped source/graph/estimand/target proof must retain candidate/BLOCKER with numerical SUCCESS and CI unchanged",
+      "reason_unavailable": "No accepted statistical admission bridge is supplied for this maintained consumer window; operational safety is a different plane"
+    },
+    {
+      "plane": "operational_evaluation_admission",
+      "outcome": "UNRUN",
+      "owner": "Runtime/A and canonical institutional authority suppliers",
+      "producer": "EvaluationSafetyPersistenceService.compose_and_persist_attempt",
+      "consumer": "EvaluationSafetyAdmissionVerifier.require_admission, EvalSafetyVerifierPort and evaluation_safety_consumer_admission_is_verified",
+      "source_boundary": "run_lifecycle default authority resolver blocked/not_established; appointment resolver blocked/unappointed; registry None; attempt basis/pack/facet denominator absent, evidence empty",
+      "required_input": [
+        "real appointed authority/verification suppliers and current CAS basis/pack/facet/evidence/revision material",
+        "actual resolved passed intake and Runtime-produced complete EvaluationExecutionContext",
+        "fresh EvalSafetyAdmissionChallenge matching owner/intake/certificate/current revision"
+      ],
+      "negative_falsifier": "Present-but-fake seal, stale revision, mismatched full context or replay evidence must refuse",
+      "reason_unavailable": "Maintained defaults do not supply this institutional packet; injected unit suppliers are not admitted production inputs"
+    },
+    {
+      "plane": "native_value_projection",
+      "outcome": "UNRUN",
+      "owner": "canonical output-contract/value owner coordinated by C/ROOT",
+      "producer": "TMLEEstimator.signature report SlotSpec and CausalEffectReport",
+      "consumer": "project_method_value_evidence",
+      "source_boundary": "Actual consumer returns method_output_contract_unresolved before downstream gate predicate",
+      "required_input": [
+        "declared SlotSpec contract_id, native canonical contract owner and VALUE_UNCERTAINTY_PROJECTION capability",
+        "matching native owner declaration, supported projection and content-bound NativeValueEstimandBinding"
+      ],
+      "negative_falsifier": "Wrong native contract/owner/estimand binding refuses; an operational safety receipt cannot replace this contract",
+      "reason_unavailable": "Current real TMLE report slot lacks the native value contract; no parallel projection is invented"
+    },
+    {
+      "plane": "B56_actual_admitted_study_budget",
+      "outcome": "UNRUN",
+      "owner": "Runtime/B/C actual study/workload suppliers and G local runner",
+      "producer": "actual admitted common study and configured MethodJobs/repeats/seeds/models/competing jobs",
+      "consumer": "existing LocalRunnerPool.wait admission and common CausalEvaluation consumer",
+      "source_boundary": "This fixture is one MethodJob, not an admitted common-study workload",
+      "required_input": [
+        "actual owner study/workload refs and full jobs/models/seeds/repeats denominator",
+        "existing execution context and concrete budget/admission inputs",
+        "exact candidate run receipt over competing admitted studies"
+      ],
+      "negative_falsifier": "Without canonical context preserve execution_context_missing before fit; with genuine supplied context execute every configured fold and enforce existing outer-job permits",
+      "reason_unavailable": "No actual admitted workload/context packet was supplied; no new global scheduler/quota is created"
+    }
+  ],
+  "G_acceptance": "UNRUN; ordinary topic delivery and code review do not imply integration or finding closure"
+}

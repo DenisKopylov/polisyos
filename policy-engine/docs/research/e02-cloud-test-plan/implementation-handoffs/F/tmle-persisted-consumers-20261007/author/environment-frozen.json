@@ -1,0 +1,112 @@
+{
+  "target_sha": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+  "target_tree": "ccfe80dbcb149a8e7109255d0c5a98bb36111c1d",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261007/tmle/environment_probe.py"
+  ],
+  "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "overrides": {
+      "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+      "TMPDIR": "/tmp"
+    },
+    "safe_inherited_numeric_variables": {},
+    "new_orchestration_quota": false
+  },
+  "wall_seconds": 7.766073314007372,
+  "rss_kib": 586464,
+  "exit_code": 0,
+  "outcome": "PASS",
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/tmle/environment-frozen.stdout.txt",
+    "bytes": 2268,
+    "sha256": "b12a5890f900d18d65eb7e1b4ca27e1916fbcc96a28e4d042347879b71aee2d5"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/tmle/environment-frozen.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_guard_before_and_after": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+      "git_blob": "8a8bfea424e1f3a0a3c1c8c21a42bf08ed6496d7",
+      "bytes": 31650,
+      "sha256": "778e4cd01700c3f96e1d5480ef8e2f17a2e85c3febc5f418b18440859610d828"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+      "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+      "bytes": 59964,
+      "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+      "git_blob": "cff094ea943bb51bbb238e684e1075eff9514d7e",
+      "bytes": 22295,
+      "sha256": "92fb3ac07d2363197d3bd642562985a59386562e7798272dfd6cd9987a6ad86d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "git_blob": "874a75fd95bbd920db2b6fd56457d25a23b22589",
+      "bytes": 76407,
+      "sha256": "0c94715bbf1e0b04a6076a770acce717d55ee60dee53a561a99a8e63448398b8"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+      "bytes": 84428,
+      "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+      "git_blob": "8e16e8d76aeb8f4efe05589c1e084111d4479ee7",
+      "bytes": 10787,
+      "sha256": "8859ef8c96a2db6b7ed99af5524815ff2027753a24a6b7e482367a14a8470f74"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+      "git_blob": "99500dba7526c987be9e6e7bbc320ec844fb7a13",
+      "bytes": 18448,
+      "sha256": "183f8b40599955fdb790632b1fa3c5d3b7004bf5eef421c27a00a9ec67e19b40"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+      "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+      "bytes": 29575,
+      "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/compute/job_spec.py",
+      "git_blob": "420fe9cb32ed4eec6e6f120c9a96c200e312b3d2",
+      "bytes": 2662,
+      "sha256": "c409c976c98b57247d9469a9f33a295e099188d15abf5dbc6a0edb72422ce2f4"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py",
+      "git_blob": "c28ad8bda927967ab25c7c4f76ebc3f25a98b12f",
+      "bytes": 15094,
+      "sha256": "fb7b806dd6f97e9eb2ecf7196eaf58441ab26e2af6b497d3d635d7d6602e2c25"
+    },
+    {
+      "path": "policy-engine/docs/reference/foundry/tmle-persisted-consumers.md",
+      "git_blob": "1ce1bb146ec63c9b693b70e4552b51c5a239e061",
+      "bytes": 5649,
+      "sha256": "66fe2054b47d264fae28d6b2aa239b01d9f6ecb44dfd45894aa8c5afbf5b4a84"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml",
+      "git_blob": "fe5f0b5da0e72cea83256abacc1eca4a108fd0d2",
+      "bytes": 1890,
+      "sha256": "9798ce1fac3ee3f201dff83a17119582953ddf8eb235338574c421c063c3431e"
+    }
+  ],
+  "limits": [
+    "Scoped native consumer property only; positive causal identification and admitted competing-study budget remain UNRUN.",
+    "No numerical coverage or cache/default-fold wave rerun."
+  ]
+}

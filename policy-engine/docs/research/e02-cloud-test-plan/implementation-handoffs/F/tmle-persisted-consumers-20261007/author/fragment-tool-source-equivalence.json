@@ -1,0 +1,18 @@
+[
+  {
+    "path": "policy-engine/tools/ops_runners/release/build_release_notes.py",
+    "candidate_git_ref": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+    "shared_environment_git_ref": "56e4513787773e6860b55163cd792062abe66a94",
+    "bytes": 8236,
+    "sha256": "e671c6ed806228c4223c0542e6cde4c203d648e3614a99deafb574ffd7bf3525",
+    "same_exact_bytes": true
+  },
+  {
+    "path": "policy-engine/tools/ops_runners/release/check_compatibility_release_gates.py",
+    "candidate_git_ref": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+    "shared_environment_git_ref": "56e4513787773e6860b55163cd792062abe66a94",
+    "bytes": 26585,
+    "sha256": "2b7ce18983e59a02ddeef457dfc5a39f83129514707b03da45099018f0104b75",
+    "same_exact_bytes": true
+  }
+]

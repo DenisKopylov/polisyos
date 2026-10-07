@@ -1,0 +1,1 @@
+{"retained_cas_files": 50, "archive": {"path": "/tmp/e02-F-continuation-20261007/tmle/native-cas-input.tar.gz", "bytes": 19059, "sha256": "40dd54bfbde420fae54cee173bab49e6d5c9c77b3cff28990e04284201d3aa50"}}

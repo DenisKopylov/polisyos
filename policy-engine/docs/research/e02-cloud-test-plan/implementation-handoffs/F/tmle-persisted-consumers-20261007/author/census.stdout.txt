@@ -1,0 +1,1 @@
+{"actual_fresh_readers": 53, "forged_envelope_reader_cases": 52, "simulation_failed_load_warnings": 36, "pytest_warnings": 0, "value_refusal_counts": {"method_output_contract_unresolved": 53}, "causal_blocker_counts": {"1": 53}}

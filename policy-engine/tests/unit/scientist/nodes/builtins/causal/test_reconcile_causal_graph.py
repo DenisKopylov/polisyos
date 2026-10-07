@@ -133,10 +133,7 @@ def test_reconcile_fragment_load_assertion_is_not_swallowed(
         del args, kwargs
         raise AssertionError("fragment loader invariant")
 
-    monkeypatch.setattr(
-        "polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph.load_scm_fragment",
-        _boom,
-    )
+    monkeypatch.setattr(execution_context.store, "get_manifest", _boom)
 
     with pytest.raises(AssertionError, match="fragment loader invariant"):
         ReconcileCausalGraphNode().execute(execution_context, state)

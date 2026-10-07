@@ -346,3 +346,186 @@ def test_graph_body_version_must_match_actual_schema(context):
     )
     outcome = ReconcileCausalGraphNode().execute(context, state)
     assert outcome.status == "fail" and "version differs" in outcome.error.message
+
+
+def composition_query_state(ctx):
+    from polisyos.ir.analytics.causal_graph import persist_causal_graph_model
+    from polisyos.ir.analytics.cross_graph import SCMFragment, persist_scm_fragment
+
+    refs = []
+    for name, nodes, edge, role in [
+        ("a", ("X", "E"), ("X", "E"), "out"),
+        ("b", ("E", "Y"), ("E", "Y"), "in"),
+    ]:
+        source_graph = graph({"src": edge[0], "dst": edge[1]}, nodes=nodes)
+        graph_ref = persist_causal_graph_model(ctx.store, source_graph)
+        fragment = SCMFragment(
+            fragment_id=name,
+            graph_ref=str(graph_ref.artifact_id),
+            semantic_namespace="synthetic.example",
+            interface_variables=["E"],
+            exposed_outputs=["E"] if role == "out" else [],
+            exposed_inputs=["E"] if role == "in" else [],
+            variable_definitions={"E": "Employment rate"},
+            variable_units={"E": "percent"},
+        )
+        refs.append(persist_scm_fragment(ctx.store, fragment))
+    initial = ReconcileCausalGraphNode().execute(
+        ctx,
+        ExperimentState(
+            run_id="graph-content",
+            params={"scm_fragment_refs": [str(ref.artifact_id) for ref in refs]},
+        ),
+    )
+    assert initial.status == "ok", initial.error
+    state = initial.state.model_copy(deep=True)
+    state.params.pop("scm_fragment_refs")
+    state.params["query_preservation_queries"] = [
+        {
+            "query_type": "interventional",
+            "treatment_variable": "E",
+            "treatment_value": 1.0,
+            "outcome_variable": "Y",
+            "condition": {},
+        }
+    ]
+    return state
+
+
+def test_query_only_replay_recomputes_operational_cache(context):
+    from polisyos.ir.analytics.cross_graph import (
+        load_composition_certificate,
+        persist_composition_certificate,
+    )
+    from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_COMPOSITION_CERTIFICATE_REF
+
+    state = composition_query_state(context)
+    first = ReconcileCausalGraphNode().execute(context, state)
+    assert first.status == "ok", first.error
+    ref = first.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF]
+    certificate = load_composition_certificate(context.store, ref)
+    assert certificate.checked_queries and set(certificate.checked_queries.values()) == {
+        "preserved"
+    }
+    # Real persisted cache record changes, with all source/result semantics intact.
+    corrupted = certificate.model_copy(
+        update={
+            "checked_queries": dict.fromkeys(certificate.checked_queries, "broken"),
+            "query_certificates": {
+                key: value.model_copy(update={"status": "broken"})
+                for key, value in certificate.query_certificates.items()
+            },
+        }
+    )
+    changed = first.state.model_copy(deep=True)
+    changed.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF] = persist_composition_certificate(
+        context.store, corrupted
+    )
+    replay = ReconcileCausalGraphNode().execute(context, changed)
+    assert replay.status == "ok", replay.error
+    restored = load_composition_certificate(
+        context.store, replay.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF]
+    )
+    assert restored.checked_queries == certificate.checked_queries
+    assert (
+        replay.state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF]
+        == state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF]
+    )
+
+
+def test_query_only_replay_reconciles_current_alignment_result(context):
+    from polisyos.ir.analytics.alignment_certification import (
+        AlignmentOverallStatus,
+        load_alignment_report,
+        persist_alignment_report,
+    )
+    from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_ALIGNMENT_REPORT_REF
+
+    state = composition_query_state(context)
+    report = load_alignment_report(
+        context.store, state.artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF]
+    )
+    incompatible = report.model_copy(
+        update={
+            "overall_status": AlignmentOverallStatus.INCOMPATIBLE,
+            "incompatible_pairs": [("a:E", "b:E")],
+        }
+    )
+    state.artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF] = persist_alignment_report(
+        context.store, incompatible
+    )
+    result = ReconcileCausalGraphNode().execute(context, state)
+    assert result.status == "fail" and not result.artifacts
+    assert "composition" in result.error.message
+
+
+@pytest.mark.parametrize(
+    "update",
+    [
+        {"review_status": "pending_review"},
+        {"newly_required_assumptions": ["unproved replacement"]},
+        {"metadata": {"completeness_scope": "forged"}},
+        {"alignment_report_ref": "sha256:" + "f" * 64},
+        {"source_fragment_graph_refs": {}},
+        {"witness_ref": "unproved://witness"},
+    ],
+)
+def test_query_only_replay_reconciles_complete_certificate_projection(context, update):
+    from polisyos.ir.analytics.cross_graph import (
+        load_composition_certificate,
+        persist_composition_certificate,
+    )
+    from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_COMPOSITION_CERTIFICATE_REF
+
+    state = composition_query_state(context)
+    certificate = load_composition_certificate(
+        context.store, state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF]
+    )
+    state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF] = persist_composition_certificate(
+        context.store, certificate.model_copy(update=update)
+    )
+    result = ReconcileCausalGraphNode().execute(context, state)
+    assert result.status == "fail" and not result.artifacts
+
+
+def test_query_only_replay_resolves_selected_source_view(context):
+    from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_INTERFACE_MAPPING_REF
+
+    state = composition_query_state(context)
+    actual = state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF]
+    invalid_view = ArtifactRef.model_validate(
+        dict(
+            actual.model_dump(mode="json"),
+            manifest_profile_sha256="sha256:" + "f" * 64,
+        )
+    )
+    state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF] = invalid_view
+    result = ReconcileCausalGraphNode().execute(context, state)
+    assert result.status == "fail" and not result.artifacts
+
+
+def test_query_only_replay_reconciles_persisted_failure_card_body(context):
+    from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
+        CompositionFailureCardBundle,
+        persist_composition_failure_card_bundle,
+    )
+    from polisyos.ir.analytics.cross_graph import (
+        load_composition_certificate,
+        persist_composition_certificate,
+    )
+    from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_COMPOSITION_CERTIFICATE_REF
+
+    state = composition_query_state(context)
+    certificate = load_composition_certificate(
+        context.store, state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF]
+    )
+    altered = persist_composition_failure_card_bundle(
+        context.store, CompositionFailureCardBundle(cards=[], metadata={"forged": True})
+    )
+    state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF] = persist_composition_certificate(
+        context.store,
+        certificate.model_copy(update={"failure_card_bundle_ref": str(altered.artifact_id)}),
+    )
+    result = ReconcileCausalGraphNode().execute(context, state)
+    assert result.status == "fail" and not result.artifacts
+    assert "failure cards" in result.error.message

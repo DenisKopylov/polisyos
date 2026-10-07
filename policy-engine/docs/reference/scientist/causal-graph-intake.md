@@ -20,8 +20,14 @@ graph without current source content is refused.
 
 Query-preservation replay can use a genuine composition certificate without
 re-supplying the original fragment list. The node resolves its source fragments,
-graphs, alignment report, and mapping, reconstructs the complete composed graph,
-and compares it to the cached graph before evaluating preservation. Newly
+graphs, alignment report, and mapping, reconstructs the complete composition
+result, and compares both the graph and the complete producer certificate to the
+cached content before evaluating preservation. Actual failure-card bodies are
+also reconciled. A changed source report can invalidate the composition even
+when the graph geometry stays the same. Query caches are operational outputs:
+they are cleared and recomputed from the reconciled source/result, never accepted
+as causal source authority. All selected source references retain their actual
+manifest view for CAS resolution. Newly
 supplied source content follows reconciliation instead of the old shortcut.
 
 The reconciler supports known contemporaneous directed and bidirected relations.

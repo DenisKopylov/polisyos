@@ -16,11 +16,8 @@ from polisyos.foundry.calibration.uncertainty_adapter import (
     envelopes_from_calibration,
     summarize_bayesian_calibration_posterior,
 )
-from polisyos.ir.analytics.uncertainty import (
-    IntervalSemantics,
-    UncertaintyEnvelope,
-    UncertaintySource,
-)
+from polisyos.ir.analytics import UncertaintyEnvelope
+from polisyos.ir.analytics.uncertainty import IntervalSemantics, UncertaintySource
 
 
 def test_envelope_from_calibration_param() -> None:

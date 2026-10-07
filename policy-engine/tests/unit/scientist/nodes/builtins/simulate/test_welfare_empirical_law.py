@@ -139,6 +139,7 @@ def test_native_welfare_posterior_profile_uses_named_mean_after_fresh_read(tmp_p
     "mutation",
     [
         "mean",
+        "consistent_joint",
         "profile",
         "carrier",
         "raw_bool",
@@ -161,6 +162,9 @@ def test_welfare_profile_corruption_refuses_before_nominal_callback(
     data = deepcopy(env.model_dump(mode="python"))
     if mutation == "mean":
         data["metadata"]["posterior_summary_profile"]["posterior_mean"] = 123.0
+    elif mutation == "consistent_joint":
+        data["metadata"]["posterior_summary_profile"]["joint_law_sha256"] = "0" * 64
+        data["metadata"]["joint_law_sha256"] = data["metadata"]["joint_sample_id"] = "0" * 64
     elif mutation == "profile":
         data["metadata"]["posterior_summary_profile"]["profile_version"] = "999.0"
     elif mutation == "carrier":

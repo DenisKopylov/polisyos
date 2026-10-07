@@ -6,15 +6,22 @@ unprofiled historical envelope retains its original generic point meaning.
 
 from __future__ import annotations
 
+import json
 import math
 import numbers
+from collections.abc import Mapping
 from typing import Any, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, StrictFloat, model_validator
 
-from polisyos.ir.artifacts import ArtifactStore, get_json_artifact
-from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
+from polisyos.ir.artifacts import ArtifactStore
+from polisyos.ir.model_layer.canon import (
+    CanonSpec,
+    content_hash,
+    from_canonical_bytes,
+    to_canonical_bytes,
+)
 from polisyos.ir.registry.refs import ArtifactRefModel, UncertaintyEnvelopeRef
 
 from .uncertainty import (
@@ -141,6 +148,11 @@ def posterior_summary_functionals(
     """
     if len(samples) != len(probabilities) or not samples or not 0 < credible_mass < 1:
         raise ValueError("posterior summary shape/mass is invalid")
+    if any(
+        isinstance(value, (bool, np.bool_)) or not isinstance(value, numbers.Real)
+        for value in (*samples, *probabilities)
+    ):
+        raise ValueError("posterior summary axes require finite real non-bool values")
     if any(not math.isfinite(x) for x in (*samples, *probabilities)):
         raise ValueError("posterior summary values must be finite")
     if any(p < 0 for p in probabilities) or not math.isclose(
@@ -189,6 +201,34 @@ def posterior_carrier_content_hash(carrier: PosteriorSamplesCarrier) -> str:
         to_canonical_bytes(carrier.model_dump(mode="python"), CanonSpec(forbid_floats=False)),
         prefix=True,
     )
+
+
+def posterior_joint_carrier_digest(
+    names: list[str], envelopes: Mapping[str, UncertaintyEnvelope], draw_ids: list[str]
+) -> str:
+    """Preserve the existing shared sampler's exact joint-content representation.
+
+    Args:
+        names: Admitted coordinate order.
+        envelopes: Exact carriers indexed by coordinate.
+        draw_ids: Ordered shared draw identities.
+
+    Returns:
+        Existing SHA-256 digest of the exact JSON joint carrier representation.
+    """
+    raw = json.dumps(
+        {
+            "parameter_order": names,
+            "draw_ids": draw_ids,
+            "carriers": [
+                envelopes[name].distribution_payload.model_dump(mode="json") for name in names
+            ],
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    )
+    return content_hash(raw)
 
 
 def read_posterior_summary_profile(
@@ -242,7 +282,53 @@ def read_posterior_summary_profile(
         or envelope.metadata.get("interval_functional") != "equal_tail_inverse_cdf"
     ):
         raise ValueError("posterior summary named functionals do not reconcile")
+    if len(profile.parameter_order) == 1 and profile.joint_law_sha256 != (
+        posterior_joint_carrier_digest(
+            list(profile.parameter_order),
+            {profile.parameter_name: envelope},
+            list(profile.draw_ids),
+        )
+    ):
+        raise ValueError("posterior summary joint content digest does not reconcile")
     return profile
+
+
+def admit_posterior_summary_profiles(envelopes: Mapping[str, UncertaintyEnvelope]) -> None:
+    """Admit complete declared joint groups before E evaluator construction.
+
+    Args:
+        envelopes: Actual consumer coordinate mapping containing complete groups.
+
+    Raises:
+        ValueError: If a new group is incomplete or content/context identities disagree.
+    """
+    profiles = {name: read_posterior_summary_profile(env) for name, env in envelopes.items()}
+    for name, profile in profiles.items():
+        if profile is None:
+            continue
+        if profile.parameter_name != name or any(
+            coordinate not in envelopes for coordinate in profile.parameter_order
+        ):
+            raise ValueError("posterior summary joint coordinate mapping is incomplete")
+        for coordinate in profile.parameter_order:
+            sibling = profiles[coordinate]
+            if (
+                sibling is None
+                or sibling.parameter_name != coordinate
+                or sibling.parameter_order != profile.parameter_order
+                or sibling.draw_ids != profile.draw_ids
+                or sibling.sample_axis != profile.sample_axis
+                or sibling.probabilities != profile.probabilities
+                or sibling.context != profile.context
+                or sibling.row_identity_basis != profile.row_identity_basis
+                or sibling.joint_law_sha256 != profile.joint_law_sha256
+            ):
+                raise ValueError("posterior summary joint profile bindings do not agree")
+        actual_digest = posterior_joint_carrier_digest(
+            list(profile.parameter_order), envelopes, list(profile.draw_ids)
+        )
+        if actual_digest != profile.joint_law_sha256:
+            raise ValueError("posterior summary joint content digest does not reconcile")
 
 
 def posterior_nominal_mean(
@@ -338,7 +424,8 @@ def load_posterior_summary_envelope(
     Raises:
         ValueError: If a declared law has an invalid raw carrier or CAS profile.
     """
-    raw = get_json_artifact(store, ref.artifact_id)
+    data = store.get_bytes(ref.artifact_id)
+    raw = from_canonical_bytes(data)
     validate_raw_posterior_summary_envelope(raw)
     metadata = raw.get("metadata", {}) if isinstance(raw, dict) else {}
     if isinstance(metadata, dict) and PROFILE_KEY in metadata:
@@ -352,7 +439,7 @@ def load_posterior_summary_envelope(
             or schema is None
             or schema.name != "ir.uncertainty_envelope"
             or schema.version != "1.1"
-            or not store.verify(ref.artifact_id).ok
+            or content_hash(data, prefix=True) != str(ref.artifact_id)
         ):
             raise ValueError("posterior summary CAS kind/schema/content is invalid")
     # Decode the exact raw value admitted above using the existing v1.1 model.
@@ -363,8 +450,10 @@ __all__ = [
     "PosteriorParameterBinding",
     "PosteriorSummaryContext",
     "PosteriorSummaryProfile",
+    "admit_posterior_summary_profiles",
     "load_posterior_summary_envelope",
     "posterior_carrier_content_hash",
+    "posterior_joint_carrier_digest",
     "posterior_nominal_mean",
     "posterior_summary_functionals",
     "read_posterior_summary_profile",

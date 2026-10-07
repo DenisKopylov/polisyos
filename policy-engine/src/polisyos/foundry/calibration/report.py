@@ -14,8 +14,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core import artifacts as core_artifacts
 from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo, InputRef, SchemaInfo
-from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
@@ -194,7 +194,7 @@ def serialize_calibration_report_v1(report: CalibrationReport) -> bytes:
 
 
 def put_calibration_config(
-    store: ArtifactStore,
+    store: core_artifacts.ArtifactStore,
     config: CalibrationConfig,
     *,
     inputs: list[InputRef] | None = None,
@@ -213,7 +213,7 @@ def put_calibration_config(
 
 
 def put_calibration_report(
-    store: ArtifactStore,
+    store: core_artifacts.ArtifactStore,
     report: CalibrationReport,
     *,
     inputs: list[InputRef] | None = None,
@@ -271,7 +271,9 @@ def put_calibration_report(
     )
 
 
-def load_calibration_report(store: ArtifactStore, ref: ArtifactRef) -> CalibrationReport:
+def load_calibration_report(
+    store: core_artifacts.ArtifactStore, ref: ArtifactRef
+) -> CalibrationReport:
     """Resolve a Foundry report only through its exact CAS kind/schema/payload.
 
     A payload matching the report model under a different artifact kind is not

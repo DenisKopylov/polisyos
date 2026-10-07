@@ -25,8 +25,8 @@ from polisyos.foundry.uncertainty import (
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher
 from polisyos.foundry.uncertainty.protocol import PropagationResult
+from polisyos.ir.analytics import admit_posterior_summary_profiles, posterior_nominal_mean
 from polisyos.ir.analytics import load_posterior_summary_envelope as load_uncertainty_envelope
-from polisyos.ir.analytics import posterior_nominal_mean
 from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     persist_uncertainty_envelope,
@@ -131,6 +131,7 @@ class PropagateUncertaintyNode:
 
         config = _load_config(state)
         dispatcher = PropagationDispatcher(config)
+        admit_posterior_summary_profiles(input_envelopes)
 
         nominal_params = {
             name: posterior_nominal_mean(env, parameter_name=name)

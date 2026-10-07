@@ -7,24 +7,25 @@ from copy import deepcopy
 import numpy as np
 import pytest
 
-from polisyos.core.artifacts import FileSystemCAS, PutOptions, SchemaInfo
-from polisyos.core.canon import CanonSpec
+from polisyos.core import artifacts as core_artifacts
+from polisyos.core import canon as core_canon
 from polisyos.foundry.calibration.uncertainty_adapter import (
     summarize_bayesian_calibration_posterior,
 )
 from polisyos.ir.analytics import (
+    DistributionFamily,
     PosteriorParameterBinding,
+    PosteriorSamplesCarrier,
     PosteriorSummaryContext,
+    UncertaintyEnvelope,
+    UncertaintySource,
     load_posterior_summary_envelope,
     posterior_nominal_mean,
+    posterior_summary_functionals,
     read_posterior_summary_profile,
     validate_raw_posterior_summary_envelope,
 )
 from polisyos.ir.analytics.uncertainty import (
-    DistributionFamily,
-    PosteriorSamplesCarrier,
-    UncertaintyEnvelope,
-    UncertaintySource,
     load_uncertainty_envelope,
     persist_uncertainty_envelope,
 )
@@ -34,8 +35,10 @@ def test_asymmetric_native_adapter_fresh_read_keeps_independent_functionals(tmp_
     binding = PosteriorParameterBinding(estimand_id="finite:x", unit="score", scale="linear")
     context = PosteriorSummaryContext(parameters={"x": binding})
     summary = summarize_bayesian_calibration_posterior({"x": [0.0] * 99 + [100.0]}, context=context)
-    ref = persist_uncertainty_envelope(FileSystemCAS(tmp_path), summary.parameter_envelopes["x"])
-    readback = load_uncertainty_envelope(FileSystemCAS(tmp_path), ref)
+    ref = persist_uncertainty_envelope(
+        core_artifacts.FileSystemCAS(tmp_path), summary.parameter_envelopes["x"]
+    )
+    readback = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
     assert summary.posterior_means == {"x": 1.0}
     assert readback.point_estimate == 0.0
     assert readback.confidence_interval == (0.0, 0.0)
@@ -112,10 +115,10 @@ def test_integrity_valid_forged_profile_refuses_fresh_named_computation(tmp_path
     else:
         del payload["metadata"]["posterior_summary_profile"]
     forged = UncertaintyEnvelope.model_validate(payload)
-    store = FileSystemCAS(tmp_path)
+    store = core_artifacts.FileSystemCAS(tmp_path)
     ref = persist_uncertainty_envelope(store, forged)
     assert store.verify(ref.artifact_id).ok
-    fresh = load_uncertainty_envelope(FileSystemCAS(tmp_path), ref)
+    fresh = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
     with pytest.raises(ValueError):
         posterior_nominal_mean(fresh)
 
@@ -133,10 +136,10 @@ def test_v11_unprofiled_inline_carrier_replay_is_unchanged(tmp_path):
             "joint_parameter_order": ["x"],
         },
     )
-    store = FileSystemCAS(tmp_path)
+    store = core_artifacts.FileSystemCAS(tmp_path)
     ref = persist_uncertainty_envelope(store, legacy)
     raw = store.get_bytes(ref.artifact_id)
-    fresh = load_uncertainty_envelope(FileSystemCAS(tmp_path), ref)
+    fresh = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
     assert fresh == legacy
     assert posterior_nominal_mean(fresh) == 0
     assert read_posterior_summary_profile(fresh) is None
@@ -180,9 +183,9 @@ def test_identical_summaries_do_not_merge_different_persisted_atom_laws(tmp_path
     refs, readbacks = [], []
     for values in laws:
         env = summarize_bayesian_calibration_posterior({"x": values}).parameter_envelopes["x"]
-        ref = persist_uncertainty_envelope(FileSystemCAS(tmp_path), env)
+        ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), env)
         refs.append(ref)
-        readbacks.append(load_uncertainty_envelope(FileSystemCAS(tmp_path), ref))
+        readbacks.append(load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref))
     assert refs[0].artifact_id != refs[1].artifact_id
     for env in readbacks:
         assert env.point_estimate == 0
@@ -212,12 +215,14 @@ def test_whole_row_reordering_preserves_functionals_changes_exact_identity(tmp_p
     for name in before.parameter_envelopes:
         old = before.parameter_envelopes[name]
         new = after.parameter_envelopes[name]
-        old_ref = persist_uncertainty_envelope(FileSystemCAS(tmp_path), old)
-        new_ref = persist_uncertainty_envelope(FileSystemCAS(tmp_path), new)
+        old_ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), old)
+        new_ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), new)
         assert old_ref.artifact_id != new_ref.artifact_id
         assert old.metadata["joint_law_sha256"] != new.metadata["joint_law_sha256"]
         assert (
-            posterior_nominal_mean(load_uncertainty_envelope(FileSystemCAS(tmp_path), new_ref))
+            posterior_nominal_mean(
+                load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), new_ref)
+            )
             == before.posterior_means[name]
         )
 
@@ -232,6 +237,49 @@ def test_quantile_sort_cdf_collapse_refuses_even_healthy_draw_order_law():
         summarize_bayesian_calibration_posterior({"x": [0, -1, 1]}, weights=probabilities)
 
 
+@pytest.mark.parametrize("bad", [True, np.bool_(True), "1.0"])
+@pytest.mark.parametrize("axis", ["samples", "probabilities"])
+def test_public_functionals_refuse_non_real_or_bool_axes(bad, axis):
+    samples, probabilities = (0.0, 1.0), (0.5, 0.5)
+    if axis == "samples":
+        samples = (0.0, bad)
+    else:
+        probabilities = (0.5, bad)
+    with pytest.raises(ValueError, match="real non-bool"):
+        posterior_summary_functionals(samples, probabilities, 0.9)
+    assert posterior_summary_functionals((0.0, 1.0), (0.5, 0.5), 0.9) == (0.5, 0.0, (0.0, 1.0))
+
+
+def test_single_profile_consistently_forged_joint_digest_is_recomputed():
+    env = summarize_bayesian_calibration_posterior({"x": [0, 1]}).parameter_envelopes["x"]
+    raw = env.model_dump(mode="python")
+    raw["metadata"]["posterior_summary_profile"]["joint_law_sha256"] = "0" * 64
+    raw["metadata"]["joint_law_sha256"] = raw["metadata"]["joint_sample_id"] = "0" * 64
+    forged = UncertaintyEnvelope.model_validate(raw)
+    with pytest.raises(ValueError, match="joint content digest"):
+        posterior_nominal_mean(forged)
+
+
+def test_large_finite_corpus_preserves_law_without_intermediate_spread_overflow(tmp_path):
+    summary = summarize_bayesian_calibration_posterior({"x": [0.0, 1e200]})
+    env = summary.parameter_envelopes["x"]
+    assert summary.posterior_means["x"] == 5e199
+    assert env.point_estimate == 0
+    assert env.confidence_interval == (0, 1e200)
+    assert summary.uncertainty_decomposition["x"]["diagnostics"]["total_std"] == 5e199
+    assert not summary.uncertainty_decomposition["x"]["total"]["gate_eligible"]
+    ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), env)
+    fresh = load_posterior_summary_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+    assert fresh.distribution_payload.samples == (0.0, 1e200)
+    assert posterior_nominal_mean(fresh) == 5e199
+    with pytest.raises(ValueError):
+        summarize_bayesian_calibration_posterior({"x": [0.0, float("inf")]})
+    # Finite inputs whose requested Gaussian diagnostic bounds are nonfinite
+    # retain the existing finite-bound refusal, never a valid covariance flag.
+    with pytest.raises(ValueError):
+        summarize_bayesian_calibration_posterior({"x": [-1.79e308, 1.79e308]})
+
+
 @pytest.mark.parametrize("raw_value", [True, "1.0"])
 def test_profile_raw_cas_types_refuse_before_legacy_coercion(tmp_path, raw_value):
     from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
@@ -239,15 +287,15 @@ def test_profile_raw_cas_types_refuse_before_legacy_coercion(tmp_path, raw_value
     env = summarize_bayesian_calibration_posterior({"x": [0, 1]}).parameter_envelopes["x"]
     raw = env.model_dump(mode="json")
     raw["distribution_payload"]["samples"][1] = raw_value
-    store = FileSystemCAS(tmp_path)
+    store = core_artifacts.FileSystemCAS(tmp_path)
     record = store.put_json(
         raw,
-        PutOptions(
+        core_artifacts.PutOptions(
             kind="ir.uncertainty_envelope",
             media_type="application/json",
-            schema=SchemaInfo(name="ir.uncertainty_envelope", version="1.1"),
+            schema=core_artifacts.SchemaInfo(name="ir.uncertainty_envelope", version="1.1"),
         ),
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=core_canon.CanonSpec(forbid_floats=False),
     )
     ref = UncertaintyEnvelopeRef.model_validate(
         record.model_dump(include={"artifact_id", "kind", "media_type"})
@@ -256,4 +304,4 @@ def test_profile_raw_cas_types_refuse_before_legacy_coercion(tmp_path, raw_value
     # Exact old decode loses the raw type and leaves the same functional/hash.
     assert load_uncertainty_envelope(store, ref).distribution_payload == env.distribution_payload
     with pytest.raises(ValueError, match="real non-bool"):
-        load_posterior_summary_envelope(FileSystemCAS(tmp_path), ref)
+        load_posterior_summary_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)

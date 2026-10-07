@@ -44,8 +44,12 @@ from polisyos.foundry.uncertainty import (
 )
 from polisyos.foundry.uncertainty import extract_std as _extract_typed_std
 from polisyos.foundry.uncertainty.config import PropagationConfig
+from polisyos.ir.analytics import (
+    admit_posterior_summary_profiles,
+    posterior_nominal_mean,
+    validate_raw_posterior_summary_envelope,
+)
 from polisyos.ir.analytics import load_posterior_summary_envelope as load_uncertainty_envelope
-from polisyos.ir.analytics import posterior_nominal_mean, validate_raw_posterior_summary_envelope
 from polisyos.ir.analytics.dependence_structure import (
     DependenceStructure,
     load_dependence_structure,
@@ -1155,6 +1159,7 @@ def _collect_input_envelopes(
                 if name in calibration_fields:
                     calibration_issues.add("calibration_envelope_conflict")
 
+    admit_posterior_summary_profiles(envelopes)
     calibration_source = None
     if (
         calibration_ref is not None

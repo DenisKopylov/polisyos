@@ -314,10 +314,11 @@ def summarize_bayesian_calibration_posterior(
                 "interval_functional": "equal_tail_inverse_cdf",
             },
         )
-        epistemic_std = math.sqrt(
-            math.fsum(
-                probability * (float(value) - point) ** 2
+        epistemic_std = math.hypot(
+            *(
+                math.sqrt(probability) * float(value) - math.sqrt(probability) * point
                 for value, probability in zip(draws, probabilities, strict=True)
+                if probability > 0
             )
         )
         aleatoric_std = 0.0

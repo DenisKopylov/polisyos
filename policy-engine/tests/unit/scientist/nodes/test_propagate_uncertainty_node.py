@@ -127,23 +127,23 @@ def test_propagate_uncertainty_node_updates_simulation_result(tmp_path) -> None:
 def _posterior_node_fixture(tmp_path, draws, *, weights=None, mutation=None):
     from copy import deepcopy
 
-    from polisyos.core.artifacts import InputRef
-    from polisyos.core.canon import CanonSpec
+    from polisyos.core import artifacts as core_artifacts
+    from polisyos.core import canon as core_canon
     from polisyos.foundry.calibration import uncertainty_adapter
     from polisyos.foundry.calibration.report import (
         CalibrationReport,
         put_calibration_config,
         put_calibration_report,
     )
+    from polisyos.ir import CalibrationConfig
     from polisyos.ir.analytics import PosteriorParameterBinding, PosteriorSummaryContext
-    from polisyos.ir.analytics.calibration import CalibrationConfig
     from polisyos.scientist.nodes.builtins.state_keys import INPUT_CALIBRATION_REPORT_REF
 
     store = FileSystemCAS(tmp_path)
     source = store.put_json(
         {"draws": draws, "weights": weights},
         PutOptions(kind="test.posterior_input", media_type="application/json"),
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=core_canon.CanonSpec(forbid_floats=False),
     )
     context = PosteriorSummaryContext(
         parameters={
@@ -159,7 +159,14 @@ def _posterior_node_fixture(tmp_path, draws, *, weights=None, mutation=None):
         draws, weights=weights, context=context
     )
     envelopes = dict(summary.parameter_envelopes)
-    if mutation is not None:
+    if mutation == "consistent_joint":
+        for name, env in envelopes.items():
+            payload = deepcopy(env.model_dump(mode="python"))
+            payload["metadata"]["posterior_summary_profile"]["joint_law_sha256"] = "0" * 64
+            payload["metadata"]["joint_law_sha256"] = "0" * 64
+            payload["metadata"]["joint_sample_id"] = "0" * 64
+            envelopes[name] = UncertaintyEnvelope.model_validate(payload)
+    elif mutation is not None and mutation != "incomplete_joint":
         first = sorted(envelopes)[0]
         payload = deepcopy(envelopes[first].model_dump(mode="python"))
         if mutation == "mean":
@@ -186,6 +193,8 @@ def _posterior_node_fixture(tmp_path, draws, *, weights=None, mutation=None):
         }:
             envelopes[first] = UncertaintyEnvelope.model_validate(payload)
     refs = {name: persist_uncertainty_envelope(store, env) for name, env in envelopes.items()}
+    if mutation == "incomplete_joint":
+        refs.pop(sorted(refs)[-1])
     if mutation in {"raw_bool", "raw_string"}:
         from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
 
@@ -199,7 +208,7 @@ def _posterior_node_fixture(tmp_path, draws, *, weights=None, mutation=None):
                 media_type="application/json",
                 schema=SchemaInfo(name="ir.uncertainty_envelope", version="1.1"),
             ),
-            canon_spec=CanonSpec(forbid_floats=False),
+            canon_spec=core_canon.CanonSpec(forbid_floats=False),
         )
         assert store.verify(record).ok
         refs[first] = UncertaintyEnvelopeRef.model_validate(
@@ -213,7 +222,7 @@ def _posterior_node_fixture(tmp_path, draws, *, weights=None, mutation=None):
             calibrated_params=summary.posterior_means,
             uncertainty_envelope_refs=refs,
         ),
-        inputs=[InputRef(artifact_id=config.artifact_id, role="calibration_config")],
+        inputs=[core_artifacts.InputRef(artifact_id=config.artifact_id, role="calibration_config")],
     )
     if mutation in {"inline_bool", "inline_string"}:
         raw_report = CalibrationReport(
@@ -228,9 +237,13 @@ def _posterior_node_fixture(tmp_path, draws, *, weights=None, mutation=None):
                 kind="foundry.calibration_report",
                 media_type="application/json",
                 schema=SchemaInfo(name="polisyos.foundry.CalibrationReport", version="2.0"),
-                inputs=[InputRef(artifact_id=config.artifact_id, role="calibration_config")],
+                inputs=[
+                    core_artifacts.InputRef(
+                        artifact_id=config.artifact_id, role="calibration_config"
+                    )
+                ],
             ),
-            canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+            canon_spec=core_canon.CanonSpec(forbid_floats=False, exclude_none=False),
         )
         assert store.verify(report_ref).ok
     registry = build_default_registry_bundle(store).bundle_ref
@@ -238,7 +251,7 @@ def _posterior_node_fixture(tmp_path, draws, *, weights=None, mutation=None):
     metrics = store.put_json(
         Metrics(values={"y": 0.0}),
         PutOptions(kind="foundry.metrics", media_type="application/json"),
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=core_canon.CanonSpec(forbid_floats=False),
     )
     plan = store.put_json(
         {"program_ref": metrics.model_dump(mode="json"), "order": []},
@@ -324,6 +337,7 @@ def test_actual_node_reads_named_mean_instead_of_generic_median(tmp_path):
         "carrier",
         "rows",
         "digest",
+        "consistent_joint",
         "rename",
         "raw_bool",
         "raw_string",
@@ -345,3 +359,57 @@ def test_actual_node_refuses_forged_profile_before_evaluator(tmp_path, monkeypat
     with pytest.raises(ValueError):
         PropagateUncertaintyNode().execute(ctx, state)
     assert calls == []
+
+
+def test_multicoordinate_profile_digest_and_missing_projection_refuse_before_builder(
+    tmp_path, monkeypatch
+):
+    from polisyos.scientist.nodes.builtins.simulate import propagate_uncertainty as node
+
+    calls = []
+    monkeypatch.setattr(
+        node,
+        "_build_propagation_fn",
+        lambda *args, **kwargs: calls.append(kwargs) or pytest.fail("joint admission removed"),
+    )
+    for case in ("consistent_joint", "incomplete_joint"):
+        ctx, state, _ = _posterior_node_fixture(
+            tmp_path / case,
+            {"a": [-1, 1], "b": [-1, 1]},
+            mutation=case,
+        )
+        with pytest.raises(ValueError, match="joint"):
+            PropagateUncertaintyNode().execute(ctx, state)
+    assert calls == []
+
+
+def test_posterior_canonical_ir_store_adapter_transport(tmp_path, monkeypatch):
+    from polisyos.core.artifacts import ir_adapter
+    from polisyos.ir.analytics import load_posterior_summary_envelope, posterior_nominal_mean
+
+    _, _, refs = _posterior_node_fixture(tmp_path, {"x": [0, 1]})
+    adapter = ir_adapter.CoreToIRArtifactStoreAdapter(FileSystemCAS(tmp_path))
+    readback = load_posterior_summary_envelope(adapter, refs["x"])
+    assert persist_uncertainty_envelope(adapter, readback) == refs["x"]
+    assert posterior_nominal_mean(readback, parameter_name="x") == 0.5
+
+    original = ir_adapter.CoreToIRArtifactStoreAdapter.get_bytes
+    reads, callbacks = [], []
+
+    def forged_bytes(self, artifact_id):
+        payload = original(self, artifact_id)
+        if str(artifact_id) == str(refs["x"].artifact_id):
+            reads.append(str(artifact_id))
+            return payload + b" "  # Valid JSON, identical law/profile; wrong exact content digest.
+        return payload
+
+    monkeypatch.setattr(ir_adapter.CoreToIRArtifactStoreAdapter, "get_bytes", forged_bytes)
+
+    def named_consumer():
+        decoded = load_posterior_summary_envelope(adapter, refs["x"])
+        callbacks.append(posterior_nominal_mean(decoded, parameter_name="x"))
+
+    with pytest.raises(ValueError, match="CAS kind/schema/content"):
+        named_consumer()
+    assert reads == [str(refs["x"].artifact_id)]
+    assert callbacks == []

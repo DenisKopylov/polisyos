@@ -207,6 +207,14 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "PosteriorSummaryProfile",
     ),
     "posterior_nominal_mean": ("polisyos.ir.analytics.posterior_summary", "posterior_nominal_mean"),
+    "admit_posterior_summary_profiles": (
+        "polisyos.ir.analytics.posterior_summary",
+        "admit_posterior_summary_profiles",
+    ),
+    "posterior_joint_carrier_digest": (
+        "polisyos.ir.analytics.posterior_summary",
+        "posterior_joint_carrier_digest",
+    ),
     "posterior_carrier_content_hash": (
         "polisyos.ir.analytics.posterior_summary",
         "posterior_carrier_content_hash",

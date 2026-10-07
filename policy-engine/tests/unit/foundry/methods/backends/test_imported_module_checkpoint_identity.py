@@ -169,6 +169,12 @@ def _saved_prefix(tmp_path: Path, consumer: type, effect_path: Path):
     return original, chain, params, context, checkpoint, path, reopened
 
 
+def _observe_resume(executor: CheckpointingChainExecutor, **inputs: Any) -> None:
+    resumed = executor.execute(**inputs)
+    # Observe actual false admission before pytest's refusal expectation fails.
+    print("WRONGLY_RESUMED_TOTAL", resumed.final_state["total"])  # noqa: T201
+
+
 def test_unchanged_imported_member_resumes_real_persisted_prefix(tmp_path, monkeypatch):
     monkeypatch.setattr(math, "_e02_b74_checkpoint_helper", _original_increment, raising=False)
     effects = tmp_path / "effects.txt"
@@ -208,16 +214,15 @@ def test_same_version_imported_member_change_refuses_before_replacement_effect(
     assert math.__name__ == original_name
     try:
         with pytest.raises((CheckpointDigestMismatchError, CheckpointIdentityError)):
-            wrongly_resumed = reopened.execute(
-                chain,
+            _observe_resume(
+                reopened,
+                chain=chain,
                 initial_state={"x": 3},
                 params_per_node=params,
                 checkpoint=checkpoint,
                 seed=7,
                 artifact_context=context,
             )
-            # This branch exists only when the refusal property is absent.
-            print("WRONGLY_RESUMED_TOTAL", wrongly_resumed.final_state["total"])  # noqa: T201
     finally:
         # Retain the physical-effect discriminator in the deciding pytest log.
         print("REPLACEMENT_EFFECTS", effects.read_text().splitlines())  # noqa: T201

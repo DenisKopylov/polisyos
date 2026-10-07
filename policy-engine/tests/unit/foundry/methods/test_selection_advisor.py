@@ -9,16 +9,20 @@ import sys
 import sysconfig
 import time
 from dataclasses import replace
+from itertools import combinations
 from pathlib import Path
 
 import numpy as np
 import pytest
 from pydantic import ValidationError
 
+import polisyos.foundry.methods as foundry_methods
 import polisyos.foundry.methods.components.value_evidence as value_evidence
 import polisyos.foundry.methods.selection as method_selection
 import polisyos.foundry.methods.selection.advisor as advisor_module
 from polisyos.core.contracts.execution_plan import MethodCatalogEntry, MethodCatalogSnapshot
+from polisyos.foundry.extensions import controlled_builtin_foundry_method_registry_scope
+from polisyos.foundry.extensions.registry import bootstrap_foundry_method_registry
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     FidelityLevel,
@@ -47,7 +51,7 @@ from polisyos.foundry.methods.selection import (
     pareto_advise_methods,
     select_value_method_for_problem,
 )
-from polisyos.foundry.methods.selection.registry import MethodRegistry
+from polisyos.foundry.methods.selection.registry import MethodRegistry, registry_scope
 from polisyos.foundry.methods.selection_history import MethodExecutionRecord, SelectionHistoryStore
 from polisyos.ir.analytics.uncertainty import (
     NativeValueEstimandBinding,
@@ -175,17 +179,22 @@ def _entry(
     )
 
 
-def _catalog_with_real_entries(
-    registry: MethodRegistry,
-    *fqns: str,
-) -> MethodCatalogSnapshot:
-    """Build a controlled snapshot from registered owner-backed entries."""
+@pytest.fixture
+def controlled_builtin_method_registry(monkeypatch: pytest.MonkeyPatch):
+    """Use the canonical, content-bound built-in scope for bounded selector tests."""
 
-    ensure_all_methods_registered(registry)
-    catalog = build_method_catalog_snapshot(registry=registry)
-    entries_by_fqn = {entry.fqn: entry for entry in catalog.entries}
-    assert set(fqns) <= entries_by_fqn.keys()
-    return catalog.model_copy(update={"entries": [entries_by_fqn[fqn] for fqn in fqns]})
+    with controlled_builtin_foundry_method_registry_scope() as (registry, report):
+        def _report_for_controlled_registry(active_registry: MethodRegistry):
+            if active_registry is not registry:
+                raise AssertionError("selector did not use the controlled registry")
+            return report
+
+        monkeypatch.setattr(
+            foundry_methods,
+            "ensure_all_methods_registered",
+            _report_for_controlled_registry,
+        )
+        yield registry, report
 
 
 def _consensus_estimand(*, time_horizon: str | None = None) -> EstimandSpec:
@@ -303,28 +312,48 @@ def test_method_advisor_returns_ranked_payload_and_capability_matrix() -> None:
 
 
 def test_value_advisor_trace_is_filtered_to_the_value_denominator() -> None:
-    result = select_value_method_for_problem(
-        candidate={
-            "candidate_id": "candidate_value_denominator",
-            "diversity_key": ("posterior", "tabular", "effect"),
-        },
-        problem={
-            "design_problem_id": "problem_value_denominator",
-            "problem_statement": "Estimate an uncertainty-bounded causal effect.",
-            "domain": "generic_policy",
-            "runtime_hints": {
-                "value_data_characteristics": {
-                    "n_obs": 64,
-                    "n_units": 16,
-                    "n_periods": 4,
-                    "is_panel": False,
-                    "treatment_is_binary": True,
-                    "outcome_is_continuous": True,
-                }
-            },
-        },
-    )
+    with registry_scope() as discovery_registry:
+        discovery_report = ensure_all_methods_registered(discovery_registry)
+    manifest = discovery_report.discovery_manifest
+    assert manifest is not None
 
+    with registry_scope() as registry:
+        result = select_value_method_for_problem(
+            registry=registry,
+            candidate={
+                "candidate_id": "candidate_value_denominator",
+                "diversity_key": ("posterior", "tabular", "effect"),
+            },
+            problem={
+                "design_problem_id": "problem_value_denominator",
+                "problem_statement": "Estimate an uncertainty-bounded causal effect.",
+                "domain": "generic_policy",
+                "runtime_hints": {
+                    "value_data_characteristics": {
+                        "n_obs": 64,
+                        "n_units": 16,
+                        "n_periods": 4,
+                        "is_panel": False,
+                        "treatment_is_binary": True,
+                        "outcome_is_continuous": True,
+                    }
+                },
+            },
+        )
+
+    if not manifest.is_bound:
+        unbound_source_closures = tuple(
+            item
+            for item in manifest.unbound_inputs
+            if "entry_point_source_byte_closure_not_established" in item
+        )
+        assert unbound_source_closures
+        assert result["status"] == "blocked"
+        assert result["blockers"] == ("value_method_registry_intake_incomplete",)
+        assert all(item in result["reason"] for item in unbound_source_closures)
+        return
+
+    assert discovery_report.success
     assert result["status"] == "selected"
     denominator = set(result["denominator"])
     assert denominator
@@ -340,85 +369,261 @@ def test_value_advisor_trace_is_filtered_to_the_value_denominator() -> None:
     ) == 1
 
 
-def test_registered_singleton_value_denominator_is_accepted_but_fictional_request_is_blocked(
-    monkeypatch: pytest.MonkeyPatch,
+def test_bound_full_registry_keeps_one_eligible_value_method_and_rejects_registered_nonvalue(
+    controlled_builtin_method_registry,
 ) -> None:
-    """A real one-member registry projection is not a fixed default."""
+    """A complete bounded built-in basis can yield one eligible value method."""
 
-    registry = MethodRegistry.get_instance()
-    singleton = _catalog_with_real_entries(
-        registry,
-        "econometrics.panel.difference_gmm@1.0.0",
-    )
-    monkeypatch.setattr(
-        advisor_module,
-        "build_method_catalog_snapshot",
-        lambda **_kwargs: singleton,
-    )
-
-    selected = select_value_method_for_problem(
+    registry, report = controlled_builtin_method_registry
+    manifest = report.discovery_manifest
+    assert manifest is not None and manifest.is_bound
+    manifest_fqns = tuple(sorted(row.component_id for row in manifest.components))
+    assert manifest_fqns == tuple(sorted(report.registry_fqns))
+    catalog = build_method_catalog_snapshot(
         registry=registry,
-        candidate={
-            "candidate_id": "registered-singleton",
-            "diversity_key": ("panel", "effect"),
-        },
-        problem={
-            "design_problem_id": "registered-singleton",
-            "problem_statement": "Estimate a panel effect.",
-            "domain": "generic_policy",
-            "runtime_hints": {
-                "value_data_characteristics": {
-                    "n_obs": 64,
-                    "n_units": 16,
-                    "n_periods": 4,
-                    "is_panel": True,
-                    "treatment_is_binary": True,
-                    "outcome_is_continuous": True,
-                },
-                "value_required_data_modalities": ("panel",),
+        registry_report=report,
+        require_bound_discovery=True,
+    )
+    value_entries = tuple(
+        entry
+        for entry in catalog.entries
+        if advisor_module._catalog_entry_is_value_method(entry, registry=registry)
+    )
+    modality_universe = tuple(
+        sorted({modality for entry in value_entries for modality in entry.data_modalities})
+    )
+    singleton = next(
+        (
+            (entry, required)
+            for size in range(1, len(modality_universe) + 1)
+            for required in combinations(modality_universe, size)
+            for eligible in (
+                tuple(
+                    candidate
+                    for candidate in value_entries
+                    if candidate.runnable
+                    and set(required).issubset(set(candidate.data_modalities))
+                ),
+            )
+            if len(eligible) == 1
+            for entry in eligible
+        ),
+        None,
+    )
+    assert singleton is not None, "the bound built-in scope has a singleton eligible witness"
+    selected_entry, required_modalities = singleton
+    candidate = {
+        "candidate_id": "complete-registry-singleton-eligibility",
+        "diversity_key": required_modalities,
+    }
+    problem = {
+        "design_problem_id": "complete-registry-singleton-eligibility",
+        "problem_statement": "Select one runnable method for declared data modalities.",
+        "domain": "generic_policy",
+        "runtime_hints": {
+            "value_required_data_modalities": required_modalities,
+            "value_data_characteristics": {
+                "n_obs": 64,
+                "n_units": 16,
+                "n_periods": 4,
+                "is_panel": "panel" in required_modalities,
+                "treatment_is_binary": True,
+                "outcome_is_continuous": True,
             },
         },
+    }
+    selected = select_value_method_for_problem(
+        registry=registry,
+        candidate=candidate,
+        problem=problem,
     )
 
     assert selected["status"] == "selected"
-    assert selected["selected_method_fqn"] == singleton.entries[0].fqn
-    assert selected["denominator"] == (singleton.entries[0].fqn,)
-    assert advisor_module._catalog_entry_is_value_method(
-        singleton.entries[0], registry=registry
+    assert selected["selected_method_fqn"] == selected_entry.fqn
+    assert selected["denominator"] == tuple(sorted(entry.fqn for entry in value_entries))
+    assert len(selected["denominator"]) > 1
+    assert tuple(row["method_fqn"] for row in selected["ranked_alternatives"]) == (
+        selected_entry.fqn,
     )
+    receipt = MethodSelectionReceipt.model_validate(selected["selection_receipt"])
+    assert receipt.verify_selection_context(
+        method_selection.method_selection_context_hash(
+            registry=registry,
+            candidate=candidate,
+            problem=problem,
+        )
+    ) is receipt
 
-    fictional = select_value_method_for_problem(
+    nonvalue_entry = next(
+        entry
+        for entry in catalog.entries
+        if not advisor_module._catalog_entry_is_value_method(entry, registry=registry)
+    )
+    nonvalue = select_value_method_for_problem(
         registry=registry,
-        candidate={"candidate_id": "unregistered-request"},
+        candidate=candidate,
+        problem=problem,
+        requested_method_fqn=nonvalue_entry.fqn,
+    )
+    assert nonvalue["status"] == "blocked"
+    assert nonvalue["blockers"] == ("unsupported_method_unavailable",)
+
+
+def test_value_selection_refuses_a_registry_member_hidden_after_bound_intake(
+    controlled_builtin_method_registry,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A source-manifest member removed after intake cannot disappear from selection."""
+
+    registry, report = controlled_builtin_method_registry
+    manifest = report.discovery_manifest
+    assert manifest is not None and manifest.is_bound
+    hidden_fqn = next(row.component_id for row in manifest.components)
+    real_build_catalog = advisor_module.build_method_catalog_snapshot
+
+    def _remove_manifest_member_before_snapshot(**kwargs):
+        assert kwargs["registry_report"] is report
+        assert kwargs["require_bound_discovery"] is True
+        assert registry.unregister(hidden_fqn)
+        return real_build_catalog(**kwargs)
+
+    monkeypatch.setattr(
+        advisor_module,
+        "build_method_catalog_snapshot",
+        _remove_manifest_member_before_snapshot,
+    )
+    selection = select_value_method_for_problem(
+        registry=registry,
+        candidate={"candidate_id": "hidden-manifest-member"},
         problem={
-            "design_problem_id": "unregistered-request",
-            "problem_statement": "Choose a registered value method.",
+            "design_problem_id": "hidden-manifest-member",
+            "problem_statement": "Select a registered method.",
             "domain": "generic_policy",
         },
-        requested_method_fqn="econometrics.panel.does_not_exist@1.0.0",
     )
 
-    assert fictional["status"] == "blocked"
-    assert fictional["blockers"] == ("unsupported_method_unavailable",)
+    assert selection["status"] == "blocked"
+    assert selection["blockers"] == ("value_method_catalog_unavailable",)
+    assert "catalog_registry_admission_membership_mismatch" in selection["reason"]
+
+
+def test_value_selection_refuses_registry_metadata_mutated_after_bound_intake(
+    controlled_builtin_method_registry,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A bound source report cannot authorize metadata changed after its digest."""
+
+    registry, report = controlled_builtin_method_registry
+    method_fqn = report.registry_fqns[0]
+    real_build_catalog = advisor_module.build_method_catalog_snapshot
+
+    def _mutate_metadata_before_snapshot(**kwargs):
+        assert kwargs["registry_report"] is report
+        assert kwargs["require_bound_discovery"] is True
+        entry = registry.get_entry(method_fqn)
+        assert entry is not None
+        entry.metadata = replace(
+            entry.metadata,
+            tags=entry.metadata.tags | {"selection-test-metadata-mutation"},
+        )
+        return real_build_catalog(**kwargs)
+
+    monkeypatch.setattr(
+        advisor_module,
+        "build_method_catalog_snapshot",
+        _mutate_metadata_before_snapshot,
+    )
+    selection = select_value_method_for_problem(
+        registry=registry,
+        candidate={"candidate_id": "metadata-changed-after-intake"},
+        problem={
+            "design_problem_id": "metadata-changed-after-intake",
+            "problem_statement": "Select a registered method.",
+            "domain": "generic_policy",
+        },
+    )
+
+    assert selection["status"] == "blocked"
+    assert selection["blockers"] == ("value_method_catalog_unavailable",)
+    assert "catalog_registry_admission_content_mismatch" in selection["reason"]
+
+
+def test_value_selection_refuses_a_warmed_registry_without_retained_source_report(
+    controlled_builtin_method_registry,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A second bootstrap's preexisting members do not inherit prior report authority."""
+
+    registry, cold_report = controlled_builtin_method_registry
+    assert cold_report.preexisting_method_fqns == ()
+    warm_report = bootstrap_foundry_method_registry(
+        registry,
+        include_builtins=True,
+        include_entry_points=False,
+        include_dev_scan=False,
+        require_bound_discovery_manifest=True,
+    )
+    assert warm_report.discovery_manifest is not None
+    assert warm_report.discovery_manifest.is_bound
+    assert set(warm_report.preexisting_method_fqns) == set(cold_report.registry_fqns)
+    monkeypatch.setattr(
+        foundry_methods,
+        "ensure_all_methods_registered",
+        lambda active_registry: warm_report
+        if active_registry is registry
+        else None,
+    )
+
+    selection = select_value_method_for_problem(
+        registry=registry,
+        candidate={"candidate_id": "warmed-registry-no-retained-report"},
+        problem={
+            "design_problem_id": "warmed-registry-no-retained-report",
+            "problem_statement": "Select a registered method.",
+            "domain": "generic_policy",
+        },
+    )
+
+    assert selection["status"] == "blocked"
+    assert selection["blockers"] == ("value_method_catalog_unavailable",)
+    assert "catalog_registry_preexisting_membership_not_admitted" in selection["reason"]
 
 
 def test_leading_non_value_entries_cannot_hide_an_eligible_value_method_before_top_k(
     monkeypatch: pytest.MonkeyPatch,
+    controlled_builtin_method_registry,
 ) -> None:
     """Eligibility is applied before ranking truncates the candidate set."""
 
-    registry = MethodRegistry.get_instance()
-    catalog = _catalog_with_real_entries(
-        registry,
-        "causal.diagnostics.parallel_trends_check@1.0.0",
-        "causal.inference.did.staggered@1.0.0",
-        "econometrics.panel.difference_gmm@1.0.0",
+    registry, report = controlled_builtin_method_registry
+    catalog = build_method_catalog_snapshot(
+        registry=registry,
+        registry_report=report,
+        require_bound_discovery=True,
     )
-    monkeypatch.setattr(
-        advisor_module,
-        "build_method_catalog_snapshot",
-        lambda **_kwargs: catalog,
+    assert any(
+        not advisor_module._catalog_entry_is_value_method(entry, registry=registry)
+        for entry in catalog.entries
     )
+    value_entries = tuple(
+        entry
+        for entry in catalog.entries
+        if advisor_module._catalog_entry_is_value_method(entry, registry=registry)
+    )
+    expected_eligible_fqns = {
+        entry.fqn
+        for entry in value_entries
+        if entry.runnable and "panel" in entry.data_modalities
+    }
+    assert expected_eligible_fqns
+    real_advise = advisor_module.advise_methods
+    advisor_input: dict[str, tuple[str, ...]] = {}
+
+    def _capture_value_candidate_set(active_catalog, query, **kwargs):
+        advisor_input["fqns"] = tuple(entry.fqn for entry in active_catalog.entries)
+        return real_advise(active_catalog, query, **kwargs)
+
+    monkeypatch.setattr(advisor_module, "advise_methods", _capture_value_candidate_set)
 
     result = select_value_method_for_problem(
         registry=registry,
@@ -445,60 +650,82 @@ def test_leading_non_value_entries_cannot_hide_an_eligible_value_method_before_t
     )
 
     assert result["status"] == "selected"
-    assert result["selected_method_fqn"] == "econometrics.panel.difference_gmm@1.0.0"
-    assert set(result["score_trace"]) <= {"econometrics.panel.difference_gmm@1.0.0"}
-    assert all(
-        row["method_fqn"] == "econometrics.panel.difference_gmm@1.0.0"
-        for row in result["ranked_alternatives"]
-    )
+    assert advisor_input["fqns"]
+    assert set(advisor_input["fqns"]) == expected_eligible_fqns
+    assert len(result["denominator"]) > len(expected_eligible_fqns)
+    assert set(result["score_trace"]) <= set(result["denominator"])
+    assert all(row["method_fqn"] in result["denominator"] for row in result["ranked_alternatives"])
 
 
 def test_required_panel_modality_is_preserved_and_only_real_runnable_value_owner_is_selected(
-    monkeypatch: pytest.MonkeyPatch,
+    controlled_builtin_method_registry,
 ) -> None:
-    """Unsupported panel stays a hard requirement; supported output is owner-backed."""
+    """Unsupported modality stays hard; a real panel owner satisfies its request."""
 
-    registry = MethodRegistry.get_instance()
-    tabular_only = _catalog_with_real_entries(
-        registry,
-        "bayesian.gp.gp_regression@1.0.0",
+    registry, report = controlled_builtin_method_registry
+    catalog = build_method_catalog_snapshot(
+        registry=registry,
+        registry_report=report,
+        require_bound_discovery=True,
     )
-    monkeypatch.setattr(
-        advisor_module,
-        "build_method_catalog_snapshot",
-        lambda **_kwargs: tabular_only,
-    )
+    all_value_modalities = {
+        modality
+        for entry in catalog.entries
+        if advisor_module._catalog_entry_is_value_method(entry, registry=registry)
+        for modality in entry.data_modalities
+    }
+    unsupported_modality = "unsupported-selector-test-modality"
+    assert unsupported_modality not in all_value_modalities
 
     unsupported = select_value_method_for_problem(
         registry=registry,
         candidate={
-            "candidate_id": "unsupported-panel",
-            "diversity_key": ("panel", "effect"),
+            "candidate_id": "unsupported-modality",
+            "diversity_key": (unsupported_modality, "effect"),
         },
         problem={
-            "design_problem_id": "unsupported-panel",
-            "problem_statement": "Estimate a panel effect.",
+            "design_problem_id": "unsupported-modality",
+            "problem_statement": "Preserve an unavailable hard modality.",
             "domain": "generic_policy",
             "runtime_hints": {
-                "value_required_data_modalities": ("panel",),
+                "value_required_data_modalities": (unsupported_modality,),
             },
         },
     )
 
     assert unsupported["status"] == "blocked"
     assert unsupported["blockers"] == ("value_method_required_data_modality_unavailable",)
-    assert unsupported["required_data_modalities"] == ("panel",)
-    assert "panel" in unsupported["reason"]
+    assert unsupported["required_data_modalities"] == (unsupported_modality,)
+    assert unsupported_modality in unsupported["reason"]
 
-    panel_catalog = _catalog_with_real_entries(
-        registry,
-        "econometrics.panel.event_study@1.0.0",
+    requested_incompatible_entry = next(
+        entry
+        for entry in catalog.entries
+        if advisor_module._catalog_entry_is_value_method(entry, registry=registry)
+        and entry.runnable
+        and "panel" not in entry.data_modalities
     )
-    monkeypatch.setattr(
-        advisor_module,
-        "build_method_catalog_snapshot",
-        lambda **_kwargs: panel_catalog,
+    requested_incompatible = select_value_method_for_problem(
+        registry=registry,
+        candidate={"candidate_id": "requested-incompatible-panel"},
+        problem={
+            "design_problem_id": "requested-incompatible-panel",
+            "problem_statement": "Do not bypass a required panel modality.",
+            "domain": "generic_policy",
+            "runtime_hints": {"value_required_data_modalities": ("panel",)},
+        },
+        requested_method_fqn=requested_incompatible_entry.fqn,
     )
+    assert requested_incompatible["status"] == "blocked"
+    assert requested_incompatible["blockers"] == (
+        "value_method_required_data_modality_unavailable",
+    )
+    assert requested_incompatible["required_data_modalities"] == ("panel",)
+
+    selected_fqn = "econometrics.panel.event_study@1.0.0"
+    selected_entry = next(entry for entry in catalog.entries if entry.fqn == selected_fqn)
+    assert selected_entry.runnable is True
+    assert "panel" in selected_entry.data_modalities
     supported = select_value_method_for_problem(
         registry=registry,
         candidate={
@@ -513,11 +740,11 @@ def test_required_panel_modality_is_preserved_and_only_real_runnable_value_owner
                 "value_required_data_modalities": ("panel",),
             },
         },
+        requested_method_fqn=selected_fqn,
     )
 
     assert supported["status"] == "selected"
-    assert supported["selected_method_fqn"] == "econometrics.panel.event_study@1.0.0"
-    selected_entry = panel_catalog.entries[0]
+    assert supported["selected_method_fqn"] == selected_fqn
     assert selected_entry.runnable is True
     assert advisor_module._catalog_entry_is_value_method(selected_entry, registry=registry)
     assert registry.get(selected_entry.fqn).signature.fqn == selected_entry.fqn
@@ -536,10 +763,14 @@ def test_required_panel_modality_is_preserved_and_only_real_runnable_value_owner
     )
 
 
-def test_value_denominator_excludes_diagnostics_without_native_projection() -> None:
+def test_value_denominator_excludes_diagnostics_without_native_projection(
+    controlled_builtin_method_registry,
+) -> None:
     """A diagnostic name/tag cannot substitute for an owner-native value contract."""
 
+    registry, _report = controlled_builtin_method_registry
     result = select_value_method_for_problem(
+        registry=registry,
         candidate={
             "candidate_id": "education_candidate_unbound",
             "diversity_key": ("tabular", "cross-section", "education"),
@@ -569,12 +800,16 @@ def test_value_denominator_excludes_diagnostics_without_native_projection() -> N
 
 def test_value_denominator_rejects_catalog_capability_without_method_owner(
     monkeypatch: pytest.MonkeyPatch,
+    controlled_builtin_method_registry,
 ) -> None:
     """A shaped catalog row cannot make a diagnostic method value-capable."""
 
-    registry = MethodRegistry.get_instance()
-    ensure_all_methods_registered(registry)
-    live_catalog = build_method_catalog_snapshot(registry=registry)
+    registry, report = controlled_builtin_method_registry
+    live_catalog = build_method_catalog_snapshot(
+        registry=registry,
+        registry_report=report,
+        require_bound_discovery=True,
+    )
     hausman = next(
         entry
         for entry in live_catalog.entries
@@ -610,11 +845,24 @@ def test_value_denominator_rejects_catalog_capability_without_method_owner(
             ],
         }
     )
-    forged_catalog = live_catalog.model_copy(update={"entries": [forged]})
+    forged_catalog = live_catalog.model_copy(
+        update={
+            "entries": [
+                forged if entry.fqn == hausman.fqn else entry
+                for entry in live_catalog.entries
+            ]
+        }
+    )
+    real_build_catalog = advisor_module.build_method_catalog_snapshot
+
+    def _simulate_forged_projection_after_bound_admission(**kwargs):
+        real_build_catalog(**kwargs)
+        return forged_catalog
+
     monkeypatch.setattr(
         advisor_module,
         "build_method_catalog_snapshot",
-        lambda *, registry=None: forged_catalog,
+        _simulate_forged_projection_after_bound_admission,
     )
 
     result = select_value_method_for_problem(
@@ -625,10 +873,13 @@ def test_value_denominator_rejects_catalog_capability_without_method_owner(
             "problem_statement": "Estimate an outcome.",
             "domain": "generic",
         },
+        requested_method_fqn=hausman.fqn,
     )
 
     assert result["status"] == "blocked"
-    assert result["blockers"] == ("value_method_registry_empty",)
+    assert result["blockers"] == ("unsupported_method_unavailable",)
+    assert result["denominator"]
+    assert hausman.fqn not in result["denominator"]
 
 
 def test_value_projection_capability_is_discovered_from_third_contract_owner() -> None:
@@ -648,8 +899,12 @@ def test_value_projection_capability_is_discovered_from_third_contract_owner() -
     assert capabilities[0].owner_qualname.endswith("_WaterQualityNativeInterval")
 
 
-def test_value_advisor_builds_content_bound_selection_receipt_from_real_trace() -> None:
+def test_value_advisor_builds_content_bound_selection_receipt_from_real_trace(
+    controlled_builtin_method_registry,
+) -> None:
+    registry, _report = controlled_builtin_method_registry
     result = select_value_method_for_problem(
+        registry=registry,
         candidate={
             "candidate_id": "candidate_selection_receipt",
             "diversity_key": ("posterior", "tabular", "effect"),
@@ -697,25 +952,34 @@ def test_phase5_unprojected_nested_manifest_does_not_become_empty_hints() -> Non
     assert result["blockers"] == ("value_method_manifest_projection_required",)
 
 
-def test_phase5_only_explicit_flat_advisory_shape_can_supply_manifest_hints() -> None:
+def test_phase5_only_explicit_flat_advisory_shape_can_supply_manifest_hints(
+    controlled_builtin_method_registry,
+) -> None:
     from polisyos.foundry.methods.selection.advisor import method_selection_context_hash
 
+    registry, _report = controlled_builtin_method_registry
     for malformed in ({"artifact_name": "source", "artifacts": {}}, {}, [], "", 0,
                       {"contracts": []}, {"contracts": [{"unknown_target": "panel"}]}):
         assert select_value_method_for_problem(
+            registry=registry,
             candidate={}, problem={}, observation_to_contract_manifest=malformed,
         )["status"] == "blocked", malformed
         with pytest.raises(ValueError):
             method_selection_context_hash(
+                registry=registry,
                 candidate={}, problem={}, observation_to_contract_manifest=malformed,
             )
     assert select_value_method_for_problem(
+        registry=registry,
         candidate={}, problem={},
         observation_to_contract_manifest={"contracts": [{"data_modality": "panel"}]},
     )["status"] == "selected"
 
 
-def test_method_selection_context_hash_uses_exact_canonical_selector_payload() -> None:
+def test_method_selection_context_hash_uses_exact_canonical_selector_payload(
+    controlled_builtin_method_registry,
+) -> None:
+    registry, report = controlled_builtin_method_registry
     profile_hash = "sha256:" + "a" * 64
     candidate = {
         "candidate_id": "candidate_selection_context",
@@ -743,9 +1007,13 @@ def test_method_selection_context_hash_uses_exact_canonical_selector_payload() -
         {"data_modality": "panel"},
         {"contract_target": "tabular"},
     )
-    ensure_all_methods_registered()
-    registry = MethodRegistry.get_instance()
-    catalog = build_method_catalog_snapshot(registry=registry)
+    manifest = report.discovery_manifest
+    assert manifest is not None
+    catalog = build_method_catalog_snapshot(
+        registry=registry,
+        registry_report=report,
+        require_bound_discovery=True,
+    )
     value_catalog_projection_hash = advisor_module._value_catalog_projection_hash(
         tuple(
             entry
@@ -754,7 +1022,9 @@ def test_method_selection_context_hash_uses_exact_canonical_selector_payload() -
         )
     )
     expected_payload = {
-        "schema_version": "policyos.foundry.method_selection_context.v4",
+        "schema_version": "policyos.foundry.method_selection_context.v5",
+        "registry_discovery_manifest_id": manifest.manifest_id,
+        "registry_binding_sha256": report.registry_binding_sha256,
         "route_constraint": None,
         "value_catalog_projection_hash": value_catalog_projection_hash,
         "candidate_signal": "candidate_selection_context posterior tabular effect",
@@ -816,6 +1086,7 @@ def test_method_selection_context_hash_uses_exact_canonical_selector_payload() -
     ).hexdigest()
 
     actual_hash = method_selection.method_selection_context_hash(
+        registry=registry,
         candidate=candidate,
         problem=problem,
         observation_to_contract_manifest=manifest,
@@ -824,6 +1095,7 @@ def test_method_selection_context_hash_uses_exact_canonical_selector_payload() -
 
     assert actual_hash == expected_hash
     assert actual_hash == method_selection.method_selection_context_hash(
+        registry=registry,
         candidate=candidate,
         problem=problem,
         observation_to_contract_manifest=manifest,
@@ -831,7 +1103,10 @@ def test_method_selection_context_hash_uses_exact_canonical_selector_payload() -
     )
 
 
-def test_advisor_receipt_rejects_replay_across_owner_profile_contexts() -> None:
+def test_advisor_receipt_rejects_replay_across_owner_profile_contexts(
+    controlled_builtin_method_registry,
+) -> None:
+    registry, _report = controlled_builtin_method_registry
     candidate = {
         "candidate_id": "candidate_advisor_context_replay",
         "diversity_key": ("posterior", "tabular", "effect"),
@@ -858,8 +1133,12 @@ def test_advisor_receipt_rejects_replay_across_owner_profile_contexts() -> None:
 
     first_problem = _problem("sha256:" + "d" * 64)
     second_problem = _problem("sha256:" + "e" * 64)
-    first_selection = select_value_method_for_problem(candidate=candidate, problem=first_problem)
-    second_selection = select_value_method_for_problem(candidate=candidate, problem=second_problem)
+    first_selection = select_value_method_for_problem(
+        registry=registry, candidate=candidate, problem=first_problem
+    )
+    second_selection = select_value_method_for_problem(
+        registry=registry, candidate=candidate, problem=second_problem
+    )
     first_receipt = MethodSelectionReceipt.model_validate(first_selection["selection_receipt"])
     second_receipt = MethodSelectionReceipt.model_validate(second_selection["selection_receipt"])
 
@@ -870,6 +1149,7 @@ def test_advisor_receipt_rejects_replay_across_owner_profile_contexts() -> None:
     assert first_receipt.content_hash != second_receipt.content_hash
     assert first_receipt.verify_selection_context(
         method_selection.method_selection_context_hash(
+            registry=registry,
             candidate=candidate,
             problem=first_problem,
         )
@@ -882,12 +1162,27 @@ def test_advisor_receipt_rejects_replay_across_owner_profile_contexts() -> None:
 def test_value_selection_receipt_rejects_replay_across_catalog_snapshots(
     monkeypatch: pytest.MonkeyPatch,
     requested: bool,
+    controlled_builtin_method_registry,
 ) -> None:
-    base_catalog = build_method_catalog_snapshot()
+    registry, report = controlled_builtin_method_registry
+    base_catalog = build_method_catalog_snapshot(
+        registry=registry,
+        registry_report=report,
+        require_bound_discovery=True,
+    )
     active_catalog = {"snapshot": base_catalog}
+    real_build_catalog = advisor_module.build_method_catalog_snapshot
+
+    def _simulated_catalog_snapshot_oracle(**kwargs):
+        # The bound producer admits the full controlled registry first; this
+        # test then supplies alternate snapshots solely to exercise receipt
+        # replay sensitivity to catalog projections.
+        real_build_catalog(**kwargs)
+        return active_catalog["snapshot"]
+
     monkeypatch.setattr(
         "polisyos.foundry.methods.selection.advisor.build_method_catalog_snapshot",
-        lambda **_kwargs: active_catalog["snapshot"],
+        _simulated_catalog_snapshot_oracle,
     )
     candidate = {"candidate_id": "candidate_catalog_context"}
     problem = {
@@ -898,9 +1193,12 @@ def test_value_selection_receipt_rejects_replay_across_catalog_snapshots(
             "value_data_profile_content_hash": "sha256:" + "c" * 64,
         },
     }
-    preliminary = select_value_method_for_problem(candidate=candidate, problem=problem)
+    preliminary = select_value_method_for_problem(
+        registry=registry, candidate=candidate, problem=problem
+    )
     requested_fqn = str(preliminary["selected_method_fqn"]) if requested else None
     first = select_value_method_for_problem(
+        registry=registry,
         candidate=candidate,
         problem=problem,
         requested_method_fqn=requested_fqn,
@@ -920,6 +1218,7 @@ def test_value_selection_receipt_rejects_replay_across_catalog_snapshots(
         }
     )
     second = select_value_method_for_problem(
+        registry=registry,
         candidate=candidate,
         problem=problem,
         requested_method_fqn=requested_fqn,
@@ -931,6 +1230,7 @@ def test_value_selection_receipt_rejects_replay_across_catalog_snapshots(
     with pytest.raises(ValueError, match="value_method_selection_context_hash_mismatch"):
         first_receipt.verify_selection_context(
             method_selection.method_selection_context_hash(
+                registry=registry,
                 candidate=candidate,
                 problem=problem,
                 requested_method_fqn=requested_fqn,
@@ -940,10 +1240,16 @@ def test_value_selection_receipt_rejects_replay_across_catalog_snapshots(
 
 def test_value_selection_context_ignores_unrelated_catalog_drift(
     monkeypatch: pytest.MonkeyPatch,
+    controlled_builtin_method_registry,
 ) -> None:
     """Bind selection replay to the value denominator, not import-order noise."""
 
-    base_catalog = build_method_catalog_snapshot()
+    registry, report = controlled_builtin_method_registry
+    base_catalog = build_method_catalog_snapshot(
+        registry=registry,
+        registry_report=report,
+        require_bound_discovery=True,
+    )
     candidate = {"candidate_id": "candidate_value_catalog_projection"}
     problem = {
         "design_problem_id": "problem_value_catalog_projection",
@@ -954,12 +1260,20 @@ def test_value_selection_context_ignores_unrelated_catalog_drift(
         },
     }
     active_catalog = {"snapshot": base_catalog}
+    real_build_catalog = advisor_module.build_method_catalog_snapshot
+
+    def _simulated_catalog_snapshot_oracle(**kwargs):
+        real_build_catalog(**kwargs)
+        return active_catalog["snapshot"]
+
     monkeypatch.setattr(
         "polisyos.foundry.methods.selection.advisor.build_method_catalog_snapshot",
-        lambda **_kwargs: active_catalog["snapshot"],
+        _simulated_catalog_snapshot_oracle,
     )
 
-    first = select_value_method_for_problem(candidate=candidate, problem=problem)
+    first = select_value_method_for_problem(
+        registry=registry, candidate=candidate, problem=problem
+    )
     first_receipt = MethodSelectionReceipt.model_validate(first["selection_receipt"])
     unrelated = next(
         entry for entry in base_catalog.entries if entry.fqn not in first_receipt.denominator
@@ -977,7 +1291,9 @@ def test_value_selection_context_ignores_unrelated_catalog_drift(
         }
     )
 
-    second = select_value_method_for_problem(candidate=candidate, problem=problem)
+    second = select_value_method_for_problem(
+        registry=registry, candidate=candidate, problem=problem
+    )
     second_receipt = MethodSelectionReceipt.model_validate(second["selection_receipt"])
 
     assert first_receipt.denominator == second_receipt.denominator
@@ -985,8 +1301,12 @@ def test_value_selection_context_ignores_unrelated_catalog_drift(
     assert first_receipt.selection_context_hash == second_receipt.selection_context_hash
 
 
-def test_requested_value_method_builds_receipt_from_verified_registry_entry() -> None:
+def test_requested_value_method_builds_receipt_from_verified_registry_entry(
+    controlled_builtin_method_registry,
+) -> None:
+    registry, _report = controlled_builtin_method_registry
     advisor_selection = select_value_method_for_problem(
+        registry=registry,
         candidate={
             "candidate_id": "candidate_registry_request_source",
             "diversity_key": ("posterior", "tabular", "effect"),
@@ -1000,6 +1320,7 @@ def test_requested_value_method_builds_receipt_from_verified_registry_entry() ->
     requested_fqn = advisor_selection["selected_method_fqn"]
 
     requested_selection = select_value_method_for_problem(
+        registry=registry,
         candidate={"candidate_id": "candidate_registry_request"},
         problem={
             "design_problem_id": "problem_registry_request",
@@ -1020,7 +1341,10 @@ def test_requested_value_method_builds_receipt_from_verified_registry_entry() ->
     assert receipt.ranked_alternatives[0].loss_reasons == ("explicit_registry_request",)
 
 
-def test_requested_registry_receipt_is_bound_to_its_owner_profile_context() -> None:
+def test_requested_registry_receipt_is_bound_to_its_owner_profile_context(
+    controlled_builtin_method_registry,
+) -> None:
+    registry, _report = controlled_builtin_method_registry
     candidate = {"candidate_id": "candidate_requested_context_replay"}
     first_problem = {
         "design_problem_id": "problem_requested_context_replay",
@@ -1030,7 +1354,9 @@ def test_requested_registry_receipt_is_bound_to_its_owner_profile_context() -> N
             "value_data_profile_content_hash": "sha256:" + "f" * 64,
         },
     }
-    advisor_selection = select_value_method_for_problem(candidate=candidate, problem=first_problem)
+    advisor_selection = select_value_method_for_problem(
+        registry=registry, candidate=candidate, problem=first_problem
+    )
     advisor_receipt = MethodSelectionReceipt.model_validate(advisor_selection["selection_receipt"])
     requested_fqn = str(advisor_selection["selected_method_fqn"])
     second_problem = {
@@ -1041,11 +1367,13 @@ def test_requested_registry_receipt_is_bound_to_its_owner_profile_context() -> N
     }
 
     first_selection = select_value_method_for_problem(
+        registry=registry,
         candidate=candidate,
         problem=first_problem,
         requested_method_fqn=requested_fqn,
     )
     second_selection = select_value_method_for_problem(
+        registry=registry,
         candidate=candidate,
         problem=second_problem,
         requested_method_fqn=requested_fqn,
@@ -1061,6 +1389,7 @@ def test_requested_registry_receipt_is_bound_to_its_owner_profile_context() -> N
     assert first_receipt.content_hash != second_receipt.content_hash
     assert first_receipt.verify_selection_context(
         method_selection.method_selection_context_hash(
+            registry=registry,
             candidate=candidate,
             problem=first_problem,
             requested_method_fqn=requested_fqn,
@@ -1116,8 +1445,11 @@ def test_requested_registry_receipt_is_bound_to_its_owner_profile_context() -> N
 def test_value_method_selection_receipt_rejects_self_attested_or_incoherent_payloads(
     mutation: object,
     reason: str,
+    controlled_builtin_method_registry,
 ) -> None:
+    registry, _report = controlled_builtin_method_registry
     selection = select_value_method_for_problem(
+        registry=registry,
         candidate={
             "candidate_id": "candidate_selection_receipt_negative",
             "diversity_key": ("posterior", "tabular", "effect"),

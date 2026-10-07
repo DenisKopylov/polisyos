@@ -1,0 +1,9 @@
+{
+  "snapshot": "fae38a6b8ceceabec2967aebe02df9fdccd67509",
+  "tracked_old_plan": 252,
+  "new_mirrored": 6,
+  "recommended_tracked_inputs": 258,
+  "separate_external_roles": 1,
+  "unchanged_cards": 25,
+  "derive_collection_native": "UNRUN"
+}

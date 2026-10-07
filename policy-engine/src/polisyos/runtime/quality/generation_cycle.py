@@ -4734,8 +4734,10 @@ def simulation_evaluation_input_ref(
     simulation: SimulationPortObservation,
     *,
     artifact_store: ArtifactStore | None = None,
+    candidate: object | None = None,
+    problem: DesignProblem | None = None,
 ) -> ArtifactRef | None:
-    """Return a v1 EvalSafety input only after verifying persisted N5 bytes."""
+    """Resolve N5 bytes and, at a value intake, bind the candidate and outcome."""
 
     if simulation.status != "joint_simulated":
         return None
@@ -4744,6 +4746,25 @@ def simulation_evaluation_input_ref(
         return None
     if simulation.simulation_result_ref is None:
         return None
+    if (candidate is None) != (problem is None):
+        return None
+    expected_atoms = None
+    expected_outcomes = None
+    if candidate is not None and problem is not None:
+        if simulation.candidate_id != _candidate_id(candidate):
+            return None
+        raw_atoms = _object_get(candidate, "intervention_atoms")
+        if raw_atoms is None:
+            raw_atoms = (_object_get(candidate, "atom"),)
+        expected_atoms = tuple(
+            str(_object_get(atom, "intervention_id") or "")
+            for atom in raw_atoms
+            if atom is not None
+        )
+        outcome = _value_outcome_variable(candidate, problem)
+        if not expected_atoms or any(not atom_id for atom_id in expected_atoms) or not outcome:
+            return None
+        expected_outcomes = (outcome,)
     result_ref = simulation.simulation_result_ref
     if result_ref is not None:
         if artifact_store is None or simulation.world_model_record is None:
@@ -4759,6 +4780,8 @@ def simulation_evaluation_input_ref(
                     simulation.world_model_record.world_model_record_id
                 ),
                 expected_receipt_payload_hash=simulation.simulation_ref or "",
+                expected_atom_ids=expected_atoms,
+                expected_selected_outcomes=expected_outcomes,
             )
         except GenerationCycleError:
             return None
@@ -4800,7 +4823,9 @@ def simulation_value_execution_context(
 ) -> EvaluationExecutionContext:
     """Build an explicit certificate-free context from the actual N5 output."""
 
-    input_ref = simulation_evaluation_input_ref(simulation, artifact_store=artifact_store)
+    input_ref = simulation_evaluation_input_ref(
+        simulation, artifact_store=artifact_store, candidate=candidate, problem=problem
+    )
     world = simulation.world_model_record
     if input_ref is None or world is None:
         raise ValueError("eval_safety_simulation_input_unresolved")
@@ -4982,7 +5007,10 @@ class FoundryValuePort:
                 candidate_id=candidate_id,
             )
         actual_input_ref = simulation_evaluation_input_ref(
-            simulation, artifact_store=self._artifact_store
+            simulation,
+            artifact_store=self._artifact_store,
+            candidate=candidate,
+            problem=problem,
         )
         actual_input_provenance = next(
             (

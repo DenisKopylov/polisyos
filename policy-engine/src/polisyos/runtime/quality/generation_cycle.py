@@ -10587,6 +10587,47 @@ def _validate_generation_cycle_run(
 
     for index, cycle in enumerate(run.cycles):
         if (
+            run.schema_version in _GENERATION_CYCLE_CURRENT_SEMANTIC_SCHEMA_VERSIONS
+            and cycle.voi_decision.next_action == "stop"
+            # A final run-level block supersedes the prior VOI projection. The
+            # block projections and recomputed cause are validated above.
+            and not (
+                index == len(run.cycles) - 1
+                and n9_terminal_disposition(run.terminal_status)
+                is N9TerminalDisposition.TERMINAL_BLOCKED
+            )
+        ):
+            try:
+                expected_decision = _stop_projection_decision(
+                    cycle.voi_decision.terminal_kind
+                )
+            except GenerationCycleError as exc:
+                issues.append(
+                    {
+                        "code": "generation_cycle_terminal_projection_mismatch",
+                        "cycle_index": index,
+                        "reason": exc.code,
+                    }
+                )
+            else:
+                expected_status = (
+                    "abstained" if expected_decision == "abstain" else "stopped"
+                )
+                if (
+                    cycle.refinement_decision.decision != expected_decision
+                    or cycle.search_iteration.status != expected_status
+                ):
+                    issues.append(
+                        {
+                            "code": "generation_cycle_terminal_projection_mismatch",
+                            "cycle_index": index,
+                            "expected_decision": expected_decision,
+                            "actual_decision": cycle.refinement_decision.decision,
+                            "expected_iteration_status": expected_status,
+                            "actual_iteration_status": cycle.search_iteration.status,
+                        }
+                    )
+        if (
             cycle.voi_decision.candidate_id != cycle.selected_candidate_ref
             or cycle.voi_decision.terminal_kind != cycle.terminal_kind
         ):

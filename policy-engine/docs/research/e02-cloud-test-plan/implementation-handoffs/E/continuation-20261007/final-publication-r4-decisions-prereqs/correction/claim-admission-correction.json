@@ -11,8 +11,8 @@
   },
   "corrected_copier": {
     "path": "copy-decisions-prereqs.py.txt",
-    "bytes": 14138,
-    "sha256": "f73d90f484d38b6b7d5c3f82316a9d9a053d7e53e29b5c06dbf28bb7ff98e62e"
+    "bytes": 15203,
+    "sha256": "f90cf379b8833595e16009d4f800160638c7a84f296d575e50d3f2385e448768"
   },
   "class_fix": [
     "Canonical recursive typed comparison preserves bool/int/float distinctions.",
@@ -33,5 +33,6 @@
   "source_native_backend_gate_reexecuted": false,
   "ROOT_source_env_locks_changed": false,
   "finding_closure": false,
-  "future_correction_commit": "Excluded; independent reviewer will bind immutable append candidate after commit."
+  "future_correction_commit": "Excluded; independent reviewer will bind immutable append candidate after commit.",
+  "temporal_qualification_delta": "Only QUALIFICATION constant/provenance metadata changed after100aa; typed guard bodies remain identical. Historical100aa normal/-O19controls reused with fresh healthy/false-temporal-claim delta."
 }

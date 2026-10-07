@@ -5710,10 +5710,33 @@
         "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340"
       },
       "source_author": "imports_r4 owns source/handoff publication; oracle independently reviews bounded property",
-      "source_review_scope": "narrow source-property GO; schema/companion review and original-row disposition separate",
+      "source_review_scope": "Historical ca17 finite-law/CAS GO only; actual typed DTO review CHANGE_REQUIRED with two new override errors. Later3932 source correction/publication is separate and no Gfindingclosure is asserted here.",
       "source_slice_or_math_selector_copied_here": false,
       "G_formal_finding_closure": false,
-      "ROOT64d_source_replaced": false
+      "ROOT64d_source_replaced": false,
+      "typed_DTO_review": {
+        "status": "historical CHANGE_REQUIRED",
+        "scoped_candidate_errors": 3,
+        "scoped_resolved_base_errors": 1,
+        "new_override_errors": 2,
+        "candidate_stdout": {
+          "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/candidate-type.stdout.json",
+          "bytes": 2390,
+          "sha256": "c123df6c3dd55ded5ff7e567faf4bc1c9758afc3cc50c468c67b52c8f9a3c153"
+        },
+        "base_stdout": {
+          "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved-type.stdout.json",
+          "bytes": 844,
+          "sha256": "3c2e733201331a4923c9175f5c6e4dc749165a3751300b829bf8dbc01fd2edba"
+        },
+        "exact_resolved_command_provenance": {
+          "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/scoped-type-correction.json",
+          "bytes": 3936,
+          "sha256": "89a8a0c02a444f74bc4d2a7d97ef552d88617eb8ba9a9e38426850d56f5c58d2"
+        },
+        "not_CanonSpec_33_to35_class": true,
+        "later3932_source_slice_copied_or_accepted_here": false
+      }
     },
     "install": {
       "installation_and_declared_native_preflight": "bounded closed PASS; four declared dependencies only,203 old METADATA unchanged to207",

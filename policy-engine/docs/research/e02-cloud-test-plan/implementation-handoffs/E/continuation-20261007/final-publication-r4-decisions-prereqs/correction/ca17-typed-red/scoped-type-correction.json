@@ -1,0 +1,79 @@
+{
+  "schema": "policyos.e02.MC.public_profile_scoped_typecheck_corrective_context.v1",
+  "base": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+  "argv": [
+    "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/basedpyright",
+    "--project",
+    "/workspace/e02-E-mc-20261006/policy-engine/basedpyright.toml",
+    "--pythonpath",
+    "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+    "--outputjson",
+    "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved/policy-engine/src/polisyos/ir/analytics/posterior_summary.py"
+  ],
+  "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+  "started_unix": 1791376406.4475398,
+  "finished_unix": 1791376409.0818076,
+  "exit_code": 1,
+  "stdout": {
+    "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved-type.stdout.json",
+    "bytes": 844,
+    "sha256": "3c2e733201331a4923c9175f5c6e4dc749165a3751300b829bf8dbc01fd2edba"
+  },
+  "stderr": {
+    "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved-type.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "literal_source_inputs": [
+    {
+      "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/__init__.py",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c",
+      "snapshot": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved/policy-engine/src/polisyos/__init__.py"
+    },
+    {
+      "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "bytes": 39304,
+      "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c",
+      "snapshot": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved/policy-engine/src/polisyos/ir/__init__.py"
+    },
+    {
+      "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+      "bytes": 1152,
+      "sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174",
+      "snapshot": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved/policy-engine/src/polisyos/ir/analytics/__init__.py"
+    },
+    {
+      "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "bytes": 84428,
+      "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7",
+      "snapshot": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved/policy-engine/src/polisyos/ir/analytics/uncertainty.py"
+    },
+    {
+      "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "bytes": 19970,
+      "sha256": "0e6b8f25eab56fc0f5f782effc9960f2fe449da559009422adfe5737525bb43e",
+      "snapshot": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved/policy-engine/src/polisyos/ir/analytics/posterior_summary.py"
+    }
+  ],
+  "historical_first_base_target": {
+    "receipt": {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/scoped-type-execution.json",
+      "bytes": 3538,
+      "sha256": "9c53fad5f9f6dd3e8dd243aeb5f0b33e8aea167d39a5e0f7124b5dfc90e2817d"
+    },
+    "limitation": "Historical flattened temp path loses relative .uncertainty resolution and is not valid base-red attribution."
+  },
+  "candidate_output_reused": {
+    "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/candidate-type.stdout.json",
+    "bytes": 2390,
+    "sha256": "c123df6c3dd55ded5ff7e567faf4bc1c9758afc3cc50c468c67b52c8f9a3c153"
+  },
+  "scope": "One explicit actual profile-module target; complete package context for its relative uncertainty import copied from64d. Canonical config/unchanged baseline and existing DOE interpreter retained. No full gate or numeric run."
+}

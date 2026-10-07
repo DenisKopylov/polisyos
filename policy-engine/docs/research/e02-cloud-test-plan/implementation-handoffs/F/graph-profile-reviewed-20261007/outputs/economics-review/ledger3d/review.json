@@ -1,0 +1,129 @@
+{
+  "schema": "e02.F.independent_frozen_ledger_review.v1",
+  "source": "3d43eb459eec1f346571306647e5dbc68f32f076",
+  "source_tree": "18a07f2d4de206cdd7c0b85532b2201d8ae279e8",
+  "base": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+  "product_source": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "receipt": {
+    "git_ref": "248497d27aa7951492c9a6d12c3c3493f3c246ec",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+    "bytes": 71398,
+    "sha256": "889decd43e053de5c5c13a16bd5f38d49b4065907f92942cd40538ee58386ae5",
+    "git_blob": "01d6d2d1b662971e5534c3b7cebfcfd15812fb4a"
+  },
+  "verdict": "GO_BOUNDED_CANONICAL_LEDGER_AND_TRANSPORT",
+  "counts_and_unchanged_bindings": "PASS35IDs/36bindings/35unique/17bundles/6appended29wholebytecarry",
+  "statuses": "33closed2limited/34PASS1UNRUN;0NEW_Gruntime_source/0formal;priorLex00a6accepted preserved",
+  "global_quality": "Old519 scannerERROR-9twice, RuffFAIL103/surfaceFAIL38/P41not_established retained; new fullscannerUNRUN, benchmarkRuff2T201FAIL; old51991+91 not new4ee qualification",
+  "transport": "PASS513complete actual Git stored and decoded bytes; all deciding outputs present",
+  "B218": "PASS explicit3historical supersession refs, actual limited values preserved; temporalUNRUN separate",
+  "B212": "Actual controlled post-fit missingCI/SE negative correctly qualified; not naturalpoint-only witness",
+  "LA035": "Entire perID unchanged and original equivalent relocation closed; no optimizer prerequisite",
+  "no_independent_product_source_review_claim": true,
+  "no_numerical_runs": true,
+  "protocol_verification": {
+    "required_by": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md:38",
+    "schema": "policyos.e02.implementation_handoff.v1",
+    "canonical_schema_match": true,
+    "missing_minimum_fields": [],
+    "checks": [
+      {
+        "index": 0,
+        "missing": [],
+        "output_is_string": true
+      },
+      {
+        "index": 1,
+        "missing": [],
+        "output_is_string": true
+      },
+      {
+        "index": 2,
+        "missing": [],
+        "output_is_string": true
+      },
+      {
+        "index": 3,
+        "missing": [],
+        "output_is_string": true
+      },
+      {
+        "index": 4,
+        "missing": [],
+        "output_is_string": true
+      },
+      {
+        "index": 5,
+        "missing": [],
+        "output_is_string": true
+      },
+      {
+        "index": 6,
+        "missing": [],
+        "output_is_string": true
+      },
+      {
+        "index": 7,
+        "missing": [],
+        "output_is_string": true
+      },
+      {
+        "index": 8,
+        "missing": [],
+        "output_is_string": true
+      },
+      {
+        "index": 9,
+        "missing": [],
+        "output_is_string": true
+      }
+    ],
+    "property_missing": [],
+    "verdict": "GO_CANONICAL_PROTOCOL"
+  },
+  "metadata_corruption_controls": [
+    {
+      "name": "wrong stored SHA with actual untouched Git bytes",
+      "result": "REJECTED",
+      "kind": "finite metadata corruption; no estimator run"
+    },
+    {
+      "name": "wrong decoded SHA with valid stored gzip",
+      "result": "REJECTED",
+      "kind": "finite metadata corruption; no estimator run"
+    },
+    {
+      "name": "drop duplicate LA016 coverage binding without dropping ID",
+      "result": "REJECTED",
+      "kind": "finite metadata corruption; no estimator run"
+    },
+    {
+      "name": "promote broad B214 from narrow property",
+      "result": "REJECTED",
+      "kind": "finite metadata corruption; no estimator run"
+    },
+    {
+      "name": "promote deferred shared-admission B56",
+      "result": "REJECTED",
+      "kind": "finite metadata corruption; no estimator run"
+    },
+    {
+      "name": "erase historical Lex accepted source while declaring0new",
+      "result": "REJECTED",
+      "kind": "finite metadata corruption; no estimator run"
+    },
+    {
+      "name": "promote F B218 supersession to G formal closure",
+      "result": "REJECTED",
+      "kind": "finite metadata corruption; no estimator run"
+    }
+  ],
+  "outputs": [
+    "current35-actual-binding-audit.json",
+    "complete-transport-audit.json",
+    "canonical-protocol-audit.json",
+    "quality-actual-classification.json",
+    "full14-ledger.patch"
+  ],
+  "historical_requirement_review": "../review.json"
+}

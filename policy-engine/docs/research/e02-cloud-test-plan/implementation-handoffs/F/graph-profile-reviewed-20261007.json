@@ -1,0 +1,215 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "graph-profile-reviewed-20261007",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CAU-01",
+    "CAU-04",
+    "GRF-03",
+    "FRY-01"
+  ],
+  "slice_base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+  "implementation_commits": [
+    "3e5985076cee7e5dfa5627addc59d4aac6532a8a",
+    "248497d27aa7951492c9a6d12c3c3493f3c246ec",
+    "3d43eb459eec1f346571306647e5dbc68f32f076"
+  ],
+  "candidate_sha": "3d43eb459eec1f346571306647e5dbc68f32f076",
+  "candidate_tree_sha": "18a07f2d4de206cdd7c0b85532b2201d8ae279e8",
+  "product_source": {
+    "sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+    "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+    "no_numerical_or_runtime_change_after_source_freeze": true
+  },
+  "branch": "codex/e02-F-closeout-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/65",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/G-local-causal-reruns.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/G-source-integration-order.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/REPORT.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/full-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B204.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B212.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B213.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B214.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B218.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-037.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json"
+  ],
+  "baseline_cells": [],
+  "canonical_source_handoff": {
+    "git_ref": "248497d27aa7951492c9a6d12c3c3493f3c246ec",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+    "bytes": 71398,
+    "sha256": "889decd43e053de5c5c13a16bd5f38d49b4065907f92942cd40538ee58386ae5"
+  },
+  "complete35_ledger": {
+    "git_ref": "3d43eb459eec1f346571306647e5dbc68f32f076",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/index.json",
+    "bytes": 314839,
+    "sha256": "1ebf0f2fca740529a2b13fabce692da3845db9f0383bca4257427fa619f83056"
+  },
+  "complete35_report": {
+    "git_ref": "3d43eb459eec1f346571306647e5dbc68f32f076",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/REPORT.md",
+    "bytes": 31016,
+    "sha256": "6f2151638a129732cfbb0332f0ff78d70168720bdc6f49f09d3cf4d0d47e2f9a"
+  },
+  "independent_review": {
+    "reviewer": "F economics helper; not writer of graph/benchmark/docs/rootledger",
+    "verdict": "GO_BOUNDED_CANONICAL_LEDGER_AND_TRANSPORT",
+    "output": {
+      "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3d/review.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/review.json",
+      "encoding": "identity",
+      "stored_bytes": 4368,
+      "stored_sha256": "8f10a454876f2b0bb5143b041a2accb7bc9bf9f7f2ab847f53ad6b70f8c1ae48",
+      "decoded_bytes": 4368,
+      "decoded_sha256": "8f10a454876f2b0bb5143b041a2accb7bc9bf9f7f2ab847f53ad6b70f8c1ae48"
+    },
+    "metadata_only": true,
+    "no_new_independent_numerical_claim": true
+  },
+  "checks": [
+    {
+      "command": "Recorded executed audit commands: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/commands.json.gz",
+      "target_sha": "3d43eb459eec1f346571306647e5dbc68f32f076",
+      "environment": "Read-only Python metadata audit, exact Git refs/current source/transport; no numerical backend or production data",
+      "input_closure": "35ID/17bundle/36binding; full TSV/cards and exact primary/per-ID/513stored+decoded outputs; no sampling",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/review.json",
+      "commands_full": {
+        "original_path": "/tmp/e02-F-graph-profile-20261007/economics-review/ledger3d/commands.json",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/commands.json.gz",
+        "encoding": "gzip",
+        "stored_bytes": 4091,
+        "stored_sha256": "bed20b8a210ff41a7e90b5421d36a51849ce1c4e843a480adae79b8e614f94dd",
+        "decoded_bytes": 62402,
+        "decoded_sha256": "1c1d82a402f50777522f630b0b308b5af40c3687851ed1cfa64ba3debe2a1924"
+      },
+      "command_scope": "134 exact constituent Git argv/exitcode/output-size-and-hash records; launcher not inferred from script filename",
+      "result": "Six focused appends and29 complete byte-identical per-ID files; old component/check/F/G fields preserved; canonical minimumfields/all10checks valid; seven corrupt-metadata adversaries refused"
+    },
+    {
+      "command": "git diff --check e89d449acc6eedb1629c42c428689f7c578fce26 3d43eb459eec1f346571306647e5dbc68f32f076",
+      "target_sha": "3d43eb459eec1f346571306647e5dbc68f32f076",
+      "environment": "Exact14authored document delta, separate from old source and raw logs",
+      "input_closure": "14currentledger/prose/source-order/local-packet paths",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/authored14-diff-check.stdout.txt.gz"
+    },
+    {
+      "command": "git diff --check 25cdea9064ddea2c3a812fd68670076bd4b088cb 4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "environment": "Exact10source/test/benchmark/docs/fragment implementation delta",
+      "input_closure": "All10changed source paths",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/source10-diff-check.stdout.txt.gz"
+    },
+    {
+      "command": "git diff --check 25cdea9064ddea2c3a812fd68670076bd4b088cb 3d43eb459eec1f346571306647e5dbc68f32f076",
+      "target_sha": "3d43eb459eec1f346571306647e5dbc68f32f076",
+      "environment": "Complete all-path raw receipt delta; saved text includes original patch/log whitespace",
+      "input_closure": "Full exact candidate diff including513raw artifacts, no exclude/whitelist",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/economics-review/ledger3d/allraw-ledger-diff-check.stdout.txt.gz",
+      "classification": "112locations on18hash-bound raw-output paths:105trailing whitespace and7EOF; byte preservation, not new runtime defect; no blanketqualityPASS/P41inheritedclaim"
+    },
+    {
+      "command": "(cd policy-engine && uv run --no-sync polisyos-tools workspace doctor --worktree-admission resume --branch codex/e02-F-closeout-20261006 --path /workspace/e02-F-closeout-20261006)",
+      "target_sha": "3d43eb459eec1f346571306647e5dbc68f32f076",
+      "environment": "Existing resumedFpair; no checkout creation or history repair",
+      "input_closure": "Actualbranch/path/registrations/currentworkingtree full147971BJSON",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/final-workspace-admission.json.gz",
+      "result": "admitted; complete_verdictTrue"
+    },
+    {
+      "command": "git ls-remote origin refs/heads/codex/e02-F-closeout-20261006 refs/heads/codex/e02-F-cau-20261006 refs/heads/codex/e02-F-fry-20261006 refs/heads/codex/e02-integration refs/heads/main",
+      "target_sha": "3d43eb459eec1f346571306647e5dbc68f32f076",
+      "environment": "OrdinaryHTTPS Git remote readback; injected authentication preserved",
+      "input_closure": "Exact5refs; Froot3d/CAUa720/FRYdefa/G9806/main198",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/outputs/root/final-component-remote-readback.stdout.gz"
+    }
+  ],
+  "property": {
+    "statement": "The bounded source repair, complete original35ledger and full output custody remain independently source-bound; recommendations/checks/code-ready/Gsource/formal closure do not collapse.",
+    "runtime_path": [
+      "original Git source cards/full TSV",
+      "per-ID35/current index/primary receipt",
+      "lossless stored+decoded transport",
+      "actual independent Python/Git metadata reader"
+    ],
+    "proxy_divergence": "Presence of a rich custom JSON is insufficient for the canonical HANDOFF consumer; e89 lacked minimalnames. Forward248 supplies required fields and actual check/output bindings without laundering old numerical outcomes.",
+    "negative_controls": [
+      "Seven finite corrupt binding/hash/schema/current-state metadata variants refused",
+      "Actual runtime guard-removal2nativeFAIL/1installedFAIL remains at exact4ee source; no re-execution or marker-only substitution"
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "bounded_F_code_ready;35original_recommendations33closed2limited;G_source_and_formal_acceptance_not_issued",
+  "limitations_and_next_owner": [
+    "B214 broad trackedA/C/F family/conditional/partial/authority contract with completion-distinguishing query remainslimited",
+    "B56 canonicalRuntime/Scientist sharedadmission/cap+fullworkload/inputroster thenG localmeasurement remainslimited/UNRUN; no second scheduler or lostfolds",
+    "New rebuilt-sdist/inprocess3.14DoWhy/EconML/genuineidentification-authority positivesUNRUN",
+    "Historicalscanner2×ERROR−9/Ruff103FAIL/publicsurface38FAIL/P41not_established; newbenchmarkRuff2T201FAIL and rawartifactwhitespaceFAIL separately preserved",
+    "G integration afterexactfreeze acceptance; no main publication"
+  ],
+  "counts": {
+    "IDs": 35,
+    "bundles": 17,
+    "original_bindings": 36,
+    "F_recommendations": {
+      "closed": 33,
+      "limited": 2
+    },
+    "technical_original": {
+      "closed": 33,
+      "limited": 2
+    },
+    "finding_checks": {
+      "PASS": 34,
+      "UNRUN": 1
+    },
+    "G_new_source_accepted": 0,
+    "G_formal_closed": 0,
+    "prior_Lex_accepted_source": "00a6eda114b903bc5abe86902cd8372426f739a1"
+  },
+  "evidence_transport": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-reviewed-20261007/artifact-transports.json",
+    "bytes": 31743,
+    "sha256": "6985305fbbae85efb2fb2c7d6b44e9bd45b0dace7a9fc96af785992a4ce4d207",
+    "file_count": 56,
+    "stored_bytes": 263783,
+    "decoded_bytes": 1634579
+  },
+  "executor_resume": {
+    "same_HEAD_branch_status_outputs_observed": true,
+    "no_reconstruction_reset_rebase_force_switch": true,
+    "network_observations_current": true,
+    "network_state": "enforced",
+    "connectivity": "connected",
+    "environment_status_ready": true
+  },
+  "cleanup": {
+    "action": "none",
+    "no_native_Trash": true,
+    "preserve_unique_inputs_source_docs_receipts_active_environments": true,
+    "candidates_only_after_inactive_owner_review": [
+      "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/uv-cache",
+      "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env"
+    ],
+    "no_permanent_delete_or_empty_Trash": true
+  },
+  "prior_Lex_G_code_acceptance": {
+    "status": "accepted_source",
+    "source_sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+    "basis": "Published G checkpoint ancestry/current user accepted-source statement; finding acceptance separate"
+  }
+}

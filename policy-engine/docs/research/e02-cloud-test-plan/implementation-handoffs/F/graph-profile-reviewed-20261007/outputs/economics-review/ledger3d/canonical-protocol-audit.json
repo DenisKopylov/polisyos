@@ -1,0 +1,60 @@
+{
+  "required_by": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md:38",
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "canonical_schema_match": true,
+  "missing_minimum_fields": [],
+  "checks": [
+    {
+      "index": 0,
+      "missing": [],
+      "output_is_string": true
+    },
+    {
+      "index": 1,
+      "missing": [],
+      "output_is_string": true
+    },
+    {
+      "index": 2,
+      "missing": [],
+      "output_is_string": true
+    },
+    {
+      "index": 3,
+      "missing": [],
+      "output_is_string": true
+    },
+    {
+      "index": 4,
+      "missing": [],
+      "output_is_string": true
+    },
+    {
+      "index": 5,
+      "missing": [],
+      "output_is_string": true
+    },
+    {
+      "index": 6,
+      "missing": [],
+      "output_is_string": true
+    },
+    {
+      "index": 7,
+      "missing": [],
+      "output_is_string": true
+    },
+    {
+      "index": 8,
+      "missing": [],
+      "output_is_string": true
+    },
+    {
+      "index": 9,
+      "missing": [],
+      "output_is_string": true
+    }
+  ],
+  "property_missing": [],
+  "verdict": "GO_CANONICAL_PROTOCOL"
+}

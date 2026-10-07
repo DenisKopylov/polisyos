@@ -1,0 +1,112 @@
+{
+  "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+  "cas_root": "/tmp/e02-F-continuation-20261007/api/installed-resource-recovered-observer-519/synthetic-context/cas",
+  "parent_pid": 965062,
+  "source_input_ref": {
+    "artifact_id": "sha256:d097e64f0afa5a1d63943453615e6aa1545811162dc977e88173923a15881dbc",
+    "kind": "tests.synthetic.graph_reconciliation_input",
+    "media_type": "application/json"
+  },
+  "method_result_ref": {
+    "artifact_id": "sha256:dd5f5b51f842f843c740747628b9b0ec4d2032082f94fcfa209101f37815c1bf",
+    "kind": "scientist.method_result.causal.prior",
+    "media_type": "application/json"
+  },
+  "selected_graph_ref": {
+    "artifact_id": "sha256:e88b7f3bfbb8ccb56f01f4c0a42b0aceedd734fe4cce745f4c08c9b7fe07e10e",
+    "kind": "ir.causal_graph_model",
+    "media_type": "application/json"
+  },
+  "expected_model": {
+    "schema_version": "1.0",
+    "graph_type": "dag",
+    "nodes": [
+      "X",
+      "Y"
+    ],
+    "edges": [
+      {
+        "src": "X",
+        "dst": "Y",
+        "mark_src": "tail",
+        "mark_dst": "arrow",
+        "lag": null,
+        "sources": [
+          "data"
+        ],
+        "data_confidence": 0.9,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "expert_confidence": null,
+        "simulation_confidence": null,
+        "combined_confidence": 0.9,
+        "unsupported_by_evidence": false,
+        "evidence_refs": [],
+        "p_value": null,
+        "metadata": {}
+      }
+    ],
+    "discovery_method": "reconciled_prior_graph",
+    "skg_version_id": null,
+    "pag_identification_policy": "conservative",
+    "id_confidence_under_pag": null,
+    "metadata": {
+      "llm_prior_constants": {
+        "LLM_OVERLAP_DISCOUNT": 0.5,
+        "LLM_PRIOR_CEILING": 0.3,
+        "LLM_REPLICATION_BONUS": 0.05
+      },
+      "needs_expert_review": false,
+      "reconciliation_diagnostics": {
+        "curl_norm": 0.0,
+        "cyclic_inconsistency_norm": 0.0,
+        "d0_shape": [
+          1,
+          2
+        ],
+        "d1_shape": [
+          0,
+          1
+        ],
+        "delta0_shape": [
+          2,
+          1
+        ],
+        "delta1_shape": [
+          1,
+          0
+        ],
+        "diagnostics_truncated": false,
+        "gradient_norm": 0.9000000000000002,
+        "harmonic_norm": 2.220446049250313e-16,
+        "irreducible_conflict_norm": 2.220446049250313e-16,
+        "n_components": 1,
+        "n_edges": 1,
+        "n_sources": 1,
+        "n_triangles": 0,
+        "operators": {
+          "D0": [
+            [
+              -1.0,
+              1.0
+            ]
+          ],
+          "D1": [],
+          "delta^0": [
+            [
+              -1.0
+            ],
+            [
+              1.0
+            ]
+          ],
+          "delta^1": []
+        },
+        "truncation_reason": null
+      },
+      "reconciliation_input_sha256": "8916d092e0eb2847e09bc279bc0bc9de57173f3e3054f2dbf8bf4f52141ded55",
+      "reconciliation_warnings": []
+    }
+  }
+}

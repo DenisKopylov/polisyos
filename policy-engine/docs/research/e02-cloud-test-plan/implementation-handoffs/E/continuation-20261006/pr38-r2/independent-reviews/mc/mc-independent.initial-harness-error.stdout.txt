@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/mc-independent.py", line 28, in <module>
+    envs[name] = UncertaintyEnvelope(
+                 ~~~~~~~~~~~~~~~~~~~^
+        point_estimate=point, confidence_interval=(0,5),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        distribution_payload=PosteriorSamplesCarrier(samples=draws,weights=(1,1,2)),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py", line 250, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for UncertaintyEnvelope
+  Value error, confidence_level must be None for non-statistical interval semantics [type=value_error, input_value={'point_estimate': 2.25, ...eights=(1.0, 1.0, 2.0))}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/value_error

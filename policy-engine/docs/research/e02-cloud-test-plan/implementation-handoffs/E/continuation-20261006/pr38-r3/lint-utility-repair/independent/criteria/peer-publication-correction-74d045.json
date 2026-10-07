@@ -1,0 +1,24 @@
+{
+  "schema": "e02.independent_review_peer_publication_correction/1",
+  "candidate": "74d0452848a7461d82ea7f150f126631d9fc8399",
+  "tree": "a4e4793be4d1aec6adea623b930a65304ab42d64",
+  "own_scope_review_unchanged": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/independent-review-74d045.json",
+    "bytes": 67140,
+    "sha256": "90f569d72f81639967dd4fbbebd9f6de497852a13f8a2b79a85015f27bc40f88"
+  },
+  "current_DOE_publication_review": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-independent-review-74d04528-v2.json",
+    "bytes": 74344,
+    "sha256": "535df26c28dcfc1c22c36e1f71f32351e037676054ab653b506608d8b3277d53"
+  },
+  "current_DOE_all180_reference_verification": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/publication-correction-integrity-verification.json",
+    "bytes": 1469,
+    "sha256": "60245da2f9bb1a2c9bf5364bcbccd7c33b9ca08023cebf60976b886aed130a8e"
+  },
+  "corrected_observation": "One original DOE builder stdout index captured the file before the writer closed; correctedv2 pins final bytes and preserves old index as historical. Source and actual native-control outcomes unchanged. Own scoped GO does not change; use currentv2 for peer publication custody.",
+  "own_controls_rerun_required": false,
+  "source_change": false,
+  "finding_closure": false
+}

@@ -1,0 +1,51 @@
+{
+  "target_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "tree": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+  "inventory": {
+    "bundle_count": 22,
+    "finding_count": 54,
+    "id_to_bundle_links": 55,
+    "historical_statuses": {
+      "closed": 1,
+      "held": 4,
+      "partial": 49
+    },
+    "bundle_ids": [
+      "BKT-01",
+      "BKT-02",
+      "BKT-03",
+      "BKT-04",
+      "CAL-01",
+      "CAL-02",
+      "CAL-03",
+      "CAL-04",
+      "CAL-05",
+      "CAL-06",
+      "DDM-01",
+      "DDM-02",
+      "DOE-01",
+      "DOE-02",
+      "DOE-03",
+      "FRC-01",
+      "FRC-02",
+      "PCL-01",
+      "UQP-01",
+      "UQP-02",
+      "UQP-03",
+      "UQS-01"
+    ]
+  },
+  "source_python_files": 2700,
+  "parse_errors": 0,
+  "named_calls": 59,
+  "criterion_and_native_tests_existing": 110,
+  "missing_test_paths": [
+    "policy-engine/tests/unit/remediation/test_bkt_01.py",
+    "policy-engine/tests/unit/remediation/test_bkt_04.py",
+    "policy-engine/tests/unit/remediation/test_cal_05.py",
+    "policy-engine/tests/unit/remediation/test_ddm_01.py",
+    "policy-engine/tests/unit/remediation/test_pcl_01.py"
+  ],
+  "baseline_cells": 175,
+  "baseline_unique_test_paths": 56
+}

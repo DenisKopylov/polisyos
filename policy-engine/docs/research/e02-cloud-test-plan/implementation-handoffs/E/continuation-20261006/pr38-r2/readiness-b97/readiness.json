@@ -1,0 +1,74 @@
+{
+  "schema": "policyos.e02.common_wave_readiness.v1",
+  "state": "PLANNING_ONLY_READY_FOR_ROOT_FINAL_FREEZE_AFTER_INDEPENDENT_HARNESS_REVIEW",
+  "candidate": "b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d",
+  "tree": "a807d37d05cba132902a4c1c409ab0d792f99174",
+  "source_harness": "4758d495a",
+  "source_input_count": 7648,
+  "tracked_input_count": 15005,
+  "native_file_count": 120,
+  "packet_file_count": 2,
+  "all_test_file_inputs": 122,
+  "case_count": "UNRUN",
+  "numeric_jobs": 7,
+  "global_jobs_including_importer": 8,
+  "full_python_ruff_inputs": 212,
+  "required_upstream": {
+    "G_checkpoint10": {
+      "sha": "6f869f39d04deaff7eda9b9047848912605beca5",
+      "in_candidate_history": true
+    },
+    "B197_legacy_consumer": {
+      "sha": "1e942ff624ae7cb6c71227d48eef760687e17d2b",
+      "in_candidate_history": true
+    },
+    "Welfare_law_source": {
+      "sha": "884681db485b7466b183a206f83bbe0635f86ca3",
+      "in_candidate_history": true
+    }
+  },
+  "missing_required_paths": [],
+  "workspace_verify_stage_count": 15,
+  "full_ci_top_stage_count": 24,
+  "full_ci_nested_backend_stage_count": 14,
+  "required_stages": "Importer; architecture/runtimeAPI/staticinvocation/Ruff/format/workspace backendverify; fullCI including doctor/runtimeHTTP/docs/frontend/browser; no skip flags. Actualfailfast successors UNRUN.",
+  "canonical_pytest_options": "Allpytest.ini addopts preserved; importlib/strictmarkers/cacheprovider; only perjobcache/benchmarkstorage operational overrides.",
+  "fresh_paths": "All executionoutput/basetemp/TMPDIR plus14numericcache paths absent at planning; exclusive rootmkdir/absentbasetemp runtimeguards.",
+  "exact_command_for_snapshot": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "--repo",
+    "/workspace/e02-E-continuation-20261006",
+    "--candidate",
+    "b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d",
+    "--output-root",
+    "/workspace/e02-E-pr38-r2-receipts/final-common-wave-b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d-20261006",
+    "--execute"
+  ],
+  "authorization": "NOT_EXECUTED. Rootmustfreeze afterallreviews and supply actualexactcandidate. Ifheadchanges, generatefreshplan and newoutputroot tiedtoactualSHA. Do not reuse planning-only output.",
+  "selected_environment": {
+    "UV_NO_SYNC": "1",
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+    "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+    "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+    "UV_CACHE_DIR": null
+  },
+  "removed_numerical_caps": {},
+  "no_environment_or_worktree_creation": true,
+  "no_product_numeric_gate_wave_executed": true,
+  "limitations": [
+    "Environment package versions/browser existence are readiness, notbackend/CI PASS.",
+    "Actualbackend metadata inrun_check ispost-commandobserver; test-childconftestCPU/x64 roles areseparatelybounded andotherwiseunmeasured.",
+    "SharedHypothesisexampleDB isexplicit atomiccontent-addressed seam; notallmutablecacheisolation.",
+    "Temporal/DoWhy/EconML unavailable remainactualSKIP/UNRUN, nofakedPASS.",
+    "Astatuspacket earlier2FAIL remainownerboundary untilfreshcandidatechecks; noinheritedred attribution withoutexactP41.",
+    "AuthorofFRC/harness did not independentlyreviewowncode; DoEreviewroot4758 required."
+  ],
+  "code_acceptance_vs_finding_closure": "Separate; frozencommonwaveoutcomes alone donotclose54 findings.",
+  "custody": "Moderatecompleteoutputs andexactsource/environment/hashsizeindexes; hugefullstaticraw/effectiveGitconfigprivateoutsideGit.",
+  "cleanup": "No deletion. Repeatabletemps/environments onlyTrash afterdecidingreceipts andnoactiveusers; noTrashmeanslistcandidates.",
+  "next_owner": "Eroot finalfreeze/onewave afterindependentreview; Gcodeacceptance/originalcriterionfindingdecisions."
+}

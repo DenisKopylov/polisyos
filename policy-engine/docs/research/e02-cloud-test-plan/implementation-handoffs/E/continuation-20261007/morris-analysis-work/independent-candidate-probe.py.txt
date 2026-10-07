@@ -1,0 +1,152 @@
+"""Independent exact-Git candidate actual-row admission controls, with a removal probe."""
+from __future__ import annotations
+import argparse
+import contextlib
+import hashlib
+import importlib
+import importlib.metadata
+import json
+import math
+from pathlib import Path
+import subprocess
+import sys
+import types
+import warnings
+from unittest.mock import patch
+import numpy as np
+from SALib.analyze import morris as salib_morris
+
+parser=argparse.ArgumentParser()
+parser.add_argument('--ref',required=True)
+parser.add_argument('--output-dir',type=Path,required=True)
+args=parser.parse_args()
+REPO=Path('/workspace/e02-E-continuation-20261006')
+PREFIX='policy-engine/src/polisyos/scientist/methods/doe/'
+
+def git(*argv):
+    return subprocess.check_output(['git','-C',str(REPO),*argv])
+ref=git('rev-parse',args.ref).decode().strip()
+out=args.output_dir
+out.mkdir(parents=True,exist_ok=True)
+source=out/'immutable-source'/'doe'
+source.mkdir(parents=True,exist_ok=True)
+for path in git('ls-tree','-r','--name-only',ref,PREFIX).decode().splitlines():
+    if path.endswith('.py'):
+        p=source/path.removeprefix(PREFIX)
+        p.parent.mkdir(parents=True,exist_ok=True)
+        p.write_bytes(git('show',ref+':'+path))
+name='candidate_doe_'+ref[:8]
+pkg=types.ModuleType(name)
+pkg.__path__=[str(source)]
+sys.modules[name]=pkg
+analysis=importlib.import_module(name+'.analysis')
+designs=importlib.import_module(name+'.designs')
+stability=importlib.import_module(name+'.stability')
+multi=importlib.import_module(name+'.multi_output')
+assert importlib.metadata.version('SALib')=='1.5.2'
+raw=np.array([[0.],[2./3.],[1./3.],[1.]],dtype=float)
+y=2*raw[:,0]
+plan=designs.SensitivityPlan(parameters=['x'],n_trajectories=1,max_estimated_runs=2,seed=23)
+large=designs.SensitivityPlan(parameters=['x'],n_trajectories=2,max_estimated_runs=2,allow_large_run=True,seed=23)
+subset=designs.SensitivityPlan(parameters=['x'],n_trajectories=2,max_estimated_runs=4,seed=23)
+small_override=designs.SensitivityPlan(parameters=['x'],n_trajectories=1,max_estimated_runs=2,allow_large_run=True,seed=23)
+drop=designs.SensitivityPlan(parameters=['x'],n_trajectories=1,max_estimated_runs=2,seed=23,run_failure_policy='drop_failed',min_success_rate=.5)
+
+results=[]
+def exercise(case, operation, *, refused=False, expected_rows=None):
+    count=[]
+    original=salib_morris.analyze
+    def recorder(*argv,**kw):
+        count.append(int(argv[1].shape[0]))
+        return original(*argv,**kw)
+    with warnings.catch_warnings(record=True) as captured,patch.object(salib_morris,'analyze',recorder):
+        warnings.simplefilter('always')
+        try:
+            result=operation()
+        except ValueError as exc:
+            if not refused:
+                raise
+            assert count==[],f'{case}: SALib called before refusal'
+            results.append({'case':case,'outcome':'PASS','decision':'refused','error':str(exc),'SALib_calls':count,'warnings':[str(v.message) for v in captured]})
+            return
+    if refused:
+        raise AssertionError(case+': missing actual-work refusal')
+    assert len(count)==1
+    assert result.total_runs==expected_rows
+    assert result.mu_star['x']==2
+    results.append({'case':case,'outcome':'PASS','decision':'accepted','actual_rows':result.total_runs,'mu_star':result.mu_star,'sigma':{k:'NaN' if math.isnan(v) else v for k,v in result.sigma.items()},'metadata':result.metadata,'SALib_calls':count,'warnings':[str(v.message) for v in captured]})
+
+exercise('healthy_one_trajectory_two_rows',lambda:analysis.analyze_sensitivity(plan,raw[:2],y[:2]),expected_rows=2)
+exercise('four_valid_rows_beyond_admitted_one_trajectory',lambda:analysis.analyze_sensitivity(plan,raw,y),refused=True)
+exercise('allow_large_true_does_not_expand_declared_trajectory_identity',lambda:analysis.analyze_sensitivity(small_override,raw,y),refused=True)
+exercise('explicit_two_trajectory_override_healthy_four_rows',lambda:analysis.analyze_sensitivity(large,raw,y),expected_rows=4)
+exercise('admitted_whole_trajectory_subset_preserved',lambda:analysis.analyze_sensitivity(subset,raw[:2],y[:2]),expected_rows=2)
+failed_y=y.copy();failed_y[2:]=np.nan
+exercise('excess_rejected_before_drop_failed_hides_rows',lambda:analysis.analyze_sensitivity(drop,raw,failed_y),refused=True)
+exercise('analysis_content_identity_admits_actual_work',lambda:analysis._analysis_identity(plan,raw,y),refused=True)
+exercise('stability_small_input_short_circuit_cannot_bypass_actual_work',lambda:stability.RankingStabilityChecker(n_bootstrap=5).check(plan,raw,y),refused=True)
+pca_calls=[]
+with patch.object(multi.MultiOutputAnalyzer,'_run_pca',lambda *a,**kw:pca_calls.append(True)):
+    exercise('PCA_admission_before_transform',lambda:multi.MultiOutputAnalyzer().analyze(plan,raw,np.column_stack([y,3*y])),refused=True)
+assert pca_calls==[]
+
+# Actual producer -> configured CAS -> fresh reader, with a content-valid forgery.
+receipt = importlib.import_module(name+'._receipt')
+from polisyos.core import artifacts as core_artifacts, canon as core_canon
+store = core_artifacts.FileSystemCAS(out/'CAS')
+produced = analysis.analyze_sensitivity(large, raw, y)
+artifact_ref = receipt._persist_analysis(store, large, raw, y, produced)
+fresh = core_artifacts.FileSystemCAS(store.root)
+reopened = receipt._load_analysis(fresh, artifact_ref)
+assert reopened == produced
+assert reopened.metadata['original_total_runs'] == 4
+assert fresh.verify(artifact_ref).ok
+results.append({'case':'actual_producer_configured_CAS_fresh_reopen', 'outcome':'PASS', 'actual_rows':reopened.total_runs, 'ref':artifact_ref.model_dump(mode='json'), 'mu_star':reopened.mu_star, 'analysis_id':reopened.metadata['analysis_id']})
+payload = core_canon.from_canonical_bytes(fresh.get_bytes(artifact_ref))
+payload['plan']['n_trajectories'] = 1
+payload['plan']['max_estimated_runs'] = 2
+forged = store.put_json(payload, core_artifacts.ArtifactWriteOptions(kind='doe_sensitivity_analysis',media_type='application/json',schema=core_artifacts.SchemaInfo(name='doe_sensitivity_analysis',version='1.0')), canon_spec=core_canon.CanonSpec(forbid_floats=False))
+assert fresh.verify(forged).ok
+exercise('integrity_valid_CAS_forged_smaller_plan_refuses_before_SALib',lambda:receipt._load_analysis(fresh,forged),refused=True)
+
+# Remove actual-row admission only. Keep plan constructor/cap validation, helper
+# names, refusal text elsewhere, and all published plan metadata unchanged.
+original_admit=designs._admit_sensitivity_plan
+
+def ignore_actual_work(p,**kwargs):
+    return original_admit(p)
+with contextlib.ExitStack() as stack:
+    for mod in [analysis,designs,stability,multi]:
+        stack.enter_context(patch.object(mod,'_admit_sensitivity_plan',ignore_actual_work))
+    original=salib_morris.analyze
+    calls=[]
+    def removed_recorder(*argv,**kwargs):
+        calls.append(int(argv[1].shape[0]));return original(*argv,**kwargs)
+    with patch.object(salib_morris,'analyze',removed_recorder):
+        removed=analysis.analyze_sensitivity(plan,raw,y)
+    try:
+        assert calls==[],'actual-work invariant removed but analyzer reached four rows'
+    except AssertionError as exc:
+        removal={'outcome':'PASS','negative_gate_outcome':'FAIL','assertion':str(exc),'SALib_calls':calls,'total_runs':removed.total_runs,'declared_runs':plan.estimated_runs,'mu_star':removed.mu_star,'scope':'actual-work admission removed; plan construction and metadata remain present'}
+    else:
+        raise AssertionError('removal control did not demonstrate real analyzer escape')
+modules=[]
+for fullname,mod in sorted(sys.modules.items()):
+    if fullname.startswith(name+'.') and getattr(mod,'__file__',None):
+        p=Path(mod.__file__);path=PREFIX+p.relative_to(source).as_posix();data=p.read_bytes()
+        assert data==git('show',ref+':'+path)
+        modules.append({'path':path,'git_blob':git('rev-parse',ref+':'+path).decode().strip(),'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data)})
+core_bindings=[]
+for fullname,mod in sorted(sys.modules.items()):
+    if fullname.startswith('polisyos.core') and getattr(mod,'__file__',None):
+        p=Path(mod.__file__).resolve()
+        try:
+            path=p.relative_to(REPO).as_posix()
+        except ValueError:
+            raise AssertionError(f'Core input outside declared repo: {p}')
+        data=p.read_bytes()
+        assert data==git('show',ref+':'+path),f'Core dependency differs from candidate: {path}'
+        core_bindings.append({'path':path,'git_blob':git('rev-parse',ref+':'+path).decode().strip(),'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data)})
+report={'schema':'policyos.e02.independent_oracle.v1','source_sha':ref,'source_tree':git('rev-parse',ref+'^{tree}').decode().strip(),'cases':results,'case_count':len(results),'removal_control':removal,'immutable_loaded_source_bindings':modules,'actual_Core_dependency_bindings':core_bindings,'environment':{'python':sys.version,'packages':{key:importlib.metadata.version(key) for key in ['NumPy','SciPy','SALib','pydantic']}},'independent_oracle':{'response':'y=2*x','derivation':'exact slope (2*(2/3)-0)/(2/3)=2; second trajectory same; two exact effects yield mu*=2 and sigma=0','one_trajectory_dispersion':'undefined ddof=1, point-only witness'},'predicate_basis':'recomputed','limitations':['Bounded additional actual-analysis-row admission control; B99 original sampler override remains a separate criterion. No production history or confidence-quality claim.']}
+(out/'review-results.json').write_text(json.dumps(report,indent=2,allow_nan=False)+'\n')
+print(json.dumps({'sha':ref,'cases':len(results),'all_checks':'PASS','removal':removal},indent=2))

@@ -1,0 +1,23 @@
+{
+  "schema": "policyos.e02.local_recipe_present_stale_source_negative.v1",
+  "positive": {
+    "resolved_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+    "admission": "PASS_exact_source_binding_only"
+  },
+  "fake_recipe": {
+    "schema": "policyos.e02.local_readonly_recipe_binding.v1",
+    "implementation_sha": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+    "implementation_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+    "source_packet_sha256": "c97f283d72062feae454d9b25b06c9c24b40578422f5e5accaabfbd478e3d0b4",
+    "unit": "E",
+    "mode": "local_read_only_exact_candidate"
+  },
+  "fake_SHA_is_real_existing_commit": true,
+  "fake_native_source_blob": "10c0ce98e896689cee749ce802b9ae1293edda08",
+  "current_native_source_blob": "c633f081a4ea6b5b242e670aca831bf46213c5bc",
+  "refusal": "recipe implementation SHA differs from exact frozen consumer source",
+  "outcome": "EXPECTED_REFUSE",
+  "checker": "Git rev-parse actual existing commit/tree plus frozen source-recipe equality predicate in trace.py",
+  "scope": "Receipt recipe source guard only; no new product/backend/provenance authority test and no native callback invocation."
+}

@@ -1,0 +1,127 @@
+...F......F.................                                             [100%]
+=================================== FAILURES ===================================
+____ test_measurement_admission_precedes_any_method_callback[wrong_profile] ____
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-172/test_measurement_admission_pre2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb6d543ad50>
+defect = 'wrong_profile'
+
+    @pytest.mark.parametrize(
+        "defect",
+        [
+            "missing_schema",
+            "wrong_kind",
+            "wrong_profile",
+            "malformed_schema",
+            "missing_unit",
+            "wrong_unit",
+            "wrong_target",
+            "unsupported_scale",
+            "legacy_request",
+        ],
+    )
+    def test_measurement_admission_precedes_any_method_callback(tmp_path: Path, monkeypatch, defect):
+        """Present refs/metric names cannot replace resolved schema and unit identity."""
+    
+        from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+    
+        store = FileSystemCAS(tmp_path / "cas")
+        request, _ = _configured(store, [31.0, 32.0, 33.0, 34.0])
+        source = get_json_artifact(store, request.observed_source_ref.artifact_id)
+        schema = get_json_artifact(store, source["data_schema_ref"]["artifact_id"])
+        kind, schema_name = "fabric.data_schema", "polisyos.fabric.DataSchema"
+        if defect == "missing_schema":
+            source.pop("data_schema_ref")
+        elif defect == "wrong_kind":
+            kind = "fake.data_schema"
+        elif defect == "wrong_profile":
+            schema_name = "fake.DataSchema"
+        elif defect == "malformed_schema":
+            schema["fields"] = "not-fields"
+        elif defect == "missing_unit":
+            schema["fields"][0].pop("unit")
+        elif defect == "wrong_unit":
+            request = request.model_copy(update={"target_unit": "percent"})
+        elif defect == "wrong_target":
+            request = request.model_copy(update={"target_metric": "other_metric"})
+        elif defect == "unsupported_scale":
+            request = request.model_copy(update={"target_scale": "percent_to_ratio"})
+        elif defect == "legacy_request":
+            request = request.model_copy(update={"schema_version": "1.0"})
+        if defect in {"wrong_kind", "wrong_profile", "malformed_schema", "missing_unit"}:
+            source["data_schema_ref"] = put_json_artifact(
+                store,
+                schema,
+                kind=kind,
+                schema_name=schema_name,
+                schema_version="1.0",
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+        source_ref = put_json_artifact(
+            store, source, kind="fabric.data_snapshot", schema_name="polisyos.fabric.DataSnapshot",
+            schema_version="1.0", canon_spec=CanonSpec(forbid_floats=False)
+        )
+        request = request.model_copy(
+            update={"observed_source_ref": DataSnapshotRef(artifact_id=source_ref["artifact_id"])}
+        )
+        callback_count = 0
+    
+        def counted(*args, **kwargs):
+            nonlocal callback_count
+            callback_count += 1
+            raise AssertionError("preflight must precede numerical callback")
+    
+        monkeypatch.setattr(MethodDispatcher, "dispatch", counted)
+        with pytest.raises((ValueError, TypeError)):
+>           ForecastOwner(store).run(request)
+
+tests/unit/scientist/methods/backtesting/test_forecast_owner.py:231: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/backtesting/forecast_owner.py:863: in run
+    dispatcher_result = MethodDispatcher.get_instance().dispatch(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (<polisyos.foundry.methods.backends.dispatch.MethodDispatcher object at 0x7fb69f755010>,)
+kwargs = {'method_class': <class 'polisyos.foundry.methods.catalog.forecasting.univariate.ExponentialSmoothingEstimator'>, 'par..., conflicts_with=frozenset(), requires=frozenset(), supports_jit=False, supports_vmap=False, supports_grad=False), ...}
+
+    def counted(*args, **kwargs):
+        nonlocal callback_count
+        callback_count += 1
+>       raise AssertionError("preflight must precede numerical callback")
+E       AssertionError: preflight must precede numerical callback
+
+tests/unit/scientist/methods/backtesting/test_forecast_owner.py:227: AssertionError
+___ test_adapter_returns_fresh_resolved_a_fields_without_verifier_authority ____
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-172/test_adapter_returns_fresh_res0')
+
+    def test_adapter_returns_fresh_resolved_a_fields_without_verifier_authority(tmp_path: Path):
+        store = FileSystemCAS(tmp_path / "cas")
+        request, profile = _configured(store, [31.0, 32.0, 33.0, 34.0])
+        result = ForecastOwner(store, empirical_profile_ref=profile).run(request)
+>       fields = result.to_s10_input_fields(FileSystemCAS(tmp_path / "cas"))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/backtesting/test_forecast_owner.py:239: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ForecastOwnerResult(report_id='configured-ets-report', method_fqn='forecasting.univariate.exponential_smoothing@1.0.0'...8fceaa839370f0e99233d0e708dcf290c8ecca6b6b2545'), kind='ir.forecast_candidate_receipt', media_type='application/json'))
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7fb69f737750>
+
+    def to_s10_input_fields(self, store: ArtifactStore) -> dict[str, object]:
+        """Adapt fresh candidate inputs to A's existing neutral resolver fields.
+    
+        This does not establish trusted verifier provenance, profile admission,
+        or default/HTTP wiring. A owns those decisions and consumers.
+        """
+    
+>       from polisyos.calibration import load_forecast_candidate_receipt
+E       ImportError: cannot import name 'load_forecast_candidate_receipt' from 'polisyos.calibration' (/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/calibration/__init__.py)
+
+src/polisyos/scientist/methods/backtesting/forecast_owner.py:315: ImportError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 13:23:07 [debug    ] method_dispatch_start          backend=numpy fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 13:23:07 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=20.99 fqn=forecasting.univariate.exponential_smoothing@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/backtesting/test_forecast_owner.py::test_measurement_admission_precedes_any_method_callback[wrong_profile]
+FAILED tests/unit/scientist/methods/backtesting/test_forecast_owner.py::test_adapter_returns_fresh_resolved_a_fields_without_verifier_authority

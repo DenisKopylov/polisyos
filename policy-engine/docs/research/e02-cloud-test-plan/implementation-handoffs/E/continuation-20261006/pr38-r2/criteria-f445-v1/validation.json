@@ -1,0 +1,52 @@
+{
+  "validation": {
+    "state": "PASS",
+    "findings": 54,
+    "bundles": 22,
+    "links": 55,
+    "source_inputs_recomputed": 213,
+    "ledger": "49partial/4held/1closed",
+    "historical_partial_proposals": 32,
+    "historical_active_partial": 17,
+    "code_vs_closure": "separate",
+    "root_numeric_wave": "UNRUN"
+  },
+  "negative_controls": [
+    {
+      "control": "owner",
+      "state": "REJECTED",
+      "reason": "original closure owner mismatch:B32"
+    },
+    {
+      "control": "held_ledger",
+      "state": "REJECTED",
+      "reason": "historical ledger mutation:B197"
+    },
+    {
+      "control": "duplicate_bundle_denominator",
+      "state": "REJECTED",
+      "reason": "55 ID-to-bundle links"
+    },
+    {
+      "control": "git_input_hash",
+      "state": "REJECTED",
+      "reason": "source input size/hash mismatch:f445cbc3439b1539937e8e3f6df492bbd6c2e4a3:policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json"
+    },
+    {
+      "control": "hide_B197_code_defect",
+      "state": "REJECTED",
+      "reason": "B197 implementable reader defect hidden as externalhold"
+    },
+    {
+      "control": "assembled_tree",
+      "state": "REJECTED",
+      "reason": "source tree mismatch"
+    },
+    {
+      "control": "B198_closed_regression",
+      "state": "REJECTED",
+      "reason": "closed B198 mistaken as new closure proposal"
+    }
+  ],
+  "mutations": "in-memory only; source and deciding inputs unchanged"
+}

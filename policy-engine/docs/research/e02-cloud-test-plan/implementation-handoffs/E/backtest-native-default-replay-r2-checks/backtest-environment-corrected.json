@@ -1,0 +1,25 @@
+{
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "cpu_count_observed": 5,
+  "distributions": {
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "jax": "0.8.2",
+    "jaxlib": "0.8.2",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "SALib": "unavailable; not required by this BKT native fixture"
+  },
+  "origins": {
+    "polisyos.scientist.methods.backtesting.orchestrator": "/workspace/e02-E-backtest-20261006/policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+    "polisyos.scientist.methods.backtesting.native_replay": "/workspace/e02-E-backtest-20261006/policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+    "polisyos.scientist.adapters.foundry_bridge": "/workspace/e02-E-backtest-20261006/policy-engine/src/polisyos/scientist/adapters/foundry_bridge.py",
+    "polisyos.foundry.execute.api": "/workspace/e02-E-backtest-20261006/policy-engine/src/polisyos/foundry/execute/api.py"
+  },
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-E-backtest-20261006/policy-engine/src"
+  },
+  "artificial_process_or_worker_caps": null
+}

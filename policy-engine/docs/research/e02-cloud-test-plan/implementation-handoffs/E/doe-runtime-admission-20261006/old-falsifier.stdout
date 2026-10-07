@@ -1,0 +1,42 @@
+{
+  "source_sha": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+  "tree": "b7dc087f12e08f388a73f582bf4888cda7500be8",
+  "module_origins": {
+    "policy-engine/src/polisyos/scientist/methods/doe/designs.py": "dd692e325fa59e218d06ec3dd41f2c5fd933f956b91432e2b8d243cacebed8a8",
+    "policy-engine/src/polisyos/scientist/methods/doe/sampling.py": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993",
+    "policy-engine/src/polisyos/scientist/methods/doe/analysis.py": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c"
+  },
+  "observations": [
+    {
+      "boundary": "directMorris sampler",
+      "estimated": 8,
+      "cap": 2,
+      "SALib_calls": 1,
+      "rows": 8,
+      "outcome": "OVER_CAP_MATERIALIZED"
+    },
+    {
+      "boundary": "identity Sobol regeneration",
+      "estimated": 8,
+      "cap": 4,
+      "SALib_calls": 1,
+      "rows": 8,
+      "identity_emitted": true,
+      "outcome": "OVER_CAP_MATERIALIZED"
+    },
+    {
+      "boundary": "directSobol analyzer",
+      "estimated": 8,
+      "cap": 4,
+      "SALib_analyzer_calls": 1,
+      "result_total_runs": 8,
+      "outcome": "OVER_CAP_ANALYZED"
+    }
+  ],
+  "evaluator_callbacks": 0,
+  "authority": "Bounded actual SALib old-source code defect; no production law/finding closure",
+  "runtime": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "numpy": "2.3.5"
+  }
+}

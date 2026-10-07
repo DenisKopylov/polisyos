@@ -1,0 +1,8 @@
+{
+  "wall_s": 17.33713928400539,
+  "user_cpu_s": 14.685855,
+  "system_cpu_s": 1.233895,
+  "rss_kib": 631120,
+  "exit_code": 0,
+  "timing_backend": "Python resource.RUSAGE_CHILDREN, Linux ru_maxrss KiB; one child"
+}

@@ -1,0 +1,4 @@
+  File "/workspace/e02-E-pr38-r3-receipts/import-lint-independent/predicate_controls.py", line 43
+    removed=copy.deepcopy(helper);removed.body=[ast.Return(value=ast.Constant(None))];ns={};exec(compile(ast.fix_missing_locations(ast.Module(body=[removed],type_ignores=[])),'<identity-property-removal>','exec'),ns);def required_refusal(fn):
+                                                                                                                                                                                                                         ^^^
+SyntaxError: invalid syntax

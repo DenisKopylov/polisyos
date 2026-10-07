@@ -1,0 +1,15 @@
+# PCL configured native consumer continuation
+
+Source candidate `ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9` (tree `bc60af14857dc90ce9317f3cd826a3455a9eb691`) carries the real configured-CAS NumPy graph bridge. The adjacent handoff identifies owned commits and root-owned facade/evidence companions separately. PR52 is the append-only publication lane.
+
+The affected family has 151 PASS on `74b26eb067dea76d90b134641e66537759e4dc0f`. The final source changes only Ruff formatting of one test comprehension: AST equality and unchanged runtime files are recorded. Final source has 3 native PASS and Ruff/format PASS. Removal of actual persistence gives 2 expected FAIL. These are author execution receipts, with independent review and G code acceptance still pending.
+
+`native-deciding-cas.json` preserves 42 exact synthetic payload/manifest files, about 384 KB, for 12 reopened diagnostic artifacts. All actual requested/eligible/observed counts are 100; coverage is 82/100 and ECE .13 rather than nominal .95. The tracked oracle checks original source row/entity/time and persisted interval endpoints through a fresh store. Source authority remains not_established and gate_eligible=false. No production history is included.
+
+`verify_native_archive.py` restores the archived bytes into a new, isolated directory, verifies every size/digest, and runs the current native fresh-source/pairs oracle for all refs. Its concrete cloud command and result are in the handoff. It refuses an existing destination. `verify_receipt.py` checks exact source/tree/ancestry, complete diff footprint, source Git blobs, all moderate output hashes/sizes, and expected execution outcomes. It then corrupts a digest in memory and requires rejection. The copy index deliberately excludes itself and the generated validation result to avoid circular hashes.
+
+The first two exact-source logs contain harness errors; `pcl-exact58e-red3.stdout.txt` is the deciding old-module unsupported-store inlet witness. The exact historical module overlay is not a replay of the full old environment. Earlier actual code/test failures and final corrective outcomes remain separate. Interrupted architecture/static-invocation stages are UNRUN, with factual SIGTERM receipts preserved; root owns their final full-candidate run and attribution.
+
+LA-052 retains its partial ledger status and limited decision pending accountable-owner adjudication of the completed generic criterion proposal. LA-053 retains partial/limited until both Calibration and Scientist API owners supply the real alias compatibility window and supported consumer inventory. Production calibration claims, if later sought, require G's exact local read-only history/source-law recipe; they are separate from acceptance of the generic configured bridge.
+
+Repeatable CAS fixtures are listed as cleanup candidates. No cloud Trash was confirmed and nothing was permanently deleted. The shared root environment and pre-existing untracked root files remain in use or preserved.

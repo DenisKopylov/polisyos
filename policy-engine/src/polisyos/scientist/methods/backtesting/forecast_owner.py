@@ -18,9 +18,27 @@ from typing import Any, Literal
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
-from polisyos.calibration import evaluate_continuous
+from polisyos.calibration import (
+    PREDICTIVE_AUTHORITY_DENIALS,
+    REFERENCE_PROFILES,
+    EmpiricalCalibrationContext,
+    EmpiricalCalibrationEvidenceRef,
+    EvidenceArtifactRef,
+    ForecastCalibrationProfile,
+    ForecastCandidateReceipt,
+    ForecastCandidateReceiptRef,
+    ForecastMeasurementBinding,
+    evaluate_continuous,
+    load_empirical_calibration_evidence,
+    load_forecast_calibration_profile,
+    persist_empirical_calibration_evidence,
+    persist_forecast_candidate_receipt,
+    produce_empirical_calibration_evidence,
+    resolve_forecast_measurement_binding,
+)
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+from polisyos.fabric import DataSchema
 from polisyos.foundry.methods.artifacts import MethodArtifact, store_method_artifact
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.base import ComputeBackend
@@ -196,9 +214,12 @@ class ForecastOwnerRequest(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
+    schema_version: Literal["1.0", "2.0"] = "2.0"
     observed_source_ref: DataSnapshotRef
     split: TrainHoldoutSplit
     target_metric: str = Field(min_length=1)
+    target_unit: str | None = Field(default=None, min_length=1)
+    target_scale: Literal["source_native"] | None = None
     method_fqn: Literal["forecasting.univariate.exponential_smoothing@1.0.0"] = METHOD_FQN
     method_params: ForecastMethodParams
     report_id: str = Field(min_length=1)
@@ -214,6 +235,8 @@ class ForecastOwnerRequest(BaseModel):
     def _validate_request(self) -> ForecastOwnerRequest:
         if self.target_metric != self.target_metric.strip():
             raise ValueError("target_metric must not have surrounding whitespace")
+        if self.target_unit is not None and self.target_unit != self.target_unit.strip():
+            raise ValueError("target_unit must not have surrounding whitespace")
         if self.report_id != self.report_id.strip():
             raise ValueError("report_id must not have surrounding whitespace")
         if (self.model_spec_ref is None) != (self.policy_spec_ref is None):
@@ -247,6 +270,7 @@ class ForecastOwnerResult(BaseModel):
     method_fqn: str
     estimand: Literal["predictive_interval_coverage"]
     target_metric: str
+    measurement_binding: ForecastMeasurementBinding
     point_forecast: tuple[float, ...]
     predictive_intervals: tuple[tuple[float, float], ...]
     nominal_coverage: float
@@ -266,6 +290,8 @@ class ForecastOwnerResult(BaseModel):
     model_spec_ref: ArtifactRefModel | None = None
     policy_spec_ref: ArtifactRefModel | None = None
     temporal_roles: ForecastTemporalRoles
+    empirical_evidence_ref: EmpiricalCalibrationEvidenceRef | None = None
+    candidate_receipt_ref: ForecastCandidateReceiptRef | None = None
 
     @property
     def numerator(self) -> int:
@@ -278,6 +304,56 @@ class ForecastOwnerResult(BaseModel):
         """Return the recomputed empirical coverage denominator."""
 
         return self.coverage_denominator
+
+    def to_s10_input_fields(self, store: ArtifactStore) -> dict[str, object]:
+        """Adapt fresh candidate inputs to A's existing neutral resolver fields.
+
+        This does not establish trusted verifier provenance, profile admission,
+        or default/HTTP wiring. A owns those decisions and consumers.
+        """
+
+        from polisyos.calibration import load_forecast_candidate_receipt
+
+        if self.candidate_receipt_ref is None or self.empirical_evidence_ref is None:
+            raise ValueError("S10 candidate input requires configured persisted evidence")
+        receipt = load_forecast_candidate_receipt(store, self.candidate_receipt_ref)
+        evidence = load_empirical_calibration_evidence(store, receipt.empirical_evidence_ref)
+        if receipt.empirical_evidence_ref != self.empirical_evidence_ref:
+            raise ValueError("S10 candidate evidence reference mismatch")
+        if evidence.report_ref != self.backtest_report_ref:
+            raise ValueError("S10 candidate report reference mismatch")
+        request = ForecastOwnerRequest.model_validate(
+            get_json_artifact(store, receipt.request_ref.artifact_id)
+        )
+        if (
+            str(request.observed_source_ref.artifact_id)
+            != str(self.observed_source_ref.artifact_id)
+            or request.target_metric != self.target_metric
+            or request.method_fqn != self.method_fqn
+            or request.report_id != self.report_id
+            or request.calibration_rule.artifact_ref != self.calibration_rule_ref
+        ):
+            raise ValueError("S10 candidate source/method/rule/report binding mismatch")
+        if request.temporal_roles != self.temporal_roles:
+            raise ValueError("S10 candidate temporal roles mismatch")
+        binding = resolve_forecast_measurement_binding(
+            store,
+            source_ref=self.observed_source_ref,
+            target_metric=request.target_metric,
+            target_unit=request.target_unit or "",
+            target_scale=request.target_scale or "",
+        )
+        if binding != self.measurement_binding:
+            raise ValueError("S10 candidate measurement binding mismatch")
+        return {
+            "empirical_calibration_evidence_ref": receipt.empirical_evidence_ref,
+            "forecast_candidate_receipt_ref": self.candidate_receipt_ref,
+            "expected_rule_version_ref": request.calibration_rule.rule_id,
+            "temporal_roles": request.temporal_roles,
+            "measurement_binding": binding,
+            "authority_scope": "predictive_only",
+            "verifier_provenance": "not_established",
+        }
 
 
 def _input(artifact_id: object, role: str) -> InputRef:
@@ -501,14 +577,225 @@ def _expected_input_pairs(
     return required
 
 
+def persist_forecast_owner_request(
+    store: ArtifactStore, request: ForecastOwnerRequest
+) -> ArtifactRefModel:
+    """Persist an exact request for configuration outside the served payload."""
+
+    inputs = [
+        _input(request.observed_source_ref.artifact_id, "observed_source"),
+        _input(request.calibration_rule.artifact_ref.artifact_id, "calibration_rule"),
+    ]
+    if request.model_spec_ref is not None and request.policy_spec_ref is not None:
+        inputs.extend(
+            [
+                _input(request.model_spec_ref, "model_spec"),
+                _input(request.policy_spec_ref, "policy_spec"),
+            ]
+        )
+    return _ref_from_payload(
+        put_json_artifact(
+            store,
+            request.model_dump(mode="json"),
+            kind="ir.forecast_owner_request",
+            schema_name="polisyos.calibration.forecast_owner_request",
+            schema_version=request.schema_version,
+            inputs=inputs,
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+    )
+
+
+def _empirical_context_refs(
+    context: EmpiricalCalibrationContext,
+) -> list[tuple[str, EvidenceArtifactRef]]:
+    return [
+        ("scope_binding", context.scope_binding_ref),
+        ("calibration_threshold", context.calibration_threshold_ref),
+        ("observed_outcome", context.observed_outcome_ref),
+        ("prediction", context.prediction_ref),
+        ("evaluation_design", context.evaluation_design_ref),
+        ("credible_evaluation", context.credible_evaluation_evidence_ref),
+        *(("source_lineage", ref) for ref in context.source_lineage_refs),
+        *(("method_lineage", ref) for ref in context.method_lineage_refs),
+    ]
+
+
+def _build_empirical_context(
+    store: ArtifactStore,
+    *,
+    request: ForecastOwnerRequest,
+    profile: ForecastCalibrationProfile,
+    profile_ref: ArtifactRefModel,
+    observed_source_ref: ArtifactRefModel,
+    observed_data_ref: ArtifactRefModel,
+    measurement_binding: ForecastMeasurementBinding,
+    holdout: list[float],
+    point_forecast: tuple[float, ...],
+    predictive_intervals: list[tuple[float, float]],
+    training_slice_ref: ArtifactRefModel,
+    method_artifact_ref: ArtifactRefModel,
+    uncertainty_bundle_ref: ForecastingUncertaintyBundleRef,
+    calibration_rule_ref: ArtifactRefModel,
+) -> EmpiricalCalibrationContext:
+    """Emit actual ordered execution artifacts; none authenticates a verifier."""
+
+    method_ref, _, method_version = request.method_fqn.rpartition("@")
+    binding = {
+        "report_id": request.report_id,
+        "model_spec_ref": str(request.model_spec_ref),
+        "policy_spec_ref": str(request.policy_spec_ref),
+        "estimand": request.estimand,
+        "method_ref": method_ref,
+        "method_version": method_version,
+        "rule_version_ref": request.calibration_rule.rule_id,
+        "authority_scope": "predictive_only",
+        "calibration_threshold": profile.calibration_threshold,
+    }
+    row_ids = [
+        f"{observed_source_ref.artifact_id}:{request.target_metric}:{index}"
+        for index in range(request.split.holdout_start, request.split.holdout_end)
+    ]
+    payloads = {
+        "scope_binding": {"binding": binding},
+        "calibration_threshold": {"threshold": profile.calibration_threshold},
+        "observed_outcome": {
+            "source_ref": observed_source_ref.model_dump(mode="json"),
+            "rows": [
+                {
+                    "row_id": row_id,
+                    "source_index": request.split.holdout_start + index,
+                    "horizon": index + 1,
+                    "value": value,
+                }
+                for index, (row_id, value) in enumerate(zip(row_ids, holdout, strict=True))
+            ],
+        },
+        "prediction": {
+            "uncertainty_bundle_ref": uncertainty_bundle_ref.model_dump(mode="json"),
+            "rows": [
+                {
+                    "row_id": row_id,
+                    "horizon": index + 1,
+                    "point": point,
+                    "lower": bounds[0],
+                    "upper": bounds[1],
+                }
+                for index, (row_id, point, bounds) in enumerate(
+                    zip(row_ids, point_forecast, predictive_intervals, strict=True)
+                )
+            ],
+        },
+        "evaluation_design": {
+            "split": request.split.model_dump(mode="json"),
+            "row_ids": row_ids,
+            "seed": request.seed,
+            "temporal_roles": request.temporal_roles.model_dump(mode="json"),
+            "measurement_binding": measurement_binding.model_dump(mode="json"),
+            "training_slice_ref": training_slice_ref.model_dump(mode="json"),
+        },
+        "credible_evaluation": {
+            "evaluation_basis": "executed_predictive_intervals",
+            "verifier_provenance": "not_established",
+            "requested_count": len(row_ids),
+            "eligible_count": len(row_ids),
+            "observed_count": len(holdout),
+        },
+        "source_lineage": {
+            "source_ref": observed_source_ref.model_dump(mode="json"),
+            "data_ref": observed_data_ref.model_dump(mode="json"),
+            "row_ids": row_ids,
+        },
+        "method_lineage": {
+            "method_artifact_ref": method_artifact_ref.model_dump(mode="json"),
+            "calibration_rule_ref": calibration_rule_ref.model_dump(mode="json"),
+            "method_fqn": request.method_fqn,
+            "method_params": request.method_params.model_dump(mode="json"),
+            "seed": request.seed,
+        },
+    }
+    common_inputs = [
+        _input(profile_ref.artifact_id, "forecast_profile"),
+        _input(profile.request_ref.artifact_id, "forecast_request"),
+        _input(observed_source_ref.artifact_id, "observed_source"),
+        _input(observed_data_ref.artifact_id, "observed_data"),
+        _input(measurement_binding.schema_ref.artifact_id, "source_schema"),
+        _input(training_slice_ref.artifact_id, "training_slice"),
+        _input(method_artifact_ref.artifact_id, "method_artifact"),
+        _input(uncertainty_bundle_ref.artifact_id, "uncertainty_bundle"),
+        _input(calibration_rule_ref.artifact_id, "calibration_rule"),
+    ]
+    refs = {}
+    for role, payload in payloads.items():
+        kind, schema_name, schema_version = REFERENCE_PROFILES[role]
+        identity = f"{request.report_id}:{role}:{profile.profile_id}:{profile.profile_version}"
+        ref = put_json_artifact(
+            store,
+            {
+                "report_id": request.report_id,
+                "role": role,
+                "identity": identity,
+                "purpose": "predictive_calibration",
+                "authority_scope": "predictive_only",
+                "measurement_binding": measurement_binding.model_dump(mode="json"),
+                **payload,
+            },
+            kind=kind,
+            schema_name=schema_name,
+            schema_version=schema_version,
+            inputs=common_inputs,
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        refs[role] = EvidenceArtifactRef(
+            artifact_id=ref["artifact_id"],
+            role=role,
+            kind=kind,
+            schema_name=schema_name,
+            schema_version=schema_version,
+            identity_path="report_id" if role == "scope_binding" else "identity",
+            identity_value=request.report_id if role == "scope_binding" else identity,
+        )
+    return EmpiricalCalibrationContext(
+        model_spec_ref=str(request.model_spec_ref),
+        policy_spec_ref=str(request.policy_spec_ref),
+        method_ref=method_ref,
+        method_version=method_version,
+        rule_version_ref=request.calibration_rule.rule_id,
+        calibration_threshold=profile.calibration_threshold,
+        scope_binding_ref=refs["scope_binding"],
+        calibration_threshold_ref=refs["calibration_threshold"],
+        observed_outcome_ref=refs["observed_outcome"],
+        prediction_ref=refs["prediction"],
+        evaluation_design_ref=refs["evaluation_design"],
+        credible_evaluation_evidence_ref=refs["credible_evaluation"],
+        source_lineage_refs=(refs["source_lineage"],),
+        method_lineage_refs=(refs["method_lineage"],),
+        **request.temporal_roles.model_dump(mode="python"),
+    )
+
+
 class ForecastOwner:
     """Own one real ETS -> predictive calibration -> backtest artifact chain."""
 
-    def __init__(self, store: FileSystemCAS) -> None:
+    def __init__(
+        self, store: FileSystemCAS, *, empirical_profile_ref: ArtifactRefModel | None = None
+    ) -> None:
         self._store = store
+        self._empirical_profile_ref = empirical_profile_ref
 
     def run(self, request: ForecastOwnerRequest) -> ForecastOwnerResult:
         """Execute and persist one fail-closed predictive owner result."""
+
+        profile = None
+        if self._empirical_profile_ref is not None:
+            profile = load_forecast_calibration_profile(self._store, self._empirical_profile_ref)
+            configured_request = ForecastOwnerRequest.model_validate(
+                get_json_artifact(self._store, profile.request_ref.artifact_id)
+            )
+            if configured_request != request:
+                raise ValueError("forecast request differs from the configured empirical profile")
+            if request.model_spec_ref is None or request.policy_spec_ref is None:
+                raise ValueError("empirical forecast profile requires the model/policy pair")
 
         model_spec_ref, policy_spec_ref = _resolve_model_policy_pair(
             self._store,
@@ -525,6 +812,28 @@ class ForecastOwner:
             snapshot = DataSnapshot.model_validate(snapshot_payload)
         except Exception as exc:
             raise ValueError("observed source snapshot is malformed") from exc
+        if (
+            request.schema_version != "2.0"
+            or request.target_unit is None
+            or request.target_scale is None
+        ):
+            raise ValueError("new forecast execution requires v2 explicit unit/scale binding")
+        if snapshot.data_schema_ref is None:
+            raise ValueError("forecast source schema reference is missing")
+        _, schema_payload = _resolve_json(
+            self._store, snapshot.data_schema_ref, expected_kind="fabric.data_schema"
+        )
+        try:
+            DataSchema.model_validate(schema_payload)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("forecast source schema violates canonical DataSchema") from exc
+        measurement_binding = resolve_forecast_measurement_binding(
+            self._store,
+            source_ref=observed_source_ref,
+            target_metric=request.target_metric,
+            target_unit=request.target_unit,
+            target_scale=request.target_scale,
+        )
         observed_data_ref, observed_payload = _resolve_json(self._store, snapshot.data_ref)
         if not isinstance(observed_payload, Mapping):
             raise ValueError("observed source data must be a JSON object keyed by metric")
@@ -645,6 +954,7 @@ class ForecastOwner:
                     "authority_scope": "predictive_only",
                     "bridge_status": "bridge_pending",
                     "temporal_roles": request.temporal_roles.model_dump(mode="json"),
+                    "measurement_binding": measurement_binding.model_dump(mode="json"),
                 },
             }
         )
@@ -662,6 +972,7 @@ class ForecastOwner:
                     "method_params": request.method_params.model_dump(mode="json"),
                     "values": train.tolist(),
                     "temporal_roles": request.temporal_roles.model_dump(mode="json"),
+                    "measurement_binding": measurement_binding.model_dump(mode="json"),
                     "authority_scope": "predictive_only",
                 },
                 kind="ir.forecast_training_slice",
@@ -778,6 +1089,7 @@ class ForecastOwner:
             "coverage_denominator": coverage_denominator,
             "nominal_coverage": nominal_coverage,
             "temporal_roles": request.temporal_roles.model_dump(mode="json"),
+            "measurement_binding": measurement_binding.model_dump(mode="json"),
         }
         calibration_diagnostics_ref = _ref_from_payload(
             put_json_artifact(
@@ -810,6 +1122,39 @@ class ForecastOwner:
             model_spec_ref=model_spec_ref,
             policy_spec_ref=policy_spec_ref,
         )
+        required_inputs.append(_input(measurement_binding.schema_ref.artifact_id, "source_schema"))
+        empirical_context = None
+        if profile is not None:
+            assert self._empirical_profile_ref is not None
+            empirical_context = _build_empirical_context(
+                self._store,
+                request=request,
+                profile=profile,
+                profile_ref=self._empirical_profile_ref,
+                observed_source_ref=observed_source_ref,
+                observed_data_ref=observed_data_ref,
+                measurement_binding=measurement_binding,
+                holdout=holdout.tolist(),
+                point_forecast=tuple(
+                    _interval_scalar(interval.point, field="persisted forecast point")
+                    for interval in sorted(
+                        persisted_bundle.prediction_interval, key=lambda item: item.horizon
+                    )
+                ),
+                predictive_intervals=predictive_intervals,
+                training_slice_ref=training_slice_ref,
+                method_artifact_ref=method_artifact_ref,
+                uncertainty_bundle_ref=uncertainty_bundle_ref,
+                calibration_rule_ref=calibration_rule_ref,
+            )
+            for role, ref in _empirical_context_refs(empirical_context):
+                required_inputs.append(_input(ref.artifact_id, role))
+            required_inputs.extend(
+                [
+                    _input(profile.request_ref.artifact_id, "forecast_request"),
+                    _input(self._empirical_profile_ref.artifact_id, "forecast_profile"),
+                ]
+            )
         report_inputs = (
             list(request.manifest_inputs) if request.manifest_inputs else required_inputs
         )
@@ -857,6 +1202,7 @@ class ForecastOwner:
                 ),
                 "observed_source_ref": observed_source_ref.model_dump(mode="json"),
                 "temporal_roles": request.temporal_roles.model_dump(mode="json"),
+                "measurement_binding": measurement_binding.model_dump(mode="json"),
             },
         )
         report = BacktestOrchestrator(cas=self._store).run(
@@ -880,6 +1226,7 @@ class ForecastOwner:
                 "calibration_diagnostics_ref": calibration_diagnostics_ref.model_dump(mode="json"),
                 "uncertainty_bundle_ref": uncertainty_bundle_ref.model_dump(mode="json"),
                 "temporal_roles": request.temporal_roles.model_dump(mode="json"),
+                "measurement_binding": measurement_binding.model_dump(mode="json"),
             },
         )
         if report.cas_artifact_id is None:
@@ -939,11 +1286,33 @@ class ForecastOwner:
             else:
                 suitability = "limited"
 
+        empirical_evidence_ref = None
+        candidate_receipt_ref = None
+        if empirical_context is not None:
+            assert profile is not None
+            assert self._empirical_profile_ref is not None
+            empirical = produce_empirical_calibration_evidence(
+                self._store,
+                report_ref,
+                context=empirical_context,
+            )
+            empirical_evidence_ref = persist_empirical_calibration_evidence(self._store, empirical)
+            load_empirical_calibration_evidence(self._store, empirical_evidence_ref)
+            candidate_receipt_ref = persist_forecast_candidate_receipt(
+                self._store,
+                ForecastCandidateReceipt(
+                    profile_ref=self._empirical_profile_ref,
+                    request_ref=profile.request_ref,
+                    empirical_evidence_ref=empirical_evidence_ref,
+                ),
+            )
+
         return ForecastOwnerResult(
             report_id=request.report_id,
             method_fqn=METHOD_FQN,
             estimand=request.estimand,
             target_metric=request.target_metric,
+            measurement_binding=measurement_binding,
             point_forecast=point_forecast,
             predictive_intervals=tuple(predictive_intervals),
             nominal_coverage=nominal_coverage,
@@ -961,6 +1330,8 @@ class ForecastOwner:
             model_spec_ref=model_spec_ref,
             policy_spec_ref=policy_spec_ref,
             temporal_roles=request.temporal_roles,
+            empirical_evidence_ref=empirical_evidence_ref,
+            candidate_receipt_ref=candidate_receipt_ref,
         )
 
 
@@ -979,4 +1350,5 @@ __all__ = [
     "ForecastTemporalRoles",
     "TrainHoldoutSplit",
     "run_forecast_owner",
+    "persist_forecast_owner_request",
 ]

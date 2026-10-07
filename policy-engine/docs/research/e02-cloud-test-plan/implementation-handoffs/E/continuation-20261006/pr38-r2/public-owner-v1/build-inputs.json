@@ -1,0 +1,150 @@
+{
+  "fixture_base_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+  "fixture_base_tree": "1f2477a6c6e01f435773cf7a9f023c111f046d7f",
+  "FRC_overlay_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+  "fixture_is_git_candidate": false,
+  "generator_source_paths": {
+    "policy-engine/architecture/public_surface/contract.toml": {
+      "source_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+      "bytes": 19715
+    },
+    "policy-engine/src/polisyos/core/__init__.py": {
+      "source_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+      "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40",
+      "bytes": 11696
+    },
+    "policy-engine/src/polisyos/ir/api.py": {
+      "source_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+      "sha256": "50eef6b0cb043705d1bd03069e6e1ecd5cfe995575faedb2c5af1fd4e544e384",
+      "bytes": 47862
+    },
+    "policy-engine/src/polisyos/foundry/execute/__init__.py": {
+      "source_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+      "sha256": "4572f556ca63babc19c33f5d44b1418b310d9089455773266b655979cf723ce1",
+      "bytes": 1561
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md": {
+      "source_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+      "sha256": "2e7a07708193d8ad54a5a2f3e8a5ea2f012a229147f77211ba45d775f4fa0c98",
+      "bytes": 3788
+    },
+    "policy-engine/tools/devx/architecture/guardrails.py": {
+      "source_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+      "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+      "bytes": 103077
+    }
+  },
+  "pending_owner_exports": {
+    "core_option_a_entrypoints": [
+      "polisyos.core.artifacts",
+      "polisyos.core.canon",
+      "polisyos.core.registry"
+    ],
+    "core_option_b_exports": {
+      "ArtifactRef": [
+        "polisyos.core.artifacts",
+        "ArtifactRef"
+      ],
+      "ArtifactStore": [
+        "polisyos.core.artifacts",
+        "ArtifactStore"
+      ],
+      "ArtifactWriteOptions": [
+        "polisyos.core.artifacts",
+        "ArtifactWriteOptions"
+      ],
+      "PutOptions": [
+        "polisyos.core.artifacts",
+        "PutOptions"
+      ],
+      "SchemaInfo": [
+        "polisyos.core.artifacts",
+        "SchemaInfo"
+      ],
+      "input_ref_from_artifact_ref": [
+        "polisyos.core.artifacts",
+        "input_ref_from_artifact_ref"
+      ],
+      "CanonSpec": [
+        "polisyos.core.canon",
+        "CanonSpec"
+      ],
+      "from_canonical_bytes": [
+        "polisyos.core.canon",
+        "from_canonical_bytes"
+      ],
+      "load_registry_bundle_content": [
+        "polisyos.core.registry",
+        "load_registry_bundle_content"
+      ]
+    },
+    "ir_analytics_exports": {
+      "PosteriorSamplesCarrier": [
+        "polisyos.ir.analytics.uncertainty",
+        "PosteriorSamplesCarrier"
+      ],
+      "load_forecasting_uncertainty_bundle": [
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "load_forecasting_uncertainty_bundle"
+      ],
+      "persist_forecasting_uncertainty_bundle": [
+        "polisyos.ir.analytics.forecasting_uncertainty",
+        "persist_forecasting_uncertainty_bundle"
+      ]
+    },
+    "foundry_execute_exports": [
+      "get_state_path",
+      "load_state_snapshot",
+      "put_state_snapshot"
+    ]
+  },
+  "owner_patch_refs": [
+    {
+      "path": "patches/core-option-a-existing-entrypoints.patch",
+      "sha256": "8dc71c5130e7b19e93110bb0febda56f588b215787c5eee1ceb3c2e5990928a9",
+      "bytes": 395
+    },
+    {
+      "path": "patches/core-option-b-nine-root-exports.patch",
+      "sha256": "64788279b94c0d1d255bdc99abd5b4dfff07601a7a9c64b89b5ce3770fc9facd",
+      "bytes": 2843
+    },
+    {
+      "path": "patches/foundry-execute-three-canonical-snapshot-exports.patch",
+      "sha256": "4b2cae862fa8cc17dad1aa2e828edc6a78d4f5701595e220a5fa168f6cc1479f",
+      "bytes": 1248
+    },
+    {
+      "path": "patches/ir-option-b-three-root-exports.patch",
+      "sha256": "0a82f911de74801c7232f56f83de9b07e260ca12d8d6dbdbe19666339cd09293",
+      "bytes": 2120
+    },
+    {
+      "path": "patches/ir-three-canonical-analytics-exports.patch",
+      "sha256": "4cdf289b7d52037e4add3dfa8fec93a673b99a626186956784b96e40df139544",
+      "bytes": 777
+    },
+    {
+      "path": "patches/owned-generator-generated-artifacts.md.patch",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "patches/owned-generator-inventory.json.patch",
+      "sha256": "cdbd536b9608f5a627a78763973603fa218b8f14f6d49f37bced6dad25f20f4d",
+      "bytes": 3759
+    },
+    {
+      "path": "patches/owned-generator-public-surface.md.patch",
+      "sha256": "d1db40b15d2786ef14dbd3fe57be14dfcb912380d9923857fb66414faee3b574",
+      "bytes": 4391
+    },
+    {
+      "path": "patches/owned-uncertainty-readme-count.patch",
+      "sha256": "5cd76644e33ebff42ac042466d1e232854176b899a51d8e0fcf15166a261bc90",
+      "bytes": 412
+    }
+  ],
+  "proposal_status": "current final patches, unratified; Core/IR/execute library preview only"
+}

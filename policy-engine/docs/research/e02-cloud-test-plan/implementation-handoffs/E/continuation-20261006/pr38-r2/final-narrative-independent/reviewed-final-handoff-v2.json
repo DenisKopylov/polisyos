@@ -1,0 +1,330 @@
+{
+  "schema": "e02.E.PR38.continuation-final-handoff.v2",
+  "publication_state": "DRAFT_PENDING_FINAL_INDEPENDENT_REVIEWS",
+  "topic": "codex/e02-E-continuation-20261006",
+  "PR": "https://github.com/DenisKopylov/polisyos/pull/38",
+  "original_main_base": {
+    "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "required_anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+    "anchor_ancestor": "PASS"
+  },
+  "fetched_G_review": "0346fc656a45ff2cd43d37126992d8ddbb739d10",
+  "incorporated_G": {
+    "sha": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+    "tree": "759daf4ccbd6e72230de8bda36e1522ffa8fe3e4",
+    "checkpoint11": "398bc63af3d37974eac121163d7ec9198058703b",
+    "integration_method": "ordinary append-only merge a9; no E edits to A/C/shared generator paths"
+  },
+  "numerical_candidate": {
+    "sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+    "frozen_source_only": true,
+    "publication_docs_are_same_numerical_evidence": false
+  },
+  "evidence_checkpoint": {
+    "sha": "ddcdfd9c220ba57e37c8abf52b976a7184c384f9",
+    "tree": "1c5e1bd9ecdd619ae99ae978231aa296875bd1b1",
+    "portable_groups": 13,
+    "copied_records": 213,
+    "copied_record_bytes": 13321867
+  },
+  "all54_checkpoint": {
+    "sha": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+    "tree": "e923abf31637b4299ec36a467f4c6b06e26cae1c",
+    "portable_records": 18,
+    "moderate_original_bytes": 3617955
+  },
+  "identity_refs": {
+    "all54": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/all-54-update.json",
+      "commit": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+      "bytes": 1599060,
+      "sha256": "0a3ca0f80d768e922cd25b6bd0fbd579bdf1d217948fe72632c79aafe4331b28",
+      "git_blob": "75834638f69a20cb1bd9bbd795069b2a1a897272"
+    },
+    "local_G_recipes": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/current-local-G-recipes.json",
+      "commit": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+      "bytes": 44496,
+      "sha256": "d58566c81f2ced49271c39068974304bd4f1140c2c191072ef3a01293c9066c1",
+      "git_blob": "ef2376dd46a325400a8a0a2e0966acb34ced54c0"
+    },
+    "all54_inputs": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/input-index.json",
+      "commit": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+      "bytes": 432211,
+      "sha256": "0f6fb47dc8d914bd4206fbeda755e2cdb07ab9e8b4ee25a3cd07213305e9a032",
+      "git_blob": "0f262e6e4551e41af2706b182d1ecf90dc3cc5c4"
+    },
+    "all54_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/publication-index.json",
+      "commit": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+      "bytes": 3682,
+      "sha256": "bf3f65c565a1464cd8fa793835173bec50b4813a8df7ee3915fa0716325362ad",
+      "git_blob": "2d9195398c25993a09ac7ba9af39a21bcdfc0f68"
+    },
+    "all54_author_controls": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/validation-final.stdout.json",
+      "commit": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+      "bytes": 3638,
+      "sha256": "b9474c8ec7eb625fbb181579868697f243e84a439bc5be6bdbedb80ce03293a2",
+      "git_blob": "cbed8f9b36a8680fb0012c457ef1f73c973146e2"
+    },
+    "actual_wave": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/publication-receipt.json",
+      "commit": "ddcdfd9c220ba57e37c8abf52b976a7184c384f9",
+      "bytes": 726367,
+      "sha256": "1b690c7c02fd83846b06bc355738929cf50573fd5590ed16d45decc3e84727ca",
+      "git_blob": "f71bc031630fc0e9a886551d82d1a9beb54e7c11"
+    },
+    "independent_wave": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/independent-wave-review-a9f78817c.json",
+      "commit": "ddcdfd9c220ba57e37c8abf52b976a7184c384f9",
+      "bytes": 199695,
+      "sha256": "624103ca6fb8889fcb2285fff17a499741eaa12530f7eed3703434a006ce76f9",
+      "git_blob": "24e5ad842ccaa6f3454ccc2154cd0e3a30662a4d"
+    },
+    "A_actual_failures": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-current-wave-results/four-actual-A-FRC-failures.json",
+      "commit": "ddcdfd9c220ba57e37c8abf52b976a7184c384f9",
+      "bytes": 11750,
+      "sha256": "2e4fa91a8a6f855bb5b0df740f020e069fe6ccf2d0bc3afcb96edf5c95e158d6",
+      "git_blob": "66d3baad769430a3e558c113b72baeca7621740e"
+    },
+    "footprint": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-source-footprint.json",
+      "commit": "ddcdfd9c220ba57e37c8abf52b976a7184c384f9",
+      "bytes": 422899,
+      "sha256": "91e0a96e14402491088f77855c47786769d91d083d8925c865638e55f4bf8269",
+      "git_blob": "13dc60b16e912aecf68fb8c06dd8708d4d883451"
+    },
+    "publication_bytes": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-publication-validation.json",
+      "commit": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+      "bytes": 5348,
+      "sha256": "914d0e7cfc6be35ee17ee2117e96b8d3b8b5b623246d04327f640d8a662e9b76",
+      "git_blob": "03fe47497f3991d1eaa2b40a563da8845b26d2f4"
+    }
+  },
+  "denominator": {
+    "bundles": 22,
+    "findings": 54,
+    "ID_to_bundle_links": 55
+  },
+  "ledger_status_preserved": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "proposed_verdicts": {
+    "limited": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "historical_buckets": {
+    "partial_bounded_owner_proposals": 32,
+    "partial_active_residuals": 17,
+    "held": 4,
+    "closed_regression": 1
+  },
+  "ledger_updates": 0,
+  "status_vs_outcome": "49 historical partial remain partial,4held remain held,B198closed retained. All49 have bounded limited proposals;32 historical proposals/17 historical active distinguishable. No check result or GO automatically accepts a finding. No historical open found in exact current ledger.",
+  "family_implementation_sources": {
+    "CAL": {
+      "implementation_sha": "45b834534958c262a8146e6c4d847cf8d53846bc",
+      "implementation_tree": "f9abc4e615bc81c8f8a8060338d35c560af71374",
+      "current_source_components": {
+        "noise_preflight": "45b834534958c262a8146e6c4d847cf8d53846bc",
+        "strict_legacy": "1e942ff624ae7cb6c71227d48eef760687e17d2b",
+        "public_route": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+        "canonical_metadata": "7dc540d08d30bad8cf23744172c253c934dfc77e",
+        "review_flag": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+        "owned_facade_route": "cfd79255aab85544082fcf24f93db894202fbfa2"
+      },
+      "code_review_state": "E independently reviewed bounded code GO; G code acceptance separate",
+      "acceptance": {
+        "E_root_code": "independently reviewed bounded code accepted into E topic",
+        "G_integration_code": "pendingexactcontinuation acceptance; G127notes4758bounded decisions are historicalsourcebasis",
+        "finding_owner": "historical ledger unchanged; accountable owner decisions remain separate",
+        "root_common_wave": "actual1445=1441PASS4FAIL0ERROR0SKIP; ownexactselectoroutcomes, numericalsuiteHOLD4F/global7FAIL; nogenericfamilyclosure"
+      }
+    },
+    "BKT": {
+      "implementation_sha": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+      "implementation_tree": "438277e00ae3cdaf6c7729c509d40fa09464e88f",
+      "code_review_state": "E independent bounded0983GO after concrete9cHOLD and corrective5ad; actual current source present; finding/G acceptance separate",
+      "acceptance": {
+        "E_root_code": "independently reviewed bounded code accepted into E topic",
+        "G_integration_code": "pendingexactcontinuation acceptance; G127notes4758bounded decisions are historicalsourcebasis",
+        "finding_owner": "historical ledger unchanged; accountable owner decisions remain separate",
+        "root_common_wave": "actual1445=1441PASS4FAIL0ERROR0SKIP; ownexactselectoroutcomes, numericalsuiteHOLD4F/global7FAIL; nogenericfamilyclosure"
+      }
+    },
+    "DOE": {
+      "implementation_sha": "f07b7d485531b96a206ae9b2aad7acf5f2755324",
+      "implementation_tree": "8dcd5c26a4868e1b055a54a6cd53365e9d5890f3",
+      "code_review_state": "E independently reviewed bounded code GO; G code acceptance separate",
+      "acceptance": {
+        "E_root_code": "independently reviewed bounded code accepted into E topic",
+        "G_integration_code": "pendingexactcontinuation acceptance; G127notes4758bounded decisions are historicalsourcebasis",
+        "finding_owner": "historical ledger unchanged; accountable owner decisions remain separate",
+        "root_common_wave": "actual1445=1441PASS4FAIL0ERROR0SKIP; ownexactselectoroutcomes, numericalsuiteHOLD4F/global7FAIL; nogenericfamilyclosure"
+      },
+      "current_source_components": {
+        "interaction_block_replay": {
+          "sha": "f07b7d485531b96a206ae9b2aad7acf5f2755324",
+          "tree": "8dcd5c26a4868e1b055a54a6cd53365e9d5890f3"
+        },
+        "runtime_plan_admission": {
+          "sha": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+          "tree": "3e654b07a3228d1b3d2d0bb2a3a91ae792068090",
+          "review": "IndependentCAL66-native controls and actual200-case DoEwavePASS; exact source/property refs resolved through all54 DOE.runtime_plan_admission"
+        }
+      }
+    },
+    "DDM": {
+      "implementation_sha": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+      "implementation_tree": "1a029606997d55eef14cd5e2f29a12daa300b2f1",
+      "code_review_state": "E independently reviewed bounded code GO; G code acceptance separate",
+      "acceptance": {
+        "E_root_code": "independently reviewed bounded code accepted into E topic",
+        "G_integration_code": "pendingexactcontinuation acceptance; G127notes4758bounded decisions are historicalsourcebasis",
+        "finding_owner": "historical ledger unchanged; accountable owner decisions remain separate",
+        "root_common_wave": "actual1445=1441PASS4FAIL0ERROR0SKIP; ownexactselectoroutcomes, numericalsuiteHOLD4F/global7FAIL; nogenericfamilyclosure"
+      }
+    },
+    "PCL": {
+      "implementation_sha": "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+      "implementation_tree": "bc60af14857dc90ce9317f3cd826a3455a9eb691",
+      "code_review_state": "E independently reviewed bounded code GO; G code acceptance separate",
+      "acceptance": {
+        "E_root_code": "independently reviewed bounded code accepted into E topic",
+        "G_integration_code": "pendingexactcontinuation acceptance; G127notes4758bounded decisions are historicalsourcebasis",
+        "finding_owner": "historical ledger unchanged; accountable owner decisions remain separate",
+        "root_common_wave": "actual1445=1441PASS4FAIL0ERROR0SKIP; ownexactselectoroutcomes, numericalsuiteHOLD4F/global7FAIL; nogenericfamilyclosure"
+      }
+    },
+    "FRC": {
+      "implementation_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "implementation_tree": "3be4935b1bfa426a71f8581bc376fa322145fe31",
+      "code_review_state": "E independently reviewed bounded8486GO; exact trackedCAL review, G acceptance/finding closure separate",
+      "acceptance": {
+        "E_root_code": "independently reviewed bounded code accepted into E topic",
+        "G_integration_code": "pendingexactcontinuation acceptance; G127notes4758bounded decisions are historicalsourcebasis",
+        "finding_owner": "historical ledger unchanged; accountable owner decisions remain separate",
+        "root_common_wave": "actual1445=1441PASS4FAIL0ERROR0SKIP; ownexactselectoroutcomes, numericalsuiteHOLD4F/global7FAIL; nogenericfamilyclosure"
+      }
+    },
+    "MC": {
+      "implementation_sha": "d69d2fad34de9923209fde3e20439e46f36f6750",
+      "implementation_tree": "e7891ec257a0487b1be5ae39adca5ea05d28f251",
+      "current_source_components": {
+        "finite_joint": "d69d2fad34de9923209fde3e20439e46f36f6750",
+        "shared_real_guard": "5cdfe613bf91fffbd578848c9e2f8275edc21ee7",
+        "welfare_empirical_support": "884681db485b7466b183a206f83bbe0635f86ca3"
+      },
+      "code_review_state": "E independently reviewed bounded code GO; G code acceptance separate",
+      "acceptance": {
+        "E_root_code": "independently reviewed bounded code accepted into E topic",
+        "G_integration_code": "pendingexactcontinuation acceptance; G127notes4758bounded decisions are historicalsourcebasis",
+        "finding_owner": "historical ledger unchanged; accountable owner decisions remain separate",
+        "root_common_wave": "actual1445=1441PASS4FAIL0ERROR0SKIP; ownexactselectoroutcomes, numericalsuiteHOLD4F/global7FAIL; nogenericfamilyclosure"
+      }
+    },
+    "UQS": {
+      "code_review_state": "unchanged bounded mechanisms; no new own review claim",
+      "acceptance": {
+        "E_root_code": "existing source only; no v2 ratification or implementation",
+        "G_integration_code": "pendingexactcontinuation acceptance; G127notes4758bounded decisions are historicalsourcebasis",
+        "finding_owner": "historical ledger unchanged; accountable owner decisions remain separate",
+        "root_common_wave": "actual1445=1441PASS4FAIL0ERROR0SKIP; ownexactselectoroutcomes, numericalsuiteHOLD4F/global7FAIL; nogenericfamilyclosure"
+      }
+    }
+  },
+  "implementation_source_footprint": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-source-footprint.json",
+  "source_footprint_base": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "source_footprint_paths": 671,
+  "actual_checks": {
+    "importer": "PASS",
+    "numeric": {
+      "total": 1445,
+      "PASS": 1441,
+      "FAIL": 4,
+      "ERROR": 0,
+      "SKIP": 0,
+      "native": {
+        "total": 1438,
+        "PASS": 1436,
+        "FAIL": 2
+      },
+      "A_owner_packet": {
+        "total": 7,
+        "PASS": 5,
+        "FAIL": 2
+      }
+    },
+    "numeric_groups": {
+      "PASS": 6,
+      "FAIL": 1
+    },
+    "global_gates": {
+      "architecture": "FAIL",
+      "runtime_API": "FAIL OpenAPI1489\u21921493",
+      "static_invocation": "FAIL10regressions/89new unresolved;9238 unresolved",
+      "Ruff": "FAIL7951diagnostics/172paths/49codes/full317Pythonpaths",
+      "format": "FAIL156would-reformat/161already/full317Pythonpaths",
+      "workspace_verify": "FAIL imports21rows/17paths;13successor stagesUNRUN",
+      "CI_parity": "FAIL doctor FeedbackSolveResult/_manifest ABI/registry/OpenAPI;23successor stagesUNRUN"
+    },
+    "required_checks_waived": false,
+    "full_CI_PASS": false,
+    "browser_doctor": "available; does not establish full browser/hosted/deployment checks"
+  },
+  "four_failure_boundary": "Two native FRC assertions plus two A status/reason packet assertions; five actual CAS contract positives PASS. Resolved-limited fourth assertion previously setupERROR, now realFAIL; no inherited-red attribution without exact P41 replay.",
+  "publication_role_error_and_fix": "Original8-review freeze included2 external absolute paths in candidateGit collection role; Git128 before publication preserved. Separate7951-byte typed carrier uses6Git+2external roles, additional2 fully content/role bound by independent adapter. Canonicalcollector itself verifies6Git only. COMPLETE_BOUND means custody, never PASS or closure.",
+  "scope": "Generic actual Calibrator/JAX, SALib1.5.2 sampler/analyzer, native Foundry replay, configuredCAS PCL, ETS empirical producer, DDM directional readers and Welfare all-draw consumers established only for declared native fixtures. Production history, unsupported joint laws, institutional authority and served default verifier not inferred.",
+  "next_owner_boundaries": {
+    "A": "Apply missing/ref-unresolved and resolved-floor status/reason packet; bind configured CAS default/HTTP verifier and fresh served read; keep causal/treatment/policy denied",
+    "D": "Persist/reopen exact DoE analysis_ref in canonical default Search ranking consumer",
+    "Core_IR_quality": "Admit existing facades/narrow exports and regenerate owned OpenAPI/manifest/trust posture through canonical generators; no E shared edits",
+    "E": "7951 diagnostics/172 published source-bound witness/review paths remain explicit publication debt; original bytes preserved, no scope exemption or blanket cosmetic label",
+    "IR_semantic_owner": "Absent/unallocated; appoint then ratify four reviewable v2 decisions, keep v1.1 replay unchanged",
+    "G": "Individual owner/code intake and minimum read-only local production/history/source-law recipes only where original criterion requires factual inputs"
+  },
+  "all54_owner_results": "Resolve identity_refs.all54 (exact commit/path/bytes/hash), then read the target all-54-update.json rows: each original criterion/hash basis, producer/artifact/bridge/consumer/surface, gate predicate, actual source/case/oracle/negative, owner, minimal_inputs and next_verifiable_result.",
+  "additional_owner_inputs": [
+    "B172/B173 versioned trust purpose/profile plus owner meaningful-bias margin/equivalence interval where required",
+    "B190/B193 configured evaluator/result law and admitted fixed-N stopping assumptions",
+    "B200 information-unit source relationship lineage",
+    "B197 factual source join/fit/noise law/Calibrator and served authority",
+    "DDM current-feed freshness/completeness, deployment purpose and institutional R2 signoff",
+    "B201/B202 appointed canonical IR semantic owner then four explicit v2 decisions; v1.1 replay unchanged"
+  ],
+  "IR_semantic_state": {
+    "canonical_owner": "absent/unallocated; appointment by IR/architecture accountable owner or human required",
+    "ratified": false,
+    "decisions": [
+      "Keep identification set and statistical uncertainty separate linked artifacts; named point/interval functionals with atoms/asymmetry/weights/quantile/unit/estimand admission. Mean1 with99zeros+100 need not lie in equal-tail[0,0].",
+      "New semantics require distinct v2$id; preserve strict v1.1 reader/replay.",
+      "Exact joint carrier binds axes/order/shared draw identity/weights/units/source-model-fit-rule-time-purpose lineage viaCAS.",
+      "ChooseCAS-onlyv2 (recommended) or inline+persistedref; appointactualC/F consumers. Unresolved law-dependent computations refuse, no reconstruction from moments."
+    ]
+  },
+  "P37": "Per-ID original criterion and exact historical selectors retained; current affected native properties reconciled by named independent source/oracle/negative receipts; producer declarations and statistical/institutional authority remain separate.",
+  "P40": "Finitejointweights/CDF, commonreal/nonzero representability, Welfareempirical/support andDoEmutableplan repairedatcommonboundary; actualownedCal/Welfarefacaderoutes repairedcfd andcanonicalcollectorpublicrole/ownerattribution repaired2f7 withadversarial/removalcontrols. OriginaloldHOLD andactualpublicationInputERROR historiespreserved; no waiverfromguardcounts.",
+  "P41": "Newwave exacta9 source/tree/plan/argv/inputdenominator/fullstdout/JUnit custody. First5e1086/3/351 and58e1123/2 remaindistincthistoricalattempts. Fourthcurrentresolved-limitedAassertionwasoldsetupERROR, nowfirstactualFAIL. GlobalFAIL neverinheritedfromreportedpathintersection; exactbase/fullcommand/completeinput replayabsent, attributionnot_established.",
+  "remaining_E_publication_debt": "7951actual Ruff diagnostics in source-bound witness/review utilities and156format paths remain E-owned debt.54witness controls/118review or receipt utilities,8explicitly historical/164others. Not a blanket cosmetic/inherited exclusion; future operational corrections need runtime controls and fullscope checks, preserving exact historical bytes.",
+  "raw_custody": {
+    "static_bytes": 171772302,
+    "static_sha256": "438665b9b62b5860d17d388b0ac9466a0d628773e93059e2ada9fdf410990635",
+    "large_raw_published": false,
+    "private_config_payloads_published": false
+  },
+  "cleanup_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cleanup-candidates-final.json",
+  "integration_code_acceptance": "E bounded source reviewed and assembled; G exact-continuation code admission pending. G alone publishes integration.",
+  "finding_acceptance": "Individual accountable owners decide32existingpartial proposals and17remaininghistoricalactive IDs; no automatic ledger edits. Held technical/semantic boundaries stayheld.",
+  "final_independent_closeout_review": "PENDING",
+  "final_independent_publication_review": "PENDING",
+  "final_publication_sha": "Bound by subsequent publication receipt/remote readback; no impossible self-referential commitSHA"
+}

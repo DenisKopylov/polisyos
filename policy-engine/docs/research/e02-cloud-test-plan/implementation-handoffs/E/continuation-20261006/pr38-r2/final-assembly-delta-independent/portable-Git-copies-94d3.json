@@ -1,0 +1,166 @@
+{
+  "indices": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-independent/portable-copy-index.json",
+      "bytes": 4297,
+      "sha256": "e89352667f431a7f931af97198f51816295af87c3bdba7b0b60d10f915b1747d",
+      "git_blob": "5fed1624f9f6d2f7ab5a5d046fc8a7f2a7d62ab0",
+      "records": 9,
+      "payload_bytes": 88993,
+      "all_exact_Git_blobs": true,
+      "private_actual_payloads_copied": false
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-packet/portable-copy-index.json",
+      "bytes": 8994,
+      "sha256": "f41cfc8704f95f0ba8b93a2b1e5462092d18bf0b4ee03e9ab59f231eb5a683c5",
+      "git_blob": "4481762f72a53abf787dcc6739522fd2a99d7d7e",
+      "records": 20,
+      "payload_bytes": 174084,
+      "all_exact_Git_blobs": true,
+      "private_actual_payloads_copied": false
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v2-independent/portable-copy-index.json",
+      "bytes": 4904,
+      "sha256": "76f887b7cdf4c14a640518b05d75c27b74be68b0bd43f339da47f5682d372537",
+      "git_blob": "a9aac3e380664a9582b0a43e46c4478eb17e513d",
+      "records": 11,
+      "payload_bytes": 126046,
+      "all_exact_Git_blobs": true,
+      "private_actual_payloads_copied": false
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-author/portable-copy-index.json",
+      "bytes": 7593,
+      "sha256": "23ee5df780d2b011f5f9bafd7584530c76cb360af64c73e4e58f25761cd4ca18",
+      "git_blob": "8cc828382243ab310c91fdd6eac3cacb47fb4c28",
+      "records": 17,
+      "payload_bytes": 191002,
+      "all_exact_Git_blobs": true,
+      "private_actual_payloads_copied": false
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-independent/portable-copy-index.json",
+      "bytes": 9796,
+      "sha256": "54994e92812c73346956d48cea7b90d47d537af47f7127e5c941fec0b41a7b5b",
+      "git_blob": "48298adca7e506eae1c7b039f0a8a22e4389309c",
+      "records": 23,
+      "payload_bytes": 195235,
+      "all_exact_Git_blobs": true,
+      "private_actual_payloads_copied": false
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/portable-copy-index.json",
+      "bytes": 8238,
+      "sha256": "241008adc5f2a3fd718336866cfb5cc405f136c3f9143d4a1efa41c3fe5b2bd7",
+      "git_blob": "71a7d5a7a7038471ae3ae581900a545d6397d04d",
+      "records": 19,
+      "payload_bytes": 101310,
+      "all_exact_Git_blobs": true,
+      "private_actual_payloads_copied": false
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-independent/portable-copy-index.json",
+      "bytes": 5372,
+      "sha256": "93383d8890451136666123da33939ec1eeddec04e686dfb58e2843fcd02c664e",
+      "git_blob": "9130d6c28bb1c739fa1a5b466e2cd414016ad986",
+      "records": 12,
+      "payload_bytes": 83438,
+      "all_exact_Git_blobs": true,
+      "private_actual_payloads_copied": false
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/portable-copy-index.json",
+      "bytes": 7426,
+      "sha256": "b60f1c35e6c7f03d2755402577605168279cbf4e6b939a405e3e27c91a9c3dfe",
+      "git_blob": "d76ef3be31d3a61c7760f2eb618161d42d7a3740",
+      "records": 16,
+      "payload_bytes": 402602,
+      "all_exact_Git_blobs": true,
+      "private_actual_payloads_copied": false
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/portable-copy-index.json",
+      "bytes": 6342,
+      "sha256": "980b970baaf433c94f549ec64bd0000ae623840de0d45bfa6f0870518894a295",
+      "git_blob": "bb96dcf7228ead8d5f4a5437704cd4f76e663c52",
+      "records": 14,
+      "payload_bytes": 1480011,
+      "all_exact_Git_blobs": true,
+      "private_actual_payloads_copied": false
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/portable-copy-index.json",
+      "bytes": 24038,
+      "sha256": "d02d5ca1ca097816b8293a40aed92871f368a27c2c7aa51a9756944ca30e212d",
+      "git_blob": "ce4e592bb31e61eabdfca83bacec11baac1438ad",
+      "records": 49,
+      "payload_bytes": 6386104,
+      "all_exact_Git_blobs": true,
+      "private_actual_payloads_copied": false
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/portable-copy-index.json",
+      "bytes": 23707,
+      "sha256": "c06f95b1f95b3f50fe428fb2d76a3ab4f88a348370b801f7913106245f55e809",
+      "git_blob": "5e36d47c45c24474e3729057c7153346331e84eb",
+      "records": 48,
+      "payload_bytes": 231895,
+      "all_exact_Git_blobs": true,
+      "private_actual_payloads_copied": false
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/portable-copy-index.json",
+      "bytes": 20797,
+      "sha256": "61703ab7e23a2624793f1808497014c3d86b4ac5a0ebca2c765b87eca7be67df",
+      "git_blob": "56c87992c51e9fa7bbd57f79a420565429e40556",
+      "records": 40,
+      "payload_bytes": 315106,
+      "all_exact_Git_blobs": true,
+      "private_actual_payloads_copied": false
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/lint-publication-independent/portable-copy-index.json",
+      "bytes": 2900,
+      "sha256": "b530fe7d9a677ff5eb92855b5ae109aab8c7d53f1bfc924de035212ceee5bfa2",
+      "git_blob": "011961886673958362120fded01703d871421467",
+      "records": 6,
+      "payload_bytes": 319538,
+      "all_exact_Git_blobs": true,
+      "private_actual_payloads_copied": false
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/portable-copy-index.json",
+      "bytes": 47466,
+      "sha256": "8644b71436903d7769e10ca4ac3dade39c611ffef88f1806e9e33dfd1cda4b84",
+      "git_blob": "2bedbb4b6dc6bbc0e2910f172e57c943f8d4dfc4",
+      "records": 106,
+      "payload_bytes": 1799421,
+      "all_exact_Git_blobs": true,
+      "private_actual_payloads_copied": false
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/portable-copy-index.json",
+      "bytes": 77059,
+      "sha256": "1549e2aefa047ae25b0a0181e5393211550a7300fc4f9d808f43cfb81c392c27",
+      "git_blob": "869b4541a201c3d8b2b4c49573d7dd8e3a763e22",
+      "records": 157,
+      "payload_bytes": 3289065,
+      "all_exact_Git_blobs": true,
+      "private_actual_payloads_copied": false
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-source-binding/portable-copy-index.json",
+      "bytes": 2191,
+      "sha256": "b31a0a3edd1cde951d83d34473096c63536bd8bec6b2822214cfb669a2102188",
+      "git_blob": "0a8cf34f678b3c50c5d06e9bdc4002e95a1c0d6f",
+      "records": 4,
+      "payload_bytes": 204912,
+      "all_exact_Git_blobs": true,
+      "private_actual_payloads_copied": false
+    }
+  ],
+  "unique_indexed_paths": 567,
+  "complete": true
+}

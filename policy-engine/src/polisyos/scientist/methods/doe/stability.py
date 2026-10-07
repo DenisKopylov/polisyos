@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Literal
 
 import numpy as np
 
-from .designs import SensitivityMethod, SensitivityPlan
+from .designs import SensitivityMethod, SensitivityPlan, _admit_sensitivity_plan
 from .morris_geometry import _validate_morris_plan_samples
 
 
@@ -18,6 +19,13 @@ class StabilityReport:
     unstable_parameters: list[str] = field(default_factory=list)
     n_bootstrap: int = 0
     rank_variance: dict[str, float] = field(default_factory=dict)
+    status: Literal["ok", "limited", "not_evaluated", "unsupported"] = "not_evaluated"
+    reason: str | None = None
+    requested_bootstrap: int = 0
+    attempted_bootstrap: int = 0
+    failed_bootstrap: int = 0
+    input_run_count: int = 0
+    replicate_outcomes: list[str] = field(default_factory=list)
 
 
 class RankingStabilityChecker:
@@ -42,13 +50,24 @@ class RankingStabilityChecker:
         Returns a ``StabilityReport`` with a score in [0, 1] where 1
         means perfectly stable rankings across all bootstrap samples.
         """
+        plan = _admit_sensitivity_plan(plan, actual_run_count=int(samples.shape[0]))
         from .analysis import _prepare_analysis_inputs, analyze_sensitivity
+
+        if plan.method != SensitivityMethod.MORRIS:
+            return StabilityReport(
+                status="unsupported",
+                reason="estimator_specific_structured_bootstrap_not_implemented",
+                requested_bootstrap=self._n_bootstrap,
+                input_run_count=int(samples.shape[0]),
+            )
 
         if samples.shape[0] < 10:
             return StabilityReport(
                 rank_stability_score=0.0,
-                unstable_parameters=list(plan.parameter_specs[0].name for _ in []),
                 n_bootstrap=0,
+                reason="insufficient_input_runs",
+                requested_bootstrap=self._n_bootstrap,
+                input_run_count=int(samples.shape[0]),
             )
 
         rng = np.random.default_rng(self._seed)
@@ -70,6 +89,7 @@ class RankingStabilityChecker:
 
         # Collect rankings from bootstrap samples
         rank_positions: dict[str, list[int]] = {name: [] for name in names}
+        outcomes: list[str] = []
 
         for _ in range(self._n_bootstrap):
             block_ids = rng.choice(n_blocks, size=n_blocks, replace=True)
@@ -81,13 +101,26 @@ class RankingStabilityChecker:
                 result = analyze_sensitivity(plan, boot_samples, boot_outputs)
                 for pos, name in enumerate(result.ranking):
                     rank_positions[name].append(pos)
-            except Exception:
+                outcomes.append("success")
+            except Exception as exc:
+                outcomes.append(f"failed:{type(exc).__name__}:{exc}")
                 continue
+
+        successful_replicates = outcomes.count("success")
+        accounting = {
+            "requested_bootstrap": self._n_bootstrap,
+            "attempted_bootstrap": len(outcomes),
+            "failed_bootstrap": len(outcomes) - successful_replicates,
+            "input_run_count": int(samples.shape[0]),
+            "replicate_outcomes": outcomes,
+        }
 
         if not rank_positions[names[0]]:
             return StabilityReport(
                 rank_stability_score=0.0,
                 n_bootstrap=0,
+                reason="no_successful_bootstrap_replicates",
+                **accounting,
             )
 
         # Compute rank variance per parameter
@@ -119,8 +152,15 @@ class RankingStabilityChecker:
         return StabilityReport(
             rank_stability_score=max(score, 0.0),
             unstable_parameters=unstable,
-            n_bootstrap=self._n_bootstrap,
+            n_bootstrap=successful_replicates,
             rank_variance=rank_variance,
+            status="ok" if successful_replicates == self._n_bootstrap else "limited",
+            reason=(
+                None
+                if successful_replicates == self._n_bootstrap
+                else "ranking_conditional_on_successful_bootstrap_replicates"
+            ),
+            **accounting,
         )
 
 

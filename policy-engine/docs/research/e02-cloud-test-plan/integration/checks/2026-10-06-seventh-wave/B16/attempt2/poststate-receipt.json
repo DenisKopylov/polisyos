@@ -1,0 +1,126 @@
+{
+  "active_relevant_processes_after": "",
+  "attempt1_disclosure": "Attempt 1 collected no executable cases and stopped at collection due solely to the omitted tracked architecture TOML input; this is ERROR_SETUP_INPUT_CLOSURE / product UNRUN, not product FAIL. Full attempt1 stdout/stderr/JUnit and adjudication are retained. Attempt 2 adds exact candidate input policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml and passed the exact same 16-case selector.",
+  "attempt2_all_inputs_unchanged": true,
+  "attempt2_all_loaded_polisyos_file_origins_under_candidate_src": true,
+  "attempt2_elapsed_seconds": 14.361175791011192,
+  "attempt2_junit": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 16
+  },
+  "attempt2_loaded_polisyos_origin_count": 1434,
+  "attempt2_maxrss_raw": 924123136,
+  "attempt2_maxrss_unit": "bytes on Darwin",
+  "attempt2_outcome": "PASS",
+  "candidate_sha": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+  "candidate_tree": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+  "controlled_scratch_bytes_by_top_level": {
+    "checkout": 56187859,
+    "checkout-attempt2": 55074688,
+    "inputs": 117777840,
+    "outputs": 5261841,
+    "runtime": 27099
+  },
+  "controlled_scratch_limit_bytes": 524288000,
+  "controlled_scratch_unique_inode_bytes": 234388433,
+  "controlled_scratch_unique_inode_count": 6058,
+  "disk_after": "Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on\n/dev/disk3s5   228Gi   188Gi    13Gi    94%    4.4M  137M    3%   /System/Volumes/Data",
+  "g_head_after": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+  "g_status_after": "## codex/e02-integration...origin/codex/e02-integration",
+  "memory_snapshot_after": "Pages free: 4511 \nSystem-wide memory free percentage: 46%",
+  "retained_output_sha256": {
+    "attempt1_adjudication": {
+      "bytes": 893,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/outputs/attempt1-adjudication.json",
+      "sha256": "64d90b5a2a3f306fe17c3fa0117d7abc663747878f99c899ff54f5cc8327d5ac"
+    },
+    "attempt1_junit": {
+      "bytes": 3311,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/outputs/native.xml",
+      "sha256": "15eabc9914255d7ce9265ede73c6403dc03c57e6facf6f5d1142c85ed2a6b8a6"
+    },
+    "attempt1_stderr": {
+      "bytes": 0,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/outputs/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "attempt1_stdout": {
+      "bytes": 5209,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/outputs/stdout.txt",
+      "sha256": "2d52e2d776b9d29f0e0db9388e92a2e4720b3970d6879db7db73cb3da0ba5011"
+    },
+    "attempt2_input_after": {
+      "bytes": 1126601,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/outputs/attempt2/input-manifest-after.json",
+      "sha256": "52e81bff2f8edb568afed1542a401983d90b1a844148bcb4e5533e59e18100f0"
+    },
+    "attempt2_input_before": {
+      "bytes": 1126602,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/outputs/attempt2/input-manifest-before.json",
+      "sha256": "b1abf690092ffac6458d3c1b63509b8db44df24084076ec0c98656bfab33a82d"
+    },
+    "attempt2_junit": {
+      "bytes": 3397,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/outputs/attempt2/native.xml",
+      "sha256": "9386e89ff6b1bd0fc46eebcc4c4e6d6adf2e460e5943e868e91e5283573ec3b9"
+    },
+    "attempt2_origins": {
+      "bytes": 840000,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/outputs/attempt2/module-origins.json",
+      "sha256": "d777f4ac357b8d7e1291f41fca4c34fff5012d5fdadb7c5d56bba6c9b314efb8"
+    },
+    "attempt2_run_after": {
+      "bytes": 5147,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/outputs/attempt2/run-after.json",
+      "sha256": "28886b04f62fca1c4a097a49f0240dc303b463d9dad8c0503e46535bc41b181d"
+    },
+    "attempt2_run_before": {
+      "bytes": 3556,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/outputs/attempt2/run-before.json",
+      "sha256": "bd8080a830591ee9ab159fa4cd650d6dfbc390ee84a40b89deebf817b8711d3a"
+    },
+    "attempt2_stderr": {
+      "bytes": 0,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/outputs/attempt2/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "attempt2_stdout": {
+      "bytes": 4381,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/outputs/attempt2/stdout.txt",
+      "sha256": "d65802914dfe996043dfd6feda396892b19cd631d5ca277ea105bd9fe3bb54ea"
+    }
+  },
+  "runtime_profile_artifact_sha256": {
+    "runtime-profile-clarification-driver.command.json": "a7845c54b6ecd0583c9e703bf303e2f4b1dd766bdd40565aef740ccb0b67e0fb",
+    "runtime-profile-clarification-driver.py": "a3a1228944790ebd5141b7db85a13c40ead9f57e6396376137e465a7ff2412eb",
+    "runtime-profile-clarification-driver.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime-profile-clarification-driver.stdout.txt": "12f17bbe6487123879a18735ad2db7ab94c02fab8a8ae01923e53f6abc74796b",
+    "runtime-profile-clarification-probe1.command.json": "2c1a09d70351577e8b07c3069a28f80a73033d1999edea334846283da76c6678",
+    "runtime-profile-clarification-probe1.py": "bccf15bf7c734fd655f735683c94caccaf82348603e957abd9ea38dc8238b2ce",
+    "runtime-profile-clarification-probe1.stderr.txt": "4593b16a75e7454701a6903c2f53c13560c66a32628d39789eff27cf11a3dde1",
+    "runtime-profile-clarification-probe1.stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime-profile-clarification.command.json": "75a72772162f117c6cabfe40351bbb7cca5269e455c6981db6323e6af11f7f21",
+    "runtime-profile-clarification.json": "765baed02801a3861a087af5e5770419c7a593471b2ea7724f39026d9a91ad8d",
+    "runtime-profile-clarification.py": "62cb8c56b682b64577c0efd6767d264cca515d5479a77c3f48e7dc355076cd08",
+    "runtime-profile-clarification.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime-profile-clarification.stdout.txt": "49c97d575f727cd41f8d80714cd750911ba41ac07d7a066fd4f636034d5a43cf"
+  },
+  "runtime_profile_provenance_correction": {
+    "origin_git_sha_audit": {
+      "all_file_origins_match_exact_candidate_git_blob_sha256": true,
+      "file_origin_rows": 1434,
+      "input_manifests_unchanged_before_after": true,
+      "join_sha256": "6f205e476e031b9e90fd65cbc7ded479915502d378b3ab2734a4b4993625a491",
+      "rows_matching_exact_candidate_git_blob_sha256": 1434
+    },
+    "package_differences": "see ambient_driver_vs_venv_metadata_differences in runtime-profile-clarification.json",
+    "postrun_venv_observation": "runtime-profile-clarification.stdout.txt, queried with the same .venv/bin/python and explicitly labeled post-run, no-tests",
+    "pytest_rerun": false,
+    "report": "runtime-profile-clarification.json",
+    "run_before_interpreter_role": "ambient Python 3.14.0 driver; package metadata in run-before also belongs to that driver",
+    "run_before_sha256_unchanged": "bd8080a830591ee9ab159fa4cd650d6dfbc390ee84a40b89deebf817b8711d3a",
+    "test_process_runtime": "captured pytest stdout reports Python 3.14.3, pytest 9.0.2, Hypothesis 6.151.2"
+  }
+}

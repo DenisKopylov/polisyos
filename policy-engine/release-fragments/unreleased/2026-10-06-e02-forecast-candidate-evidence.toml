@@ -1,0 +1,13 @@
+id = "2026-10-06-e02-forecast-candidate-evidence"
+title = "Persist configured ETS empirical evidence and separate candidate receipt"
+type = "changed"
+component = "forecast-calibration"
+owner = "team-policyos-runtime"
+summary = "A configured ForecastOwner now binds an exact persisted request and explicit threshold, emits real heldout pairs and separate empirical evidence, and replays a candidate receipt through the same CAS."
+compatibility = "Additive internal producer configuration. Existing unconfigured predictive-only owner behavior and empirical evidence v1.0/v1.1 replay remain supported."
+change_class = "internal"
+surface_classification = "internal: polisyos.scientist.methods.backtesting.forecast_owner; internal: polisyos.calibration.forecast_bridge"
+migration = "A runtime composition must select and admit the profile outside request payloads, configure the owner with the same CAS, independently verify evidence, and wire default served readback."
+limitations = "Candidate receipt verifier provenance remains not_established; no causal, treatment or S10 authority is granted. Default runtime orchestration and public predictive surface are A-owned."
+generated_client_compatibility = "not_applicable"
+evidence = ["tests/unit/scientist/methods/backtesting/test_forecast_owner.py"]

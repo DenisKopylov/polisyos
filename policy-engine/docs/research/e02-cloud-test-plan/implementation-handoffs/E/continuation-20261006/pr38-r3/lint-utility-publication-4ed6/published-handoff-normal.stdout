@@ -1,0 +1,22 @@
+{
+  "candidate_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+  "candidate_tree": "a4e4793be4d1aec6adea623b930a65304ab42d64",
+  "published_revision": "4ed6a4324c53275afb00d9fc380cd29e0cca556c",
+  "assets": 229,
+  "healthy": "PASS",
+  "corrupt_controls": {
+    "size": "rejected",
+    "digest": "rejected",
+    "omission": "rejected",
+    "duplicate": "rejected",
+    "tree": "rejected",
+    "footprint": "rejected",
+    "review_source": "rejected",
+    "closure": "rejected",
+    "pinned_Git_bytes": "rejected",
+    "pinned_Git_sha256": "rejected",
+    "pinned_Git_copied_path": "rejected"
+  },
+  "pinned_Git_copy_validation": "PASS",
+  "finding_closure": false
+}

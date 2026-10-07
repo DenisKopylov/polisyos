@@ -1,0 +1,1 @@
+{"command": ["/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python", "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py", "--check"], "exit_code": 0, "outcome": "PASS", "counts": null, "wall_seconds": 2.3733928203582764, "source_immutable": true}

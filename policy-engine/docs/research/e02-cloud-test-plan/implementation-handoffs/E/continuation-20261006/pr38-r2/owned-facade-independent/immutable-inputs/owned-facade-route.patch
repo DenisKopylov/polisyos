@@ -1,0 +1,593 @@
+diff --git a/policy-engine/architecture/public_surface/inventory.json b/policy-engine/architecture/public_surface/inventory.json
+--- a/policy-engine/architecture/public_surface/inventory.json
++++ b/policy-engine/architecture/public_surface/inventory.json
+@@ -2449,9 +2449,11 @@
+         },
+         {
+           "module": "polisyos.foundry.uncertainty",
+-          "facade_mode_observed": "eager_exports",
+-          "export_count": 20,
++          "facade_mode_observed": "lazy_facade",
++          "export_count": 25,
+           "exports": [
++            "CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1",
++            "CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1",
+             "AdaptiveStoppingConfig",
+             "AggregationStrategy",
+             "BoundedIndicatorResponse",
+@@ -2464,16 +2466,19 @@
+             "admit_empirical_weights",
+             "admit_unit_uniform",
+             "aggregate_envelopes",
++            "build_covariance_matrix",
++            "calibration_covariance_blocks_agree_v1",
+             "compute_first_order_indices",
+             "empirical_cdf",
+             "extract_std",
+             "fabric_uncertainty_context_from_decision_data",
+             "load_foundry_calibration_report",
++            "preserve_singular_covariance",
+             "reconcile_draw_outcomes",
+             "sampling_content_digest",
+             "verify_mean_certificate"
+           ],
+-          "has___getattr__": false,
++          "has___getattr__": true,
+           "has___dir__": false,
+           "source_file": "src/polisyos/foundry/uncertainty/__init__.py",
+           "summary": "Expose uncertainty propagation helpers used around Foundry simulation outputs."
+@@ -5347,7 +5352,7 @@
+         "polisyos.calibration"
+       ],
+       "major_subsystem": false,
+-      "export_count": 29,
++      "export_count": 28,
+       "exports": [
+         "PREDICTIVE_AUTHORITY_DENIALS",
+         "REFERENCE_PROFILES",
+@@ -5371,7 +5376,6 @@
+         "load_empirical_calibration_evidence",
+         "load_forecast_calibration_profile",
+         "load_forecast_candidate_receipt",
+-        "load_foundry_calibration_report",
+         "persist_continuous_evaluation",
+         "persist_empirical_calibration_evidence",
+         "persist_forecast_candidate_receipt",
+@@ -5388,7 +5392,7 @@
+         {
+           "module": "polisyos.calibration",
+           "facade_mode_observed": "eager_exports",
+-          "export_count": 29,
++          "export_count": 28,
+           "exports": [
+             "PREDICTIVE_AUTHORITY_DENIALS",
+             "REFERENCE_PROFILES",
+@@ -5412,7 +5416,6 @@
+             "load_empirical_calibration_evidence",
+             "load_forecast_calibration_profile",
+             "load_forecast_candidate_receipt",
+-            "load_foundry_calibration_report",
+             "persist_continuous_evaluation",
+             "persist_empirical_calibration_evidence",
+             "persist_forecast_candidate_receipt",
+diff --git a/policy-engine/docs/reference/public-surface.md b/policy-engine/docs/reference/public-surface.md
+--- a/policy-engine/docs/reference/public-surface.md
++++ b/policy-engine/docs/reference/public-surface.md
+@@ -103,7 +103,7 @@
+ | `polisyos.scholar` | `public_experimental` | `lazy_facade` | 25 | `team-polisyos` | `src/polisyos/scholar/README.md` |
+ | `polisyos.data_forge` | `public_experimental` | `lazy_facade` | 49 | `team-data-forge` | `src/polisyos/data_forge/README.md` |
+ | `polisyos.berl` | `public_experimental` | `eager_exports` | 11 | `team-scientist` | `src/polisyos/berl/README.md` |
+-| `polisyos.calibration` | `public_experimental` | `eager_exports` | 29 | `team-scientist` | `src/polisyos/calibration/README.md` |
++| `polisyos.calibration` | `public_experimental` | `eager_exports` | 28 | `team-scientist` | `src/polisyos/calibration/README.md` |
+ | `polisyos.ddm` | `internal` | `lazy_facade` | 17 | `team-scientist` | `src/polisyos/ddm/README.md` |
+ | `polisyos.foundry.agent_sim.world` | `public_experimental` | `eager_exports` | 23 | `team-foundry` | `src/polisyos/foundry/agent_sim/world/README.md` |
+ 
+@@ -2309,7 +2309,7 @@
+ | `polisyos.foundry.api` | `src/polisyos/foundry/api.py` | `eager_exports` | 3 |
+ | `polisyos.foundry.compile` | `src/polisyos/foundry/compile/__init__.py` | `lazy_facade` | 1 |
+ | `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 3 |
+-| `polisyos.foundry.uncertainty` | `src/polisyos/foundry/uncertainty/__init__.py` | `eager_exports` | 20 |
++| `polisyos.foundry.uncertainty` | `src/polisyos/foundry/uncertainty/__init__.py` | `lazy_facade` | 25 |
+ 
+ #### `polisyos.foundry`
+ 
+@@ -2400,12 +2400,14 @@
+ #### `polisyos.foundry.uncertainty`
+ 
+ - Source: `src/polisyos/foundry/uncertainty/__init__.py`
+-- Facade: `eager_exports`
++- Facade: `lazy_facade`
+ - Summary: Expose uncertainty propagation helpers used around Foundry simulation outputs.
+ 
+-<details><summary>Entrypoint exports (20)</summary>
++<details><summary>Entrypoint exports (25)</summary>
+ 
+ ```text
++CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1
++CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1
+ AdaptiveStoppingConfig
+ AggregationStrategy
+ BoundedIndicatorResponse
+@@ -2418,11 +2420,14 @@
+ admit_empirical_weights
+ admit_unit_uniform
+ aggregate_envelopes
++build_covariance_matrix
++calibration_covariance_blocks_agree_v1
+ compute_first_order_indices
+ empirical_cdf
+ extract_std
+ fabric_uncertainty_context_from_decision_data
+ load_foundry_calibration_report
++preserve_singular_covariance
+ reconcile_draw_outcomes
+ sampling_content_digest
+ verify_mean_certificate
+@@ -5368,7 +5373,7 @@
+ 
+ | Entrypoint | Source | Facade | Exports |
+ | --- | --- | --- | ---: |
+-| `polisyos.calibration` | `src/polisyos/calibration/__init__.py` | `eager_exports` | 29 |
++| `polisyos.calibration` | `src/polisyos/calibration/__init__.py` | `eager_exports` | 28 |
+ 
+ #### `polisyos.calibration`
+ 
+@@ -5376,7 +5381,7 @@
+ - Facade: `eager_exports`
+ - Summary: Calibration diagnostics public entrypoints.
+ 
+-<details><summary>Entrypoint exports (29)</summary>
++<details><summary>Entrypoint exports (28)</summary>
+ 
+ ```text
+ PREDICTIVE_AUTHORITY_DENIALS
+@@ -5401,7 +5406,6 @@
+ load_empirical_calibration_evidence
+ load_forecast_calibration_profile
+ load_forecast_candidate_receipt
+-load_foundry_calibration_report
+ persist_continuous_evaluation
+ persist_empirical_calibration_evidence
+ persist_forecast_candidate_receipt
+@@ -5412,7 +5416,7 @@
+ 
+ </details>
+ 
+-<details><summary>Supported exports (29)</summary>
++<details><summary>Supported exports (28)</summary>
+ 
+ ```text
+ PREDICTIVE_AUTHORITY_DENIALS
+@@ -5437,7 +5441,6 @@
+ load_empirical_calibration_evidence
+ load_forecast_calibration_profile
+ load_forecast_candidate_receipt
+-load_foundry_calibration_report
+ persist_continuous_evaluation
+ persist_empirical_calibration_evidence
+ persist_forecast_candidate_receipt
+diff --git a/policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml b/policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml
+--- a/policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml
++++ b/policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml
+@@ -1,13 +1,13 @@
+ id = "2026-10-06-e02-calibration-reader-facade"
+-title = "Expose the canonical Foundry calibration CAS reader through Calibration"
+-type = "added"
++title = "Keep Foundry calibration readback in the admitted Foundry facade"
++type = "fixed"
+ component = "calibration"
+ owner = "team-scientist"
+-summary = "The admitted Foundry uncertainty facade exports load_foundry_calibration_report; Calibration re-exports the same object and the legacy uncertainty Node uses it before dispatch."
++summary = "The legacy uncertainty Node consumes the strict reader directly from the admitted Foundry uncertainty facade. The unreleased Calibration alias is removed to preserve the Calibration import boundary."
+ change_class = "python-public-api"
+ surface_classification = "public_experimental"
+-compatibility = "Additive reader exports in existing Calibration experimental and Foundry uncertainty stable facades; Foundry and Funnel report contracts remain distinct."
+-migration = "Use polisyos.calibration.load_foundry_calibration_report for Foundry report readback."
++compatibility = "The removed experimental alias existed only on the unreleased E topic. The tracked production caller now imports the same canonical reader directly from Foundry uncertainty; the Calibration facade retains its other 28 exports. Foundry and Funnel report contracts remain distinct."
++migration = "For the unreleased alias, use polisyos.foundry.uncertainty.load_foundry_calibration_report; Calibration does not depend on Foundry."
+ limitations = "Content validation does not establish source fit or served evaluator authority."
+ generated_client_compatibility = "not_applicable"
+ public_surface_inventory_reviewed = true
+@@ -18,12 +18,12 @@
+ [[compatibility_change]]
+ id = "calibration-foundry-reader-alias"
+ change_class = "python-public-api"
+-impact = "additive"
++impact = "compatible_with_migration"
+ surface = "public_experimental: polisyos.calibration"
+ owner = "team-scientist"
+ version_owner = "team-architecture"
+ deprecation_window = "not_applicable"
+-release_note = "Calibration re-exports the strict canonical Foundry calibration reader by identity through the admitted Foundry uncertainty facade."
++release_note = "Remove the unreleased Calibration reader alias and consume the identical strict reader directly through Foundry uncertainty."
+ generated_client_compatibility = "not_applicable"
+ public_surface_inventory_reviewed = true
+ migration_docs = ["src/polisyos/calibration/README.md"]
+diff --git a/policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-covariance-facade.toml b/policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-covariance-facade.toml
+new file mode 100644
+--- /dev/null
++++ b/policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-covariance-facade.toml
+@@ -0,0 +1,30 @@
++id = "2026-10-06-e02-welfare-covariance-facade"
++title = "Route Welfare covariance through the admitted Foundry uncertainty facade"
++type = "added"
++component = "foundry-uncertainty"
++owner = "team-polisyos"
++summary = "Welfare consumes five canonical covariance functions and tolerance constants through the existing admitted uncertainty root. Lazy resolution preserves object identity and optional numeric import behavior."
++change_class = "python-public-api"
++surface_classification = "public_stable: polisyos.foundry.uncertainty"
++compatibility = "Five additive canonical exports; covariance math, calibrated projection, persisted artifacts and IR wire semantics remain unchanged. Existing facade import remains available when the optional JAX stack is absent; requesting the numeric exports preserves the real dependency error."
++migration = "Use polisyos.foundry.uncertainty for the existing covariance functions and v1 reconciliation tolerances."
++limitations = "These exports do not establish a production source law, calibrated evaluator authority, Core/IR entrypoint admission or finding closure."
++generated_client_compatibility = "not_applicable"
++public_surface_inventory_reviewed = true
++evidence = ["tests/unit/foundry/uncertainty/test_covariance_facade.py", "tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py", "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"]
++migration_docs = ["src/polisyos/foundry/uncertainty/README.md"]
++runbook_docs = []
++
++[[compatibility_change]]
++id = "foundry-uncertainty-welfare-covariance-facade"
++change_class = "python-public-api"
++impact = "additive"
++surface = "public_stable: polisyos.foundry.uncertainty"
++owner = "team-polisyos"
++version_owner = "team-architecture"
++deprecation_window = "not_applicable"
++release_note = "Expose the existing covariance axis, singular-support and v1 reconciliation objects lazily by identity through Foundry uncertainty."
++generated_client_compatibility = "not_applicable"
++public_surface_inventory_reviewed = true
++migration_docs = ["src/polisyos/foundry/uncertainty/README.md"]
++runbook_docs = []
+diff --git a/policy-engine/src/polisyos/calibration/README.md b/policy-engine/src/polisyos/calibration/README.md
+--- a/policy-engine/src/polisyos/calibration/README.md
++++ b/policy-engine/src/polisyos/calibration/README.md
+@@ -28,10 +28,12 @@
+ 
+ ## Predictive evidence entrypoints
+ 
+-`load_foundry_calibration_report` is the canonical Foundry CAS reader exported
+-under an explicit name. The legacy uncertainty Node consumes this entrypoint
+-to verify report kind, schema, payload and configured companion refs before
+-dispatch. It does not load a FunnelCalibrationReport or grant source/fit authority.
++The legacy uncertainty Node imports `load_foundry_calibration_report` directly
++from `polisyos.foundry.uncertainty`. That canonical Foundry CAS reader verifies
++report kind, schema, payload and configured companion refs before dispatch.
++Calibration does not re-export this reader or depend on Foundry. The unreleased
++E-topic alias was removed; callers of that alias use the Foundry facade directly.
++The reader does not load a FunnelCalibrationReport or grant source/fit authority.
+ 
+ Scientist imports the typed profile, context, candidate references and
+ producer/readback functions from `polisyos.calibration`. These typed exports
+diff --git a/policy-engine/src/polisyos/calibration/__init__.py b/policy-engine/src/polisyos/calibration/__init__.py
+--- a/policy-engine/src/polisyos/calibration/__init__.py
++++ b/policy-engine/src/polisyos/calibration/__init__.py
+@@ -38,7 +38,6 @@
+     compare_calibrators,
+     fit_calibrator,
+ )
+-from polisyos.foundry.uncertainty import load_foundry_calibration_report
+ 
+ __all__ = [
+     "PREDICTIVE_AUTHORITY_DENIALS",
+@@ -63,7 +62,6 @@
+     "load_empirical_calibration_evidence",
+     "load_forecast_calibration_profile",
+     "load_forecast_candidate_receipt",
+-    "load_foundry_calibration_report",
+     "persist_continuous_evaluation",
+     "persist_empirical_calibration_evidence",
+     "persist_forecast_candidate_receipt",
+diff --git a/policy-engine/src/polisyos/foundry/uncertainty/README.md b/policy-engine/src/polisyos/foundry/uncertainty/README.md
+--- a/policy-engine/src/polisyos/foundry/uncertainty/README.md
++++ b/policy-engine/src/polisyos/foundry/uncertainty/README.md
+@@ -55,7 +55,7 @@
+ 
+ - Last updated: 2026-09-28
+ - Files: 13 Python files in this package
+-- Exports: 20 names declared in `__all__`
++- Exports: 25 names declared in `__all__`
+ # Sampling consumer entrypoints
+ 
+ Scientist consumes `BoundedIndicatorResponse`, `reconcile_draw_outcomes`,
+@@ -76,5 +76,15 @@
+ canonicalization cannot silently delete a positive category or covariance.
+ 
+ `load_foundry_calibration_report` exposes the canonical report reader for
+-uncertainty consumers. Calibration re-exports the same object; both entrypoints
+-retain exact Foundry CAS kind/schema/payload validation and grant no fit authority.
++uncertainty consumers. The legacy uncertainty Node imports this entrypoint
++directly. It retains exact Foundry CAS kind/schema/payload validation and grants
++no fit authority; Calibration does not re-export it.
++
++Welfare consumes `build_covariance_matrix`,
++`calibration_covariance_blocks_agree_v1`, `preserve_singular_covariance` and
++the two `CALIBRATION_COVARIANCE_RECONCILIATION_*_V1` tolerances through this
++facade. Lazy resolution preserves the canonical covariance objects without
++adding an eager covariance import; requesting them retains genuine missing
++numeric-dependency errors. Their
++existing covariance axes, calibrated projection and null-space semantics are
++unchanged; these entrypoints grant no source-law or calibration authority.
+diff --git a/policy-engine/src/polisyos/foundry/uncertainty/__init__.py b/policy-engine/src/polisyos/foundry/uncertainty/__init__.py
+--- a/policy-engine/src/polisyos/foundry/uncertainty/__init__.py
++++ b/policy-engine/src/polisyos/foundry/uncertainty/__init__.py
+@@ -1,4 +1,7 @@
+ """Expose uncertainty propagation helpers used around Foundry simulation outputs."""
++
++from importlib import import_module
++from typing import TYPE_CHECKING
+ 
+ from polisyos.ir.analytics import UncertaintyEnvelope
+ 
+@@ -14,6 +17,25 @@
+     reconcile_draw_outcomes,
+     sampling_content_digest,
+     verify_mean_certificate,
++)
++
++if TYPE_CHECKING:
++    from .covariance import (
++        CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
++        CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,
++        build_covariance_matrix,
++        calibration_covariance_blocks_agree_v1,
++        preserve_singular_covariance,
++    )
++
++_COVARIANCE_EXPORTS = frozenset(
++    {
++        "CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1",
++        "CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1",
++        "build_covariance_matrix",
++        "calibration_covariance_blocks_agree_v1",
++        "preserve_singular_covariance",
++    }
+ )
+ 
+ try:  # pragma: no cover - optional numeric stack dependency
+@@ -36,7 +58,18 @@
+     return _extract_std(env)
+ 
+ 
++def __getattr__(name: str) -> object:
++    """Resolve canonical covariance objects only when the numeric API is requested."""
++    if name in _COVARIANCE_EXPORTS:
++        value = getattr(import_module(".covariance", __name__), name)
++        globals()[name] = value
++        return value
++    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
++
++
+ __all__ = [
++    "CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1",
++    "CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1",
+     "AdaptiveStoppingConfig",
+     "AggregationStrategy",
+     "BoundedIndicatorResponse",
+@@ -49,11 +82,14 @@
+     "admit_empirical_weights",
+     "admit_unit_uniform",
+     "aggregate_envelopes",
++    "build_covariance_matrix",
++    "calibration_covariance_blocks_agree_v1",
+     "compute_first_order_indices",
+     "empirical_cdf",
+     "extract_std",
+     "fabric_uncertainty_context_from_decision_data",
+     "load_foundry_calibration_report",
++    "preserve_singular_covariance",
+     "reconcile_draw_outcomes",
+     "sampling_content_digest",
+     "verify_mean_certificate",
+diff --git a/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py b/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py
+--- a/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py
++++ b/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py
+@@ -9,7 +9,6 @@
+ 
+ from pydantic import ValidationError
+ 
+-from polisyos.calibration import load_foundry_calibration_report
+ from polisyos.common.logger import get_logger
+ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+ from polisyos.core.artifacts.store import PutOptions
+@@ -19,6 +18,7 @@
+ from polisyos.core.contracts.foundry import Metrics, SimulationResult, SimulationResultRef
+ from polisyos.foundry.uncertainty import (
+     BoundedIndicatorResponse,
++    load_foundry_calibration_report,
+     reconcile_draw_outcomes,
+     verify_mean_certificate,
+ )
+diff --git a/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py b/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py
+--- a/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py
++++ b/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py
+@@ -31,21 +31,19 @@
+     load_calibration_report,
+ )
+ from polisyos.foundry.uncertainty import (
++    CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
++    CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,
+     admit_empirical_weights,
+     admit_unit_uniform,
++    build_covariance_matrix,
++    calibration_covariance_blocks_agree_v1,
+     empirical_cdf,
++    preserve_singular_covariance,
+     reconcile_draw_outcomes,
+     sampling_content_digest,
+ )
+ from polisyos.foundry.uncertainty import extract_std as _extract_typed_std
+ from polisyos.foundry.uncertainty.config import PropagationConfig
+-from polisyos.foundry.uncertainty.covariance import (
+-    CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
+-    CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,
+-    build_covariance_matrix,
+-    calibration_covariance_blocks_agree_v1,
+-    preserve_singular_covariance,
+-)
+ from polisyos.ir.analytics.dependence_structure import (
+     DependenceStructure,
+     load_dependence_structure,
+diff --git a/policy-engine/tests/unit/calibration/test_evidence_facades.py b/policy-engine/tests/unit/calibration/test_evidence_facades.py
+--- a/policy-engine/tests/unit/calibration/test_evidence_facades.py
++++ b/policy-engine/tests/unit/calibration/test_evidence_facades.py
+@@ -15,17 +15,22 @@
+ 
+ def test_foundry_report_reader_is_canonical_and_refuses_funnel_kind(tmp_path: Path) -> None:
+     owner = importlib.import_module("polisyos.foundry.calibration.report")
+-    assert calibration.load_foundry_calibration_report is owner.load_calibration_report
++    node = importlib.import_module(
++        "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty"
++    )
+     assert uncertainty.load_foundry_calibration_report is owner.load_calibration_report
++    assert node.load_foundry_calibration_report is owner.load_calibration_report
+     assert "load_foundry_calibration_report" in uncertainty.__all__
+-    assert "load_foundry_calibration_report" in calibration.__all__
++    assert "load_foundry_calibration_report" not in calibration.__all__
++    with pytest.raises(AttributeError):
++        _ = calibration.load_foundry_calibration_report
+     store = FileSystemCAS(tmp_path / "foundry-report-cas")
+     wrong = store.put_json(
+         {"report_present": True},
+         PutOptions(kind="funnel.calibration_report", media_type="application/json"),
+     )
+     with pytest.raises(ValueError, match="manifest kind/schema"):
+-        calibration.load_foundry_calibration_report(store, wrong)
++        uncertainty.load_foundry_calibration_report(store, wrong)
+ 
+ 
+ def test_forecast_exports_preserve_canonical_types_and_refuse_authority(tmp_path: Path) -> None:
+diff --git a/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py b/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py
+new file mode 100644
+--- /dev/null
++++ b/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py
+@@ -0,0 +1,130 @@
++"""Covariance consumers use the admitted facade and canonical numeric objects."""
++
++from __future__ import annotations
++
++import importlib
++import json
++import subprocess
++import sys
++from pathlib import Path
++
++import numpy as np
++import pytest
++
++from polisyos.foundry import uncertainty
++from polisyos.ir.analytics.uncertainty import (
++    DistributionFamily,
++    IntervalSemantics,
++    ParametricFitCarrier,
++    UncertaintyEnvelope,
++    UncertaintySource,
++)
++
++_COVARIANCE_NAMES = (
++    "CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1",
++    "CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1",
++    "build_covariance_matrix",
++    "calibration_covariance_blocks_agree_v1",
++    "preserve_singular_covariance",
++)
++
++
++def _normal_env(std: float, row: list[float], order: list[str]) -> UncertaintyEnvelope:
++    return UncertaintyEnvelope(
++        point_estimate=0.0,
++        confidence_interval=(-std, std),
++        confidence_level=None,
++        distribution_family=DistributionFamily.NORMAL,
++        source=UncertaintySource.CALIBRATION,
++        interval_semantics=IntervalSemantics.HEURISTIC_RANGE,
++        is_heuristic_ci=True,
++        gate_eligible=False,
++        distribution_payload=ParametricFitCarrier(
++            family=DistributionFamily.NORMAL, parameters={"mean": 0.0, "std": std}
++        ),
++        metadata={"covariance_row": row, "covariance_params": order},
++    )
++
++
++def test_covariance_facade_preserves_owner_and_actual_welfare_object_identity() -> None:
++    owner = importlib.import_module("polisyos.foundry.uncertainty.covariance")
++    welfare = importlib.import_module(
++        "polisyos.scientist.nodes.builtins.simulate.propagate_welfare"
++    )
++    for name in _COVARIANCE_NAMES:
++        assert name in uncertainty.__all__
++        assert getattr(uncertainty, name) is getattr(owner, name)
++        assert getattr(welfare, name) is getattr(uncertainty, name)
++    with pytest.raises(AttributeError):
++        _ = uncertainty.nonexistent_covariance_authority
++
++
++def test_covariance_facade_reconciles_owned_rows_and_declared_column_axes() -> None:
++    envelopes = {
++        "a": _normal_env(2.0, [1.0, 4.0], ["b", "a"]),
++        "b": _normal_env(3.0, [9.0, 1.0], ["b", "a"]),
++    }
++    result = uncertainty.build_covariance_matrix(
++        ["a", "b"], envelopes, use_full_covariance=True, jitter=0.0, preserve_singular=True
++    )
++    np.testing.assert_array_equal(result, [[4.0, 1.0], [1.0, 9.0]])
++    forged = dict(envelopes)
++    forged["b"] = _normal_env(3.0, [9.0, 1.0], ["a", "b"])
++    with pytest.raises(ValueError, match="common column ordering"):
++        uncertainty.build_covariance_matrix(
++            ["a", "b"], forged, use_full_covariance=True, jitter=0.0, preserve_singular=True
++        )
++
++
++def test_covariance_facade_keeps_tied_nullspace_and_rejects_indefinite_law() -> None:
++    matrix = uncertainty.preserve_singular_covariance([[0.0025, 0.0025], [0.0025, 0.0025]])
++    np.testing.assert_array_equal(matrix @ [1.0, -1.0], [0.0, 0.0])
++    assert float(np.array([1.0, -1.0]) @ matrix @ [1.0, -1.0]) == 0.0
++    assert 0.0025 + 0.0025 == 0.005  # Independent marginals describe a different law.
++    with pytest.raises(ValueError, match="positive semidefinite"):
++        uncertainty.preserve_singular_covariance([[1.0, 1.1], [1.1, 1.0]])
++    assert uncertainty.calibration_covariance_blocks_agree_v1(matrix, matrix)
++    assert not uncertainty.calibration_covariance_blocks_agree_v1(
++        matrix, [[0.0025, 0.00250001], [0.0025, 0.0025]]
++    )
++
++
++def test_actual_welfare_covariance_route_is_a_supported_entrypoint(monkeypatch) -> None:
++    from tools.devx.architecture import guardrails
++
++    welfare = importlib.import_module(
++        "polisyos.scientist.nodes.builtins.simulate.propagate_welfare"
++    )
++    welfare_source = Path(welfare.__file__).resolve()
++    product = welfare_source.parents[6]
++    monkeypatch.setattr(guardrails, "REPO_ROOT", product)
++    monkeypatch.setattr(guardrails, "SRC_ROOT", product / "src")
++    monkeypatch.setattr(guardrails, "_iter_py_files", lambda: [welfare_source])
++    policies = guardrails._parse_public_surface(guardrails.DEFAULT_PUBLIC_MANIFEST)
++    edges = guardrails.collect_deep_import_edges(policies)
++    assert not any(
++        edge.target_module == "polisyos.foundry.uncertainty.covariance" for edge in edges
++    )
++
++
++def test_covariance_facade_preserves_missing_optional_jax_dependency() -> None:
++    command = """
++import importlib.abc, json, sys
++class BlockJax(importlib.abc.MetaPathFinder):
++    def find_spec(self, fullname, path=None, target=None):
++        if fullname == 'jax' or fullname.startswith('jax.'):
++            raise ModuleNotFoundError('fixture blocks optional JAX', name=fullname)
++sys.meta_path.insert(0, BlockJax())
++from polisyos.foundry import uncertainty
++assert uncertainty.PropagationDispatcher is None
++try:
++    uncertainty.preserve_singular_covariance
++except ImportError as error:
++    assert error.name == 'jax' or error.name.startswith('jax.')
++    print(json.dumps({'facade_import': 'PASS', 'numeric_request': 'ImportError'}))
++else:
++    raise AssertionError('missing numeric dependency was hidden')
++"""
++    result = subprocess.run([sys.executable, "-c", command], capture_output=True, text=True)
++    assert result.returncode == 0, result.stderr
++    assert json.loads(result.stdout) == {"facade_import": "PASS", "numeric_request": "ImportError"}

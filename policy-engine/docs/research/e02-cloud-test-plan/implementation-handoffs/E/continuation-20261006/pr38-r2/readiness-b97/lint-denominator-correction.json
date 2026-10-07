@@ -1,0 +1,29 @@
+{
+  "schema": "policyos.e02.harness_count_correction.v1",
+  "preserved_receipt": "repair-packet.json",
+  "correction": "Author inherited211 text from root interimplan; exact2027bcplan and212b97plan nowfullyreconciled. Allchanged.pyinputrows preserved; no suppression/exclusion.",
+  "observed_sources": [
+    {
+      "sha": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+      "changed_python_lint_path_count": 202
+    },
+    {
+      "sha": "b97b9a23c5c6ccc1d69b58d2ed5688f735f80a4d",
+      "changed_python_lint_path_count": 212
+    }
+  ],
+  "ten_added_historical_review_scripts": [
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-independent/review_assembly.py",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/historical-r4/calibration_reader_probe.py",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/independent-r5/edge_identity_review.py",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/independent-r5/publication_review20.py",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/independent-r5/routing_removal_control.py",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/edge_identity_review.py",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/publication_review20.py",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/review_flag_companion.py",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/routing_removal_control.py",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/validate_receipt.py"
+  ],
+  "removal": [],
+  "current_final_freeze_denominator": "Rootmustrecomputeonactualcandidate; metadata publication changes complete inputs. No fullRuffgateexecutedhere."
+}

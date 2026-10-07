@@ -1,0 +1,1413 @@
+{
+  "schema": "e02.E.public_surface_import_owner_packet.v1",
+  "source_scope": {
+    "audit_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "audit_source_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+    "audit_review_sha": "0346fc656a45ff2cd43d37126992d8ddbb739d10",
+    "assembled_source_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+    "publication_companion_sha": "c0f146702219cd3280c3b7d06e9d2bc4c7b95dd6",
+    "publication_companion_tree": "b44e33a60b40f95f8993855aed65254aa25e72b3"
+  },
+  "denominators": {
+    "changed_src_paths": 44,
+    "new_unadmitted_cross_root_module_edges": 12,
+    "audit_expected_edges": 12,
+    "E_changed_path_report_rows": 35,
+    "all_report_rows": 163,
+    "original12_remaining_owner_edges": 9,
+    "original12_resolved_edges": 3,
+    "BKT_separate_new_module_edges": 7,
+    "BKT_separate_pending_owner_edges": 5,
+    "FRC_separate_new_admitted_module_edges": 1,
+    "targeted_current_pending_owner_edges": 14
+  },
+  "ast_exact_audit_match": true,
+  "edge_symbol_owner_matrix": [
+    {
+      "scope": "original audit12",
+      "source_module": "polisyos.calibration.continuous",
+      "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "target_module": "polisyos.core.artifacts",
+      "symbols": [
+        "ArtifactRef",
+        "ArtifactStore",
+        "ArtifactWriteOptions",
+        "SchemaInfo"
+      ],
+      "source_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+      "status": "pending_owner_admission",
+      "owner": "team-polisyos Core public API; team-architecture manifest/inventory review",
+      "actual_import_rows": [
+        {
+          "source_module": "polisyos.calibration.continuous",
+          "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactRef",
+            "ArtifactStore"
+          ],
+          "aliases": {},
+          "type_checking": true,
+          "line": 23
+        },
+        {
+          "source_module": "polisyos.calibration.continuous",
+          "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactWriteOptions",
+            "SchemaInfo"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 265
+        },
+        {
+          "source_module": "polisyos.calibration.continuous",
+          "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactRef"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 306
+        }
+      ],
+      "owner_packet": {
+        "alternatives": [
+          "A admit existing curated core.artifacts/core.canon/core.registry entrypoints (canonical inventory broadening)",
+          "B add exactly nine canonical root aliases; rewire E callers to already-admitted core root"
+        ],
+        "patches": [
+          "patches/core-option-a-existing-entrypoints.patch",
+          "patches/core-option-b-nine-root-exports.patch"
+        ],
+        "minimal_owner_input": "choose A or B and approve stable API names/classification; preserve existing canonical CAS/codec implementations",
+        "next_result": "owner commit with canonical inventory/docs/release review, then E import-only caller delta and architecture check over exact candidate"
+      }
+    },
+    {
+      "scope": "original audit12",
+      "source_module": "polisyos.calibration.continuous",
+      "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "target_module": "polisyos.core.canon",
+      "symbols": [
+        "CanonSpec",
+        "from_canonical_bytes"
+      ],
+      "source_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+      "status": "pending_owner_admission",
+      "owner": "team-polisyos Core public API; team-architecture manifest/inventory review",
+      "actual_import_rows": [
+        {
+          "source_module": "polisyos.calibration.continuous",
+          "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "target_module": "polisyos.core.canon",
+          "symbols": [
+            "CanonSpec"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 266
+        },
+        {
+          "source_module": "polisyos.calibration.continuous",
+          "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "target_module": "polisyos.core.canon",
+          "symbols": [
+            "from_canonical_bytes"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 337
+        }
+      ],
+      "owner_packet": {
+        "alternatives": [
+          "A admit existing curated core.artifacts/core.canon/core.registry entrypoints (canonical inventory broadening)",
+          "B add exactly nine canonical root aliases; rewire E callers to already-admitted core root"
+        ],
+        "patches": [
+          "patches/core-option-a-existing-entrypoints.patch",
+          "patches/core-option-b-nine-root-exports.patch"
+        ],
+        "minimal_owner_input": "choose A or B and approve stable API names/classification; preserve existing canonical CAS/codec implementations",
+        "next_result": "owner commit with canonical inventory/docs/release review, then E import-only caller delta and architecture check over exact candidate"
+      }
+    },
+    {
+      "scope": "original audit12",
+      "source_module": "polisyos.calibration.forecast_bridge",
+      "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "target_module": "polisyos.ir.analytics.forecasting_uncertainty",
+      "symbols": [
+        "load_forecasting_uncertainty_bundle"
+      ],
+      "source_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+      "status": "pending_owner_admission",
+      "owner": "team-polisyos IR public API; team-architecture inventory; designated IR semantic owner remains separate and unratified",
+      "actual_import_rows": [
+        {
+          "source_module": "polisyos.calibration.forecast_bridge",
+          "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+          "target_module": "polisyos.ir.analytics.forecasting_uncertainty",
+          "symbols": [
+            "load_forecasting_uncertainty_bundle"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 995
+        }
+      ],
+      "owner_packet": {
+        "alternatives": [
+          "A add three canonical aliases to already-admitted ir.analytics metadata; generator must actually inventory dynamic __all__",
+          "B add three canonical aliases to ir root literal __all__, rewire E uncertainty/bundle callers to root"
+        ],
+        "patches": [
+          "patches/ir-three-canonical-analytics-exports.patch",
+          "patches/ir-option-b-three-root-exports.patch"
+        ],
+        "minimal_owner_input": "IR library API owner chooses facade and approves three aliases; architecture owner resolves dynamic inventory measurement if A",
+        "next_result": "owner commit with canonical identity tests, real fresh bundle readback, accurately generated inventory/release review; no B201/B202 semantics ratified"
+      }
+    },
+    {
+      "scope": "original audit12",
+      "source_module": "polisyos.foundry.methods.catalog.econometrics.advanced",
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "target_module": "polisyos.core.artifacts",
+      "symbols": [
+        "ArtifactStore",
+        "ArtifactWriteOptions",
+        "SchemaInfo"
+      ],
+      "source_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+      "status": "pending_owner_admission",
+      "owner": "team-polisyos Core public API; team-architecture manifest/inventory review",
+      "actual_import_rows": [
+        {
+          "source_module": "polisyos.foundry.methods.catalog.econometrics.advanced",
+          "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactStore"
+          ],
+          "aliases": {},
+          "type_checking": true,
+          "line": 60
+        },
+        {
+          "source_module": "polisyos.foundry.methods.catalog.econometrics.advanced",
+          "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactWriteOptions",
+            "SchemaInfo"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 1521
+        }
+      ],
+      "owner_packet": {
+        "alternatives": [
+          "A admit existing curated core.artifacts/core.canon/core.registry entrypoints (canonical inventory broadening)",
+          "B add exactly nine canonical root aliases; rewire E callers to already-admitted core root"
+        ],
+        "patches": [
+          "patches/core-option-a-existing-entrypoints.patch",
+          "patches/core-option-b-nine-root-exports.patch"
+        ],
+        "minimal_owner_input": "choose A or B and approve stable API names/classification; preserve existing canonical CAS/codec implementations",
+        "next_result": "owner commit with canonical inventory/docs/release review, then E import-only caller delta and architecture check over exact candidate"
+      }
+    },
+    {
+      "scope": "original audit12",
+      "source_module": "polisyos.foundry.uncertainty.sampling_admission",
+      "source_path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "target_module": "polisyos.ir.analytics.uncertainty",
+      "symbols": [
+        "PosteriorSamplesCarrier"
+      ],
+      "source_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+      "status": "pending_owner_admission",
+      "owner": "team-polisyos IR public API; team-architecture inventory; designated IR semantic owner remains separate and unratified",
+      "actual_import_rows": [
+        {
+          "source_module": "polisyos.foundry.uncertainty.sampling_admission",
+          "source_path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+          "target_module": "polisyos.ir.analytics.uncertainty",
+          "symbols": [
+            "PosteriorSamplesCarrier"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 26
+        }
+      ],
+      "owner_packet": {
+        "alternatives": [
+          "A add three canonical aliases to already-admitted ir.analytics metadata; generator must actually inventory dynamic __all__",
+          "B add three canonical aliases to ir root literal __all__, rewire E uncertainty/bundle callers to root"
+        ],
+        "patches": [
+          "patches/ir-three-canonical-analytics-exports.patch",
+          "patches/ir-option-b-three-root-exports.patch"
+        ],
+        "minimal_owner_input": "IR library API owner chooses facade and approves three aliases; architecture owner resolves dynamic inventory measurement if A",
+        "next_result": "owner commit with canonical identity tests, real fresh bundle readback, accurately generated inventory/release review; no B201/B202 semantics ratified"
+      }
+    },
+    {
+      "scope": "original audit12",
+      "source_module": "polisyos.scientist.methods.autotune.sensitivity_bridge",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "target_module": "polisyos.core.artifacts",
+      "symbols": [
+        "ArtifactStore"
+      ],
+      "source_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+      "status": "pending_owner_admission",
+      "owner": "team-polisyos Core public API; team-architecture manifest/inventory review",
+      "actual_import_rows": [
+        {
+          "source_module": "polisyos.scientist.methods.autotune.sensitivity_bridge",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactStore"
+          ],
+          "aliases": {},
+          "type_checking": true,
+          "line": 10
+        }
+      ],
+      "owner_packet": {
+        "alternatives": [
+          "A admit existing curated core.artifacts/core.canon/core.registry entrypoints (canonical inventory broadening)",
+          "B add exactly nine canonical root aliases; rewire E callers to already-admitted core root"
+        ],
+        "patches": [
+          "patches/core-option-a-existing-entrypoints.patch",
+          "patches/core-option-b-nine-root-exports.patch"
+        ],
+        "minimal_owner_input": "choose A or B and approve stable API names/classification; preserve existing canonical CAS/codec implementations",
+        "next_result": "owner commit with canonical inventory/docs/release review, then E import-only caller delta and architecture check over exact candidate"
+      }
+    },
+    {
+      "scope": "original audit12",
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "target_module": "polisyos.calibration.forecast_bridge",
+      "symbols": [
+        "EmpiricalCalibrationContext",
+        "EmpiricalCalibrationEvidenceRef",
+        "EvidenceArtifactRef",
+        "ForecastCalibrationProfile",
+        "ForecastCandidateReceipt",
+        "ForecastCandidateReceiptRef",
+        "PREDICTIVE_AUTHORITY_DENIALS",
+        "REFERENCE_PROFILES",
+        "load_empirical_calibration_evidence",
+        "load_forecast_calibration_profile",
+        "persist_empirical_calibration_evidence",
+        "persist_forecast_candidate_receipt",
+        "produce_empirical_calibration_evidence"
+      ],
+      "source_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+      "status": "resolved_existing_E_facade",
+      "owner": "E root existing Calibration/uncertainty facade lease",
+      "actual_import_rows": [
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.calibration",
+          "symbols": [
+            "PREDICTIVE_AUTHORITY_DENIALS",
+            "REFERENCE_PROFILES",
+            "EmpiricalCalibrationContext",
+            "EmpiricalCalibrationEvidenceRef",
+            "EvidenceArtifactRef",
+            "ForecastCalibrationProfile",
+            "ForecastCandidateReceipt",
+            "ForecastCandidateReceiptRef",
+            "ForecastMeasurementBinding",
+            "evaluate_continuous",
+            "load_empirical_calibration_evidence",
+            "load_forecast_calibration_profile",
+            "persist_empirical_calibration_evidence",
+            "persist_forecast_candidate_receipt",
+            "produce_empirical_calibration_evidence",
+            "resolve_forecast_measurement_binding"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 21
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.calibration",
+          "symbols": [
+            "load_forecast_candidate_receipt"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 315
+        }
+      ],
+      "owner_packet": null
+    },
+    {
+      "scope": "original audit12",
+      "source_module": "polisyos.scientist.methods.doe._receipt",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "target_module": "polisyos.core.artifacts",
+      "symbols": [
+        "ArtifactRef",
+        "ArtifactStore",
+        "ArtifactWriteOptions",
+        "SchemaInfo"
+      ],
+      "source_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+      "status": "pending_owner_admission",
+      "owner": "team-polisyos Core public API; team-architecture manifest/inventory review",
+      "actual_import_rows": [
+        {
+          "source_module": "polisyos.scientist.methods.doe._receipt",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactRef",
+            "ArtifactStore"
+          ],
+          "aliases": {},
+          "type_checking": true,
+          "line": 14
+        },
+        {
+          "source_module": "polisyos.scientist.methods.doe._receipt",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactWriteOptions",
+            "SchemaInfo"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 45
+        }
+      ],
+      "owner_packet": {
+        "alternatives": [
+          "A admit existing curated core.artifacts/core.canon/core.registry entrypoints (canonical inventory broadening)",
+          "B add exactly nine canonical root aliases; rewire E callers to already-admitted core root"
+        ],
+        "patches": [
+          "patches/core-option-a-existing-entrypoints.patch",
+          "patches/core-option-b-nine-root-exports.patch"
+        ],
+        "minimal_owner_input": "choose A or B and approve stable API names/classification; preserve existing canonical CAS/codec implementations",
+        "next_result": "owner commit with canonical inventory/docs/release review, then E import-only caller delta and architecture check over exact candidate"
+      }
+    },
+    {
+      "scope": "original audit12",
+      "source_module": "polisyos.scientist.methods.doe._receipt",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "target_module": "polisyos.core.canon",
+      "symbols": [
+        "CanonSpec",
+        "from_canonical_bytes"
+      ],
+      "source_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+      "status": "pending_owner_admission",
+      "owner": "team-polisyos Core public API; team-architecture manifest/inventory review",
+      "actual_import_rows": [
+        {
+          "source_module": "polisyos.scientist.methods.doe._receipt",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "target_module": "polisyos.core.canon",
+          "symbols": [
+            "CanonSpec"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 46
+        },
+        {
+          "source_module": "polisyos.scientist.methods.doe._receipt",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "target_module": "polisyos.core.canon",
+          "symbols": [
+            "from_canonical_bytes"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 74
+        }
+      ],
+      "owner_packet": {
+        "alternatives": [
+          "A admit existing curated core.artifacts/core.canon/core.registry entrypoints (canonical inventory broadening)",
+          "B add exactly nine canonical root aliases; rewire E callers to already-admitted core root"
+        ],
+        "patches": [
+          "patches/core-option-a-existing-entrypoints.patch",
+          "patches/core-option-b-nine-root-exports.patch"
+        ],
+        "minimal_owner_input": "choose A or B and approve stable API names/classification; preserve existing canonical CAS/codec implementations",
+        "next_result": "owner commit with canonical inventory/docs/release review, then E import-only caller delta and architecture check over exact candidate"
+      }
+    },
+    {
+      "scope": "original audit12",
+      "source_module": "polisyos.scientist.methods.search.sensitivity_adapter",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "target_module": "polisyos.core.artifacts",
+      "symbols": [
+        "ArtifactRef",
+        "ArtifactStore"
+      ],
+      "source_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+      "status": "pending_owner_admission",
+      "owner": "team-polisyos Core public API; team-architecture manifest/inventory review",
+      "actual_import_rows": [
+        {
+          "source_module": "polisyos.scientist.methods.search.sensitivity_adapter",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactRef",
+            "ArtifactStore"
+          ],
+          "aliases": {},
+          "type_checking": true,
+          "line": 8
+        }
+      ],
+      "owner_packet": {
+        "alternatives": [
+          "A admit existing curated core.artifacts/core.canon/core.registry entrypoints (canonical inventory broadening)",
+          "B add exactly nine canonical root aliases; rewire E callers to already-admitted core root"
+        ],
+        "patches": [
+          "patches/core-option-a-existing-entrypoints.patch",
+          "patches/core-option-b-nine-root-exports.patch"
+        ],
+        "minimal_owner_input": "choose A or B and approve stable API names/classification; preserve existing canonical CAS/codec implementations",
+        "next_result": "owner commit with canonical inventory/docs/release review, then E import-only caller delta and architecture check over exact candidate"
+      }
+    },
+    {
+      "scope": "original audit12",
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "target_module": "polisyos.foundry.uncertainty.sampling_admission",
+      "symbols": [
+        "BoundedIndicatorResponse",
+        "reconcile_draw_outcomes",
+        "verify_mean_certificate"
+      ],
+      "source_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+      "status": "resolved_existing_E_facade",
+      "owner": "E root existing Calibration/uncertainty facade lease",
+      "actual_import_rows": [
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.foundry.uncertainty",
+          "symbols": [
+            "BoundedIndicatorResponse",
+            "reconcile_draw_outcomes",
+            "verify_mean_certificate"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 20
+        }
+      ],
+      "owner_packet": null
+    },
+    {
+      "scope": "original audit12",
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "target_module": "polisyos.foundry.uncertainty.sampling_admission",
+      "symbols": [
+        "reconcile_draw_outcomes",
+        "sampling_content_digest"
+      ],
+      "source_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+      "status": "resolved_existing_E_facade",
+      "owner": "E root existing Calibration/uncertainty facade lease",
+      "actual_import_rows": [
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.foundry.uncertainty",
+          "symbols": [
+            "extract_std"
+          ],
+          "aliases": {
+            "extract_std": "_extract_typed_std"
+          },
+          "type_checking": false,
+          "line": 33
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.foundry.uncertainty",
+          "symbols": [
+            "reconcile_draw_outcomes",
+            "sampling_content_digest"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 34
+        }
+      ],
+      "owner_packet": null
+    },
+    {
+      "scope": "BKT separate family delta",
+      "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "target_module": "polisyos.core.artifacts",
+      "symbols": [
+        "ArtifactRef",
+        "ArtifactStore",
+        "PutOptions",
+        "SchemaInfo",
+        "input_ref_from_artifact_ref"
+      ],
+      "source_sha": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+      "comparison_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+      "status": "pending_owner_admission",
+      "owner": "team-polisyos Core public API; team-architecture manifest/inventory review",
+      "actual_import_rows": [
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactRef",
+            "PutOptions",
+            "SchemaInfo",
+            "input_ref_from_artifact_ref"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 17,
+          "new_vs_current_module_edge": true,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactStore"
+          ],
+          "aliases": {},
+          "type_checking": true,
+          "line": 43,
+          "new_vs_current_module_edge": true,
+          "admitted_by_frozen_contract": false
+        }
+      ],
+      "owner_packet": {
+        "alternatives": [
+          "A admit existing curated core.artifacts/core.canon/core.registry entrypoints (canonical inventory broadening)",
+          "B add exactly nine canonical root aliases; rewire E callers to already-admitted core root"
+        ],
+        "patches": [
+          "patches/core-option-a-existing-entrypoints.patch",
+          "patches/core-option-b-nine-root-exports.patch"
+        ],
+        "minimal_owner_input": "choose A or B and approve stable API names/classification; preserve existing canonical CAS/codec implementations",
+        "next_result": "owner commit with canonical inventory/docs/release review, then E import-only caller delta and architecture check over exact candidate"
+      }
+    },
+    {
+      "scope": "BKT separate family delta",
+      "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "target_module": "polisyos.core.canon",
+      "symbols": [
+        "CanonSpec",
+        "from_canonical_bytes"
+      ],
+      "source_sha": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+      "comparison_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+      "status": "pending_owner_admission",
+      "owner": "team-polisyos Core public API; team-architecture manifest/inventory review",
+      "actual_import_rows": [
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "target_module": "polisyos.core.canon",
+          "symbols": [
+            "CanonSpec",
+            "from_canonical_bytes"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 18,
+          "new_vs_current_module_edge": true,
+          "admitted_by_frozen_contract": false
+        }
+      ],
+      "owner_packet": {
+        "alternatives": [
+          "A admit existing curated core.artifacts/core.canon/core.registry entrypoints (canonical inventory broadening)",
+          "B add exactly nine canonical root aliases; rewire E callers to already-admitted core root"
+        ],
+        "patches": [
+          "patches/core-option-a-existing-entrypoints.patch",
+          "patches/core-option-b-nine-root-exports.patch"
+        ],
+        "minimal_owner_input": "choose A or B and approve stable API names/classification; preserve existing canonical CAS/codec implementations",
+        "next_result": "owner commit with canonical inventory/docs/release review, then E import-only caller delta and architecture check over exact candidate"
+      }
+    },
+    {
+      "scope": "BKT separate family delta",
+      "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "target_module": "polisyos.core.contracts",
+      "symbols": [
+        "DataSnapshot",
+        "DerivedArtifact",
+        "ExecPlan",
+        "ExecuteRequest",
+        "ExecuteResult",
+        "FoundryExecConfig",
+        "FoundryInputBindingRule",
+        "FoundryInputBindings",
+        "FoundryInputBindingsRef",
+        "LoweredIR",
+        "ProgramGraph",
+        "SimulationResult",
+        "StateSnapshotRef"
+      ],
+      "source_sha": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+      "comparison_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+      "status": "existing_admitted_entrypoint",
+      "owner": "existing package public contract owner",
+      "actual_import_rows": [
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "target_module": "polisyos.core.contracts",
+          "symbols": [
+            "DataSnapshot",
+            "DerivedArtifact",
+            "ExecPlan",
+            "ExecuteRequest",
+            "ExecuteResult",
+            "FoundryExecConfig",
+            "FoundryInputBindingRule",
+            "FoundryInputBindings",
+            "FoundryInputBindingsRef",
+            "LoweredIR",
+            "ProgramGraph",
+            "SimulationResult",
+            "StateSnapshotRef"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 19,
+          "new_vs_current_module_edge": true,
+          "admitted_by_frozen_contract": true
+        }
+      ],
+      "owner_packet": null
+    },
+    {
+      "scope": "BKT separate family delta",
+      "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "target_module": "polisyos.core.registry",
+      "symbols": [
+        "load_registry_bundle_content"
+      ],
+      "source_sha": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+      "comparison_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+      "status": "pending_owner_admission",
+      "owner": "team-polisyos Core public API; team-architecture manifest/inventory review",
+      "actual_import_rows": [
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "target_module": "polisyos.core.registry",
+          "symbols": [
+            "load_registry_bundle_content"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 34,
+          "new_vs_current_module_edge": true,
+          "admitted_by_frozen_contract": false
+        }
+      ],
+      "owner_packet": {
+        "alternatives": [
+          "A admit existing curated core.artifacts/core.canon/core.registry entrypoints (canonical inventory broadening)",
+          "B add exactly nine canonical root aliases; rewire E callers to already-admitted core root"
+        ],
+        "patches": [
+          "patches/core-option-a-existing-entrypoints.patch",
+          "patches/core-option-b-nine-root-exports.patch"
+        ],
+        "minimal_owner_input": "choose A or B and approve stable API names/classification; preserve existing canonical CAS/codec implementations",
+        "next_result": "owner commit with canonical inventory/docs/release review, then E import-only caller delta and architecture check over exact candidate"
+      }
+    },
+    {
+      "scope": "BKT separate family delta",
+      "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "target_module": "polisyos.foundry.execute.executor",
+      "symbols": [
+        "get_state_path",
+        "load_state_snapshot",
+        "put_state_snapshot"
+      ],
+      "source_sha": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+      "comparison_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+      "status": "pending_owner_admission",
+      "owner": "Foundry execution/input-binding canonical writer; team-polisyos/architecture public API review",
+      "actual_import_rows": [
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "target_module": "polisyos.foundry.execute.executor",
+          "symbols": [
+            "get_state_path",
+            "load_state_snapshot",
+            "put_state_snapshot"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 35,
+          "new_vs_current_module_edge": true,
+          "admitted_by_frozen_contract": false
+        }
+      ],
+      "owner_packet": {
+        "alternatives": [
+          "Narrow three canonical snapshot/path helper exports from existing admitted foundry.execute facade"
+        ],
+        "patches": [
+          "patches/foundry-execute-three-canonical-snapshot-exports.patch"
+        ],
+        "minimal_owner_input": "Foundry execution owner approves existing helper API stability; architecture/public-surface review",
+        "next_result": "owner commit + canonical fresh snapshot readback and removal control, E native_replay import-only rewire to execute root"
+      }
+    },
+    {
+      "scope": "BKT separate family delta",
+      "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "target_module": "polisyos.ir",
+      "symbols": [
+        "TrinityBundle"
+      ],
+      "source_sha": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+      "comparison_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+      "status": "existing_admitted_entrypoint",
+      "owner": "existing package public contract owner",
+      "actual_import_rows": [
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "target_module": "polisyos.ir",
+          "symbols": [
+            "TrinityBundle"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 40,
+          "new_vs_current_module_edge": true,
+          "admitted_by_frozen_contract": true
+        }
+      ],
+      "owner_packet": null
+    },
+    {
+      "scope": "BKT separate family delta",
+      "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "target_module": "polisyos.core.artifacts",
+      "symbols": [
+        "ArtifactRef"
+      ],
+      "source_sha": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+      "comparison_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+      "status": "pending_owner_admission",
+      "owner": "team-polisyos Core public API; team-architecture manifest/inventory review",
+      "actual_import_rows": [
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactRef"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 605,
+          "new_vs_current_module_edge": true,
+          "admitted_by_frozen_contract": false
+        }
+      ],
+      "owner_packet": {
+        "alternatives": [
+          "A admit existing curated core.artifacts/core.canon/core.registry entrypoints (canonical inventory broadening)",
+          "B add exactly nine canonical root aliases; rewire E callers to already-admitted core root"
+        ],
+        "patches": [
+          "patches/core-option-a-existing-entrypoints.patch",
+          "patches/core-option-b-nine-root-exports.patch"
+        ],
+        "minimal_owner_input": "choose A or B and approve stable API names/classification; preserve existing canonical CAS/codec implementations",
+        "next_result": "owner commit with canonical inventory/docs/release review, then E import-only caller delta and architecture check over exact candidate"
+      }
+    },
+    {
+      "scope": "FRC separate family delta",
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "target_module": "polisyos.fabric",
+      "symbols": [
+        "DataSchema"
+      ],
+      "source_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "comparison_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+      "status": "existing_admitted_entrypoint",
+      "owner": "existing package public contract owner",
+      "actual_import_rows": [
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.fabric",
+          "symbols": [
+            "DataSchema"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 41,
+          "new_vs_current_module_edge": true,
+          "admitted_by_frozen_contract": true
+        }
+      ],
+      "owner_packet": null
+    }
+  ],
+  "publication_companion": {
+    "review_role": "independent E-only publication companion reviewer",
+    "base_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+    "candidate_sha": "c0f146702219cd3280c3b7d06e9d2bc4c7b95dd6",
+    "candidate_tree": "b44e33a60b40f95f8993855aed65254aa25e72b3",
+    "verdict": "GO",
+    "bounded_claim": "canonical inventory/docs/readme agree with exact existing two owned facades; no global architecture gate or finding closure inferred",
+    "changed_paths": [
+      "policy-engine/architecture/public_surface/inventory.json",
+      "policy-engine/docs/reference/public-surface.md",
+      "policy-engine/src/polisyos/foundry/uncertainty/README.md"
+    ],
+    "canonical_sync": {
+      "phase": "current-final",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "tools/devx/architecture/guardrails.py",
+        "sync",
+        "--skip-deep-import-baseline",
+        "--public-json",
+        "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/generated-current-final/inventory.json",
+        "--public-md",
+        "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/generated-current-final/public-surface.md",
+        "--generated-md",
+        "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/generated-current-final/generated-artifacts.md"
+      ],
+      "cwd": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current/policy-engine",
+      "UV_NO_SYNC": "1",
+      "exit_code": 0,
+      "wall_seconds": 16.921982288360596,
+      "fixture_is_git_candidate": false,
+      "no_full_global_guard": true,
+      "input_paths": {
+        "src/polisyos/calibration/__init__.py": {
+          "sha256": "42d6b4c46672c228d067b14a03f79db2b702d0325558d4cd89b615d7c025bbfc",
+          "bytes": 2217
+        },
+        "src/polisyos/calibration/forecast_bridge.py": {
+          "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+          "bytes": 81721
+        },
+        "src/polisyos/scientist/methods/backtesting/forecast_owner.py": {
+          "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+          "bytes": 59611
+        },
+        "src/polisyos/foundry/uncertainty/__init__.py": {
+          "sha256": "f555f6960f0fdb140ca4d393004dc358dcd82066297f16561160cc4875802d8d",
+          "bytes": 1895
+        },
+        "tools/devx/architecture/guardrails.py": {
+          "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+          "bytes": 103077
+        },
+        "architecture/public_surface/contract.toml": {
+          "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+          "bytes": 19715
+        }
+      }
+    },
+    "public_surface": {
+      "polisyos.calibration": {
+        "count": 28,
+        "mode": "eager_exports",
+        "source_path": "policy-engine/src/polisyos/calibration/__init__.py",
+        "source_sha256": "42d6b4c46672c228d067b14a03f79db2b702d0325558d4cd89b615d7c025bbfc"
+      },
+      "polisyos.foundry.uncertainty": {
+        "count": 16,
+        "mode": "eager_exports",
+        "source_path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+        "source_sha256": "f555f6960f0fdb140ca4d393004dc358dcd82066297f16561160cc4875802d8d"
+      }
+    },
+    "artifact_bytes": {
+      "policy-engine/architecture/public_surface/inventory.json": {
+        "sha256": "59e0950bbd7d8cf79e127bcee6494b1e00c3f4233c4829f74594ae0cb90009ee",
+        "bytes": 222451
+      },
+      "policy-engine/docs/reference/public-surface.md": {
+        "sha256": "f71a95386dc413204a517c7e1089af9ae6b9988f79eb4040afb1516488bee328",
+        "bytes": 153898
+      },
+      "policy-engine/src/polisyos/foundry/uncertainty/README.md": {
+        "sha256": "eedc321d5fbd86e11c835ad584895fccc1caccd52cb95a6694fbf0a0b01b7158",
+        "bytes": 3788
+      }
+    },
+    "unrelated_inventory_delta": false,
+    "negative_controls": [
+      {
+        "label": "historical-count-markers-retained",
+        "outcome": "REJECTED",
+        "reason": "('polisyos.calibration', 'count')"
+      },
+      {
+        "label": "removed-export-count-marker-retained",
+        "outcome": "REJECTED",
+        "reason": "('polisyos.foundry.uncertainty', 'names')"
+      },
+      {
+        "label": "mode-marker-forged",
+        "outcome": "REJECTED",
+        "reason": "('polisyos.foundry.uncertainty', 'mode')"
+      },
+      {
+        "label": "old-README-current-inventory",
+        "outcome": "REJECTED",
+        "reason": "README count"
+      },
+      {
+        "label": "exact-base-snapshot-divergence",
+        "outcome": "REJECTED",
+        "reason": "('polisyos.calibration', 'names')"
+      }
+    ],
+    "source_authority": "not_claimed",
+    "institutional_or_IR_semantic_authority": "not_claimed",
+    "required_owner_packets": "Core/IR/Foundry execute admissions remain not_ratified; proposed patches were exercised only in private fixture",
+    "P41_global_red": "not_established; this review measures canonical inventory delta only"
+  },
+  "owner_preview_native": {
+    "receipt": "native-execution.json",
+    "positive_properties": 9,
+    "removal_controls": 2,
+    "negative_exits_expected": 1,
+    "owner_admission": "not_ratified",
+    "production_source_or_joint_v2_authority": "not_claimed",
+    "property_inputs": "script(api_probe.py) declares CAS payload, three-agent income [2,5,11], step7, tax.25, v1 forecast point6 interval[4,8], target fixture-income/horizon1/gatefalse"
+  },
+  "dynamic_IR_inventory_measurement": {
+    "observed_canonical_inventory_export_count": 0,
+    "actual_native_existing_IR_analytics_is_nonempty": true,
+    "missing_measurement_reason": "canonical _extract_exports does not resolve __all__=sorted(ANALYTICS_FACADE_EXPORTS)",
+    "owner": "team-architecture canonical generator + IR public API",
+    "next_result": "choose narrow root literal export alternative or implement legitimate canonical metadata extraction/tests before claiming analytics export inventory coverage"
+  },
+  "IR_root_alternative_footprint_note": "Contains three aliases plus isort ordering of four existing causal names, required by current RUF022; no old symbols removed. This optional shared owner patch was not applied to E checkout.",
+  "review_reuse": {
+    "independent_existing_E_facade_behavior_review": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/review.json",
+    "source_sha": "14d6dd4c4f8e61857bc2216a270090aafb0cd72e",
+    "measured_properties": 17,
+    "scope": "unchanged canonical facade/caller identity and real configured CAS/refusal properties only; family numerical changes need their independent reviews, no old global PASS inherited"
+  },
+  "finding_closure": "No ledger status changed; B198 remains closed regression; B194/B197/B201/B202 held unless accountable owner separately accepts required inputs/semantics. Import/library consistency does not establish producer/evaluator/source-law/institutional authority.",
+  "P37_basis": "exact declared canonical export identity + recomputed literal inventory, persisted typed ref and fresh native read; no authority inferred from marker/count presence",
+  "P41_global_red": "not_established: no full global command replay or whole input denominator measured here; audit35 E changed-path rows and163 all rows do not equal12 AST module edges",
+  "global_stage": "UNRUN by this helper; root owns final architecture/numeric/gate wave",
+  "artifact_refs": [
+    {
+      "path": "README.md",
+      "sha256": "48ee1a59baaba98b3756831ffcb7fea35347e653392227822f12d92bbf430603",
+      "bytes": 5701
+    },
+    {
+      "path": "admission-costs.json",
+      "sha256": "8b251c2f240698cf45717809ba5987d67b250a90da41656e11a40f1d618f63e9",
+      "bytes": 482
+    },
+    {
+      "path": "after-owner-patch-positive-module-origins.json",
+      "sha256": "14231bac04cf13b37b56b553a72dd37edce9974725b1cbde7f5465ef5ca33e06",
+      "bytes": 162793
+    },
+    {
+      "path": "api-before-v2.stdout",
+      "sha256": "020de107a2484a1917fb2928faeb2ad1fadf0c5985465493b766084f96e85951",
+      "bytes": 4838
+    },
+    {
+      "path": "api-before-v3.stdout",
+      "sha256": "64adee9039f8d3b125685173ba90c16295387f0ad94883bc42bb088623771b04",
+      "bytes": 4978
+    },
+    {
+      "path": "api-before.stdout",
+      "sha256": "87589afe141c5d67d0f11e3a72b8e16f159cb98cd4a6cfa20dd5214a644a85c9",
+      "bytes": 2637
+    },
+    {
+      "path": "api-owner-preview-v4.stdout",
+      "sha256": "35c24d2ec3946963c92a8416625cbd5d20740e800b731c822eb78e531327f800",
+      "bytes": 6564
+    },
+    {
+      "path": "api-owner-preview.stdout",
+      "sha256": "4aaa0bae35f5c5632d654814982aee919f7454e024adb6f821fcaff44bde0a95",
+      "bytes": 630
+    },
+    {
+      "path": "api_probe.py",
+      "sha256": "88ab62dc941e4e55b1b5213e0169941d1b061fcf3cbb701c3523ba825b0b442b",
+      "bytes": 9925
+    },
+    {
+      "path": "api_probe_v1.py.txt",
+      "sha256": "b54a6c5be0275e8240141f8a399e452f820a9850e2573924588a3af6436b3726",
+      "bytes": 8477
+    },
+    {
+      "path": "api_probe_v2.py.txt",
+      "sha256": "083c9e26e44298c5d447bb7e05b8bb32fe95304b6e07b3933493385ae7c0c3d6",
+      "bytes": 8483
+    },
+    {
+      "path": "api_probe_v3.py.txt",
+      "sha256": "e2cd70fcda55a76daec764dcd7827a307eacc6d9faa134b3515cc2fb1d15ad09",
+      "bytes": 8482
+    },
+    {
+      "path": "api_probe_v4.py.txt",
+      "sha256": "9b55a62d449a7e5a8d52db7dd46d35396f47dd26a087125a475762722c11c025",
+      "bytes": 8567
+    },
+    {
+      "path": "build-inputs-provisional.json",
+      "sha256": "1b8fc88c0b61010873837f0113e5f6edd37e66859d90c428d862296fba3a1de2",
+      "bytes": 4799
+    },
+    {
+      "path": "build-inputs.json",
+      "sha256": "3a09b6b454632e3589256581a0934ee436e634abba395c4499386cf624fc8c8e",
+      "bytes": 5149
+    },
+    {
+      "path": "build_packet.py",
+      "sha256": "5da18423eb03f3fb6a3e1103ac3c846912e3e9fd3a0a8050f5260b83eed0f155",
+      "bytes": 4845
+    },
+    {
+      "path": "core-option-b-v1.patch.txt",
+      "sha256": "b51756e3049561daa6bb972299cecc362957135dd678cc8fd92ba4eb08fac3d2",
+      "bytes": 1790
+    },
+    {
+      "path": "edge-reconciliation-3105.json",
+      "sha256": "82af73ae34812d46b222c6a2f2e205cdf141c83202d84633ef027fb5c45a1f59",
+      "bytes": 53074
+    },
+    {
+      "path": "edge-reconciliation.json",
+      "sha256": "3d313c04856b3f0bb1ba757afdb507973c76066839cf00d8ef548de6f131c5bc",
+      "bytes": 53785
+    },
+    {
+      "path": "edge_probe.py",
+      "sha256": "41120934f8e4b7045c49ae7fec749650d2d6dbc7c6a888d565ad8e53df8544f9",
+      "bytes": 6799
+    },
+    {
+      "path": "edge_probe_3105.py.txt",
+      "sha256": "b5ae39b5d2253f77d9cfaa5eb9fdd2ff5cdc019ae4bbf48f0ab1865c46aff69d",
+      "bytes": 6714
+    },
+    {
+      "path": "final-patch-applicability.json",
+      "sha256": "d1e290a91c53f664454819988e3f7cb29786f87a921786c9e408845f699fcfd8",
+      "bytes": 3950
+    },
+    {
+      "path": "finalize_packet.py",
+      "sha256": "b358236e7e783db0c2bbdf8d7ab9248b06d2beb14526f7cabb0c7c28b4b6b204",
+      "bytes": 8993
+    },
+    {
+      "path": "fixture-owner-patch-application.json",
+      "sha256": "3ac8dba8426d712373de5c820a4303c046bc2adc401e61c594c2703eb6076acb",
+      "bytes": 544
+    },
+    {
+      "path": "future-fixture-inputs.json",
+      "sha256": "9390e8ebb55ccbec5aa65dd15d84aa064ddd53d03cc27034106566123278acab",
+      "bytes": 1639
+    },
+    {
+      "path": "generated-current-final/execution.json",
+      "sha256": "5d1a15b2adfc0b2a813695ea09799d0a16ade91e7b2e929d05ada60ecf881ddf",
+      "bytes": 1857
+    },
+    {
+      "path": "generated-current-final/sync.stdout",
+      "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8",
+      "bytes": 44
+    },
+    {
+      "path": "generated-current-replay/execution.json",
+      "sha256": "1b15ff9c1fdc8981d54bfb17af85554b83e6c289bcf9bea59a5773e536d75f46",
+      "bytes": 1860
+    },
+    {
+      "path": "generated-current-replay/sync.stdout",
+      "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8",
+      "bytes": 44
+    },
+    {
+      "path": "generated-future-28/execution.json",
+      "sha256": "051595c9c66ff509ddbeb3d7f953cfa46e4063192db958a9f599b0ed4c537d65",
+      "bytes": 1840
+    },
+    {
+      "path": "generated-future-28/sync.stdout",
+      "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8",
+      "bytes": 44
+    },
+    {
+      "path": "generated-owner-library-preview/execution.json",
+      "sha256": "8a78edf63cc65bd2c6bd4c09c904840a0915a936fef1e4aeb0fec006b4c858da",
+      "bytes": 1889
+    },
+    {
+      "path": "generated-owner-library-preview/sync.stdout",
+      "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8",
+      "bytes": 44
+    },
+    {
+      "path": "generated-owner-root-alternative-preview/execution.json",
+      "sha256": "7da2a29c03e6393552ad305e02d929d11dd077e6a7432fc7161aa6587e6b630f",
+      "bytes": 1925
+    },
+    {
+      "path": "generated-owner-root-alternative-preview/sync.stdout",
+      "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8",
+      "bytes": 44
+    },
+    {
+      "path": "ir-root-alternative-api.stdout",
+      "sha256": "69d7ed89f277c0cecd4ee5fdf0dfe2df16b619cf7c316351ddcc9f82ed37b555",
+      "bytes": 120
+    },
+    {
+      "path": "ir-root-alternative-format.stdout",
+      "sha256": "413a709001976657cb743636fd34e48fc41d8d302d665460d3f874b3313da127",
+      "bytes": 19
+    },
+    {
+      "path": "ir-root-alternative-sort.stdout",
+      "sha256": "aac3a0503d8b95052cc85fb9f1717dc82b74aa55853a5aa9749b41e30275d472",
+      "bytes": 38
+    },
+    {
+      "path": "native-execution.json",
+      "sha256": "124c2279ae4127d30a9251c4eece13f9460a47d6880bcd0d63015003e5272169",
+      "bytes": 5065
+    },
+    {
+      "path": "owned-companion-review.json",
+      "sha256": "5aec8c85f693db1ffd0ff5efbda0342437e85ada38e9c9c53b46b08ae47749f4",
+      "bytes": 4808
+    },
+    {
+      "path": "owned-companion-review.stdout",
+      "sha256": "e31c186fee5bf05b3a67862e9695076c7a1b778242c9b6ad02e9fba433a50bb1",
+      "bytes": 1402
+    },
+    {
+      "path": "owner-final-forecast-noop.stdout",
+      "sha256": "a2089e8fd91b82fecc67a9150759783a94a9b52937a8c694c3106a1c8143d116",
+      "bytes": 498
+    },
+    {
+      "path": "owner-final-positive.stdout",
+      "sha256": "0740b1c0ad5a57685d262028be4a5eede35ef5197c2024dd70f2348f4c7320e1",
+      "bytes": 7305
+    },
+    {
+      "path": "owner-final-snapshot-noop.stdout",
+      "sha256": "2358bdef6eee5e891b108c7c46b6b64b8245b1d42700d62af8ebe84dc7236dd1",
+      "bytes": 498
+    },
+    {
+      "path": "owner-preview-all-sort.stdout",
+      "sha256": "aac3a0503d8b95052cc85fb9f1717dc82b74aa55853a5aa9749b41e30275d472",
+      "bytes": 38
+    },
+    {
+      "path": "owner-preview-format-check.stdout",
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+      "bytes": 26
+    },
+    {
+      "path": "owner-preview-format.stdout",
+      "sha256": "878d50bf4ab752ab41ae942ac518b87e744d994b21bb15dca142ed7a470b3b3a",
+      "bytes": 20
+    },
+    {
+      "path": "owner-preview-repo-format.stdout",
+      "sha256": "44b7183e1f210a4817679f52d6f965f5de6331fb1c9174e863b4b0fc479a3e24",
+      "bytes": 43
+    },
+    {
+      "path": "owner-preview-ruff-v2.stdout",
+      "sha256": "a25b8ddc4c2807111b07db48492a59e869232116369f7613ecb6ac6de1f7f04f",
+      "bytes": 1044
+    },
+    {
+      "path": "owner-preview-ruff.stdout",
+      "sha256": "567e03e21da514b70573fb2066ec8c8d7de31625ccb71545b9e53302098b2deb",
+      "bytes": 6289
+    },
+    {
+      "path": "patch-applicability.json",
+      "sha256": "d9ade2341c7ff606600a533b2007bd837c9c2487a11fb6b15e854639fb1817a6",
+      "bytes": 1801
+    },
+    {
+      "path": "patches/core-option-a-existing-entrypoints.patch",
+      "sha256": "8dc71c5130e7b19e93110bb0febda56f588b215787c5eee1ceb3c2e5990928a9",
+      "bytes": 395
+    },
+    {
+      "path": "patches/core-option-b-nine-root-exports.patch",
+      "sha256": "64788279b94c0d1d255bdc99abd5b4dfff07601a7a9c64b89b5ce3770fc9facd",
+      "bytes": 2843
+    },
+    {
+      "path": "patches/foundry-execute-three-canonical-snapshot-exports.patch",
+      "sha256": "4b2cae862fa8cc17dad1aa2e828edc6a78d4f5701595e220a5fa168f6cc1479f",
+      "bytes": 1248
+    },
+    {
+      "path": "patches/ir-option-b-three-root-exports.patch",
+      "sha256": "0a82f911de74801c7232f56f83de9b07e260ca12d8d6dbdbe19666339cd09293",
+      "bytes": 2120
+    },
+    {
+      "path": "patches/ir-three-canonical-analytics-exports.patch",
+      "sha256": "4cdf289b7d52037e4add3dfa8fec93a673b99a626186956784b96e40df139544",
+      "bytes": 777
+    },
+    {
+      "path": "patches/owned-generator-generated-artifacts.md.patch",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "patches/owned-generator-inventory.json.patch",
+      "sha256": "cdbd536b9608f5a627a78763973603fa218b8f14f6d49f37bced6dad25f20f4d",
+      "bytes": 3759
+    },
+    {
+      "path": "patches/owned-generator-public-surface.md.patch",
+      "sha256": "d1db40b15d2786ef14dbd3fe57be14dfcb912380d9923857fb66414faee3b574",
+      "bytes": 4391
+    },
+    {
+      "path": "patches/owned-uncertainty-readme-count.patch",
+      "sha256": "5cd76644e33ebff42ac042466d1e232854176b899a51d8e0fcf15166a261bc90",
+      "bytes": 412
+    },
+    {
+      "path": "prepare_future_fixture.py",
+      "sha256": "def544aeb011eb1c7c79bb65a1de27229409280f2cb83ad7d353a51216721abd",
+      "bytes": 1355
+    },
+    {
+      "path": "review_owned_companion.py",
+      "sha256": "494b85ae44685499c7398b956c42137eda281286c915265a5ef88663c5da8ee5",
+      "bytes": 5296
+    },
+    {
+      "path": "run_generator.py",
+      "sha256": "68702d274a7b4f0f4a83b9f48fef6e68fdda1e7779cf0aab4a12ce22ae46a06b",
+      "bytes": 1490
+    },
+    {
+      "path": "run_native.py",
+      "sha256": "8c25ae6a1582b6b5bff33a866e83d613cc19517001f516b180a397dfa1d539ee",
+      "bytes": 2300
+    },
+    {
+      "path": "source-fixture-identity.json",
+      "sha256": "048838a7f149d372ebe9d3ca4818a7937fe096a5407fa17b3d92b75873c11547",
+      "bytes": 1077
+    },
+    {
+      "path": "source_fixture_identity.py",
+      "sha256": "3793e80cae4af0c3a1756760d69b0b00c88f0f1b768234f3686e228cac8fd5db",
+      "bytes": 2307
+    },
+    {
+      "path": "validate_packet.py",
+      "sha256": "b3a630a964b40c699351aee39a5e8655a16b9c51b5f8ea66dbeaf5293c1487d0",
+      "bytes": 3389
+    }
+  ],
+  "cleanup": {
+    "native_Trash_available": false,
+    "action": "list only; no permanent deletion",
+    "candidates": [
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/fixture-current",
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/cas-before",
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/cas-before-v2",
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/cas-before-v3",
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/cas-owner-final-forecast-noop",
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/cas-owner-final-positive",
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/cas-owner-final-snapshot-noop",
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/cas-owner-preview",
+      "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/cas-owner-preview-v4"
+    ],
+    "retain": "code, owner patches, unique CAS inputs/refs, deciding outputs, scripts, publication receipts; cleanup only after receipts and no active users"
+  }
+}

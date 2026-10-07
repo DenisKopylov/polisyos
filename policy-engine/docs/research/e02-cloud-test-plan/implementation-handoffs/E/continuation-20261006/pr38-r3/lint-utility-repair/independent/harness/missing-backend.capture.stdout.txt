@@ -1,0 +1,1 @@
+{"command": ["/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/deliberately-missing-executable"], "exit_code": 127, "outcome": "UNRUN", "counts": null, "wall_seconds": 4.49756646156311, "source_immutable": true}

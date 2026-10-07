@@ -1,0 +1,65 @@
+{
+  "schema": "policyos.e02.E.scoped_semantic_decision_review_publication.v1",
+  "decision_commit": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "review_source": "c4b2ccfb1f8716680f0b431ab4c5757dcc75343f",
+  "assets": [
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/semantic-decision-independent-review.json",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/independent-decision-review/semantic-decision-independent-review.json",
+      "bytes": 9673,
+      "sha256": "72ad7e04d2eed04870e13ce043cc3dee4aa5050d85ae599c399a1b4f39fb40a6"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/source-consumer-census.json",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/independent-decision-review/source-consumer-census.json",
+      "bytes": 183283,
+      "sha256": "4c4486187ed0b83dcf741d8f7e225166028958093484d604b26a3a4d5d01e11b"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/baseline-semantic-oracles.json",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/independent-decision-review/baseline-semantic-oracles.json",
+      "bytes": 10251,
+      "sha256": "a413648a7b0ea9c3f2b0e7e770a1659d568cbbb88a9d45e96b7e112524d0bbd9"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/baseline-oracles-corrected.stderr",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/independent-decision-review/baseline-oracles-corrected.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/baseline-oracles.stderr",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/independent-decision-review/baseline-oracles.stderr",
+      "bytes": 944,
+      "sha256": "0463ea9b7943c96514473ef76e96d4f00946478e68a9f4dff0d0a66414e076da"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/baseline-oracles.stdout",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/independent-decision-review/baseline-oracles.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/source_census.py",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/independent-decision-review/source_census.py.txt",
+      "bytes": 5772,
+      "sha256": "ab0e65c68217d670f4f7ad269adb8bd62e1e10ac66597fa73aacf0c678688984"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/baseline_oracles.py",
+      "Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/independent-decision-review/baseline_oracles.py.txt",
+      "bytes": 8204,
+      "sha256": "266196e82cc93e3f9ba95a57ae960dc76792e5028c0d2eeaf5846b4c99142292"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/baseline-oracles-corrected.stdout",
+      "identical_bytes_Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/independent-decision-review/baseline-semantic-oracles.json",
+      "bytes": 10251,
+      "sha256": "a413648a7b0ea9c3f2b0e7e770a1659d568cbbb88a9d45e96b7e112524d0bbd9"
+    }
+  ],
+  "claim_scope": "Independent bounded GO for four decisions and existing v1.1 ABI adequacy; new implementation checks and closure pending. Complete original failed reporter output is retained separately from its corrected result. Duplicate identical stdout/JSON bytes are stored once.",
+  "source_trace_scope": "All2701 source .py parsed;121selectedpaths, full127bundle manifest. No bound direct summarizer caller measured; dynamic registry/getattr/test consumers unmeasured. C CAS transport and F own causal/SCM-law producers are adjacent compatible paths, not newly appointed E-law consumers.",
+  "remaining_inputs": "Actual source/fit/noise join remains B197; supplied producer context is not scientific/institutional authority.",
+  "cleanup_state": "No nativeTrash; exact repeatableCAS candidate preserved per independentreview receipt, no permanentdelete."
+}

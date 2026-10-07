@@ -1,0 +1,278 @@
+{
+  "schema": "policyos.e02.owned_facade_route_collectors_generator.v1",
+  "base": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "base_tree": "3b63e778d5b6d17b2e9edc3b4bf91af079b32eb0",
+  "actual_deep_collector": "guardrails.collect_deep_import_edges(_parse_public_surface(contract))",
+  "collector_source_sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+  "actual_import_policy_scanner": "tools.quality.lint.lint_imports.main with selected four-file iterator and parse cache disabled; actual source AST + policy/exceptions/packages unchanged",
+  "import_policy_scanner_sha256": "199041448fbd4d5fd7b5b7a188d62a561bc9dd120ee13f129498dbeadc8b2af8",
+  "import_policy_checks": {
+    "old5e": {
+      "argv": [
+        "--policy",
+        "/workspace/e02-E-continuation-20261006/policy-engine/architecture/imports/policy.toml",
+        "--exceptions",
+        "/workspace/e02-E-continuation-20261006/policy-engine/architecture/imports/exceptions.toml",
+        "--output-format",
+        "json",
+        "--cache-dir",
+        "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/import-policy-old5e-cache"
+      ],
+      "exit_code": 1,
+      "result": {
+        "data": {
+          "allowed_exception_count": 0,
+          "cache_hits": 0,
+          "cache_misses": 4,
+          "changed_file_count": 0,
+          "cycle_count": 0,
+          "cycle_error_count": 0,
+          "cycles_enforced": false,
+          "fixes_applied": 0,
+          "lapsed_cover_count": 0,
+          "policy_version": "2",
+          "scan_mode": "full",
+          "top_god_files": [
+            {
+              "internal_import_count": 23,
+              "path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py"
+            },
+            {
+              "internal_import_count": 18,
+              "path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py"
+            },
+            {
+              "internal_import_count": 11,
+              "path": "src/polisyos/foundry/uncertainty/__init__.py"
+            },
+            {
+              "internal_import_count": 8,
+              "path": "src/polisyos/calibration/__init__.py"
+            }
+          ],
+          "unadjudicated_count": 1,
+          "violation_count": 1
+        },
+        "exit_code": 1,
+        "messages": [
+          {
+            "level": "error",
+            "line": 41,
+            "message": "src/polisyos/calibration/__init__.py:41 [ARCH001] forbidden internal import: calibration -> foundry via polisyos.foundry.uncertainty (allowed={calibration, common, core, ir})",
+            "path": "src/polisyos/calibration/__init__.py",
+            "rule_id": "ARCH001"
+          }
+        ],
+        "status": "failed",
+        "summary": "import policy failed",
+        "tool": "lint.lint-imports"
+      }
+    },
+    "postimage": {
+      "argv": [
+        "--policy",
+        "/workspace/e02-E-continuation-20261006/policy-engine/architecture/imports/policy.toml",
+        "--exceptions",
+        "/workspace/e02-E-continuation-20261006/policy-engine/architecture/imports/exceptions.toml",
+        "--output-format",
+        "json",
+        "--cache-dir",
+        "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/import-policy-postimage-cache"
+      ],
+      "exit_code": 0,
+      "result": {
+        "data": {
+          "allowed_exception_count": 0,
+          "cache_hits": 0,
+          "cache_misses": 4,
+          "changed_file_count": 0,
+          "cycle_count": 0,
+          "cycle_error_count": 0,
+          "cycles_enforced": false,
+          "fixes_applied": 0,
+          "lapsed_cover_count": 0,
+          "policy_version": "2",
+          "scan_mode": "full",
+          "top_god_files": [
+            {
+              "internal_import_count": 22,
+              "path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py"
+            },
+            {
+              "internal_import_count": 17,
+              "path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py"
+            },
+            {
+              "internal_import_count": 11,
+              "path": "src/polisyos/foundry/uncertainty/__init__.py"
+            },
+            {
+              "internal_import_count": 7,
+              "path": "src/polisyos/calibration/__init__.py"
+            }
+          ],
+          "unadjudicated_count": 0,
+          "violation_count": 0
+        },
+        "exit_code": 0,
+        "messages": [],
+        "status": "ok",
+        "summary": "import policy passed",
+        "tool": "lint.lint-imports"
+      }
+    },
+    "present_old_alias_negative": {
+      "argv": [
+        "--policy",
+        "/workspace/e02-E-continuation-20261006/policy-engine/architecture/imports/policy.toml",
+        "--exceptions",
+        "/workspace/e02-E-continuation-20261006/policy-engine/architecture/imports/exceptions.toml",
+        "--output-format",
+        "json",
+        "--cache-dir",
+        "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/import-policy-present-old-alias-cache"
+      ],
+      "exit_code": 1,
+      "result": {
+        "data": {
+          "allowed_exception_count": 0,
+          "cache_hits": 0,
+          "cache_misses": 4,
+          "changed_file_count": 0,
+          "cycle_count": 0,
+          "cycle_error_count": 0,
+          "cycles_enforced": false,
+          "fixes_applied": 0,
+          "lapsed_cover_count": 0,
+          "policy_version": "2",
+          "scan_mode": "full",
+          "top_god_files": [
+            {
+              "internal_import_count": 22,
+              "path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py"
+            },
+            {
+              "internal_import_count": 17,
+              "path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py"
+            },
+            {
+              "internal_import_count": 11,
+              "path": "src/polisyos/foundry/uncertainty/__init__.py"
+            },
+            {
+              "internal_import_count": 8,
+              "path": "src/polisyos/calibration/__init__.py"
+            }
+          ],
+          "unadjudicated_count": 1,
+          "violation_count": 1
+        },
+        "exit_code": 1,
+        "messages": [
+          {
+            "level": "error",
+            "line": 41,
+            "message": "src/polisyos/calibration/__init__.py:41 [ARCH001] forbidden internal import: calibration -> foundry via polisyos.foundry.uncertainty (allowed={calibration, common, core, ir})",
+            "path": "src/polisyos/calibration/__init__.py",
+            "rule_id": "ARCH001"
+          }
+        ],
+        "status": "failed",
+        "summary": "import policy failed",
+        "tool": "lint.lint-imports"
+      }
+    }
+  },
+  "selected_full_source_denominator": {
+    "polisyos.foundry.uncertainty": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "polisyos.calibration": "policy-engine/src/polisyos/calibration/__init__.py",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py"
+  },
+  "selected_old_deep_edges": [
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.common.logger",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.artifacts.manifest",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.artifacts.store",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.canon",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.components",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.contracts.fabric",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.contracts.foundry",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.foundry.uncertainty.config",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.foundry.uncertainty.dispatcher",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.foundry.uncertainty.protocol",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.ir.analytics.uncertainty",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.common.logger",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.artifacts.manifest",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.artifacts.store",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.canon",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.components",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.contracts.fabric",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.contracts.foundry",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.foundry.calibration.report",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.foundry.uncertainty.config",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.foundry.uncertainty.covariance",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.analytics.dependence_structure",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.analytics.phase4_dynamics",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.analytics.uncertainty",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.analytics.welfare",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.observation.bundles",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.registry.refs"
+  ],
+  "selected_new_deep_edges": [
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.common.logger",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.artifacts.manifest",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.artifacts.store",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.canon",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.components",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.contracts.fabric",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.contracts.foundry",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.foundry.uncertainty.config",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.foundry.uncertainty.dispatcher",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.foundry.uncertainty.protocol",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.ir.analytics.uncertainty",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.common.logger",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.artifacts.manifest",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.artifacts.store",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.canon",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.components",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.contracts.fabric",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.core.contracts.foundry",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.foundry.calibration.report",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.foundry.uncertainty.config",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.analytics.dependence_structure",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.analytics.phase4_dynamics",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.analytics.uncertainty",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.analytics.welfare",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.observation.bundles",
+    "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.ir.registry.refs"
+  ],
+  "removed_owned_covariance_edge": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare->polisyos.foundry.uncertainty.covariance",
+  "new_cross_root_private_edges": [],
+  "exports_present_old_route_negative": {
+    "exports": 25,
+    "owned_covariance_edge_retained": true,
+    "outcome": "EXPECTED_FAIL_actual_collector"
+  },
+  "alias_name_removed_old_import_negative": {
+    "Cal___all___export_count": 28,
+    "alias_runtime_import_retained": true,
+    "outcome": "EXPECTED_FAIL_actual_ARCH001"
+  },
+  "canonical_generator": "build_public_surface_inventory + render_public_surface_json/markdown; all base facade source reads bound to exact5e",
+  "baseline_generated_bytes_exact": true,
+  "postimage_counts": {
+    "Calibration": 28,
+    "Foundry uncertainty": 25,
+    "DDM": 17
+  },
+  "only_owned_facade_JSON_values_changed": true,
+  "Welfare_non_import_AST_unchanged": true,
+  "PropagateUncertainty_non_import_AST_unchanged": true,
+  "covariance_body_bytes_unchanged": {
+    "path": "policy-engine/src/polisyos/foundry/uncertainty/covariance.py",
+    "sha256": "f6ca43c06d2a699d2bcaa0b48d5eeffc82a0933014d1742ec49ea9b8bbfdfab1"
+  },
+  "private_covariance_import_introducing_commit": "28ea3bb56bc4e751bf1303615d79219b56d7a24c",
+  "P41": "Actual original full5e guard FAIL retained separately. Exact selected canonical collectors reproduce two owned violations. No old full-guard rerun/disjointness or global architecture PASS claimed.",
+  "remaining_owner_boundaries": "Full selected deep-edge remainder listed; Core/IR/API admission and nine foreign packets stay separate. No policy/baseline/exception/shared-contract change."
+}

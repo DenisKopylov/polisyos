@@ -1,0 +1,44 @@
+F.................                                                       [100%]
+=================================== FAILURES ===================================
+_ test_actual_calibrator_v2_cas_fresh_node_retains_tied_covariance_and_nongating _
+
+native = (PosixPath('/tmp/pytest-of-agent/pytest-202/independent-legacy-native0/cas'), <polisyos.core.artifacts.store.FileSyste...723ab6fdfed124218bd2'), kind='foundry.simulation_result', media_type='application/json', manifest_profile_sha256=None))
+
+    def test_actual_calibrator_v2_cas_fresh_node_retains_tied_covariance_and_nongating(native):
+        root,store,run,ref,_,sim=native
+        fresh=context(root,run)
+        loaded=load_calibration_report(fresh.store,ref)
+        assert loaded.schema_version=='2.0'
+        collected=node._collect_input_envelopes(fresh,state(ref,sim))
+        assert set(collected)=={'A.rate','B.rate'}
+        assert loaded.coordinate_projection.field_order==('A.rate','B.rate')
+        assert loaded.coordinate_projection.coordinate_order==('shared_rate',)
+        assert loaded.coordinate_projection.matrix==((1.,),(1.,))
+        # Each of two scalar tax nodes contributes derivative100 to one shared
+        # coordinate; known observational sigma10 gives H=(100+100)^2/10^2=400.
+        # Thus coordinate variance1/400=.0025; J=[1,1]^T gives a singular all-.0025
+        # field covariance. Var(A-B)=[1,-1]Sigma[1,-1]^T=0, independent proxy .005.
+        cov=np.asarray(build_covariance_matrix(['A.rate','B.rate'],collected,use_full_covariance=True,jitter=0))
+        np.testing.assert_allclose(cov,np.full((2,2),1/400),rtol=1e-4,atol=1e-8)
+        assert np.linalg.matrix_rank(cov)==1
+        assert np.array([1.,-1.])@cov@np.array([1.,-1.])==0
+        assert all(env.gate_eligible is False and env.confidence_level is None for env in collected.values())
+        outcome=node.PropagateUncertaintyNode().execute(fresh,state(ref,sim))
+        assert outcome.status=='ok'
+        sim_loaded=SimulationResult.model_validate(from_canonical_bytes(fresh.store.get_bytes(outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF].artifact_id)))
+        output=load_uncertainty_envelope(FileSystemCAS(root),sim_loaded.uncertainty_envelopes['difference'])
+        assert output.gate_eligible is False
+>       assert output.metadata['output_std']==0
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'output_std'
+
+../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py:77: KeyError
+---------------------------- Captured stdout setup -----------------------------
+2026-10-06 14:10:09 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.adaptive_agent@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['adaptive-agent', 'builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-06 14:10:09 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.income_tax@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'tax'] version=1.0.0
+2026-10-06 14:10:09 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.labor_market@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'labor', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-06 14:10:09 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.queue@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'queue', 'runtime', 'structural'] version=1.0.0
+2026-10-06 14:10:09 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.tax_subsidy@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'subsidy'] version=1.0.0
+=========================== short test summary info ============================
+FAILED ../../e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/independent_legacy_tests.py::test_actual_calibrator_v2_cas_fresh_node_retains_tied_covariance_and_nongating
+1 failed, 17 passed in 14.37s

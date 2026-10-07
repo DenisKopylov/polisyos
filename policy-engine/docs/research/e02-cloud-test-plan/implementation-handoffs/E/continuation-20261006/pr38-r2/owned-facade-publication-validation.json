@@ -1,0 +1,87 @@
+{
+  "source": "7dad1566e9bd289aa1385b149bfcb0bfaef60bf1",
+  "tree": "fa0ca51853325f98dc73714f48b80b7c238c7f20",
+  "groups": [
+    {
+      "directory": "owned-facade-author",
+      "copies": 106,
+      "exactGitBytes": "PASS",
+      "controls": {
+        "sha256": "REJECTED",
+        "bytes": "REJECTED",
+        "unpublished_main": "REJECTED"
+      }
+    },
+    {
+      "directory": "owned-facade-source-binding",
+      "copies": 4,
+      "exactGitBytes": "PASS",
+      "controls": {
+        "sha256": "REJECTED",
+        "bytes": "REJECTED",
+        "unpublished_main": "REJECTED"
+      }
+    },
+    {
+      "directory": "owned-facade-independent",
+      "copies": 157,
+      "exactGitBytes": "PASS",
+      "controls": {
+        "sha256": "REJECTED",
+        "bytes": "REJECTED",
+        "unpublished_main": "REJECTED"
+      }
+    },
+    {
+      "directory": "a-generator-owner-packet",
+      "copies": 20,
+      "exactGitBytes": "PASS",
+      "controls": {
+        "sha256": "REJECTED",
+        "bytes": "REJECTED",
+        "unpublished_main": "REJECTED"
+      }
+    },
+    {
+      "directory": "a-generator-owner-independent",
+      "copies": 9,
+      "exactGitBytes": "PASS",
+      "controls": {
+        "sha256": "REJECTED",
+        "bytes": "REJECTED",
+        "unpublished_main": "REJECTED"
+      }
+    },
+    {
+      "directory": "lint-publication-independent",
+      "copies": 6,
+      "exactGitBytes": "PASS",
+      "controls": {
+        "sha256": "REJECTED",
+        "bytes": "REJECTED",
+        "unpublished_main": "REJECTED"
+      }
+    },
+    {
+      "directory": "collector-v2-independent",
+      "copies": 11,
+      "exactGitBytes": "PASS",
+      "controls": {
+        "sha256": "REJECTED",
+        "bytes": "REJECTED",
+        "unpublished_main": "REJECTED"
+      }
+    },
+    {
+      "directory": "collector-v3-independent",
+      "copies": 23,
+      "exactGitBytes": "PASS",
+      "controls": {
+        "sha256": "REJECTED",
+        "bytes": "REJECTED",
+        "unpublished_main": "REJECTED"
+      }
+    }
+  ],
+  "scope": "Full portable copy validation; no numeric/gate/closure result inferred"
+}

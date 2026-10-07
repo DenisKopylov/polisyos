@@ -1,0 +1,20 @@
+from pathlib import Path
+import importlib.abc
+import importlib.util
+import sys
+BASE=Path(__file__).parent / 'overlay/policy-engine/src/polisyos'
+NATIVE=Path('/workspace/e02-E-cal-review-20261006/policy-engine/src/polisyos')
+ROUTES={
+ 'polisyos.ir.api': 'ir/api.py',
+ 'polisyos.foundry.execute': 'foundry/execute/__init__.py',
+ 'polisyos.foundry.uncertainty.sampling_admission': 'foundry/uncertainty/sampling_admission.py',
+ 'polisyos.calibration.forecast_bridge': 'calibration/forecast_bridge.py',
+ 'polisyos.scientist.methods.backtesting.native_replay': 'scientist/methods/backtesting/native_replay.py',
+}
+class OwnerPacketFinder(importlib.abc.MetaPathFinder):
+ def find_spec(self,fullname,path,target=None):
+  relative=ROUTES.get(fullname)
+  if relative is None:return None
+  locations=[str(NATIVE/'foundry/execute')] if fullname=='polisyos.foundry.execute' else None
+  return importlib.util.spec_from_file_location(fullname,BASE/relative,submodule_search_locations=locations)
+sys.meta_path.insert(0,OwnerPacketFinder())

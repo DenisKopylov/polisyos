@@ -1,0 +1,1081 @@
+{
+  "source_sha": "1e1b5028274814b7c4318671588202480390a6bc",
+  "tree": "a4ed7ca77636c4e0165923e3d5400aea0c5068d5",
+  "actual_wave_source": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "portable_indexes": [
+    {
+      "folder": "failed-wave-5e-collector",
+      "index_identity": {
+        "bytes": 7426,
+        "sha256": "b60f1c35e6c7f03d2755402577605168279cbf4e6b939a405e3e27c91a9c3dfe"
+      },
+      "files": 16,
+      "bytes": 402602,
+      "records": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/README-5e3e37276-publication.md",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/README-5e3e37276-publication.md",
+          "bytes": 3758,
+          "sha256": "baf32f105cee2b6c57ae1dd6c4e1bcd8371d626d6d3f8f9099a624a0f0c5a207"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave.py",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave.py",
+          "bytes": 31168,
+          "sha256": "01949833ab8b51a87fc0f54ae4192d592aea7b9a39a5a6f6aec9a6ef2624d3e2"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave_v2.py",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v2.py",
+          "bytes": 32636,
+          "sha256": "c1846ca80e2fd5c2cdd6d4dc6f28e1a0497eed273f2013314d608165c340a212"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/control_collector.py",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/control_collector.py",
+          "bytes": 8934,
+          "sha256": "e3e7017681fc8f521485daf91d08b8549ee8984b2ac8e733e52f1aed477767d3"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/control_collector_v2.py",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/control_collector_v2.py",
+          "bytes": 9032,
+          "sha256": "6c215e808dff12431ac9e4533ea59c34d5a66c1b9360c1dce14ce42edc930bce"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collector-control-results.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collector-control-results.json",
+          "bytes": 7459,
+          "sha256": "9fd02ed15d987c12bd7573e046b6c51cf15009bcd7a09f20bc863ac5661b1a73"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collector-control-results-v2.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collector-control-results-v2.json",
+          "bytes": 8267,
+          "sha256": "0b383f703b29ff8f9d69abda5f35dd2500597749bd3c93a7b4cbea3d9ee1164d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collector-configured-checks-v2.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collector-configured-checks-v2.json",
+          "bytes": 1424,
+          "sha256": "1c1b30893eae580286a4f268148568f38568f4bbb3ea60554c95b26caa257f88"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collector-configured-ruff.stdout.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collector-configured-ruff.stdout.txt",
+          "bytes": 19,
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collector-configured-ruff.stderr.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collector-configured-ruff.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collector-configured-format.stdout.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collector-configured-format.stdout.txt",
+          "bytes": 25,
+          "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collector-configured-format.stderr.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collector-configured-format.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/failed-wave-analysis-5e3e37276.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/failed-wave-analysis-5e3e37276.json",
+          "bytes": 261781,
+          "sha256": "0c4054db6790de110f27e1909d08491545cd116fda34a6ebd19a542df1c6976f"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/actual-failed-5e3e37276-v2/copy-index.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/copy-index.json",
+          "bytes": 17603,
+          "sha256": "bdd6c7101e32f9788aefa9ad9eb630adc22639edcfdb917869fece1ac57ec75f"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/actual-failed-5e3e37276/copy-index.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276/copy-index.json",
+          "bytes": 17603,
+          "sha256": "467613ea6a2fc5be3dcebcb22803ca52ff8790ee80f1cdfcab5f59c73ffdb04b"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/publication-prep-index-5e3e37276.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/publication-prep-index-5e3e37276.json",
+          "bytes": 2893,
+          "sha256": "402432fa342e293e011c49a709fdd45236af29fd6ab95b4bfc3840ad118499f0"
+        }
+      ]
+    },
+    {
+      "folder": "failed-wave-5e",
+      "index_identity": {
+        "bytes": 24038,
+        "sha256": "d02d5ca1ca097816b8293a40aed92871f368a27c2c7aa51a9756944ca30e212d"
+      },
+      "files": 49,
+      "bytes": 6386104,
+      "records": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/architecture/architecture.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/architecture/architecture.json",
+          "bytes": 8076,
+          "sha256": "d8ec97019b33ebc3cdb21b4e8063bc40160a2afe75fc6a0cf7741b7bf9acdce2"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/architecture/architecture.stdout.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/architecture/architecture.stdout.txt",
+          "bytes": 126481,
+          "sha256": "360aae0a52b76619d99f6adf1faacea4eb0139cc3aa645a54560b1874636799f"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+          "bytes": 10621,
+          "sha256": "3ab10e942a5284d8ec47d228691bd69f51644f03cb97f3fd62747eeda77a435c"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+          "bytes": 313063,
+          "sha256": "198686407d1a4cfebf1ce5acae927ab17860d8dd456fbc77e2303fd8ca53e432"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+          "bytes": 373561,
+          "sha256": "4ad2bf5259307f5047fec2725336a7126835edb7338b4c1937a1cc1ea59168e5"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+          "bytes": 10447,
+          "sha256": "c8e37072492dd2d955bf8d9e4296d129f6bf82a2c9b4d97052a0e1bb2982d1fc"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+          "bytes": 100637,
+          "sha256": "7f746085a5d5a9030778a956755558bb650ae5096f47ab3710ced20329c8f4cb"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/cal-and-welfare-consumer/pytest.xml",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/cal-and-welfare-consumer/pytest.xml",
+          "bytes": 149781,
+          "sha256": "6ffd8206d4bac0231223aa9c004e56399f3ca6e94982e16ef8b30554e19870a2"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/ci-parity/ci-parity.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/ci-parity/ci-parity.json",
+          "bytes": 8490,
+          "sha256": "97d51f90d3997335cfae35987148d6cf37bc483989e1ba1b5349a08ae89f69b5"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/ci-parity/ci-parity.stdout.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/ci-parity/ci-parity.stdout.txt",
+          "bytes": 14830,
+          "sha256": "2e330075cd09c3f66caf67aebfa90e29a7f93ba5d493911a50937031b6a8ffba"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/ci-parity/internal-stages.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/ci-parity/internal-stages.json",
+          "bytes": 11245,
+          "sha256": "c38c901fc2c5ad05c96896eb90f4e1608cd7c6f0da5db4b81f1f23e000e9a4b4"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+          "bytes": 9588,
+          "sha256": "e40ce1308b401d2f2c88ce5fe78ad51be5f84ad7a52b1b79889d87bcb2890b5c"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+          "bytes": 3825,
+          "sha256": "b0c11e16fb095220276136b2d731c423dde66406c5deb284f685f435c90c5e8f"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/ddm-runtime-and-facade/pytest.xml",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/ddm-runtime-and-facade/pytest.xml",
+          "bytes": 16152,
+          "sha256": "7d85f16235e0fa83ae0cf0d478a5aca19219732ed950206b43d22e1fe9fa5be1"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+          "bytes": 9668,
+          "sha256": "0cbef742b0b769b2c950409cc275b8e54cba60d1de3b60a52f141df3a34e46b1"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+          "bytes": 21432,
+          "sha256": "ca767a7e4917ab32b4180e84b1c8add9b4081ecd622409676745a852dffdc72f"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/doe-salib-and-consumer-factory/pytest.xml",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/doe-salib-and-consumer-factory/pytest.xml",
+          "bytes": 53106,
+          "sha256": "02ec0d23b8f99c2e083252a2cfc7d3872f70c84afe323d1c4f3204f0fee7fdf8"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+          "bytes": 8917,
+          "sha256": "7ddb27f17dd97d6a34300c4a8a2ec438e62631cdca0a5b6a55605f5d9321a4b4"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+          "bytes": 108553,
+          "sha256": "f7d2c30b464cf2c135bf161bc7f1aed960fe3f310837926745b6133e4897669d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+          "bytes": 120015,
+          "sha256": "b49d5597b13ee28dba57c10634162604375e643c6a04b25cc04e1945db029a42"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+          "bytes": 10385,
+          "sha256": "7dd8790797dbf029b75b8dfc9f2f2ec87a3eb7b8664325dc97b2bcef926f8d8c"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+          "bytes": 70937,
+          "sha256": "c57a6a2320ac0c2f0c29393b864da0c86cfea7ab9c199ca2674854dceddb3706"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+          "bytes": 134031,
+          "sha256": "f1ac597881c49066bfab4c0bb32103c982d59fc3cafcc02753df2b21d40964e9"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+          "bytes": 9279,
+          "sha256": "ed18ac0244f99a52c4d5732cd8973cdef1d21e93330f0fe73e42f31606996c28"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+          "bytes": 33974,
+          "sha256": "38fddf3eedae945e2be962947493225f226c7a82e4b5d197cb4e4ff880a047f5"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/pcl-continuous-persistence/pytest.xml",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/pcl-continuous-persistence/pytest.xml",
+          "bytes": 48813,
+          "sha256": "d0e0dd2bdd8c82766a1a29b1687302b01994b22543e242b1cc50a4a39495442d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/results-importer/results-importer.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/results-importer/results-importer.json",
+          "bytes": 8110,
+          "sha256": "925c5b9338aa0bca11342d5204ad04219ab778f31fe617ba3563c7d64f11e80c"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/results-importer/results-importer.stdout.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/results-importer/results-importer.stdout.txt",
+          "bytes": 112,
+          "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/ruff/ruff.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/ruff/ruff.json",
+          "bytes": 31553,
+          "sha256": "c92849d070b0e05419521f6ac5da0c349af49f47d8a641321391284c209194f7"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/ruff/ruff.stdout.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/ruff/ruff.stdout.txt",
+          "bytes": 3584820,
+          "sha256": "fc7d4a8196b4f54b04aaa40387a7c5e1f08156ae64ee0009cea088e0bded3982"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/ruff-format/ruff-format.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/ruff-format/ruff-format.json",
+          "bytes": 31591,
+          "sha256": "03544efde9df87f040ae230a723aef2bce1706dbfea29a63692a9dd8692ea9e7"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/ruff-format/ruff-format.stdout.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/ruff-format/ruff-format.stdout.txt",
+          "bytes": 15578,
+          "sha256": "a8b4690a992f102b5c6ab5605ea276c7b7e8d1fd4a8a4daa4d3a1ddae008a117"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/runtime-api-contract/runtime-api-contract.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/runtime-api-contract/runtime-api-contract.json",
+          "bytes": 8120,
+          "sha256": "2ede7cb4a59d3fd829cb6092498047e6ec07145b860ff2091cfeefcb6963de18"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/runtime-api-contract/runtime-api-contract.stdout.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/runtime-api-contract/runtime-api-contract.stdout.txt",
+          "bytes": 13051,
+          "sha256": "384085d02d1862be0324716b03916b328c53e117a4d460a029d31309e35650ff"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/static-invocation/static-invocation.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/static-invocation/static-invocation.json",
+          "bytes": 8346,
+          "sha256": "ed7d3438f4fd3e8b449a0fc651aebf6dd7f34ee0f9f1c5fbe028fe4900b637d5"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/static-invocation/static-invocation.stdout.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/static-invocation/static-invocation.stdout.txt",
+          "bytes": 9170,
+          "sha256": "31e1b337b9f79e647d29d6c31e43f6deb58d713b65d52a3b851173d1967f0cae"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/workspace-verify/internal-stages.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/workspace-verify/internal-stages.json",
+          "bytes": 8763,
+          "sha256": "041fa4f4606105b07d591b5277942150adc2e89312489c311bbf143bbe807846"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/workspace-verify/workspace-verify.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/workspace-verify/workspace-verify.json",
+          "bytes": 8555,
+          "sha256": "98d3725ebbb8794afcf8fb910690b99d5b3c097146694e9c7482a5be37304d15"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/workspace-verify/workspace-verify.stdout.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/checks/workspace-verify/workspace-verify.stdout.txt",
+          "bytes": 8214,
+          "sha256": "118eb8210cb8a650b7f99186c4ff84c6590c57b2c671d45fd520afee7d50e252"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/cleanup-candidates.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/cleanup-candidates.json",
+          "bytes": 6693,
+          "sha256": "c33990df7acf47a7e20b179f94c7fdaf96361d482a4b514a64955067bec77176"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/execution-complete.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/execution-complete.json",
+          "bytes": 280,
+          "sha256": "d85ffa1828ca4173e050cb7a2b9bac74b054aaf2d0e4fc2494aff1d32e9bf3fc"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/owner-packets/test_a_cas_contract.py",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/owner-packets/test_a_cas_contract.py",
+          "bytes": 4327,
+          "sha256": "39342a0f279a05d5787b93f817e9a5bcdab639cd044af257a57442d27fd754ac"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/owner-packets/test_a_status_reason.py",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/owner-packets/test_a_status_reason.py",
+          "bytes": 3114,
+          "sha256": "2e3a7c0a8931e66d14ec018d0392ea83c3a692210ae66271aaf0abe568ef63d4"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/plan.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/plan.json",
+          "bytes": 137207,
+          "sha256": "15ead3134a391b2026dca059c91c1a9d970c8dcdb96f5ed46d5869cd713497b3"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/publication-receipt.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/publication-receipt.json",
+          "bytes": 688831,
+          "sha256": "b475f77db3c9e9a68891eb515110286579046637b503c24443cfd2707e7266c3"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/raw-custody.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/raw-custody.json",
+          "bytes": 3648,
+          "sha256": "f0b772fb99e5188c0a117299e86cf12e27d00c3efdf77fae9a3d0f79b8376621"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/source-freeze-receipt.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/source-freeze-receipt.json",
+          "bytes": 2314,
+          "sha256": "78ae2264f893238742329acbad8e62ca7ac04d43e8b05ccb1c8dd430907ff032"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/wave-started.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/wave-started.json",
+          "bytes": 197,
+          "sha256": "cb710552d7e209a2613dc805f0d02fcf9bda8c576cde43ac72c2e42fccd908a8"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/copy-index.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v2/copy-index.json",
+          "bytes": 17603,
+          "sha256": "bdd6c7101e32f9788aefa9ad9eb630adc22639edcfdb917869fece1ac57ec75f"
+        }
+      ]
+    },
+    {
+      "folder": "failed-wave-5e-independent",
+      "index_identity": {
+        "bytes": 6342,
+        "sha256": "980b970baaf433c94f549ec64bd0000ae623840de0d45bfa6f0870518894a295"
+      },
+      "files": 14,
+      "bytes": 1480011,
+      "records": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/PROTOCOL.md",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-independent/PROTOCOL.md",
+          "bytes": 4098,
+          "sha256": "dc0dbf96e885833c6ef02939ae2c48e8f7769c23fb6033010f0a0455f252000d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/README.md",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-independent/README.md",
+          "bytes": 1946,
+          "sha256": "7a8ac5999605b0faac04c326eff37d17edf434e71f68386563c0e15bea22cd24"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/actual-check-assets-5e3e37276.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-independent/actual-check-assets-5e3e37276.json",
+          "bytes": 9342,
+          "sha256": "4b72910b58775e8bfe7423adea300b52de61f78eedd4a1590d7566020bf4214f"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/audit_inputs.py",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-independent/audit_inputs.py",
+          "bytes": 10226,
+          "sha256": "b4b8e82b1a4a2c733c55edf62bdd28f1980233ae913e2b27d5ed40e42a61f9da"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/audit_outputs.initial.py.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-independent/audit_outputs.initial.py.txt",
+          "bytes": 14579,
+          "sha256": "e4b7753d6fc187c866a2758f0391e2efa40a1135216a63f84adc94eab4a5c562"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/audit_outputs.py",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-independent/audit_outputs.py",
+          "bytes": 15116,
+          "sha256": "23a48166fe5c273c2ed3f702120bb4768a84931dfdf13be80dee1a1930482436"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/audit_quantities.py",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-independent/audit_quantities.py",
+          "bytes": 3781,
+          "sha256": "49c821972559d2adbeb89b43d2753876d00aaaefa4384499e82d2fb3b021cfd4"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/independent-wave-review-5e3e37276.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-independent/independent-wave-review-5e3e37276.json",
+          "bytes": 223965,
+          "sha256": "b763ce8057efe3c6528b6e39a9085184283311fccd5bef47a0fc013d44bde810"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/input-audit-5e3e37276.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-independent/input-audit-5e3e37276.json",
+          "bytes": 31570,
+          "sha256": "6f56165e792960503880c2da2b88890706d9c891e5efdd2aa5b206f72aa1d01c"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/input-audit-5e3e37276.stdout.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-independent/input-audit-5e3e37276.stdout.txt",
+          "bytes": 521,
+          "sha256": "5edf0eab1e74ded775aeb0949e106a6c60ec55da68a29e27d824a40434b62621"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/junit-independent-5e3e37276.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-independent/junit-independent-5e3e37276.json",
+          "bytes": 1160883,
+          "sha256": "dfd6233e9dc18242425c8a562519765e73ae3041eaa39eea27d83edf072f944e"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/output-audit-5e3e37276-final.stdout.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-independent/output-audit-5e3e37276-final.stdout.txt",
+          "bytes": 928,
+          "sha256": "db6be94314813e6fb5fdd2bbc1f20d8bacaa466ccd710fb8e2a61f89bb035cde"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/output-audit-5e3e37276.stdout.txt",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-independent/output-audit-5e3e37276.stdout.txt",
+          "bytes": 640,
+          "sha256": "27630792ebf7e90cd212a27a60bbe1ac8cfcd007bc1174ce56e10807e5b4f23a"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/copy-index.json",
+          "source_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-independent/copy-index.json",
+          "bytes": 2416,
+          "sha256": "298e580ae75018342be8f451ad9f7ab4e510e51ec9948e6560e69fb4f3f3318b"
+        }
+      ]
+    }
+  ],
+  "custody_denominators": {
+    "portable_records": 79,
+    "nested_moderate_asset_records": 48,
+    "record_checks": 127,
+    "distinct_copied_paths": 79
+  },
+  "source_assets": [
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/plan.json",
+      "path": "plan.json",
+      "bytes": 137207,
+      "sha256": "15ead3134a391b2026dca059c91c1a9d970c8dcdb96f5ed46d5869cd713497b3"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/wave-started.json",
+      "path": "wave-started.json",
+      "bytes": 197,
+      "sha256": "cb710552d7e209a2613dc805f0d02fcf9bda8c576cde43ac72c2e42fccd908a8"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/execution-complete.json",
+      "path": "execution-complete.json",
+      "bytes": 280,
+      "sha256": "d85ffa1828ca4173e050cb7a2b9bac74b054aaf2d0e4fc2494aff1d32e9bf3fc"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/source-freeze-5e3e37276.json",
+      "path": "source-freeze-receipt.json",
+      "bytes": 2314,
+      "sha256": "78ae2264f893238742329acbad8e62ca7ac04d43e8b05ccb1c8dd430907ff032"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/owner-packets/test_a_cas_contract.py",
+      "path": "owner-packets/test_a_cas_contract.py",
+      "bytes": 4327,
+      "sha256": "39342a0f279a05d5787b93f817e9a5bcdab639cd044af257a57442d27fd754ac"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/owner-packets/test_a_status_reason.py",
+      "path": "owner-packets/test_a_status_reason.py",
+      "bytes": 3114,
+      "sha256": "2e3a7c0a8931e66d14ec018d0392ea83c3a692210ae66271aaf0abe568ef63d4"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+      "path": "checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+      "bytes": 9279,
+      "sha256": "ed18ac0244f99a52c4d5732cd8973cdef1d21e93330f0fe73e42f31606996c28"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+      "path": "checks/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+      "bytes": 33974,
+      "sha256": "38fddf3eedae945e2be962947493225f226c7a82e4b5d197cb4e4ff880a047f5"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/pcl-continuous-persistence/pytest.xml",
+      "path": "checks/pcl-continuous-persistence/pytest.xml",
+      "bytes": 48813,
+      "sha256": "d0e0dd2bdd8c82766a1a29b1687302b01994b22543e242b1cc50a4a39495442d"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+      "path": "checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+      "bytes": 9588,
+      "sha256": "e40ce1308b401d2f2c88ce5fe78ad51be5f84ad7a52b1b79889d87bcb2890b5c"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+      "path": "checks/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+      "bytes": 3825,
+      "sha256": "b0c11e16fb095220276136b2d731c423dde66406c5deb284f685f435c90c5e8f"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/ddm-runtime-and-facade/pytest.xml",
+      "path": "checks/ddm-runtime-and-facade/pytest.xml",
+      "bytes": 16152,
+      "sha256": "7d85f16235e0fa83ae0cf0d478a5aca19219732ed950206b43d22e1fe9fa5be1"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+      "path": "checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+      "bytes": 10621,
+      "sha256": "3ab10e942a5284d8ec47d228691bd69f51644f03cb97f3fd62747eeda77a435c"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+      "path": "checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+      "bytes": 313063,
+      "sha256": "198686407d1a4cfebf1ce5acae927ab17860d8dd456fbc77e2303fd8ca53e432"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "path": "checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "bytes": 373561,
+      "sha256": "4ad2bf5259307f5047fec2725336a7126835edb7338b4c1937a1cc1ea59168e5"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+      "path": "checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+      "bytes": 10447,
+      "sha256": "c8e37072492dd2d955bf8d9e4296d129f6bf82a2c9b4d97052a0e1bb2982d1fc"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+      "path": "checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+      "bytes": 100637,
+      "sha256": "7f746085a5d5a9030778a956755558bb650ae5096f47ab3710ced20329c8f4cb"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/cal-and-welfare-consumer/pytest.xml",
+      "path": "checks/cal-and-welfare-consumer/pytest.xml",
+      "bytes": 149781,
+      "sha256": "6ffd8206d4bac0231223aa9c004e56399f3ca6e94982e16ef8b30554e19870a2"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+      "path": "checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+      "bytes": 10385,
+      "sha256": "7dd8790797dbf029b75b8dfc9f2f2ec87a3eb7b8664325dc97b2bcef926f8d8c"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+      "path": "checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+      "bytes": 70937,
+      "sha256": "c57a6a2320ac0c2f0c29393b864da0c86cfea7ab9c199ca2674854dceddb3706"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "path": "checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "bytes": 134031,
+      "sha256": "f1ac597881c49066bfab4c0bb32103c982d59fc3cafcc02753df2b21d40964e9"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+      "path": "checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+      "bytes": 9668,
+      "sha256": "0cbef742b0b769b2c950409cc275b8e54cba60d1de3b60a52f141df3a34e46b1"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+      "path": "checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+      "bytes": 21432,
+      "sha256": "ca767a7e4917ab32b4180e84b1c8add9b4081ecd622409676745a852dffdc72f"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/doe-salib-and-consumer-factory/pytest.xml",
+      "path": "checks/doe-salib-and-consumer-factory/pytest.xml",
+      "bytes": 53106,
+      "sha256": "02ec0d23b8f99c2e083252a2cfc7d3872f70c84afe323d1c4f3204f0fee7fdf8"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+      "path": "checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+      "bytes": 8917,
+      "sha256": "7ddb27f17dd97d6a34300c4a8a2ec438e62631cdca0a5b6a55605f5d9321a4b4"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+      "path": "checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+      "bytes": 108553,
+      "sha256": "f7d2c30b464cf2c135bf161bc7f1aed960fe3f310837926745b6133e4897669d"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+      "path": "checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+      "bytes": 120015,
+      "sha256": "b49d5597b13ee28dba57c10634162604375e643c6a04b25cc04e1945db029a42"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/results-importer/results-importer.json",
+      "path": "checks/results-importer/results-importer.json",
+      "bytes": 8110,
+      "sha256": "925c5b9338aa0bca11342d5204ad04219ab778f31fe617ba3563c7d64f11e80c"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/results-importer/results-importer.stdout.txt",
+      "path": "checks/results-importer/results-importer.stdout.txt",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/architecture/architecture.json",
+      "path": "checks/architecture/architecture.json",
+      "bytes": 8076,
+      "sha256": "d8ec97019b33ebc3cdb21b4e8063bc40160a2afe75fc6a0cf7741b7bf9acdce2"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/architecture/architecture.stdout.txt",
+      "path": "checks/architecture/architecture.stdout.txt",
+      "bytes": 126481,
+      "sha256": "360aae0a52b76619d99f6adf1faacea4eb0139cc3aa645a54560b1874636799f"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/runtime-api-contract/runtime-api-contract.json",
+      "path": "checks/runtime-api-contract/runtime-api-contract.json",
+      "bytes": 8120,
+      "sha256": "2ede7cb4a59d3fd829cb6092498047e6ec07145b860ff2091cfeefcb6963de18"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/runtime-api-contract/runtime-api-contract.stdout.txt",
+      "path": "checks/runtime-api-contract/runtime-api-contract.stdout.txt",
+      "bytes": 13051,
+      "sha256": "384085d02d1862be0324716b03916b328c53e117a4d460a029d31309e35650ff"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/static-invocation/static-invocation.json",
+      "path": "checks/static-invocation/static-invocation.json",
+      "bytes": 8346,
+      "sha256": "ed7d3438f4fd3e8b449a0fc651aebf6dd7f34ee0f9f1c5fbe028fe4900b637d5"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/static-invocation/static-invocation.stdout.txt",
+      "path": "checks/static-invocation/static-invocation.stdout.txt",
+      "bytes": 9170,
+      "sha256": "31e1b337b9f79e647d29d6c31e43f6deb58d713b65d52a3b851173d1967f0cae"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/ruff/ruff.json",
+      "path": "checks/ruff/ruff.json",
+      "bytes": 31553,
+      "sha256": "c92849d070b0e05419521f6ac5da0c349af49f47d8a641321391284c209194f7"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/ruff/ruff.stdout.txt",
+      "path": "checks/ruff/ruff.stdout.txt",
+      "bytes": 3584820,
+      "sha256": "fc7d4a8196b4f54b04aaa40387a7c5e1f08156ae64ee0009cea088e0bded3982"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/ruff-format/ruff-format.json",
+      "path": "checks/ruff-format/ruff-format.json",
+      "bytes": 31591,
+      "sha256": "03544efde9df87f040ae230a723aef2bce1706dbfea29a63692a9dd8692ea9e7"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/ruff-format/ruff-format.stdout.txt",
+      "path": "checks/ruff-format/ruff-format.stdout.txt",
+      "bytes": 15578,
+      "sha256": "a8b4690a992f102b5c6ab5605ea276c7b7e8d1fd4a8a4daa4d3a1ddae008a117"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/workspace-verify/workspace-verify.json",
+      "path": "checks/workspace-verify/workspace-verify.json",
+      "bytes": 8555,
+      "sha256": "98d3725ebbb8794afcf8fb910690b99d5b3c097146694e9c7482a5be37304d15"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/workspace-verify/workspace-verify.stdout.txt",
+      "path": "checks/workspace-verify/workspace-verify.stdout.txt",
+      "bytes": 8214,
+      "sha256": "118eb8210cb8a650b7f99186c4ff84c6590c57b2c671d45fd520afee7d50e252"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/workspace-verify/internal-stages.json",
+      "path": "checks/workspace-verify/internal-stages.json",
+      "bytes": 8763,
+      "sha256": "041fa4f4606105b07d591b5277942150adc2e89312489c311bbf143bbe807846"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/ci-parity/ci-parity.json",
+      "path": "checks/ci-parity/ci-parity.json",
+      "bytes": 8490,
+      "sha256": "97d51f90d3997335cfae35987148d6cf37bc483989e1ba1b5349a08ae89f69b5"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/ci-parity/ci-parity.stdout.txt",
+      "path": "checks/ci-parity/ci-parity.stdout.txt",
+      "bytes": 14830,
+      "sha256": "2e330075cd09c3f66caf67aebfa90e29a7f93ba5d493911a50937031b6a8ffba"
+    },
+    {
+      "original": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks/ci-parity/internal-stages.json",
+      "path": "checks/ci-parity/internal-stages.json",
+      "bytes": 11245,
+      "sha256": "c38c901fc2c5ad05c96896eb90f4e1608cd7c6f0da5db4b81f1f23e000e9a4b4"
+    }
+  ],
+  "raw_exclusions": [
+    {
+      "path": "raw/pcl-continuous-persistence.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/ddm-runtime-and-facade.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/bkt-frc-s10-and-adjacent-report-consumers.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/cal-and-welfare-consumer.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/mc-joint-law-support-and-scientist-consumer.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/doe-salib-and-consumer-factory.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/g-checkpoint10-controlplanestore-companion.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/results-importer.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/architecture.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/runtime-api-contract.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/static-invocation.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/ruff.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/ruff-format.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/workspace-verify.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/ci-parity.git-config-private.nul",
+      "bytes": 5288,
+      "sha256": "d81083de050dcc43f399ec332d582e70a2e501330be4aaf0387679114b5a7db8",
+      "publication": "private_excluded_hash_size_only"
+    },
+    {
+      "path": "raw/production-invocation.raw.json",
+      "bytes": 171772803,
+      "sha256": "404cdb1543a96433016ca3880c3d557e2d027f9fa62060be40d9b8e266b16fbd",
+      "publication": "large_raw_excluded_no_repeated_dump"
+    }
+  ],
+  "counts": {
+    "cases": 1440,
+    "passed": 1086,
+    "failed": 3,
+    "errors": 351,
+    "skipped": 0
+  },
+  "native": {
+    "cases": 1433,
+    "passed": 1086,
+    "failed": 2,
+    "errors": 345,
+    "skipped": 0
+  },
+  "A": {
+    "cases": 7,
+    "passed": 0,
+    "failed": 1,
+    "errors": 6,
+    "skipped": 0
+  },
+  "A_attribution": [
+    {
+      "name": "test_actual_ets_cas_fresh_resolver_preserves_six_roles_and_predictive_denials",
+      "classname": "",
+      "file": null,
+      "job": "bkt-frc-s10-and-adjacent-report-consumers",
+      "outcome": "errors",
+      "packet": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt"
+      ]
+    },
+    {
+      "name": "test_actual_resolver_refuses_missing_fake_or_temporally_unbound_inputs[missing_ref]",
+      "classname": "",
+      "file": null,
+      "job": "bkt-frc-s10-and-adjacent-report-consumers",
+      "outcome": "errors",
+      "packet": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt"
+      ]
+    },
+    {
+      "name": "test_actual_resolver_refuses_missing_fake_or_temporally_unbound_inputs[wrong_kind]",
+      "classname": "",
+      "file": null,
+      "job": "bkt-frc-s10-and-adjacent-report-consumers",
+      "outcome": "errors",
+      "packet": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt"
+      ]
+    },
+    {
+      "name": "test_actual_resolver_refuses_missing_fake_or_temporally_unbound_inputs[bad_time]",
+      "classname": "",
+      "file": null,
+      "job": "bkt-frc-s10-and-adjacent-report-consumers",
+      "outcome": "errors",
+      "packet": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt"
+      ]
+    },
+    {
+      "name": "test_actual_resolver_refuses_missing_fake_or_temporally_unbound_inputs[wrong_rule]",
+      "classname": "",
+      "file": null,
+      "job": "bkt-frc-s10-and-adjacent-report-consumers",
+      "outcome": "errors",
+      "packet": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt"
+      ]
+    },
+    {
+      "name": "test_missing_ref_tier_and_s6_share_named_missing_ref_reason",
+      "classname": "",
+      "file": null,
+      "job": "bkt-frc-s10-and-adjacent-report-consumers",
+      "outcome": "failed",
+      "packet": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason-tests.py.txt"
+      ]
+    },
+    {
+      "name": "test_resolved_limited_evidence_keeps_floor_failure_reason",
+      "classname": "",
+      "file": null,
+      "job": "bkt-frc-s10-and-adjacent-report-consumers",
+      "outcome": "errors",
+      "packet": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason-tests.py.txt"
+      ]
+    }
+  ],
+  "job_counts": [
+    {
+      "job": "pcl-continuous-persistence",
+      "counts": {
+        "cases": 96,
+        "passed": 77,
+        "failed": 0,
+        "errors": 19,
+        "skipped": 0
+      }
+    },
+    {
+      "job": "ddm-runtime-and-facade",
+      "counts": {
+        "cases": 82,
+        "passed": 80,
+        "failed": 0,
+        "errors": 2,
+        "skipped": 0
+      }
+    },
+    {
+      "job": "bkt-frc-s10-and-adjacent-report-consumers",
+      "counts": {
+        "cases": 315,
+        "passed": 145,
+        "failed": 3,
+        "errors": 167,
+        "skipped": 0
+      }
+    },
+    {
+      "job": "cal-and-welfare-consumer",
+      "counts": {
+        "cases": 311,
+        "passed": 256,
+        "failed": 0,
+        "errors": 55,
+        "skipped": 0
+      }
+    },
+    {
+      "job": "mc-joint-law-support-and-scientist-consumer",
+      "counts": {
+        "cases": 377,
+        "passed": 339,
+        "failed": 0,
+        "errors": 38,
+        "skipped": 0
+      }
+    },
+    {
+      "job": "doe-salib-and-consumer-factory",
+      "counts": {
+        "cases": 200,
+        "passed": 189,
+        "failed": 0,
+        "errors": 11,
+        "skipped": 0
+      }
+    },
+    {
+      "job": "g-checkpoint10-controlplanestore-companion",
+      "counts": {
+        "cases": 59,
+        "passed": 0,
+        "failed": 0,
+        "errors": 59,
+        "skipped": 0
+      }
+    }
+  ],
+  "stage_counts": {
+    "workspace-verify": {
+      "PASS": 1,
+      "FAIL": 1,
+      "UNRUN": 13
+    },
+    "ci-parity": {
+      "FAIL": 1,
+      "UNRUN": 23
+    }
+  },
+  "independent_corrupt_controls": [
+    "bytes REFUSED",
+    "sha256 REFUSED",
+    "native1433/A7 denominator forgery REFUSED"
+  ],
+  "publication_verdict": "GO-bounded-actual5e-custody-and-attribution",
+  "reusable_collector_verdict": "HOLD-two synthetic protocol escapes separately recorded",
+  "numeric_or_product_commands_executed": 0,
+  "limitations": [
+    "Custody COMPLETE_BOUND is not successful wave or finding closure.",
+    "Source-frame completeness is separately under independent CAL review; this validates exact existing bytes/declared frame consistency, not a new whole framework proof.",
+    "Observer backend does not establish child JAX state; static proxy P41 inherited-red remains not_established.",
+    "Actual raw171772803B and15 private config files were hashed only, not read into output or copied.",
+    "No deletion/Trash action. Existing original and source bytes remain unchanged."
+  ]
+}

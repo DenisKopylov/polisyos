@@ -1,0 +1,49 @@
+from __future__ import annotations
+import copy
+import hashlib
+import importlib.util
+import json
+from pathlib import Path
+import sys
+from unittest.mock import patch
+lane=Path('/workspace/e02-E-frc-20261006')
+root=lane/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas'
+expected={
+ 'validate.py':('341eac979b4f662bcda92ab409cbaa3402ce89f9dae468c3517fedc7afa2ce81',5286),
+ 'implementation-handoff.json':('20fba51cc630a938871576cdd4dc9f9766a7f41269b015aa14c002d0b26e215b',22657),
+ 'independent-output-copy-index.json':('e3c2d38a47965954a67cc17ed3309a1fcf2c8ca361cdcb211299b9008b64991e',7402),
+ 'deciding-output-index.json':('1d75d6e0e1a70413bef38a34325e340e3e332eecdeaa4b3ed1cec74cdd06a2c7',6669),
+ 'README.md':('a405099a42b989c9900edacdc9e221727b0d028818d76e0ff482c3886b672c50',3003),
+}
+for name,(digest,size) in expected.items():
+ data=(root/name).read_bytes();assert len(data)==size;assert hashlib.sha256(data).hexdigest()==digest
+spec=importlib.util.spec_from_file_location('independent_frc_validation',root/'validate.py')
+m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+index=json.loads((root/'deciding-output-index.json').read_text());receipt=json.loads((root/'implementation-handoff.json').read_text())
+m.validate(root,lane,index['records'],receipt)
+assert m.validate_independent_copies(root,lane)==16
+controls=[]
+for mutation in ['digest','size','missing-output','forged-count','wrong-tree']:
+ records=copy.deepcopy(index['records']);value=copy.deepcopy(receipt)
+ if mutation=='digest':records[0]['sha256']='0'*64
+ elif mutation=='size':records[0]['bytes']+=1
+ elif mutation=='missing-output':records.pop()
+ elif mutation=='forged-count':next(c for c in value['checks'] if 'junit' in c)['states']['PASS']+=1
+ else:value['candidate_tree_sha']='f'*40
+ try:m.validate(root,lane,records,value)
+ except ValueError as exc:controls.append({'case':mutation,'outcome':'PASS','negative_gate_outcome':'FAIL','error':str(exc)})
+ else:raise AssertionError('Corrupt control escaped '+mutation)
+copy_index=json.loads((root/'independent-output-copy-index.json').read_text())
+for record in copy_index['records']:
+ source=Path(record['path']);dest=lane/record['published_path']
+ assert source.read_bytes()==dest.read_bytes()
+ assert hashlib.sha256(dest.read_bytes()).hexdigest()==record['sha256']
+bad=copy.deepcopy(copy_index);bad['records'][0]['sha256']='0'*64
+with patch.object(m.json,'loads',lambda _:bad):
+ try:m.validate_independent_copies(root,lane)
+ except ValueError as exc:controls.append({'case':'independent-copy-digest','outcome':'PASS','negative_gate_outcome':'FAIL','error':str(exc)})
+ else:raise AssertionError('Independent copy corruption escaped')
+for name,(digest,size) in expected.items():
+ data=(root/name).read_bytes();assert len(data)==size;assert hashlib.sha256(data).hexdigest()==digest
+report={'schema':'policyos.e02.independent_review.v1','disposition':'GO for bounded post-source receipt utility and complete output publication','reviewer':'oracle_r4 (not author)','product_candidate':'1eba9f9e47a82cca1db341314a748b4980e015fc','product_tree':'0b79095f9293a04ca263356b24d22478b46e6688','bound_fixed_evidence_inputs':{name:{'sha256':digest,'bytes':size} for name,(digest,size) in expected.items()},'author_output_records':len(index['records']),'independent_output_records':len(copy_index['records']),'verbatim_copy_reconciliation':True,'negative_controls':controls,'source_unchanged':True,'scope':'Recomputes declared 24 author output denominator/hash/size, JUnit cases/states and product tree; validates all16 published independent refs and verbatim originals. Does not confer source/profile authority or substitute for default/HTTP execution.','finding_status':'partial retained; ledger acceptance separate','python':sys.version}
+out=Path(__file__).parent/'frc-evidence-delta-review.json';out.write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report,indent=2))

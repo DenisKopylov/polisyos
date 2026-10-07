@@ -1,0 +1,799 @@
+{
+  "schema": "e02-independent-lint-review/1",
+  "reviewer": "E independent helper criteria_r4",
+  "canonical_writer": "E utility author lint_r4",
+  "base": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+  "candidate": "74d0452848a7461d82ea7f150f126631d9fc8399",
+  "candidate_tree": "a4e4793be4d1aec6adea623b930a65304ab42d64",
+  "reviewed_scope": "complete utility denominator, historical/current receipt validators, optimization resilience, stdout, XML, executable resolution; broad predicate/Git/closure/harness classes are separate independent reviewers",
+  "scope_check_outcome": "PASS",
+  "disposition": "GO for this independent review lease",
+  "scope_exclusions": [
+    "Global architecture/generated API/static invocation/workspace/CI parity gates and new full numeric wave are separate root/owner checks.",
+    "No finding closure or own prior criteria packet review.",
+    "imports_r4 independently owns all1815 assertion predicate/closure/dynamic Git wrapper controls.",
+    "doe_r4 independently owns actual native harness outcome and outcome-removal controls.",
+    "All edited builder replay acceptance requires author pinned-input census; isolated f445 replay does not establish every historical builder."
+  ],
+  "full_denominator": 229,
+  "complete_base_candidate_footprint": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/backtest-chain-cas-readback.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-compiled_model_removal.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-order_falsifier.final.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/backtest-old58-falsifier.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks/measure-command.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-validator-v3/validate_binding_v3.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-validator-v3/validate_controls_v3.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-independent/review_packet.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/historical-harnesserror-01/review_assembly_delta.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/historical-harnesserror-02/review_assembly_delta.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/review_assembly_delta.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-independent/review_assembly.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/historical-r4/calibration_reader_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/independent-r5/edge_identity_review.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/independent-r5/publication_review20.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/independent-r5/routing_removal_control.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v2-independent/collector_controls.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v2-independent/custody_review.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-author/_external/common-wave-publication-prep/collect_wave_v3_final.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-independent/collector_controls.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-independent/freeze_packet.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-independent/freeze_role_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-independent/reader_custody.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/_external/common-wave-publication-prep/collect_wave_v4.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/owner-packets/test_a_cas_contract.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/owner-packets/test_a_status_reason.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/audit_inputs.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/audit_outputs.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/audit_owner_cases.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/audit_quantities.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/build_packet.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/validate.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/build_final.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/validate.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/check_current_matrix_controls.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/freeze_review_index.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/git-inputs-b5/criteria-f445-v1/build_packet.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/git-inputs-b5/criteria-f445-v1/validate.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/git-inputs-b5/validate_review_copies.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/review_publication.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/validate_independently_f445.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/current-consumer-trace/trace.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/baseline_falsifier.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/finalize_review.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/independent_budget_tests.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/run_review.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/controls.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/trace.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave_v2.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/control_collector.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/control_collector_v2.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/audit_inputs.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/audit_outputs.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/audit_quantities.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/owner-packets/test_a_cas_contract.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/owner-packets/test_a_status_reason.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/review_assembly.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/exact-Git-inputs/build_final.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/exact-Git-inputs/validate.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt1-used.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt2-used.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt3-used.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt4-used.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt5-used.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.attempt6-used.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/review_metadata_independently.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/g-checkpoint11-assembly-independent/review_delta.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/plan_wave.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/run_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/uncapped_umbrella.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/freeze_packet.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/harness_review.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/validate_packet.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/plan_wave.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/run_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/plan_wave.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/probe_native_parent.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/probe_native_parent_r2.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/run_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/test_native_tmp_cas.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/test_native_tmp_cas_r2.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/uncapped_umbrella.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/plan_wave.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/run_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/uncapped_umbrella.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/review_harness.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/test_independent_tmp_cas.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/cal_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm_old_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm_schema_removed.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm_schema_removed_v2.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/run_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/validate_review.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe_consumer_boundary.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe_independent.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/certificate_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/consumer_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/consumer_probe_v2.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/consumer_probe_v3.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/execution-capture.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/forecast_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/generator_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/validate_review.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/a-cas-contract-tests.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/a-status-reason-tests.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/independent_frc_tests.bounded20.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/independent_frc_tests.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/legacy_pipeline.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/legacy_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/run_review.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-gaussian-independent.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-independent.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/pcl_probe.attempt1.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/pcl_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/run_checks.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/export_deciding.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent_old5d.initial.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent_old5d.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent_welfare_tests.initial.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent_welfare_tests.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/run_review.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/lint-publication-independent/classify_lint.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/finalize_packet.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/freeze_source.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/fresh_readback.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/generate_and_collect.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/hooks/origin_plugin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/hooks/sitecustomize.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/postimage/policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/postimage/policy-engine/tests/unit/calibration/test_evidence_facades.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/release_and_refs.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/run_native.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/style_checks.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/finalize_packet.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/freeze_source.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/fresh_readback.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/generate_and_collect.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/hooks/origin_plugin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/hooks/sitecustomize.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/postimage/policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/postimage/policy-engine/tests/unit/calibration/test_evidence_facades.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/release_and_refs.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/run_native.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/style_checks.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/check_selected_routes.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/executed-helper-source/check_selected_routes.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/executed-helper-source/export_cas_deciding.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/executed-helper-source/run_independent_native.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/executed-helper-source/test_independent_api.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/export_cas_deciding.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/hooks/origin_plugin.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/hooks/sitecustomize.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/immutable-inputs/generate_and_collect.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/immutable-inputs/postimage/policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/immutable-inputs/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/immutable-inputs/postimage/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/immutable-inputs/postimage/policy-engine/tests/unit/calibration/test_evidence_facades.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/immutable-inputs/postimage/policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/run_independent_native.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/test_independent_api.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-source-binding/bind_source_checkpoint.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/api_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/build_packet.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/edge_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/finalize_packet.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/prepare_future_fixture.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/review_owned_companion.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/run_generator.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/run_native.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/source_fixture_identity.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/validate_packet.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/admission_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/complex_covariance_callback_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/complex_covariance_new-ec042.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/complex_covariance_old-c0f.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/longdouble_support_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/native_mc_export_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/native_mc_pinned5cd_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/nonzero_support_independent_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/real_domain_independent_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/real_domain_removal_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/unsupported_dtype_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/validate_receipt.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r4/calibration_reader_probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r4/publication_review.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r4/validate_receipt.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/edge_identity_review.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/publication_review20.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/review_flag_companion.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/routing_removal_control.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/validate_receipt.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/adapt_publication_freeze.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/readiness-b97/inspect_readiness.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-author/ddm/prepare_companion.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/review.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/validate_review_copies.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe_block_replay_old_source.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-20261006-logs/property_controls.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-capture-native-witness.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-exact-source-replay.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-removal-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/verify_receipt.py"
+  ],
+  "source_identity": {
+    "current229_index": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-229-index-74d045.json",
+      "bytes": 106412,
+      "sha256": "d35b76c74ce39482871ff37c7dd722b084e3ee8497038c4582c198da19a34a68"
+    },
+    "reused_source_candidate": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+    "reused_source_tree": "b6bd2579e39857b91e03deb333cbc8f4609e800d",
+    "unchanged_utility_paths": 218,
+    "complete_corrective_delta": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-author/_external/common-wave-publication-prep/collect_wave_v3_final.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/_external/common-wave-publication-prep/collect_wave_v4.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave_v2.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/run_check.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/run_check.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/run_check.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/run_check.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py"
+    ],
+    "corrective_diff": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/f3ec-74d045-complete.diff",
+      "bytes": 15062,
+      "sha256": "529dd0474b7433081ac3f3084ee634cf70cf9de285cc92326dd668ba13e94b6a"
+    }
+  },
+  "historical_evidence": {
+    "commit": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+    "tree": "d884554723bb66e83f5df467fc95766fd90f7bda",
+    "paths": 1899,
+    "bytes": 52283414,
+    "changed": 0,
+    "hash_size_blob_inventory": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/candidate-f3ec-source-census.json",
+      "bytes": 641959,
+      "sha256": "004c5ea598dfe58c80ccdd5d30de63a32a7b404c43580087134df2bb8ae2e20e"
+    },
+    "corrective74_recheck": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/74d045-delta-review.json",
+      "bytes": 43412,
+      "sha256": "7ba752503b196bb0bef551d51627aea0d4d327a2e99087aed629081862dc2ce5"
+    },
+    "meaning": "Every historical tracked E JSON/JSONL/stdout/stderr/XML/TXT Git blob and size is identical; current source repairs are distinct observations. No historical copy-index hash rewrite."
+  },
+  "defining_properties": [
+    {
+      "property": "Historical evidence bytes preserved",
+      "basis": "all1899 e9 tracked .json/.jsonl/.stdout/.stderr/.xml/.txt Git blob/size pairs equal candidate;52,283,414bytes; no original index hash rewrite",
+      "outcome": "PASS"
+    },
+    {
+      "property": "Assertions remain admissions underpython-O",
+      "basis": "real harness candidate normal/-O keeps3 refusals; old exacte9 normalPASS/-OFAIL with custody corruption accepted; actual54row metadata validator rejects22 corrupt fields in both modes",
+      "outcome": "PASS"
+    },
+    {
+      "property": "Historical replay explicitly distinguished from current validation",
+      "basis": "Actual copy validator154e9GitrecordsPASS and oldliveindexREFUSED;12 malformedref/record cases refuse before any Git callback. Fresh complete229 index for corrective74PASS normal/-O, corruptlastdigest/omission/duplication refuse; exact same validator bytes asf3ec.",
+      "outcome": "PASS"
+    },
+    {
+      "property": "Completed CLI serialization bytes/flush preserved",
+      "basis": "all184actualhelpercalls/onehelpervariant;12 positionalUnicode/JSON/multipleargument/flush controls; harness and54row validator normal/-Ostdout byteidentical",
+      "outcome": "PASS",
+      "limits": "Arbitrary side-effectful __str__ and all historical CLI output strings are not claimed equivalent; exception class renames/earlier refusal reasons are semantic changes."
+    },
+    {
+      "property": "Actual XML custody and entity refusal",
+      "basis": "content-bound65,800-byte315-testcase historicalJUnit read through actualnew parser; harmlessinternalentityREFUSED EntitiesForbidden",
+      "outcome": "PASS"
+    },
+    {
+      "property": "Executable resolution and shell boundary",
+      "basis": "96resolvermodules/onehelpervariant across229;226subprocesscalls use no shell=True; actualGit resolvesabsolute; absentexeREFUSED withzerochildspawns",
+      "outcome": "PASS",
+      "limits": "Full dynamic Git-ref wrapper semantics belongs to imports_r4 independent review."
+    },
+    {
+      "property": "Canonical ownedutility Ruff/format",
+      "basis": "Canonical policy-engine cwd/config and root installed environment: f3ec all229 Ruff/formatPASS with before+after hashes, corrective74 218 exact unchanged utilityfiles and affected11 Ruff/formatPASS with full229 before+after74 hashes.",
+      "outcome": "PASS"
+    },
+    {
+      "property": "Exporter port0 preserves active observability",
+      "basis": "unchangedactualOTelConfig takesenv0 enabledtruePROMETHEUS;two simultaneousnativePrometheus servers have distinctOSports,HTTP200 andcounter1/2;fixedportcollisionREFUSED OSError98",
+      "outcome": "PASS",
+      "limits": "Actualplan.prepare numerical-only override/selectorcounts andrun_check metricreceipt are reviewed bydoe_r4; nofullwaveexecuted."
+    }
+  ],
+  "commands": [
+    {
+      "name": "semantic-f3ec-normal",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/run_semantic_controls.py",
+        "--source-root",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/source-f3ec",
+        "--archive",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/historical-e9",
+        "--repo",
+        "/workspace/e02-E-cal05-20261006",
+        "--inputs",
+        "/workspace/e02-E-pr38-r3-receipts/lint-r4/source-inputs.json"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 4356,
+      "stdout_sha256": "c7ed37a327301e03e5847b93f8cb30d8739c808d1474d9b5bc2ed5d72d84bbf6",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": ""
+    },
+    {
+      "name": "harness-f3ec-normal",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/source-f3ec/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/validate_packet.py",
+        "--root",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/historical-e9/harness-independent"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 203,
+      "stdout_sha256": "a004fc5760091a35520474c610325cdb8c0f01a5805565e57261e663e2d2e2c5",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": ""
+    },
+    {
+      "name": "criteria-f3ec-normal",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/criteria-entry.py",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/source-f3ec/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/validate.py",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/historical-e9/criteria-frozen-a9-v2",
+        "/workspace/e02-E-cal05-20261006"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 3647,
+      "stdout_sha256": "d0f5aa75f0267c5fc149df279d00988edf4d6f1f0c96813150e1f4f22d567ad9",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": ""
+    },
+    {
+      "name": "semantic-f3ec-optimized",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-O",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/run_semantic_controls.py",
+        "--source-root",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/source-f3ec",
+        "--archive",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/historical-e9",
+        "--repo",
+        "/workspace/e02-E-cal05-20261006",
+        "--inputs",
+        "/workspace/e02-E-pr38-r3-receipts/lint-r4/source-inputs.json"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 4356,
+      "stdout_sha256": "ee00e1ded90c11816425e046c120a625ce54351386ac5a43a102f751fdbacb8f",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": ""
+    },
+    {
+      "name": "harness-f3ec-optimized",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-O",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/source-f3ec/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/validate_packet.py",
+        "--root",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/historical-e9/harness-independent"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 203,
+      "stdout_sha256": "a004fc5760091a35520474c610325cdb8c0f01a5805565e57261e663e2d2e2c5",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": ""
+    },
+    {
+      "name": "criteria-f3ec-optimized",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-O",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/criteria-entry.py",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/source-f3ec/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/validate.py",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/historical-e9/criteria-frozen-a9-v2",
+        "/workspace/e02-E-cal05-20261006"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 3647,
+      "stdout_sha256": "d0f5aa75f0267c5fc149df279d00988edf4d6f1f0c96813150e1f4f22d567ad9",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": ""
+    },
+    {
+      "name": "current-index-74d045-normal",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/current_index_control.py",
+        "--source-root",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/source-f3ec",
+        "--repo",
+        "/workspace/e02-E-cal05-20261006",
+        "--census",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-229-index-74d045.json"
+      ],
+      "actual_validator_source_identical_f3ec_74": true,
+      "exit_code": 0,
+      "stdout_bytes": 819,
+      "stdout_sha256": "854bd656731a6f5b48260d54659d2b5460745fcbc88f153fda7074fcc666f66b",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "current-index-74d045-optimized",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-O",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/current_index_control.py",
+        "--source-root",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/source-f3ec",
+        "--repo",
+        "/workspace/e02-E-cal05-20261006",
+        "--census",
+        "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-229-index-74d045.json"
+      ],
+      "actual_validator_source_identical_f3ec_74": true,
+      "exit_code": 0,
+      "stdout_bytes": 819,
+      "stdout_sha256": "9fd39cc45989e0417f465c4b35bcb090b15297644f4e83613e330679cdff9740",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "ruff-74delta",
+      "command": [
+        "uv",
+        "run",
+        "--no-sync",
+        "ruff",
+        "check",
+        "--output-format=json",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-author/_external/common-wave-publication-prep/collect_wave_v3_final.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/_external/common-wave-publication-prep/collect_wave_v4.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave_v2.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/run_check.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/run_check.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/run_check.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/run_check.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py"
+      ],
+      "environment": {
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+        "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-74delta-cache"
+      },
+      "cwd": "/workspace/e02-E-cal05-20261006/policy-engine",
+      "exit_code": 0,
+      "stdout_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "stdout_bytes": 2,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_bytes": 0,
+      "stdout": "[]",
+      "stderr": "",
+      "immutable229hashguard_before_and_after": true
+    },
+    {
+      "name": "format-74delta",
+      "command": [
+        "uv",
+        "run",
+        "--no-sync",
+        "ruff",
+        "format",
+        "--check",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-author/_external/common-wave-publication-prep/collect_wave_v3_final.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v4-author/_external/common-wave-publication-prep/collect_wave_v4.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/collect_wave_v2.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/run_check.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/run_check.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/run_check.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/run_check.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py"
+      ],
+      "environment": {
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+        "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/lint-independent/format-74delta-cache"
+      },
+      "cwd": "/workspace/e02-E-cal05-20261006/policy-engine",
+      "exit_code": 0,
+      "stdout_sha256": "75b7030be9d7de96bf4e76e79b1f03f14af8899d169fd8d79564d59167d1ab80",
+      "stdout_bytes": 27,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_bytes": 0,
+      "stdout": "11 files already formatted\n",
+      "stderr": "",
+      "immutable229hashguard_before_and_after": true
+    }
+  ],
+  "additional_exact_command_receipts": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-format-pinned-f3ec-receipt.json",
+      "bytes": 91913,
+      "sha256": "27a5c9e18f44d7f02536fbc4c3cea7ae52fc5694d1db7edb41b9ddf7a2a23e4a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/immutable-f3ec-controls.json",
+      "bytes": 5192,
+      "sha256": "a111ab890247f5c6ae30867b201e49d7ae59bd732f951dda3b50576d927dbd6d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-index-74d045-receipt.json",
+      "bytes": 1616,
+      "sha256": "65873248aea9e437a2174874f15219f1f37cfb187bb34c430b102f40f341faef"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/74d045-delta-review.json",
+      "bytes": 43412,
+      "sha256": "7ba752503b196bb0bef551d51627aea0d4d327a2e99087aed629081862dc2ce5"
+    }
+  ],
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "packages": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "defusedxml": "0.7.1",
+      "ruff": "0.14.10"
+    }
+  },
+  "input_identity": {
+    "historical_e9": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+    "historical_source_a9": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+    "immutable_source_extraction": "/workspace/e02-E-pr38-r3-receipts/lint-independent/source-f3ec",
+    "e9_archive_index": "/workspace/e02-E-pr38-r3-receipts/lint-independent/historical-e9/extraction-index.json",
+    "e9_archive_sha256": "1ce6101365808ec681fb9a7237309e549c115da6f41505cf0774cf255925fae6"
+  },
+  "complete_deciding_outputs": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/semantic-f3ec-normal.stdout",
+      "bytes": 4356,
+      "sha256": "c7ed37a327301e03e5847b93f8cb30d8739c808d1474d9b5bc2ed5d72d84bbf6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/semantic-f3ec-normal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/semantic-f3ec-optimized.stdout",
+      "bytes": 4356,
+      "sha256": "ee00e1ded90c11816425e046c120a625ce54351386ac5a43a102f751fdbacb8f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/semantic-f3ec-optimized.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-f3ec-normal.stdout",
+      "bytes": 203,
+      "sha256": "a004fc5760091a35520474c610325cdb8c0f01a5805565e57261e663e2d2e2c5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-f3ec-normal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-f3ec-optimized.stdout",
+      "bytes": 203,
+      "sha256": "a004fc5760091a35520474c610325cdb8c0f01a5805565e57261e663e2d2e2c5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-f3ec-optimized.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/criteria-f3ec-normal.stdout",
+      "bytes": 3647,
+      "sha256": "d0f5aa75f0267c5fc149df279d00988edf4d6f1f0c96813150e1f4f22d567ad9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/criteria-f3ec-normal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/criteria-f3ec-optimized.stdout",
+      "bytes": 3647,
+      "sha256": "d0f5aa75f0267c5fc149df279d00988edf4d6f1f0c96813150e1f4f22d567ad9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/criteria-f3ec-optimized.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-index-74d045-normal.stdout",
+      "bytes": 819,
+      "sha256": "854bd656731a6f5b48260d54659d2b5460745fcbc88f153fda7074fcc666f66b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-index-74d045-normal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-index-74d045-optimized.stdout",
+      "bytes": 819,
+      "sha256": "9fd39cc45989e0417f465c4b35bcb090b15297644f4e83613e330679cdff9740"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-index-74d045-optimized.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-pinned-f3ec.stdout",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-pinned-f3ec.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/format-pinned-f3ec.stdout",
+      "bytes": 28,
+      "sha256": "c1b38a9478b031b6d4bd55b5f933dd2ac57ed867adb55152d400e81451810b51"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/format-pinned-f3ec.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-74delta.stdout",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-74delta.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/format-74delta.stdout",
+      "bytes": 27,
+      "sha256": "75b7030be9d7de96bf4e76e79b1f03f14af8899d169fd8d79564d59167d1ab80"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/format-74delta.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/metrics-port-current.stdout",
+      "bytes": 563,
+      "sha256": "bc447ba29d14f409815cda0782cb023492836340f433592f301ed64a167f0c07"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/metrics-port-current.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-old-e9-normal.stdout",
+      "bytes": 203,
+      "sha256": "a004fc5760091a35520474c610325cdb8c0f01a5805565e57261e663e2d2e2c5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-old-e9-normal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-old-e9-optimized.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-old-e9-optimized.stderr",
+      "bytes": 537,
+      "sha256": "56791deb03ec568c275fbdeb4dee4dad92ea8e00048d8d81aac9a22b2d820f0c"
+    }
+  ],
+  "corrective_defect": {
+    "historical_candidate": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+    "historical_review": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/independent-review-f3ec.json",
+      "bytes": 149255,
+      "sha256": "c1a1a28513dc9f6ae07b3d7dbb33f593f42a4c1fc977b3cc28ef0fb261181d9b"
+    },
+    "historical_outcome": "FAIL: native all-skipped JUnit plus command exit7 overwritten toSKIP; collector accepted.",
+    "new_source_property": "All five runner siblings require exit0 and immutable before SKIP; all five collector siblings independently refuse PASS/SKIP with nonzero command exit.",
+    "independent_outcome_owner": "doe_r4",
+    "independent_current_review": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/harness-independent-review-74d04528.json",
+      "bytes": 72341,
+      "sha256": "edbeecb795d9592a88c95834a7f935363d23cbc5666a34315f2914a6396cbe15"
+    },
+    "independent_scope": "four actual harnesses and11path outcome/selector delta; separate lease, not full229/global approval."
+  },
+  "remaining_verification": [
+    {
+      "owner": "imports_r4",
+      "next_result": "Deliver complete immutable predicate/closure/Git review; own scope reported complete and final74 delta receipt pending publication."
+    },
+    {
+      "owner": "lint_r4",
+      "next_result": "Publish actual edited-builder replay census with immutable inputs/isolated outputs and precise UNRUN unavailable inputs."
+    },
+    {
+      "owner": "E root",
+      "next_result": "Intake reviewed utility source and separate handoff; recompute complete current global denominator after new IR source and independent reviews freeze, then one final common numeric/gate wave."
+    }
+  ],
+  "historical_corrections": [
+    {
+      "historical_receipt": "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-format-90-receipt.json",
+      "state": "ERROR",
+      "reason": "uv defaultauthorlaneenvironment absent; bareignored.venvcreated andRuffspawnfailed; exacterror retained."
+    },
+    {
+      "historical_receipt": "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-format-existing-env-90-receipt.json",
+      "state": "not_established",
+      "reason": "PassingliveRuffstdout lacks before+afterimmutable90hashguard acrossoverlappingstyleedits; f3ec hash-bracketedreceipt is deciding."
+    }
+  ],
+  "cleanup_candidates": [
+    "/workspace/e02-E-cal05-20261006/policy-engine/.venv",
+    "/workspace/e02-E-pr38-r3-receipts/lint-independent/source-90c6",
+    "/workspace/e02-E-pr38-r3-receipts/lint-independent/source-f3ec",
+    "/workspace/e02-E-pr38-r3-receipts/lint-independent/historical-e9",
+    "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-cache-90",
+    "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-existing-env-90-cache",
+    "/workspace/e02-E-pr38-r3-receipts/lint-independent/format-existing-env-90-cache",
+    "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-pinned-f3ec-cache",
+    "/workspace/e02-E-pr38-r3-receipts/lint-independent/format-pinned-f3ec-cache",
+    "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-74delta-cache",
+    "/workspace/e02-E-pr38-r3-receipts/lint-independent/format-74delta-cache"
+  ],
+  "cleanup_action": "None: no native Trash; preserve deciding outputs, unique control scripts and all source/history. Cleanup candidates listed only.",
+  "source_edits": false,
+  "own_priorcriteria_packet_reviewed": false,
+  "finding_dispositions_changed": false
+}

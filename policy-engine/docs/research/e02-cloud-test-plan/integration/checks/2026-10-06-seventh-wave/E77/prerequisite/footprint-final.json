@@ -1,0 +1,25 @@
+{
+  "by_root": {
+    "overlay": {
+      "unique_files": 176,
+      "logical_bytes": 3283751,
+      "allocated_bytes": 3727360
+    },
+    "uv-cache": {
+      "unique_files": 177,
+      "logical_bytes": 3288041,
+      "allocated_bytes": 3735552
+    },
+    "tmp": {
+      "unique_files": 0,
+      "logical_bytes": 0,
+      "allocated_bytes": 0
+    }
+  },
+  "combined_unique_inode_footprint": {
+    "unique_files": 353,
+    "logical_bytes": 6571792,
+    "allocated_bytes": 7462912
+  },
+  "cap_bytes": 31457280
+}

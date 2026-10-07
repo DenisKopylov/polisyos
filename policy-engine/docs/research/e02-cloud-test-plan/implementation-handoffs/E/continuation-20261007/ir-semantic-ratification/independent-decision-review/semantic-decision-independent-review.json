@@ -1,0 +1,156 @@
+{
+  "schema": "policyos.e02.independent_semantic_decision_review.v1",
+  "reviewed_decision_commit": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "reviewed_decision_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/decision.json",
+  "decision_sha256": "cec50c072d527b10dadd54c2225bfc8859985e34ce67b65469a7e43d903e17e5",
+  "source_base_sha": "c4b2ccfb1f8716680f0b431ab4c5757dcc75343f",
+  "source_base_tree": "61e2babec557b813036c194811ceece78ce95ca6",
+  "disposition": "GO for the bounded four decisions; implementation, independent source review and accountable finding adjudication remain pending",
+  "scope": [
+    "B201/B202 appointed E semantic ownership only",
+    "Unchanged UncertaintyEnvelope 1.1 and inline PosteriorSamplesCarrier codec/reader numerical semantics",
+    "Strict distinct posterior-summary metadata profile, not an automatic new institution/scientific confidence claim"
+  ],
+  "compatibility_facts": [
+    {
+      "property": "Mean and equal-tail interval are independent functionals",
+      "source_deficiency": "Native current producer uses generic mean and fails the atom case (mean1, equal-tail[0,0]); replacing interval with one containing mean would change the requested statistic.",
+      "bounded_compatible_solution": "Existing v1.1 generic point can be explicitly labelled median0 while separate named posterior_mean1 and exact inline atoms persist; actual new E profile reader must select/recompute mean."
+    },
+    {
+      "property": "Full finite law retention",
+      "source_deficiency": "Native different-law fixtures with identical sample count, means, intervals and sample variance produce byte-identical summary envelopes and identical CAS refs.",
+      "bounded_compatible_solution": "Existing ordered carrier samples+weights in DECIMAL_EXACT plus exact shared row/order/digest metadata distinguish laws after fresh existing typed-ref read."
+    },
+    {
+      "property": "Joint-law retention",
+      "source_deficiency": "Marginal summaries alone do not distinguish positive and negative pairing.",
+      "bounded_compatible_solution": "Native existing MC on fresh persisted paired carriers distinguishes Var(a-b)=0 and4, actual independent256Sobol callbacks128/128; no new sampler/store is required."
+    },
+    {
+      "property": "Carrier type does not substitute for intake",
+      "source_deficiency": "Legacy PosteriorSamplesCarrier accepts allzero weights.",
+      "bounded_compatible_solution": "Existing common weight/CDF admission must run before strict profile functional or sampler computation; zero mass and collapsed positive categories refuse."
+    }
+  ],
+  "C_F_consumer_boundary": {
+    "census_denominator": 2701,
+    "parse_errors": [],
+    "selected_source_paths": 121,
+    "full_original_manifest_bundle_denominator": 127,
+    "declared_F_edges": [
+      "UQS-01 -> CAU-04 (existing envelope ABI)",
+      "UQS-01 -> SCM-01 (existing envelope ABI)"
+    ],
+    "actual_F_paths": [
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "line": 284,
+        "role": "CausalEffectReport.to_uncertainty_envelope produces its own causal/statistical v1.1 envelope; it does not read E posterior profile."
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_common.py",
+        "line": 145,
+        "role": "Projects an own resolved causal report to envelope."
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+        "line": 1635,
+        "role": "Projects own query_result to envelope."
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+        "line": 136,
+        "role": "Admits own observed_samples EMPIRICAL roots, shared row/provenance/alignment/group; not an E envelope profile consumer."
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+        "line": 425,
+        "role": "Own query-result envelope projection."
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+        "line": 567,
+        "role": "Own envelope projection."
+      }
+    ],
+    "C_boundary": {
+      "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "line": 100,
+      "role": "Existing generic Core-to-IR CAS transport uses existing IR canonical bytes and preserves JSON payload metadata/carrier; this is not a newly appointed law-computation consumer.",
+      "manifest_result": "No C owned/read UQS law-consumer path in complete127 manifest. No claim of no dynamic C consumer follows."
+    },
+    "owner_ready_validation_selectors": [
+      "tests/unit/core/artifacts/test_ir_adapter.py",
+      "tests/unit/ir/test_uncertainty.py",
+      "tests/unit/ir/test_structural_causal_model_contract.py",
+      "tests/unit/ir/test_causal_queries_contract.py",
+      "tests/unit/foundry/methods/catalog/causal/test_gcm_query.py"
+    ],
+    "owner_acceptance": "C/F owners retain adjacent consumer acceptance and authority; E does not assign them new consumers or attest default integration merely from a static call/import."
+  },
+  "actual_E_boundary": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "baseline_line": 134,
+      "current_defect": "Generic point used as nominal; profile median compatibility point must not silently replace posterior mean in the new admitted profile."
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "baseline_line": 1849,
+      "current_defect": "Generic point used for native GE nominal context; the existing supported single-coordinate path needs admitted named mean and profile-bound law. Unsupported multivariate Welfare stays refused."
+    }
+  ],
+  "static_source_caller_fact": {
+    "summary_direct_calls": [],
+    "interpretation": "No bound direct source call to the summarizer in full2701 AST denominator; tests/dynamic registry/getattr are not measured. The new native E node/CAS consumer witness does not prove a configured Bayesian-fit producer source/fit/noise join (B197 stays separate)."
+  },
+  "immutable_candidate_review_requirements": [
+    "Strict unknown/malformed profile refuses without fallback to generic point.",
+    "Raw boolean/nonreal/nonfinite samples, unsupported shape, bad weights, positive CDF collapse and nonfinite summary results refuse before evaluator/nominal callback.",
+    "Recompute profile/carrier binding over axis/order/row IDs/weights/numeric policy plus declared unit/estimand/scale/context; joint carrier digest alone does not cover lineage.",
+    "Gate false regardless of producer metadata/asserted profile; absence of chain mixing/ESS/source/fit context never becomes authority.",
+    "Keep exact old v1.1 reader and numericvalidator bytes and unknown unprofiled record meaning; new profile tests prove weighted inverse-CDF convention explicitly.",
+    "Real producer -> configured CAS -> fresh named-functional E node read -> shared MC law retention plus old-record replay; property removal must reach an assertion failure while markers remain.",
+    "Same-summary different laws, aligned versus reversed paired rows, row-order-only replay, stale digest, missing carrier and integrity-valid forged functional/context negatives.",
+    "Narrow profile facade exports need exact docs/inventory/API compatibility companion review, not a blanket public contract claim."
+  ],
+  "evidence": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/source_census.py",
+      "sha256": "ab0e65c68217d670f4f7ad269adb8bd62e1e10ac66597fa73aacf0c678688984",
+      "size_bytes": 5772
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/source-consumer-census.json",
+      "sha256": "4c4486187ed0b83dcf741d8f7e225166028958093484d604b26a3a4d5d01e11b",
+      "size_bytes": 183283
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/baseline_oracles.py",
+      "sha256": "266196e82cc93e3f9ba95a57ae960dc76792e5028c0d2eeaf5846b4c99142292",
+      "size_bytes": 8204
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/baseline-semantic-oracles.json",
+      "sha256": "a413648a7b0ea9c3f2b0e7e770a1659d568cbbb88a9d45e96b7e112524d0bbd9",
+      "size_bytes": 10251
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/baseline-oracles-corrected.stdout",
+      "sha256": "a413648a7b0ea9c3f2b0e7e770a1659d568cbbb88a9d45e96b7e112524d0bbd9",
+      "size_bytes": 10251
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/baseline-oracles-corrected.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    }
+  ],
+  "check_status": "Independent source/census and native bounded baseline/ABI proof completed; new implementation checks not yet run",
+  "finding_verdict": "No independent closure adjudication in this receipt; historical held preserved pending new implementation evidence and accountable decision.",
+  "cleanup_candidates": [
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/native-cas-dd76gvgs"
+  ],
+  "historical_probe_correction": "Initial scratch reporter assumed uncertainty_decomposition was an object rather than dict and stopped after nativeCAS assertions; original stderr retained. Corrected reporter completed all native cases without product source changes."
+}

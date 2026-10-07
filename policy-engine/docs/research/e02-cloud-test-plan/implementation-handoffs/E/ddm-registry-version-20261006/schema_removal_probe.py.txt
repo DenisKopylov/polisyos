@@ -1,0 +1,14 @@
+import json, pytest
+from pathlib import Path
+original=Path.read_text
+def relaxed_schema(self, *args, **kwargs):
+ text=original(self,*args,**kwargs)
+ if self.name=="model_registry_record.v1.schema.json":
+  schema=json.loads(text)
+  assert schema["additionalProperties"] is False
+  schema["additionalProperties"]=True
+  return json.dumps(schema)
+ return text
+Path.read_text=relaxed_schema
+code=pytest.main(["-q","tests/unit/ddm/test_registry_schema_compatibility.py::test_native_new_producer_requires_distinct_v2_reader"])
+assert code==pytest.ExitCode.TESTS_FAILED, code

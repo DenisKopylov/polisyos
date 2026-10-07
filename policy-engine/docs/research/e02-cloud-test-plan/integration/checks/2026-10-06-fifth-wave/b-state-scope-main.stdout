@@ -1,0 +1,51 @@
+{
+  "candidate_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/candidates/b-all15-state-probe-3eb",
+  "child_result": {
+    "status": "HARNESS_FAIL",
+    "traceback": "Traceback (most recent call last):\n  File \"/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/results/b-all15-state-probe-3eb-child.py\", line 246, in <module>\n    raise SystemExit(0 if result['status'] == 'PROBE_COMPLETE' else 1)\nSystemExit: 0\n"
+  },
+  "closure": {
+    "all_blob_hashes_and_modes_match": "yes",
+    "content_bytes": 54803779,
+    "content_mib": 52.265,
+    "materialized_file_count": 2910,
+    "tracked_blob_count": 2910
+  },
+  "expected_parent_doc_sha256_before_after": [
+    {
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/README.md": "d4d4d9b5cdaf697f128972a774a41b3a11309034a310310f11fdd1168ee99a7e",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-fifth-wave.md": "625d4955f6d227190bc14d9d7f06de228beab9ea355ef2551625ee8da7ea5b18",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-fourth-wave-intake.md": "653ad2b665ad4b716950385dd0a93197a428608d403bd58c744eef2f5f21c08b",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/B-current-owner-actions-2026-10-06.md": "828e0c9fbc98f770df6258d08d179aa48714d63b71f4700ba1cc44e09e6b6990",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/E-r2-owner-actions-2026-10-06.md": "521f806872d2119998540c1edac563564c24898daa0afd078716a850c2cd53bb"
+    },
+    {
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/README.md": "d4d4d9b5cdaf697f128972a774a41b3a11309034a310310f11fdd1168ee99a7e",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-fifth-wave.md": "625d4955f6d227190bc14d9d7f06de228beab9ea355ef2551625ee8da7ea5b18",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-fourth-wave-intake.md": "653ad2b665ad4b716950385dd0a93197a428608d403bd58c744eef2f5f21c08b",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/B-current-owner-actions-2026-10-06.md": "828e0c9fbc98f770df6258d08d179aa48714d63b71f4700ba1cc44e09e6b6990",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/E-r2-owner-actions-2026-10-06.md": "521f806872d2119998540c1edac563564c24898daa0afd078716a850c2cd53bb"
+    }
+  ],
+  "expected_parent_doc_status_lines_before_after": [
+    [
+      " M policy-engine/docs/research/e02-cloud-test-plan/integration/README.md",
+      " M policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-fourth-wave-intake.md",
+      "?? policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-fifth-wave.md",
+      "?? policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/B-current-owner-actions-2026-10-06.md",
+      "?? policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/E-r2-owner-actions-2026-10-06.md"
+    ],
+    [
+      " M policy-engine/docs/research/e02-cloud-test-plan/integration/README.md",
+      " M policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-fourth-wave-intake.md",
+      "?? policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-fifth-wave.md",
+      "?? policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/B-current-owner-actions-2026-10-06.md",
+      "?? policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/E-r2-owner-actions-2026-10-06.md"
+    ]
+  ],
+  "probe_return_code": 2,
+  "probe_timed_out": false,
+  "probe_wall_seconds": 0.634648,
+  "receipt": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/results/b-all15-state-probe-3eb-receipt.json",
+  "workspace_unchanged_before_after": true
+}

@@ -1,0 +1,10 @@
+id = "2026-10-06-e02-calibrator-batch-caller"
+title = "Connect ordered cross-sectional rows to configured calibration"
+type = "added"
+component = "foundry-calibration"
+owner = "team-foundry"
+surface_classification = "internal"
+summary = "Route the configured Calibrator objective, final report, and Hessian through the scalar batch executor with ordered row states, times, IDs, and distinct fixed-seed keys. Bind loader-resolved nodes in objective identity and preserve exact CAS profiles along calibration report input edges."
+evidence = ["tests/unit/foundry/calibration/test_calibrator_batch.py", "tests/unit/foundry/calibration/test_report.py"]
+compatibility = "Ordinary time-series scans retain their existing caller. This optional runtime-only seam does not alter the CalibrationConfig wire schema."
+limitations = "Exact raw cross-sectional vectors are required; controls, target fetch/resampling, and measurement bundles are unsupported. Row execution and declared Gaussian assumptions do not establish a source law or authority."

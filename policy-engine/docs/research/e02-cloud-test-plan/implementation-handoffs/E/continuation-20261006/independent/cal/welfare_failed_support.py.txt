@@ -1,0 +1,28 @@
+"""Native persisted welfare consumer sibling support discriminator; bounded DGP only."""
+import hashlib,json,pathlib,sys,time
+from types import SimpleNamespace
+import numpy as np
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.canon import from_canonical_bytes
+from polisyos.ir.analytics.uncertainty import DistributionFamily,IntervalSemantics,UncertaintyEnvelope,UncertaintySource
+from polisyos.ir.analytics.welfare import load_welfare_sample_bundle
+from polisyos.scientist.nodes.builtins.simulate.propagate_welfare import _ResolvedDependenceContext,_propagate_credible_interval
+OUT=pathlib.Path('/workspace/e02-E-20261006-receipts/cal-independent');ROOT=pathlib.Path('/workspace/e02-E-cal-20261006');source='policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py';source_sha=hashlib.sha256((ROOT/source).read_bytes()).hexdigest()
+cas_path=OUT/'welfare-failed-support-cas';store=FileSystemCAS(cas_path)
+ctx=SimpleNamespace(store=store)
+state=SimpleNamespace(params={'propagation_config':{'mc_n_samples':2048,'mc_min_valid_samples':10,'mc_seed':23}})
+dep=_ResolvedDependenceContext(ref=None,structure=None,correlation_matrix=None,parameter_order=('x',),strategy='unknown',warnings=(),diagnostics={})
+context=SimpleNamespace(dependence_context=dep,dependence_structure_ref=None)
+env=UncertaintyEnvelope(source=UncertaintySource.CALIBRATION,point_estimate=0.,confidence_interval=(-1.,1.),confidence_level=None,distribution_family=DistributionFamily.UNIFORM,interval_semantics=IntervalSemantics.HEURISTIC_RANGE,is_heuristic_ci=True,gate_eligible=False)
+called=[]
+def evaluator(x):
+ called.append(float(x));value=x if x>=0 else np.nan
+ return {'welfare':value,'welfare_pe':value,'welfare_ge':value}
+start=time.monotonic();result=_propagate_credible_interval(ctx,state,welfare_params={'credible_method':'monte_carlo'},context=context,simulation_fn=evaluator,nominal_params={'x':0.},input_envelopes={'x':env})
+fresh=FileSystemCAS(cas_path);samples=load_welfare_sample_bundle(fresh,result.sample_bundle_ref);report=from_canonical_bytes(fresh.get_bytes(ArtifactID.model_validate(result.report_ref.artifact_id)));positive=np.asarray(called)[np.asarray(called)>=0]
+assert len(called)==2048 and np.array_equal(positive,np.asarray(samples.welfare_draws))
+assert result.result_map['welfare']['point_estimate']==float(positive.mean())
+r={'property':'All draw outcomes retained; partial evaluator support may not masquerade as unconditional law result.','implementation':'Sibling welfare loop skips nonfinite draws, persists only successful values, emits their mean and interval.','source_sha256':{source:source_sha},'environment':{'python':sys.version,'numpy':np.__version__,'sampler':'numpy.default_rng(23).uniform(-1,1)','backend':'NumPy actual native caller'},'input':'one scalar Uniform[-1,1]; evaluator undefined for x<0; no production data','requested':len(called),'success':len(positive),'failed':len(called)-len(positive),'underlying_input_known_mean':0.,'unconditional_evaluator_mean':'undefined_without_owner_completion_rule','conditional_known_mean':.5,'actual_unconditioned_input_mean':float(np.mean(called)),'reported_success_mean':result.result_map['welfare']['point_estimate'],'reported_interval':result.credible_interval,'persisted_draw_count':len(samples.welfare_draws),'persisted_report':report,'artifact_refs':{'sample_bundle':result.sample_bundle_ref.model_dump(mode='json'),'report':result.report_ref.model_dump(mode='json')},'support_identity_retained':False,'outcome':'FAIL','basis':'recomputed sample allocation, success subset and fresh CAS readback; served evaluator provenance not_established','wall_seconds':time.monotonic()-start,'limitations':['Calls real welfare propagation/persistence/loader seam, not a deployed served evaluator.','No source law or authority is inferred from bounded DGP.','Candidate field does not repair missing failure denominator or outcome identity.']}
+assert hashlib.sha256((ROOT/source).read_bytes()).hexdigest()==source_sha
+(OUT/'welfare-failed-support-receipt.json').write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r))

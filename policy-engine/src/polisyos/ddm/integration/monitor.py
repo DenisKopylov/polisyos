@@ -25,6 +25,7 @@ from polisyos.ddm.integration.incident import (
 )
 from polisyos.ddm.integration.model_registry import (
     ModelRegistryReadinessRecord,
+    _registry_source_binding_reasons,
     build_model_registry_record,
 )
 from polisyos.ddm.readiness.readiness_mapper import MetricBudgetPolicy, map_readiness
@@ -94,6 +95,15 @@ class DriftAndDegradationMonitor:
             degradation_event=degradation_event,
             data_quality_signals=data_quality_signals,
         )
+        if calibration_audit is not None and metric_budget is not None:
+            binding_reasons = _registry_source_binding_reasons(
+                calibration_audit=calibration_audit,
+                metric_budget=metric_budget,
+                shift_events=shift_risks,
+                degradation_event=degradation_event,
+            )
+            if binding_reasons:
+                raise ValueError("monitor source binding mismatch: " + ", ".join(binding_reasons))
         readiness = map_readiness(
             model_id=model_id,
             model_version=model_version,
@@ -136,6 +146,7 @@ class DriftAndDegradationMonitor:
                 last_degradation_event=enriched_degradation,
                 active_incident_id=active_incident_id,
                 _calibration_validity_evidence=validity_evidence,
+                _source_shift_events=shift_risks,
             )
         return DDMWindowResult(
             shift_risk_events=shift_risks,
@@ -167,8 +178,7 @@ def _validate_window_input_identities(
         if event.model_id != model_id or event.model_version != model_version:
             mismatches.append(f"shift_events[{index}]")
     if degradation_event is not None and (
-        degradation_event.model_id != model_id
-        or degradation_event.model_version != model_version
+        degradation_event.model_id != model_id or degradation_event.model_version != model_version
     ):
         mismatches.append("degradation_event")
     for index, signal in enumerate(data_quality_signals or []):

@@ -1,0 +1,104 @@
+{
+  "schema": "e02.E.corrected-wave-publication-validation.v1",
+  "source_candidate_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "source_candidate_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "evidence_commit": "ddcdfd9c220ba57e37c8abf52b976a7184c384f9",
+  "evidence_tree": "1c5e1bd9ecdd619ae99ae978231aa296875bd1b1",
+  "copy_groups": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/g-checkpoint11-assembly-independent/portable-copy-index.json",
+      "records": 9,
+      "bytes": 4412,
+      "sha256": "13dccba701ae2d4234e571df3307041d4c4c8aeecced058aed356a8ad6f3ec11"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/g-checkpoint11-test-independent/portable-copy-index.json",
+      "records": 10,
+      "bytes": 4697,
+      "sha256": "878e3f449462e0bfd903dbdb8ac972a7c3d181e8eb6406b6a04655a352279869"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/current-consumer-trace/portable-copy-index.json",
+      "records": 13,
+      "bytes": 5865,
+      "sha256": "bd42d59d77c7cf4cf797e7b28b7613d1405ff5db2f71c90d649e1331e4ed4562"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/current-consumer-trace-wave-context/portable-copy-index.json",
+      "records": 3,
+      "bytes": 1926,
+      "sha256": "9db714e5a2f631bd5da7b9de1d26ec600b23a43a55b45159f17205b8cae2733e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-packet/portable-copy-index.json",
+      "records": 11,
+      "bytes": 5136,
+      "sha256": "c90710cc64680f61464bb075b58518711773c6b4a34fce319399608957dce9d7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-independent/portable-copy-index.json",
+      "records": 17,
+      "bytes": 8109,
+      "sha256": "53599971e126cb2a00cbcb42a7390508f723d1f6012d6b70f7907a5598396399"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-validator-v3/portable-copy-index.json",
+      "records": 17,
+      "bytes": 8025,
+      "sha256": "9aaf5a4116aea43a19d7d5deba4fcb870dee961e6e012578152e83ab602183e1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-validator-independent-v3/portable-copy-index.json",
+      "records": 13,
+      "bytes": 6134,
+      "sha256": "e4a87397dd26fa1c41aa01036352ea0bb93a421528be5279d5eed4d32710c6ea"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/portable-copy-index.json",
+      "records": 24,
+      "bytes": 10811,
+      "sha256": "af716c2382e90da49a3900d6bb22c49aafcc3762b2dd6981813e397a2ddcec54"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-independent-v3/portable-copy-index.json",
+      "records": 15,
+      "bytes": 7148,
+      "sha256": "e2bddd6985352a932642f8235bda30b1d72dd9287d0718593911bc7072b72a06"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/portable-copy-index.json",
+      "records": 49,
+      "bytes": 23262,
+      "sha256": "d7cb59a2bc915f7ba06f7f5f0d08a744c1f744618fb256eb7e8092ec5808ad81"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/portable-copy-index.json",
+      "records": 27,
+      "bytes": 12350,
+      "sha256": "6d777866fd71245ec76854d9c94684b87e6ad4a94a103139db7c93368106b477"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-current-wave-results/portable-copy-index.json",
+      "records": 5,
+      "bytes": 2255,
+      "sha256": "fbf10a8d8bd7d180f422fd8339bb905f603afec53e35d80957ad62b62df92618"
+    }
+  ],
+  "copy_record_count": 213,
+  "copy_total_bytes": 13321867,
+  "recomputing_original_bytes_and_Git": "PASS",
+  "corrupt_controls": {
+    "sha256:0000000000000000000000000000000000000000000000000000000000000000": "REJECTED",
+    "bytes:-1": "REJECTED",
+    "copied_path:../outside": "REJECTED",
+    "copied_path:/workspace/outside": "REJECTED",
+    "unpublished_main_revision": "REJECTED"
+  },
+  "post_freeze_delta": {
+    "paths": 228,
+    "product_test_schema_tool_architecture_or_canonical_harness_changes": 0,
+    "kind": "Moderate source-bound evidence/doc publication; new review utilities are not new numeric candidate mechanism results"
+  },
+  "source_and_findings": "a9 wave unchanged.1441PASS4FAIL0ERROR0SKIP,7globalFAIL; no finding or integration acceptance inferred",
+  "cleanup": "No deletion/Trash emptying; exact repetitive candidates remain listed in actual collector receipt"
+}

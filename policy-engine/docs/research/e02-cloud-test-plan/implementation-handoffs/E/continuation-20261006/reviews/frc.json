@@ -1,0 +1,73 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "E",
+  "slice": "FRC",
+  "reviewer": "/root",
+  "author": "/root/frc_r3",
+  "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_sha": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+  "implementation_tree_sha": "1bd337e3a8dae85a9db6af514fcd15417212527c",
+  "diff_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-forecast-candidate-evidence.toml",
+    "policy-engine/src/polisyos/calibration/README.md",
+    "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py"
+  ],
+  "code_acceptance": "GO within declared standalone producer/artifact consumer scope",
+  "finding_closure": false,
+  "specification_verdict": "limited",
+  "checks": [
+    {
+      "reviewer": "/root",
+      "implementation_sha": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+      "head": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+        "tests/unit/remediation/test_frc_01.py",
+        "tests/unit/remediation/test_frc_02.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "PYTHONPATH": "/workspace/e02-E-frc-20261006/policy-engine/src",
+      "exit_code": 1,
+      "wall_seconds": 31.83445183299773,
+      "output": ".........FF..........                                                    [100%]\n=================================== FAILURES ===================================\n________ test_calibration_time_roles_are_preserved_from_bound_evidence _________\n\n    def test_calibration_time_roles_are_preserved_from_bound_evidence() -> None:\n        \"\"\"Prediction, observation, effective, valid, and window times stay distinct.\"\"\"\n    \n        build_inputs = _generation_cycle(\"_build_s10_forecast_inputs\")\n        prediction_time = datetime(2025, 1, 15, 8, 30, tzinfo=UTC)\n        observation_time = datetime(2025, 4, 20, 9, 45, tzinfo=UTC)\n        policy_effective_time = datetime(2025, 2, 1, 0, 0, tzinfo=UTC)\n        data_valid_time = datetime(2025, 4, 1, 0, 0, tzinfo=UTC)\n        window_start = datetime(2025, 3, 1, 0, 0, tzinfo=UTC)\n        window_end = datetime(2025, 4, 30, 23, 59, tzinfo=UTC)\n        world_record = SimpleNamespace(\n            world_model_record_id=\"world_model_record_frc01\",\n            content_hash=\"sha256:\" + \"a\" * 64,\n            valid_time_scope=\"2025-Q2\",\n            region_or_jurisdiction=\"UA\",\n        )\n        problem = SimpleNamespace(\n            design_problem_id=\"frc01-problem\",\n            outcome_of_interest=SimpleNamespace(target_variable=\"firm_survival\"),\n        )\n        candidate = SimpleNamespace(candidate_id=\"frc01-candidate\")\n        method_result = SimpleNamespace(\n            output={\"report\": _finite_estimator_report()}\n        )\n    \n        inputs = build_inputs(\n            candidate=candidate,\n            problem=problem,\n            world_record=world_record,\n            method_result=method_result,\n            selected_method_fqn=\"foundry.methods.example\",\n            forecast_tier=\"observable_calibrated\",\n            calibration_status=\"limit\",\n            policy_context_ref=\"policy-context://world_model_record_frc01\",\n            expected_policy_context_ref=\"policy-context://world_model_record_frc01\",\n            false_clear_counts={},\n            calibration_evidence={\n                \"denominator\": 0,\n                \"numerator\": 0,\n                \"pass_rate\": 0.0,\n                \"floor_passed\": False,\n                \"counterfactual_credibility\": \"insufficient_history\",\n                \"prediction_time\": prediction_time.isoformat(),\n                \"observation_time\": observation_time.isoformat(),\n                \"policy_effective_time\": policy_effective_time.isoformat(),\n                \"data_valid_time\": data_valid_time.isoformat(),\n                \"calibration_window_start\": window_start.isoformat(),\n                \"calibration_window_end\": window_end.isoformat(),\n                \"observed_outcome_ref\": \"outcome://frc01/observed\",\n                \"historical_implementation_ref\": \"implementation://frc01/history\",\n                \"evaluation_design_ref\": \"evaluation://frc01/design\",\n                \"credible_evaluation_evidence_ref\": \"evidence://frc01/credible\",\n                \"source_lineage_refs\": [\"lineage://frc01/source\"],\n                \"method_lineage_refs\": [\"lineage://frc01/method\"],\n            },\n        )\n        record = inputs[\"forecast_calibration_record\"]\n    \n>       assert record.prediction_time == prediction_time\n               ^^^^^^^^^^^^^^^^^^^^^^\nE       AttributeError: 'NoneType' object has no attribute 'prediction_time'\n\ntests/unit/remediation/test_frc_01.py:158: AttributeError\n__________ test_missing_calibration_evidence_refs_stays_typed_blocked __________\n\n    def test_missing_calibration_evidence_refs_stays_typed_blocked() -> None:\n        \"\"\"Temporal dates alone cannot mint a calibration record or pass-through tier.\"\"\"\n    \n        build_inputs = _generation_cycle(\"_build_s10_forecast_inputs\")\n        timestamp = datetime(2025, 1, 15, 8, 30, tzinfo=UTC).isoformat()\n        world_record = SimpleNamespace(\n            world_model_record_id=\"world_model_record_frc01\",\n            content_hash=\"sha256:\" + \"a\" * 64,\n            valid_time_scope=\"2025-Q2\",\n            region_or_jurisdiction=\"UA\",\n        )\n        problem = SimpleNamespace(\n            design_problem_id=\"frc01-problem\",\n            outcome_of_interest=SimpleNamespace(target_variable=\"firm_survival\"),\n        )\n        candidate = SimpleNamespace(candidate_id=\"frc01-candidate\")\n        method_result = SimpleNamespace(output={\"report\": _finite_estimator_report()})\n    \n        inputs = build_inputs(\n            candidate=candidate,\n            problem=problem,\n            world_record=world_record,\n            method_result=method_result,\n            selected_method_fqn=\"foundry.methods.example\",\n            forecast_tier=\"observable_calibrated\",\n            calibration_status=\"limit\",\n            policy_context_ref=\"policy-context://world_model_record_frc01\",\n            expected_policy_context_ref=\"policy-context://world_model_record_frc01\",\n            false_clear_counts={},\n            calibration_evidence={\n                \"counterfactual_credibility\": \"insufficient_history\",\n                \"prediction_time\": timestamp,\n                \"observation_time\": timestamp,\n                \"policy_effective_time\": timestamp,\n                \"data_valid_time\": timestamp,\n                \"calibration_window_start\": timestamp,\n                \"calibration_window_end\": timestamp,\n            },\n        )\n    \n        support = inputs[\"forecast_support\"]\n        assert inputs[\"forecast_calibration_record\"] is None\n        assert support.forecast_tier == \"blocked\"\n        assert support.calibration_record_ref is None\n>       assert \"s10://calibration/fail-closed/insufficient-history\" in support.s6_limitation_refs\nE       AssertionError: assert 's10://calibration/fail-closed/insufficient-history' in []\nE        +  where [] = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast...owth', 's13_accountability_closure', 's14_universality'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').s6_limitation_refs\n\ntests/unit/remediation/test_frc_01.py:224: AssertionError\n=============================== warnings summary ===============================\n../../e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428\n  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir\n  \n    self._warn_or_fail_if_strict(f\"Unknown config option: {key}\\n\")\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED tests/unit/remediation/test_frc_01.py::test_calibration_time_roles_are_preserved_from_bound_evidence\nFAILED tests/unit/remediation/test_frc_01.py::test_missing_calibration_evidence_refs_stays_typed_blocked\n2 failed, 19 passed, 1 warning in 25.36s\n",
+      "output_sha256": "bb4516dc9e3d233bda6f93a299666250840cf2335224cb6cf7b52aa9c23bb453",
+      "prior_attempt": {
+        "command_interpreter": "/workspace/e02-E-frc-20261006/policy-engine/.venv/bin/python",
+        "outcome": "ERROR",
+        "reason": "FileNotFoundError: lane interpreter absent; no test executed"
+      },
+      "thread_controls": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "XLA_FLAGS": null
+      }
+    }
+  ],
+  "P41": "not_established; current consumer failures reported, no inherited-red attribution",
+  "independent_basis": [
+    "Configured strict ForecastOwnerRequest is bound outside served request before native ETS callback.",
+    "Candidate receipt and empirical evidence remain separate content-bound CAS artifacts.",
+    "Reopened candidate loader reconciles source split, ordered pairs, horizon, threshold, method/rule/seed and time roles."
+  ],
+  "consumer_outcome": "FAIL: FRC-01 2 failed, 5 passed; combined owner/FRC01/FRC02 19 passed, 2 failed",
+  "capability_state": "E predictive producer/artifact replay implemented; A default bridge/served verifier missing",
+  "limitations_next_owner": [
+    "A owns generation_cycle.py, default gateway, S10 trusted verifier and fresh served read. Time-role and insufficient-history regression failures remain unresolved in A paths.",
+    "A must resolve CAS and independently reconcile scope/split/pairs/counts/threshold/time/purpose; profile presence, roles, hash, schema and coherent fitted bundle are not issuer authority.",
+    "Predictive calibration only; causal/treatment/policy authority remains denied.",
+    "G must check exact production history locally read-only on this implementation SHA if original criterion requires it."
+  ]
+}

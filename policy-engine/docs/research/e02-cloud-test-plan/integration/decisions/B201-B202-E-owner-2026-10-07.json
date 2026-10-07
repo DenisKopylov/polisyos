@@ -1,0 +1,91 @@
+{
+  "schema": "policyos.e02.scoped_semantic_owner_appointment.v1",
+  "state": "E appointed; four decisions and implementation evidence pending",
+  "appointment_recorded_by": "G root/integrator, acting on the human direction quoted below",
+  "human_basis": {
+    "message_exact": "Можно расмотреть назначенние E отвевним сейчас за ети задачи, оставлять их подвещеними тоже не ефективно. Ето дополнительная инструкци. В остальном продолжай работу",
+    "meaning": "The user asked to consider assigning E now; G records a narrow E assignment to avoid leaving these two E-owned findings unallocated. This is not a technical ratification by G."
+  },
+  "appointment": {
+    "owner": "E",
+    "role": "scoped accountable IR semantic and implementation owner",
+    "finding_ids": [
+      "B201",
+      "B202"
+    ],
+    "scope": "E must make and record the four finite semantic decisions, then own the corresponding E producer/writer implementation and evidence for these findings.",
+    "canonical_owner": "E (scoped to B201/B202)"
+  },
+  "source_identity": {
+    "prior_E_ref": "origin/codex/e02-E-continuation-20261006",
+    "prior_E_commit": "8e7e6cc28ac336fa9275ed456ac19a74d0e55553",
+    "prior_E_tree": "4b062f4fe79c311b887e1f050cde1432d8a31830",
+    "prior_packet_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/ir-semantic-owner-decision.json",
+    "prior_packet_state": {
+      "canonical_owner": null,
+      "decision_state": "unratified",
+      "ledger_status": "held",
+      "historical_packet_is_not_rewritten": true
+    },
+    "G_context_commit": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+    "source_base_sha_in_prior_packet": "028829629a9c30454e44d25e7bea7be3ea05b561",
+    "prior_packet_sha256": "9ed9c7c008a15720a405be41af36d5fa123e11ec17bfb4e51477e7cf8e3ba8e0",
+    "prior_packet_blob": "ef04767a398fa7a73ffbe46bf5eba2aeb519259e"
+  },
+  "finite_decisions_for_E_to_record": [
+    {
+      "id": "separate_linked_uncertainty_objects",
+      "required_decision": "Confirm that identification bounds and statistical/model uncertainty are represented as distinct typed artifacts linked by exact estimand and unit, or state the smallest source-criterion-compatible alternative. Do not infer confidence meaning from an identification bound."
+    },
+    {
+      "id": "independent_named_summary_functionals",
+      "required_decision": "Define the mean and interval/quantile functionals, their weight and numeric semantics, and the behavior for invalid or incompatible inputs. The existing packet's weighted mean/equal-tail proposal and 99 zeros plus one 100 oracle are options to ratify or amend, not already-approved semantics."
+    },
+    {
+      "id": "wire_version_and_compatibility",
+      "required_decision": "First verify whether the current v1.1 contract and reader can satisfy the original criteria. Preserve v1.1 reader/replay and existing inline PosteriorSamplesCarrier compatibility. Only if the criterion requires a wire-semantic change, define the smallest distinct versioned contract; never silently reinterpret v1.1."
+    },
+    {
+      "id": "joint_law_carrier_and_actual_consumers",
+      "required_decision": "Choose CAS-only, inline-plus-ref, or another smallest adequate carrier only after checking current typed refs and actual E/C/F consumer paths. Record the supported compatibility profile and the real consumers found in source/owner evidence; do not invent consumer appointments."
+    }
+  ],
+  "implementation_sequence": [
+    "Read the original B201/B202 criteria and the existing v1.1 UncertaintyEnvelope, PosteriorSamplesCarrier, typed refs, writer, and readers.",
+    "Decide and record all four choices, explicitly distinguishing unchanged v1.1 reuse from any necessary new wire semantics.",
+    "If a shared contract changes, add only the minimal versioned contract and preserve historical v1.1 interpretation.",
+    "Implement the E-owned producer/writer and exact property/oracle/negative checks; obtain independent review of the immutable candidate.",
+    "Identify actual C/F consumer owners and obtain their source-bound consumer evidence; G separately reviews code acceptance."
+  ],
+  "boundaries": {
+    "appointment_is_not_semantic_ratification": true,
+    "appointment_is_not_G_code_acceptance_or_finding_closure": true,
+    "finding_statuses_remain_held_until_their_criteria_are_evidenced_and_formally_adjudicated": true,
+    "out_of_scope": [
+      "A B31 and any other finding ID",
+      "general ownership of every IR or public API contract",
+      "G's integration/code acceptance authority",
+      "C/F consumer implementation or acceptance on their behalf",
+      "scientific, legal, or institutional authority beyond these two findings"
+    ],
+    "G_must_not": [
+      "rewrite the old E packet with canonical_owner null",
+      "choose the four semantic outcomes for E",
+      "treat a recommendation as ratification",
+      "declare B201/B202 closed because E is appointed"
+    ]
+  },
+  "tracked_receipt_required_from_E": {
+    "must_reference": [
+      "this appointment record",
+      "prior E packet commit and path",
+      "the exact original B201/B202 criterion bindings",
+      "each of the four decisions and rationale",
+      "v1.1 compatibility and any minimal new schema/$id",
+      "actual C/F consumers and owner evidence",
+      "required producer/readback/oracle/negative verification"
+    ],
+    "status_after_appointment": "decision pending; no semantic outcome is pre-approved",
+    "appointment_record": "policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/B201-B202-E-owner-2026-10-07.json"
+  }
+}

@@ -56,7 +56,7 @@ class ParamIdentifiability(BaseModel):
     name: str
     status: IdentifiabilityStatus
     eigenvalue: float
-    std: float
+    std: float | None
 
 
 class IdentifiabilityReport(BaseModel):
@@ -95,7 +95,8 @@ def diagnose_identifiability(
 
     for i in range(n):
         ev = float(hessian_diag[i])
-        std_i = float(hessian_result.std[i])
+        # A curvature diagnostic does not define an inferential standard error.
+        std_i = float(hessian_result.std[i]) if hessian_result.std is not None else None
 
         if ev > identified_threshold:
             status = IdentifiabilityStatus.IDENTIFIED

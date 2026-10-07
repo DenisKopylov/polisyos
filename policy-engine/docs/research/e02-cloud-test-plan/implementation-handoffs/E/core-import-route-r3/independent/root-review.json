@@ -1,0 +1,79 @@
+{
+  "reviewer": "E root, independent of author imports_r4",
+  "base": "6c80d1ac520e78a7b79d02402031c5a1673a6161",
+  "candidate": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+  "tree": "cee54ddfec357aedc96a8495b4a9fff5b5cec167",
+  "decision": "GO for bounded source routing slice; global architecture result remains separate",
+  "footprint": [
+    {
+      "path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "candidate_blob": "75b9a64da9de395f9a28d52e2926e3f5dee96b2b",
+      "candidate_sha256": "4aac5f3164d0f137d7b2a54c2302bdb7df85f05d71a57d8e1fa7b920c3525a97",
+      "normalized_binding_and_behavior_ast_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "candidate_blob": "437aeb254c9dff6c2735f9c914953553ea9f6de3",
+      "candidate_sha256": "b80774434a4680f8b10fd880644754958c68d233f4a38e69858ab53ab826f745",
+      "normalized_binding_and_behavior_ast_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "candidate_blob": "f2c3879f995928866f1bfa44c576b7dba994d9db",
+      "candidate_sha256": "80e10adb3a793a63f7126fd9983e8a262cb458913efcfdbdc97a016f5e6fe172",
+      "normalized_binding_and_behavior_ast_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "candidate_blob": "5ce80d5d2481ea86f8950fb1da1cbaebf3ebccd5",
+      "candidate_sha256": "808fc6a04d7bd74addfd7a77d6607c480b8b61a7e4a637e72177058f412dbce0",
+      "normalized_binding_and_behavior_ast_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "candidate_blob": "22db2f26c1b72517e11367c6861b92239f00c199",
+      "candidate_sha256": "d8bf760e45ab697556d39a78219edbf8c91b2b8a7c083b68595cca95d973662a",
+      "normalized_binding_and_behavior_ast_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "candidate_blob": "421108ae946d2b406638e06efe8e22262ffdb674",
+      "candidate_sha256": "f719fb79cd644059f9249b11af74a19f6911bcb2163259c07dbf9a2fa3d16d61",
+      "normalized_binding_and_behavior_ast_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "candidate_blob": "41b6757483cbf48443b4e0fef7638386770fa96d",
+      "candidate_sha256": "098fc2c23c5316e59a4c7c62d9304c58142244810d539dc204781af1fb96bd27",
+      "normalized_binding_and_behavior_ast_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_core_artifact_routes.py",
+      "candidate_blob": "713794d9de160732e376315ffd715214dd2f4957",
+      "candidate_sha256": "7810ffa9d5e0ec31e3f9dd8df9dccb169007594a329a66ca69ff7555b6e23cb7"
+    }
+  ],
+  "independent_property": "All seven runtime modules retain identical AST after resolving old direct symbols and new qualified public-root bindings to canonical fully-qualified symbols. Actual persisted CAS pairs/counts and SALib physical-range outputs reopen through Core root facade.",
+  "test_command": "PYTHONPATH=/workspace/e02-E-cal-review-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/calibration/test_core_artifact_routes.py --basetemp /workspace/e02-E-pr38-r3-receipts/root-import-review-tmp --junitxml=/workspace/e02-E-pr38-r3-receipts/root-import-review.xml",
+  "check_status": "PASS",
+  "tests": 3,
+  "negative_controls": [
+    "Integrity-valid forged observed count rejected by fresh reader",
+    "Present public facade with actual writer capability removed raises at actual persistence callsite"
+  ],
+  "stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/root-import-review.stdout.txt",
+    "bytes": 98,
+    "sha256": "2254188bf92f0a45f4be39d9656ba198d6c452b697c6c844211eeeccef6da1fb"
+  },
+  "stderr": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/root-import-review.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "limitations": [
+    "Missing IR analytics and Foundry execute exports require canonical owner admission; this routing commit does not waive those imports",
+    "No Core shared facade/schema/generated file edited",
+    "No finding closure inferred from route checks"
+  ]
+}

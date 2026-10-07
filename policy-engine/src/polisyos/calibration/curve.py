@@ -72,6 +72,8 @@ def compute_calibration_curve(
         for index, (lower, upper) in enumerate(interval_set):
             if not math.isfinite(lower) or not math.isfinite(upper):
                 raise ValueError("interval bounds must be finite")
+            if lower > upper:
+                raise ValueError("interval lower bound must not exceed upper bound")
             if lower <= arr_true[index] <= upper:
                 covered += 1
         empirical_coverage = covered / len(arr_true)

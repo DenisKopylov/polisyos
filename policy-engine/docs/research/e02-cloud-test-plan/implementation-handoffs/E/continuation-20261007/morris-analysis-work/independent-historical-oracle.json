@@ -1,0 +1,519 @@
+{
+  "schema": "policyos.e02.independent_oracle.v1",
+  "source_kind": "immutable_git_blob_package",
+  "property": "actual Morris analysis work must not exceed the admitted plan rows",
+  "criterion_separation": "actual analyzer-input admission, distinct from B99 sampler generation",
+  "inputs": {
+    "seed": 23,
+    "n_trajectories": 1,
+    "max_estimated_runs": 2,
+    "x": [
+      "0",
+      "2/3",
+      "1/3",
+      "1"
+    ],
+    "response": "y=2*x"
+  },
+  "independent_oracle": {
+    "method": "exact Fraction slopes from separately declared linear response",
+    "elementary_effects": [
+      "2",
+      "2"
+    ],
+    "mu_star": "2",
+    "two_trajectory_sigma": "0",
+    "one_trajectory_sigma": "undefined ddof=1; NaN expected",
+    "scope": "point/admission only; no inference or population authority"
+  },
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "packages": {
+      "NumPy": "2.3.5",
+      "SciPy": "1.16.3",
+      "SALib": "1.5.2",
+      "pydantic": "2.12.5"
+    },
+    "thread_environment_observed_only": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null
+    },
+    "salib_analyzer_path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/SALib/analyze/morris.py"
+  },
+  "sources": [
+    {
+      "sha": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+      "tree": "3e654b07a3228d1b3d2d0bb2a3a91ae792068090",
+      "cases": [
+        {
+          "case": "two_row_control",
+          "check_outcome": "PASS",
+          "actual_decision": "accepted",
+          "expected_decision": "accepted",
+          "declared_estimated_rows": 2,
+          "actual_rows": 2,
+          "actual_trajectories": 1,
+          "salib_call_count": 1,
+          "salib_calls": [
+            {
+              "actual_rows": 2,
+              "actual_output_rows": 2,
+              "kwargs": {
+                "conf_level": 0.95,
+                "num_levels": 4,
+                "seed": 2392636306
+              }
+            }
+          ],
+          "result": {
+            "schema_version": "1.0",
+            "method": "morris",
+            "parameter_names": [
+              "x"
+            ],
+            "mu_star": {
+              "x": 2.0
+            },
+            "sigma": {
+              "x": {
+                "nonfinite": "NaN"
+              }
+            },
+            "mu_star_conf": {
+              "x": [
+                0.0
+              ]
+            },
+            "s1": {},
+            "st": {},
+            "s1_conf": {},
+            "st_conf": {},
+            "s2": {},
+            "ranking": [
+              "x"
+            ],
+            "top_interactions": [],
+            "uncertainty": null,
+            "total_runs": 2,
+            "successful_runs": 2,
+            "failed_runs": 0,
+            "metadata": {
+              "run_failure_policy": "fail_fast",
+              "estimated_runs": 2,
+              "n_trajectories": 1,
+              "uncertainty_status": "point_only_incomplete",
+              "original_total_runs": 2,
+              "failed_row_indices": [],
+              "failed_row_reasons": [],
+              "effective_run_count": 2,
+              "morris_trajectory_size": 2,
+              "original_trajectory_ids": [
+                0
+              ],
+              "effective_trajectory_ids": [
+                0
+              ],
+              "distribution_schema_version": "doe-distribution-v1",
+              "distribution_mapping_fingerprint": "5644a05b507fcddb8b3fddd43210b2c2e2b3bf3ace4cc662c3c2518c2003a079",
+              "salib_backend": "SALib@1.5.2",
+              "plan_seed": 23,
+              "design_id": "0ddffce1f884d1f4680b4e6f69db76812db7a87fb31a5c683e1cbd1e743c5be9",
+              "analysis_id": "54748fe57f1d0d618740782cc11c6025f4f971e0d6884f03681e590e950081d4",
+              "ordered_samples_sha256": "bcf149bb841ec85a0ba250c2ac3b70e95cf637e10560aa6a0d460c5d51dec4d2",
+              "ordered_outputs_sha256": "a82605eefea922e7b83aa4b9e17b103104ba17e0119f21d7f3dbe0b2e80a77a8",
+              "ordered_parameter_names": [
+                "x"
+              ],
+              "parameter_units": {
+                "x": "unspecified"
+              },
+              "analyzer": "SALib@1.5.2:morris",
+              "analyzer_seed": 2392636306,
+              "input_law": "unknown",
+              "input_law_basis": "consumer_asserted",
+              "authority_purpose": "exploratory_parameter_experiment",
+              "population_law_status": "not_established",
+              "point_effect_scale": "unit_coordinate_full_range",
+              "design_order_basis": "geometry_validated_provenance_not_established"
+            }
+          },
+          "warnings": [
+            "Degrees of freedom <= 0 for slice",
+            "invalid value encountered in divide"
+          ]
+        },
+        {
+          "case": "four_row_excess",
+          "check_outcome": "FAIL",
+          "actual_decision": "accepted",
+          "expected_decision": "refused_before_SALib",
+          "declared_estimated_rows": 2,
+          "actual_rows": 4,
+          "actual_trajectories": 2,
+          "salib_call_count": 1,
+          "salib_calls": [
+            {
+              "actual_rows": 4,
+              "actual_output_rows": 4,
+              "kwargs": {
+                "conf_level": 0.95,
+                "num_levels": 4,
+                "seed": 2392636306
+              }
+            }
+          ],
+          "result": {
+            "schema_version": "1.0",
+            "method": "morris",
+            "parameter_names": [
+              "x"
+            ],
+            "mu_star": {
+              "x": 2.0
+            },
+            "sigma": {
+              "x": 4.440892098500626e-16
+            },
+            "mu_star_conf": {
+              "x": [
+                4.46053949236327e-16
+              ]
+            },
+            "s1": {},
+            "st": {},
+            "s1_conf": {},
+            "st_conf": {},
+            "s2": {},
+            "ranking": [
+              "x"
+            ],
+            "top_interactions": [],
+            "uncertainty": null,
+            "total_runs": 4,
+            "successful_runs": 4,
+            "failed_runs": 0,
+            "metadata": {
+              "run_failure_policy": "fail_fast",
+              "estimated_runs": 2,
+              "n_trajectories": 1,
+              "uncertainty_status": "point_only_incomplete",
+              "original_total_runs": 4,
+              "failed_row_indices": [],
+              "failed_row_reasons": [],
+              "effective_run_count": 4,
+              "morris_trajectory_size": 2,
+              "original_trajectory_ids": [
+                0,
+                1
+              ],
+              "effective_trajectory_ids": [
+                0,
+                1
+              ],
+              "distribution_schema_version": "doe-distribution-v1",
+              "distribution_mapping_fingerprint": "5644a05b507fcddb8b3fddd43210b2c2e2b3bf3ace4cc662c3c2518c2003a079",
+              "salib_backend": "SALib@1.5.2",
+              "plan_seed": 23,
+              "design_id": "98057b432f29259457a37b31361a455c27a90e598d51d4e8442749b8cc258a6b",
+              "analysis_id": "dac6598eb42b422d99df26dd9fd419987b3b9068baf17b6900952110d11a15ef",
+              "ordered_samples_sha256": "77238ccc1c6976b249561e4fe71d0baeac52b00356a90a61b90c3b8a5e753d3f",
+              "ordered_outputs_sha256": "964bc87b64a8e7a548e0eb5b32194b1efda8356ede5b102129430245172d98b5",
+              "ordered_parameter_names": [
+                "x"
+              ],
+              "parameter_units": {
+                "x": "unspecified"
+              },
+              "analyzer": "SALib@1.5.2:morris",
+              "analyzer_seed": 2392636306,
+              "input_law": "unknown",
+              "input_law_basis": "consumer_asserted",
+              "authority_purpose": "exploratory_parameter_experiment",
+              "population_law_status": "not_established",
+              "point_effect_scale": "unit_coordinate_full_range",
+              "design_order_basis": "geometry_validated_provenance_not_established"
+            }
+          },
+          "warnings": []
+        }
+      ],
+      "loaded_package_modules": [
+        {
+          "module": "oracle_doe_70c4a14f.analysis",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+          "git_blob": "964c3c5910956a59f053fdd7b73af628a1f13e9d",
+          "bytes": 19431,
+          "sha256": "41ed0c540fd4b304455112261bded3797e2407bfc911d69ddf77ec152abafe60"
+        },
+        {
+          "module": "oracle_doe_70c4a14f.designs",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+          "git_blob": "3596f6b96d37dd2d256b43f11c980f23279f2043",
+          "bytes": 15037,
+          "sha256": "983304e49dda38688ea1f87e44775f67129fcf9337444c8458ef95ebaf04513c"
+        },
+        {
+          "module": "oracle_doe_70c4a14f.morris_geometry",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+          "git_blob": "8e75b7d9fdccaba0c564bb49874056dd20a8bba0",
+          "bytes": 5426,
+          "sha256": "c10fa072989243cd6352aac4db867d34b17b4cbb68fad175571d0ce93df99a6e"
+        },
+        {
+          "module": "oracle_doe_70c4a14f.sampling",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+          "git_blob": "a6487dd0f7d36d7c989ae916705a4db75952dc0a",
+          "bytes": 4019,
+          "sha256": "863384fc13da74d72d9bb7b5c4285c2103b2fc7f2a3895b6b6b383324515d574"
+        },
+        {
+          "module": "oracle_doe_70c4a14f.uncertainty",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/uncertainty.py",
+          "git_blob": "541e2e5912916351935ee504311b8e3bbdaea019",
+          "bytes": 65775,
+          "sha256": "af3fdab52ebf687adf326134f9f31f407896c7bcf0f26159183acef4db3033b1"
+        }
+      ]
+    },
+    {
+      "sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+      "tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+      "cases": [
+        {
+          "case": "two_row_control",
+          "check_outcome": "PASS",
+          "actual_decision": "accepted",
+          "expected_decision": "accepted",
+          "declared_estimated_rows": 2,
+          "actual_rows": 2,
+          "actual_trajectories": 1,
+          "salib_call_count": 1,
+          "salib_calls": [
+            {
+              "actual_rows": 2,
+              "actual_output_rows": 2,
+              "kwargs": {
+                "conf_level": 0.95,
+                "num_levels": 4,
+                "seed": 2392636306
+              }
+            }
+          ],
+          "result": {
+            "schema_version": "1.0",
+            "method": "morris",
+            "parameter_names": [
+              "x"
+            ],
+            "mu_star": {
+              "x": 2.0
+            },
+            "sigma": {
+              "x": {
+                "nonfinite": "NaN"
+              }
+            },
+            "mu_star_conf": {
+              "x": [
+                0.0
+              ]
+            },
+            "s1": {},
+            "st": {},
+            "s1_conf": {},
+            "st_conf": {},
+            "s2": {},
+            "ranking": [
+              "x"
+            ],
+            "top_interactions": [],
+            "uncertainty": null,
+            "total_runs": 2,
+            "successful_runs": 2,
+            "failed_runs": 0,
+            "metadata": {
+              "run_failure_policy": "fail_fast",
+              "estimated_runs": 2,
+              "n_trajectories": 1,
+              "uncertainty_status": "point_only_incomplete",
+              "original_total_runs": 2,
+              "failed_row_indices": [],
+              "failed_row_reasons": [],
+              "effective_run_count": 2,
+              "morris_trajectory_size": 2,
+              "original_trajectory_ids": [
+                0
+              ],
+              "effective_trajectory_ids": [
+                0
+              ],
+              "distribution_schema_version": "doe-distribution-v1",
+              "distribution_mapping_fingerprint": "5644a05b507fcddb8b3fddd43210b2c2e2b3bf3ace4cc662c3c2518c2003a079",
+              "salib_backend": "SALib@1.5.2",
+              "plan_seed": 23,
+              "design_id": "0ddffce1f884d1f4680b4e6f69db76812db7a87fb31a5c683e1cbd1e743c5be9",
+              "analysis_id": "54748fe57f1d0d618740782cc11c6025f4f971e0d6884f03681e590e950081d4",
+              "ordered_samples_sha256": "bcf149bb841ec85a0ba250c2ac3b70e95cf637e10560aa6a0d460c5d51dec4d2",
+              "ordered_outputs_sha256": "a82605eefea922e7b83aa4b9e17b103104ba17e0119f21d7f3dbe0b2e80a77a8",
+              "ordered_parameter_names": [
+                "x"
+              ],
+              "parameter_units": {
+                "x": "unspecified"
+              },
+              "analyzer": "SALib@1.5.2:morris",
+              "analyzer_seed": 2392636306,
+              "input_law": "unknown",
+              "input_law_basis": "consumer_asserted",
+              "authority_purpose": "exploratory_parameter_experiment",
+              "population_law_status": "not_established",
+              "point_effect_scale": "unit_coordinate_full_range",
+              "design_order_basis": "geometry_validated_provenance_not_established"
+            }
+          },
+          "warnings": [
+            "Degrees of freedom <= 0 for slice",
+            "invalid value encountered in divide"
+          ]
+        },
+        {
+          "case": "four_row_excess",
+          "check_outcome": "FAIL",
+          "actual_decision": "accepted",
+          "expected_decision": "refused_before_SALib",
+          "declared_estimated_rows": 2,
+          "actual_rows": 4,
+          "actual_trajectories": 2,
+          "salib_call_count": 1,
+          "salib_calls": [
+            {
+              "actual_rows": 4,
+              "actual_output_rows": 4,
+              "kwargs": {
+                "conf_level": 0.95,
+                "num_levels": 4,
+                "seed": 2392636306
+              }
+            }
+          ],
+          "result": {
+            "schema_version": "1.0",
+            "method": "morris",
+            "parameter_names": [
+              "x"
+            ],
+            "mu_star": {
+              "x": 2.0
+            },
+            "sigma": {
+              "x": 4.440892098500626e-16
+            },
+            "mu_star_conf": {
+              "x": [
+                4.46053949236327e-16
+              ]
+            },
+            "s1": {},
+            "st": {},
+            "s1_conf": {},
+            "st_conf": {},
+            "s2": {},
+            "ranking": [
+              "x"
+            ],
+            "top_interactions": [],
+            "uncertainty": null,
+            "total_runs": 4,
+            "successful_runs": 4,
+            "failed_runs": 0,
+            "metadata": {
+              "run_failure_policy": "fail_fast",
+              "estimated_runs": 2,
+              "n_trajectories": 1,
+              "uncertainty_status": "point_only_incomplete",
+              "original_total_runs": 4,
+              "failed_row_indices": [],
+              "failed_row_reasons": [],
+              "effective_run_count": 4,
+              "morris_trajectory_size": 2,
+              "original_trajectory_ids": [
+                0,
+                1
+              ],
+              "effective_trajectory_ids": [
+                0,
+                1
+              ],
+              "distribution_schema_version": "doe-distribution-v1",
+              "distribution_mapping_fingerprint": "5644a05b507fcddb8b3fddd43210b2c2e2b3bf3ace4cc662c3c2518c2003a079",
+              "salib_backend": "SALib@1.5.2",
+              "plan_seed": 23,
+              "design_id": "98057b432f29259457a37b31361a455c27a90e598d51d4e8442749b8cc258a6b",
+              "analysis_id": "dac6598eb42b422d99df26dd9fd419987b3b9068baf17b6900952110d11a15ef",
+              "ordered_samples_sha256": "77238ccc1c6976b249561e4fe71d0baeac52b00356a90a61b90c3b8a5e753d3f",
+              "ordered_outputs_sha256": "964bc87b64a8e7a548e0eb5b32194b1efda8356ede5b102129430245172d98b5",
+              "ordered_parameter_names": [
+                "x"
+              ],
+              "parameter_units": {
+                "x": "unspecified"
+              },
+              "analyzer": "SALib@1.5.2:morris",
+              "analyzer_seed": 2392636306,
+              "input_law": "unknown",
+              "input_law_basis": "consumer_asserted",
+              "authority_purpose": "exploratory_parameter_experiment",
+              "population_law_status": "not_established",
+              "point_effect_scale": "unit_coordinate_full_range",
+              "design_order_basis": "geometry_validated_provenance_not_established"
+            }
+          },
+          "warnings": []
+        }
+      ],
+      "loaded_package_modules": [
+        {
+          "module": "oracle_doe_a9f78817.analysis",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+          "git_blob": "964c3c5910956a59f053fdd7b73af628a1f13e9d",
+          "bytes": 19431,
+          "sha256": "41ed0c540fd4b304455112261bded3797e2407bfc911d69ddf77ec152abafe60"
+        },
+        {
+          "module": "oracle_doe_a9f78817.designs",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+          "git_blob": "3596f6b96d37dd2d256b43f11c980f23279f2043",
+          "bytes": 15037,
+          "sha256": "983304e49dda38688ea1f87e44775f67129fcf9337444c8458ef95ebaf04513c"
+        },
+        {
+          "module": "oracle_doe_a9f78817.morris_geometry",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+          "git_blob": "8e75b7d9fdccaba0c564bb49874056dd20a8bba0",
+          "bytes": 5426,
+          "sha256": "c10fa072989243cd6352aac4db867d34b17b4cbb68fad175571d0ce93df99a6e"
+        },
+        {
+          "module": "oracle_doe_a9f78817.sampling",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+          "git_blob": "a6487dd0f7d36d7c989ae916705a4db75952dc0a",
+          "bytes": 4019,
+          "sha256": "863384fc13da74d72d9bb7b5c4285c2103b2fc7f2a3895b6b6b383324515d574"
+        },
+        {
+          "module": "oracle_doe_a9f78817.uncertainty",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/uncertainty.py",
+          "git_blob": "541e2e5912916351935ee504311b8e3bbdaea019",
+          "bytes": 65775,
+          "sha256": "af3fdab52ebf687adf326134f9f31f407896c7bcf0f26159183acef4db3033b1"
+        }
+      ]
+    }
+  ],
+  "elapsed_seconds": 1.2167550250014756,
+  "peak_rss_bytes": 210014208
+}

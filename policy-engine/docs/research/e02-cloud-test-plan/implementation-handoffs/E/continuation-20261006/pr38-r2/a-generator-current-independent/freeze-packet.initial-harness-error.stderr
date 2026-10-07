@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/independent-a-generator-packet-a9/freeze_historical_packet.py.txt", line 13, in <module>
+    assert review['author_original_index']['bytes']==2415
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

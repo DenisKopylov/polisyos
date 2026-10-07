@@ -1,0 +1,31 @@
+{
+  "source_sha256": "faecae68f9eecc741e12ae1469fcd57faad11a9facb747f2430762da1758f9fc",
+  "scope": "Synthetic role-only probe; no actual private input touched",
+  "controls": [
+    {
+      "role": "raw",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/synthetic-freeze-role/freeze-raw/wave/raw/source-freeze.json",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/synthetic-freeze-role/freeze-raw/wave/raw/source-freeze.json",
+      "synthetic_payload_copied": false,
+      "product_native_or_gate_commands_executed": 0
+    },
+    {
+      "role": "private",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/synthetic-freeze-role/freeze-private/wave/private/source-freeze.json",
+      "state": "TYPED_REFUSAL",
+      "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/synthetic-freeze-role/freeze-private/wave/private/source-freeze.json",
+      "synthetic_payload_copied": false,
+      "product_native_or_gate_commands_executed": 0
+    },
+    {
+      "role": "standalone",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/collector-v4-author-controls/synthetic-freeze-role/freeze-standalone/source-freeze.json",
+      "state": "CONTROL_COMPLETE_BOUND",
+      "reason": null,
+      "synthetic_payload_copied": true,
+      "product_native_or_gate_commands_executed": 0
+    }
+  ],
+  "property": "Full source components preserve raw/private external-freeze role; standalone positive retained. Author delta controls only, independent review pending."
+}

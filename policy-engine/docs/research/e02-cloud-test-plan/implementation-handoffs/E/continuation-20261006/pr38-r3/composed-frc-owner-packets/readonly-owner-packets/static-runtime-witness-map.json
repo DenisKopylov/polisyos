@@ -1,0 +1,434 @@
+{
+  "schema": "policyos.e02.E.actual-static-caller-runtime-witness-map.v1",
+  "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+  "source_tree": "46d18477c016c43d5b23bfbbad65dc97b28007af",
+  "write_mode": "Read-only source/receipt binding; no static/global checker or new runtime test invocation",
+  "source_bindings": [
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "git_blob": "c2ea71aa81c6ebdd470894ae2aa4e6310833e2cd",
+      "bytes": 15819,
+      "sha256": "271ae2f0b35bc833af5f0b1c748132311d5ebb256440d394cc46fc1c402b7e73",
+      "role": "designs",
+      "symbols": [
+        {
+          "symbol": "_admit_sensitivity_plan",
+          "line": 230,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "git_blob": "4e71700ece55e60c0327c7101cc13523c8440413",
+      "bytes": 19553,
+      "sha256": "98856f7f50784eb899efb807eaefd6c4f33cb3c75f9029dc252c48068afe1e1c",
+      "role": "analysis",
+      "symbols": [
+        {
+          "symbol": "analyze_sensitivity",
+          "line": 36,
+          "kind": "FunctionDef"
+        },
+        {
+          "symbol": "_analysis_identity",
+          "line": 186,
+          "kind": "FunctionDef"
+        },
+        {
+          "symbol": "_prepare_analysis_inputs",
+          "line": 276,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+      "git_blob": "132b1a7626814c08efcdc7129b3d605cf81505cb",
+      "bytes": 5532,
+      "sha256": "0c7bda166798cadc7a9769fadae79d8f435cd4572d22b2c59d8c0c3db3427f0c",
+      "role": "geometry",
+      "symbols": []
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+      "git_blob": "79f3d5debae7d82e1a7b4ab5805edda943bf89e1",
+      "bytes": 6494,
+      "sha256": "5fba0a61d0c6f6c7fc702bda8f9034924449a1853c3319615434daf27f61607f",
+      "role": "stability",
+      "symbols": []
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "git_blob": "421108ae946d2b406638e06efe8e22262ffdb674",
+      "bytes": 3925,
+      "sha256": "f719fb79cd644059f9249b11af74a19f6911bcb2163259c07dbf9a2fa3d16d61",
+      "role": "receipt",
+      "symbols": [
+        {
+          "symbol": "_persist_analysis",
+          "line": 37,
+          "kind": "FunctionDef"
+        },
+        {
+          "symbol": "_load_analysis",
+          "line": 73,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "git_blob": "f2c3879f995928866f1bfa44c576b7dba994d9db",
+      "bytes": 4647,
+      "sha256": "80e10adb3a793a63f7126fd9983e8a262cb458913efcfdbdc97a016f5e6fe172",
+      "role": "bridge",
+      "symbols": [
+        {
+          "symbol": "SensitivityBridge",
+          "line": 40,
+          "kind": "ClassDef"
+        },
+        {
+          "symbol": "analyze_search_space",
+          "line": 47,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "git_blob": "41b6757483cbf48443b4e0fef7638386770fa96d",
+      "bytes": 3805,
+      "sha256": "098fc2c23c5316e59a4c7c62d9304c58142244810d539dc204781af1fb96bd27",
+      "role": "adapter",
+      "symbols": [
+        {
+          "symbol": "SensitivityAwareCandidateGenerator",
+          "line": 14,
+          "kind": "ClassDef"
+        },
+        {
+          "symbol": "from_artifact",
+          "line": 42,
+          "kind": "FunctionDef"
+        },
+        {
+          "symbol": "generate",
+          "line": 78,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "git_blob": "864f5f13e08585badec0549a43bc3bd771a48ecb",
+      "bytes": 50528,
+      "sha256": "a6b90f6451de6b7da55bb823d908212d8a41c2b464681864b73209e014b8a11a",
+      "role": "search",
+      "symbols": [
+        {
+          "symbol": "SearchController",
+          "line": 228,
+          "kind": "ClassDef"
+        },
+        {
+          "symbol": "generate",
+          "line": 164,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "git_blob": "75b9a64da9de395f9a28d52e2926e3f5dee96b2b",
+      "bytes": 23112,
+      "sha256": "4aac5f3164d0f137d7b2a54c2302bdb7df85f05d71a57d8e1fa7b920c3525a97",
+      "role": "continuous",
+      "symbols": [
+        {
+          "symbol": "persist_continuous_evaluation",
+          "line": 254,
+          "kind": "FunctionDef"
+        },
+        {
+          "symbol": "load_continuous_evaluation",
+          "line": 304,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "git_blob": "437aeb254c9dff6c2735f9c914953553ea9f6de3",
+      "bytes": 90808,
+      "sha256": "b80774434a4680f8b10fd880644754958c68d233f4a38e69858ab53ab826f745",
+      "role": "advanced",
+      "symbols": [
+        {
+          "symbol": "_summarize_interval_diagnostics",
+          "line": 547,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/src/polisyos/core/__init__.py",
+      "git_blob": "5964150861173fd27143d44363fda0ddd1b6f7e4",
+      "bytes": 11696,
+      "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40",
+      "role": "core",
+      "symbols": []
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "git_blob": "5ce80d5d2481ea86f8950fb1da1cbaebf3ebccd5",
+      "bytes": 27666,
+      "sha256": "808fc6a04d7bd74addfd7a77d6607c480b8b61a7e4a637e72177058f412dbce0",
+      "role": "native",
+      "symbols": []
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/tests/unit/scientist/methods/doe/test_morris_analysis_admission.py",
+      "git_blob": "42d8c236cb4ad714da61fc7c771f9c6435637a0d",
+      "bytes": 7613,
+      "sha256": "4b87baf6ee95cd0d5d0f075c7838aaddf8692505e3f97999904735a3d9013e8d",
+      "role": "Morris_test",
+      "symbols": [
+        {
+          "symbol": "test_fresh_receipt_reopen_binds_actual_work_and_refuses_forged_smaller_plan",
+          "line": 142,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/tests/unit/calibration/test_core_artifact_routes.py",
+      "git_blob": "713794d9de160732e376315ffd715214dd2f4957",
+      "bytes": 3803,
+      "sha256": "7810ffa9d5e0ec31e3f9dd8df9dccb169007594a329a66ca69ff7555b6e23cb7",
+      "role": "route_test",
+      "symbols": [
+        {
+          "symbol": "test_actual_salib_producer_persists_and_reopens_through_core_facade",
+          "line": 73,
+          "kind": "FunctionDef"
+        },
+        {
+          "symbol": "generate",
+          "line": 22,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    {
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "repo_path": "policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+      "git_blob": "efe66bc736ce77927165a468fef12be63bf4e4e8",
+      "bytes": 12547,
+      "sha256": "66a3482c1f54f768287a907f0809e5e061d204de2db80cd4467be840908fdf98",
+      "role": "receipt_test",
+      "symbols": [
+        {
+          "symbol": "generate",
+          "line": 45,
+          "kind": "FunctionDef"
+        }
+      ]
+    }
+  ],
+  "actual_runtime_paths": [
+    {
+      "mechanism": "Morris actual-input admission and CAS consumer",
+      "writer": "E DoE",
+      "original_neighbor_IDs": [
+        "B99",
+        "B100",
+        "B102",
+        "B103",
+        "B104",
+        "B105"
+      ],
+      "source_implementation_sha": "5840d477346912b0502689a3eeeb6504e6bc2711",
+      "producer": "analyze_sensitivity(plan, complete ordered samples, original outputs)\u2192_prepare_analysis_inputs\u2192_admit_sensitivity_plan(actual_run_count) before filtering/PCA/SALib",
+      "artifact": "_persist_analysis\u2192_analysis_identity(actual_run_count)\u2192configured ArtifactStore.put_json(kind doe_sensitivity_analysis/schema1.0, full rows/outcomes/plan/result)",
+      "bridge_consumer": "new FileSystemCAS(same configured root)\u2192_load_analysis\u2192kind/schema/integrity checks\u2192actual native analyze_sensitivity recomputation\u2192exact result readback",
+      "independent_oracle": "Fraction-derived elementary slopes 2 for x=[0,2/3,1/3,1], y=2x; finite four-row sigma4.440892098500626e-16; two-row sigmaNaN with point_only_incomplete. No inference from point estimate.",
+      "observed_cases": [
+        {
+          "case": "healthy_one_trajectory_two_rows",
+          "outcome": "PASS",
+          "decision": "accepted",
+          "actual_rows": 2,
+          "mu_star": {
+            "x": 2.0
+          },
+          "sigma": {
+            "x": "NaN"
+          },
+          "SALib_calls": [
+            2
+          ],
+          "warnings": [
+            "Degrees of freedom <= 0 for slice",
+            "invalid value encountered in divide"
+          ]
+        },
+        {
+          "case": "four_valid_rows_beyond_admitted_one_trajectory",
+          "outcome": "PASS",
+          "decision": "refused",
+          "error": "actual Morris analysis rows exceed admitted plan (4 > 2); declare the actual trajectory count in SensitivityPlan",
+          "SALib_calls": [],
+          "warnings": []
+        },
+        {
+          "case": "actual_producer_configured_CAS_fresh_reopen",
+          "outcome": "PASS",
+          "actual_rows": 4,
+          "ref": {
+            "artifact_id": "sha256:9f045308e37e2ac7190f2d43c9c95cba83207a6c18587e0fec2b595a72a4ce52",
+            "kind": "doe_sensitivity_analysis",
+            "media_type": "application/json"
+          },
+          "mu_star": {
+            "x": 2.0
+          },
+          "analysis_id": "d152ba6aac95cb22d498fbf9dc8f98aa2489b9da7748aad6a749dad4c1bab019"
+        },
+        {
+          "case": "integrity_valid_CAS_forged_smaller_plan_refuses_before_SALib",
+          "outcome": "PASS",
+          "decision": "refused",
+          "error": "actual Morris analysis rows exceed admitted plan (4 > 2); declare the actual trajectory count in SensitivityPlan",
+          "SALib_calls": [],
+          "warnings": []
+        }
+      ],
+      "removal": {
+        "outcome": "PASS",
+        "negative_gate_outcome": "FAIL",
+        "assertion": "actual-work invariant removed but analyzer reached four rows",
+        "SALib_calls": [
+          4
+        ],
+        "total_runs": 4,
+        "declared_runs": 2,
+        "mu_star": {
+          "x": 2.0
+        },
+        "scope": "actual-work admission removed; plan construction and metadata remain present"
+      },
+      "independent_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/oracle-r4/candidate-5840d477-final/review-results.json",
+        "bytes": 26303,
+        "sha256": "8e966990ed4cccaf2fa2fed11a35fbb64b6d6cec413db9a79f6eaaa6c81352c7"
+      },
+      "current_composed_verification": "Parent root running affected composed selectors; this map does not borrow leafPASS as current composed result.",
+      "proxy_divergence": "Helper/fields remain present when its actual-run predicate is removed, and native SALib then receives four rows despite declared2. Static call presence cannot establish this pre-analyzer property.",
+      "finding_status": "Historical partial preserved; new seam fixed, criterion acceptance/accountable owner separate. B99 allow_large_run/pre-evaluator criterion distinct; B100 transform/fingerprint roundtrip distinct from D defaultSearch edge."
+    },
+    {
+      "mechanism": "Real SALib bridge\u2192Core root CAS facade\u2192persisted Search adapter witness",
+      "writer": "E producer/artifact reader and Core existing facade; D defaultSearch",
+      "source_import_implementation_sha": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "producer": "SensitivityBridge.analyze_search_space constructs typed seeded/unit-bound plan\u2192canonical samples\u2192actual evaluator each row\u2192analyze_sensitivity",
+      "artifact": "same configured store\u2192_persist_analysis; Core root.artifacts ArtifactWriteOptions/SchemaInfo and root.canon.CanonSpec reused by object identity; no store/codec copy",
+      "consumer": "SensitivityAwareCandidateGenerator.from_artifact\u2192_load_analysis on fresh FileSystemCAS\u2192adapter.generate returns persisted analysis_ref/design_id/analysis_id/ranking",
+      "observed_selector": "tests/unit/calibration/test_core_artifact_routes.py::test_actual_salib_producer_persists_and_reopens_through_core_facade",
+      "independent_oracle": "x range10metres, z range1second; y=2x+3z gives physical full-range elementary effects20 and3. Fresh consumed artifact ID/analysis ID agree; population_law_status not_established.",
+      "native_observation_receipts": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/core-artifact-routes.xml",
+          "bytes": 713,
+          "sha256": "11dc827a3c86e9ca73de1f9d1babe82c63b32057bf70d4a5ea1ede7560d1fbc5"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/core-artifact-routes.stdout",
+          "bytes": 80,
+          "sha256": "cf426ab35f3b06fccef8290fde5325d90af130a79da1d1752031518df77c4236"
+        }
+      ],
+      "negative_companion": "Existing test_analysis_receipt.py ordered whole paired-block replay keeps estimands while rebinding content/order; old/forged receipts refuse on fresh reopen. New Morris forgedsmallerplan CAS is integrityvalid yet rejected before native analyzer.",
+      "remaining_default_boundary": "Source search found only sensitivity_adapter definition/public __init__ export, DoE README and fixtures as named SensitivityAwareCandidateGenerator references. That static search does not prove dynamic defaultfactory absence or served behavior. Current observed witness uses injected _CandidateGenerator, so defaultSearch authority/constructor/ranking remains not_established in this receipt.",
+      "next_owner": "D canonical defaultSearch/autotune runtime owner",
+      "minimal_next_input": "Configured actual analysis_ref plus same ArtifactStore, target bounds/units/seed and chosen existing default candidate factory under D lease",
+      "next_verifiable_result": "Default Search caller persists source analysis_ref, reopens through actual reader/codec, consumes ranking at real decision boundary and rejects stale/order/forged artifact; independent replay/readback after downstream persistence. This additional D edge is not B100 original criterion gate."
+    },
+    {
+      "mechanism": "Core import route\u2192continuous diagnostic persistence/readback",
+      "writer": "E PCL producer and Core existing module facade",
+      "source_import_implementation_sha": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "producer": "evaluate_continuous \u2192 persist_continuous_evaluation, Core root.artifacts/canon objects consumed by actual writer",
+      "artifact": "configuredCAS continuous_calibration_diagnostics/schema1.0, source pairs and observed counts persisted separately from verify/integrity",
+      "consumer": "fresh FileSystemCAS\u2192load_continuous_evaluation independently recomputes requested/observed coverage; Foundry advanced._summarize_interval_diagnostics accepts configured calibration_store and actual callers resolve/pass that store",
+      "observed_oracle": "fourrequested, threecovered/4\u2192.75; gate_eligibleFalse; integrity-valid observed count1 forgery refuses reproducibility",
+      "route_removal": "Public names/facade remain present; replacing root.artifacts writer capability raises at true producer. Restore exact oldcontinuous consumer bytes while root names/test/store persist: route discriminator FAIL1 (native source removed), not merely missing-file/marker test.",
+      "native_receipts": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/core-artifact-routes.xml",
+          "bytes": 713,
+          "sha256": "11dc827a3c86e9ca73de1f9d1babe82c63b32057bf70d4a5ea1ede7560d1fbc5"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/core-route-removal.xml",
+          "bytes": 1476,
+          "sha256": "26f9759d9edef02eb809b27ded0c1ccde818150351e53c6e0a2368f672c32a75"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/core-route-removal.stdout",
+          "bytes": 1447,
+          "sha256": "68eceea1f6ef808cc9d5210322fb76be55a2a583df28a22a357634e7b65b455d"
+        }
+      ],
+      "remaining_boundary": "Small generic core-route fixture is not production interval source/time/split identity. Existing PCL own persistedpairs/realFoundry scope evidence and accountable owner acceptance required separately."
+    }
+  ],
+  "external_architecture_companions": {
+    "packet": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/owner-export-packet.json",
+      "bytes": 4522,
+      "sha256": "7531f33b5bf12a524a0f4d2f68b66a4b4b1864af90fcf286191300f2c13368e7"
+    },
+    "actual_exports_missing": [
+      "IR.analytics PosteriorSamplesCarrier",
+      "IR.analytics ParametricFitCarrier",
+      "IR.analytics load_uncertainty_envelope",
+      "IR.analytics persist_uncertainty_envelope",
+      "IR.analytics load_forecasting_uncertainty_bundle",
+      "IR.analytics persist_forecasting_uncertainty_bundle",
+      "Foundry.execute get_state_path",
+      "Foundry.execute load_state_snapshot",
+      "Foundry.execute put_state_snapshot"
+    ],
+    "actual_callers": [
+      "sampling_admission.py",
+      "forecast_bridge.py",
+      "propagate_welfare.py",
+      "native_replay.py"
+    ],
+    "Core_export_state": "Existing root.artifacts/canon/registry present, reused; no missing Core export for this bounded slice",
+    "next_owner": "canonical IR analytics and Foundry execute facade owners + architecture public-surface inventory/generator review",
+    "required_negative": "Actual strict CAS/typed caller identity plus facade-route/property removal after export; no added baseline/exceptions to hide unresolved deepimports"
+  },
+  "static_check_limitations": {
+    "historical_a9_proxy": "10regressions,89newunresolved,9238unresolved source-reported frozen bounded AST proxy; not current result. P41 not_established without exactslice fullcommand/input replay.",
+    "current_proxy_outcome": "UNRUN; root fullstatic stage scheduled once after source+independent-review freeze",
+    "module_binding": "New root module imports add attribute calls that may exceed static resolution. TYPE_CHECKING/lazy dependency tuple/dynamic callsites are not resolved by presence/AST only. Real CAS/native receipts demonstrate their bounded runtime behavior.",
+    "unmeasured": "No served defaultSearch, HTTP forecast verifier, production history/source-law, all-call coverage or full transitive import architecture verdict established by this map. No dummy invocation to satisfy proxy."
+  }
+}

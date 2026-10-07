@@ -1,0 +1,76 @@
+{
+  "schema": "e02.E.portable-review-copy-index.v1",
+  "source_candidate_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "source_candidate_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "reviewed_publication_commit": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+  "source_index": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/independent-final-refbinding-9954/copy-index.json",
+    "bytes": 1492,
+    "sha256": "c3a32861dc72e99b4844f088ea949873af8570d07afdd9b9bfdf8b6c697ff6c0"
+  },
+  "files": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-final-refbinding-9954/READY.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-refbinding-independent/READY.json",
+      "bytes": 891,
+      "sha256": "4cb5fde11ea320359ade9220834873e4d910e8534ca8806c0c333d984a6ba7dd"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-final-refbinding-9954/copy-index-corrupt-controls.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-refbinding-independent/copy-index-corrupt-controls.json",
+      "bytes": 302,
+      "sha256": "b1b4df321042aec7109ed214d5c7932837eaa37c0c4d51d99edbdcda5a801b9d"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-final-refbinding-9954/freeze_index.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-refbinding-independent/freeze_index.py.txt",
+      "bytes": 3160,
+      "sha256": "29944481a6e494a6eeb8a4e1cb13497dac0df0a9dd7af45d64b78625e67871ad"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-final-refbinding-9954/input-snapshot.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-refbinding-independent/input-snapshot.json",
+      "bytes": 38700,
+      "sha256": "f48f6552c36c46ca3f05b605fd2eba8aa7b5eae82bd57762c2315f0ded1a5417"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-final-refbinding-9954/review.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-refbinding-independent/review.json",
+      "bytes": 13832,
+      "sha256": "16499fd2a8670fbd83cc49d69bd454fa8b3841cfa39ee63579b0d5dde03e124e"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-final-refbinding-9954/review.stderr",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-refbinding-independent/review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-final-refbinding-9954/review.stdout",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-refbinding-independent/review.stdout",
+      "bytes": 333,
+      "sha256": "55f9829a38c705da5705eba73ae727b8cb03e642d7310c39bb6cf3fb2a170d15"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-final-refbinding-9954/review_refbinding.py.txt",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-refbinding-independent/review_refbinding.py.txt",
+      "bytes": 15749,
+      "sha256": "e81cca783cea9b6c2838747a51986358db95e4763a8dbd3a05d53f869fbf4c12"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-final-refbinding-9954/verified-67-copies.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-refbinding-independent/verified-67-copies.json",
+      "bytes": 28309,
+      "sha256": "60713323dec582cb941601564d2ce68074fdb44e3550bc4edce983b66df1ad58"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/independent-final-refbinding-9954/copy-index.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-refbinding-independent/copy-index.json",
+      "bytes": 1492,
+      "sha256": "c3a32861dc72e99b4844f088ea949873af8570d07afdd9b9bfdf8b6c697ff6c0"
+    }
+  ],
+  "file_count": 10,
+  "total_bytes": 102768,
+  "rule": "Exact final refbinding review originals; numeric/global/source tests unchanged."
+}

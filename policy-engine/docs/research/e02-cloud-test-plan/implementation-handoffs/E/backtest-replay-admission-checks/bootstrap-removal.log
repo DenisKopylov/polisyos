@@ -1,0 +1,66 @@
+PROPERTY REMOVAL: bootstrap; source files and result markers retained
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_____ test_invalid_bootstrap_shape_rejects_before_callable_or_rng[values0] _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff631e63230>
+values = array([[1., 2.]])
+
+    @pytest.mark.parametrize("values", [np.asarray([[1.0, 2.0]]), np.asarray(1.0)])
+    def test_invalid_bootstrap_shape_rejects_before_callable_or_rng(monkeypatch, values):
+        def forbidden(*args, **kwargs):
+            raise AssertionError("invalid bootstrap input reached numerical callback")
+    
+        monkeypatch.setattr(np.random, "default_rng", forbidden)
+        with pytest.raises(BootstrapValidationError, match="one-dimensional"):
+>           bootstrap_metric(values, statistic=forbidden)
+
+tests/unit/scientist/methods/backtesting/test_replay_admission.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/backtesting/bootstrap.py:84: in bootstrap_metric
+    details={"ndim": arr.ndim},
+src/polisyos/scientist/methods/backtesting/bootstrap.py:210: in _evaluate_statistic
+    raw_result = stat_fn(values)
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (array([[1., 2.]]),), kwargs = {}
+
+    def forbidden(*args, **kwargs):
+>       raise AssertionError("invalid bootstrap input reached numerical callback")
+E       AssertionError: invalid bootstrap input reached numerical callback
+
+tests/unit/scientist/methods/backtesting/test_replay_admission.py:217: AssertionError
+_____ test_invalid_bootstrap_shape_rejects_before_callable_or_rng[values1] _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff631c8c2b0>
+values = array(1.)
+
+    @pytest.mark.parametrize("values", [np.asarray([[1.0, 2.0]]), np.asarray(1.0)])
+    def test_invalid_bootstrap_shape_rejects_before_callable_or_rng(monkeypatch, values):
+        def forbidden(*args, **kwargs):
+            raise AssertionError("invalid bootstrap input reached numerical callback")
+    
+        monkeypatch.setattr(np.random, "default_rng", forbidden)
+        with pytest.raises(BootstrapValidationError, match="one-dimensional"):
+>           bootstrap_metric(values, statistic=forbidden)
+
+tests/unit/scientist/methods/backtesting/test_replay_admission.py:221: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/backtesting/bootstrap.py:84: in bootstrap_metric
+    details={"ndim": arr.ndim},
+src/polisyos/scientist/methods/backtesting/bootstrap.py:210: in _evaluate_statistic
+    raw_result = stat_fn(values)
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (array(1.),), kwargs = {}
+
+    def forbidden(*args, **kwargs):
+>       raise AssertionError("invalid bootstrap input reached numerical callback")
+E       AssertionError: invalid bootstrap input reached numerical callback
+
+tests/unit/scientist/methods/backtesting/test_replay_admission.py:217: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_invalid_bootstrap_shape_rejects_before_callable_or_rng[values0]
+FAILED tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_invalid_bootstrap_shape_rejects_before_callable_or_rng[values1]

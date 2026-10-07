@@ -16,7 +16,12 @@ from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import Metrics, SimulationResult, SimulationResultRef
-from polisyos.foundry.calibration.report import CalibrationReport
+from polisyos.foundry.uncertainty import (
+    BoundedIndicatorResponse,
+    load_foundry_calibration_report,
+    reconcile_draw_outcomes,
+    verify_mean_certificate,
+)
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher
 from polisyos.foundry.uncertainty.protocol import PropagationResult
@@ -25,16 +30,16 @@ from polisyos.ir.analytics.uncertainty import (
     load_uncertainty_envelope,
     persist_uncertainty_envelope,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_PROPAGATION_REPORT_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
     INPUT_CALIBRATION_REPORT_REF,
     INPUT_DATA_SNAPSHOT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 logger = get_logger(__name__)
 
@@ -133,6 +138,16 @@ class PropagateUncertaintyNode:
             nominal_params=nominal_params,
         )
         output_metric_ids = sorted(metric_values.keys())
+        mean_plan = config.bounded_iid_mean
+        if mean_plan is not None and mean_plan.response_threshold is not None:
+            if len(input_envelopes) != 1 or output_metric_ids != [mean_plan.metric_id]:
+                raise ValueError("bounded indicator profile requires one input and output")
+            input_name = next(iter(input_envelopes))
+            simulation_fn = BoundedIndicatorResponse(
+                input_name=input_name,
+                metric_id=mean_plan.metric_id,
+                threshold=mean_plan.response_threshold,
+            )
 
         results = dispatcher.propagate(
             simulation_fn=simulation_fn,
@@ -150,6 +165,9 @@ class PropagateUncertaintyNode:
             )
 
         sensitivity_map = getattr(simulation_fn, "_sensitivity_map", {})
+        if type(simulation_fn) is BoundedIndicatorResponse:
+            sensitivity_map = {simulation_fn.metric_id: {simulation_fn.input_name: 1.0}}
+            mapped_params = {simulation_fn.input_name}
         unmapped_metric_ids = [
             metric_id for metric_id in output_metric_ids if not sensitivity_map.get(metric_id)
         ]
@@ -161,9 +179,7 @@ class PropagateUncertaintyNode:
                 for item in results
             ]
         missing_output_metric_ids = [
-            item.metric_id
-            for item in results
-            if _has_missing_output(item)
+            item.metric_id for item in results if _has_missing_output(item)
         ]
         incomplete_output_metric_ids = [
             item.metric_id
@@ -178,6 +194,11 @@ class PropagateUncertaintyNode:
         artifacts: list[ArtifactRef] = []
         for item in results:
             ref = persist_uncertainty_envelope(ctx.store, item.envelope)
+            persisted_envelope = load_uncertainty_envelope(ctx.store, ref)
+            verify_mean_certificate(persisted_envelope)
+            if item.diagnostics.get("output_coverage_complete") is False:
+                if persisted_envelope.gate_eligible:
+                    raise ValueError("incomplete execution cannot publish a gating envelope")
             envelope_refs[item.metric_id] = ref
             artifacts.append(ref)
 
@@ -192,6 +213,12 @@ class PropagateUncertaintyNode:
             missing_output_metric_ids=missing_output_metric_ids,
             incomplete_output_metric_ids=incomplete_output_metric_ids,
         )
+        report_payload = from_canonical_bytes(ctx.store.get_bytes(report_ref.artifact_id))
+        outcome_receipt = report_payload.get("draw_outcome_provenance")
+        if outcome_receipt is not None:
+            failed_ids = reconcile_draw_outcomes(outcome_receipt, output_metric_ids)
+            if not failed_ids.issubset(set(report_payload["incomplete_output_metric_ids"])):
+                raise ValueError("persisted propagation report hides failed output support")
 
         updated_sim = sim_result.model_copy(
             update={
@@ -303,16 +330,16 @@ def _collect_input_envelopes(
 
     calibration_ref = state.inputs.get(INPUT_CALIBRATION_REPORT_REF)
     if calibration_ref is not None:
-        try:
-            report = _load_model(ctx, calibration_ref, CalibrationReport)
-            if report.uncertainty_envelopes:
-                for name, env in report.uncertainty_envelopes.items():
-                    envelopes[str(name)] = env
-            elif report.uncertainty_envelope_refs:
-                for name, ref in report.uncertainty_envelope_refs.items():
-                    envelopes[str(name)] = load_uncertainty_envelope(ctx.store, ref)
-        except _PROPAGATION_LOAD_ERRORS:
-            logger.debug("Failed to load calibration uncertainty envelopes", exc_info=True)
+        # A configured report is an explicit input, not an optional payload
+        # hint. Preserve its selected CAS profile and reject an invalid report
+        # before a different valid input could hide the missing calibration law.
+        report = load_foundry_calibration_report(ctx.store, calibration_ref)
+        if report.uncertainty_envelopes:
+            for name, env in report.uncertainty_envelopes.items():
+                envelopes[str(name)] = env
+        elif report.uncertainty_envelope_refs:
+            for name, ref in report.uncertainty_envelope_refs.items():
+                envelopes[str(name)] = load_uncertainty_envelope(ctx.store, ref)
 
     return envelopes
 
@@ -473,8 +500,7 @@ def _persist_report(
     )
     shared_provenance = results[0].diagnostics.get("draw_outcome_provenance") if results else None
     if shared_provenance is not None and not all(
-        item.diagnostics.get("draw_outcome_provenance") is shared_provenance
-        for item in results
+        item.diagnostics.get("draw_outcome_provenance") is shared_provenance for item in results
     ):
         shared_provenance = None
 

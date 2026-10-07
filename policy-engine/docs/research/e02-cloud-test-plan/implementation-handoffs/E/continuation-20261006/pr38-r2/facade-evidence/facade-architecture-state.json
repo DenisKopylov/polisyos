@@ -1,0 +1,16 @@
+{
+  "outcome": "UNRUN",
+  "termination": "SIGTERM sent to own guard process 83654",
+  "reason": "Current facade contract tests/docs changed during this non-frozen iteration; this run cannot accept the final candidate. Full architecture guard belongs to frozen common wave.",
+  "command": [
+    "uv",
+    "run",
+    "--no-sync",
+    "polisyos-tools",
+    "architecture",
+    "guardrails",
+    "check"
+  ],
+  "stdout": "facade-architecture.stdout.txt",
+  "environment_note": "Outer no-sync; UV_NO_SYNC omitted. Observed native backend versions unchanged; frozen wave will explicitly set UV_NO_SYNC=1."
+}

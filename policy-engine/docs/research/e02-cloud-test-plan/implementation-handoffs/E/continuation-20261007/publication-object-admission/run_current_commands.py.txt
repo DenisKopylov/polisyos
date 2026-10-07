@@ -1,0 +1,22 @@
+import hashlib,json,platform,subprocess,sys,time
+from pathlib import Path
+REPO=Path('/workspace/e02-E-cal05-20261006');OUT=Path('/workspace/e02-E-pr38-r3-receipts/utility-delta-11');PYTHON='/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python';PREFIX=Path('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E');commands=[]
+def asset(p):
+ b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def run(name,argv,cwd,expected=0):
+ start=time.time();p=subprocess.run(argv,cwd=cwd,stdout=subprocess.PIPE,stderr=subprocess.PIPE);stdout=OUT/(name+'-v2.stdout');stderr=OUT/(name+'-v2.stderr');stdout.write_bytes(p.stdout);stderr.write_bytes(p.stderr);r={'name':name,'argv':argv,'cwd':str(cwd),'exit_code':p.returncode,'expected_exit_code':expected,'elapsed_seconds':time.time()-start,'outputs':{'stdout':asset(stdout),'stderr':asset(stderr)}};commands.append(r)
+ if p.returncode!=expected:raise RuntimeError(name+' exit '+str(p.returncode))
+paths=json.loads((OUT/'baseline-11-receipt.json').read_text())['inputs']['paths'];sources=[REPO/p for p in paths];before=[asset(p) for p in sources]
+for optimized in [False,True]:
+ name='optimized' if optimized else 'normal';argv=[PYTHON]+(['-O'] if optimized else [])
+ run('core-historical-'+name,argv+[str(REPO/PREFIX/'core-import-route-r3/validate.py'),'--repo-root',str(REPO),'--receipt',str(REPO/PREFIX/'core-import-route-r3.json'),'--publication-revision','8fa11f569ebb2c952948e09d4db5c1f37be84b83'],REPO)
+ run('frc-actual-'+name,argv+[str(REPO/PREFIX/'continuation-20261007/frc-native-cas/validate.py')],REPO)
+run('core-current-old-index-refusal',[PYTHON,str(REPO/PREFIX/'core-import-route-r3/validate.py'),'--repo-root',str(REPO),'--receipt',str(REPO/PREFIX/'core-import-route-r3.json')],REPO,1)
+run('fresh-actual-import-builder',[PYTHON,str(REPO/PREFIX/'core-import-route-r3/controls/full-python-delta.py'),'--repo-root',str(REPO),'--output-root',str(OUT/'fresh-actual-builder-v2')],REPO)
+relative=[p.removeprefix('policy-engine/') for p in paths]
+run('current-11-ruff',[PYTHON,'-m','ruff','check','--output-format','json',*relative],REPO/'policy-engine')
+run('current-11-format',[PYTHON,'-m','ruff','format','--check',*relative],REPO/'policy-engine')
+after=[asset(p) for p in sources]
+if before!=after:raise AssertionError('affected source moved during checks')
+record={'author_observation':True,'independent_review':False,'source_head':subprocess.check_output(['git','rev-parse','HEAD'],cwd=REPO,text=True).strip(),'source_tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=REPO,text=True).strip(),'source_state':'working changes pinned by bytes; implementation commit follows','environment':{'python':sys.version,'executable':sys.executable,'platform':platform.platform()},'source_before':before,'source_after':after,'commands':commands,'builder_outputs':[asset(p) for p in sorted((OUT/'fresh-actual-builder-v2').glob('*.json'))],'scope':'Exact eleven only; no common wave or global lint/format'}
+(OUT/'current-command-receipt-v2.json').write_text(json.dumps(record,indent=2)+'\n');print(json.dumps({'commands':len(commands),'all_expected_exits':True,'source_stable':before==after,'builder_outputs':len(record['builder_outputs'])}))

@@ -1,0 +1,1 @@
+{"candidate": "1eba9f9e47a82cca1db341314a748b4980e015fc", "validation": "PASS", "records": 24, "independent_records": 16, "controls": [{"mutation": "digest", "rejected": true}, {"mutation": "size", "rejected": true}, {"mutation": "missing-output", "rejected": true}, {"mutation": "forged-count", "rejected": true}]}

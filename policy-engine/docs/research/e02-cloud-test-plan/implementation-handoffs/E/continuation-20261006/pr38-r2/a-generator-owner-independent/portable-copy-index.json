@@ -1,0 +1,65 @@
+{
+  "schema": "e02.E.complete-portable-evidence.v1",
+  "primary_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-independent/independent-review-eb035.json",
+  "records": [
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-independent/README.md",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-independent/README.md",
+      "bytes": 3161,
+      "sha256": "b3ef6b58fc4204dcdf650a4e20c7e3b99293a70bc3c1b17aa4f0f7d0659316a6"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-independent/independent-patch-check.stderr.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-independent/independent-patch-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-independent/independent-patch-check.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-independent/independent-patch-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-independent/independent-review-eb035.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-independent/independent-review-eb035.json",
+      "bytes": 50814,
+      "sha256": "8beddb209f4af1fd5885a015c58c2b54f6f907d3affa151d3ebb78ffd01ea69e"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-independent/independent-review-final.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-independent/independent-review-final.stdout.txt",
+      "bytes": 445,
+      "sha256": "3eabce01ab04535e25324e3c05a53e6a0e4d76b4b771c2626b4d66c8b6b531cb"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-independent/independent-review.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-independent/independent-review.stdout.txt",
+      "bytes": 519,
+      "sha256": "2f1ac68784431c4945c081ea6bc977d6a7c102ff247c0366a6a00dffff1acb0e"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-independent/review_packet.initial.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-independent/review_packet.initial.py.txt",
+      "bytes": 16015,
+      "sha256": "f18f2039a0deadf68d66eccfe8fde04dca36c9274971cfa43e2926308fad0743"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-independent/review_packet.py",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-independent/review_packet.py",
+      "bytes": 16196,
+      "sha256": "dc4b6c08de202f7c50d0c19886f115778adc499f0f84c15ca8d5df67b5eb2d43"
+    },
+    {
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-independent/copy-index.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-independent/copy-index.json",
+      "bytes": 1843,
+      "sha256": "a343b2e15543fe87b069f90e40a3cc36a7e568dac049463105621e2092ea81c8"
+    }
+  ],
+  "complete": true,
+  "copies": 9,
+  "bytes": 88993,
+  "raw_private_inputs_copied": false,
+  "scope": "Exact full moderate source/author/independent owner packet; historical and current receipt scopes remain unchanged; no finding closure ratification"
+}

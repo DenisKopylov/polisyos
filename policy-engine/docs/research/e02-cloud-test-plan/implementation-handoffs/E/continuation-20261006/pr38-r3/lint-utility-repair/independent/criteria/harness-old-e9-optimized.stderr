@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/lint-independent/historical-e9/harness-independent/validate_packet.py", line 67, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/workspace/e02-E-pr38-r3-receipts/lint-independent/historical-e9/harness-independent/validate_packet.py", line 61, in main
+    else:raise AssertionError('custody corruption accepted')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: custody corruption accepted

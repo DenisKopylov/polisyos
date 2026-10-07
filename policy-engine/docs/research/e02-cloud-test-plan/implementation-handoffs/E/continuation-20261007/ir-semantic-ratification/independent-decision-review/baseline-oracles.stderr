@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/baseline_oracles.py", line 43, in <module>
+    cases.append({'id':'same_summary_different_atoms_native_loss','independent_lawA':exact(fixtureA),'independent_lawB':exact(fixtureB),'native_envelopes_byte_equal':True,'native_CAS_refs_equal':True,'actual_ref':refsA.model_dump(mode='json'),'native_distribution_payload':a.distribution_payload,'native_epistemic_std':summaryA.uncertainty_decomposition.epistemic.parameters})
+                                                                                                                                                                                                                                                                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'epistemic'

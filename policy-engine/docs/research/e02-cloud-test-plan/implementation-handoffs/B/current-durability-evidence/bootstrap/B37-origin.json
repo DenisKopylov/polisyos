@@ -1,0 +1,7 @@
+{
+  "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "python": "3.14.2",
+  "pydantic": "2.12.5",
+  "module_path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+  "module_sha256": "abefe0edeea771328f2099f8da6bfaab2a3d297aa9f072162effddaac2c42401"
+}

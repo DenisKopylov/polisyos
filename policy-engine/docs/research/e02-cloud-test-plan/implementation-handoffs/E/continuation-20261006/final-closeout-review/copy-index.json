@@ -1,0 +1,24 @@
+{
+  "schema": "policyos.e02.evidence_custody.v1",
+  "candidate_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "files": [
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/final-closeout-review/audit-58e2d97965c0.stdout.txt",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/final-closeout-review/audit-58e2d97965c0.stdout.txt",
+      "bytes": 605,
+      "sha256": "7c926402c7f6ce1bc262b31887d431a75db9f31f1767276e2a31fe437f319624"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/final-closeout-review/audit_closeout.py",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/final-closeout-review/audit_closeout.py.txt",
+      "bytes": 13948,
+      "sha256": "a4d4d4f1e3973500da76b1b228542a0d2d6807235ee662f33134117ad42239ec"
+    },
+    {
+      "source_absolute_path": "/workspace/e02-E-20261006-receipts/final-closeout-review/review-58e2d97965c0.json",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/final-closeout-review/review-58e2d97965c0.json",
+      "bytes": 51352,
+      "sha256": "5a67fa58b5a10a10896b0f42d5fa9013f3ba1c6755c2f5f0b95327ba60442803"
+    }
+  ]
+}

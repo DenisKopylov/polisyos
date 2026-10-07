@@ -1,0 +1,185 @@
+{
+  "schema": "policyos.e02.owned_route_release_parser.v1",
+  "actual_parser": "build_release_notes.load_fragments + structured_compatibility_changes; check_compatibility_release_gates._validate_fragments",
+  "base": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "fragments": [
+    {
+      "id": "2026-10-06-e02-calibration-reader-facade",
+      "title": "Keep Foundry calibration readback in the admitted Foundry facade",
+      "type": "fixed",
+      "component": "calibration",
+      "owner": "team-scientist",
+      "summary": "The legacy uncertainty Node consumes the strict reader directly from the admitted Foundry uncertainty facade. The unreleased Calibration alias is removed to preserve the Calibration import boundary.",
+      "change_class": "python-public-api",
+      "surface_classification": "public_experimental",
+      "compatibility": "The removed experimental alias existed only on the unreleased E topic. The tracked production caller now imports the same canonical reader directly from Foundry uncertainty; the Calibration facade retains its other 28 exports. Foundry and Funnel report contracts remain distinct.",
+      "migration": "For the unreleased alias, use polisyos.foundry.uncertainty.load_foundry_calibration_report; Calibration does not depend on Foundry.",
+      "limitations": "Content validation does not establish source fit or served evaluator authority.",
+      "generated_client_compatibility": "not_applicable",
+      "public_surface_inventory_reviewed": true,
+      "evidence": [
+        "tests/unit/calibration/test_evidence_facades.py",
+        "tests/unit/scientist/nodes/test_calibration_report_consumer.py"
+      ],
+      "migration_docs": [
+        "src/polisyos/calibration/README.md"
+      ],
+      "runbook_docs": [],
+      "compatibility_change": [
+        {
+          "id": "calibration-foundry-reader-alias",
+          "change_class": "python-public-api",
+          "impact": "compatible_with_migration",
+          "surface": "public_experimental: polisyos.calibration",
+          "owner": "team-scientist",
+          "version_owner": "team-architecture",
+          "deprecation_window": "not_applicable",
+          "release_note": "Remove the unreleased Calibration reader alias and consume the identical strict reader directly through Foundry uncertainty.",
+          "generated_client_compatibility": "not_applicable",
+          "public_surface_inventory_reviewed": true,
+          "migration_docs": [
+            "src/polisyos/calibration/README.md"
+          ],
+          "runbook_docs": []
+        }
+      ],
+      "__path__": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml"
+    },
+    {
+      "id": "2026-10-06-e02-welfare-covariance-facade",
+      "title": "Route Welfare covariance through the admitted Foundry uncertainty facade",
+      "type": "added",
+      "component": "foundry-uncertainty",
+      "owner": "team-polisyos",
+      "summary": "Welfare consumes five canonical covariance functions and tolerance constants through the existing admitted uncertainty root. Lazy resolution preserves object identity and optional numeric import behavior.",
+      "change_class": "python-public-api",
+      "surface_classification": "public_stable: polisyos.foundry.uncertainty",
+      "compatibility": "Five additive canonical exports; covariance math, calibrated projection, persisted artifacts and IR wire semantics remain unchanged. Existing facade import remains available when the optional JAX stack is absent; requesting the numeric exports preserves the real dependency error.",
+      "migration": "Use polisyos.foundry.uncertainty for the existing covariance functions and v1 reconciliation tolerances.",
+      "limitations": "These exports do not establish a production source law, calibrated evaluator authority, Core/IR entrypoint admission or finding closure.",
+      "generated_client_compatibility": "not_applicable",
+      "public_surface_inventory_reviewed": true,
+      "evidence": [
+        "tests/unit/foundry/uncertainty/test_covariance_facade.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"
+      ],
+      "migration_docs": [
+        "src/polisyos/foundry/uncertainty/README.md"
+      ],
+      "runbook_docs": [],
+      "compatibility_change": [
+        {
+          "id": "foundry-uncertainty-welfare-covariance-facade",
+          "change_class": "python-public-api",
+          "impact": "additive",
+          "surface": "public_stable: polisyos.foundry.uncertainty",
+          "owner": "team-polisyos",
+          "version_owner": "team-architecture",
+          "deprecation_window": "not_applicable",
+          "release_note": "Expose the existing covariance axis, singular-support and v1 reconciliation objects lazily by identity through Foundry uncertainty.",
+          "generated_client_compatibility": "not_applicable",
+          "public_surface_inventory_reviewed": true,
+          "migration_docs": [
+            "src/polisyos/foundry/uncertainty/README.md"
+          ],
+          "runbook_docs": []
+        }
+      ],
+      "__path__": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-covariance-facade.toml"
+    }
+  ],
+  "structured_rows": [
+    {
+      "id": "calibration-foundry-reader-alias",
+      "change_class": "python-public-api",
+      "impact": "compatible_with_migration",
+      "surface": "public_experimental: polisyos.calibration",
+      "owner": "team-scientist",
+      "version_owner": "team-architecture",
+      "deprecation_window": "not_applicable",
+      "release_note": "Remove the unreleased Calibration reader alias and consume the identical strict reader directly through Foundry uncertainty.",
+      "generated_client_compatibility": "not_applicable",
+      "public_surface_inventory_reviewed": true,
+      "migration_docs": [
+        "src/polisyos/calibration/README.md"
+      ],
+      "runbook_docs": [],
+      "fragment": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml"
+    },
+    {
+      "id": "foundry-uncertainty-welfare-covariance-facade",
+      "change_class": "python-public-api",
+      "impact": "additive",
+      "surface": "public_stable: polisyos.foundry.uncertainty",
+      "owner": "team-polisyos",
+      "version_owner": "team-architecture",
+      "deprecation_window": "not_applicable",
+      "release_note": "Expose the existing covariance axis, singular-support and v1 reconciliation objects lazily by identity through Foundry uncertainty.",
+      "generated_client_compatibility": "not_applicable",
+      "public_surface_inventory_reviewed": true,
+      "migration_docs": [
+        "src/polisyos/foundry/uncertainty/README.md"
+      ],
+      "runbook_docs": [],
+      "fragment": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-covariance-facade.toml"
+    }
+  ],
+  "errors": [],
+  "findings": [],
+  "canonical_owner_basis": {
+    "polisyos.calibration": {
+      "owner": "team-scientist",
+      "classification": "public_experimental",
+      "version_owner": "team-architecture (G53 retained canonical version owner)"
+    },
+    "polisyos.foundry.uncertainty": {
+      "owner": "team-polisyos",
+      "classification": "public_stable",
+      "version_owner": "team-architecture (G53 retained canonical version owner)"
+    }
+  },
+  "controls": {
+    "present_fake_owner_E": {
+      "generic_presence_parser_errors": [],
+      "canonical_owner_predicate_refuses": [
+        {
+          "id": "calibration-foundry-reader-alias",
+          "field": "owner",
+          "actual": "E",
+          "required": "team-scientist"
+        }
+      ]
+    },
+    "inventory_review_field_removed": {
+      "errors": [
+        {
+          "check": "public-surface-review",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml:calibration-foundry-reader-alias",
+          "message": "python public API change requires public_surface_inventory_reviewed=true",
+          "detail": ""
+        },
+        {
+          "check": "public-surface-review",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-covariance-facade.toml:foundry-uncertainty-welfare-covariance-facade",
+          "message": "python public API change requires public_surface_inventory_reviewed=true",
+          "detail": ""
+        }
+      ]
+    },
+    "version_owner_field_removed": {
+      "errors": [
+        {
+          "check": "fragment-compatibility",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/postimage/policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml:calibration-foundry-reader-alias",
+          "message": "missing `version_owner`",
+          "detail": ""
+        }
+      ]
+    }
+  },
+  "scope": "Two owned route/public-API companion rows only, not whole release readiness/globalCI or wire/schema/semantic owner ratification."
+}

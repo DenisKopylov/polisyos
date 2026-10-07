@@ -1,0 +1,104 @@
+{
+  "schema": "policyos.e02.output_publication_correction.v1",
+  "affected_prior_receipts": [
+    "b0f9979e4",
+    "806e5b307"
+  ],
+  "reason": "Repository ignore rules excluded copied .log extensions during git add; local integrity checks did not check tracked Git-object reachability. Original full output bytes retained.",
+  "current_copies": [
+    {
+      "old_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-native.log",
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-native.stdout.txt",
+      "bytes": 5222,
+      "sha256": "6146005c11440ad6457e578cf9009b6dd3ba8a31a592b2107c3441acc48d6198"
+    },
+    {
+      "old_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-fresh.log",
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-fresh.stdout.txt",
+      "bytes": 3435,
+      "sha256": "e0d3c5846c280bacbcc01f42befd2481b20470bdfc3b28be6045d694bdb9ca55"
+    },
+    {
+      "old_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-targeted.log",
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-targeted.stdout.txt",
+      "bytes": 99,
+      "sha256": "8344ac07aaa8316530ce9eac7e762bc7c0a88a89c23a09642b10eb07f22669b3"
+    },
+    {
+      "old_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-ruff.log",
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-ruff.stdout.txt",
+      "bytes": 45,
+      "sha256": "c6486b51f483249343d4a4bdb91c41be31f0bdc28887b2f4cd4800e174f8bd6b"
+    },
+    {
+      "old_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-consumer-boundary.log",
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-consumer-boundary.stdout.txt",
+      "bytes": 913,
+      "sha256": "46931e297c5e252139fdb09beed20e3c48c64d0bc89416e9615fb1511c924bb5"
+    },
+    {
+      "old_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-native-timing-bootstrap-error.log",
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-native-timing-bootstrap-error.stdout.txt",
+      "bytes": 60,
+      "sha256": "3e737f6a9117cec194b02103b357f8668fae9adb86a8a8cd0bf25efab8948548"
+    },
+    {
+      "old_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-consumer-boundary-harness-error.log",
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-consumer-boundary-harness-error.stdout.txt",
+      "bytes": 2667,
+      "sha256": "b6bea8edced6e3f3eb1672611db91e4c4ce0671cb14b72750288094a05473f52"
+    },
+    {
+      "old_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/independent-native-corrected.log",
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/independent-native-corrected.stdout.txt",
+      "bytes": 100,
+      "sha256": "b02728e28d2d798bebadb380abc324e24d8493d1793c21bfe370d5cb6923fcef"
+    },
+    {
+      "old_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/corrupt-candidate-corrected.log",
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/corrupt-candidate-corrected.stdout.txt",
+      "bytes": 114,
+      "sha256": "5e4420effb17d982018e3feba47d2a223633cd5e92ed78633ebee85db665cab1"
+    },
+    {
+      "old_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/repository-targeted.log",
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/repository-targeted.stdout.txt",
+      "bytes": 597,
+      "sha256": "29817a48c8dc1ec315a74fd7eff22b54410c2a4e6d2b7c6ae489a4feee767b9b"
+    },
+    {
+      "old_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/a-cas-contract.log",
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/a-cas-contract.stdout.txt",
+      "bytes": 109,
+      "sha256": "7b458c2b5db11ac5ea366847c8ca53323b32bbca588f8fe26aa97b6cf8b5f9a2"
+    },
+    {
+      "old_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/a-status-reason.log",
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/a-status-reason.stdout.txt",
+      "bytes": 7090,
+      "sha256": "20611198e77abb5a5d45d44a6d04a8154b425f653d273e6c4c661ee767b2afc5"
+    },
+    {
+      "old_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/legacy-replay.log",
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/legacy-replay.stdout.txt",
+      "bytes": 4673,
+      "sha256": "7e6d9556538ff55b5937ab3c135516aa10c400d7ded39190002d05d2d39f5a5f"
+    },
+    {
+      "old_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/frc-style.log",
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/frc-style.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "old_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/frc-format.log",
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/frc-format.stdout.txt",
+      "bytes": 26,
+      "sha256": "ef7d13d02214e98ca902b05257cdbe6a8e84f3b4714508efdc19766460b54209"
+    }
+  ],
+  "scientific_result_change": false,
+  "historical_publication_claim": "prior local-copy integrity was correct; remote-copy completeness was not established for the15ignored paths, superseded by this correction",
+  "new_verifier": "Require every portable deciding path in git ls-files and compare candidate Git blob bytes/sha/size before remote handoff; corrupt-hash/size controls remain",
+  "cleanup": "Original ignored .log files preserved, no deletion"
+}

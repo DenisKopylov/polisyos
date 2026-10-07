@@ -1,0 +1,12 @@
+{
+  "source_candidate": "884681db485b7466b183a206f83bbe0635f86ca3",
+  "artifacts": [
+    "source_ref",
+    "bundle_ref",
+    "receipt_ref",
+    "sample_ref",
+    "propagation_report_ref"
+  ],
+  "all_fresh_cas_verify": true,
+  "deciding_output_bytes": 156544
+}

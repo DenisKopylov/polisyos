@@ -1,0 +1,25 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________________________ test_actual_child_is_uncapped _________________________
+
+    def test_actual_child_is_uncapped():
+        observed = {name: os.environ[name] for name in CAPS if name in os.environ}
+        Path(os.environ['HARNESS_ENV_OBSERVER']).write_text(json.dumps(observed, indent=2) + '\n')
+>       assert observed == {}, observed
+E       AssertionError: {'BLIS_NUM_THREADS': '1', 'MKL_NUM_THREADS': '1', 'NUMEXPR_NUM_THREADS': '1', 'OMP_NUM_THREADS': '1', ...}
+E       assert {'BLIS_NUM_TH...DS': '1', ...} == {}
+E         
+E         Left contains 6 more items:
+E         {'BLIS_NUM_THREADS': '1',
+E          'MKL_NUM_THREADS': '1',
+E          'NUMEXPR_NUM_THREADS': '1',
+E          'OMP_NUM_THREADS': '1',
+E          'OPENBLAS_NUM_THREADS': '1',
+E          'VECLIB_MAXIMUM_THREADS': '1'}
+E         Use -v to get more diff
+
+../../e02-E-pr38-r3-receipts/harness-independent-r3/tiny_uncapped_environment.py:14: AssertionError
+=========================== short test summary info ============================
+FAILED ../../e02-E-pr38-r3-receipts/harness-independent-r3/tiny_uncapped_environment.py::test_actual_child_is_uncapped
+1 failed in 0.39s
+[run] tiny actual uncapped pytest child

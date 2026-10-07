@@ -1,0 +1,142 @@
+"""Finalize existing actual-output audit; no checks or product callbacks execute."""
+from __future__ import annotations
+import copy
+import hashlib
+import json
+import platform
+import subprocess
+import sys
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+SCRATCH = HERE.parents[1]
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+SHA = 'a9f78817c873be5b35a08155f2593b229d9fdbb6'
+TREE = 'c02e043c3e1c8222c28aa71187fa8db4e2fdeea7'
+ORIGINAL = SCRATCH / 'source-freeze-a9f78817c.json'
+CARRIER = SCRATCH / 'publication-freeze-a9f78817c-v3.json'
+PEER = SCRATCH / 'independent-publication-freeze-adapter-v3'
+
+def load(path):
+    return json.loads(path.read_text())
+
+def digest(path):
+    data = path.read_bytes()
+    return {'path': str(path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+original = load(ORIGINAL)
+carrier = load(CARRIER)
+binding = digest(ORIGINAL)
+assert binding['bytes'] == 6358 and binding['sha256'] == 'f90129331279070984ccd9cd93da217633c9f734086c3a6213e6b4d7ca9311c4'
+assert digest(CARRIER)['bytes'] == 7951
+assert digest(CARRIER)['sha256'] == 'c3cfeb2a9df29d1eb5f2e73da1a8eba940d1ff93569201dfb5a6fa671eae950d'
+peer_index = load(PEER / 'copy-index.json')
+assert len(peer_index['files']) == peer_index['file_count'] == 14
+assert sum(row['bytes'] for row in peer_index['files']) == peer_index['total_bytes'] == 80173
+for row in peer_index['files']:
+    actual = digest(PEER / row['path'])
+    assert (actual['bytes'], actual['sha256']) == (row['bytes'], row['sha256'])
+assert digest(PEER / 'copy-index.json')['sha256'] == '875be63037d48dec4d81ab5f48b044d6363d71f361343f4af4f541586ffb998f'
+peer_review = load(PEER / 'review.json')
+assert peer_review['candidate_sha'] == SHA and peer_review['candidate_tree'] == TREE
+assert peer_review['verdict'] == 'GO-bounded-publication-role-carrier-adapter'
+
+def validate_representation(value):
+    assert set(value) == set(original) | {'external_content_bound_reviews', 'publication_representation'}
+    assert {k:v for k,v in value.items() if k in original and k != 'reviews'} == {k:v for k,v in original.items() if k != 'reviews'}
+    git = [r for r in original['reviews'] if not Path(r['path']).is_absolute()]
+    external = [r for r in original['reviews'] if Path(r['path']).is_absolute()]
+    assert value['reviews'] == git and len(git) == 6 and len(external) == 2
+    rows = value['external_content_bound_reviews']
+    assert len(rows) == 2
+    for row, record in zip(rows, external, strict=True):
+        assert row['role'] == 'external_content_bound_independent_review'
+        assert row['source_sha'] == SHA and row['source_tree'] == TREE
+        assert row['original_freeze_binding'] == binding
+        assert row['record'] == record
+        actual = digest(Path(record['path']))
+        assert actual['bytes'] == record['bytes'] and actual['sha256'] == record['sha256']
+    representation = value['publication_representation']
+    assert representation['original_freeze_binding'] == binding
+    assert representation['original_review_count'] == 8
+    assert representation['candidate_git_review_count'] == 6
+    assert representation['external_content_bound_review_count'] == 2
+    assert representation['new_source_freeze'] is False
+    assert representation['canonical_collector_external_validation'] is False
+    return True
+
+assert validate_representation(carrier)
+controls = []
+for label, mutate in [
+    ('omitted actual external review', lambda v: v['external_content_bound_reviews'].pop()),
+    ('false canonical all-eight validation', lambda v: v['publication_representation'].__setitem__('canonical_collector_external_validation', True)),
+    ('changed original source timestamp', lambda v: v.__setitem__('frozen_at_utc', '2099-01-01T00:00:00Z')),
+]:
+    fake = copy.deepcopy(carrier)
+    mutate(fake)
+    try:
+        validate_representation(fake)
+    except (AssertionError, KeyError, ValueError):
+        controls.append({'control': label, 'outcome': 'REJECTED'})
+    else:
+        raise AssertionError(f'ineffective control: {label}')
+
+head_tree = subprocess.check_output(['git','rev-parse','HEAD','HEAD^{tree}'], cwd=ROOT, text=True).splitlines()
+assert head_tree == [SHA, TREE]
+assert subprocess.check_output(['git','status','--porcelain=v1'], cwd=ROOT) == b''
+primary_path = HERE / 'independent-wave-review-a9f78817c.json'
+primary = load(primary_path)
+owners = load(HERE / 'actual-owner-attribution-and-scratch-a9f78817c.json')
+assert primary['actual_numeric_JUnit_counts'] == {'cases':1445,'passed':1441,'failed':4,'errors':0,'skipped':0}
+primary['source_framing_format'] = 'Sorted tracked Git path bytes + NUL + actual raw file content + NUL; full filesystem-to-Git blob equality; not the earlier path/size/digest assembly frame.'
+primary['actual_owner_case_quantities'] = owners['actual_owner_counts']
+primary['actual_A_packet_quantities'] = owners['A_packet_counts']
+primary['source_attribution_negative_controls'] = owners['source_attribution_controls']
+primary['actual_current_scratch_summary'] = [{k:v for k,v in row.items() if k != 'actual_JSON_artifact_kind_records'} | {'JSON_artifact_kind_record_count': len(row['actual_JSON_artifact_kind_records'])} for row in owners['actual_completed_scratch']]
+primary['actual_failed_case_source_attribution'] = [row for row in owners['all_cases'] if row['outcome'] != 'passed']
+primary['A_source_status_residual'] = 'Two native FRC-01 assertions plus two actual A status-reason assertions failed. A owns generation_cycle/default resolver/status reasons; frozen fourth case is now a real floor_not_met-versus-insufficient-history assertion failure, whereas first5e was setupERROR. No inherited P41 cause claim.'
+primary['numerical_suite_acceptance'] = 'HOLD: current 4 assertion FAIL, 0 ERROR, 0 SKIP; no setup errors; exact source owners and inputs retained; no inherited-red waiver.'
+primary['global_gate_quantities'] = {'gates':7,'failed':7,'importer':'PASS','workspace_verify':{'doctor':'PASS','lintimports':'FAIL','UNRUN':13},'ci_parity':{'doctor':'FAIL','UNRUN':23}}
+primary['global_output_scope_notes'] = {
+    'runtime_api': 'Actual committed OpenAPI 1489 versus runtime 1493; generated client behavior compatibility unmeasured; historical1492 is not current.',
+    'ruff': 'Actual 7951 diagnostic rows in172 distinct docs/ evidence helper paths, zero src/ diagnostics. Full317 input paths; no helper-debt waiver.',
+    'format': 'Actual156 files would reformat and161 already formatted across complete317 inputs.',
+    'static_invocation': 'Actual10 regressions,89 new unresolved,9238 unresolved-by-construction,140152 receiver calls; partial coverage and runtime_invocation_established=false. Raw171772302B remains ignored, hash/size custody only.',
+    'CI_doctor': 'Browser launch and frontend contract unit test success do not prove fullCI. Schema/runtime OpenAPI failed; later23 stages UNRUN.'
+}
+primary['publication_role_representation'] = {
+    'original_freeze': binding,
+    'typed_carrier': digest(CARRIER),
+    'independent_adapter_review': digest(PEER / 'review.json'),
+    'independent_adapter_index': digest(PEER / 'copy-index.json'),
+    'independent_adapter_assets': {'files':14,'bytes':80173,'all_exact_bytes_verified':True},
+    'original_fields_preserved': True,
+    'all_review_records_preserved': {'original':8,'candidate_git':6,'external_content_bound':2,'omitted':0},
+    'canonical_v4_external_validation': False,
+    'external_review_binding_protocol': 'DoE independently reviewed strict adapt_publication_freeze.py v3; canonical collector only validates six candidate Git reviews.',
+    'original_collection_input_error': 'InputERROR exit128 before publication directory due two absolute reviews interpreted as Git paths; original6358B/f901 retained; no numerical/source/wave change.',
+    'own_effective_metadata_controls': controls,
+    'standalone_FRC_collection': 'Separate publication operation; this audit does not require or claim its completion.'
+}
+primary['final_custody_readback'] = {'candidate':head_tree[0],'tree':head_tree[1],'tracked_status_clean':True,'source_config_ref_writes':False}
+primary['review_environment'] = {'python':sys.version,'executable':sys.executable,'platform':platform.platform(),'UV_NO_SYNC':'1','PYTHONDONTWRITEBYTECODE':'1','new_environment':False}
+primary['review_scope'] = 'Read-only actual source/input/receipt/fullstdout/JUnit/config hash custody and pure metadata controls. No tests, numerical/global checks, wheel builds, CAS readers, evaluator callbacks, Git/config/ref/product edits.'
+primary['next_owners'] = {'A':'default producer/resolver/served lifecycle/status reasons; current4 assertions packet','G':'code acceptance, global architecture/lint/static/CI issues and generator owners; exact published SHA fetch','D':'actual Search codec/default analyzer/ranking seam','IR/Core/execute':'separate unratified semantics/admission/source-law authority','root':'publish moderate current-wave/independent packets and preserve raw/private ignored evidence'}
+primary['Git_publication'] = 'READY content-bound scratch; parent performs publication and remote readback. No claim these new audit files existed in frozen a9.'
+primary_path.write_text(json.dumps(primary,indent=2)+'\n')
+for source,name in [(ORIGINAL,'original-source-freeze-a9f78817c.json'),(CARRIER,'publication-freeze-a9f78817c-v3.json'),(PEER/'review.json','publication-role-adapter-independent-review.json'),(PEER/'copy-index.json','publication-role-adapter-independent-copy-index.json')]:
+    (HERE/name).write_bytes(source.read_bytes())
+(HERE/'publication-role-binding-controls.json').write_text(json.dumps(controls,indent=2)+'\n')
+(HERE/'README.md').write_text('''Independent actual corrected-wave audit at a9f78817c873be5b35a08155f2593b229d9fdbb6 / tree c02e043c3e1c8222c28aa71187fa8db4e2fdeea7.
+
+Source/input and receipt/output custody GO. Actual JUnit:1445 cases,1441 PASS,4 FAIL,0 ERROR,0 SKIP. Native1438=1436PASS+2FAIL; A packets7=5PASS+2FAIL. Current four assertions remain A/default resolver/status-reason residuals; no inherited P41 waiver. Seven global gates FAIL, importer PASS; workspace13 and CI23 required later stages UNRUN. Numerical and fullCI acceptance remain HOLD/FAIL, separately from finding closure.
+
+All15 actual receipts, complete122 native+2 A source inputs,317 changed Python lint paths, full stdout/JUnit, full tracked source and effective private-config hash/size reconciled. The raw171MB diagnostic and private config remain ignored and are not copied. Artifact presence is IO custody, not authority; negative-test CAS records may intentionally be malformed.
+
+Original6358B/f901 source freeze is preserved. Typed publication carrier only reclassifies six Git and two external content-bound reviews while preserving source/time/environment/wave/closure values. DoE adapter GO is separately bound; canonicalv4 alone does not verify external metadata. Original collection InputERROR128 is preserved as a publication-input error, distinct from backend outcomes.
+
+Primary:independent-wave-review-a9f78817c.json. Inputs, JUnit case IDs/nonpasses, exact output asset digests, exact source attribution, actual scratch/CAS-file custody, pure audit scripts and effective negatives are indexed. This reviewer launched no tests/global/numerical checks and made no Git/config/ref/product changes. CAL mechanism approval uses unchanged independent DoE source review; no self-approval. Prior5e failed attempt remains separate. Ledger statuses and held IR/source-law/served boundaries are unchanged. Parent publishes these moderate files after the wave; their presence in frozena9 is not claimed.
+''')
+ready = {'schema':'e02.E.corrected-wave-independent.READY.v1','status':'READY-custody-GO-numerical-HOLD-global-FAIL','candidate_sha':SHA,'candidate_tree_sha':TREE,'primary':digest(primary_path),'source_freeze':binding,'typed_publication_carrier':digest(CARRIER),'actual_counts':primary['actual_numeric_JUnit_counts'],'all_actual_receipts':15,'numeric_source_inputs':124,'changed_python_lint_paths':317,'scope':primary['review_scope'],'cleanup_candidates':['Actual common-wave temporary/ directories and repeatable synthetic metadata fixtures after deciding evidence is saved; native Trash unavailable, no deletion performed. Preserve source,docs,original/carrier,unique deciding evidence and raw/private outputs.']}
+(HERE/'READY.json').write_text(json.dumps(ready,indent=2)+'\n')
+print(json.dumps({'status':ready['status'],'primary':ready['primary'],'peer_index_verified_files':14,'carrier_controls':controls,'candidate':head_tree},indent=2))

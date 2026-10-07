@@ -1,0 +1,79 @@
+{"fixture": "wrong-kind", "same_payload_artifact_id": "sha256:03ec7c17cef2e8db2e1930b7c59693f343830b1667cead300cfed9f5a458a5ac", "different_manifest_profile": true, "kind": "funnel.calibration_report", "schema": "polisyos.foundry.CalibrationReport", "manifest_version": "2.0", "callback_count": 0, "dispatch_count": 0, "refusal": "calibration report manifest kind/schema mismatch", "outcome": null, "removed_admission": false}
+{"fixture": "wrong-schema", "same_payload_artifact_id": "sha256:03ec7c17cef2e8db2e1930b7c59693f343830b1667cead300cfed9f5a458a5ac", "different_manifest_profile": true, "kind": "foundry.calibration_report", "schema": "polisyos.foundry.FunnelCalibrationReport", "manifest_version": "2.0", "callback_count": 0, "dispatch_count": 0, "refusal": "calibration report manifest kind/schema mismatch", "outcome": null, "removed_admission": false}
+{"fixture": "wrong-payload-version", "same_payload_artifact_id": "sha256:03ec7c17cef2e8db2e1930b7c59693f343830b1667cead300cfed9f5a458a5ac", "different_manifest_profile": true, "kind": "foundry.calibration_report", "schema": "polisyos.foundry.CalibrationReport", "manifest_version": "1.0", "callback_count": 0, "dispatch_count": 0, "refusal": "calibration report payload/schema version mismatch", "outcome": null, "removed_admission": false}
+2026-10-06 15:12:18 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.adaptive_agent@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['adaptive-agent', 'builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-06 15:12:18 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.income_tax@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'tax'] version=1.0.0
+2026-10-06 15:12:18 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.labor_market@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'labor', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-06 15:12:18 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.queue@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'queue', 'runtime', 'structural'] version=1.0.0
+2026-10-06 15:12:18 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.tax_subsidy@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'subsidy'] version=1.0.0
+{
+  "source_sha": "43c443b6f1015d57cf624598531ef99c22a296e6",
+  "source_tree": "54cad5e41693804135687f07b463b48900a54ec0",
+  "source_before_after_equal": true,
+  "canonical_identity": true,
+  "calibration_exports": 29,
+  "negatives": [
+    {
+      "fixture": "wrong-kind",
+      "same_payload_artifact_id": "sha256:03ec7c17cef2e8db2e1930b7c59693f343830b1667cead300cfed9f5a458a5ac",
+      "different_manifest_profile": true,
+      "kind": "funnel.calibration_report",
+      "schema": "polisyos.foundry.CalibrationReport",
+      "manifest_version": "2.0",
+      "callback_count": 0,
+      "dispatch_count": 0,
+      "refusal": "calibration report manifest kind/schema mismatch",
+      "outcome": null,
+      "removed_admission": false
+    },
+    {
+      "fixture": "wrong-schema",
+      "same_payload_artifact_id": "sha256:03ec7c17cef2e8db2e1930b7c59693f343830b1667cead300cfed9f5a458a5ac",
+      "different_manifest_profile": true,
+      "kind": "foundry.calibration_report",
+      "schema": "polisyos.foundry.FunnelCalibrationReport",
+      "manifest_version": "2.0",
+      "callback_count": 0,
+      "dispatch_count": 0,
+      "refusal": "calibration report manifest kind/schema mismatch",
+      "outcome": null,
+      "removed_admission": false
+    },
+    {
+      "fixture": "wrong-payload-version",
+      "same_payload_artifact_id": "sha256:03ec7c17cef2e8db2e1930b7c59693f343830b1667cead300cfed9f5a458a5ac",
+      "different_manifest_profile": true,
+      "kind": "foundry.calibration_report",
+      "schema": "polisyos.foundry.CalibrationReport",
+      "manifest_version": "1.0",
+      "callback_count": 0,
+      "dispatch_count": 0,
+      "refusal": "calibration report payload/schema version mismatch",
+      "outcome": null,
+      "removed_admission": false
+    }
+  ],
+  "positive": {
+    "producer": "actual Calibrator tied parameter projection",
+    "persisted_report_ref": {
+      "artifact_id": "sha256:7e470d4d548081d63e556fc879880cb1b0d1fb62de785a24743d24e56733e04f",
+      "kind": "foundry.calibration_report",
+      "media_type": "application/json"
+    },
+    "fresh_read_schema_version": "2.0",
+    "consumer": "PropagateUncertaintyNode.execute",
+    "outcome": "ok",
+    "output_ref": {
+      "artifact_id": "sha256:15781b99d29fd32593e7af36fd1f6cc30a0eee1a0fa6513effe2db03ddfdc823",
+      "kind": "ir.uncertainty_envelope",
+      "media_type": "application/json"
+    },
+    "joint_draw_oracle": "A and B use shared coordinate; A-B=0 for every draw",
+    "sample_count": 100,
+    "maximum_abs_contrast": 0.0,
+    "gate_eligible": false
+  },
+  "actual_import_modules": 830,
+  "verdict": "GO-bounded-canonical-reader-alias-and-actual-consumer",
+  "limitations": "Content/kind/schema integrity does not establish source fit/served evaluator authority; B197 remains held in committed ledger."
+}

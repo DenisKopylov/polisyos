@@ -1,0 +1,17 @@
+"""Remove the unit comparison while retaining the populated binding DTO."""
+import pytest
+import polisyos.calibration.forecast_bridge as bridge
+import polisyos.scientist.methods.backtesting.forecast_owner as owner
+from polisyos.ir.artifacts import get_json_artifact
+
+original = bridge.resolve_forecast_measurement_binding
+def marker_without_unit_property(store, **kwargs):
+    source = get_json_artifact(store, kwargs["source_ref"].artifact_id)
+    schema = get_json_artifact(store, source["data_schema_ref"]["artifact_id"])
+    unit = next(field["unit"]["unit_id"] for field in schema["fields"] if field["name"] == kwargs["target_metric"])
+    admitted = original(store, **(kwargs | {"target_unit": unit}))
+    return admitted.model_copy(update={"unit_id": kwargs["target_unit"]})
+
+bridge.resolve_forecast_measurement_binding = marker_without_unit_property
+owner.resolve_forecast_measurement_binding = marker_without_unit_property
+raise SystemExit(pytest.main(["-q", "tests/unit/scientist/methods/backtesting/test_forecast_owner.py::test_measurement_admission_precedes_any_method_callback[wrong_unit]"]))

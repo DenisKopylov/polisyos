@@ -1,0 +1,460 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "reviewer": "/root/mc_independent_r3",
+  "author": "/root/mc_r3",
+  "slice": "E MC/UQP/UQS producer-artifact-consumer bounded continuation",
+  "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "candidate_sha": "4e7e9f9a825011b8ef2091a6ff4ab3951ba04a9f",
+  "candidate_tree": "c653941cbecc4b06c5ffa62bd5e353ebaa848ef4",
+  "branch": "codex/e02-E-mc-20261006",
+  "worktree_root": "/workspace/e02-E-mc-20261006",
+  "code_verdict": "GO",
+  "finding_closure_verdict": "No finding closure or historical status change is authorized by this receipt.",
+  "diff_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.ruff.txt",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-sampling-admission.toml",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+    "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/analytical.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/config.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/covariance.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/delta.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/quasi_mc.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_delta.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher_routing.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_quasi_mc.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py",
+    "policy-engine/tests/unit/remediation/test_uqp_01.py",
+    "policy-engine/tests/unit/remediation/test_uqp_02.py",
+    "policy-engine/tests/unit/remediation/test_uqp_03.py",
+    "policy-engine/tests/unit/remediation/test_uqs_01.py"
+  ],
+  "independence": {
+    "source_writes": false,
+    "author_tests_are_independent_evidence": false,
+    "production_data_used": false,
+    "children": false,
+    "checkout_worktree_created": false,
+    "git_mutations": false,
+    "method": "review own numerical controls, native backend runs, in-memory property removal, real consumer persistence/readback, independent mathematical oracle"
+  },
+  "environment": {
+    "python_executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-E-mc-20261006/policy-engine/src",
+    "python": "3.14.7",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "JAX_backend": "cpu",
+    "JAX_x64": false,
+    "versions": {
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "pydantic": "2.12.5"
+    },
+    "thread_or_process_caps": "none; OMP_NUM_THREADS/OPENBLAS_NUM_THREADS/MKL_NUM_THREADS/NUMEXPR_NUM_THREADS/XLA_FLAGS/JAX_PLATFORMS unset"
+  },
+  "input_origin": "New analytic/mathematical fixtures generated during this independent review; no ignored old output was consumed as input. Gaussian laws/Uniform DGPs and declared finite paired carriers are fixture identity, not production provenance.",
+  "predicate_basis": {
+    "P37": "Frozen quantities: covariance axis/marginal/PSD/symmetry and actual finite backend intake; declared joint row identity; complete per-output/per-replica terminal support; fixed independent pilot/main bounded IID mean carrier and all persisted estimator claims; distinct point/interval functionals; actual consumer refusal of present-but-fake contents.",
+    "P40": "Second examples widened the same common law-admission, certificate-completeness, numeric-range and declared-budget quantities. No service/semantic authority was inferred from markers.",
+    "P41": "No inherited-red classification. Exact slice-base replay was not run. Dirty-source diagnostic runs are not immutable-candidate deciding evidence.",
+    "present_but_fake": "Recipe discriminator/keyset, mean interval/count/seed/evaluator refs and terminal indices changed while valid CAS/typed markers remained.",
+    "property_removal": "In-memory common range guard and unknown-law admission removal; variance upper-bound/frozen budget removal; source production files unchanged."
+  },
+  "deciding_checks": [
+    {
+      "scope": "native numerical mechanisms + empirical coverage",
+      "sha": "cb6eeb35b0296489ab5b932be4c4da879078a3a6",
+      "tree": "d19b525ad520b0397103b0b17cf1173c8fa3d6ad",
+      "log": "checks.log",
+      "result": "18 PASS; 2 reviewer-fixture failures corrected independently below; no source head drift/dirty state"
+    },
+    {
+      "scope": "real Scientist consumer corrected fixture",
+      "sha": "cb6eeb35b0296489ab5b932be4c4da879078a3a6",
+      "log": "consumer-corrected.log",
+      "result": "1 PASS"
+    },
+    {
+      "scope": "default proxy divergence and small complete bounded carrier",
+      "sha": "cb6eeb35b0296489ab5b932be4c4da879078a3a6",
+      "log": "supplementary.log",
+      "result": "2 PASS"
+    },
+    {
+      "scope": "shared canonical recipe, actual consumer/proxy, source-law removal, small carrier",
+      "sha": "7689c880acf3b587e7e0a0ecdb92776871fac462",
+      "tree": "afdd15ec121a0b676f825685ea5d668dca46d918",
+      "log": "frozen-final-delta.log",
+      "result": "5 PASS; clean stable head"
+    },
+    {
+      "scope": "direct covariance admission, actual strategies, JAX boundary, recipe, actual consumer, source-law removal",
+      "sha": "f7b0ade5ce9d6c7a849c2f7445d40123eb86b7a7",
+      "tree": "0d1692ed4496870c6c1d5b28fe035c74895fcaba",
+      "log": "final-law-and-consumer.log",
+      "result": "9 PASS; clean stable head"
+    },
+    {
+      "scope": "explicit maximum budget/full Sobol net boundary",
+      "sha": "f7b0ade5ce9d6c7a849c2f7445d40123eb86b7a7",
+      "log": "max-budget-boundary.log",
+      "result": "FAIL on f7, fixed by the common admitted sampling budget on540; retained as exact property escape evidence, not a finding ledger classification."
+    },
+    {
+      "scope": "explicit computational maximum, full-net/replica completeness, pilot/main counts,7fake persisted budget controls, actual RQMC and disabled optional peeking",
+      "sha": "54089267c3ca9576c13738041e25fb597117529f",
+      "tree": "a947dab821763e40aec75e5f8a26131017129983",
+      "log": "final-budget-delta.log",
+      "result": "4 PASS; clean stable SHA; wall .712759696 seconds excluding interpreter startup"
+    },
+    {
+      "scope": "actual Scientist producer->CAS->fresh reader and default proxy divergence after budget delta",
+      "sha": "54089267c3ca9576c13738041e25fb597117529f",
+      "tree": "a947dab821763e40aec75e5f8a26131017129983",
+      "log": "final-consumer-delta.log",
+      "result": "2 PASS; clean stable SHA; wall6.468864648 seconds excluding interpreter startup"
+    },
+    {
+      "scope": "random selected stream display normalization; explicitly noncertificate",
+      "sha": "4e7e9f9a825011b8ef2091a6ff4ab3951ba04a9f",
+      "tree": "c653941cbecc4b06c5ffa62bd5e353ebaa848ef4",
+      "log": "final-display-delta.log",
+      "result": "1 PASS; clean stable head; 128 attempted draws /129 callbacks includingnominal; .183995504seconds excludinginterpreterstartup"
+    }
+  ],
+  "corrected_reviewer_fixture_errors": [
+    {
+      "original": "checks.log source_law_property_removed_markers_retained AssertionError",
+      "cause": "Fixture expected2048 evaluator callbacks but actual method includes one nominal callback plus2048 attempted draws. Production behavior was correct; terminal draw denominator is2048.",
+      "correction": "Count2049 including nominal; PASS frozen-final-delta.log and final-law-and-consumer.log."
+    },
+    {
+      "original": "checks.log actual_Scientist_producer_CAS_consumer_and_fake_content CanonViolation float forbidden in canonical JSON",
+      "cause": "Raw test MetricValuesSnapshot used0.0 instead of canonical integer0; failure occurred before the product node invocation.",
+      "correction": "Canonical integer fixture; same clean cb6 PASS consumer-corrected.log, then shared-admission/final-law frozen consumer PASS."
+    }
+  ],
+  "coverage": {
+    "source_sha": "cb6eeb35b0296489ab5b932be4c4da879078a3a6",
+    "source_tree": "d19b525ad520b0397103b0b17cf1173c8fa3d6ad",
+    "log": "checks.log",
+    "exact_DGP": "Independent Uniform[0,1] pilot/main input laws; canonical indicator response1[X<p], p in{.001,.01,.5,.99}; m256,epsilon.05,delta_pilot=delta_main=.025;256 seeds0..255 for eachDGP; empiricalBernoulli mean coverage.",
+    "result": {
+      "experiments": [
+        {
+          "N_range": [
+            408,
+            435
+          ],
+          "coverage_Clopper_Pearson_95": [
+            0.9856936372709606,
+            1.0
+          ],
+          "covered": 256,
+          "empirical_coverage": 1.0,
+          "input": "independent Uniform[0,1] child streams",
+          "maximum_error": 0.006352941176470588,
+          "population_mean": 0.001,
+          "replications": 256,
+          "response": "indicator(X < 0.001)",
+          "seeds": [
+            0,
+            255
+          ],
+          "zero_pilot_count": 200
+        },
+        {
+          "N_range": [
+            408,
+            504
+          ],
+          "coverage_Clopper_Pearson_95": [
+            0.9856936372709606,
+            1.0
+          ],
+          "covered": 256,
+          "empirical_coverage": 1.0,
+          "input": "independent Uniform[0,1] child streams",
+          "maximum_error": 0.013696682464454974,
+          "population_mean": 0.01,
+          "replications": 256,
+          "response": "indicator(X < 0.01)",
+          "seeds": [
+            0,
+            255
+          ],
+          "zero_pilot_count": 16
+        },
+        {
+          "N_range": [
+            935,
+            935
+          ],
+          "coverage_Clopper_Pearson_95": [
+            0.9784291096474665,
+            0.9999011072027765
+          ],
+          "covered": 255,
+          "empirical_coverage": 0.99609375,
+          "input": "independent Uniform[0,1] child streams",
+          "maximum_error": 0.054010695187165725,
+          "population_mean": 0.5,
+          "replications": 256,
+          "response": "indicator(X < 0.5)",
+          "seeds": [
+            0,
+            255
+          ],
+          "zero_pilot_count": 0
+        },
+        {
+          "N_range": [
+            935,
+            935
+          ],
+          "coverage_Clopper_Pearson_95": [
+            0.9856936372709606,
+            1.0
+          ],
+          "covered": 256,
+          "empirical_coverage": 1.0,
+          "input": "independent Uniform[0,1] child streams",
+          "maximum_error": 0.011390374331550768,
+          "population_mean": 0.99,
+          "replications": 256,
+          "response": "indicator(X < 0.99)",
+          "seeds": [
+            0,
+            255
+          ],
+          "zero_pilot_count": 0
+        }
+      ],
+      "not_established": [
+        "production law custody",
+        "general callback boundedness",
+        "Uniform-output mean certificate"
+      ],
+      "scope": "admitted canonical Bernoulli responses over mathematical Uniform input law only"
+    },
+    "scope": "1024 native producer+certificate replay replications. Clopper-Pearson95 confidence bounds are empirical method support for declared mathematical laws only, not production input-law evidence. Coverage remains explicitly cb6-bound; later admission-only deltas did not rerun or relabel it."
+  },
+  "capability_state": {
+    "native_backend": "available and executed JAXCPU/NumPy/SciPy",
+    "canonical_bounded_IID_indicator": "producer/artifact/fresh consumer established for declared math law; non-gating",
+    "general_served_evaluator": "bridge_missing: actual Scientist default zero-baseline proxy has zero sensitivity while genuine affine response variance4; no replacement authority invented",
+    "joint_source_law": "unknown/refused unless explicit verifiedGaussian law or content-bound exact ordered paired carrier; absent covariance is not independence",
+    "wire_semantics": "v1.1 preserved; B201/B202 held for IR owner ratification",
+    "production_law": "not established in cloud",
+    "computational_budget": "Admitted effective draw plan respects enabled explicit maximum or refuses before callbacks. Canonical bounded certificate binds and consumer reconciles pilot/main scope and counts. Generic computational intent display is explicitly certificate=False, not statistical authority."
+  },
+  "residual_owners": [
+    {
+      "owner": "Scientist simulation/execution owner",
+      "required": "Real served evaluator with exact model/ExecPlan/run/domain/seed and effective fixed/varying input refs for B194."
+    },
+    {
+      "owner": "CAL/input-law producer",
+      "required": "Real content-bound joint law and ordered draw identity, followed by consumer tracing on combined candidate."
+    },
+    {
+      "owner": "IR semantic owner",
+      "required": "Four finite decisions in semantic-decisions.md, includingCAS-onlydistinctv2 recommendation versusinlinecarrier pluspersistedref; point/interval and source-law authority choices. B201/B202 remainheld."
+    },
+    {
+      "owner": "G",
+      "required": "Read-only exact-candidate local production history/source-law checks when criterion requires them; separate code acceptance from finding closure; merge only authorized E topic publication."
+    }
+  ],
+  "limitations": [
+    "No production history/source-law transferred to cloud.",
+    "No CAL Hessian closure or B198 reclassification.",
+    "No general callback bounded-mean theorem, quantile/CDF/interval/adaptive optional-stopping certificate.",
+    "CAS hashes/typed markers/selfdeclaredroles do not establish verifier or source authority.",
+    "Artifact checks establish mechanism properties only; retained historicalledger partial/held/open statuses are not automatically closed.",
+    "One shared read-only interpreter; testCAS mutation is confined to this reviewer own freshdirectories."
+  ],
+  "non_deciding_diagnostics": [
+    "final-delta.log ran while author source dirty and is explicitly not frozen evidence.",
+    "checks.json duplicates checks.log and need not be committed."
+  ],
+  "artifacts": [
+    {
+      "path": "checks.log",
+      "sha256": "395cfc4a0a367c4f7dce833ae58de0c4509e4dfc50e82097a7da785ed84b3583",
+      "bytes": 7651,
+      "case_count": 20,
+      "pass_count": 18,
+      "fail_count": 2
+    },
+    {
+      "path": "consumer-corrected.log",
+      "sha256": "64aad7746e3776ea58217147ef3306fee12b3dc5bd44816aff42ca29435a70ae",
+      "bytes": 866,
+      "case_count": 1,
+      "pass_count": 1,
+      "fail_count": 0
+    },
+    {
+      "path": "supplementary.log",
+      "sha256": "fb20edc8b6094a7c5fe6cc2e40b85b5d8ec52117a4c4d91f3e2cf685d92bf80e",
+      "bytes": 1023,
+      "case_count": 2,
+      "pass_count": 2,
+      "fail_count": 0
+    },
+    {
+      "path": "frozen-final-delta.log",
+      "sha256": "7f6b311c034e9182a07e425fc360c367fcc5d4aa33faabe56af16dcb2baff2d6",
+      "bytes": 2475,
+      "case_count": 5,
+      "pass_count": 5,
+      "fail_count": 0
+    },
+    {
+      "path": "final-law-and-consumer.log",
+      "sha256": "057b5234c2dcd199513df3273980d16a50b041e2fa329cf33685a25d935d27f5",
+      "bytes": 4032,
+      "case_count": 9,
+      "pass_count": 9,
+      "fail_count": 0
+    },
+    {
+      "path": "max-budget-boundary.log",
+      "sha256": "06e166c3af3ca8566d44899de104f22392f339b0f0899c223e75022d253b9ead",
+      "bytes": 368,
+      "case_count": 1,
+      "pass_count": 0,
+      "fail_count": 1
+    },
+    {
+      "path": "review_checks.py",
+      "sha256": "165eb2c1e91d2f17fc87b581aef99e76cd617ec7fc5c5be76efdb7c6e893c6cd",
+      "bytes": 31604
+    },
+    {
+      "path": "review_driver.py",
+      "sha256": "26a5b0e6c7d88426834f787fe3121c2b35528a67d8689bf0c2794fbc96845883",
+      "bytes": 9728
+    },
+    {
+      "path": "initial-findings.json",
+      "sha256": "e426cd73617d751d64db1f6a93d2f0fc612faed3edce07cf4ee72710076f23f5",
+      "bytes": 4694
+    },
+    {
+      "path": "final-budget-delta.log",
+      "sha256": "3c715fd4bfcb873821b643a0232b6327eda8d6e3440b587ede81086877e13f8e",
+      "bytes": 2325,
+      "case_count": 4,
+      "pass_count": 4,
+      "fail_count": 0
+    },
+    {
+      "path": "final-consumer-delta.log",
+      "sha256": "33ca8a5e2dec777b73056de59247650947bf0b0282dc25d025c1c156a046d8de",
+      "bytes": 1759,
+      "case_count": 2,
+      "pass_count": 2,
+      "fail_count": 0
+    },
+    {
+      "path": "final-display-delta.log",
+      "sha256": "be1deb21b9ce411a5e99563ced9d5c320b06d542ce073c3f2dacde7deb586106",
+      "bytes": 1010,
+      "case_count": 1,
+      "pass_count": 1,
+      "fail_count": 0
+    }
+  ],
+  "harness_history": "review_checks.py was incrementally extended with own fixture corrections and delta controls. Its final saved hash identifies the replay harness, not the earlier execution revision; historical execution outputs are retained verbatim and not rewritten.",
+  "cleanup_candidates": [
+    "/workspace/e02-E-20261006-receipts/mc-independent/cas-mean-readback",
+    "/workspace/e02-E-20261006-receipts/mc-independent/cas-scientist-consumer",
+    "/workspace/e02-E-20261006-receipts/mc-independent/__pycache__"
+  ],
+  "cleanup_policy": "No permanent deletion or Trash emptying. Move repeatable testdirs to nativeTrash only after saved deciding outputs; absent nativeTrash keep these exact candidates inhandoff. Preserve code/usefuldocs/uniqueevidence.",
+  "commands": {
+    "cwd": "/workspace",
+    "performed_main_cb6": "PYTHONPATH=/workspace/e02-E-mc-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-20261006-receipts/mc-independent/review_checks.py > /workspace/e02-E-20261006-receipts/mc-independent/checks.log 2>&1",
+    "main_history": "Executed the then-current 20-case harness revision. The saved final harness includes additional delta cases and corrected reviewer fixtures; replay is a documented superset, not a relabeled historical execution.",
+    "replay_final_law_f7": "E02_REVIEW_SOURCE_ROOT=/workspace/e02-E-mc-20261006 E02_REVIEW_OUTPUT_ROOT=/workspace/e02-E-20261006-receipts/mc-independent PYTHONPATH=/workspace/e02-E-mc-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-20261006-receipts/mc-independent/review_driver.py --section law-final --expected-head f7b0ade5ce9d6c7a849c2f7445d40123eb86b7a7",
+    "replay_recipe_7689": "E02_REVIEW_SOURCE_ROOT=/workspace/e02-E-mc-20261006 E02_REVIEW_OUTPUT_ROOT=/workspace/e02-E-20261006-receipts/mc-independent PYTHONPATH=/workspace/e02-E-mc-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-20261006-receipts/mc-independent/review_driver.py --section recipe-final --expected-head 7689c880acf3b587e7e0a0ecdb92776871fac462",
+    "replay_coverage_cb6": "E02_REVIEW_SOURCE_ROOT=/workspace/e02-E-mc-20261006 E02_REVIEW_OUTPUT_ROOT=/workspace/e02-E-20261006-receipts/mc-independent PYTHONPATH=/workspace/e02-E-mc-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-20261006-receipts/mc-independent/review_driver.py --section coverage --expected-head cb6eeb35b0296489ab5b932be4c4da879078a3a6",
+    "local_G_recipe": "G fetches the exact candidate SHA from the E topic, uses its separately admitted exact source lane, sets E02_REVIEW_SOURCE_ROOT to that real absolute path and E02_REVIEW_OUTPUT_ROOT to a new output directory, sets PYTHONPATH to the exact candidate policy-engine/src, and executes the tracked review_driver.py with --expected-head exact candidate SHA. Expected mismatch or dirty source refuses before tests. Cloud mathematical fixtures remain distinct from any additional read-only production-law replay.",
+    "performed_budget_delta": "PYTHONPATH=/workspace/e02-E-mc-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-20261006-receipts/mc-independent/review_driver.py --section budget --expected-head 54089267c3ca9576c13738041e25fb597117529f > /workspace/e02-E-20261006-receipts/mc-independent/final-budget-delta.log 2>&1",
+    "performed_consumer_delta": "PYTHONPATH=/workspace/e02-E-mc-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-20261006-receipts/mc-independent/review_driver.py --section consumer --expected-head 54089267c3ca9576c13738041e25fb597117529f > /workspace/e02-E-20261006-receipts/mc-independent/final-consumer-delta.log 2>&1",
+    "performed_display_delta": "PYTHONPATH=/workspace/e02-E-mc-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-20261006-receipts/mc-independent/review_driver.py --section display --expected-head 4e7e9f9a825011b8ef2091a6ff4ab3951ba04a9f > /workspace/e02-E-20261006-receipts/mc-independent/final-display-delta.log 2>&1"
+  },
+  "code_verdict_scope": "Bounded implementation acceptance only. Native numerical evidence is pinned to each executed immutable source below; no finding status or production/source authority is promoted.",
+  "review_generated_utc": "2026-10-06T10:38:46.793669+00:00",
+  "source_delta_review": {
+    "from_sha": "f7b0ade5ce9d6c7a849c2f7445d40123eb86b7a7",
+    "to_sha": "54089267c3ca9576c13738041e25fb597117529f",
+    "paths": [
+      "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py"
+    ],
+    "property_retention": "Added common configured/effective/minimum/full-net computational budget admission and explicit pilot/main certificate budget binding/readback. Existing covariance/range/law intake, estimator formulas, seeded draw generation and coverage DGP are unchanged. No relabeling of prior numerical executions."
+  },
+  "known_issue_resolutions": [
+    {
+      "quantity": "per-output/per-replica support completeness",
+      "control": "failed_support_random/sobol/halton",
+      "deciding_sha": "cb6eeb35b0296489ab5b932be4c4da879078a3a6"
+    },
+    {
+      "quantity": "joint law and covariance intake including public direct arrays/options/scale",
+      "control": "axis_and_strategy_joint_law;direct_supplied_covariance_full_law_quantity;tied_and_independent_*",
+      "deciding_sha": "f7b0ade5ce9d6c7a849c2f7445d40123eb86b7a7"
+    },
+    {
+      "quantity": "finite actual-backend range and exactzero",
+      "control": "pre_draw_range_*;actual_JAX_underflow_boundary_and_true_zero;range_property_removed_markers_retained",
+      "deciding_sha": "cb6eeb35b0296489ab5b932be4c4da879078a3a6; repeated actual JAX boundary on f7"
+    },
+    {
+      "quantity": "whole persisted recipe/estimator/outcome claim completeness and small bounded carrier",
+      "control": "certificate_fresh_CAS_readback_and_removal; full recipe; small fixedN and variance removal; actual Scientist fake interval",
+      "deciding_sha": "7689c880acf3b587e7e0a0ecdb92776871fac462; actual consumer repeated on540"
+    },
+    {
+      "quantity": "declared computational budget, complete nets and pilot/main scope",
+      "control": "adaptive_explicit_max_budget_full_net_boundary;bounded_pilot_and_main_explicit_maximum",
+      "deciding_sha": "54089267c3ca9576c13738041e25fb597117529f"
+    }
+  ],
+  "nonblocking_followup": {
+    "owner": "MC author",
+    "status": "resolved",
+    "detail": "Random selected-plan display normalized to one effective stream; exact clean4e7 native controlPASS. Generic display remains explicitly noncertificate."
+  },
+  "source_delta_review_final": {
+    "from_sha": "54089267c3ca9576c13738041e25fb597117529f",
+    "to_sha": "4e7e9f9a825011b8ef2091a6ff4ab3951ba04a9f",
+    "paths": [
+      "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py"
+    ],
+    "property_retention": "Only normalizes the computational-intent display effective replica_count to1 for random; stochastic generation, estimator/certificate, draw counts, carrier schema, budget admission and consumer behavior unchanged. Tiny native display control verifies this exact clean source; earlier deciding logs remain pinned to their executed SHA."
+  },
+  "release_handoff": {
+    "bounded_code_GO_source_sha": "4e7e9f9a825011b8ef2091a6ff4ab3951ba04a9f",
+    "tree": "c653941cbecc4b06c5ffa62bd5e353ebaa848ef4",
+    "author_next_action": "Append-only implementation receipts and E topic publication; source acceptance does not close any finding. Root commits this independent review separately and freezes integrated candidate for its single common expensive wave."
+  }
+}

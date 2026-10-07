@@ -1,0 +1,721 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "backtest-replay-admission",
+  "closure_ids": [
+    "B166",
+    "B169",
+    "B170",
+    "B167",
+    "B168",
+    "B171",
+    "B172",
+    "B173",
+    "B174",
+    "B175"
+  ],
+  "bundle_ids": [
+    "BKT-01",
+    "BKT-02",
+    "BKT-03",
+    "BKT-04"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "integration_anchor_sha": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "implementation_commits": [
+    "d94b1116cb852eb66722d47610dcd65d75faf503",
+    "2f442904a1ed77e5907e8bb288a1d742874b31b7"
+  ],
+  "candidate_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+  "candidate_tree_sha": "877885ff3dc44d54a2073a7b4e383b6c8acf67ca",
+  "documentation_commits": [
+    "d8e0125e3d123815d2c9e43b8290942493b9baa3"
+  ],
+  "documentation_tree_sha": "9844a995336a82bb2dabda98b4751eb48661276e",
+  "branch": "codex/e02-E-backtest-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/51",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-backtest-replay-admission.toml",
+    "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/bootstrap.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/trust_scorer.py",
+    "policy-engine/tests/unit/remediation/test_bkt_02.py",
+    "policy-engine/tests/unit/remediation/test_bkt_03.py",
+    "policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_replay_admission.py"
+  ],
+  "functional_blob_identity": {
+    "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py": "4adfe3c489f885a68c41945faa8f870bc327229a",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/bootstrap.py": "57885e9e9ee92e196b6af5dc2e566af1a0d34656",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py": "2820084a2107eb82e991ebd777c730a23683128c",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py": "9ec9f48a5ca50b9a6e8fcda8e9249dcabed371c0",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/trust_scorer.py": "2cdeeda5ca0aea9a98ba9da0cdded69b84a84bd4",
+    "policy-engine/tests/unit/remediation/test_bkt_02.py": "c7e2b20f5753b3160a32aaa9c88404bc3096647f",
+    "policy-engine/tests/unit/remediation/test_bkt_03.py": "7e0f06b50ec43d0fe0131350b633f66bf91c5064",
+    "policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py": "8d0f6c292c45afeb962f6284bfe0e442c6d3c2fa",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py": "d6e895cbb605844ad4b224eddb58ca794f3f2a0d",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_replay_admission.py": "b88482eae067a4073463f4e84d1f0f79a6f15ddd"
+  },
+  "baseline_cells": [
+    {
+      "cell_id": "F13-P125",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "source_tree_sha": "5e890bcb23dfa20db77be486e7296e36f3382576",
+      "navigation_receipt": "backtest-replay-admission-checks/navigation-F13-P125.json",
+      "source_reported_state": "PASS",
+      "environment_locator": "results/received/F13.txt:1-130",
+      "environment": {
+        "python": "3.14.2",
+        "uv": "0.9.21",
+        "node": "22.22.0",
+        "pnpm": "10.33.2",
+        "numerical_threads": 1,
+        "jax_platforms": "cpu",
+        "profile": "frozen selected-extras union; exact distribution origins in missing raw environment.json"
+      },
+      "input_identity": "Tracked test fixtures at exact source SHA; original source-inputs.json and raw VM archive absent. No production history/source law transferred.",
+      "backend": "Native SciPy Student-t",
+      "raw_archive_transfer": "missing",
+      "use": "navigation only; exact P41 replay not established; not deciding evidence"
+    },
+    {
+      "cell_id": "F14-P084",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "source_tree_sha": "5e890bcb23dfa20db77be486e7296e36f3382576",
+      "navigation_receipt": "backtest-replay-admission-checks/navigation-F14-P084.json",
+      "source_reported_state": "PASS",
+      "environment_locator": "results/received/F14.txt:1-126",
+      "environment": {
+        "python": "3.14.2",
+        "uv": "0.9.21",
+        "node": "22.16.0",
+        "pnpm": "10.33.2",
+        "numerical_threads": 1,
+        "jax_platforms": "cpu",
+        "profile": "frozen selected-extras union; exact distribution origins in missing raw environment.json"
+      },
+      "input_identity": "Tracked test fixtures at exact source SHA; original source-inputs.json and raw VM archive absent. No production history/source law transferred.",
+      "backend": "NumPy bootstrap helper",
+      "raw_archive_transfer": "missing",
+      "use": "navigation only; exact P41 replay not established; not deciding evidence"
+    },
+    {
+      "cell_id": "F15-P134",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "source_tree_sha": "5e890bcb23dfa20db77be486e7296e36f3382576",
+      "navigation_receipt": "backtest-replay-admission-checks/navigation-F15-P134.json",
+      "source_reported_state": "PASS",
+      "environment_locator": "results/received/F15.txt:1-113",
+      "environment": {
+        "python": "3.14.2",
+        "uv": "0.9.21",
+        "node": "22.16.0",
+        "pnpm": "10.33.2",
+        "numerical_threads": 1,
+        "jax_platforms": "cpu",
+        "profile": "frozen selected-extras union; exact distribution origins in missing raw environment.json"
+      },
+      "input_identity": "Tracked test fixtures at exact source SHA; original source-inputs.json and raw VM archive absent. No production history/source law transferred.",
+      "backend": "native masking/NumPy fixture",
+      "raw_archive_transfer": "missing",
+      "use": "navigation only; exact P41 replay not established; not deciding evidence"
+    }
+  ],
+  "workspace_admission": {
+    "branch": "codex/e02-E-backtest-20261006",
+    "absolute_path": "/workspace/e02-E-backtest-20261006",
+    "create_full_json": "backtest-replay-admission-checks/admission-create.json",
+    "resume_full_json": "backtest-replay-admission-checks/admission-resume.json",
+    "performed_by": "cloud E root; serialized create then resume; no prune"
+  },
+  "environment": {
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "packages": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "ruff": "0.14.10"
+    },
+    "package_origins": {
+      "numpy": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+      "scipy": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+      "pytest": "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages"
+    },
+    "owner_origin": "/workspace/e02-E-backtest-20261006/policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+    "numerical_thread_environment": {},
+    "backend_installation": "readonly pre-existing repo .venv; fresh worktree PYTHONPATH; no historical ignored output used as evidence input",
+    "uv_observed": "0.12.19",
+    "uv_repo_declared": "0.9.21",
+    "node_for_repo_hooks": "22.23.3",
+    "pnpm_frozen_install_log": "/workspace/e02-E-20261006-receipts/backtest-pnpm-install.log"
+  },
+  "checks": [
+    {
+      "target_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission-checks/removal_probe.py",
+        "--mode",
+        "bootstrap",
+        "-q",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_invalid_bootstrap_shape_rejects_before_callable_or_rng",
+        "-o",
+        "cache_dir=/workspace/e02-E-20261006-receipts/backtest-final-bootstrap-cache",
+        "--basetemp=/workspace/e02-E-20261006-receipts/backtest-final-bootstrap-002"
+      ],
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+      "returncode": 1,
+      "wall_s": 28.14859798300313,
+      "rss_kib_direct_and_children": 533020,
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "output": "final-bootstrap-removal.log",
+      "receipt_path": "backtest-replay-admission-checks/final-bootstrap-removal-resource.json",
+      "output_path": "backtest-replay-admission-checks/final-bootstrap-removal.log",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL"
+    },
+    {
+      "target_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission-checks/removal_probe.py",
+        "--mode",
+        "cas",
+        "-q",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_requested_replays_are_actual_calls_and_keep_rows_after_cas_readback[1]",
+        "-o",
+        "cache_dir=/workspace/e02-E-20261006-receipts/backtest-final-cas-cache",
+        "--basetemp=/workspace/e02-E-20261006-receipts/backtest-final-cas-002"
+      ],
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+      "returncode": 1,
+      "wall_s": 34.52849733400217,
+      "rss_kib_direct_and_children": 532784,
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "output": "final-cas-removal.log",
+      "receipt_path": "backtest-replay-admission-checks/final-cas-removal-resource.json",
+      "output_path": "backtest-replay-admission-checks/final-cas-removal.log",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL"
+    },
+    {
+      "target_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission-checks/removal_probe.py",
+        "--mode",
+        "cv",
+        "-q",
+        "tests/unit/scientist/methods/backtesting/test_cv.py::TestForwardChainingSplits::test_invalid_cv_parameters_are_rejected_before_loop[2-0-3]",
+        "-o",
+        "cache_dir=/workspace/e02-E-20261006-receipts/backtest-final-cv-cache",
+        "--basetemp=/workspace/e02-E-20261006-receipts/backtest-final-cv-002"
+      ],
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+      "returncode": 1,
+      "wall_s": 26.286791946011363,
+      "rss_kib_direct_and_children": 532108,
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "output": "final-cv-removal.log",
+      "receipt_path": "backtest-replay-admission-checks/final-cv-removal-resource.json",
+      "output_path": "backtest-replay-admission-checks/final-cv-removal.log",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL"
+    },
+    {
+      "target_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_native_scientist_missing_trinity_is_not_counted_as_prediction_success",
+        "-o",
+        "cache_dir=/workspace/e02-E-20261006-receipts/backtest-final-native-refusal-cache",
+        "--basetemp=/workspace/e02-E-20261006-receipts/backtest-final-native-refusal-003"
+      ],
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+      "returncode": 0,
+      "wall_s": 39.4828645039961,
+      "rss_kib_direct_and_children": 777540,
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "output": "final-native-refusal.log",
+      "receipt_path": "backtest-replay-admission-checks/final-native-refusal-resource.json",
+      "output_path": "backtest-replay-admission-checks/final-native-refusal.log",
+      "outcome": "PASS",
+      "expected_outcome": "PASS"
+    },
+    {
+      "target_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/scientist/methods/backtesting",
+        "tests/unit/scientist/governance/test_backtest_matrix.py",
+        "tests/unit/remediation/test_bkt_02.py",
+        "tests/unit/remediation/test_bkt_03.py",
+        "tests/unit/ir/mirror_contracts/test_backtest.py",
+        "-o",
+        "cache_dir=/workspace/e02-E-20261006-receipts/backtest-final-native-cache",
+        "--basetemp=/workspace/e02-E-20261006-receipts/backtest-final-check-005",
+        "--junitxml=/workspace/e02-E-20261006-receipts/backtest-final-junit.xml"
+      ],
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+      "returncode": 0,
+      "wall_s": 50.476583153998945,
+      "rss_kib_direct_and_children": 827680,
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "output": "final-native.log",
+      "receipt_path": "backtest-replay-admission-checks/final-native-resource.json",
+      "output_path": "backtest-replay-admission-checks/final-native.log",
+      "outcome": "PASS",
+      "expected_outcome": "PASS"
+    },
+    {
+      "target_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission-checks/removal_probe.py",
+        "--mode",
+        "replay",
+        "-q",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_requested_replays_are_actual_calls_and_keep_rows_after_cas_readback[7]",
+        "-o",
+        "cache_dir=/workspace/e02-E-20261006-receipts/backtest-final-replay-cache",
+        "--basetemp=/workspace/e02-E-20261006-receipts/backtest-final-replay-002"
+      ],
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+      "returncode": 1,
+      "wall_s": 33.47134046399151,
+      "rss_kib_direct_and_children": 533568,
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "output": "final-replay-removal.log",
+      "receipt_path": "backtest-replay-admission-checks/final-replay-removal-resource.json",
+      "output_path": "backtest-replay-admission-checks/final-replay-removal.log",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL"
+    },
+    {
+      "target_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission-checks/removal_probe.py",
+        "--mode",
+        "requested",
+        "-q",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_requested_denominator_survives_missing_terminal_scenario",
+        "-o",
+        "cache_dir=/workspace/e02-E-20261006-receipts/backtest-final-requested-cache",
+        "--basetemp=/workspace/e02-E-20261006-receipts/backtest-final-requested-002"
+      ],
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+      "returncode": 1,
+      "wall_s": 20.272268788990914,
+      "rss_kib_direct_and_children": 532696,
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "output": "final-requested-removal.log",
+      "receipt_path": "backtest-replay-admission-checks/final-requested-removal-resource.json",
+      "output_path": "backtest-replay-admission-checks/final-requested-removal.log",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL"
+    },
+    {
+      "target_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission-checks/removal_probe.py",
+        "--mode",
+        "trust",
+        "-q",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_real_student_t_oracle_does_not_prove_equivalence",
+        "tests/unit/scientist/governance/test_backtest_matrix.py::test_matrix_reconciles_present_but_fake_trust_fields",
+        "-o",
+        "cache_dir=/workspace/e02-E-20261006-receipts/backtest-final-trust-cache",
+        "--basetemp=/workspace/e02-E-20261006-receipts/backtest-final-trust-002"
+      ],
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+      "returncode": 1,
+      "wall_s": 31.341029814997455,
+      "rss_kib_direct_and_children": 511096,
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "output": "final-trust-removal.log",
+      "receipt_path": "backtest-replay-admission-checks/final-trust-removal-resource.json",
+      "output_path": "backtest-replay-admission-checks/final-trust-removal.log",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL"
+    }
+  ],
+  "native_junit": {
+    "path": "backtest-replay-admission-checks/backtest-final-junit.xml",
+    "counts": {
+      "tests": 178,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "scope": "Owner targeted verification, not the root expensive all-E wave or successful real Scientist prediction evidence."
+  },
+  "import_check": {
+    "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+    "output": "backtest-replay-admission-checks/backtest-final-import-check.json",
+    "outcome": "PASS"
+  },
+  "numerical_oracles": [
+    {
+      "inputs": [
+        -0.01,
+        0,
+        0.01
+      ],
+      "t": 0,
+      "df": 2,
+      "p": 1
+    },
+    {
+      "inputs": [
+        0.5,
+        1.5,
+        2.5
+      ],
+      "t": 2.598076211353316,
+      "df": 2,
+      "p": 0.1216899343463201
+    },
+    {
+      "name": "masked_history",
+      "complete_metric_rows": [
+        1,
+        2,
+        900,
+        901
+      ],
+      "actually_consumed_masked_prefix": [
+        1,
+        2
+      ],
+      "requested_replay_count": 7,
+      "controlled_actual_calls": 7,
+      "law_authority": "not established; controlled dispatcher fixture"
+    },
+    {
+      "name": "bootstrap defined builtin",
+      "basis": "Independent local Generator resampling oracle for mean and median; scalar output and one-dimensional observations, no __name__ authority."
+    }
+  ],
+  "property_path": {
+    "producer": "BacktestOrchestrator.run -> _expand_replay_plans -> _predict_with_scientist -> existing run_experiment with same configured underlying CAS",
+    "artifacts": "Masked metric-history JSON -> fabric DataSnapshot reference -> independently persisted each replay result -> BacktestReport CAS ref",
+    "consumer": "Public IR CAS report readback -> scenario rows/denominators/evaluator diagnostics -> canonical TrustScorer -> BacktestMatrixRunner independent promotion admission",
+    "provided_forecast": "Provided external forecast is consumed once; declared K is retained but does not manufacture recomputations.",
+    "native_refusal": "Existing real Scientist facade/workflow refused both scalar calls with WorkflowSpecError Missing required bind: inputs.trinity_bundle_ref; metadata and persisted rows retain failed terminal status."
+  },
+  "predicate_basis": {
+    "frozen_P37_basis": "Numerics/counts/paired outcomes recomputed from actual rows and requested replay plan. Schema/profile markers alone are not the basis of trust admission.",
+    "trust_authority": "not_established; no versioned owner purpose/profile, meaningful-bias/equivalence margin/rule or independent native sampling law supplied.",
+    "P40_widening": "Second authority escape in sibling BacktestMatrixRunner blocked by canonical scorer reconciliation despite present-but-fake trusted report fields. Second denominator escape from missing terminal scenario widened to all planned replay cells. Configured-CAS removal has its own observed failing consumer control.",
+    "P41": "Historical reds/raw archives unavailable; no inherited-red classification or synthetic-as-production replay claim."
+  },
+  "negative_controls": {
+    "trust": "Restore legacy heuristic score/Grade A while keeping report/profile markers; native Student-t trust and independent matrix consumer selectors fail.",
+    "replay": "Keep replica metadata while executing only one actual replay; K=7 actual call count fails.",
+    "requested": "Drop planned requested denominator while retained report markers remain; missing-terminal-scenario control fails.",
+    "cas": "Strip configured CAS before actual execution while keeping state/refs/metadata; consumer identity/callback control fails.",
+    "bootstrap": "Remove actual observation-shape admission guard; invalid arrays enter callback and fail pre-callback control.",
+    "cv": "Remove actual step-size admission guard; step_size=0 enters numerical operation and fails ValueError control.",
+    "source_mutation": "All removals process-local; tracked source files, declaration markers and receipts retained."
+  },
+  "capability_state": {
+    "controlled_replay_dispatch": "implemented_and_verified",
+    "report_cas_consumer": "implemented_and_verified",
+    "native_successful_forecast_replays": "UNRUN",
+    "native_refusal_and_same_CAS_forwarding": "PASS",
+    "masked_history_to_native_Foundry_state_materializer": "bridge_missing",
+    "requested_seed_to_RunSimulation_ExecConfig": "not_established",
+    "trust_grade_and_promotion_authority": "not_established",
+    "production_history_source_law": "not transferred; local-only owner check"
+  },
+  "missing_native_inputs": [
+    {
+      "input": "inputs.trinity_bundle_ref",
+      "actual_error": "WorkflowSpecError: Missing required bind: inputs.trinity_bundle_ref",
+      "next_owner": "Scientist configured-workflow/input-materializer owner"
+    },
+    {
+      "input": "Owner-admitted Trinity.model_spec.data_snapshot_ref matching each masked DataSnapshot",
+      "source": "policy-engine/src/polisyos/scientist/nodes/builtins/data/bind_foundry_inputs.py::_check_model_spec_consistency",
+      "next_owner": "Scientist configured-workflow/input-materializer owner"
+    },
+    {
+      "input": "Native Foundry StateSnapshot/GlobalState materializer from exact masked metric-history rows, registry and declared prediction target/horizon",
+      "source": "policy-engine/tests/unit/scientist/orchestration/workflows/test_engine_default_workflow_e1_7.py; existing BindFoundryInputs",
+      "next_owner": "Scientist configured-workflow/input-materializer owner"
+    },
+    {
+      "input": "Bind requested replay seed to canonical RunSimulationNode.exec_config.seed; params.random_seed is not shown to bind it",
+      "source": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py:179,310",
+      "next_owner": "Scientist workflow/Foundry execution-config owner"
+    }
+  ],
+  "independent_review": {
+    "reviewer": "cloud E root (separate from author)",
+    "candidate_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+    "reported_result": "Accepted within limited scope after independent source review and 55+17 fresh tests; actual native missing-Trinity refusal recorded.",
+    "root_review_receipt": "Root owns exact independent-review command/output receipt; this author does not claim that receipt as author evidence."
+  },
+  "finding_verdicts": [
+    {
+      "finding_id": "B166",
+      "bundle_id": "BKT-01",
+      "preserved_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "Scientist configured-workflow/input-materializer owner",
+      "reason": "Synthetic masked rows and CAS readback are verified; production source/split/horizon/history identity requires exact owner-admitted local history.",
+      "ledger_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "finding_id": "B169",
+      "bundle_id": "BKT-01",
+      "preserved_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "Scientist backtesting forecast-profile and temporal-input contract owner",
+      "reason": "Native adapter controls reject an unadmitted scalar trajectory, reject silent trajectory truncation and prevent a singleton interval from being repeated without its declared constant profile; an explicit content-bound constant forecast contract remains supported. The positive full Scientist forecast-profile/temporal input bridge is not established, so closure remains a separate owner decision.",
+      "ledger_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion": "Scalar/CI-to-trajectory estimand, horizon and time-coordinate semantics; explicit producer-admitted constant forecast preserves its meaning.",
+      "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-01.md:72",
+      "deciding_check_selectors": [
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py::test_scientist_scalar_without_constant_profile_is_not_a_trajectory",
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py::test_scientist_trajectory_length_mismatch_is_not_silently_truncated",
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py::test_singleton_interval_without_constant_profile_is_not_repeated",
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py::test_explicit_constant_profile_preserves_constant_forecast_and_interval"
+      ],
+      "closure_adjudication": "Owner formal finding-closure decision pending; technical verification, code acceptance and finding closure remain distinct."
+    },
+    {
+      "finding_id": "B170",
+      "bundle_id": "BKT-01",
+      "preserved_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "Scientist configured-workflow/input-materializer owner and Foundry execution-config owner",
+      "reason": "Controlled existing-dispatcher fixtures verify K=1/K=7 scalar calls, distinct requested seeds, persisted replay rows and requested/completed/failed counts; PROVIDED remains one externally supplied trajectory. The real Scientist workflow preserves two failed attempts and refuses missing inputs.trinity_bundle_ref. Successful native forecasting and binding requested seeds into RunSimulationNode.exec_config remain UNRUN/not_established and require the admitted input-materializer and execution-config owners.",
+      "ledger_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion": "Requested K changes actual execution plan or returns explicit capability state; preserve requested/started/completed/failed, request streams, output identities and PROVIDED behavior.",
+      "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-01.md:91",
+      "deciding_check_selectors": [
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_requested_replays_are_actual_calls_and_keep_rows_after_cas_readback",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_failed_replay_remains_a_terminal_failure_and_is_not_an_independent_success",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_provided_forecast_is_not_recomputed_for_a_replica_parameter",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_native_scientist_missing_trinity_is_not_counted_as_prediction_success"
+      ],
+      "closure_adjudication": "Owner formal finding-closure decision pending; technical verification, code acceptance and finding closure remain distinct."
+    },
+    {
+      "finding_id": "B167",
+      "bundle_id": "BKT-02",
+      "preserved_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "Scientist configured-workflow/input-materializer owner",
+      "reason": "Requested/observed/eligible denominators, empty not_evaluated and micro/macro controls verified; full production report provenance not established.",
+      "ledger_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "finding_id": "B168",
+      "bundle_id": "BKT-02",
+      "preserved_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "Scientist configured-workflow/input-materializer owner",
+      "reason": "Per-row outcomes and paired interval controls preserved; production interval profile and real forecast consumer remain missing.",
+      "ledger_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "finding_id": "B171",
+      "bundle_id": "BKT-02",
+      "preserved_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "Scientist backtest aggregation/estimand owner",
+      "reason": "Native pooled sufficient-statistic controls preserve micro RMSE across partitions of the same residuals and retain explicitly named macro metrics; empty comparison summaries cannot restore aggregate metrics. B171 concerns aggregation and shard invariance. Trust-purpose/equivalence limitations are recorded under B172/B173. The bounded technical property is verified; historical partial and final limited remain pending owner formal adjudication against the original criterion.",
+      "ledger_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion": "Technical sharding preserves pooled micro error and candidate ordering; equal-scenario macro has an explicitly different weighting estimand.",
+      "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-02.md:91",
+      "deciding_check_selectors": [
+        "tests/unit/remediation/test_bkt_02.py::test_micro_rmse_is_partition_invariant_and_macro_is_explicit",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_empty_comparison_cannot_recover_metrics_from_present_but_fake_summary"
+      ],
+      "closure_adjudication": "Owner formal finding-closure decision pending; technical verification, code acceptance and finding closure remain distinct."
+    },
+    {
+      "finding_id": "B172",
+      "bundle_id": "BKT-03",
+      "preserved_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "Scientist backtest trust-purpose/profile owner",
+      "reason": "Native SciPy t/df/p and degraded dependency controls verified; non-significance does not establish equivalence or meaningful-bias margin.",
+      "ledger_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "finding_id": "B173",
+      "bundle_id": "BKT-03",
+      "preserved_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "Scientist backtest trust-purpose/profile owner",
+      "reason": "No Grade A/composite without owner-admitted versioned profile/purpose and sampling/equivalence assumptions; no threshold invented.",
+      "ledger_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    {
+      "finding_id": "B174",
+      "bundle_id": "BKT-04",
+      "preserved_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "Scientist forward-chaining CV helper owner",
+      "reason": "The native standalone CV tests verify n=1000/max_folds=3 retains train lengths [2,500,999], test indices [2,500,999], and 1504 materialized index items before the real helper evaluator; invalid step/train/max_folds parameters reject before materialization. Removing the step-size guard triggers the expected failing progress control. This original standalone-helper criterion does not impose a universal production-history or GY-consumer prerequisite. Historical partial and final limited remain pending owner formal closure adjudication of the verified bounded helper property.",
+      "ledger_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5",
+      "criterion": "Standalone forward-chaining CV helper admits progress parameters before materialization and prepares only selected fold boundaries while preserving the valid grid.",
+      "criterion_source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-04.md:48",
+      "deciding_check_selectors": [
+        "tests/unit/scientist/methods/backtesting/test_cv.py::TestRunForwardChainingCV::test_max_folds_limits_preparation_before_cv_evaluator",
+        "tests/unit/scientist/methods/backtesting/test_cv.py::TestForwardChainingSplits::test_invalid_cv_parameters_are_rejected_before_loop"
+      ],
+      "closure_adjudication": "Owner formal finding-closure decision pending; technical verification, code acceptance and finding closure remain distinct."
+    },
+    {
+      "finding_id": "B175",
+      "bundle_id": "BKT-04",
+      "preserved_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "Scientist configured-workflow/input-materializer owner",
+      "reason": "Bootstrap one-dimensional pre-callback admission and defined statistic/resample oracle verified; arbitrary callable provenance/source sampling law remains consumer_asserted, not scientific authority.",
+      "ledger_source": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@198076863e143dea9f89f02734b13d50dae3eed5"
+    }
+  ],
+  "G_local_reproduce": {
+    "implementation_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+    "topic_fetch": "git fetch origin codex/e02-E-backtest-20261006",
+    "read_candidate": "git show 2f442904a1ed77e5907e8bb288a1d742874b31b7:policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+    "repo_root_commands": [
+      "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+      "(cd policy-engine && uv sync --locked --extra analytics --extra test --extra lint)",
+      "(cd policy-engine && uv run --no-sync python -m pytest -q tests/unit/scientist/methods/backtesting tests/unit/scientist/governance/test_backtest_matrix.py tests/unit/remediation/test_bkt_02.py tests/unit/remediation/test_bkt_03.py tests/unit/ir/mirror_contracts/test_backtest.py)",
+      "(cd policy-engine && uv run --no-sync python -m pytest -q -s tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_native_scientist_missing_trinity_is_not_counted_as_prediction_success)"
+    ],
+    "native_positive_recipe": "After the workflow/input owner supplies the missing admitted typed native input bridge, use the existing BacktestOrchestrator and run_experiment on exact local history, same CAS, declared train/holdout/horizon and actual ExecConfig seed binding. Independently read persisted masked row identities and outputs for K native scalar executions, requested/failed/eligible counts and exact seed/config refs; retain a future-leak/missing-support negative. Do not fabricate a Trinity/model seed adapter or use a second backend to clear this check.",
+    "production_history": "Read-only local check only where original criterion demands real history/source law; keep full local bytes and source identities locally, return exact candidate SHA, bounded command/input identities and deciding receipt. Synthetic controls here do not establish production evidence.",
+    "ledger_policy": "G code acceptance and finding closure remain separate; preserve partial ledger and limited verdict until respective owner inputs are admitted and property verified."
+  },
+  "cleanup": {
+    "policy": "Cloud native Trash unavailable; no permanent deletion and no Trash emptying. Preserve code, useful documentation, deciding logs and unique CAS/production bytes.",
+    "exact_candidates_after_root_handoff": [
+      "/workspace/e02-E-20261006-receipts/backtest-bootstrap-cache",
+      "/workspace/e02-E-20261006-receipts/backtest-cas-delta-001",
+      "/workspace/e02-E-20261006-receipts/backtest-cas-delta-cache",
+      "/workspace/e02-E-20261006-receipts/backtest-check-001",
+      "/workspace/e02-E-20261006-receipts/backtest-check-002",
+      "/workspace/e02-E-20261006-receipts/backtest-check-003",
+      "/workspace/e02-E-20261006-receipts/backtest-check-004",
+      "/workspace/e02-E-20261006-receipts/backtest-cv-cache",
+      "/workspace/e02-E-20261006-receipts/backtest-final-bootstrap-cache",
+      "/workspace/e02-E-20261006-receipts/backtest-final-cas-002",
+      "/workspace/e02-E-20261006-receipts/backtest-final-cas-cache",
+      "/workspace/e02-E-20261006-receipts/backtest-final-check-005",
+      "/workspace/e02-E-20261006-receipts/backtest-final-cv-cache",
+      "/workspace/e02-E-20261006-receipts/backtest-final-native-cache",
+      "/workspace/e02-E-20261006-receipts/backtest-final-native-refusal-003",
+      "/workspace/e02-E-20261006-receipts/backtest-final-native-refusal-cache",
+      "/workspace/e02-E-20261006-receipts/backtest-final-replay-002",
+      "/workspace/e02-E-20261006-receipts/backtest-final-replay-cache",
+      "/workspace/e02-E-20261006-receipts/backtest-final-requested-002",
+      "/workspace/e02-E-20261006-receipts/backtest-final-requested-cache",
+      "/workspace/e02-E-20261006-receipts/backtest-final-trust-002",
+      "/workspace/e02-E-20261006-receipts/backtest-final-trust-cache",
+      "/workspace/e02-E-20261006-receipts/backtest-native-refusal-002",
+      "/workspace/e02-E-20261006-receipts/backtest-native-refusal-cache",
+      "/workspace/e02-E-20261006-receipts/backtest-pytest-cache",
+      "/workspace/e02-E-20261006-receipts/backtest-removal-replay-001",
+      "/workspace/e02-E-20261006-receipts/backtest-removal-requested-001",
+      "/workspace/e02-E-20261006-receipts/backtest-removal-trust-001",
+      "/workspace/e02-E-20261006-receipts/backtest-replay-cache",
+      "/workspace/e02-E-20261006-receipts/backtest-requested-cache",
+      "/workspace/e02-E-20261006-receipts/backtest-trust-cache",
+      "/workspace/e02-E-backtest-20261006/policy-engine/node_modules",
+      "/workspace/e02-E-backtest-20261006/policy-engine/packages/runtime-api-client/node_modules",
+      "/tmp/e02-bkt-debug-rlm2h8lm",
+      "/tmp/e02-bkt-debug-lt8bax81",
+      "/workspace/e02-E-backtest-20261006/policy-engine/apps/runtime-dashboard/node_modules",
+      "/workspace/e02-E-backtest-20261006/policy-engine/apps/runtime-reference-shell/node_modules",
+      "/workspace/e02-E-backtest-20261006/policy-engine/packages/cli/node_modules",
+      "/workspace/e02-E-backtest-20261006/policy-engine/packages/atlas-ui/node_modules"
+    ],
+    "shared_environment_retained": "/workspace/polisyos/policy-engine/.venv is read-only shared backend, used by other E leaves; retain, not an exclusive cleanup candidate.",
+    "useful_worktree_retained": "/workspace/e02-E-backtest-20261006",
+    "pnpm_cleanup_timing": "Only move repeatable dependency installation directories to Trash after root no longer needs this lane and all deciding outputs are committed."
+  },
+  "publication": {
+    "remote_branch": "codex/e02-E-backtest-20261006",
+    "receipt_and_full_output_checkpoint": "1a311b07e",
+    "PR_is_draft": true,
+    "base": "main",
+    "labels": [
+      "kind:runtime-behavior",
+      "compat:breaking",
+      "release:fix"
+    ],
+    "missing_remote_label": "release:breaking absent in GitHub despite tracked taxonomy; existing release:fix chosen for this fixed change and breaking compatibility retained."
+  },
+  "release_fragment_owner_note": "Use existing repository release owner team-polisyos. This metadata does not appoint or ratify the missing Scientist trust-purpose/profile owner.",
+  "receipt_corrections": [
+    {
+      "kind": "criterion-specific per-ID reconciliation",
+      "reviewed_original_sources": [
+        "BKT-01.md SOURCE_BEGIN B:B169/B170",
+        "BKT-02.md SOURCE_BEGIN B:B171",
+        "BKT-04.md SOURCE_BEGIN B:B174"
+      ],
+      "corrected_finding_ids": [
+        "B169",
+        "B170",
+        "B171",
+        "B174"
+      ],
+      "source_and_test_changes": false,
+      "frozen_root_candidate_context_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "numerical_evidence": "Existing committed check receipts retained; no additional numerical run or reinterpretation of PASS as closure. Root owns the completed aggregate numerical-wave receipt.",
+      "status_policy": "All ten historical ledger partial entries and final limited verdicts preserved for owner adjudication."
+    }
+  ]
+}

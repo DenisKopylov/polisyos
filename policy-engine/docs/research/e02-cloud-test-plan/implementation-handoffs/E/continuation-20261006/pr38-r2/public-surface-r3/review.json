@@ -1,0 +1,123 @@
+{
+  "schema": "e02.E.independent-public-facade-admission-review.v2",
+  "reviewer": "doe_r2; not author of root aliases/common admission fixes",
+  "source_identity": {
+    "canonical_aliases_sha": "1e0eb2f6c589b74c6adae850b27af6d720dfa5ea",
+    "complex_real_domain_sha": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+    "nonzero_preservation_sha": "5cdfe613bf91fffbd578848c9e2f8275edc21ee7",
+    "nonzero_tree": "bcbc3b280756b652e8996a15570a4a9b64352839",
+    "native_import_sha": "185d13cd6afb15b0c2ae8f8041e602a3cc7b08d3",
+    "property_before_after_equal": true,
+    "property_paths": {
+      "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py": "ade05f35771490de221dd2c270370d3bd9c8946eb2be9db6091baa1b69c2566f",
+      "policy-engine/src/polisyos/foundry/uncertainty/__init__.py": "92b8ba4e7ab8c99d510bd889776798fba6e5c41794911bbb72e540443f224203",
+      "policy-engine/src/polisyos/foundry/uncertainty/README.md": "715dfbd0d4037dff2bd72bc32e7d154d98d57f3f2ded20b7f2e32624d5afb10f",
+      "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py": "bb84f24451cd90a51d59f1593f7798ad46caf1cbddb5c7b3bacd47edffd893c7",
+      "policy-engine/src/polisyos/foundry/uncertainty/covariance.py": "f6ca43c06d2a699d2bcaa0b48d5eeffc82a0933014d1742ec49ea9b8bbfdfab1"
+    },
+    "native_actual_import_modules": 41
+  },
+  "code_verdict": "GO-bounded-typed-alias-and-common-inlet-properties",
+  "publication_verdict": "HOLD-pending-root-new-Cal29-alias-and-canonical-Cal29-uncertainty19-companion-review",
+  "properties": [
+    {
+      "property": "Three existing canonical NumPy admission helpers reexported through eager literal Foundry uncertainty facade19; no implementation copies or CAS/codec duplication",
+      "outcome": "PASS"
+    },
+    {
+      "property": "Real-domain admission beforecast acrossweights,CDF,U,backendrange,IIDpilot",
+      "outcome": "PASS",
+      "refusals": 25,
+      "source_sha": "ec042402ec91fbdcb51006852e29fe67f38d9452"
+    },
+    {
+      "property": "Positive finite-longdouble/Fraction values cannot becomezero duringfloat64cast across5inlets and3 categorypositions",
+      "outcome": "PASS",
+      "refusals": 13,
+      "source_sha": "5cdfe613bf91fffbd578848c9e2f8275edc21ee7"
+    },
+    {
+      "property": "Native MC persists configuredCAS pairedlaw, freshreopens, Sobolcomplete256net exact64/64/128callbacks from independentdyadic law mean5.25 variance15.1875",
+      "outcome": "PASS",
+      "nominal_callbacks": 1,
+      "draw_callbacks": 256,
+      "gate_eligible": false,
+      "source_sha": "5cdfe613bf91fffbd578848c9e2f8275edc21ee7"
+    },
+    {
+      "property": "CollapsedpositiveCDFlaw refused before anynativeMC nominal/evaluator callback",
+      "outcome": "PASS",
+      "callback_count": 0,
+      "source_sha": "5cdfe613bf91fffbd578848c9e2f8275edc21ee7"
+    },
+    {
+      "property": "Rawtiny covariance row refused in actualMC beforecallback",
+      "outcome": "PASS",
+      "callback_count": 0,
+      "control_limitation": "Independentcovariancebuilder also rejectsrepresentation; removalcontrolnotclaimed effective here"
+    },
+    {
+      "property": "IIDall-zero pilot formula independently derived U=.0995612819216314 N408",
+      "outcome": "PASS",
+      "authority": "Only formula under declared independentIIDbounded[0,1] pilot/main law; no quantile/CDF/optional-stopping certificate"
+    }
+  ],
+  "effective_negative_controls": [
+    {
+      "property_removed": "CDFpositive-categorypreservation; exports/canonicalobjects retained",
+      "outcome": "EXPECTED_FAIL",
+      "observed": "ActualnativeMCcollapsedlaw reaches257callbacks/bootstrap/gatefalse",
+      "stdout": "native-mc-removal-5cd.stdout"
+    },
+    {
+      "property_removed": "Commonreal-domain guard; exports retained",
+      "outcome": "EXPECTED_FAIL",
+      "observed": "Complexpilot emitsU=.09956128/N408",
+      "stdout": "real-domain-removal-pilot.stdout"
+    },
+    {
+      "property_removed": "Commonnonzero-preservation only; earlierreal-domain guard retained and19exports retained",
+      "outcome": "EXPECTED_FAIL",
+      "observed": "Positive1e-400weight admitted as[0,1]",
+      "stdout": "nonzero-support-removal-weights.stdout"
+    },
+    {
+      "property_removed": "Commonnonzero-preservation only; earlierreal-domain guard retained and19exports retained",
+      "outcome": "EXPECTED_FAIL",
+      "observed": "Positive1e-400pilot admitted asallzeros producingbudget408",
+      "stdout": "nonzero-support-removal-pilot.stdout"
+    }
+  ],
+  "corrections": "historical-attribution-correction.json; exactoldcomplexMC0callback observation and incorrect101 harness assertion retained. No nativecomplexcallbackescape claim.",
+  "P37_predicate_basis": {
+    "callback_zero": "Unsupported rawlaw rejected before nominal/evaluator",
+    "CDF_admission": "Positive canonicalfinite-machine category hasrepresentable strictCDFinterval; no arbitrary-realexact law promise",
+    "gate_eligible": "False in native producer/consumer; typedfields andsuccessfulnumerics do notconfer authority",
+    "mean_certificate": "Independent fixed-N boundedIIDlaw admission plusindependent pilot; spread isnoterror ofmean"
+  },
+  "P40": "Two precast escapes(real\u2192imaginaryprojection and nonzero\u2192zero) repaired at common5-inlet mechanism. No new library/copula engine required.",
+  "P41": "Decidingnew pinnedpropertysources and exactold pureescape probes saved. Unpinnedhistoricalcomplexnativeprobe is nondeciding. Globalarchitecture red not_established without exactoldfullcommand/fullinputdenominator replay.",
+  "publication_stage": {
+    "historical_only": "Cal28/uncertainty19 canonicaloutputs ec042 andactualc64 byteequal; patchesprepared. Root nowaddsCal29 distinctload_foundry_calibration_report; new companion stagewillreplace publicationproposal, preservingthisstage."
+  },
+  "owner_packets": {
+    "immutable_v1_packet": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet/packet.json",
+    "IR_current_required_aliases": [
+      "ParametricFitCarrier",
+      "PosteriorSamplesCarrier",
+      "load_forecasting_uncertainty_bundle",
+      "persist_forecasting_uncertainty_bundle"
+    ],
+    "IR_status": "not_ratified",
+    "new_legacy_foundry_edge": "RootchosenE-ownedCalalias resolvesedgeafterreview; historicalowneralternatepatch isNOTrequiredandNOTapplied",
+    "Core_and_Foundry_execute": "v1ownerpackets remainnot_ratified/unapplied; noguardwaiver/baselinebroadening"
+  },
+  "finding_closure": "Not decided bythisreview; B194/B197/B201/B202held and all committedledgerstatuses preserved. Completecriteria/genericnativefixture vsproductionhistory distinctions remainwith accountableowner/G.",
+  "verification_boundaries": {
+    "actual_new_Welfare_consumer": "SeparateindependentCALreviewownedbycal_uq_r3; thisreviewcoversnativeMC/helpers andprecastproperty",
+    "full_architecture_guard": "UNRUNbythisreview; root common wave",
+    "common_numeric_gate_wave": "UNRUNbythisreview; rootafterallreviews/freeze",
+    "productionhistory": "Unavailablecloud/localread-only G inputs ifcriterionrequires"
+  },
+  "cleanup": "Native Trash unavailable; retain all outputs. Candidatesafterreceipts/noactiveusers: cas-mc-positive,cas-mc-removed,cas-5cd-mc-positive,cas-5cd-mc-removed,generated-ec042,generated-5cd. Never deletepermanently."
+}

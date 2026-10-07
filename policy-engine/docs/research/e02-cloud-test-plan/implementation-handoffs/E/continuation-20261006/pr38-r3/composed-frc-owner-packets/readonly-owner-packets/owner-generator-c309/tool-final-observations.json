@@ -1,0 +1,25 @@
+{
+  "schema": "policyos.e02.E.generator-tool-observations.v1",
+  "first_openapi_final_tool_result": {
+    "chunk_id": "bad96c",
+    "wall_time_seconds": 0.000020174,
+    "exit_code": 0,
+    "original_token_count": 25,
+    "output": "/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/openapi/runtime_api_v1.openapi.json\n"
+  },
+  "second_wrapper_final_tool_result": {
+    "chunk_id": "b9fce3",
+    "wall_time_seconds": 0.000022509,
+    "exit_code": 1,
+    "original_token_count": 61,
+    "output": "Traceback (most recent call last):\n  File \"/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/capture_openapi_emit.py\", line 20, in <module>\n    assert report['HEAD_after']==head\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+  },
+  "abi_component_final_tool_result": {
+    "chunk_id": "054cdb",
+    "wall_time_seconds": 0.000025992,
+    "exit_code": 0,
+    "original_token_count": 70,
+    "output": "{\"receipt\": \"/workspace/e02-E-pr38-r3-receipts/doe-r4/owner-generator-c309/abi-target-r1/component-receipt.json\", \"schema_changed\": true, \"schema_diff_bytes\": 2800, \"manifest_diff_bytes\": 1051, \"loaded_origin_count\": 118, \"source_sha\": \"c309262a9beeaa2fe87cd0e7b6d73fe335dc0343\"}\n"
+  },
+  "first_openapi_prior_console_truncation": true
+}

@@ -1,0 +1,17 @@
+id = "2026-10-06-e02-sampling-admission"
+title = "Admit sampling laws before callbacks and freeze bounded mean budgets"
+type = "fixed"
+component = "foundry"
+owner = "team-foundry"
+summary = "Reject out-of-range sampling laws, preserve singular Gaussian dependence and paired empirical row identity, persist complete outcomes, and use independent pilot/frozen main planning only for the canonical bounded response. Sobol uses complete power-of-two nets and replicate estimator variation."
+evidence = ["tests/unit/foundry/uncertainty/test_sampling_admission.py", "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py"]
+compatibility = "Uncertainty v1.1 wire semantics are unchanged. Sobol effective sample counts are rounded to full nets. Legacy adaptive settings execute the fixed maximum without optional peeking; opt into the narrow bounded indicator mean profile for pilot planning."
+change_class = "internal"
+surface_classification = "internal: Foundry propagation and configured Scientist node"
+migration = "Use effective sample counts from results. Read the independent mean certificate separately from predictive intervals. No historical artifact migration."
+api = "Existing propagation config and persisted uncertainty envelope metadata; no new HTTP API or IR schema."
+limitations = "The certificate verifies the declared mathematical law only. Production source authority, general served simulation evaluator admission and IR v2 point/interval and law-carrier ratification remain separate owner tasks."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

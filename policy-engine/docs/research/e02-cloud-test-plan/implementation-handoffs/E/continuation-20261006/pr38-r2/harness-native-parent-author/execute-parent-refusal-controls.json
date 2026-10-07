@@ -1,0 +1,46 @@
+{
+  "scope": "Actual execute boundary with process spy; no real subprocess/no deletion",
+  "results": [
+    {
+      "case": "existing-parent",
+      "refused": true,
+      "reason": "numerical pytest basetemp parent exists; preserve it and choose fresh scratch",
+      "actual_subprocess_spy_count": 0,
+      "wave_marker_absent": true,
+      "sentinel_or_symlink_preserved": true
+    },
+    {
+      "case": "existing-basetemp",
+      "refused": true,
+      "reason": "numerical pytest basetemp exists; preserve it and choose fresh scratch",
+      "actual_subprocess_spy_count": 0,
+      "wave_marker_absent": true,
+      "sentinel_or_symlink_preserved": true
+    },
+    {
+      "case": "dangling-parent",
+      "refused": true,
+      "reason": "numerical pytest basetemp parent exists; preserve it and choose fresh scratch",
+      "actual_subprocess_spy_count": 0,
+      "wave_marker_absent": true,
+      "sentinel_or_symlink_preserved": true
+    },
+    {
+      "case": "escaped-parent",
+      "refused": true,
+      "reason": "numerical basetemp parent escapes admitted wave output",
+      "actual_subprocess_spy_count": 0,
+      "wave_marker_absent": true,
+      "sentinel_or_symlink_preserved": true
+    },
+    {
+      "case": "prelaunch-race",
+      "refused": true,
+      "reason": "numerical pytest basetemp exists; preserve it and choose fresh scratch",
+      "preflight_subprocess_spy_count": 1,
+      "numeric_subprocess_spy_count": 0,
+      "sentinel_preserved": true,
+      "scope": "No actual process; second admission after simulated preflight"
+    }
+  ]
+}

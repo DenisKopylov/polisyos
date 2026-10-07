@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import math
+from collections import Counter
 from dataclasses import dataclass
+from importlib.metadata import version
 
 import numpy as np
 
@@ -14,10 +18,12 @@ from .designs import (
     SensitivityMethod,
     SensitivityPlan,
     SensitivityResult,
+    _admit_sensitivity_plan,
     _build_salib_problem,
     _derive_backend_seed,
 )
 from .morris_geometry import _validate_morris_plan_samples
+from .sampling import _admit_sobol_input_law, generate_sensitivity_samples
 from .uncertainty import (
     analyze_morris_trajectory_bootstrap,
     analyze_sobol_asymptotic_delta,
@@ -35,6 +41,8 @@ def analyze_sensitivity(
     preparation_context: _PreparedAnalysisInputs | None = None,
 ) -> SensitivityResult:
     """Summarize sampled runs into Morris, Sobol, or FAST sensitivity statistics."""
+    plan = _admit_sensitivity_plan(plan)
+    _admit_sobol_input_law(plan)
     if outputs.ndim != 1:
         raise ValueError("outputs must be a 1D array")
     if samples.ndim != 2:
@@ -81,6 +89,7 @@ def analyze_sensitivity(
             "plan_seed": plan.seed,
         }
     )
+    result.metadata.update(_analysis_identity(plan, samples, raw_outputs))
     names = result.parameter_names
     backend_seed = _derive_backend_seed(plan.seed, f"analysis:{plan.method.value}")
 
@@ -166,6 +175,93 @@ def analyze_sensitivity(
     raise ValueError(f"Unsupported sensitivity method: {plan.method}")
 
 
+def _array_digest(values: np.ndarray) -> str:
+    """Bind dimensions and ordered float64 values without changing their support."""
+    canonical = np.asarray(values, dtype="<f8", order="C")
+    digest = hashlib.sha256(json.dumps(list(canonical.shape)).encode("ascii"))
+    digest.update(canonical.tobytes(order="C"))
+    return digest.hexdigest()
+
+
+def _analysis_identity(
+    plan: SensitivityPlan, samples: np.ndarray, outputs: np.ndarray
+) -> dict[str, object]:
+    """Record actual ordered design, outcomes and estimator identity."""
+    plan = _admit_sensitivity_plan(plan, actual_run_count=int(samples.shape[0]))
+    if plan.method == SensitivityMethod.SOBOL:
+        if plan.seed is None:
+            raise ValueError("Sobol analysis requires a seed to reconcile its ordered design")
+        expected = generate_sensitivity_samples(plan)
+        _admit_sobol_sample_blocks(plan, samples, expected)
+    sample_digest = _array_digest(samples)
+    output_digest = _array_digest(outputs)
+    design_payload = {
+        "plan": plan.model_dump(mode="json"),
+        "ordered_samples_sha256": sample_digest,
+    }
+    design_id = hashlib.sha256(
+        json.dumps(design_payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    analyzer = f"SALib@{version('SALib')}:{plan.method.value}"
+    analysis_id = hashlib.sha256(f"{design_id}:{output_digest}:{analyzer}".encode()).hexdigest()
+    return {
+        "design_id": design_id,
+        "analysis_id": analysis_id,
+        "ordered_samples_sha256": sample_digest,
+        "ordered_outputs_sha256": output_digest,
+        "ordered_parameter_names": [spec.name for spec in plan.parameter_specs],
+        "parameter_units": {spec.name: spec.unit for spec in plan.parameter_specs},
+        "analyzer": analyzer,
+        "analyzer_seed": _derive_backend_seed(plan.seed, f"analysis:{plan.method.value}"),
+        "input_law": plan.input_law,
+        "input_law_basis": "consumer_asserted",
+        "authority_purpose": "exploratory_parameter_experiment",
+        "population_law_status": "not_established",
+        "point_effect_scale": (
+            "unit_coordinate_full_range"
+            if plan.method == SensitivityMethod.MORRIS
+            else "variance_fraction"
+        ),
+        "design_order_basis": (
+            "recomputed"
+            if plan.method == SensitivityMethod.SOBOL
+            else "geometry_validated_provenance_not_established"
+        ),
+    }
+
+
+def _admit_sobol_sample_blocks(
+    plan: SensitivityPlan, samples: np.ndarray, expected: np.ndarray
+) -> None:
+    """Reconcile the complete canonical Saltelli blocks, preserving each role's order.
+
+    Permuting complete A/AB/BA/B blocks preserves the Sobol estimands. Actual
+    row order still belongs to the content identity; no sorted representation
+    replaces the stored samples or paired outputs. Membership is checked with
+    exact float64 block bytes and multiplicity, never a geometry-only proxy.
+    """
+    if np.array_equal(samples, expected):
+        return
+    if samples.shape == expected.shape:
+        block_size = 2 * plan.num_parameters + 2
+        actual = np.asarray(samples, dtype="<f8", order="C")
+        canonical = np.asarray(expected, dtype="<f8", order="C")
+        actual_blocks = Counter(
+            block.tobytes(order="C")
+            for block in actual.reshape(-1, block_size, plan.num_parameters)
+        )
+        expected_blocks = Counter(
+            block.tobytes(order="C")
+            for block in canonical.reshape(-1, block_size, plan.num_parameters)
+        )
+        if actual_blocks == expected_blocks:
+            return
+    raise ValueError(
+        "Sobol samples do not match the canonical seeded ordered design "
+        "(only complete Saltelli block permutations are admitted)"
+    )
+
+
 @dataclass(frozen=True)
 class _PreparedAnalysisInputs:
     """Prepared arrays plus original-run accounting for one sensitivity analysis."""
@@ -182,10 +278,13 @@ def _prepare_analysis_inputs(
     samples: np.ndarray,
     outputs: np.ndarray,
 ) -> _PreparedAnalysisInputs:
+    plan = _admit_sensitivity_plan(plan)
     if outputs.ndim not in {1, 2}:
         raise ValueError("outputs must be 1-D or 2-D")
     if samples.ndim != 2 or samples.shape[0] != outputs.shape[0]:
         raise ValueError("samples and outputs must have the same row count")
+
+    plan = _admit_sensitivity_plan(plan, actual_run_count=int(outputs.shape[0]))
 
     sample_valid = np.all(np.isfinite(samples), axis=1)
     if outputs.ndim == 1:
@@ -367,8 +466,7 @@ def _attach_morris_uncertainty(
         return
     try:
         parameter_bounds = {
-            spec.name: (spec.lower_bound, spec.upper_bound)
-            for spec in plan.parameter_specs
+            spec.name: (spec.lower_bound, spec.upper_bound) for spec in plan.parameter_specs
         }
         elementary_effects = morris_elementary_effects_from_samples(
             samples,

@@ -1,0 +1,19 @@
+..................................................................       [100%]
+=============================== warnings summary ===============================
+e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/independent_budget_tests.py::test_same_cap_quantity_every_boundary_before_backend_evaluator_or_cas[generate-construct]
+e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/independent_budget_tests.py::test_same_cap_quantity_every_boundary_before_backend_evaluator_or_cas[problem-construct]
+e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/independent_budget_tests.py::test_same_cap_quantity_every_boundary_before_backend_evaluator_or_cas[identity-construct]
+e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/independent_budget_tests.py::test_same_cap_quantity_every_boundary_before_backend_evaluator_or_cas[prepare-construct]
+e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/independent_budget_tests.py::test_same_cap_quantity_every_boundary_before_backend_evaluator_or_cas[analyze-construct]
+e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/independent_budget_tests.py::test_same_cap_quantity_every_boundary_before_backend_evaluator_or_cas[persist-construct]
+e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/independent_budget_tests.py::test_same_cap_quantity_every_boundary_before_backend_evaluator_or_cas[adaptive-construct]
+e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/independent_budget_tests.py::test_same_cap_quantity_every_boundary_before_backend_evaluator_or_cas[PCA-construct]
+e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/independent_budget_tests.py::test_same_cap_quantity_every_boundary_before_backend_evaluator_or_cas[stability-construct]
+  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `ParameterSpec` - serialized value may not be as expected [field_name='parameter_specs', input_value={'name': 'x', 'lower_boun...lized', 'num_levels': 4}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `ParameterSpec` - serialized value may not be as expected [field_name='parameter_specs', input_value={'name': 'z', 'lower_boun...lized', 'num_levels': 4}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `SensitivityUncertaintyConfig` - serialized value may not be as expected [field_name='uncertainty', input_value={'enabled': False, 'level...ed_inner_resamples': 99}, input_type=dict])
+    return self.__pydantic_serializer__.to_python(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+66 passed, 9 warnings in 1.34s

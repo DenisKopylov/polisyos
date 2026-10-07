@@ -1,0 +1,41 @@
+{
+  "verdict": "GO-bounded-new-test-and-moderate-evidence-delta",
+  "base_sha": "c311546deb347c185b30a2652c2ee9a5e1535e95",
+  "candidate_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "candidate_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "delta_paths": 68,
+  "native_tests": 1,
+  "docs_evidence_companions": 67,
+  "production_source_config_release_surface_changes": 0,
+  "denominators": {
+    "reported_reconciled_A_wheel_python_entries": 3143,
+    "A_Git_src_py": 2698,
+    "A_Git_tools_py": 445,
+    "historical_A_loaded_modules": 144,
+    "current_A_installed_package_files": 2698,
+    "wheel_cases": 1,
+    "these_are_distinct_denominators": true
+  },
+  "independent_corrupt_field_controls": [
+    {
+      "target": "run",
+      "field": "candidate_commit",
+      "outcome": "REFUSED"
+    },
+    {
+      "target": "run",
+      "field": "test_source_sha256",
+      "outcome": "REFUSED"
+    },
+    {
+      "target": "wheel",
+      "field": "wheel_sha256",
+      "outcome": "REFUSED"
+    },
+    {
+      "target": "wheel",
+      "field": "python_entry_denominator",
+      "outcome": "REFUSED"
+    }
+  ]
+}

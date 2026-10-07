@@ -1,0 +1,119 @@
+{
+  "source": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+  "tree": "b7dc087f12e08f388a73f582bf4888cda7500be8",
+  "module_source": {
+    "polisyos.scientist.methods.doe.designs": "dd692e325fa59e218d06ec3dd41f2c5fd933f956b91432e2b8d243cacebed8a8",
+    "polisyos.scientist.methods.doe.sampling": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993",
+    "polisyos.scientist.methods.doe.analysis": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c"
+  },
+  "tracked_source_count": 2915,
+  "tracked_source_digest": "e042b3c5e738ac0f8fb8116c50d9d3d63f86041d94c30513da2bb7b39de22e13",
+  "before_after_equal": true,
+  "all_module_origins_exact_Git_blobs": true,
+  "origin_count": 11,
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "numpy": "2.3.5",
+    "SALib": "1.5.2",
+    "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+    "backend_scope": "actual SALib inlet intercepted before allocation; no numeric estimator claim",
+    "no_caps": true
+  },
+  "cases": [
+    {
+      "method": "morris",
+      "path": "generate",
+      "admitted_N": 2,
+      "mutated_N": 3,
+      "declared_cap": 6,
+      "actual_estimated": 9,
+      "backend_calls": [
+        {
+          "N": 3,
+          "num_vars": 2
+        }
+      ],
+      "evaluator_calls": 0,
+      "outcome": "BACKEND_REACHED_before_budget_refusal",
+      "property_outcome": "FAIL_expected_escape"
+    },
+    {
+      "method": "morris",
+      "path": "identity",
+      "admitted_N": 2,
+      "mutated_N": 3,
+      "declared_cap": 6,
+      "actual_estimated": 9,
+      "backend_calls": [],
+      "evaluator_calls": 0,
+      "outcome": "ACCEPTED_identity_without_budget_admission",
+      "property_outcome": "FAIL_expected_escape"
+    },
+    {
+      "method": "sobol",
+      "path": "generate",
+      "admitted_N": 2,
+      "mutated_N": 3,
+      "declared_cap": 12,
+      "actual_estimated": 18,
+      "backend_calls": [
+        {
+          "N": 3,
+          "num_vars": 2
+        }
+      ],
+      "evaluator_calls": 0,
+      "outcome": "BACKEND_REACHED_before_budget_refusal",
+      "property_outcome": "FAIL_expected_escape"
+    },
+    {
+      "method": "sobol",
+      "path": "identity",
+      "admitted_N": 2,
+      "mutated_N": 3,
+      "declared_cap": 12,
+      "actual_estimated": 18,
+      "backend_calls": [
+        {
+          "N": 3,
+          "num_vars": 2
+        }
+      ],
+      "evaluator_calls": 0,
+      "outcome": "BACKEND_REACHED_before_budget_refusal",
+      "property_outcome": "FAIL_expected_escape"
+    },
+    {
+      "method": "fast",
+      "path": "generate",
+      "admitted_N": 65,
+      "mutated_N": 66,
+      "declared_cap": 130,
+      "actual_estimated": 132,
+      "backend_calls": [
+        {
+          "N": 66,
+          "num_vars": 2
+        }
+      ],
+      "evaluator_calls": 0,
+      "outcome": "BACKEND_REACHED_before_budget_refusal",
+      "property_outcome": "FAIL_expected_escape"
+    },
+    {
+      "method": "fast",
+      "path": "identity",
+      "admitted_N": 65,
+      "mutated_N": 66,
+      "declared_cap": 130,
+      "actual_estimated": 132,
+      "backend_calls": [],
+      "evaluator_calls": 0,
+      "outcome": "ACCEPTED_identity_without_budget_admission",
+      "property_outcome": "FAIL_expected_escape"
+    }
+  ],
+  "negative_control_basis": "Only sample function spy replaced; real generate/identity caller and admitted mutation execute exact old source."
+}

@@ -1,0 +1,14 @@
+{
+  "node": "v22.23.3",
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+  "browserCache": "/home/agent/.cache/ms-playwright",
+  "packagePath": "/workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/playwright@1.59.1/node_modules/playwright/package.json",
+  "playwrightVersion": "1.59.1",
+  "testVersion": "1.59.1",
+  "chromiumExecutablePath": "/home/agent/.cache/ms-playwright/chromium-1217/chrome-linux64/chrome",
+  "persistentProfile": "/workspace/e02-E-pr38-r2-receipts/independent-wave-harness/chromium-profile",
+  "scope": "Browser launch/render capability only; no doctor/full-CI/browser-suite/numerical PASS inferred",
+  "browserVersion": "147.0.7727.15",
+  "actualRenderedText": "4",
+  "outcome": "PASS-browser-capability"
+}

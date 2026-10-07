@@ -1,0 +1,133 @@
+{
+  "status": "historical initial proposal only, superseded; original patch filenames are not current file refs",
+  "historical_input": {
+    "fixture_base_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+    "fixture_base_tree": "1f2477a6c6e01f435773cf7a9f023c111f046d7f",
+    "FRC_overlay_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+    "fixture_is_git_candidate": false,
+    "generator_source_paths": {
+      "policy-engine/architecture/public_surface/contract.toml": {
+        "source_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+        "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+        "bytes": 19715
+      },
+      "policy-engine/src/polisyos/core/__init__.py": {
+        "source_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+        "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40",
+        "bytes": 11696
+      },
+      "policy-engine/src/polisyos/ir/api.py": {
+        "source_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+        "sha256": "50eef6b0cb043705d1bd03069e6e1ecd5cfe995575faedb2c5af1fd4e544e384",
+        "bytes": 47862
+      },
+      "policy-engine/src/polisyos/foundry/execute/__init__.py": {
+        "source_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+        "sha256": "4572f556ca63babc19c33f5d44b1418b310d9089455773266b655979cf723ce1",
+        "bytes": 1561
+      },
+      "policy-engine/src/polisyos/foundry/uncertainty/README.md": {
+        "source_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+        "sha256": "2e7a07708193d8ad54a5a2f3e8a5ea2f012a229147f77211ba45d775f4fa0c98",
+        "bytes": 3788
+      },
+      "policy-engine/tools/devx/architecture/guardrails.py": {
+        "source_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+        "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+        "bytes": 103077
+      }
+    },
+    "pending_owner_exports": {
+      "core_option_a_entrypoints": [
+        "polisyos.core.artifacts",
+        "polisyos.core.canon",
+        "polisyos.core.registry"
+      ],
+      "core_option_b_exports": {
+        "ArtifactRef": [
+          "polisyos.core.artifacts",
+          "ArtifactRef"
+        ],
+        "ArtifactStore": [
+          "polisyos.core.artifacts",
+          "ArtifactStore"
+        ],
+        "ArtifactWriteOptions": [
+          "polisyos.core.artifacts",
+          "ArtifactWriteOptions"
+        ],
+        "PutOptions": [
+          "polisyos.core.artifacts",
+          "PutOptions"
+        ],
+        "SchemaInfo": [
+          "polisyos.core.artifacts",
+          "SchemaInfo"
+        ],
+        "input_ref_from_artifact_ref": [
+          "polisyos.core.artifacts",
+          "input_ref_from_artifact_ref"
+        ],
+        "CanonSpec": [
+          "polisyos.core.canon",
+          "CanonSpec"
+        ],
+        "from_canonical_bytes": [
+          "polisyos.core.canon",
+          "from_canonical_bytes"
+        ],
+        "load_registry_bundle_content": [
+          "polisyos.core.registry",
+          "load_registry_bundle_content"
+        ]
+      },
+      "ir_analytics_exports": {
+        "PosteriorSamplesCarrier": [
+          "polisyos.ir.analytics.uncertainty",
+          "PosteriorSamplesCarrier"
+        ],
+        "load_forecasting_uncertainty_bundle": [
+          "polisyos.ir.analytics.forecasting_uncertainty",
+          "load_forecasting_uncertainty_bundle"
+        ],
+        "persist_forecasting_uncertainty_bundle": [
+          "polisyos.ir.analytics.forecasting_uncertainty",
+          "persist_forecasting_uncertainty_bundle"
+        ]
+      },
+      "foundry_execute_exports": [
+        "get_state_path",
+        "load_state_snapshot",
+        "put_state_snapshot"
+      ]
+    },
+    "owner_patch_refs": [
+      {
+        "path": "patches/foundry-execute-three-canonical-snapshot-exports.patch",
+        "sha256": "7ed68c0e1db9a2cd5cdb855768718c63b78ca551625bb2090f16fa6ceaf3d021",
+        "bytes": 998
+      },
+      {
+        "path": "patches/owned-uncertainty-readme-count.patch",
+        "sha256": "5cd76644e33ebff42ac042466d1e232854176b899a51d8e0fcf15166a261bc90",
+        "bytes": 412
+      },
+      {
+        "path": "patches/ir-three-canonical-analytics-exports.patch",
+        "sha256": "0b783775935fe3e2243c43ae1addc8a786bfc85b963f9095f234fb475365ea84",
+        "bytes": 701
+      },
+      {
+        "path": "patches/core-option-b-nine-root-exports.patch",
+        "sha256": "64fac6030f2492545ea4ab6d24eb84ba070464dade79c1cb15d8fa8b6426eca0",
+        "bytes": 1380
+      },
+      {
+        "path": "patches/core-option-a-existing-entrypoints.patch",
+        "sha256": "8dc71c5130e7b19e93110bb0febda56f588b215787c5eee1ceb3c2e5990928a9",
+        "bytes": 395
+      }
+    ]
+  },
+  "reproducer": "build_packet.py against pinned3105 creates original draft"
+}

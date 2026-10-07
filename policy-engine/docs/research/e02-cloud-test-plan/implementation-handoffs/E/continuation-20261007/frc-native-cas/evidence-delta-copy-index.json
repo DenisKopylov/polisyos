@@ -1,0 +1,30 @@
+{
+  "source_candidate_sha": "1eba9f9e47a82cca1db341314a748b4980e015fc",
+  "scope": "Independent post-source receipt review, unchanged product and fixed reviewed evidence bytes; original copies preserve reviewer output.",
+  "records": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/frc-evidence-delta-review.json",
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/evidence-delta-review/frc-evidence-delta-review.json",
+      "sha256": "7b3e852cc1eaa8c0697cae1d813166a59e136a1647ffeb9cba15423d80a7d2a3",
+      "bytes": 2555
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/frc-evidence-delta.stdout.txt",
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/evidence-delta-review/frc-evidence-delta.stdout.txt",
+      "sha256": "7b3e852cc1eaa8c0697cae1d813166a59e136a1647ffeb9cba15423d80a7d2a3",
+      "bytes": 2555
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/frc-evidence-delta.stderr.txt",
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/evidence-delta-review/frc-evidence-delta.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/probe_evidence_delta.py",
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/evidence-delta-review/probe_evidence_delta.py.txt",
+      "sha256": "dd76eb4ce6892150e0c69c658b2209742919885b3e5a6e4b94d3f8b3802d3384",
+      "bytes": 3968
+    }
+  ]
+}

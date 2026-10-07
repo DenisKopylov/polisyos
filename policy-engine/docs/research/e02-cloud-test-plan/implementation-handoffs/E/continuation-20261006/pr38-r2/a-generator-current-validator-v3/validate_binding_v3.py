@@ -1,0 +1,239 @@
+"""Read-only current-candidate binding for the immutable A/G metadata packet."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import re
+import shutil
+import subprocess
+from pathlib import Path
+
+REPO = Path("/workspace/e02-E-continuation-20261006")
+ORIGINAL = Path("/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-a9f78817")
+CURRENT_SHA = "a9f78817c873be5b35a08155f2593b229d9fdbb6"
+CURRENT_TREE = "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7"
+HISTORICAL_SHA = "5e3e3727685132f270a3a07b9f63dd962a88cd96"
+ORIGINAL_INDEX_SHA256 = "716cfb15445b16de654f16fc8c7f860c2bbe79f0f02a099082dc514e70c3f53e"
+
+
+class BindingAdmissionError(ValueError):
+    """Refuse metadata that attributes valid bytes to the wrong source role."""
+
+
+def _admit_require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+_NO_PATH = object()
+
+
+def admit_source(sha: object, path: object = _NO_PATH) -> None:
+    """Refuse unbound or option-like Git objects before any child process."""
+    _admit_require(
+        isinstance(sha, str) and re.fullmatch(r"[0-9a-f]{40}", sha) is not None,
+        "source requires an exact commit SHA",
+    )
+    if path is not _NO_PATH:
+        _admit_require(isinstance(path, str) and bool(path), "source path requires a string")
+        _admit_require(
+            not any(character.isspace() or character == "\0" for character in path),
+            "source path contains ambiguous characters",
+        )
+        relative = Path(path)
+        _admit_require(
+            not relative.is_absolute()
+            and bool(relative.parts)
+            and relative.as_posix() == path
+            and ".." not in relative.parts,
+            "source path must be repository relative",
+        )
+        _admit_require(not path.startswith("-") and ":" not in path, "source path is ambiguous")
+
+
+def _admit_git_object_arguments(arguments: tuple[str, ...]) -> None:
+    """Keep object reads from interpreting record refs as Git options.
+
+    Named/abbreviated refs remain available to retired source-pinned replay
+    scripts; live packet admissions separately require full immutable SHAs.
+    """
+    if not arguments or arguments[0] not in {"show", "rev-parse"}:
+        return
+    safe_information_flags = {"--show-toplevel", "--git-dir", "--git-common-dir"}
+    for value in arguments[1:]:
+        if not isinstance(value, str) or not value or "\0" in value:
+            raise ValueError("Git object argument must be a nonempty string")
+        if value.startswith("-"):
+            if arguments[0] == "rev-parse" and value in safe_information_flags:
+                continue
+            raise ValueError("Git object reference must never be an option")
+        if ":" in value:
+            _, relative = value.split(":", 1)
+            path = Path(relative)
+            if (
+                not path.parts
+                or path.is_absolute()
+                or ".." in path.parts
+                or path.as_posix() != relative
+                or "\0" in relative
+            ):
+                raise ValueError("Git object path must be repository relative")
+
+
+def git_bytes(*arguments: str) -> bytes:
+    _admit_git_object_arguments(arguments)
+    executable = shutil.which("git")
+    if executable is None:
+        raise FileNotFoundError("Git is unavailable")
+    command = [str(Path(executable).resolve()), "-C", str(REPO), *arguments]
+    # Fixed metadata verbs, pinned refs and admitted tracked paths; never a shell.
+    return subprocess.check_output(command)  # noqa: S603
+
+
+def load_original() -> tuple[dict, dict]:
+    index_bytes = (ORIGINAL / "copy-index.json").read_bytes()
+    if hashlib.sha256(index_bytes).hexdigest() != ORIGINAL_INDEX_SHA256:
+        raise BindingAdmissionError("original immutable index changed")
+    index = json.loads(index_bytes)
+    for item in index["files"]:
+        path = ORIGINAL / item["path"]
+        value = path.read_bytes()
+        if len(value) != item["bytes"] or hashlib.sha256(value).hexdigest() != item["sha256"]:
+            raise BindingAdmissionError("original indexed asset changed")
+    binding = json.loads((ORIGINAL / "source-binding-a9f78817.json").read_bytes())
+    packet = json.loads((ORIGINAL / "dependency-packet-a9f78817.json").read_bytes())
+    return binding, packet
+
+
+def admit_pin(pin: dict) -> None:
+    if pin["sha"] != CURRENT_SHA or pin["tree"] != CURRENT_TREE:
+        raise BindingAdmissionError("current source pin differs from authorized candidate")
+    tree = git_bytes("rev-parse", CURRENT_SHA + "^{tree}").decode().strip()
+    if tree != CURRENT_TREE:
+        raise BindingAdmissionError("authorized current Git tree mismatch")
+    parents = git_bytes("rev-list", "--parents", "-n", "1", CURRENT_SHA).decode().split()[1:]
+    if pin["parents"] != parents:
+        raise BindingAdmissionError("declared current source parents mismatch")
+
+
+def admit_git_ref(ref: dict, *, expected_commit: str, expected_path: str) -> None:
+    admit_source(ref["commit"], ref["path"])
+    if ref["commit"] != expected_commit:
+        raise BindingAdmissionError("Git ref candidate differs from its declared current role")
+    if ref["path"] != expected_path:
+        raise BindingAdmissionError("Git ref path differs from its canonical role")
+    lookup = ref["commit"] + ":" + expected_path
+    actual_blob = git_bytes("rev-parse", lookup).decode().strip()
+    if ref["git_blob"] != actual_blob:
+        raise BindingAdmissionError("declared Git blob differs from computed source blob")
+    value = git_bytes("show", lookup)
+    if len(value) != ref["bytes"] or hashlib.sha256(value).hexdigest() != ref["sha256"]:
+        raise BindingAdmissionError("Git source content hash/size mismatch")
+
+
+def validate(binding: dict, packet: dict) -> None:
+    # Visit all record-provided object references before any child callback.
+    pending = [binding, packet]
+    while pending:
+        value = pending.pop()
+        if isinstance(value, dict):
+            if "commit" in value and "path" in value:
+                admit_source(value["commit"], value["path"])
+            pending.extend(value.values())
+        elif isinstance(value, list):
+            pending.extend(value)
+    admit_pin(binding["current_committed_source"])
+    admit_pin(packet["current_committed_source"])
+    canonical_binding, _ = load_original()
+    if binding["actual_working_HEAD_initial"] != CURRENT_SHA:
+        raise BindingAdmissionError("initial current-source observation differs from candidate")
+    expected_sources = {row["path"] for row in canonical_binding["source_rows"]}
+    observed_sources = [row["path"] for row in binding["source_rows"]]
+    if (
+        binding["selected_source_denominator"] != 29
+        or binding["unchanged_selected_source_denominator"] != 29
+        or len(observed_sources) != 29
+        or set(observed_sources) != expected_sources
+    ):
+        raise BindingAdmissionError("current source path denominator mismatch")
+    for row in binding["source_rows"]:
+        path = row["path"]
+        current = row["current_source"]
+        historical = row["failed5e_source"]
+        admit_git_ref(current, expected_commit=CURRENT_SHA, expected_path=path)
+        admit_git_ref(historical, expected_commit=HISTORICAL_SHA, expected_path=path)
+        if current["sha256"] != historical["sha256"]:
+            raise BindingAdmissionError("source reuse content differs from historical role")
+        if current["git_blob"] != historical["git_blob"]:
+            raise BindingAdmissionError("source reuse blob differs from historical role")
+    expected_refs = {
+        ref["path"] for ref in canonical_binding["new_owner_action_and_carried_packet_refs"]
+    }
+    current_refs = binding["new_owner_action_and_carried_packet_refs"]
+    if (
+        len(current_refs) != len(expected_refs)
+        or {r["path"] for r in current_refs} != expected_refs
+    ):
+        raise BindingAdmissionError("current owner/packet reference denominator mismatch")
+    for ref in current_refs:
+        admit_git_ref(ref, expected_commit=CURRENT_SHA, expected_path=ref["path"])
+    expected_callers = {row["name"]: row for row in canonical_binding["actual_caller_coordinates"]}
+    callers = binding["actual_caller_coordinates"]
+    if len(callers) != len(expected_callers) or {r["name"] for r in callers} != set(
+        expected_callers
+    ):
+        raise BindingAdmissionError("current caller reference denominator mismatch")
+    for row in callers:
+        expected = expected_callers[row["name"]]
+        admit_git_ref(
+            row["git_source"], expected_commit=CURRENT_SHA, expected_path=expected["path"]
+        )
+        for field in ("path", "line", "end_line", "definition_sha256"):
+            if row[field] != expected[field]:
+                raise BindingAdmissionError("current caller identity differs from admitted source")
+    collector_path = canonical_binding["canonical_collector_v4"]["path"]
+    admit_git_ref(
+        binding["canonical_collector_v4"],
+        expected_commit=CURRENT_SHA,
+        expected_path=collector_path,
+    )
+    admit_git_ref(
+        packet["canonical_collector_readiness"]["current_source"],
+        expected_commit=CURRENT_SHA,
+        expected_path=collector_path,
+    )
+    if packet["original_packet"]["source"] != CURRENT_SHA:
+        raise BindingAdmissionError("carried packet source differs from current candidate")
+    if packet["independent_original_packet_review"]["source"] != CURRENT_SHA:
+        raise BindingAdmissionError("carried review source differs from current candidate")
+    cases = {case["case"]: case for case in packet["A_reason_scenarios"]}
+    if cases["missing_ref"]["expected_S6_reason"] != (
+        "s10://calibration/fail-closed/empirical_evidence_ref_missing"
+    ):
+        raise BindingAdmissionError("missing-ref reason misclassified")
+    if cases["resolved_limited"]["expected_S6_reason"] != (
+        "s10://calibration/calibration_floor_not_met"
+    ):
+        raise BindingAdmissionError("resolved-limited reason lost")
+    generated = packet["generator_evidence_boundary"]
+    if (
+        generated["current_generated_dependency_count"] is not None
+        or generated["current_generator_check_state"] != "UNRUN"
+    ):
+        raise BindingAdmissionError("historical generator count presented as current measurement")
+    accepted = packet["new_G_owner_result"]
+    if accepted["FRC_acceptance"] or accepted["finding_closure"] or accepted["E_new_executions"]:
+        raise BindingAdmissionError("bounded compiler result misattributed to FRC/closure/E run")
+    if packet["canonical_collector_readiness"]["actual_wave_at_preparation"] != "NOT_LAUNCHED":
+        raise BindingAdmissionError("preparation snapshot misclassified as measured wave")
+
+
+def main() -> int:
+    binding, packet = load_original()
+    validate(binding, packet)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

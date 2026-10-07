@@ -1,0 +1,70 @@
+from __future__ import annotations
+import ast, csv, hashlib, io, json, subprocess, sys
+from pathlib import Path
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+OUT=Path('/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent')
+BASE='c4b2ccfb1f8716680f0b431ab4c5757dcc75343f'
+def git(*args): return subprocess.check_output(['git','-C',str(ROOT),*args])
+entries=[]
+for raw in git('ls-tree','-rz','--full-tree',BASE,'policy-engine/src/polisyos').split(b'\0'):
+ if not raw: continue
+ meta,path=raw.split(b'\t',1)
+ mode,kind,oid=meta.decode().split()
+ path=path.decode()
+ if kind=='blob' and path.endswith('.py'): entries.append((path,oid))
+requests=b''.join(oid.encode()+b'\n' for _,oid in entries)
+raw=subprocess.check_output(['git','-C',str(ROOT),'cat-file','--batch'],input=requests)
+stream=io.BytesIO(raw)
+source={}
+for path,oid in entries:
+ header=stream.readline().decode().split()
+ assert header[0]==oid and header[1]=='blob'
+ data=stream.read(int(header[2])); assert stream.read(1)==b'\n'
+ source[path]=(oid,data)
+assert not stream.read()
+manifest=json.loads(git('show',BASE+':policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json'))
+owners={r['bundle_id']:r for r in csv.DictReader(io.StringIO(git('show',BASE+':policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv').decode()),delimiter='\t')}
+watch={'UncertaintyEnvelope','PosteriorSamplesCarrier','persist_uncertainty_envelope','load_uncertainty_envelope','summarize_bayesian_calibration_posterior','BayesianCalibrationPosteriorSummary','joint_carrier_digest','UncertaintyEnvelopeRef'}
+rows=[]; errors=[]; summary_callers=[]
+for path,(oid,data) in source.items():
+ try: tree=ast.parse(data.decode(),filename=path)
+ except Exception as exc: errors.append({'path':path,'error':repr(exc)}); continue
+ aliases={}; imports=[]
+ for node in ast.walk(tree):
+  if isinstance(node,ast.ImportFrom):
+   for name in node.names:
+    fq=(node.module or '')+'.'+name.name; aliases[name.asname or name.name]=fq
+    if name.name in watch or (node.module or '').endswith(('uncertainty','uncertainty_adapter')):
+     imports.append({'line':node.lineno,'binding':name.asname or name.name,'qualified':fq,'relative_level':node.level})
+  elif isinstance(node,ast.Import):
+   for name in node.names: aliases[name.asname or name.name.split('.')[0]]=name.name if name.asname else name.name.split('.')[0]
+ def resolve(node):
+  if isinstance(node,ast.Name): return aliases.get(node.id,node.id)
+  if isinstance(node,ast.Attribute): return resolve(node.value)+'.'+node.attr
+  return ''
+ calls=[]; attrs=[]; key_locations=[]
+ for node in ast.walk(tree):
+  if isinstance(node,ast.Call):
+   fq=resolve(node.func); suffix=fq.rsplit('.',1)[-1]
+   if suffix in watch or suffix=='to_uncertainty_envelope':
+    calls.append({'line':node.lineno,'call':fq})
+    if suffix=='summarize_bayesian_calibration_posterior': summary_callers.append({'path':path,'line':node.lineno,'call':fq})
+  if isinstance(node,ast.Attribute) and node.attr in {'point_estimate','distribution_payload','posterior_means','parameter_envelopes'}:
+   attrs.append({'line':node.lineno,'attribute':resolve(node)})
+  if isinstance(node,ast.Constant) and isinstance(node.value,str) and node.value in {'point_functional','interval_functional','posterior_mean','joint_law_sha256','joint_draw_ids','joint_parameter_order'}:
+   key_locations.append({'line':node.lineno,'key':node.value})
+ if imports or calls or key_locations:
+  writer=[]; reader=[]
+  for b in manifest['bundles']:
+   owner=owners[b['id']]['unit']
+   if path in b.get('write_paths',[]): writer.append({'bundle':b['id'],'unit':owner})
+   if path in b.get('read_paths',[]): reader.append({'bundle':b['id'],'unit':owner})
+  rows.append({'path':path,'blob':oid,'sha256':hashlib.sha256(data).hexdigest(),'imports':imports,'calls':calls,'related_attribute_accesses':attrs,'profile_or_joint_key_locations':key_locations,'original_bundle_writers':writer,'original_bundle_declared_readers':reader})
+cf=[]
+for b in manifest['bundles']:
+ if owners[b['id']]['unit'] in {'C','F'}:
+  hits=[p for p in b.get('write_paths',[])+b.get('read_paths',[]) if p in {r['path'] for r in rows}]
+  if hits: cf.append({'bundle':b['id'],'unit':owners[b['id']]['unit'],'source_paths':hits})
+result={'schema':'policyos.e02.independent_source_census.v1','base_sha':BASE,'base_tree':git('rev-parse',BASE+'^{tree}').decode().strip(),'invocation_python':sys.version,'source_denominator':len(entries),'parse_success_count':len(entries)-len(errors),'parse_errors':errors,'selected_source_path_count':len(rows),'selection':'full tracked .py source AST: imports and calls bound to named uncertainty/carrier/ref/summary symbols plus joint/profile keys; attribute uses are reported only inside selected paths','known_limits':['Static symbol/attribute bindings only; dynamic getattr, registry dispatch, re-exports and runtime data-flow are not inferred.','Original manifest ownership is declaration evidence; runtime consumption requires the specific source/native witness.','No test files or ignored outputs in source denominator.'],'summary_direct_callers':summary_callers,'C_F_manifest_selected_edges':cf,'current_head_observed':git('rev-parse','HEAD').decode().strip(),'product_delta_from_base':git('diff','--name-only',BASE,'HEAD','--','policy-engine/src/polisyos').decode().splitlines(),'rows':rows}
+(OUT/'source-consumer-census.json').write_text(json.dumps(result,indent=2,ensure_ascii=False)+'\n')
+print(json.dumps({k:result[k] for k in ['base_sha','base_tree','source_denominator','parse_success_count','parse_errors','selected_source_path_count','summary_direct_callers','C_F_manifest_selected_edges','current_head_observed','product_delta_from_base']},indent=2))

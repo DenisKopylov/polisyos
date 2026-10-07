@@ -1,0 +1,128 @@
+[
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/audit_outputs.py",
+    "line": 408,
+    "signature": "*, bad=bad, gate=gate",
+    "body": "validate_stages(receipts[gate], bad)"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/audit_outputs.py",
+    "line": 430,
+    "signature": "*, bad=bad, gate=gate",
+    "body": "validate_stages(receipts[gate], bad)"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/audit_outputs.py",
+    "line": 408,
+    "signature": "*, bad=bad, gate=gate",
+    "body": "validate_stages(receipts[gate], bad)"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/audit_outputs.py",
+    "line": 430,
+    "signature": "*, bad=bad, gate=gate",
+    "body": "validate_stages(receipts[gate], bad)"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/review_assembly.py",
+    "line": 592,
+    "signature": "altered=altered",
+    "body": "verify_record(altered)"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/review_assembly.py",
+    "line": 601,
+    "signature": "altered=altered",
+    "body": "assert_plan_claim(altered)"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/g-checkpoint11-assembly-independent/review_delta.py",
+    "line": 398,
+    "signature": "bad=bad",
+    "body": "verify_test_metadata(bad)"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/g-checkpoint11-assembly-independent/review_delta.py",
+    "line": 425,
+    "signature": "bad=bad",
+    "body": "verify_plan_metadata(bad)"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/g-checkpoint11-assembly-independent/review_delta.py",
+    "line": 442,
+    "signature": "bad=bad",
+    "body": "verify_law_metadata(bad)"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/cal_probe.py",
+    "line": 188,
+    "signature": "values, *, replacement=replacement",
+    "body": "values.update(revenue=replacement)"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe_independent.py",
+    "line": 170,
+    "signature": "ref=ref",
+    "body": "read_consumer(store, ref)"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe_independent.py",
+    "line": 299,
+    "signature": "x=x, y=y, p=p",
+    "body": "analyze_sensitivity(p, x, y)"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe_independent.py",
+    "line": 333,
+    "signature": "forged=forged",
+    "body": "read_consumer(FileSystemCAS(store.root), forged)"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe_independent.py",
+    "line": 372,
+    "signature": "law=law, seed=seed",
+    "body": "SensitivityBridge().analyze_search_space(bounds, lambda p: calls.append(p) or 0, method='sobol', input_law=law, seed=seed)"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/mc-gaussian-independent.py",
+    "line": 110,
+    "signature": "*, calls=calls, **p",
+    "body": "calls.append(p) or {'y': p['a'] + p['b']}"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/pcl_probe.attempt1.py",
+    "line": 191,
+    "signature": "*, forged=forged",
+    "body": "load_continuous_evaluation(FileSystemCAS(store.root), forged)"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/pcl_probe.py",
+    "line": 191,
+    "signature": "*, forged=forged",
+    "body": "load_continuous_evaluation(FileSystemCAS(store.root), forged)"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/admission_probe.py",
+    "line": 164,
+    "signature": "*, probabilities=probabilities, uniforms=uniforms",
+    "body": "harness(probabilities, uniforms)"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/native_mc_export_probe.py",
+    "line": 102,
+    "signature": "*, calls=calls, **p",
+    "body": "calls.append((float(p['a']), float(p['b']))) or {'y': p['a'] + p['b']}"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/native_mc_pinned5cd_probe.py",
+    "line": 133,
+    "signature": "*, calls=calls, **p",
+    "body": "calls.append((float(p['a']), float(p['b']))) or {'y': p['a'] + p['b']}"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/nonzero_support_independent_probe.py",
+    "line": 188,
+    "signature": "*, calls=calls, **p",
+    "body": "calls.append(p) or {'y': p['x']}"
+  }
+]

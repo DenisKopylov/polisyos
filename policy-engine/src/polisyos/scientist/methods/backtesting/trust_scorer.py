@@ -1,29 +1,19 @@
-"""Public backtesting trust scorer module API."""
+"""Admission boundary for backtest trust grades."""
 
 from __future__ import annotations
 
-import numpy as np
-
-from polisyos.core.evaluation import ThresholdBand, ThresholdMapper, WeightedScorer
 from polisyos.ir.analytics.backtest import BacktestScenario, SystematicBias
 
 
 class TrustScorer:
-    """Aggregate backtest quality into trust score/grade."""
+    """Withhold trust authority until its owner admits a versioned purpose/profile.
 
-    # Reports written before nominal confidence became explicit retain the historical profile.
-    _DEFAULT_NOMINAL_CONFIDENCE_LEVEL = 0.95
-    _scorer = WeightedScorer({"coverage": 0.5, "mape": 0.3, "bias": 0.2})
-    _grade_mapper = ThresholdMapper[str](
-        [
-            ThresholdBand(0.85, "A"),
-            ThresholdBand(0.70, "B"),
-            ThresholdBand(0.50, "C"),
-            ThresholdBand(0.30, "D"),
-            ThresholdBand(0.00, "F"),
-        ],
-        default="F",
-    )
+    Descriptive error and empirical coverage remain available in the scenarios.
+    A non-significant residual test does not establish equivalence, and perfect
+    observed agreement does not establish a population trust grade. The former
+    hard-coded weights and grade thresholds had no admitted purpose/profile or
+    meaningful-bias margin; they cannot sign an authority-bearing result.
+    """
 
     def compute(
         self,
@@ -31,80 +21,18 @@ class TrustScorer:
         scenarios: list[BacktestScenario],
         biases: list[SystematicBias],
     ) -> tuple[float | None, str | None]:
-        if not scenarios:
-            return None, None
+        """Return unavailable authority without inventing the missing owner policy.
 
-        coverage_values = [
-            scenario.coverage_probability
-            for scenario in scenarios
-            if scenario.coverage_probability is not None
-        ]
-        mape_values = [scenario.mape for scenario in scenarios if scenario.mape is not None]
+        Args:
+            scenarios: Descriptive replay measurements retained by the report.
+            biases: Residual diagnostics, not evidence of population equivalence.
 
-        coverage_score = None
-        avg_coverage = None
-        if coverage_values:
-            avg_coverage = float(np.mean(coverage_values))
-            normalized_coverage: list[float] = []
-            for scenario in scenarios:
-                if scenario.coverage_probability is None:
-                    continue
-                nominal_level = scenario.nominal_confidence_level
-                if nominal_level is None:
-                    nominal_level = self._DEFAULT_NOMINAL_CONFIDENCE_LEVEL
-                normalized_coverage.append(
-                    max(0.0, min(1.0, float(scenario.coverage_probability) / nominal_level))
-                )
-            coverage_score = float(np.mean(normalized_coverage))
-
-        mape_score = None
-        if mape_values:
-            avg_mape = float(np.mean(mape_values))
-            mape_score = max(0.0, 1.0 - avg_mape / 60.0)
-
-        bias_penalty = 0.0
-        for bias in biases:
-            if bias.p_value is not None and bias.p_value < 0.01:
-                bias_penalty += 0.15
-            elif bias.p_value is not None and bias.p_value < 0.05:
-                bias_penalty += 0.08
-        bias_score = max(0.0, 1.0 - bias_penalty)
-
-        result = self._scorer.score(
-            {
-                "coverage": coverage_score,
-                "mape": mape_score,
-                "bias": bias_score,
-            }
-        )
-        if not result.effective_weights:
-            return None, None
-        completeness_factors: list[float] = []
-        for scenario in scenarios:
-            if scenario.requested_count > 0 and scenario.compared_count > 0:
-                completeness_factors.append(
-                    min(1.0, scenario.compared_count / scenario.requested_count)
-                )
-                if scenario.compared_count != len(scenario.outcome_comparisons):
-                    completeness_factors[-1] = 0.0
-            else:
-                completeness_factors.append(0.0)
-            if scenario.interval_requested_count > 0:
-                completeness_factors.append(
-                    min(1.0, scenario.interval_availability or 0.0)
-                )
-
-        completeness_factor = min(completeness_factors, default=1.0)
-        trust_score = min(result.score, completeness_factor)
-        grade = self._grade_mapper.map(trust_score)
-
-        # Coverage-first gate: under-covered models cannot receive high trust.
-        if avg_coverage is not None and avg_coverage < 0.50 and grade in {"A", "B"}:
-            grade = "C"
-        if avg_coverage is not None and avg_coverage < 0.30 and grade in {"A", "B", "C"}:
-            grade = "D"
-
-        return round(trust_score, 4), grade
+        Returns:
+            No trust score or grade. A future owner-admitted profile must define
+            purpose, sampling assumptions and any equivalence margin before this
+            boundary can admit authority.
+        """
+        return None, None
 
 
 __all__ = ["TrustScorer"]

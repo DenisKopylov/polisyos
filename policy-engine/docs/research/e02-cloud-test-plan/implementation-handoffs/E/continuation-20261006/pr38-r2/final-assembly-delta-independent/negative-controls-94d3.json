@@ -1,0 +1,62 @@
+[
+  {
+    "control": "portable_bytes",
+    "state": "REJECTED",
+    "mechanism": "actual independent byte/property validator"
+  },
+  {
+    "control": "portable_sha256",
+    "state": "REJECTED",
+    "mechanism": "actual independent byte/property validator"
+  },
+  {
+    "control": "portable_copied_path",
+    "state": "REJECTED",
+    "mechanism": "actual independent byte/property validator"
+  },
+  {
+    "control": "plan_candidate_sha",
+    "state": "REJECTED",
+    "mechanism": "actual independent byte/property validator"
+  },
+  {
+    "control": "plan_native_test_path_count",
+    "state": "REJECTED",
+    "mechanism": "actual independent byte/property validator"
+  },
+  {
+    "control": "plan_execution_state",
+    "state": "REJECTED",
+    "mechanism": "actual independent byte/property validator"
+  },
+  {
+    "control": "plan_runtime_test_case_count",
+    "state": "REJECTED",
+    "mechanism": "actual independent byte/property validator"
+  },
+  {
+    "control": "plan_omitted_lint_path",
+    "state": "REJECTED",
+    "mechanism": "actual independent byte/property validator"
+  },
+  {
+    "control": "reviewed_postimage_false_digest",
+    "state": "REJECTED",
+    "mechanism": "actual independent byte/property validator"
+  },
+  {
+    "control": "same_import_markers_changed_actual_Welfare_empirical_weight_predicate",
+    "state": "REJECTED",
+    "mechanism": "actual independent byte/property validator"
+  },
+  {
+    "control": "own_CAL_author_substituted_as_independent_reviewer",
+    "state": "REJECTED",
+    "mechanism": "actual independent byte/property validator"
+  },
+  {
+    "control": "old_uncertainty20_count_retained",
+    "state": "REJECTED",
+    "mechanism": "actual independent byte/property validator"
+  }
+]

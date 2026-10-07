@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "git",
+    "-C",
+    "/workspace/e02-E-continuation-20261006",
+    "apply",
+    "--check",
+    "/workspace/e02-E-pr38-r2-receipts/welfare-covariance-facade-5e/owned-facade-route.patch"
+  ],
+  "root_HEAD": "eb035c0785a63c9c2a6d8991e2503a6a5117a1aa",
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": ""
+}

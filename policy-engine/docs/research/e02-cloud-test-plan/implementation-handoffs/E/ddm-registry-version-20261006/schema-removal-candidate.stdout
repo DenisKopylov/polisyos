@@ -1,0 +1,27 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____________ test_native_new_producer_requires_distinct_v2_reader _____________
+
+context = (CalibrationReport(model_id='model-1', model_version='v1', detector_id='detector-1', stationarity_regime_id='regime-1'...ast_shift_event_model_version=None, last_degradation_event_model_id=None, last_degradation_event_model_version=None))))
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-161/test_native_new_producer_requi0')
+
+    def test_native_new_producer_requires_distinct_v2_reader(context, tmp_path):
+        """The actual producer's persisted output is explicitly new-to-old breaking."""
+    
+        record = context[3].registry_record
+        path = tmp_path / "registry.json"
+        path.write_text(record.model_dump_json())
+        payload = json.loads(path.read_text())
+        old = _validator("model_registry_record.v1.schema.json")
+        new = _validator("model_registry_record.schema.json")
+        assert old.schema["$id"] != new.schema["$id"]
+        assert payload["schema_version"] == "2"
+        assert all(payload[field] is not None for field in SOURCE_FIELDS)
+        old_errors = list(old.iter_errors(payload))
+>       assert len(old_errors) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests/unit/ddm/test_registry_schema_compatibility.py:118: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/ddm/test_registry_schema_compatibility.py::test_native_new_producer_requires_distinct_v2_reader

@@ -1,0 +1,265 @@
+--- historical-1e1-collect_wave_v2.py
++++ collect_wave_v3_final.py
+@@ -6,6 +6,7 @@
+ import ast
+ import hashlib
+ import json
++import os
+ import shutil
+ import subprocess
+ import sys
+@@ -40,14 +41,54 @@
+     return {"bytes": after.st_size, "sha256": digest.hexdigest()}
+ 
+ 
++class EvidenceAdmissionError(RuntimeError):
++    """Reject an evidence role/path before copying any payload bytes."""
++
++
++def reject_symlink_components(path: Path) -> None:
++    for component in (path, *path.parents):
++        if component.is_symlink():
++            raise EvidenceAdmissionError("symlink component is not admitted: " + str(component))
++
++
+ def inside(root: Path, path: Path) -> Path:
+-    """Admit regular files inside the selected immutable wave directory."""
+-    if path.is_symlink():
+-        raise RuntimeError("symlink is not admitted as wave evidence: " + str(path))
++    """Admit contained paths without allowing leaf or parent symlink aliases."""
++    reject_symlink_components(path.absolute())
+     resolved = path.resolve()
+     if not resolved.is_relative_to(root):
+-        raise RuntimeError("input escapes wave root: " + str(path))
++        raise EvidenceAdmissionError("input escapes wave root: " + str(path))
+     return resolved
++
++
++def public_evidence(root: Path, path: Path, *, expected: Path | None = None) -> Path:
++    """Admit public evidence roles; integrity never overrides raw/private exclusion."""
++    resolved = inside(root, path)
++    relative = resolved.relative_to(root)
++    parts = [part.casefold() for part in relative.parts]
++    if any(part in {"raw", "private"} or "git-config-private" in part for part in parts):
++        raise EvidenceAdmissionError("raw/private evidence cannot be published: " + str(path))
++    if resolved.name.casefold().endswith(".raw.json"):
++        raise EvidenceAdmissionError("raw evidence cannot be published: " + str(path))
++    if expected is not None and Path(os.path.abspath(path)) != Path(os.path.abspath(expected)):
++        raise EvidenceAdmissionError(
++            "evidence path differs from canonical planned role: " + str(path)
++        )
++    if resolved.exists() and not resolved.is_file():
++        raise EvidenceAdmissionError("public evidence must be a regular file: " + str(path))
++    return resolved
++
++
++def canonical_job_output(wave: Path, job: dict[str, object]) -> Path:
++    name = job["name"]
++    if not isinstance(name, str) or not name or Path(name).name != name or name in {".", ".."}:
++        raise EvidenceAdmissionError("invalid planned check name")
++    expected = wave / "checks" / name
++    output = inside(wave, Path(job["output"]))
++    if Path(os.path.abspath(job["output"])) != expected:
++        raise EvidenceAdmissionError("check output differs from canonical planned role")
++    if job["junit"]:
++        public_evidence(wave, Path(job["junit"]), expected=expected / "pytest.xml")
++    return output
+ 
+ 
+ def git_bytes(repo: Path, *argv: str) -> bytes:
+@@ -113,7 +154,9 @@
+         data = git_bytes(repo, "show", candidate + ":" + packet["source"])
+         if hashlib.sha256(data).hexdigest() != packet["sha256"]:
+             raise RuntimeError("owner packet Git identity mismatch")
+-        destination = inside(wave, Path(packet["destination"]))
++        destination = public_evidence(wave, Path(packet["destination"]))
++        if destination.parent != wave / "owner-packets" or destination.suffix != ".py":
++            raise EvidenceAdmissionError("owner packet is outside its canonical public role")
+         if not destination.exists() or identity(destination) != {
+             "bytes": packet["bytes"],
+             "sha256": packet["sha256"],
+@@ -237,12 +280,16 @@
+ 
+ 
+ def collect(args: argparse.Namespace) -> dict[str, object]:
++    reject_symlink_components(args.wave_root.absolute())
+     wave = args.wave_root.resolve()
+     repo = args.repo.resolve()
+     publication = args.publication_root
++    reject_symlink_components(publication.absolute())
++    if publication.resolve().is_relative_to(wave):
++        raise EvidenceAdmissionError("publication must not modify the original wave directory")
+     if publication.exists() or publication.is_symlink():
+         raise RuntimeError("publication output exists; preserve it and select fresh output")
+-    plan_path = inside(wave, wave / "plan.json")
++    plan_path = public_evidence(wave, wave / "plan.json", expected=wave / "plan.json")
+     plan = read_json(plan_path)
+     candidate = args.candidate
+     if plan["candidate_sha"] != candidate:
+@@ -253,6 +300,8 @@
+     if Path(plan["output_root"]).resolve() != wave:
+         raise RuntimeError("plan wave output root mismatch")
+     jobs = plan["jobs"]
++    for job in jobs:
++        canonical_job_output(wave, job)
+     names = [job["name"] for job in jobs]
+     if len(names) != len(set(names)):
+         raise RuntimeError("duplicate job name in complete plan")
+@@ -273,6 +322,7 @@
+     freeze = None
+     freeze_identity = None
+     if freeze_path is not None:
++        freeze_path = public_evidence(freeze_path.parent.resolve(), freeze_path)
+         freeze = read_json(freeze_path)
+         freeze_identity = identity(freeze_path)
+         if (
+@@ -294,7 +344,7 @@
+     issues = []
+ 
+     def copy(path: Path, *, required: bool = True) -> bool:
+-        path = inside(wave, path)
++        path = public_evidence(wave, path)
+         relative = path.relative_to(wave)
+         if not path.exists():
+             if required:
+@@ -348,8 +398,10 @@
+             "git_blob": git_bytes(repo, "rev-parse", candidate + ":" + name).decode().strip(),
+         }
+     for job in jobs:
+-        output = inside(wave, Path(job["output"]))
+-        path = output / (job["name"] + ".json")
++        output = canonical_job_output(wave, job)
++        path = public_evidence(
++            wave, output / (job["name"] + ".json"), expected=output / (job["name"] + ".json")
++        )
+         row = {
+             "name": job["name"],
+             "kind": job["kind"],
+@@ -416,15 +468,26 @@
+         row["backend_observer_scope"] = (
+             "Post-command observer process; test-child changed JAX config is not inferred."
+         )
+-        stdout = inside(wave, Path(receipt["stdout_path"]))
+-        if not stdout.exists() or identity(stdout) != {
+-            "bytes": receipt["stdout_bytes"],
+-            "sha256": receipt["stdout_sha256"],
+-        }:
+-            issues.append({"job": job["name"], "reason": "stdout custody mismatch"})
+-        else:
+-            copy(stdout)
++        stdout = None
++        try:
++            stdout = public_evidence(
++                wave,
++                Path(receipt["stdout_path"]),
++                expected=output / (job["name"] + ".stdout.txt"),
++            )
++        except EvidenceAdmissionError as error:
++            issues.append({"job": job["name"], "reason": str(error), "role": "stdout"})
++        if stdout is not None:
++            if not stdout.exists() or identity(stdout) != {
++                "bytes": receipt["stdout_bytes"],
++                "sha256": receipt["stdout_sha256"],
++            }:
++                issues.append({"job": job["name"], "reason": "stdout custody mismatch"})
++            else:
++                copy(stdout)
+         private = inside(wave, Path(receipt["git_input_config"]["private_complete_path"]))
++        if private != wave / "raw" / (job["name"] + ".git-config-private.nul"):
++            raise EvidenceAdmissionError("private config custody differs from canonical raw role")
+         if not private.exists() or identity(private) != {
+             "bytes": receipt["git_input_config"]["bytes"],
+             "sha256": receipt["git_input_config"]["sha256"],
+@@ -535,6 +598,7 @@
+         issues.append({"reason": "input/config identity differs across wave jobs"})
+     packet_rows = []
+     packet_case_ids = set()
++    unattributed_packet_case_ids = set()
+     function_origins = {}
+     source_paths = {path for group in plan["groups"].values() for path in group}
+     source_paths.update(packet["source"] for packet in packets)
+@@ -553,10 +617,38 @@
+             if name not in packet["test_functions"] or case["job_name"] not in packet_jobs:
+                 continue
+             classname = case["classname"] or ""
+-            named_module = packet["module_stem"] in classname
++            destination = Path(packet["destination"])
++            admitted_modules = {
++                packet["module_stem"],
++                destination.relative_to(wave).with_suffix("").as_posix().replace("/", "."),
++            }
++            file_label = case["file"]
++            file_matches = not file_label
++            if file_label:
++                packet_job = next(job for job in jobs if job["name"] == case["job_name"])
++                labeled = Path(file_label)
++                if not labeled.is_absolute():
++                    labeled = Path(packet_job["cwd"]) / labeled
++                try:
++                    labeled = public_evidence(wave, labeled, expected=destination)
++                    file_matches = labeled == destination
++                except EvidenceAdmissionError:
++                    file_matches = False
++            named_module = classname in admitted_modules
+             anonymous_unique = not classname and function_origins[name] == [packet["source"]]
+-            if named_module or anonymous_unique:
++            if file_matches and (named_module or anonymous_unique):
+                 cases.append(case)
++            else:
++                unattributed_packet_case_ids.add(id(case))
++                issues.append(
++                    {
++                        "source": packet["source"],
++                        "case": case["name"],
++                        "reason": "owner packet JUnit module/file identity not admitted",
++                        "classname": classname,
++                        "file": file_label,
++                    }
++                )
+         packet_rows.append(
+             {
+                 "source": packet["source"],
+@@ -564,6 +656,8 @@
+                 "owner": "A",
+                 "matching_basis": {
+                     "exact_destination_in_source_bound_job_argv": sorted(packet_jobs),
++                    "module_policy": "Exact declared module labels; no substring matching.",
++                    "file_policy": "Absent or exact canonical owner-packet destination.",
+                     "anonymous_classname_policy": (
+                         "Require exact test-function uniqueness across all planned candidate "
+                         "source inputs and matching job; refuse ambiguous identity."
+@@ -589,6 +683,8 @@
+     if static_job is not None:
+         index = static_job["argv"].index("--receipt")
+         raw = inside(wave, Path(static_job["argv"][index + 1]))
++        if raw != wave / "raw" / "production-invocation.raw.json":
++            raise EvidenceAdmissionError("static proxy custody differs from canonical raw role")
+         if raw.exists():
+             observed = identity(raw)
+             custody.append(
+@@ -661,9 +757,23 @@
+         "changed_python_full_lint_denominator": len(plan["changed_python_lint_paths"]),
+         "numeric_counts": summarize_cases(all_numeric_cases),
+         "native_numeric_counts_excluding_A_packets": summarize_cases(
+-            [case for case in all_numeric_cases if id(case) not in packet_case_ids]
++            [
++                case
++                for case in all_numeric_cases
++                if id(case) not in packet_case_ids | unattributed_packet_case_ids
++            ]
+         ),
+-        "native_numeric_count_scope": "Includes the explicit G ControlPlaneStore companion.",
++        "unattributed_owner_packet_counts": summarize_cases(
++            [case for case in all_numeric_cases if id(case) in unattributed_packet_case_ids]
++        ),
++        "unattributed_owner_packet_cases": [
++            case for case in all_numeric_cases if id(case) in unattributed_packet_case_ids
++        ],
++        "native_numeric_attribution_complete": not unattributed_packet_case_ids,
++        "native_numeric_count_scope": (
++            "Includes the explicit G ControlPlaneStore companion. Contradictory owner-packet "
++            "identities stay unattributed and are excluded from both native and A counts."
++        ),
+         "numeric_outcome_counts": dict(Counter(row["outcome"] for row in numeric)),
+         "non_numeric_outcome_counts": dict(Counter(row["outcome"] for row in non_numeric)),
+         "foreign_owner_A_packet_cases": packet_rows,

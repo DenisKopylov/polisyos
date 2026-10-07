@@ -1,0 +1,9 @@
+{
+  "exact_source": "1e0eb2f6c589b74c6adae850b27af6d720dfa5ea",
+  "law": "declared Normal with unsupported complex covariance row[1+5j]",
+  "callback_count": 0,
+  "family": "unknown",
+  "gate_eligible": false,
+  "warnings": [],
+  "failure": "unsupported_sampling_range_or_covariance"
+}

@@ -1,0 +1,21 @@
+{
+  "phase": "repository-best-in-class-phase-5.10",
+  "mode": "report_only",
+  "status": "reported",
+  "policy": "architecture/gates/compatibility_release.toml",
+  "fragments_dir": "_build/e02-g-continuation-20261006/reviewed-release-fragments",
+  "fragment_count": 1,
+  "structured_compatibility_change_count": 1,
+  "breaking_classes_checked": [
+    "python-public-api"
+  ],
+  "contract_error_count": 0,
+  "finding_count": 0,
+  "contract_errors": [],
+  "findings": [],
+  "summary": {
+    "compatibility_surfaces": 5,
+    "promotion_checks": 4,
+    "generated_families": 6
+  }
+}

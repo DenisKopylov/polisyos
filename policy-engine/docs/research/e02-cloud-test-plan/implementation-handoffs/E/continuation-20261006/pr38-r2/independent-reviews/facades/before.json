@@ -1,0 +1,124 @@
+{
+  "base_sha": "8aaffa4b568d81b8e6889ea493e2afb86f195ed8",
+  "implementation_sha": "14d6dd4c4f8e61857bc2216a270090aafb0cd72e",
+  "implementation_tree": "3a3d2e153283f4494e8b6977f4c82d64e540012c",
+  "observed_head": "514824ca60913601b796d492e99b754368569d8e",
+  "head_tree": "940a1d1f79fe121026826bec273abb3eece3a8bf",
+  "status": "M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/core-ir-facade-owner-packet.json",
+  "src_test_arch_delta_head": "",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-evidence-facades.toml",
+    "policy-engine/src/polisyos/calibration/README.md",
+    "policy-engine/src/polisyos/calibration/__init__.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+    "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "policy-engine/tests/unit/calibration/test_evidence_facades.py"
+  ],
+  "files": {
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-evidence-facades.toml": {
+      "sha256": "37e0342de0bffbc8280e121bee988c471d2b674b1ff9d270d526377ef6e38917",
+      "bytes": 1281,
+      "git_blob": "b9b1971a5c58d0bbbd77c25b114d938f1c001f95",
+      "matches_exact_source": true
+    },
+    "policy-engine/src/polisyos/calibration/README.md": {
+      "sha256": "943b4e8a3f2db6642200d61ff3e6a959165db6410e17bf65772edb35c706b42a",
+      "bytes": 3036,
+      "git_blob": "2c12b49d01c9836d723d771ad633bd575782c7e1",
+      "matches_exact_source": true
+    },
+    "policy-engine/src/polisyos/calibration/__init__.py": {
+      "sha256": "3fcbc6d7e10176cf6578dc88fdc54482ba6a300a55385f3603f3069ad2ab67bd",
+      "bytes": 1989,
+      "git_blob": "368781c4e3b13ac6b3914dd800e5f3ad3705f25f",
+      "matches_exact_source": true
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md": {
+      "sha256": "2e7a07708193d8ad54a5a2f3e8a5ea2f012a229147f77211ba45d775f4fa0c98",
+      "bytes": 3788,
+      "git_blob": "a1d887cf872feffc7dce3fdcfdd48376695cfbfc",
+      "matches_exact_source": true
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/__init__.py": {
+      "sha256": "f555f6960f0fdb140ca4d393004dc358dcd82066297f16561160cc4875802d8d",
+      "bytes": 1895,
+      "git_blob": "dbbf8af76cbad2ea1f80cfb763cbfed40c627083",
+      "matches_exact_source": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py": {
+      "sha256": "86af4657cb009f932fa8e06921eea5ca9d1896834c8a60af4e95613e4f67203e",
+      "bytes": 54514,
+      "git_blob": "44172dcca5d5703ae6fe26f915dba47e82663de7",
+      "matches_exact_source": true
+    },
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": {
+      "sha256": "efd11f9df309774ae8eab4f7633a4a2b669b3fb66b062ac1f8e406cedbe238a5",
+      "bytes": 20576,
+      "git_blob": "2d2d9c5a1ee36d7d35bf7436ccfb3e4f2061176d",
+      "matches_exact_source": true
+    },
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py": {
+      "sha256": "f9421a672185153e7a55e1f0944f25a30e1a7950b3c978ac332fae12091625e8",
+      "bytes": 180397,
+      "git_blob": "954fad791cfdc8363aa31302952ad2286a867b00",
+      "matches_exact_source": true
+    },
+    "policy-engine/tests/unit/calibration/test_evidence_facades.py": {
+      "sha256": "d865444e783cd42f261a2d3eee852232d344ccbb6269085de3c4103dee83b574",
+      "bytes": 3542,
+      "git_blob": "d447133c3b7ad89c6481638ae67263cf273a3397",
+      "matches_exact_source": true
+    },
+    "policy-engine/src/polisyos/calibration/continuous.py": {
+      "sha256": "309608a01361ece0894c8981b40144a18258b858fdb21033f23156d6673bc032",
+      "bytes": 22899,
+      "git_blob": "53008144d8bc4c903392cdd80db14f734496208e",
+      "matches_exact_source": true
+    },
+    "policy-engine/src/polisyos/calibration/forecast_bridge.py": {
+      "sha256": "173954a420aca0bbc9bad13eb4ab82eab6ff8b60ba75e540f0d245061d41ce44",
+      "bytes": 75581,
+      "git_blob": "5fee62b979907b4c40ca0c238cf43d0b5ecc5c39",
+      "matches_exact_source": true
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py": {
+      "sha256": "30951ea305bdb04ec3826f0e102fdab1e3b96b3acd66efac6d7df54b73300025",
+      "bytes": 20581,
+      "git_blob": "3b12b9c4a50ecea9f2b1ff79e405c301f2dd7280",
+      "matches_exact_source": true
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/config.py": {
+      "sha256": "1ceae2547477a8a49739d4e74f86354d08a18ad8b852fb06db68801adbf2843a",
+      "bytes": 1710,
+      "git_blob": "e3084645299974a3981968bc3bc95b9867a1f9b1",
+      "matches_exact_source": true
+    },
+    "policy-engine/architecture/public_surface/contract.toml": {
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+      "bytes": 19715,
+      "git_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "matches_exact_source": true
+    },
+    "policy-engine/architecture/public_surface/inventory.json": {
+      "sha256": "58ec72001a9d236b4cb247a4229c64291a14f3c47429b26666cca484cb06cf0d",
+      "bytes": 220738,
+      "git_blob": "0f413b910f5aa27d9b27c09757891d3b2d831f82",
+      "matches_exact_source": true
+    },
+    "policy-engine/docs/reference/public-surface.md": {
+      "sha256": "3621f45572f23b6e0b5d3d1af7aefa56cfa2c3734129c814a6ac1b239520b102",
+      "bytes": 152713,
+      "git_blob": "3c8fb1f51e8a94420658f5e95c576e07172010be",
+      "matches_exact_source": true
+    },
+    "policy-engine/tools/devx/architecture/guardrails.py": {
+      "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+      "bytes": 103077,
+      "git_blob": "6a2784631e836a35dc09e0034e02d86bf21ed14e",
+      "matches_exact_source": true
+    }
+  }
+}

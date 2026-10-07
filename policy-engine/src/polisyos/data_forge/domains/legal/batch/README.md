@@ -18,6 +18,7 @@ extraction, graph assembly, quality reporting, and publish flow.
 - **Amendment quality layer** — `amendment_detector.py` и `amendment_metrics.py` измеряют target resolution и blocking amendment gaps.
 - **Temporal resolution** — `temporal_parser.py` и новый `temporal_resolver.py` строят document/fact temporal envelopes для version-aware downstream logic.
 - **Extraction quality filters** — `quality_filters.py` и `hallucination_detector.py` отсекают synthetic subjects, low-quality entities и suspicious SPO output.
+- **Legal embedding generations** — `embedder.py` binds the live model/tokenizer identity and `embedding_projection.py` rule version into each selector; `LegalKnowledgeGraph` must use matching local assets for normalized query vectors. The prior v1 rule lacks this query-side binding and must be rebuilt before vector reads.
 - **Operational outputs** — smoke, QC и publish команды формируют manifests и quality reports, а не только raw graph tables.
 
 ## Public API
@@ -36,7 +37,7 @@ Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 
 ## Current State
 
-- Last updated: 2026-05-01
+- Last updated: 2026-10-07
 - Phase 4/8 cutover moved this runtime into Data Forge and retired the old Lex batch package.
 - Canonical CLI: `python -m polisyos.data_forge.domains.legal.batch`.
 - Cloud Lex manifest runner imports this Data Forge runtime directly.

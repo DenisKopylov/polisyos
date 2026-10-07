@@ -25,6 +25,13 @@ retrieval, and grounding workflows.
 | Text search              | `text_search()`                                              | DuckDB `ILIKE` over normalized fact text |
 | Structured action search | `search_facts_by_action()`                                   | Filters by canonicalized legal action    |
 
+Vector queries require a local `query_encoder` whose current weights and
+tokenizer match the selected generation. The store constructs the normalized
+query vector itself; caller-supplied arrays and OpenAI labels/results do not
+authorize HNSW reads. `hybrid_search()` returns text-only results when no
+compatible profile is configured. Selected generations written with legal
+embedding rule v1 must be rebuilt before vector search.
+
 ## Reference
 
 ::: polisyos.lex.knowledge.search

@@ -11,6 +11,9 @@ import numpy as np
 
 from polisyos.common.logger import get_logger
 from polisyos.data_forge.domains.legal.embedding_projection import (
+    LEGAL_EMBEDDING_PROJECTION_RULE_VERSION,
+)
+from polisyos.data_forge.domains.legal.embedding_projection import (
     entity_embedding_text as _entity_embedding_text,
 )
 from polisyos.data_forge.domains.legal.embedding_projection import (
@@ -37,7 +40,6 @@ if TYPE_CHECKING:
 
 logger = get_logger(__name__)
 
-LEGAL_EMBEDDING_PROJECTION_RULE_VERSION = "policyos.legal.embedding.v1"
 _LEGAL_GENERATION_ROOT = ".legal_embedding_generations"
 
 

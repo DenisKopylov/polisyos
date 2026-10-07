@@ -36,6 +36,10 @@ Runtime Lex reads the published outputs through `polisyos.lex.knowledge` and
 - Amendment metrics distinguish row-level extraction coverage from
   single-target document resolution rates.
 
+- Legal embedding selectors bind the producer encoder identity and rule
+  version. Runtime vector reads require matching local query assets; rebuild
+  selected v1 generations before using the current query-binding rule.
+
 ## Reference
 
 ::: polisyos.data_forge.domains.legal.batch.amendment_detector

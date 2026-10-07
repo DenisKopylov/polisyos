@@ -1,0 +1,40 @@
+id = "2026-10-07-legal-query-profile-binding"
+title = "Bind Legal vector queries to selected embedding generations"
+type = "changed"
+component = "lex"
+owner = "team-polisyos"
+summary = "Legal HNSW readers now derive normalized query vectors from an inspectable local encoder whose live weights and tokenizer match the selected generation."
+evidence = [
+  "tests/unit/remediation/test_emb_03.py",
+]
+compatibility = "LegalKnowledgeGraph retains its existing OpenAI constructor arguments, but OpenAI model labels and returned vectors no longer authorize HNSW queries. Pass a compatible local query_encoder; hybrid_search falls back to text when its query profile is unavailable or rejected."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.lex LegalKnowledgeGraph"
+migration = "Rebuild selected Legal embedding generations with the current legal embedding rule, then pass the same local encoder family to LegalKnowledgeGraph(query_encoder=...). Legacy v1 generations remain readable as files but are unsupported for vector search."
+api = "Adds the optional query_encoder constructor argument and typed query_profile_error status; vector-query intake no longer accepts caller-supplied arrays in LegalKnowledgeStore."
+limitations = "Fixture tests establish the binding mechanism only. Production model-asset identity and full Legal generation membership remain unverified unless the selected local assets and corpus are available in the consuming profile."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/lex/knowledge/README.md",
+  "docs/reference/lex/knowledge.md",
+  "src/polisyos/data_forge/domains/legal/batch/README.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "lex-legal-query-generation-binding"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.lex LegalKnowledgeGraph"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "authority-boundary hardening; unbound remote query vectors are not retained as a compatibility authority"
+release_note = "Legal vector search now requires query encoder assets matching the selected generation; rebuild v1 generations and configure the matching local encoder."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/lex/knowledge/README.md",
+  "docs/reference/lex/knowledge.md",
+]
+runbook_docs = []

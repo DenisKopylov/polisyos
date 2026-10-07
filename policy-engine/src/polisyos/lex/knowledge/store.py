@@ -7,8 +7,10 @@ from __future__ import annotations
 
 import hashlib
 from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
+from threading import Lock
 from typing import Any
 
 import duckdb
@@ -17,11 +19,15 @@ import numpy as np
 from polisyos.common.logger import get_logger
 from polisyos.core import artifacts, contracts
 from polisyos.data_forge.domains.legal.embedding_projection import (
+    LEGAL_EMBEDDING_PROJECTION_RULE_VERSION,
     entity_embedding_text,
     fact_embedding_text,
     provision_embedding_text,
 )
 from polisyos.data_forge.kernel.embeddings import (
+    EmbeddingGenerationRef,
+    _generator_rule_version,
+    derive_encoder_identity,
     generation_basis_matches_members,
     hnsw_index_matches_vectors,
     resolve_embedding_generation,
@@ -117,6 +123,22 @@ _PROVISION_SELECT_FIELDS: tuple[tuple[str, str], ...] = (
 )
 
 
+@dataclass(frozen=True, slots=True)
+class LegalQueryInput:
+    """Unencoded query text and the live local encoder used for Legal search."""
+
+    text: str
+    encoder: object
+
+
+class LegalQueryProfileError(ValueError):
+    """A query cannot be proven compatible with the currently selected index."""
+
+    def __init__(self, code: str) -> None:
+        self.code = code
+        super().__init__(code)
+
+
 class LegalKnowledgeStore:
     """Read-only handle to the legal knowledge graph (DuckDB + HNSW)."""
 
@@ -143,10 +165,16 @@ class LegalKnowledgeStore:
 
         self._entity_index = None
         self._entity_ids: list[str] | None = None
+        self._entity_generation: EmbeddingGenerationRef | None = None
+        self._entity_generation_lock = Lock()
         self._fact_index = None
         self._fact_ids: list[str] | None = None
+        self._fact_generation: EmbeddingGenerationRef | None = None
+        self._fact_generation_lock = Lock()
         self._provision_index = None
         self._provision_ids: list[str] | None = None
+        self._provision_generation: EmbeddingGenerationRef | None = None
+        self._provision_generation_lock = Lock()
         self._table_exists_cache: dict[str, bool] = {}
         self._table_columns_cache: dict[str, set[str]] = {}
         self._unit_registry_cache: dict[str, tuple[str, float, str]] | None = None
@@ -323,9 +351,7 @@ class LegalKnowledgeStore:
         )
         rows = self._amendment_window_rows()
         source_snapshot_rows = [self._amendment_source_mapping(row) for row in rows]
-        unresolved_window_indices = self._unresolved_amendment_window_indices(
-            source_snapshot_rows
-        )
+        unresolved_window_indices = self._unresolved_amendment_window_indices(source_snapshot_rows)
         try:
             cutoff_text = query.visibility_knowledge_cutoff_bytes.decode().strip()
             cutoff = datetime.fromisoformat(cutoff_text.replace("Z", "+00:00"))
@@ -397,9 +423,13 @@ class LegalKnowledgeStore:
             ):
                 admission_comparable = admission_comparable.replace(tzinfo=created_datetime.tzinfo)
             scope_matches = scope_values == ((query.jurisdiction.upper(), query.domain),)
-            in_valid_window = not valid_effect_window_unresolved and effective_from is not None and (
-                effective_from <= query.valid_effect_value
-                and (effective_to is None or query.valid_effect_value < effective_to)
+            in_valid_window = (
+                not valid_effect_window_unresolved
+                and effective_from is not None
+                and (
+                    effective_from <= query.valid_effect_value
+                    and (effective_to is None or query.valid_effect_value < effective_to)
+                )
             )
             visible = (
                 cutoff_comparable is not None
@@ -923,30 +953,20 @@ class LegalKnowledgeStore:
     def _load_legal_embedding_index(
         self,
         *,
+        generation: EmbeddingGenerationRef | None,
         embedding_name: str,
-        index_name: str,
         table_name: str,
         id_column: str,
         text_columns: str,
         text_builder: Callable[[tuple[object, ...]], str],
-    ) -> tuple[object | None, list[str] | None]:
+    ) -> tuple[Any | None, list[str] | None, EmbeddingGenerationRef | None]:
         """Load only the selected, matrix-bound generation with current membership."""
-        flat_embeddings = self._index_dir / f"{embedding_name}.npz"
-        flat_index = self._index_dir / f"{index_name}.hnsw"
-        generation_dir = (
-            self._index_dir / ".legal_embedding_generations" / embedding_name
-        )
-        generation = resolve_embedding_generation(
-            generation_dir,
-            legacy_embeddings_path=flat_embeddings,
-            legacy_index_path=flat_index,
-        )
         if (
             generation is None
             or generation.status == "empty_generation"
             or generation.index_path is None
         ):
-            return None, None
+            return None, None, generation
         try:
             import hnswlib
 
@@ -980,49 +1000,198 @@ class LegalKnowledgeStore:
             index.set_ef(100)
         except (duckdb.Error, ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
             logger.warning("Selected legal {} index is unreadable: {}", table_name, exc)
-            return None, None
-        return index, ids
+            return None, None, generation
+        return index, ids, generation
 
-    def _load_entity_index(self) -> None:
-        if self._entity_index is not None:
-            return
-        self._entity_index, self._entity_ids = self._load_legal_embedding_index(
-            embedding_name="lex_entity_embeddings",
-            index_name="lex_entity_index",
-            table_name="lex_entities",
-            id_column="entity_id",
-            text_columns="name_en, name_uk, entity_type, aliases_en, aliases_uk",
-            text_builder=entity_embedding_text,
+    def _resolve_legal_generation(
+        self, *, embedding_name: str, index_name: str
+    ) -> EmbeddingGenerationRef | None:
+        """Read the selected generation for one query operation."""
+        return resolve_embedding_generation(
+            self._index_dir / ".legal_embedding_generations" / embedding_name,
+            legacy_embeddings_path=self._index_dir / f"{embedding_name}.npz",
+            legacy_index_path=self._index_dir / f"{index_name}.hnsw",
         )
 
-    def _load_fact_index(self) -> None:
-        if self._fact_index is not None:
-            return
-        self._fact_index, self._fact_ids = self._load_legal_embedding_index(
-            embedding_name="lex_fact_embeddings",
-            index_name="lex_fact_index",
-            table_name="lex_facts",
-            id_column="fact_id",
-            text_columns=(
-                "subject_en, subject_uk, predicate, object_en, object_uk, "
-                "fact_text, norm_type, action_canon, norm_type_canon, "
-                "condition_text_uk, exception_text_uk, procedure_text_uk, "
-                "thresholds_json, source_quote_uk"
-            ),
-            text_builder=fact_embedding_text,
-        )
+    def _load_entity_index(
+        self,
+    ) -> tuple[Any | None, list[str] | None, EmbeddingGenerationRef | None]:
+        with self._entity_generation_lock:
+            generation = self._resolve_legal_generation(
+                embedding_name="lex_entity_embeddings", index_name="lex_entity_index"
+            )
+            if (
+                self._entity_generation is not None
+                and generation is not None
+                and self._entity_generation == generation
+                and self._entity_index is not None
+            ):
+                return self._entity_index, self._entity_ids, self._entity_generation
+            self._entity_index, self._entity_ids, self._entity_generation = (
+                self._load_legal_embedding_index(
+                    generation=generation,
+                    embedding_name="lex_entity_embeddings",
+                    table_name="lex_entities",
+                    id_column="entity_id",
+                    text_columns="name_en, name_uk, entity_type, aliases_en, aliases_uk",
+                    text_builder=entity_embedding_text,
+                )
+            )
+            return self._entity_index, self._entity_ids, self._entity_generation
 
-    def _load_provision_index(self) -> None:
-        if self._provision_index is not None:
-            return
-        self._provision_index, self._provision_ids = self._load_legal_embedding_index(
-            embedding_name="lex_provision_embeddings",
-            index_name="lex_provision_index",
-            table_name="lex_provisions",
-            id_column="provision_id",
-            text_columns="provision_text",
-            text_builder=provision_embedding_text,
+    def _load_fact_index(
+        self,
+    ) -> tuple[Any | None, list[str] | None, EmbeddingGenerationRef | None]:
+        with self._fact_generation_lock:
+            generation = self._resolve_legal_generation(
+                embedding_name="lex_fact_embeddings", index_name="lex_fact_index"
+            )
+            if (
+                self._fact_generation is not None
+                and generation is not None
+                and self._fact_generation == generation
+                and self._fact_index is not None
+            ):
+                return self._fact_index, self._fact_ids, self._fact_generation
+            self._fact_index, self._fact_ids, self._fact_generation = (
+                self._load_legal_embedding_index(
+                    generation=generation,
+                    embedding_name="lex_fact_embeddings",
+                    table_name="lex_facts",
+                    id_column="fact_id",
+                    text_columns=(
+                        "subject_en, subject_uk, predicate, object_en, object_uk, "
+                        "fact_text, norm_type, action_canon, norm_type_canon, "
+                        "condition_text_uk, exception_text_uk, procedure_text_uk, "
+                        "thresholds_json, source_quote_uk"
+                    ),
+                    text_builder=fact_embedding_text,
+                )
+            )
+            return self._fact_index, self._fact_ids, self._fact_generation
+
+    def _load_provision_index(
+        self,
+    ) -> tuple[Any | None, list[str] | None, EmbeddingGenerationRef | None]:
+        with self._provision_generation_lock:
+            generation = self._resolve_legal_generation(
+                embedding_name="lex_provision_embeddings", index_name="lex_provision_index"
+            )
+            if (
+                self._provision_generation is not None
+                and generation is not None
+                and self._provision_generation == generation
+                and self._provision_index is not None
+            ):
+                return self._provision_index, self._provision_ids, self._provision_generation
+            self._provision_index, self._provision_ids, self._provision_generation = (
+                self._load_legal_embedding_index(
+                    generation=generation,
+                    embedding_name="lex_provision_embeddings",
+                    table_name="lex_provisions",
+                    id_column="provision_id",
+                    text_columns="provision_text",
+                    text_builder=provision_embedding_text,
+                )
+            )
+            return self._provision_index, self._provision_ids, self._provision_generation
+
+    @staticmethod
+    def _query_vector_for_generation(
+        query: LegalQueryInput,
+        generation: EmbeddingGenerationRef | None,
+        *,
+        table_name: str,
+    ) -> np.ndarray:
+        """Encode a query only after binding its live encoder to the selected basis."""
+        if not isinstance(query, LegalQueryInput):
+            raise LegalQueryProfileError("unbound_query_vector")
+        if not isinstance(query.text, str) or not query.text.strip():
+            raise LegalQueryProfileError("empty_query_text")
+        if (
+            generation is None
+            or not generation.selected
+            or generation.status != "complete"
+            or generation.index_path is None
+        ):
+            raise LegalQueryProfileError("selected_generation_unavailable")
+
+        inventory = generation.inventory
+        try:
+            embedding_model = str(inventory["embedding_model"])
+            embedding_device = str(inventory["embedding_device"])
+            embedding_dimension = int(inventory["embedding_dimension"])
+            basis = inventory["basis"]
+        except (KeyError, TypeError, ValueError) as exc:
+            raise LegalQueryProfileError("generation_profile_unavailable") from exc
+        if (
+            not embedding_model
+            or not embedding_device
+            or embedding_dimension != generation.dimension
+            or not isinstance(basis, dict)
+            or basis.get("basis_kind") != f"legal_{table_name}_embedding"
+        ):
+            raise LegalQueryProfileError("generation_profile_unavailable")
+
+        dimension_method = getattr(query.encoder, "get_sentence_embedding_dimension", None)
+        encode_method = getattr(query.encoder, "encode", None)
+        try:
+            actual_device = str(getattr(query.encoder, "device", ""))
+            actual_dimension = int(dimension_method()) if callable(dimension_method) else -1
+            identity_before = derive_encoder_identity(query.encoder)
+        except (AttributeError, ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise LegalQueryProfileError("query_encoder_assets_unavailable") from exc
+        if actual_dimension != embedding_dimension or actual_device != embedding_device:
+            raise LegalQueryProfileError("encoder_dimension_or_device_mismatch")
+        if not callable(encode_method):
+            raise LegalQueryProfileError("query_encoder_call_unavailable")
+
+        expected_rule_version = _generator_rule_version(
+            projection_rule_version=LEGAL_EMBEDDING_PROJECTION_RULE_VERSION,
+            embedding_model=embedding_model,
+            embedding_device=embedding_device,
+            embedding_dimension=embedding_dimension,
+            encoder_identity=identity_before,
         )
+        persisted_rule_version = basis.get("generator_rule_version")
+        if persisted_rule_version != expected_rule_version:
+            identity_suffix = f"|encoder={identity_before.content_identity}"
+            if isinstance(persisted_rule_version, str) and persisted_rule_version.endswith(
+                identity_suffix
+            ):
+                raise LegalQueryProfileError("query_rule_version_mismatch")
+            raise LegalQueryProfileError("encoder_identity_mismatch")
+
+        try:
+            encoded = np.asarray(
+                encode_method(
+                    [query.text],
+                    batch_size=1,
+                    show_progress_bar=False,
+                    normalize_embeddings=True,
+                ),
+                dtype=np.float32,
+            )
+            identity_after = derive_encoder_identity(query.encoder)
+        except (
+            AttributeError,
+            ImportError,
+            OSError,
+            OverflowError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+        ) as exc:
+            raise LegalQueryProfileError("query_encoder_call_failed") from exc
+        if identity_after != identity_before:
+            raise LegalQueryProfileError("query_encoder_changed_during_encode")
+        if encoded.shape != (1, embedding_dimension) or not np.isfinite(encoded).all():
+            raise LegalQueryProfileError("query_vector_shape_or_values_invalid")
+        vector = encoded[0]
+        norm = float(np.linalg.norm(vector))
+        if not np.isfinite(norm) or not np.isclose(norm, 1.0, rtol=1e-5, atol=1e-6):
+            raise LegalQueryProfileError("query_vector_not_normalized")
+        return vector
 
     def _to_fact_result(self, row: tuple, *, similarity: float) -> LegalFactResult:
         return LegalFactResult(
@@ -1083,24 +1252,29 @@ class LegalKnowledgeStore:
 
     def search_entities_by_vector(
         self,
-        query_vector: np.ndarray,
+        query: LegalQueryInput,
         *,
         top_k: int = 10,
         min_similarity: float = 0.3,
     ) -> list[LegalSearchResult]:
-        self._load_entity_index()
-        if self._entity_index is None or self._entity_ids is None:
+        index, entity_ids, generation = self._load_entity_index()
+        if generation is not None and (not generation.selected or generation.status != "complete"):
+            raise LegalQueryProfileError("selected_generation_unavailable")
+        if index is None or entity_ids is None:
             return []
+        query_vector = self._query_vector_for_generation(
+            query, generation, table_name="lex_entities"
+        )
 
-        labels, distances = self._entity_index.knn_query(
-            query_vector.reshape(1, -1), k=min(top_k, len(self._entity_ids))
+        labels, distances = index.knn_query(
+            query_vector.reshape(1, -1), k=min(top_k, len(entity_ids))
         )
         results: list[LegalSearchResult] = []
         for label, dist in zip(labels[0], distances[0], strict=False):
             similarity = 1.0 - float(dist)
             if similarity < min_similarity:
                 continue
-            eid = self._entity_ids[int(label)]
+            eid = entity_ids[int(label)]
             row = self._con.execute(
                 "SELECT entity_id, name_en, name_uk, entity_type FROM lex_entities WHERE entity_id = ?",
                 [eid],
@@ -1119,7 +1293,7 @@ class LegalKnowledgeStore:
 
     def search_facts_by_vector(
         self,
-        query_vector: np.ndarray,
+        query: LegalQueryInput,
         *,
         top_k: int = 20,
         min_similarity: float = 0.3,
@@ -1133,24 +1307,27 @@ class LegalKnowledgeStore:
         min_fused_confidence: float | None = None,
         quality_band: str | None = None,
     ) -> list[LegalFactResult]:
-        self._load_fact_index()
-        if self._fact_index is None or self._fact_ids is None:
+        index, fact_ids, generation = self._load_fact_index()
+        if generation is not None and (not generation.selected or generation.status != "complete"):
+            raise LegalQueryProfileError("selected_generation_unavailable")
+        if index is None or fact_ids is None:
             return []
+        query_vector = self._query_vector_for_generation(query, generation, table_name="lex_facts")
 
         table_name = self._fact_table(
             trust_tier=trust_tier,
             include_candidates=include_candidates,
             quality_band=quality_band,
         )
-        labels, distances = self._fact_index.knn_query(
-            query_vector.reshape(1, -1), k=min(top_k, len(self._fact_ids))
+        labels, distances = index.knn_query(
+            query_vector.reshape(1, -1), k=min(top_k, len(fact_ids))
         )
         results: list[LegalFactResult] = []
         for label, dist in zip(labels[0], distances[0], strict=False):
             similarity = 1.0 - float(dist)
             if similarity < min_similarity:
                 continue
-            fid = self._fact_ids[int(label)]
+            fid = fact_ids[int(label)]
             clauses, params = self._fact_filters(
                 trust_tier=trust_tier,
                 jurisdiction=jurisdiction,
@@ -1176,26 +1353,31 @@ class LegalKnowledgeStore:
 
     def search_provisions_by_vector(
         self,
-        query_vector: np.ndarray,
+        query: LegalQueryInput,
         *,
         top_k: int = 10,
         min_similarity: float = 0.3,
         legal_unit_subtype: str | None = None,
         route_class: str | None = None,
     ) -> list[LegalProvisionResult]:
-        self._load_provision_index()
-        if self._provision_index is None or self._provision_ids is None:
+        index, provision_ids, generation = self._load_provision_index()
+        if generation is not None and (not generation.selected or generation.status != "complete"):
+            raise LegalQueryProfileError("selected_generation_unavailable")
+        if index is None or provision_ids is None:
             return []
+        query_vector = self._query_vector_for_generation(
+            query, generation, table_name="lex_provisions"
+        )
 
-        labels, distances = self._provision_index.knn_query(
-            query_vector.reshape(1, -1), k=min(top_k, len(self._provision_ids))
+        labels, distances = index.knn_query(
+            query_vector.reshape(1, -1), k=min(top_k, len(provision_ids))
         )
         results: list[LegalProvisionResult] = []
         for label, dist in zip(labels[0], distances[0], strict=False):
             similarity = 1.0 - float(dist)
             if similarity < min_similarity:
                 continue
-            pid = self._provision_ids[int(label)]
+            pid = provision_ids[int(label)]
             clauses = ["provision_id = ?"]
             params: list[Any] = [pid]
             available_columns = self._table_columns("lex_provisions")

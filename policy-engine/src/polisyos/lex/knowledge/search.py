@@ -19,10 +19,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import numpy as np
-
 from polisyos.common.logger import get_logger
-from polisyos.lex.knowledge.store import LegalKnowledgeStore
+from polisyos.lex.knowledge.store import (
+    LegalKnowledgeStore,
+    LegalQueryInput,
+    LegalQueryProfileError,
+)
 from polisyos.lex.knowledge.types import (
     LegalDocVersionResult,
     LegalFactResult,
@@ -49,41 +51,48 @@ class LegalKnowledgeGraph:
         *,
         openai_api_key: str | None = None,
         embedding_model: str = "text-embedding-3-large",
+        query_encoder: object | None = None,
     ) -> None:
+        """Open a read-only graph with an optional content-bound local query encoder.
+
+        Args:
+            db_path: Legal knowledge DuckDB path.
+            index_dir: Directory containing selected Legal embedding generations.
+            openai_api_key: Deprecated compatibility argument; it does not authorize vectors.
+            embedding_model: Deprecated label retained for constructor compatibility.
+            query_encoder: Live local encoder whose weights and tokenizer must match each
+                selected generation before vector search is allowed.
+        """
         self._store = LegalKnowledgeStore(db_path, index_dir)
-        self._openai_api_key = openai_api_key
         self._embedding_model = embedding_model
-        self._embedding_client = None
-        self._embedding_dim: int | None = None
+        self._query_encoder = query_encoder
+        self._query_profile_error = (
+            None
+            if query_encoder is not None
+            else LegalQueryProfileError("query_encoder_assets_unavailable")
+        )
+        if openai_api_key is not None and query_encoder is None:
+            logger.warning(
+                "legal_query_profile_unsupported: OpenAI query embeddings lack inspectable local "
+                "encoder assets; vector search will use text fallback"
+            )
+
+    @property
+    def query_profile_error(self) -> LegalQueryProfileError | None:
+        """Return the typed reason vector search is unsupported, if one is known."""
+        return self._query_profile_error
 
     # ------------------------------------------------------------------
     # Embedding helper
     # ------------------------------------------------------------------
 
-    def _get_query_embedding(self, query: str) -> np.ndarray | None:
-        """Embed a query string using OpenAI API (sync)."""
-        if not self._openai_api_key:
+    def _get_query_input(self, query: str) -> LegalQueryInput | None:
+        """Bind query text to the configured live local encoder, without a caller vector."""
+        if self._query_encoder is None:
+            self._query_profile_error = LegalQueryProfileError("query_encoder_assets_unavailable")
             return None
-
-        try:
-            import openai
-
-            if self._embedding_client is None:
-                self._embedding_client = openai.OpenAI(api_key=self._openai_api_key)
-
-            resp = self._embedding_client.embeddings.create(
-                model=self._embedding_model,
-                input=[query],
-            )
-            vec = np.array(resp.data[0].embedding, dtype=np.float32)
-            # L2 normalize
-            norm = np.linalg.norm(vec)
-            if norm > 0:
-                vec = vec / norm
-            return vec
-        except Exception as exc:
-            logger.warning("Failed to embed query: %s", exc)
-            return None
+        self._query_profile_error = None
+        return LegalQueryInput(text=query, encoder=self._query_encoder)
 
     # ------------------------------------------------------------------
     # Search methods
@@ -97,14 +106,18 @@ class LegalKnowledgeGraph:
         min_similarity: float = 0.3,
     ) -> list[LegalSearchResult]:
         """Vector similarity search on entities."""
-        vec = self._get_query_embedding(query)
-        if vec is None:
+        query_input = self._get_query_input(query)
+        if query_input is None:
             return []
-        return self._store.search_entities_by_vector(
-            vec,
-            top_k=top_k,
-            min_similarity=min_similarity,
-        )
+        try:
+            return self._store.search_entities_by_vector(
+                query_input,
+                top_k=top_k,
+                min_similarity=min_similarity,
+            )
+        except LegalQueryProfileError as exc:
+            self._query_profile_error = exc
+            raise
 
     def search_facts(
         self,
@@ -123,23 +136,27 @@ class LegalKnowledgeGraph:
         quality_band: str | None = None,
     ) -> list[LegalFactResult]:
         """Vector similarity search on facts."""
-        vec = self._get_query_embedding(query)
-        if vec is None:
+        query_input = self._get_query_input(query)
+        if query_input is None:
             return []
-        return self._store.search_facts_by_vector(
-            vec,
-            top_k=top_k,
-            min_similarity=min_similarity,
-            trust_tier=trust_tier,
-            jurisdiction=jurisdiction,
-            domain=domain,
-            as_of=as_of,
-            legal_unit_subtype=legal_unit_subtype,
-            route_class=route_class,
-            include_candidates=include_candidates,
-            min_fused_confidence=min_fused_confidence,
-            quality_band=quality_band,
-        )
+        try:
+            return self._store.search_facts_by_vector(
+                query_input,
+                top_k=top_k,
+                min_similarity=min_similarity,
+                trust_tier=trust_tier,
+                jurisdiction=jurisdiction,
+                domain=domain,
+                as_of=as_of,
+                legal_unit_subtype=legal_unit_subtype,
+                route_class=route_class,
+                include_candidates=include_candidates,
+                min_fused_confidence=min_fused_confidence,
+                quality_band=quality_band,
+            )
+        except LegalQueryProfileError as exc:
+            self._query_profile_error = exc
+            raise
 
     def search_provisions(
         self,
@@ -151,16 +168,20 @@ class LegalKnowledgeGraph:
         route_class: str | None = None,
     ) -> list[LegalProvisionResult]:
         """Vector similarity search on provisions."""
-        vec = self._get_query_embedding(query)
-        if vec is None:
+        query_input = self._get_query_input(query)
+        if query_input is None:
             return []
-        return self._store.search_provisions_by_vector(
-            vec,
-            top_k=top_k,
-            min_similarity=min_similarity,
-            legal_unit_subtype=legal_unit_subtype,
-            route_class=route_class,
-        )
+        try:
+            return self._store.search_provisions_by_vector(
+                query_input,
+                top_k=top_k,
+                min_similarity=min_similarity,
+                legal_unit_subtype=legal_unit_subtype,
+                route_class=route_class,
+            )
+        except LegalQueryProfileError as exc:
+            self._query_profile_error = exc
+            raise
 
     def text_search(
         self,
@@ -337,25 +358,30 @@ class LegalKnowledgeGraph:
             quality_band=quality_band,
         )
 
-        vec = self._get_query_embedding(query)
-        if vec is None:
+        query_input = self._get_query_input(query)
+        if query_input is None:
             # No embeddings available — return text results only
             return text_results[:top_k]
 
-        vector_results = self._store.search_facts_by_vector(
-            vec,
-            top_k=top_k * 2,
-            min_similarity=0.2,
-            trust_tier=trust_tier,
-            jurisdiction=jurisdiction,
-            domain=domain,
-            as_of=as_of,
-            legal_unit_subtype=legal_unit_subtype,
-            route_class=route_class,
-            include_candidates=include_candidates,
-            min_fused_confidence=min_fused_confidence,
-            quality_band=quality_band,
-        )
+        try:
+            vector_results = self._store.search_facts_by_vector(
+                query_input,
+                top_k=top_k * 2,
+                min_similarity=0.2,
+                trust_tier=trust_tier,
+                jurisdiction=jurisdiction,
+                domain=domain,
+                as_of=as_of,
+                legal_unit_subtype=legal_unit_subtype,
+                route_class=route_class,
+                include_candidates=include_candidates,
+                min_fused_confidence=min_fused_confidence,
+                quality_band=quality_band,
+            )
+        except LegalQueryProfileError as exc:
+            self._query_profile_error = exc
+            logger.warning("Legal vector profile unsupported; using text results: {}", exc.code)
+            return text_results[:top_k]
 
         # Score fusion: merge by fact_id
         scores: dict[str, float] = {}

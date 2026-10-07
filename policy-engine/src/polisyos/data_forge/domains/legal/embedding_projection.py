@@ -8,6 +8,11 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
+# v2 binds the normalized raw-query encoder call to Legal index generations.
+# A v1 artifact has no such query-side compatibility rule and is not searchable.
+LEGAL_EMBEDDING_PROJECTION_RULE_VERSION = "policyos.legal.embedding.v2"
+
+
 def entity_embedding_text(row: Sequence[object]) -> str:
     """Project one legal entity row into the indexed text representation."""
     if len(row) != 5:
@@ -73,4 +78,9 @@ def provision_embedding_text(row: Sequence[object]) -> str:
     return str(provision_text or "")
 
 
-__all__ = ["entity_embedding_text", "fact_embedding_text", "provision_embedding_text"]
+__all__ = [
+    "LEGAL_EMBEDDING_PROJECTION_RULE_VERSION",
+    "entity_embedding_text",
+    "fact_embedding_text",
+    "provision_embedding_text",
+]

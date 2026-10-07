@@ -17,7 +17,8 @@ policy и search flows.
 - **Read-only store** — `LegalKnowledgeStore` открывает DuckDB в `read_only=True` и лениво подключает optional vector indexes.
 - **Hybrid retrieval** — text, structured и vector search могут комбинироваться через `LegalKnowledgeGraph`.
 - **Graph traversal** — API умеет искать related entities и нормы, а не только keyword matches.
-- **Graceful degradation** — при отсутствии embeddings `hybrid_search()` и vector paths деградируют до text/structured search.
+- **Content-bound vector queries** — перед HNSW-запросом `LegalKnowledgeGraph` передает Store только исходный текст и live local encoder; Store сверяет веса/tokenizer с выбранным поколением и сам строит нормализованный вектор.
+- **Graceful degradation** — `hybrid_search()` использует text-only результат при отсутствии поддержанного профиля; прямые vector paths возвращают пустой список без encoder. Старый OpenAI key/model label не доказывает совместимость.
 - **Chronology owner query** — `LegalKnowledgeStore` enumerates the complete
   `lex_amendments` denominator before applying sparse valid/effect and
   knowledge/admission cutoffs. Missing valid/effect carriers stay in the
@@ -33,11 +34,16 @@ policy и search flows.
 | `LegalSearchResult`, `LegalFactResult`, `LegalProvisionResult` | Typed result envelopes for retrieval                    |
 | `search_legal_knowledge`                                       | Lex-owned grounded-fact CLI/search route                |
 
+Для векторного поиска передавайте `query_encoder` с теми же локальными
+weights/tokenizer и device, которыми построено выбранное поколение. Поколения
+с rule version `policyos.legal.embedding.v1` не допускаются к vector search;
+их нужно заново построить, чтобы записать текущую query-совместимость.
+
 Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 
 ## Current State
 
-- Last updated: 2026-05-02
+- Last updated: 2026-10-07
 - Files: 5 Python files
 - Exports: 11 lazy exports in `__init__.py`
 - Notable delta: extraction payloads moved to `polisyos.data_forge.domains.legal.contracts`; Lex keeps runtime graph/search result models.

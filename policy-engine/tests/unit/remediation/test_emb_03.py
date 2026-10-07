@@ -12,7 +12,7 @@ import json
 import sys
 import types
 from pathlib import Path
-from typing import ClassVar
+from typing import ClassVar, cast
 
 import duckdb
 import numpy as np
@@ -23,7 +23,12 @@ from polisyos.data_forge.kernel.embeddings import (
     derive_encoder_identity,
     resolve_embedding_generation,
 )
-from polisyos.lex.knowledge.store import LegalKnowledgeStore
+from polisyos.lex.knowledge.search import LegalKnowledgeGraph
+from polisyos.lex.knowledge.store import (
+    LegalKnowledgeStore,
+    LegalQueryInput,
+    LegalQueryProfileError,
+)
 
 pytestmark = pytest.mark.unit
 
@@ -68,9 +73,9 @@ class _FakeSentenceTransformer:
         del batch_size, show_progress_bar
         self.encoded_texts.extend(texts)
         rows: list[np.ndarray] = []
-        revision_offset = (
-            11.0 if self.model_name.startswith("model-b") else 0.0
-        ) + float(_FakeSentenceTransformer.asset_revision + self.tokenizer.revision)
+        revision_offset = (11.0 if self.model_name.startswith("model-b") else 0.0) + float(
+            _FakeSentenceTransformer.asset_revision + self.tokenizer.revision
+        )
         for text in texts:
             base = float((sum(map(ord, str(text))) % 17) + 1) + revision_offset
             vector = np.arange(base, base + self.dimension, dtype=np.float32)
@@ -93,6 +98,80 @@ class _FakeTokenizer:
 
     def get_added_vocab(self) -> dict[str, int]:
         return {}
+
+
+class _DirectionalLegalEncoder:
+    """Small same-dimension encoder whose revision changes target direction."""
+
+    def __init__(self, *, revision: int, device: str = "cpu") -> None:
+        self.revision = revision
+        self.device = device
+        self.model_name = "legal-fixture-model"
+        self.dimension = 4
+        self.config = {"model_name": self.model_name, "dimension": self.dimension}
+        self.tokenizer = _FakeTokenizer(0)
+        self.encoded_texts: list[str] = []
+
+    def state_dict(self) -> dict[str, np.ndarray]:
+        return {"encoder.weight": np.asarray([self.revision], dtype=np.float32)}
+
+    def modules(self) -> list[_DirectionalLegalEncoder]:
+        return [self]
+
+    def get_sentence_embedding_dimension(self) -> int:
+        return self.dimension
+
+    def encode(
+        self,
+        texts: list[str],
+        batch_size: int = 32,
+        show_progress_bar: bool = False,
+        normalize_embeddings: bool = True,
+    ) -> np.ndarray:
+        del batch_size, show_progress_bar
+        self.encoded_texts.extend(texts)
+        target_axis = 0 if self.revision == 0 else 1
+        decoy_axis = 1 - target_axis
+        rows = []
+        for text in texts:
+            is_target = "target" in str(text).lower()
+            vector = np.zeros(self.dimension, dtype=np.float32)
+            vector[target_axis if is_target else decoy_axis] = 1.0
+            if normalize_embeddings:
+                vector /= np.linalg.norm(vector)
+            rows.append(vector)
+        return np.vstack(rows)
+
+
+class _MutatingLegalEncoder(_DirectionalLegalEncoder):
+    """Change live weights during query encoding to exercise request binding."""
+
+    def __init__(
+        self,
+        *,
+        revision: int,
+        device: str = "cpu",
+        mutate_during_encode: bool = False,
+    ) -> None:
+        super().__init__(revision=revision, device=device)
+        self.mutate_during_encode = mutate_during_encode
+
+    def encode(
+        self,
+        texts: list[str],
+        batch_size: int = 32,
+        show_progress_bar: bool = False,
+        normalize_embeddings: bool = True,
+    ) -> np.ndarray:
+        vectors = super().encode(
+            texts,
+            batch_size=batch_size,
+            show_progress_bar=show_progress_bar,
+            normalize_embeddings=normalize_embeddings,
+        )
+        if self.mutate_during_encode:
+            self.revision = 1
+        return vectors
 
 
 def _install_fake_sentence_transformer(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -209,6 +288,41 @@ def _replace_legal_records(
             "INSERT INTO lex_provisions VALUES (?, ?)",
             [provision_id, provision_text],
         )
+        con.execute("CHECKPOINT")
+    finally:
+        con.close()
+
+
+def _prepare_legal_search_rows(db_path: Path) -> None:
+    """Add target and decoy facts/provisions to the minimal legal fixture."""
+    con = duckdb.connect(str(db_path))
+    try:
+        for fact_id, label in (("fact-target", "target"), ("fact-decoy", "decoy")):
+            con.execute(
+                "INSERT INTO lex_facts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                [
+                    fact_id,
+                    label.title(),
+                    label.title(),
+                    "describes",
+                    "record",
+                    "запис",
+                    f"{label} fact text",
+                    "obligation",
+                    "describes",
+                    "obligation",
+                    "",
+                    "",
+                    "",
+                    "[]",
+                    f"{label} quote",
+                ],
+            )
+        for provision_id, label in (("provision-target", "target"), ("provision-decoy", "decoy")):
+            con.execute(
+                "INSERT INTO lex_provisions VALUES (?, ?)",
+                [provision_id, f"{label} provision text"],
+            )
         con.execute("CHECKPOINT")
     finally:
         con.close()
@@ -425,14 +539,7 @@ def test_legal_entity_fact_and_provision_readers_follow_selected_membership(
         embedding_model="model-a",
         embedding_device="cpu",
     )
-    old_embeddings = {
-        name: _selected_legal_vectors(tmp_path, name)[1][0].copy()
-        for name in (
-            "lex_entity_embeddings",
-            "lex_fact_embeddings",
-            "lex_provision_embeddings",
-        )
-    }
+    query_encoder = _FakeSentenceTransformer.instances[-1]
 
     _replace_legal_records(
         db_path,
@@ -445,15 +552,26 @@ def test_legal_entity_fact_and_provision_readers_follow_selected_membership(
     )
     stale_reader = LegalKnowledgeStore(db_path, tmp_path)
     try:
-        assert stale_reader.search_entities_by_vector(
-            old_embeddings["lex_entity_embeddings"], min_similarity=0.0
-        ) == []
-        assert stale_reader.search_facts_by_vector(
-            old_embeddings["lex_fact_embeddings"], min_similarity=0.0, include_candidates=True
-        ) == []
-        assert stale_reader.search_provisions_by_vector(
-            old_embeddings["lex_provision_embeddings"], min_similarity=0.0
-        ) == []
+        assert (
+            stale_reader.search_entities_by_vector(
+                LegalQueryInput("Old entity", query_encoder), min_similarity=0.0
+            )
+            == []
+        )
+        assert (
+            stale_reader.search_facts_by_vector(
+                LegalQueryInput("Old fact text", query_encoder),
+                min_similarity=0.0,
+                include_candidates=True,
+            )
+            == []
+        )
+        assert (
+            stale_reader.search_provisions_by_vector(
+                LegalQueryInput("Old provision text", query_encoder), min_similarity=0.0
+            )
+            == []
+        )
     finally:
         stale_reader.close()
 
@@ -467,33 +585,26 @@ def test_legal_entity_fact_and_provision_readers_follow_selected_membership(
     assert (stats.entities_embedded, stats.facts_embedded, stats.provisions_embedded) == (1, 1, 1)
     assert (stats.entities_skipped, stats.facts_skipped, stats.provisions_skipped) == (0, 0, 0)
 
-    selected: dict[str, np.ndarray] = {}
-    for name, expected_id in (
-        ("lex_entity_embeddings", "e-old"),
-        ("lex_fact_embeddings", "f-old"),
-        ("lex_provision_embeddings", "p-old"),
-    ):
-        ids, vectors = _selected_legal_vectors(tmp_path, name)
-        assert ids == [expected_id]
-        selected[name] = vectors[0]
     reader = LegalKnowledgeStore(db_path, tmp_path)
     try:
         assert [
             result.entity_id
             for result in reader.search_entities_by_vector(
-                selected["lex_entity_embeddings"], min_similarity=0.0
+                LegalQueryInput("Changed entity text", query_encoder), min_similarity=0.0
             )
         ] == ["e-old"]
         assert [
             result.fact_id
             for result in reader.search_facts_by_vector(
-                selected["lex_fact_embeddings"], min_similarity=0.0, include_candidates=True
+                LegalQueryInput("Changed fact text", query_encoder),
+                min_similarity=0.0,
+                include_candidates=True,
             )
         ] == ["f-old"]
         assert [
             result.provision_id
             for result in reader.search_provisions_by_vector(
-                selected["lex_provision_embeddings"], min_similarity=0.0
+                LegalQueryInput("Changed provision text", query_encoder), min_similarity=0.0
             )
         ] == ["p-old"]
     finally:
@@ -510,15 +621,26 @@ def test_legal_entity_fact_and_provision_readers_follow_selected_membership(
 
     withdrawn_reader = LegalKnowledgeStore(db_path, tmp_path)
     try:
-        assert withdrawn_reader.search_entities_by_vector(
-            selected["lex_entity_embeddings"], min_similarity=0.0
-        ) == []
-        assert withdrawn_reader.search_facts_by_vector(
-            selected["lex_fact_embeddings"], min_similarity=0.0, include_candidates=True
-        ) == []
-        assert withdrawn_reader.search_provisions_by_vector(
-            selected["lex_provision_embeddings"], min_similarity=0.0
-        ) == []
+        assert (
+            withdrawn_reader.search_entities_by_vector(
+                LegalQueryInput("Changed entity text", query_encoder), min_similarity=0.0
+            )
+            == []
+        )
+        assert (
+            withdrawn_reader.search_facts_by_vector(
+                LegalQueryInput("Changed fact text", query_encoder),
+                min_similarity=0.0,
+                include_candidates=True,
+            )
+            == []
+        )
+        assert (
+            withdrawn_reader.search_provisions_by_vector(
+                LegalQueryInput("Changed provision text", query_encoder), min_similarity=0.0
+            )
+            == []
+        )
     finally:
         withdrawn_reader.close()
 
@@ -554,7 +676,9 @@ def test_projection_rule_change_invalidates_reuse(
         embedding_model="model-a",
         embedding_device="cpu",
     )
-    legal_embedder.LEGAL_EMBEDDING_PROJECTION_RULE_VERSION = "policyos.legal.embedding.v2"
+    monkeypatch.setattr(
+        legal_embedder, "LEGAL_EMBEDDING_PROJECTION_RULE_VERSION", "policyos.legal.embedding.v3"
+    )
     stats = legal_embedder.build_local_embeddings_and_indexes(
         db_path=db_path,
         output_dir=tmp_path,
@@ -662,12 +786,374 @@ def test_legacy_entrypoint_uses_supported_encoder_and_legal_reader(
     assert reference.status == "complete"
     rule_version = reference.inventory["basis"]["generator_rule_version"]
     assert derive_encoder_identity(encoder).content_identity in rule_version
-    with np.load(str(reference.embeddings_path), allow_pickle=True) as payload:
-        query = np.asarray(payload["vectors"][0], dtype=np.float32)
 
     reader = LegalKnowledgeStore(db_path, tmp_path)
     try:
-        results = reader.search_entities_by_vector(query, top_k=1, min_similarity=0.0)
+        results = reader.search_entities_by_vector(
+            LegalQueryInput("recorded encoder target", encoder), top_k=1, min_similarity=0.0
+        )
     finally:
         reader.close()
     assert [result.entity_id for result in results] == ["entity-1"]
+
+
+def test_graph_query_encoder_reads_all_three_selected_legal_generations(
+    tmp_path: Path,
+) -> None:
+    db_path = tmp_path / "lex.duckdb"
+    _prepare_lex_db(
+        db_path,
+        entities=[("entity-target", "target entity"), ("entity-decoy", "decoy entity")],
+    )
+    _prepare_legal_search_rows(db_path)
+    producer = _DirectionalLegalEncoder(revision=0)
+    query_encoder = _DirectionalLegalEncoder(revision=0)
+
+    stats = legal_embedder.build_local_embeddings_and_indexes(
+        db_path=db_path,
+        output_dir=tmp_path,
+        embedding_model="legal-fixture-model",
+        embedding_device="cpu",
+        encoder=producer,
+    )
+
+    assert (
+        stats.entities_embedded,
+        stats.facts_embedded,
+        stats.provisions_embedded,
+    ) == (2, 2, 2)
+    graph = LegalKnowledgeGraph(db_path, tmp_path, query_encoder=query_encoder)
+    try:
+        assert [
+            result.entity_id
+            for result in graph.search_entities("target", top_k=1, min_similarity=0.0)
+        ] == ["entity-target"]
+        assert [
+            result.fact_id
+            for result in graph.search_facts(
+                "target",
+                top_k=1,
+                min_similarity=0.0,
+                trust_tier=None,
+                include_candidates=True,
+            )
+        ] == ["fact-target"]
+        assert [
+            result.provision_id
+            for result in graph.search_provisions("target", top_k=1, min_similarity=0.0)
+        ] == ["provision-target"]
+    finally:
+        graph.close()
+
+
+def test_live_query_encoder_must_match_selected_generation_before_knn(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    import hnswlib
+
+    db_path = tmp_path / "lex.duckdb"
+    _prepare_lex_db(
+        db_path,
+        entities=[("entity-target", "target entity"), ("entity-decoy", "decoy entity")],
+    )
+    _prepare_legal_search_rows(db_path)
+    legal_embedder.build_local_embeddings_and_indexes(
+        db_path=db_path,
+        output_dir=tmp_path,
+        embedding_model="legal-fixture-model",
+        embedding_device="cpu",
+        encoder=_DirectionalLegalEncoder(revision=0),
+    )
+
+    calls = 0
+    original_knn_query = hnswlib.Index.knn_query
+
+    def record_knn_query(index: object, *args: object, **kwargs: object) -> object:
+        nonlocal calls
+        calls += 1
+        return original_knn_query(index, *args, **kwargs)
+
+    monkeypatch.setattr(hnswlib.Index, "knn_query", record_knn_query)
+    graph = LegalKnowledgeGraph(
+        db_path,
+        tmp_path,
+        query_encoder=_DirectionalLegalEncoder(revision=1),
+    )
+    try:
+        with pytest.raises(LegalQueryProfileError, match="encoder_identity_mismatch"):
+            graph.search_entities("target", top_k=1, min_similarity=0.0)
+    finally:
+        graph.close()
+    assert calls == 0
+    assert graph.query_profile_error is not None
+    assert graph.query_profile_error.code == "encoder_identity_mismatch"
+
+
+def test_encoder_asset_change_during_query_encode_is_rejected_before_knn(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    import hnswlib
+
+    db_path = tmp_path / "lex.duckdb"
+    _prepare_lex_db(db_path, entities=[("entity-target", "target entity")])
+    legal_embedder.build_local_embeddings_and_indexes(
+        db_path=db_path,
+        output_dir=tmp_path,
+        embedding_model="legal-fixture-model",
+        embedding_device="cpu",
+        encoder=_MutatingLegalEncoder(revision=0),
+    )
+
+    calls = 0
+    original_knn_query = hnswlib.Index.knn_query
+
+    def record_knn_query(index: object, *args: object, **kwargs: object) -> object:
+        nonlocal calls
+        calls += 1
+        return original_knn_query(index, *args, **kwargs)
+
+    monkeypatch.setattr(hnswlib.Index, "knn_query", record_knn_query)
+    graph = LegalKnowledgeGraph(
+        db_path,
+        tmp_path,
+        query_encoder=_MutatingLegalEncoder(revision=0, mutate_during_encode=True),
+    )
+    try:
+        with pytest.raises(LegalQueryProfileError, match="query_encoder_changed_during_encode"):
+            graph.search_entities("target", top_k=1, min_similarity=0.0)
+    finally:
+        graph.close()
+    assert calls == 0
+
+
+def test_raw_vector_cannot_bypass_query_profile_gate_and_control_is_discriminating(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    db_path = tmp_path / "lex.duckdb"
+    _prepare_lex_db(
+        db_path,
+        entities=[("entity-target", "target entity"), ("entity-decoy", "decoy entity")],
+    )
+    _prepare_legal_search_rows(db_path)
+    legal_embedder.build_local_embeddings_and_indexes(
+        db_path=db_path,
+        output_dir=tmp_path,
+        embedding_model="legal-fixture-model",
+        embedding_device="cpu",
+        encoder=_DirectionalLegalEncoder(revision=0),
+    )
+    reader = LegalKnowledgeStore(db_path, tmp_path)
+    try:
+        forged_vector = _DirectionalLegalEncoder(revision=1).encode(["target"])[0]
+        with pytest.raises(LegalQueryProfileError, match="unbound_query_vector"):
+            reader.search_entities_by_vector(
+                cast("LegalQueryInput", forged_vector), top_k=1, min_similarity=0.0
+            )
+
+        # Remove only the intake gate while preserving the selected generation and
+        # actual HNSW consumer. The same-dimensional wrong vector selects the decoy.
+        reader._load_entity_index()
+        assert reader._entity_index is not None
+        assert reader._entity_ids is not None
+        valid_query = LegalQueryInput("target", _DirectionalLegalEncoder(revision=0))
+        original_validator = reader._query_vector_for_generation
+        monkeypatch.setattr(
+            reader,
+            "_query_vector_for_generation",
+            lambda *_args, **_kwargs: forged_vector,
+        )
+        bypassed = reader.search_entities_by_vector(valid_query, top_k=1, min_similarity=0.0)
+        assert [result.entity_id for result in bypassed] == ["entity-decoy"]
+        monkeypatch.setattr(reader, "_query_vector_for_generation", original_validator)
+        admitted = reader.search_entities_by_vector(valid_query, top_k=1, min_similarity=0.0)
+        assert [result.entity_id for result in admitted] == ["entity-target"]
+    finally:
+        reader.close()
+
+
+def test_wrong_selected_generation_rejects_previous_query_encoder(
+    tmp_path: Path,
+) -> None:
+    db_path = tmp_path / "lex.duckdb"
+    _prepare_lex_db(db_path, entities=[("entity-target", "target entity")])
+    _prepare_legal_search_rows(db_path)
+    legal_embedder.build_local_embeddings_and_indexes(
+        db_path=db_path,
+        output_dir=tmp_path,
+        embedding_model="legal-fixture-model",
+        embedding_device="cpu",
+        encoder=_DirectionalLegalEncoder(revision=0),
+    )
+    graph = LegalKnowledgeGraph(
+        db_path,
+        tmp_path,
+        query_encoder=_DirectionalLegalEncoder(revision=0),
+    )
+    try:
+        assert graph.search_entities("target", top_k=1, min_similarity=0.0)
+
+        legal_embedder.build_local_embeddings_and_indexes(
+            db_path=db_path,
+            output_dir=tmp_path,
+            embedding_model="legal-fixture-model",
+            embedding_device="cpu",
+            encoder=_DirectionalLegalEncoder(revision=1),
+            incremental=False,
+        )
+        with pytest.raises(LegalQueryProfileError, match="encoder_identity_mismatch"):
+            graph.search_entities("target", top_k=1, min_similarity=0.0)
+    finally:
+        graph.close()
+
+
+def test_concurrent_selector_replacement_keeps_query_on_one_generation(
+    tmp_path: Path,
+) -> None:
+    from threading import Event, Thread
+
+    db_path = tmp_path / "lex.duckdb"
+    _prepare_lex_db(
+        db_path,
+        entities=[("entity-target", "target entity"), ("entity-decoy", "decoy entity")],
+    )
+    _prepare_legal_search_rows(db_path)
+    legal_embedder.build_local_embeddings_and_indexes(
+        db_path=db_path,
+        output_dir=tmp_path,
+        embedding_model="legal-fixture-model",
+        embedding_device="cpu",
+        encoder=_DirectionalLegalEncoder(revision=0),
+    )
+
+    encode_started = Event()
+    release_encode = Event()
+
+    blocking_encoder = _DirectionalLegalEncoder(revision=0)
+    original_encode = blocking_encoder.encode
+
+    def block_query_encode(
+        texts: list[str],
+        batch_size: int = 32,
+        show_progress_bar: bool = False,
+        normalize_embeddings: bool = True,
+    ) -> np.ndarray:
+        encode_started.set()
+        if not release_encode.wait(timeout=5):
+            raise RuntimeError("test timed out waiting to release query encode")
+        return original_encode(
+            texts,
+            batch_size=batch_size,
+            show_progress_bar=show_progress_bar,
+            normalize_embeddings=normalize_embeddings,
+        )
+
+    blocking_encoder.encode = block_query_encode
+
+    graph = LegalKnowledgeGraph(
+        db_path,
+        tmp_path,
+        query_encoder=blocking_encoder,
+    )
+    results: list[list[object]] = []
+    failures: list[BaseException] = []
+
+    def search() -> None:
+        try:
+            results.append(graph.search_entities("target", top_k=1, min_similarity=0.0))
+        except BaseException as exc:  # surfaced in the owning test thread
+            failures.append(exc)
+
+    search_thread = Thread(target=search, daemon=True)
+    try:
+        search_thread.start()
+        assert encode_started.wait(timeout=5)
+        legal_embedder.build_local_embeddings_and_indexes(
+            db_path=db_path,
+            output_dir=tmp_path,
+            embedding_model="legal-fixture-model",
+            embedding_device="cpu",
+            encoder=_DirectionalLegalEncoder(revision=1),
+            incremental=False,
+        )
+        release_encode.set()
+        search_thread.join(timeout=5)
+        assert not search_thread.is_alive()
+        assert failures == []
+        assert [result.entity_id for result in results[0]] == ["entity-target"]
+        with pytest.raises(LegalQueryProfileError, match="encoder_identity_mismatch"):
+            graph.search_entities("target", top_k=1, min_similarity=0.0)
+    finally:
+        release_encode.set()
+        search_thread.join(timeout=5)
+        graph.close()
+
+
+def test_previous_rule_generation_is_unsupported_even_with_same_encoder(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    db_path = tmp_path / "lex.duckdb"
+    _prepare_lex_db(db_path, entities=[("entity-target", "target entity")])
+    encoder = _DirectionalLegalEncoder(revision=0)
+    monkeypatch.setattr(
+        legal_embedder, "LEGAL_EMBEDDING_PROJECTION_RULE_VERSION", "policyos.legal.embedding.v1"
+    )
+    legal_embedder.build_local_embeddings_and_indexes(
+        db_path=db_path,
+        output_dir=tmp_path,
+        embedding_model="legal-fixture-model",
+        embedding_device="cpu",
+        encoder=encoder,
+    )
+    monkeypatch.setattr(
+        legal_embedder, "LEGAL_EMBEDDING_PROJECTION_RULE_VERSION", "policyos.legal.embedding.v2"
+    )
+    graph = LegalKnowledgeGraph(db_path, tmp_path, query_encoder=encoder)
+    try:
+        with pytest.raises(LegalQueryProfileError, match="query_rule_version_mismatch"):
+            graph.search_entities("target", top_k=1, min_similarity=0.0)
+    finally:
+        graph.close()
+
+
+def test_openai_label_does_not_authorize_query_vectors_and_hybrid_falls_back(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    calls: list[object] = []
+
+    class _UnexpectedOpenAIClient:
+        def __init__(self, **_kwargs: object) -> None:
+            calls.append("constructed")
+
+    monkeypatch.setitem(
+        sys.modules,
+        "openai",
+        types.SimpleNamespace(OpenAI=_UnexpectedOpenAIClient),
+    )
+    db_path = tmp_path / "lex.duckdb"
+    _prepare_lex_db(db_path, entities=[])
+    _prepare_legal_search_rows(db_path)
+    graph = LegalKnowledgeGraph(
+        db_path,
+        tmp_path,
+        openai_api_key="fixture-key",
+        embedding_model="legal-fixture-model",
+    )
+    try:
+        assert graph.search_entities("target", top_k=1, min_similarity=0.0) == []
+        assert graph.query_profile_error is not None
+        assert graph.query_profile_error.code == "query_encoder_assets_unavailable"
+        results = graph.hybrid_search(
+            "target",
+            top_k=1,
+            trust_tier=None,
+            include_candidates=True,
+        )
+        assert [result.fact_id for result in results] == ["fact-target"]
+    finally:
+        graph.close()
+    assert calls == []

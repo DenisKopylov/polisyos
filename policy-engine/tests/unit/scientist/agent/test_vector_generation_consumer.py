@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from polisyos.core import artifacts
+from polisyos.core import artifacts, canon
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.agent.vector_memory import VectorMemoryStore
 
@@ -69,6 +69,14 @@ def test_exact_transfer_reference_beyond_1000_keys_survives_fresh_native_reader(
     store, _, _, source, target, originals, _ = measured_history(tmp_path, count=2)
     memory = VectorMemoryStore(dim=2, max_elements=1008)
     manager = TransferLearningManager(store, memory)
+    donor_rows = canon.from_canonical_bytes(store.get_verified_snapshot(source.history_ref).data)[
+        "evaluations"
+    ]
+    registered_refs = set()
+    # These are 1001 discovery snapshots through the ordinary producer, each
+    # carrying the same controlled donor observations without changing their
+    # original source IDs or basis. They are not 1001 new measured executions.
+    # Only the original source below is admitted as numerical training data.
     for number in range(1001):
         angle = math.pi / 3.0 + (math.pi / 3.0) * number / 1000.0
         distractor = source.model_copy(
@@ -79,10 +87,20 @@ def test_exact_transfer_reference_beyond_1000_keys_survives_fresh_native_reader(
                 "history_ref": None,
             },
         )
-        empty_ref = manager.register_run(distractor, [])
-        assert memory.metadata_for_key(distractor.run_id)["history_ref"] == empty_ref.model_dump(
+        history_ref = manager.register_run(distractor, originals)
+        assert history_ref is not None
+        snapshot = store.get_verified_snapshot(history_ref)
+        assert snapshot.manifest.kind == "search.transfer.history"
+        assert snapshot.manifest.media_type == "application/json"
+        payload = canon.from_canonical_bytes(snapshot.data)
+        assert payload["schema_version"] == "2.0"
+        assert payload["fingerprint"]["run_id"] == distractor.run_id
+        assert payload["evaluations"] == donor_rows
+        registered_refs.add(str(history_ref.artifact_id))
+        assert memory.metadata_for_key(distractor.run_id)["history_ref"] == history_ref.model_dump(
             mode="json"
         )
+    assert len(registered_refs) == 1001
     source.history_ref = manager.register_run(source, originals)
     discovered = manager.find_similar_runs(target, top_k=None)
     assert len(memory) == len(discovered) == 1002

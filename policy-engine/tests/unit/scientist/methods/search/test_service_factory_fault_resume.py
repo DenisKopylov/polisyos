@@ -142,7 +142,12 @@ assert observer.controller._status is SearchStatus.STOPPED
 assert observer._pending_candidates == {}
 assert observer._completed_candidate_ids == {"candidate_0_0", "candidate_1_0", "candidate_2_0"}
 assert observer.controller._generator.get_state()["index"] == observer._ask_iteration == 3
-assert observer.controller._run_state.pareto_front == [result.best_candidate]
+assert observer.controller._run_state.pareto_front == result.pareto_front
+assert len(result.pareto_front) == 1
+frontier = result.pareto_front[0]
+assert frontier["candidate"] == result.best_candidate
+assert frontier["objectives"] == [{"name": "score", "raw_value": -3.0, "direction": "minimize"}]
+assert frontier["candidate_hash"] == result.history[-1].stage_b_result["simulation_results"]["candidate_artifact_ref"]["artifact_id"]
 for row in observer.controller._history:
     ref = ArtifactRef.model_validate(row.stage_b_result["simulation_results"]["evaluation_artifact_ref"])
     evaluation = load_model_artifact(reopened_store, ref, BenchmarkEvaluation)
@@ -177,6 +182,16 @@ def _process(script, tmp_path, *arguments):
         capture_output=True,
         text=True,
         env=environment,
+    )
+    print(
+        json.dumps(
+            {
+                "child_stdout": result.stdout,
+                "child_stderr": result.stderr,
+                "child_returncode": result.returncode,
+            },
+            sort_keys=True,
+        )
     )
     assert result.returncode == 0, result.stdout + result.stderr
     return result

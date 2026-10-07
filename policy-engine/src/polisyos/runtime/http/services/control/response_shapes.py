@@ -38,11 +38,16 @@ CostStatus = Literal["known", "missing", "invalid"]
 CostOrigin = Literal["reported", "estimated", "reuse", "unknown", "mixed"]
 EventCostOrigin = Literal["reported", "estimated", "reuse", "unknown"]
 CostSourceClassification = Literal["typed", "legacy_untyped", "invalid"]
+UsageEvidenceStatus = Literal["known", "missing", "invalid"]
 
 
 class CallEventCostEvidence(TypedDict):
-    """Cost evidence retained for one observed LLM call event."""
+    """Normalized cost and call-usage evidence retained for one call event."""
 
+    prompt_tokens: int | None
+    completion_tokens: int | None
+    latency_ms: float | None
+    event_usage_status: UsageEvidenceStatus
     cost_usd: float | None
     cost_status: CostStatus
     cost_origin: EventCostOrigin
@@ -68,6 +73,7 @@ class CallEventUsageSummary(TypedDict):
     prompt_tokens: float
     completion_tokens: float
     latency_ms: float
+    usage_status: UsageEvidenceStatus
     cost_usd: float | None
     cost_status: CostStatus
     cost_origin: CostOrigin
@@ -79,9 +85,10 @@ class CallEventUsageSummary(TypedDict):
 class UsageDelta(TypedDict):
     """Per-call token/latency delta and cost evidence for appended events."""
 
-    prompt_tokens: int
-    completion_tokens: int
-    latency_ms: int
+    prompt_tokens: int | None
+    completion_tokens: int | None
+    latency_ms: float | None
+    usage_status: UsageEvidenceStatus
     cost_usd: float | None
     cost_status: CostStatus
     cost_origin: CostOrigin
@@ -113,6 +120,121 @@ def _event_text(event: Mapping[str, Any], key: str) -> str | None:
     return value if isinstance(value, str) and value.strip() else None
 
 
+def _nonnegative_token_count(value: object) -> int | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value if value >= 0 else None
+    if isinstance(value, Decimal):
+        if not value.is_finite() or value < 0 or value != value.to_integral_value():
+            return None
+        return int(value)
+    if isinstance(value, float) and math.isfinite(value) and value >= 0 and value.is_integer():
+        return int(value)
+    return None
+
+
+def _event_usage_evidence(
+    source: Mapping[str, Any],
+    *,
+    usage_status: str | None,
+    provider_call: bool | None,
+    cache_hit: bool | None,
+) -> tuple[int | None, int | None, float | None, UsageEvidenceStatus]:
+    prompt_raw = source.get("prompt_tokens")
+    completion_raw = source.get("completion_tokens")
+    latency_raw = source.get("latency_ms")
+    prompt = _nonnegative_token_count(prompt_raw)
+    completion = _nonnegative_token_count(completion_raw)
+    latency = _finite_cost_number(latency_raw)
+    values = (
+        (prompt_raw, prompt),
+        (completion_raw, completion),
+        (latency_raw, latency),
+    )
+    if any(raw is not None and normalized is None for raw, normalized in values):
+        return None, None, None, "invalid"
+
+    if provider_call is False and cache_hit is True:
+        if prompt == 0 and completion == 0 and latency is not None:
+            return 0, 0, latency, "known"
+        return None, None, None, "invalid"
+
+    if usage_status == "invalid":
+        return None, None, None, "invalid"
+    if usage_status != "known":
+        if usage_status in {None, "missing"}:
+            return None, None, None, "missing"
+        return None, None, None, "invalid"
+
+    if (
+        "prompt_tokens" not in source
+        or "completion_tokens" not in source
+        or "latency_ms" not in source
+        or prompt is None
+        or completion is None
+        or latency is None
+    ):
+        return None, None, None, "invalid"
+    return prompt, completion, latency, "known"
+
+
+def _aggregate_usage_evidence(
+    evidence: tuple[CallEventCostEvidence, ...],
+) -> dict[str, Any]:
+    if not evidence:
+        return {
+            "prompt_tokens": None,
+            "completion_tokens": None,
+            "latency_ms": None,
+            "usage_status": "missing",
+        }
+    status = _usage_evidence_status(evidence)
+    if status != "known":
+        return {
+            "prompt_tokens": None,
+            "completion_tokens": None,
+            "latency_ms": None,
+            "usage_status": status,
+        }
+    try:
+        prompt_tokens = sum(item["prompt_tokens"] or 0 for item in evidence)
+        completion_tokens = sum(item["completion_tokens"] or 0 for item in evidence)
+        latency_ms = math.fsum(item["latency_ms"] or 0.0 for item in evidence)
+    except (OverflowError, ValueError):
+        return {
+            "prompt_tokens": None,
+            "completion_tokens": None,
+            "latency_ms": None,
+            "usage_status": "invalid",
+        }
+    if not math.isfinite(latency_ms):
+        return {
+            "prompt_tokens": None,
+            "completion_tokens": None,
+            "latency_ms": None,
+            "usage_status": "invalid",
+        }
+    return {
+        "prompt_tokens": prompt_tokens,
+        "completion_tokens": completion_tokens,
+        "latency_ms": latency_ms,
+        "usage_status": "known",
+    }
+
+
+def _usage_evidence_status(
+    evidence: tuple[CallEventCostEvidence, ...],
+) -> UsageEvidenceStatus:
+    if not evidence:
+        return "missing"
+    if any(item["event_usage_status"] == "invalid" for item in evidence):
+        return "invalid"
+    if all(item["event_usage_status"] == "known" for item in evidence):
+        return "known"
+    return "missing"
+
+
 def _cost_event_evidence(event: object) -> CallEventCostEvidence:
     source: Mapping[str, Any] = event if isinstance(event, Mapping) else {}
     has_status = "cost_status" in source
@@ -142,6 +264,12 @@ def _cost_event_evidence(event: object) -> CallEventCostEvidence:
     cache_hit = cache_hit_value if isinstance(cache_hit_value, bool) else None
     provider_call_value = source.get("provider_call")
     provider_call = provider_call_value if isinstance(provider_call_value, bool) else None
+    prompt_tokens, completion_tokens, latency_ms, event_usage_status = _event_usage_evidence(
+        source,
+        usage_status=usage_status,
+        provider_call=provider_call,
+        cache_hit=cache_hit,
+    )
 
     source_classification: CostSourceClassification = "typed"
     normalized_amount: float | None = None
@@ -178,6 +306,7 @@ def _cost_event_evidence(event: object) -> CallEventCostEvidence:
             amount is None
             or estimated is None
             or amount != estimated
+            or origin_amount_raw is not None
             or usage_status != "known"
             or cache_hit is True
             or provider_call is False
@@ -205,6 +334,10 @@ def _cost_event_evidence(event: object) -> CallEventCostEvidence:
     usable_delta = delta if usage_status == "known" else None
 
     return {
+        "prompt_tokens": prompt_tokens,
+        "completion_tokens": completion_tokens,
+        "latency_ms": latency_ms,
+        "event_usage_status": event_usage_status,
         "cost_usd": normalized_amount,
         "cost_status": status,
         "cost_origin": origin,
@@ -289,23 +422,32 @@ def _aggregate_cost_evidence(
 
 
 def _sum_call_events(events: Iterable[object]) -> CallEventUsageSummary:
-    prompt_tokens = 0.0
-    completion_tokens = 0.0
-    latency_ms = 0.0
     cost_evidence: list[CallEventCostEvidence] = []
     for event in events:
-        fields = event if isinstance(event, Mapping) else {}
-        prompt_tokens += float(fields.get("prompt_tokens") or 0)
-        completion_tokens += float(fields.get("completion_tokens") or 0)
-        latency_ms += float(fields.get("latency_ms") or 0)
         cost_evidence.append(_cost_event_evidence(event))
-    cost_summary = _aggregate_cost_evidence(tuple(cost_evidence))
+    evidence = tuple(cost_evidence)
+    cost_summary = _aggregate_cost_evidence(evidence)
+    usage_status = _usage_evidence_status(evidence)
+    try:
+        prompt_tokens = float(sum(item["prompt_tokens"] or 0 for item in evidence))
+        completion_tokens = float(sum(item["completion_tokens"] or 0 for item in evidence))
+        latency_ms = math.fsum(item["latency_ms"] or 0.0 for item in evidence)
+    except (OverflowError, ValueError):
+        prompt_tokens = completion_tokens = latency_ms = 0.0
+        usage_status = "invalid"
+    if not all(math.isfinite(value) for value in (prompt_tokens, completion_tokens, latency_ms)):
+        prompt_tokens = completion_tokens = latency_ms = 0.0
+        usage_status = "invalid"
+    usage_summary = {
+        "prompt_tokens": prompt_tokens,
+        "completion_tokens": completion_tokens,
+        "latency_ms": latency_ms,
+        "usage_status": usage_status,
+    }
     return cast(
         "CallEventUsageSummary",
         {
-            "prompt_tokens": prompt_tokens,
-            "completion_tokens": completion_tokens,
-            "latency_ms": latency_ms,
+            **usage_summary,
             **cost_summary,
         },
     )
@@ -315,9 +457,6 @@ def _delta_usage(
     before: Mapping[str, Any],
     after: Mapping[str, Any],
 ) -> UsageDelta:
-    prompt = max(0, int(after["prompt_tokens"] - before["prompt_tokens"]))
-    completion = max(0, int(after["completion_tokens"] - before["completion_tokens"]))
-    latency = max(0, int(after["latency_ms"] - before["latency_ms"]))
     before_events = before.get("cost_events")
     after_events = after.get("cost_events")
     if (
@@ -326,7 +465,9 @@ def _delta_usage(
         and len(after_events) >= len(before_events)
         and after_events[: len(before_events)] == before_events
     ):
-        cost_summary = _aggregate_cost_evidence(after_events[len(before_events) :])
+        suffix = after_events[len(before_events) :]
+        cost_summary = _aggregate_cost_evidence(suffix)
+        usage_summary = _aggregate_usage_evidence(suffix)
     else:
         cost_summary = {
             "cost_usd": None,
@@ -336,12 +477,16 @@ def _delta_usage(
             "cost_delta_usd": None,
             "cost_events": (),
         }
+        usage_summary = {
+            "prompt_tokens": None,
+            "completion_tokens": None,
+            "latency_ms": None,
+            "usage_status": "invalid",
+        }
     return cast(
         "UsageDelta",
         {
-            "prompt_tokens": prompt,
-            "completion_tokens": completion,
-            "latency_ms": latency,
+            **usage_summary,
             **cost_summary,
         },
     )

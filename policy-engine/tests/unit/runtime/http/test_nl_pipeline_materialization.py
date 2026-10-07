@@ -3149,7 +3149,8 @@ def test_nl_pipeline_simulated_multimodel_honors_run_budget_guard_without_networ
             max_iterations=1,
             llm_models=["simulated-qwen", "simulated-llama"],
             max_parallel_models=1,
-            run_budget_usd=0.0,
+            # A nonzero cap distinguishes unknown spend from a reported zero.
+            run_budget_usd=0.10,
             per_model_budget_usd=None,
             checkpoint_policy="strict",
             execution_plan_ref=None,
@@ -3174,22 +3175,25 @@ def test_nl_pipeline_simulated_multimodel_honors_run_budget_guard_without_networ
     assert variants[0]["status"] == "completed"
     assert variants[0]["prompt_tokens"] > 0
     assert variants[0]["completion_tokens"] > 0
+    assert variants[0]["usage_status"] == "missing"
     assert variants[0]["cost_usd"] is None
     assert variants[0]["cost_status"] == "missing"
     assert variants[0]["cost_origin"] == "unknown"
     assert variants[1]["status"] == "skipped_budget_guard"
     assert variants[1]["notes"] == ["run_budget_guard_prevented_start"]
-    assert params["run_budget_usd"] == 0.0
+    assert params["run_budget_usd"] == 0.10
     assert params["run_cost_usd"] is None
     assert params["run_cost_status"] == "missing"
     assert params["run_budget_status"] == "unknown"
     assert params["run_performance_summary"]["llm"]["cost_usd"] is None
+    assert params["run_performance_summary"]["llm"]["usage_status"] == "missing"
 
     assert record is not None
     progress_variants = record.progress["variants"]
     first_progress = progress_variants[variants[0]["model_variant_id"]]
     skipped_progress = progress_variants[variants[1]["model_variant_id"]]
     assert first_progress["cost_usd"] is None
+    assert first_progress["usage_status"] == "missing"
     assert first_progress["cost_status"] == "missing"
     assert first_progress["cost_origin"] == "unknown"
     assert skipped_progress["status"] == "skipped_budget_guard"

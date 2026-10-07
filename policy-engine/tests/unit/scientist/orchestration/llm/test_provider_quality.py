@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 from datetime import UTC, datetime, timedelta
@@ -14,8 +15,10 @@ from polisyos.scientist.orchestration.llm.provider_quality import (
     DefaultProductionModelChoice,
     ProviderCostOrigin,
     ProviderCostStatus,
+    ProviderModelQualityLedger,
     ProviderModelQualityObservation,
     ProviderModelQualityThresholds,
+    _ledger_ref,
     build_controlled_grounding_observation,
     build_controlled_provider_model_comparison,
     build_provider_model_quality_ledger,
@@ -337,6 +340,114 @@ def test_provider_cost_amounts_reject_boolean_and_nonfinite_values() -> None:
             payload[field_name] = invalid_amount
             with pytest.raises(ValidationError):
                 ProviderModelQualityObservation.model_validate(payload)
+
+
+def test_legacy_v1_costs_are_not_reemitted_without_typed_provenance() -> None:
+    current_ledger = build_provider_model_quality_ledger(
+        [
+            _observation(
+                model_fingerprint="legacy-v1",
+                cost_usd=0.25,
+                latency_ms=100.0,
+            ),
+            _observation(
+                model_fingerprint="legacy-v1",
+                cost_usd=0.75,
+                latency_ms=101.0,
+            ),
+        ],
+        generated_at=NOW,
+    )
+    legacy_payload = json.loads(current_ledger.model_dump_json())
+    legacy_metrics_payload = legacy_payload["entries"][0]["metrics"]
+    original_total = legacy_metrics_payload["cost_usd_total"]
+    original_average = legacy_metrics_payload["cost_usd_avg"]
+    for field_name in (
+        "cost_status",
+        "cost_origin",
+        "cost_known_sample_count",
+        "cost_missing_sample_count",
+        "cost_invalid_sample_count",
+    ):
+        legacy_metrics_payload.pop(field_name)
+    unhashed_legacy_payload = {
+        key: value
+        for key, value in legacy_payload.items()
+        if key != "provider_model_quality_ledger_ref"
+    }
+    encoded_legacy_payload = json.dumps(
+        unhashed_legacy_payload,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    legacy_source_ref = "sha256:" + hashlib.sha256(
+        encoded_legacy_payload
+    ).hexdigest()
+    legacy_payload["provider_model_quality_ledger_ref"] = legacy_source_ref
+    legacy_serialized_bytes = json.dumps(
+        legacy_payload,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+
+    legacy_ledger = ProviderModelQualityLedger.model_validate(legacy_payload)
+    assert json.dumps(
+        legacy_payload,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8") == legacy_serialized_bytes
+    assert legacy_ledger.provider_model_quality_ledger_ref is None
+    assert _ledger_ref(legacy_ledger) != legacy_source_ref
+    legacy_metrics = legacy_ledger.entries[0].metrics
+    assert legacy_payload["entries"][0]["metrics"]["cost_usd_total"] == original_total
+    assert legacy_payload["entries"][0]["metrics"]["cost_usd_avg"] == original_average
+    assert "cost_status" not in legacy_payload["entries"][0]["metrics"]
+    assert legacy_metrics.cost_status == "missing"
+    assert legacy_metrics.cost_origin == "unknown"
+    assert legacy_metrics.cost_usd_total is None
+    assert legacy_metrics.cost_usd_avg is None
+
+    standard_rows = compare_provider_models(
+        legacy_ledger,
+        scenario_pack_id="public_golden_pack",
+    ).rankings
+    assert len(standard_rows) == 1
+    assert standard_rows[0].cost_status == "missing"
+    assert standard_rows[0].cost_origin == "unknown"
+    assert standard_rows[0].cost_usd_avg is None
+
+    choice = {
+        "provider": "legacy-provider",
+        "model_id": "legacy-model",
+        "model_fingerprint": "legacy-controlled-v1",
+    }
+    legacy_controlled_observations = []
+    for sample_index in range(3):
+        old_observation_payload = _controlled_observation(
+            **choice,
+            sample_index=sample_index,
+            cost_usd=0.25,
+        ).model_dump(mode="json")
+        for field_name in (
+            "cost_status",
+            "cost_origin",
+            "estimated_cost_usd",
+        ):
+            old_observation_payload.pop(field_name)
+        legacy_controlled_observations.append(
+            ProviderModelQualityObservation.model_validate(old_observation_payload)
+        )
+    controlled_rows = build_controlled_provider_model_comparison(
+        legacy_controlled_observations,
+        candidate_models=[{**choice, "usage": "candidate"}],
+        default_model_choice={**choice, "usage": "policy_drafting"},
+        generated_at=NOW,
+    ).rows
+    assert len(controlled_rows) == 1
+    assert controlled_rows[0].cost_status == "missing"
+    assert controlled_rows[0].cost_origin == "unknown"
+    assert controlled_rows[0].cost_usd_total is None
+    assert controlled_rows[0].cost_usd_avg is None
 
 
 def test_ledger_sanitizes_credentials_and_hidden_answers() -> None:

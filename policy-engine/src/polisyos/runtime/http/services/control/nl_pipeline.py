@@ -1550,6 +1550,7 @@ def _performance_budget_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
 def _no_provider_call_cost() -> dict[str, Any]:
     """Describe a pipeline branch that explicitly performed no provider call."""
     return {
+        "usage_status": "known",
         "cost_usd": 0.0,
         "cost_status": "known",
         "cost_origin": "unknown",
@@ -1580,6 +1581,7 @@ def _cost_projection_from_usage(usage: Mapping[str, Any]) -> dict[str, Any]:
         }
     )
     return {
+        "usage_status": usage.get("usage_status", "missing"),
         "cost_usd": validated_amount,
         "cost_status": status,
         "cost_origin": origin,
@@ -1588,6 +1590,59 @@ def _cost_projection_from_usage(usage: Mapping[str, Any]) -> dict[str, Any]:
         "cost_delta_usd": delta_amount,
         "cost_reconciliation_delta_usd": delta_amount,
         "cost_events": [dict(event) for event in usage.get("cost_events", ())],
+    }
+
+
+def _invalidate_cost_after_usage_failure(cost_projection: Mapping[str, Any]) -> dict[str, Any]:
+    """Invalidate spend when event-prefix integrity prevents usage attribution."""
+    return {
+        **dict(cost_projection),
+        "usage_status": "invalid",
+        "cost_usd": None,
+        "cost_status": "invalid",
+        "cost_origin": "unknown",
+        "cost_basis": "invalid_usage_delta",
+    }
+
+
+def _step_usage_projection(usage_delta: Mapping[str, Any]) -> dict[str, Any]:
+    """Project canonical step usage without turning missing evidence into zero."""
+    usage_status = usage_delta.get("usage_status", "missing")
+    if usage_status == "invalid":
+        prefix_was_invalid = (
+            usage_delta.get("cost_status") == "invalid"
+            and usage_delta.get("cost_events") == ()
+        )
+        reason = "event_prefix_invalid" if prefix_was_invalid else "event_usage_invalid"
+        raise ValueError(f"llm_usage_delta_{reason}")
+    if usage_status == "missing":
+        return {
+            "prompt_tokens": None,
+            "completion_tokens": None,
+            "total_tokens": None,
+            "latency_ms": None,
+            "usage_status": "missing",
+        }
+    if usage_status != "known":
+        raise ValueError("llm_usage_delta_status_invalid")
+
+    prompt = usage_delta.get("prompt_tokens")
+    completion = usage_delta.get("completion_tokens")
+    latency = usage_delta.get("latency_ms")
+    if prompt is None or completion is None or latency is None:
+        raise ValueError("llm_usage_delta_known_values_missing")
+    try:
+        prompt_tokens = int(prompt)
+        completion_tokens = int(completion)
+        latency_ms = int(latency)
+    except (OverflowError, TypeError, ValueError) as exc:
+        raise ValueError("llm_usage_delta_known_values_invalid") from exc
+    return {
+        "prompt_tokens": prompt_tokens,
+        "completion_tokens": completion_tokens,
+        "total_tokens": prompt_tokens + completion_tokens,
+        "latency_ms": latency_ms,
+        "usage_status": "known",
     }
 
 
@@ -1763,10 +1818,15 @@ def _build_run_performance_summary(variants: list[Mapping[str, Any]]) -> dict[st
     llm_latency_ms = 0
     total_tokens = 0
     cost_summary = _aggregate_variant_costs(variants)
+    usage_statuses: set[str] = set()
 
     for variant in variants:
         status = str(variant.get("status") or "unknown")
         statuses[status] = statuses.get(status, 0) + 1
+        usage_status = variant.get("usage_status", "missing")
+        usage_statuses.add(
+            usage_status if usage_status in {"known", "missing", "invalid"} else "invalid"
+        )
         latency_ms = int(variant.get("latency_ms") or 0)
         llm_latency_ms += latency_ms
         total_tokens += int(variant.get("total_tokens") or 0)
@@ -1799,6 +1859,7 @@ def _build_run_performance_summary(variants: list[Mapping[str, Any]]) -> dict[st
                 "latency_ms": latency_ms,
                 "steps_completed": len(steps) if isinstance(steps, list) else 0,
                 "total_tokens": int(variant.get("total_tokens") or 0),
+                "usage_status": usage_status,
                 "cost_usd": variant.get("cost_usd"),
                 "cost_status": variant.get("cost_status", "missing"),
                 "cost_origin": variant.get("cost_origin", "unknown"),
@@ -1845,6 +1906,13 @@ def _build_run_performance_summary(variants: list[Mapping[str, Any]]) -> dict[st
         "llm": {
             "latency_ms": llm_latency_ms,
             "total_tokens": total_tokens,
+            "usage_status": (
+                "invalid"
+                if "invalid" in usage_statuses
+                else "missing"
+                if not usage_statuses or "missing" in usage_statuses
+                else "known"
+            ),
             **cost_summary,
         },
         "steps_by_action": steps_by_action,
@@ -5328,6 +5396,7 @@ class NaturalLanguageRunMixin:
                     "promotion_candidates": [],
                     "auto_data_source_refs": {},
                 }
+                usage_delta_integrity_invalid = False
                 execution_plan_ref_str = execution_plan_ref
                 method_catalog_snapshot_ref_str: str | None = None
                 preflight_report_ref_str: str | None = None
@@ -5355,6 +5424,7 @@ class NaturalLanguageRunMixin:
                     status: str = "ok",
                     details: dict[str, Any] | None = None,
                 ) -> object:
+                    nonlocal usage_delta_integrity_invalid
                     before = _sum_call_events(call_events)
                     started = _now_ms()
                     running_step = {
@@ -5394,10 +5464,31 @@ class NaturalLanguageRunMixin:
                     after = _sum_call_events(call_events)
                     finished = _now_ms()
                     usage_delta = _delta_usage(before, after)
-                    prompt_tokens = int(usage_delta["prompt_tokens"])
-                    completion_tokens = int(usage_delta["completion_tokens"])
-                    llm_latency_ms = int(usage_delta["latency_ms"])
-                    total_tokens = prompt_tokens + completion_tokens
+                    try:
+                        step_usage = _step_usage_projection(usage_delta)
+                    except ValueError as exc:
+                        usage_delta_integrity_invalid = True
+                        failure_payload = _exception_failure_payload(exc)
+                        failed_details = {
+                            **dict(details or {}),
+                            "error": str(exc),
+                            "usage_status": "invalid",
+                        }
+                        if failure_payload is not None:
+                            failed_details["failure"] = failure_payload
+                        failed_step = {
+                            **running_step,
+                            "status": "failed",
+                            "details": failed_details,
+                        }
+                        steps.append(failed_step)
+                        _emit_job_progress(
+                            phase=action,
+                            variant_id=variant_id,
+                            variant_status="failed",
+                            step=failed_step,
+                        )
+                        raise
                     step_latency = max(0, finished - started)
                     step_entry = {
                         "attempt": 1,
@@ -5409,13 +5500,10 @@ class NaturalLanguageRunMixin:
                         "model": model_name,
                         "provider": provider,
                         "model_variant_id": variant_id,
-                        "latency_ms": llm_latency_ms or step_latency,
+                        "latency_ms": step_usage["latency_ms"] or step_latency,
+                        "usage_status": step_usage["usage_status"],
                         **_cost_projection_from_usage(usage_delta),
-                        "token_usage": {
-                            "prompt_tokens": prompt_tokens,
-                            "completion_tokens": completion_tokens,
-                            "total_tokens": total_tokens,
-                        },
+                        "token_usage": step_usage,
                         "details": details or {},
                     }
                     steps.append(step_entry)
@@ -6332,6 +6420,8 @@ class NaturalLanguageRunMixin:
                     if llm_client is None:
                         failure_usage = {**failure_usage, **_no_provider_call_cost()}
                     failure_cost = _cost_projection_from_usage(failure_usage)
+                    if usage_delta_integrity_invalid:
+                        failure_cost = _invalidate_cost_after_usage_failure(failure_cost)
                     failure_budget_amount = _budget_cost_amount(failure_cost)
                     if per_model_budget_usd is None:
                         failure_budget_status = "not_configured"
@@ -6356,6 +6446,7 @@ class NaturalLanguageRunMixin:
                             _sum_call_events(call_events)["prompt_tokens"]
                             + _sum_call_events(call_events)["completion_tokens"]
                         ),
+                        "usage_status": failure_cost["usage_status"],
                         "latency_ms": max(0, _now_ms() - variant_started_at),
                         **failure_cost,
                         "per_model_budget_status": failure_budget_status,
@@ -6733,6 +6824,7 @@ class NaturalLanguageRunMixin:
                     "status": item.get("status"),
                     "verdict": item.get("verdict"),
                     "steps_completed": len(item.get("steps") or []),
+                    "usage_status": item.get("usage_status", "missing"),
                     "cost_usd": item.get("cost_usd"),
                     "cost_status": item.get("cost_status", "missing"),
                     "cost_origin": item.get("cost_origin", "unknown"),
@@ -6802,6 +6894,7 @@ class NaturalLanguageRunMixin:
                     "verdict": selected_variant.get("verdict"),
                     "selected_for_workflow": True,
                     "steps_completed": len(selected_variant.get("steps") or []),
+                    "usage_status": selected_variant.get("usage_status", "missing"),
                     "cost_usd": selected_variant.get("cost_usd"),
                     "cost_status": selected_variant.get("cost_status", "missing"),
                     "cost_origin": selected_variant.get("cost_origin", "unknown"),
@@ -7483,6 +7576,7 @@ class NaturalLanguageRunMixin:
                         "llm_completion_tokens": int(
                             selected_variant.get("completion_tokens") or 0
                         ),
+                        "llm_usage_status": selected_variant.get("usage_status", "missing"),
                         "llm_cost_usd": selected_variant.get("cost_usd"),
                         "llm_cost_status": selected_variant.get("cost_status", "missing"),
                         "llm_cost_origin": selected_variant.get("cost_origin", "unknown"),

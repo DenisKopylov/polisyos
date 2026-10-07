@@ -47,6 +47,16 @@ ProviderCostStatus = Literal["known", "missing", "invalid"]
 ProviderCostOrigin = Literal["reported", "estimated", "reuse", "unknown", "mixed"]
 
 
+def _cost_projection_is_complete(
+    status: ProviderCostStatus,
+    origin: ProviderCostOrigin,
+    *amounts: float | None,
+) -> bool:
+    return status == "known" and origin != "unknown" and bool(amounts) and all(
+        amount is not None for amount in amounts
+    )
+
+
 class ProviderModelQualityThresholds(BaseModel):
     """Review thresholds for per-provider/model quality drift."""
 
@@ -215,6 +225,32 @@ class ProviderModelQualityMetrics(BaseModel):
     selected_variant_quality_avg: float | None = None
     selected_variant_quality_min: float | None = None
 
+    @model_validator(mode="after")
+    def _normalize_cost_projection(self) -> ProviderModelQualityMetrics:
+        complete = _cost_projection_is_complete(
+            self.cost_status,
+            self.cost_origin,
+            self.cost_usd_total,
+            self.cost_usd_avg,
+        )
+        if not complete:
+            self.cost_usd_total = None
+            self.cost_usd_avg = None
+            if self.cost_status == "known":
+                self.cost_status = "missing"
+                self.cost_known_sample_count = 0
+                self.cost_missing_sample_count = max(
+                    self.cost_missing_sample_count,
+                    self.decision_sample_count - self.cost_invalid_sample_count,
+                )
+            if self.cost_origin == "unknown":
+                self.cost_known_sample_count = 0
+                self.cost_missing_sample_count = max(
+                    self.cost_missing_sample_count,
+                    self.decision_sample_count - self.cost_invalid_sample_count,
+                )
+        return self
+
 
 class ProviderModelQualityEntry(BaseModel):
     """A sanitized ledger row keyed by provider/model/fingerprint."""
@@ -278,6 +314,15 @@ class ProviderModelQualityLedger(BaseModel):
     def entries_by_key(self) -> dict[str, ProviderModelQualityEntry]:
         return {entry.evidence_key: entry for entry in self.entries}
 
+    @model_validator(mode="after")
+    def _clear_stale_self_reference(self) -> ProviderModelQualityLedger:
+        if (
+            self.provider_model_quality_ledger_ref is not None
+            and self.provider_model_quality_ledger_ref != _ledger_ref(self)
+        ):
+            self.provider_model_quality_ledger_ref = None
+        return self
+
 
 class ProviderModelComparisonRow(BaseModel):
     """A sanitized model-comparison row for one scenario pack."""
@@ -305,6 +350,30 @@ class ProviderModelComparisonRow(BaseModel):
     cost_invalid_sample_count: int = 0
     request_fingerprints: list[str] = Field(default_factory=list)
     drift_action: str
+
+    @model_validator(mode="after")
+    def _normalize_cost_projection(self) -> ProviderModelComparisonRow:
+        complete = _cost_projection_is_complete(
+            self.cost_status,
+            self.cost_origin,
+            self.cost_usd_avg,
+        )
+        if not complete:
+            self.cost_usd_avg = None
+            if self.cost_status == "known":
+                self.cost_status = "missing"
+                self.cost_known_sample_count = 0
+                self.cost_missing_sample_count = max(
+                    self.cost_missing_sample_count,
+                    self.sample_count - self.cost_invalid_sample_count,
+                )
+            if self.cost_origin == "unknown":
+                self.cost_known_sample_count = 0
+                self.cost_missing_sample_count = max(
+                    self.cost_missing_sample_count,
+                    self.sample_count - self.cost_invalid_sample_count,
+                )
+        return self
 
 
 class ProviderModelComparison(BaseModel):
@@ -371,6 +440,32 @@ class ControlledProviderModelComparisonRow(BaseModel):
     request_fingerprints: list[str] = Field(default_factory=list)
     drift_action: str
     drift_reasons: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _normalize_cost_projection(self) -> ControlledProviderModelComparisonRow:
+        complete = _cost_projection_is_complete(
+            self.cost_status,
+            self.cost_origin,
+            self.cost_usd_total,
+            self.cost_usd_avg,
+        )
+        if not complete:
+            self.cost_usd_total = None
+            self.cost_usd_avg = None
+            if self.cost_status == "known":
+                self.cost_status = "missing"
+                self.cost_known_sample_count = 0
+                self.cost_missing_sample_count = max(
+                    self.cost_missing_sample_count,
+                    self.sample_count - self.cost_invalid_sample_count,
+                )
+            if self.cost_origin == "unknown":
+                self.cost_known_sample_count = 0
+                self.cost_missing_sample_count = max(
+                    self.cost_missing_sample_count,
+                    self.sample_count - self.cost_invalid_sample_count,
+                )
+        return self
 
 
 class ControlledProviderModelComparison(BaseModel):

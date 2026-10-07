@@ -1,0 +1,99 @@
+{
+  "schema": "policyos.e02.foreign_source_review.v1",
+  "reviewer": "/root/cas_probe, independent of ROOT launcher author",
+  "root_inspection_sha": "f422bb5113dc3e95ef4efe481d6fee02973c16cb",
+  "root_inspection_tree": "d54b86d2dae0d1a462b1894c258ac38affa17528",
+  "reviewed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-frozen-wave.py",
+  "reviewed_source_sha256": "6d1722088bb4c3d63dfb6aa63d30606b2687b5dc991107c2eae5b7eaf33281a6",
+  "byte_capture": "reviewed-launcher.py.txt",
+  "root_source_state": "Untracked preparation file; it is NOT a Git blob at inspected root HEAD, not a final freeze execution candidate. Exact literal witness copied as text.",
+  "canonical_dependencies": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+      "git_sha": "f422bb5113dc3e95ef4efe481d6fee02973c16cb",
+      "sha256": "b92a3a98bb0ba5a0019b0f1e7812ec43767b64d4216339b3da1480e251625deb",
+      "bytes": 14010
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+      "git_sha": "f422bb5113dc3e95ef4efe481d6fee02973c16cb",
+      "sha256": "e26a065cbee683f3a19a01e0d217d299cc859dbbf2a8ad0cbb3e10c77336a1d4",
+      "bytes": 3729
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py",
+      "git_sha": "f422bb5113dc3e95ef4efe481d6fee02973c16cb",
+      "sha256": "e214ad4b56b01e4e700803d46c57ed81f806e2bf04b2687d62ac0cf5b0794cc4",
+      "bytes": 9651
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+      "git_sha": "f422bb5113dc3e95ef4efe481d6fee02973c16cb",
+      "sha256": "869afd5e4f6e3acdb665dec5193c936655bc6747c26e7b870dd8ee56f94bc104",
+      "bytes": 22420
+    }
+  ],
+  "canonical_factory_metadata": [
+    {
+      "path": "policy-engine/tools/devx/workspace/verify.py",
+      "config_source": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "sha256": "864ec1e4f463b63610986cd86b93a1b61687408b84e1a9c64cd6d6a65d587207",
+      "same_as_pinned_source": true
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/ci_parity.py",
+      "config_source": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "sha256": "8ee3abda4668c4bbc24c58412b11eda51eaae9c046b98ad80ff5b17705e26619",
+      "same_as_pinned_source": true
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/_common.py",
+      "config_source": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "sha256": "fadb1e8e48587a79fdeafdf7ce23216518d4f09a06c3045b0ed1f1c0133c267a",
+      "same_as_pinned_source": true
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/package.json",
+      "config_source": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+      "same_as_pinned_source": true
+    }
+  ],
+  "provisional_quality_counts": {
+    "198076863e143dea9f89f02734b13d50dae3eed5": {
+      "changed_python": 281,
+      "changed_production_python": 55
+    },
+    "86f37d782a709d298a9908ca3ef891adc9f89253": {
+      "changed_python": 285,
+      "changed_production_python": 56
+    }
+  },
+  "quality_count_qualification": "These are source-only preparation counts, not final frozen candidate counts. New launcher uses sorted union of both full projections, explicitly records all paths/projections and production-only mypy filter.",
+  "prior_prepare_sha256": "0781e6325a9e4cdd4b4dcef5b3f8280a171a830449bd2d0a608e6610c098716f",
+  "prior_source_findings_resolved": [
+    "Native-only input binding omitted full seven wheel + real PostgreSQL admission for canonical verify/parity broad pytest consumers. Corrected source binds for all native/verify/parity, requiring exact current wheel profile.",
+    "Only parsed selector previously recorded. Corrected source pins literal selector path/rawSHA and original/copied observer bytes.",
+    "Fresh198 changed-Python profile previously substituted old86f literal denominator. Corrected source takes sorted union86+198 and names the profile."
+  ],
+  "source_review": "NONBLOCKING within frozen source and declared input/precondition custody. No runtime/whole-bundle/property-adequacy or future gate PASS claim.",
+  "reviewed_quantities": [
+    "Clean attached exact HEAD/SHA and branch admission before exclusive source-specific output namespace",
+    "Frozen selector SHA/tree and deduplicated whole-file denominator; no marker/test exclusions added",
+    "Actual canonical wheel source/outer/consumer bytes and genuine task-owned PostgreSQL input binding, private DSN values excluded from public profile",
+    "Actual E02_DUR_PROCESS_SOURCE_ROOT/SHA and E02_MONEY_SOURCE_ROOT/SHA passed to genuine frozen process consumers",
+    "Tracked observer copied byte-for-byte, exclusive inventory+journal; journal flush preserves observed prefix under process death, never full-session/powerloss claim",
+    "Canonical uncapped15/35 factories byteequal pinned933; coverage argv delta retains successful unchanged ratchet; UV_NO_SYNC preserves reusable exact environment",
+    "Canonical wait4 exact child/setup status, stdout/stderr and runtime rusage reused; resource counters are observations, not sender/OOM/individual-victim attribution"
+  ],
+  "serialization_requirement": "ROOT plans native/verify/parity sequential because they share real PostgreSQL/last-mile mutable writers. Independently ready lint/type/static checks may run in parallel; this source sets no process/CPU/thread/worker numerical cap.",
+  "limitations": [
+    "No planner/import/native/backend/full-bundle/gate launched in this review.",
+    "Preparation snapshot only. ROOT must commit unchanged reviewed bytes, admit final exact source, supply new actual wheel profile/PG inputs, exact final selector and fresh namespace before execution.",
+    "Output/resource profiles are not a proof of adequate future disk/cgroup headroom. Prior SIGKILL/full-session incomplete observations stay preserved; resource counters alone do not attribute cause.",
+    "Raw capture guards HEAD identity; full source/observer runtime custody retains its existing explicitly finite module/read-set limitations.",
+    "Input-admission refusal occurs before launcher profile creation; ROOT must preserve any admission traceback/stdout as harness UNRUN/ERROR, not product gate verdict.",
+    "Source-only review does not decide this author CAS mechanism or formal all60/final acceptance."
+  ],
+  "closure_ids": []
+}

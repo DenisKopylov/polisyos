@@ -1,0 +1,28 @@
+{
+  "schema": "policyos.e02.c3.cleanup-payload-index.v1",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/final-native-trash.json",
+      "source_path": ".tmp/e02-C3/raw/cleanup/final-native-trash.json",
+      "sha256": "f94856087b4a5efd14039bb5828b87094fd1393c044f442c933d4da2073a4078",
+      "bytes": 55841
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/final_trash.py",
+      "source_path": ".tmp/e02-C3/raw/cleanup/final_trash.py",
+      "sha256": "62efa906ba3503bd8a555af0ef3d4f24615058f311c5c58ceac24556f159f84a",
+      "bytes": 6918
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/TrashExact.swift",
+      "source_path": ".tmp/e02-C3/raw/cleanup/TrashExact.swift",
+      "sha256": "76941d1ff3d709b4840bde5629a8ab451620d173fdf30d7929ac5378898df6e5",
+      "bytes": 1456
+    }
+  ],
+  "operation": "native macOS FileManager.trashItem",
+  "moved_count": 18,
+  "clear_trash": false,
+  "immediate_free_space_claim": false,
+  "excluded": "Production data; useful code/docs/refs; unique CAS fixtures/probes/complete deciding outputs; wheels/sdists; shared caches; user environment; all Git worktree registrations"
+}

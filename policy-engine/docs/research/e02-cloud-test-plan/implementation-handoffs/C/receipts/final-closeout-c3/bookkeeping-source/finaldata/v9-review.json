@@ -1,0 +1,89 @@
+{
+  "review_status": "BLOCKED_ON_DATA_WORDING_CORRECTION",
+  "scope": {
+    "source_commit": "4fc6bf936f2faa80f58475548e094a4270d2fb84",
+    "source_tree": "e9c6bb9805ac945f5b0ffa79a2dbe5410604dfb3",
+    "parent_commit": "fe13c6cf8628940842e9e5458bcbbc6c46935e2",
+    "input_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c3-final-adjudication-input.json",
+    "input_sha256": "e3c3226857fa5ac361f19b2d88b939f2085e2459e40abe61dca6f6b8e251b468",
+    "cut_path": "policy-engine/.tmp/e02-C3/raw/census/C54-current-root-adjudication-20261007-v9.json",
+    "cut_sha256": "f449895808339318de68d91f3f2a7c79efe6e3e1d892233de7795b94296ca025",
+    "cut_bytes": 307984,
+    "validator_command_results_path": "policy-engine/.tmp/e02-C3/raw/independent-review-20261007-finaldata/v9-validator.command-results.json",
+    "validator_command_results_sha256": "3d69589573b797d939108745e592bd0882badce60fd011f175a441c84b8d8129",
+    "postcommit_scope_control_path": "policy-engine/.tmp/e02-C3/raw/census/criterion-scope-control-postcommit.txt",
+    "postcommit_scope_control_sha256": "36ad7de1bdfe6dd43e20cc3effc0100d9a0fa91af4ca2f63a59a9040b92448a6"
+  },
+  "validator_result": {
+    "exit_code": 0,
+    "result": "PASS",
+    "rows": 54,
+    "criterion_occurrences": 59,
+    "states": {
+      "c2_frozen_evidence_carried_forward": 44,
+      "criterion_binding_corrected": 5,
+      "fresh_criterion_evidence_reviewed": 5
+    },
+    "current_verdicts": {
+      "closed": 31,
+      "held": 14,
+      "limited": 9
+    },
+    "G_formal_status": {
+      "not_adjudicated": 54
+    },
+    "interpretation": "Bookkeeping and binding validation passes; it does not check semantic consistency between root-reason prose and independently derived C3 evidence state."
+  },
+  "finding": {
+    "severity": "material data accuracy blocker for publication",
+    "confidence": "high",
+    "property": "Every root adjudication reason must describe the evidence basis actually bound to that row.",
+    "divergent_behavior": "The final root-reason strings retain retired token fresh_source_handoff_reviewed while derived state is now fresh_criterion_evidence_reviewed or c2_frozen_evidence_carried_forward.",
+    "affected_rows": [
+      {
+        "finding_id": "B79",
+        "derived_state": "c2_frozen_evidence_carried_forward",
+        "derived_basis": "unchanged_source_prior_criterion_evidence_reviewed",
+        "reason": "Limited to the demonstrated original criterion scope after reviewing fresh_source_handoff_reviewed: The served batch_incremental route injects the exact persisted hint into the real REST request, and its since filter persists the independently expected rows. Promotion of that tenant cursor still lacks a source-confirmed evidence-content binder. Remaining boundary: Frozen integration dependent checks by G; production backend/raw VM archives unrun and not used as this candidate proof."
+      },
+      {
+        "finding_id": "B80",
+        "derived_state": "c2_frozen_evidence_carried_forward",
+        "derived_basis": "unchanged_source_prior_criterion_evidence_reviewed",
+        "reason": "Held on the original criterion after reviewing fresh_source_handoff_reviewed. Missing condition: Owner-supplied verified source evidence must content-bind dataset and ingestion_run_id before cursor promotion; production backend/raw VM archives were not run. Available bounded result: Per-source storage and fail/retry behavior are exercised; unverified source progress is not promoted. The confirmed-cursor writer remains fail-closed until owner evidence content-binds dataset and ingestion_run_id."
+      },
+      {
+        "finding_id": "B81",
+        "derived_state": "fresh_criterion_evidence_reviewed",
+        "derived_basis": "fresh_criterion_evidence_reviewed",
+        "reason": "Closed for the original bounded criterion after reviewing fresh_source_handoff_reviewed: The ING source receipt retains the failure/reopen/retry checks for exact raw bytes, ordered row IDs, committed frontier/cursor, and the returned checkpoint payload. The composed four-process sequence prepares at cap 3, refuses cap 1 before polling or writes while preserving the predecessor, then recovers exactly three rows and their chunk/window references under cap 3 with a fresh readback. A no-output replay emits no rows or new chunk/window references but does write checkpoint/cursor metadata and indexes; full checkpoint-byte idempotence is not claimed. This disposition does not assign G formal closure."
+      },
+      {
+        "finding_id": "B83",
+        "derived_state": "c2_frozen_evidence_carried_forward",
+        "derived_basis": "unchanged_source_prior_criterion_evidence_reviewed",
+        "reason": "Held on the original criterion after reviewing fresh_source_handoff_reviewed. Missing condition: B connector source-owned event/version identity is not supplied; synthesized offset _message_id is not authority. Production backend/raw VM archives were not run. Available bounded result: The persisted UTC ingestion horizon is 86,400 seconds, composite primitive keys and source/partition isolation are exercised, and live-key overflow refuses before eviction. The connector does not supply source-owned event/version identity; synthesized _message_id is not that authority."
+      },
+      {
+        "finding_id": "B85",
+        "derived_state": "fresh_criterion_evidence_reviewed",
+        "derived_basis": "fresh_criterion_evidence_reviewed",
+        "reason": "Closed for the original bounded criterion after reviewing fresh_source_handoff_reviewed: After compatible restart the installed sequence returns exactly three source rows with their chunk/window references, and a separate fresh readback resolves them. The repeated no-output call adds no data rows or new chunk/window references, while checkpoint/cursor metadata and indexes change. This disposition does not assign G formal closure."
+      },
+      {
+        "finding_id": "B86",
+        "derived_state": "c2_frozen_evidence_carried_forward",
+        "derived_basis": "unchanged_source_prior_criterion_evidence_reviewed",
+        "reason": "Closed for the original bounded criterion after reviewing fresh_source_handoff_reviewed: Required, optional, missing, null, type, and finite row membership produces identical accepted IDs, keyed quarantine reasons, and accepted-data digest at batch sizes 1, 2, and 8. This disposition does not assign G formal closure."
+      },
+      {
+        "finding_id": "B88",
+        "derived_state": "c2_frozen_evidence_carried_forward",
+        "derived_basis": "unchanged_source_prior_criterion_evidence_reviewed",
+        "reason": "Closed for the original bounded criterion after reviewing fresh_source_handoff_reviewed: Served replay opens the retained exact owned CAS request/response artifact; missing or corrupt artifacts refuse without native connector egress from both repository and product working directories. Scope is the retained source-card replay profile. This disposition does not assign G formal closure."
+      }
+    ],
+    "required_direction": "Update the seven row reason strings in the final adjudication input and regenerate/freeze a data-only cut; retain verdict IDs/counts and G status unless independently changed."
+  },
+  "source_review": "No blocking source-mechanism defect found in the reviewed 4fc delta. The generic scope derivation is separated from source-family version binding, and the final validator independently recomputes both."
+}

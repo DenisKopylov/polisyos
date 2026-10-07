@@ -1,0 +1,68 @@
+{
+  "source_family": "ING",
+  "handoff_commit": "cf13c8db5e70a51ce5cedb35d0ad0b17ca71ed3e",
+  "handoff_tree": "72351cf7ad14a135c2d5856ec5661a06da5cb4c6",
+  "original_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-ing-cleanup-20261007.json",
+  "decoy_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/primary/untracked-primary-ING.json",
+  "decoy_same_bytes_as_pinned_handoff": true,
+  "decoy_sha256": "82e88234b74ee5123e5ca40cf2ee419df69ea2fffd1cc97df44c9c09a0e82c40",
+  "decoy_bytes": 34539,
+  "control_input_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/primary/untracked-primary-input.json",
+  "control_input_sha256": "ab9c3136bc287b840f5161d8a99d3301f85c833f15fc33d0a9bda67383030aeb",
+  "control_cut_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/primary/untracked-primary-cut.json",
+  "control_cut_sha256": "d9984778d4f8f1b4635b88cac5247099affa3022f4cba6e143470c743587e2a2",
+  "results": [
+    {
+      "label": "builder",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+        "--mode",
+        "c3",
+        "--input",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/primary/untracked-primary-input.json",
+        "--json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/primary/untracked-primary-output.json",
+        "--markdown",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/primary/untracked-primary-output.md"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 1,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/primary/builder.stdout.txt",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/primary/builder.stderr.txt",
+      "stderr_sha256": "f1088bcb9f1f3c19609204641fd1113f52427f699a08c7ae1d83f13f45efabb9",
+      "expected_absent_pinned_tree_rejection": true
+    },
+    {
+      "label": "validator",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+        "--mode",
+        "c3",
+        "--cut",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/primary/untracked-primary-cut.json",
+        "--markdown",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/c3-current.md",
+        "--input",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/primary/untracked-primary-input.json",
+        "--expected-cut-sha",
+        "d9984778d4f8f1b4635b88cac5247099affa3022f4cba6e143470c743587e2a2",
+        "--expected-markdown-sha",
+        "9eec9f9c2d969a9435027c679a28a8b5e6230159104fdef1f281f7fdd8ee7b8b"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 1,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/primary/validator.stdout.txt",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/primary/validator.stderr.txt",
+      "stderr_sha256": "886c02f8d6309530dfa0d0c934b1e3e8509e483ad230bcad4d672126e6eabf3c",
+      "expected_absent_pinned_tree_rejection": true
+    }
+  ]
+}

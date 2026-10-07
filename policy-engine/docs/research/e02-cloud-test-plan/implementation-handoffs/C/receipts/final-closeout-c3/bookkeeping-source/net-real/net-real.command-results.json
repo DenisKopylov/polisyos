@@ -1,0 +1,237 @@
+{
+  "source_commit": "fe13c6cf8628940842e9e5458bcbbc6c46935e2c",
+  "source_tree": "cc58bd3ae85fc7398e66a544c6b17d67241ec4f5",
+  "final_input_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c3-final-adjudication-input.json",
+  "final_input_sha256": "61ef22a6f4c71cb824875165ef835a78169a2f185b2d9c8f7bbc6440a17b34ad",
+  "final_input_bytes": 62007,
+  "base_input_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c3-current-evaluation-input.json",
+  "base_input_sha256": "b8c82ba60f0da616ca5e047c5f16e3388eed73f5ea7360098ef6d2280a555a2a",
+  "net_ref": {
+    "ref_id": "NET-ING-current-frontier",
+    "family": "ING",
+    "source_commit": "13c0cde6bd8275d5b8d0deb73affa198325aa7c0",
+    "source_tree": "1ced36ad643f4e59e20e5fad9892c1aafc683f97",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-net-ing-20261007.json",
+    "sha256": "8f9c3e7caace89b4b0c130424608434448b187e61fe15660b6b3f6f60caf5c43",
+    "git_blob": "cd582f6ee06f812731b659e7d6d3a970dd3f10ec",
+    "size_bytes": 43779,
+    "finding_ids": [
+      "B81",
+      "B82",
+      "B84",
+      "B85"
+    ],
+    "criterion_ids_pointer": "/criterion_ids",
+    "evidence_pointers": [
+      "/property",
+      "/p37",
+      "/p38",
+      "/checks/1",
+      "/checks/2",
+      "/checks/8",
+      "/independent_review",
+      "/limitations"
+    ],
+    "candidate_bindings": [
+      {
+        "role": "composed B+C product source",
+        "commit_pointer": "/source_freeze/composition/commit",
+        "tree_pointer": "/source_freeze/composition/tree",
+        "parents_pointer": "/source_freeze/composition/parents",
+        "source_file_pointers": [
+          "/source_freeze/product_source"
+        ]
+      },
+      {
+        "role": "test-only candidate",
+        "commit_pointer": "/source_freeze/test/commit",
+        "tree_pointer": "/candidate_tree_sha",
+        "source_file_pointers": [
+          "/source_freeze/test"
+        ]
+      }
+    ]
+  },
+  "net_source_sha256": "8f9c3e7caace89b4b0c130424608434448b187e61fe15660b6b3f6f60caf5c43",
+  "net_source_git_blob": "cd582f6ee06f812731b659e7d6d3a970dd3f10ec",
+  "net_source_size": 43779,
+  "net_untracked_decoy": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-untracked-decoy.json",
+    "identical": true,
+    "sha256": "8f9c3e7caace89b4b0c130424608434448b187e61fe15660b6b3f6f60caf5c43",
+    "bytes": 43779
+  },
+  "positive_cut_sha256": "8c5e5519d9a745e25de368c117799bb42d0d129d95e90bba26ab5b2969efdbe9",
+  "positive_markdown_sha256": "613730f0b7727ed3e2a658a9dd1375d0ac3b30af7bd7641cbdedd5fa75e716ce",
+  "results": [
+    {
+      "label": "net-positive-build",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+        "--mode",
+        "c3",
+        "--input",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-positive-input.json",
+        "--json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-positive-cut.json",
+        "--markdown",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-positive.md"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-positive-build.stdout.txt",
+      "stdout_sha256": "2fae979b25b0dc63e3fe4b89c2bd18fc2e515e50a7a4f36e271b8858e610a02f",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-positive-build.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "net-positive-validate",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+        "--mode",
+        "c3",
+        "--cut",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-positive-cut.json",
+        "--markdown",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-positive.md",
+        "--input",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-positive-input.json",
+        "--expected-cut-sha",
+        "8c5e5519d9a745e25de368c117799bb42d0d129d95e90bba26ab5b2969efdbe9",
+        "--expected-markdown-sha",
+        "613730f0b7727ed3e2a658a9dd1375d0ac3b30af7bd7641cbdedd5fa75e716ce"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-positive-validate.stdout.txt",
+      "stdout_sha256": "e33825cb926de7f30cfd9bd434e1d50be8f0201ae1b8f481b8bb4c136ee8164e",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-positive-validate.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "net-untracked-build",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+        "--mode",
+        "c3",
+        "--input",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-untracked-input.json",
+        "--json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-untracked-output.json",
+        "--markdown",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-untracked-output.md"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 1,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-untracked-build.stdout.txt",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-untracked-build.stderr.txt",
+      "stderr_sha256": "7c3ca9396a3ba5e689ad03b5c6f5292b780ece3155b800f38c6b300be471541f"
+    },
+    {
+      "label": "net-untracked-validate",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+        "--mode",
+        "c3",
+        "--cut",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-untracked-cut.json",
+        "--markdown",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-positive.md",
+        "--input",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-untracked-input.json",
+        "--expected-cut-sha",
+        "e415c4e2deac62e88488d32d91f0eec465d64c70d2c9b853fabd5d752dd471bf",
+        "--expected-markdown-sha",
+        "613730f0b7727ed3e2a658a9dd1375d0ac3b30af7bd7641cbdedd5fa75e716ce"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 1,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-untracked-validate.stdout.txt",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-untracked-validate.stderr.txt",
+      "stderr_sha256": "b202c42c1067fc5848e48a5d57368dd35fc01c947a9d3a15d21093d8d4d344a7"
+    },
+    {
+      "label": "net-wrong-size-build",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+        "--mode",
+        "c3",
+        "--input",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-wrong-size-input.json",
+        "--json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-wrong-size-output.json",
+        "--markdown",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-wrong-size-output.md"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 1,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-wrong-size-build.stdout.txt",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-wrong-size-build.stderr.txt",
+      "stderr_sha256": "522ac9ed8cc6a3fa8e67e8ff0061592045fa5217d27185a31231c05c5b4d9c53"
+    },
+    {
+      "label": "net-wrong-size-validate",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+        "--mode",
+        "c3",
+        "--cut",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-wrong-size-cut.json",
+        "--markdown",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-positive.md",
+        "--input",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-wrong-size-input.json",
+        "--expected-cut-sha",
+        "d8c6627405ae72467568bb7dce157224ea7f4516b7ad6b871549fc6826ed3178",
+        "--expected-markdown-sha",
+        "613730f0b7727ed3e2a658a9dd1375d0ac3b30af7bd7641cbdedd5fa75e716ce"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 1,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-wrong-size-validate.stdout.txt",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-wrong-size-validate.stderr.txt",
+      "stderr_sha256": "6040f1a358d7a559ddd5fa5b2fc834bd5877552b5eb5c26d6f20c74c0a0c80c6"
+    }
+  ],
+  "positive_supplemental_counts": {
+    "supplemental_source_handoff_count": 1,
+    "supplemental_candidate_binding_count": 2,
+    "supplemental_selected_file_reference_occurrences": 32
+  },
+  "positive_refs_by_finding": {
+    "B81": [
+      "NET-ING-current-frontier"
+    ],
+    "B82": [
+      "NET-ING-current-frontier"
+    ],
+    "B84": [
+      "NET-ING-current-frontier"
+    ],
+    "B85": [
+      "NET-ING-current-frontier"
+    ]
+  }
+}

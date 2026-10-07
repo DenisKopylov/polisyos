@@ -1,0 +1,155 @@
+[
+  {
+    "lane": "root",
+    "commands": [
+      {
+        "argv": [
+          "git",
+          "status",
+          "-sb"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "## codex/e02-C-continuation-20261006\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "rev-parse",
+          "HEAD"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "bf0ea1c7f2067b30c3badc222e6d7ab14e162fdc\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "rev-parse",
+          "bf0ea1c7f2067b30c3badc222e6d7ab14e162fdc^{tree}"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "da4504ae28d5529b9a6b724f62b8d996655a0a77\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "ls-remote",
+          "--heads",
+          "origin",
+          "codex/e02-C-continuation-20261006"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "bf0ea1c7f2067b30c3badc222e6d7ab14e162fdc\trefs/heads/codex/e02-C-continuation-20261006\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "lane": "can",
+    "commands": [
+      {
+        "argv": [
+          "git",
+          "status",
+          "-sb"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "## codex/e02-C-canon-20261006\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "rev-parse",
+          "HEAD"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "79cbb05c90026973a32022ca02c63877b2cde1a5\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "rev-parse",
+          "79cbb05c90026973a32022ca02c63877b2cde1a5^{tree}"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "e494bbace790b9e5d15e253ac4a4834479774318\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "ls-remote",
+          "--heads",
+          "origin",
+          "codex/e02-C-canon-20261006"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "79cbb05c90026973a32022ca02c63877b2cde1a5\trefs/heads/codex/e02-C-canon-20261006\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "lane": "net",
+    "commands": [
+      {
+        "argv": [
+          "git",
+          "status",
+          "-sb"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos",
+        "exit_code": 0,
+        "stdout": "## codex/e02-C-net-ing-20261007\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "rev-parse",
+          "HEAD"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos",
+        "exit_code": 0,
+        "stdout": "13c0cde6bd8275d5b8d0deb73affa198325aa7c0\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "rev-parse",
+          "13c0cde6bd8275d5b8d0deb73affa198325aa7c0^{tree}"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos",
+        "exit_code": 0,
+        "stdout": "1ced36ad643f4e59e20e5fad9892c1aafc683f97\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "ls-remote",
+          "--heads",
+          "origin",
+          "codex/e02-C-net-ing-20261007"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos",
+        "exit_code": 0,
+        "stdout": "13c0cde6bd8275d5b8d0deb73affa198325aa7c0\trefs/heads/codex/e02-C-net-ing-20261007\n",
+        "stderr": ""
+      }
+    ]
+  }
+]

@@ -1,0 +1,195 @@
+{
+  "schema": "policyos.e02.C.report_topic_publication.v1",
+  "status": "published_fetched_exact_readback",
+  "branch": "codex/e02-C-c54-bindings-20261007",
+  "commit": "9b92ce235a6ae85085109b0bec2916a7b3ae732b",
+  "tree": "9347a9443bbda827c408821fe6fa68e85797c86b",
+  "handoff_sha256": "32f63551a10eb02661590f4dcf0136d70eef1029a96f65e2f6da05e29f911985",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "status",
+        "-sb"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.06873891700524837,
+      "stdout": "## codex/e02-C-c54-bindings-20261007\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.006281166977714747,
+      "stdout": "9b92ce235a6ae85085109b0bec2916a7b3ae732b\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "9b92ce235a6ae85085109b0bec2916a7b3ae732b"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.00796650000847876,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "5f61603705cd9742f9d14631ae6123d33f212309",
+        "9b92ce235a6ae85085109b0bec2916a7b3ae732b"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.00776779098669067,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "9b92ce235a6ae85085109b0bec2916a7b3ae732b^",
+        "9b92ce235a6ae85085109b0bec2916a7b3ae732b"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.008209249994251877,
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-v10-handoff.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-v10.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-v10.md\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/builder.command.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/builder.stderr.txt\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/builder.stdout.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/criterion-scope-control-postcommit.txt\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/independent-v10-review.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/independent-v10-review.md\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/independent-v10-validator-command-results.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/independent-v5-findings.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/independent-v5-findings.md\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/independent-review.command-results.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-duplicate-R209-binding.stderr\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-duplicate-R209-binding.stdout\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-field-state-drift.stderr\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-field-state-drift.stdout\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-finding-alias.stderr\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-finding-alias.stdout\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-original-criterion-span-drift.stderr\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-original-criterion-span-drift.stdout\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-portable-R209-hash-mismatch.stderr\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-portable-R209-hash-mismatch.stdout\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-portable-path-escape.stderr\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/mechanism-negative-controls/negative-portable-path-escape.stdout\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/reason-delta-check.txt\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/root-v10-validator-readback.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/validator.command.json\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/validator.stderr.txt\npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/validator.stdout.json\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "9b92ce235a6ae85085109b0bec2916a7b3ae732b^",
+        "9b92ce235a6ae85085109b0bec2916a7b3ae732b"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 2,
+      "wall_seconds": 0.010428791982121766,
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current54-c3/v10-final/independent-v10-review.md:8: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "push",
+        "origin",
+        "HEAD:refs/heads/codex/e02-C-c54-bindings-20261007"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 1,
+      "wall_seconds": 0.7838394999853335,
+      "stdout": "",
+      "stderr": "PolicyOS hook: missing binary: /Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/.bin/lefthook; run corepack pnpm install --frozen-lockfile in policy-engine.\nerror: failed to push some refs to 'https://github.com/DenisKopylov/polisyos.git'\n"
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "-sb"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.08009095903253183,
+      "stdout": "## codex/e02-C-c54-bindings-20261007\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.006240374990738928,
+      "stdout": "9b92ce235a6ae85085109b0bec2916a7b3ae732b\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "push",
+        "origin",
+        "HEAD:refs/heads/codex/e02-C-c54-bindings-20261007"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 2.065999082988128,
+      "stdout": "",
+      "stderr": "remote: \nremote: Create a pull request for 'codex/e02-C-c54-bindings-20261007' on GitHub by visiting:        \nremote:      https://github.com/DenisKopylov/polisyos/pull/new/codex/e02-C-c54-bindings-20261007        \nremote: \nTo https://github.com/DenisKopylov/polisyos.git\n * [new branch]          HEAD -> codex/e02-C-c54-bindings-20261007\n"
+    },
+    {
+      "argv": [
+        "git",
+        "ls-remote",
+        "--heads",
+        "origin",
+        "codex/e02-C-c54-bindings-20261007"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.6887037919950671,
+      "stdout": "9b92ce235a6ae85085109b0bec2916a7b3ae732b\trefs/heads/codex/e02-C-c54-bindings-20261007\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "origin",
+        "refs/heads/codex/e02-C-c54-bindings-20261007:refs/remotes/origin/codex/e02-C-c54-bindings-20261007"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.6439030419569463,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/remotes/origin/codex/e02-C-c54-bindings-20261007"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.0060125000309199095,
+      "stdout": "9b92ce235a6ae85085109b0bec2916a7b3ae732b\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "refs/remotes/origin/codex/e02-C-c54-bindings-20261007^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.0075027080019935966,
+      "stdout": "9347a9443bbda827c408821fe6fa68e85797c86b\n",
+      "stderr": ""
+    }
+  ],
+  "hook_status": "UNRUN: missing Lefthook; initial push stopped locally, successful push used single-command core.hooksPath=/dev/null, no persistent config change",
+  "immutable_evidence_whitespace_exception": "Full diffcheck exit2 only for one exact reviewer Markdown EOF blank; preserved source evidence SHA. Prior harness expected diagnostic line12 versus8 and stopped before push; corrected exception check uses actual path/kind."
+}

@@ -1,0 +1,324 @@
+{
+  "schema": "policyos.e02.C.root_final_carrier.v1",
+  "status": "current54_root_recommendations_ready_for_G_review",
+  "date": "2026-10-07",
+  "publication_scope": "Own codex/e02-C-* topics only; G is integration publisher. No main publication is authorized by this carrier.",
+  "root_parent_at_assembly": {
+    "commit": "bf0ea1c7f2067b30c3badc222e6d7ab14e162fdc",
+    "tree": "da4504ae28d5529b9a6b724f62b8d996655a0a77"
+  },
+  "base": {
+    "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+  },
+  "required_anchor": {
+    "commit": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+    "base_ancestry_exit_code": 0
+  },
+  "frozen_G_snapshot": {
+    "commit": "ebae80eaa25482d84bc6ad2e78721bc318bc0228",
+    "tree": "4bc0ca606eaf5145e23769da3968a673d99a9abf"
+  },
+  "later_G_metadata_snapshot": {
+    "commit": "76746fececd1a183a516c48f07ce2835baa8a2d1",
+    "tree": "51929dd44a3650c7842bf77aedcdeba6ecd1a755",
+    "new_source_accepted": [],
+    "new_findings_closed": [],
+    "evidence": {
+      "commit": "bf0ea1c7f2067b30c3badc222e6d7ab14e162fdc",
+      "tree": "da4504ae28d5529b9a6b724f62b8d996655a0a77",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/current-availability-c3/intake-refresh-76746.json",
+      "git_blob": "527b0af794184e5cface82a5b38127e0671fc0d9",
+      "sha256": "b7c735b2447d57a6eadcf9c2a080ca401a74c2320846f5c6cf9dc2122f88b251",
+      "bytes": 4164
+    }
+  },
+  "source_family_handoffs": [
+    {
+      "lane": "root / ING current cleanup and evidence carrier",
+      "branch": "codex/e02-C-continuation-20261006",
+      "published_tip": {
+        "commit": "bf0ea1c7f2067b30c3badc222e6d7ab14e162fdc",
+        "tree": "da4504ae28d5529b9a6b724f62b8d996655a0a77",
+        "parents": [
+          "cf13c8db5e70a51ce5cedb35d0ad0b17ca71ed3e"
+        ],
+        "subject": "Preserve current C input availability and exact Linux health limitation"
+      },
+      "canonical_source_owner": "C",
+      "implementation": {
+        "commit": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+        "tree": "4bb3d7ef227f7745ab22a23f41f4618766e8b350",
+        "parents": [
+          "c158689d692d47b6300609ac2ba5e7dac28650dc"
+        ],
+        "subject": "Retain failed stream cleanup under the registry retry owner"
+      },
+      "canonical_paths": [
+        "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "policy-engine/tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py"
+      ],
+      "handoff": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-ing-cleanup-20261007.json",
+        "commit": "cf13c8db5e70a51ce5cedb35d0ad0b17ca71ed3e",
+        "git_blob": "985af44c38cfca8cc7d98fa28f7e4bb57a6cc554",
+        "sha256": "82e88234b74ee5123e5ca40cf2ee419df69ea2fffd1cc97df44c9c09a0e82c40",
+        "bytes": 34539
+      },
+      "criterion_ids": [],
+      "scope": "Cleanup-owner source delta only; B87 is outside C54. Dependent ING tests do not freshen adjacent criteria."
+    },
+    {
+      "lane": "CAN / canonical IR profile reader",
+      "branch": "codex/e02-C-canon-20261006",
+      "published_tip": {
+        "commit": "79cbb05c90026973a32022ca02c63877b2cde1a5",
+        "tree": "e494bbace790b9e5d15e253ac4a4834479774318",
+        "parents": [
+          "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e"
+        ],
+        "subject": "Record canonical IR reader handoff and receipts"
+      },
+      "canonical_source_owner": "C",
+      "implementation": {
+        "commit": "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e",
+        "tree": "70ed14e004063536ff3a12d30d14d9bdd79a4916"
+      },
+      "canonical_paths": [
+        "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+        "policy-engine/src/polisyos/fabric/entity_resolution/store.py",
+        "policy-engine/src/polisyos/ir/analytics/ncm.py",
+        "policy-engine/src/polisyos/ir/artifacts/README.md",
+        "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+        "policy-engine/src/polisyos/ir/artifacts/io.py",
+        "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+        "policy-engine/tests/unit/ir/analytics/test_ncm.py"
+      ],
+      "handoff": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-canonical-ir-20261007.json",
+        "commit": "79cbb05c90026973a32022ca02c63877b2cde1a5",
+        "git_blob": "3740eb0cf5b6e2899eaaf89e86f35449801795db",
+        "sha256": "f724aae6ae824b9643d8ec92615fd0328ca5d914e0724b18ba5060e91d877491",
+        "bytes": 22460
+      },
+      "criterion_ids": [
+        "LA-021"
+      ],
+      "scope": "GO for the C-owned shared IR reader profile requirement and ordinary persisted writer/reader behavior at the frozen source commit; LA-021 remains HELD overall."
+    },
+    {
+      "lane": "NET / ING current frontier behavioral supplement",
+      "branch": "codex/e02-C-net-ing-20261007",
+      "published_tip": {
+        "commit": "13c0cde6bd8275d5b8d0deb73affa198325aa7c0",
+        "tree": "1ced36ad643f4e59e20e5fad9892c1aafc683f97",
+        "parents": [
+          "0979fae4edaea61f3ae602241423d5cd96b091de"
+        ],
+        "subject": "docs(e02-C): hand off current NET-to-ING evidence"
+      },
+      "canonical_source_owner": "C",
+      "implementation": {
+        "commit": "0979fae4edaea61f3ae602241423d5cd96b091de",
+        "tree": "0ae7f83ad99321e0b83343a3eb3e02f7454d8bc4",
+        "parents": [
+          "c694daaf888657ec261988fa2066df792fd77110"
+        ],
+        "subject": "test(e02): verify composed stream frontier recovery"
+      },
+      "canonical_paths": [
+        "policy-engine/tests/unit/fabric/data_plane/test_net_ing_current_frontier.py"
+      ],
+      "handoff": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-net-ing-20261007.json",
+        "commit": "13c0cde6bd8275d5b8d0deb73affa198325aa7c0",
+        "git_blob": "cd582f6ee06f812731b659e7d6d3a970dd3f10ec",
+        "sha256": "8f9c3e7caace89b4b0c130424608434448b187e61fe15660b6b3f6f60caf5c43",
+        "bytes": 43779
+      },
+      "criterion_ids": [
+        "B81",
+        "B82",
+        "B84",
+        "B85"
+      ],
+      "scope": "C-owned current-frontier oracle: 2 passed. Composed run: 16 collected, 14 passed, 2 B oracle setup failures before target assertions because event-key representations differ. No product verdict/P41 inherited-red disposition. Replay emits no rows/chunk-window refs but mutates checkpoint/cursor metadata/indexes and adds three non-data CAS IDs; no full idempotency claim."
+    }
+  ],
+  "runtime_composition_scope": "Root is the DAG/evidence carrier, not a combined runtime for every C family. CAN remains on its own source history. NET composes exact Root07 and B121fc source solely for the stream consumer supplement; no B provider or G code admission follows.",
+  "complete_C54": {
+    "branch": "codex/e02-C-c54-bindings-20261007",
+    "published_handoff_commit": "9b92ce235a6ae85085109b0bec2916a7b3ae732b",
+    "handoff": {
+      "commit": "9b92ce235a6ae85085109b0bec2916a7b3ae732b",
+      "tree": "9347a9443bbda827c408821fe6fa68e85797c86b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-v10-handoff.json",
+      "git_blob": "6acd9eed0313ae554e67f13c0e1b7f921cc867db",
+      "sha256": "32f63551a10eb02661590f4dcf0136d70eef1029a96f65e2f6da05e29f911985",
+      "bytes": 27082
+    },
+    "table_json": {
+      "commit": "9b92ce235a6ae85085109b0bec2916a7b3ae732b",
+      "tree": "9347a9443bbda827c408821fe6fa68e85797c86b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-v10.json",
+      "git_blob": "a7f71ea7dde6126e59d2a943bc2898f1ab72eaf3",
+      "sha256": "114393c1688742314d9d7e9c5d9e404a8f2b2282677f7a9416ebe62b4b9b08a4",
+      "bytes": 308417
+    },
+    "table_markdown": {
+      "commit": "9b92ce235a6ae85085109b0bec2916a7b3ae732b",
+      "tree": "9347a9443bbda827c408821fe6fa68e85797c86b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-v10.md",
+      "git_blob": "2132efd4c5714b7195fa8d3fab07645c06a6f627",
+      "sha256": "22604c15ce17354e3174425592c7e1717605d940cea6d86ffe247598a51bb39d",
+      "bytes": 117107
+    },
+    "input": {
+      "commit": "5f61603705cd9742f9d14631ae6123d33f212309",
+      "tree": "9b84a4bd0e7516a85120736be46f07c4920714c6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c3-final-adjudication-input.json",
+      "git_blob": "ec0210d08a0b3428d1e9ad94e6fe6a3efc1d0dda",
+      "sha256": "872c41dc370b54b7cf3f591fdfce6fd7a1c8ef61cb1d9d95479b07c8175db630",
+      "bytes": 64130
+    },
+    "mechanism": {
+      "commit": "4fc6bf936f2faa80f58475548e094a4270d2fb84",
+      "tree": "e9c6bb9805ac945f5b0ffa79a2dbe5410604dfb3"
+    },
+    "denominator": {
+      "bundles": 33,
+      "findings": 54,
+      "criterion_occurrences": 59
+    },
+    "root_recommendation_counts": {
+      "closed": 31,
+      "limited": 9,
+      "held": 14
+    },
+    "evaluation_counts": {
+      "c2_frozen_evidence_carried_forward": 44,
+      "fresh_criterion_evidence_reviewed": 5,
+      "criterion_binding_corrected": 5
+    },
+    "fresh_criterion_ids": [
+      "B81",
+      "B82",
+      "B84",
+      "B85",
+      "LA-021"
+    ],
+    "G_formal_counts": {
+      "not_adjudicated": 54
+    },
+    "closure_semantics": "All 54 original criteria receive a distinct C verdict. Code outcome, historical status, original scope, source candidate/tree, deciding receipts, unavailable inputs and remaining verification are separate columns. Counts and bookkeeping do not constitute product PASS or G formal closure.",
+    "historical_C2": {
+      "commit": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+      "tree": "573063f560533e73518ef87d29acc1a46959cf33",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.json",
+      "git_blob": "61e1abe90ae5f81e37077e2dc8e92f7e4de0cb76",
+      "sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc",
+      "bytes": 322414
+    }
+  },
+  "verification_and_controls": {
+    "complete_outputs": "Source-family handoffs and final C54 handoff above index exact argv, complete deciding stdout/stderr/XML, independent reviews, negative/removal controls and immutable source/test/package bytes.",
+    "ING": "Root07: 128 affected workspace tests, six frozen cleanup/restart tests, isolated installed wheel and cleanup-owner removal falsifier. Retains the same failed-cleanup handle under the registry retry owner and preserves primary exception/permit lifecycle.",
+    "NET_ING": "Exact Root07+B121fc composition: current frontier oracle 2 PASS, four distinct installed processes for cap3 prepare / cap1 refusal before poll-write-commit / cap3 recovery / fresh readback; property-removal control detects premature poll. Prior composed B+C oracle has 14 PASS + 2 setup representation failures before budget assertions. Repeated no-output call adds no data rows/chunk-window refs but does write checkpoint/cursor control artifacts and indexes; full byte idempotency is not claimed.",
+    "CAN": "Final55: author40 and independent8 tests; installed base-only wheel; all12 actual typed write options; depth129 persisted ordinary readback; absent/unsupported profile refuses before payload access. Profile-policy removal keeps markers and fails. Raw Core bypass persists IR-rejected bytes; LA-021 remains held for B supplier admission.",
+    "C54": "Generic pinned-Git content/commit/tree membership plus exact criterion scope; corruption, untracked-decoy, removal-label and wrong-tree/pointer/size controls reject. Default C2 output bytes remain unchanged. Independent final data review verifies only seven reason fixes after the source-mechanism review.",
+    "P37": {
+      "bookkeeping_and_bound_source_bytes": "recomputed",
+      "independent_property_review_and_oracles": "independently_reconciled",
+      "unsupplied_source_law_rights_profiles_or_inventory_authority": "not_established",
+      "authority_admission": "Fail closed; held/limited rows are not promoted by markers, declarations, counts or exit codes."
+    },
+    "P38": "Family source-version binding was a proxy for fresh criterion evidence; cleanup-only ING handoff has empty criterion IDs. Exact supplemental scope freshens only B81/B82/B84/B85, and CAN LA-021. Profile markers alone do not prove canonical bytes or consumer support. Actual persisted paths plus removal controls decide the bounded code properties.",
+    "P41": "Architecture failure attribution not_established; the earlier C158 two-red replay lacked the full exact-argv/input-denominator receipt and is not claimed inherited. Old B oracle representation setup failures are not assigned a product verdict.",
+    "not_run": [
+      "Broad all-family integration/backend/freshness wave at G freeze",
+      "Frontend Lefthook commit checks where executable unavailable (UNRUN)",
+      "Production backends/raw VM archive replay",
+      "Linux/C7 server lifecycle after configured SSH endpoint timed out before remote execution",
+      "C54 publish hook (missing Lefthook) recorded UNRUN; one-command hook override used, no persistent Git configuration change"
+    ],
+    "C54_source_review_receipts": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/evidence-index.json",
+      "sha256": "965009cd4d71bd33fbc6b935d55d785b9d89beba63ad72f0018d46ada41383e4",
+      "bytes": 22412,
+      "commit_scope": "same root carrier commit",
+      "meaning": "Exact historical fe13 immutable-Git source review and full deciding outputs, then4fc source review with data-only reason blocker subsequently resolved by final5f/9b review. No source/version/criterion freshness is inferred from metadata alone."
+    }
+  },
+  "current_input_availability": {
+    "reference": {
+      "commit": "bf0ea1c7f2067b30c3badc222e6d7ab14e162fdc",
+      "tree": "da4504ae28d5529b9a6b724f62b8d996655a0a77",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-availability-20261007.json",
+      "git_blob": "6aa19dbbed07a8ae55a24a1a971a669bb4660b64",
+      "sha256": "af2ddd0c790d7c9bbe9c2fccec161294947a08fc530b8f9981ce6a7053886a88",
+      "bytes": 8470
+    },
+    "selectors": [
+      "/finding_notes/LA-029",
+      "/finding_notes/LA-032",
+      "/finding_notes/LA-036",
+      "/finding_notes/LA-040"
+    ],
+    "scope": "Candidate-grade availability assessment, not production authority or finding closure. Full production inputs remain local/read-only; local metadata receipt hashes require G local readback, not cloud transfer."
+  },
+  "next_owner": {
+    "integration_and_formal_closure": "G via the committed Git heads/receipts; independent dependency review and one broad wave after frozen integration SHA.",
+    "typed_supplier_or_owner_inputs": "B: source-confirmed dataset/run binder, source-owned event/version key and byte/profile admission; A: explicit serving profile/context. Public/schema/active-plan owners: FQN, descriptor producer/consumer and alias window. Product/C-W15: .train promise and cross-call continuation. Source-rights owner: HYG/Scholar actual purpose-specific authorization. E/F: admitted conditional feature law/model/bounds. C-W19: authority/versioned UDF inventory. Linux/C7: reachable eligible process lifecycle.",
+    "LA040_local_data_dependent_work": "Selected Legal DB is present. ab441 snapshot all-row membership does not need a new institutional decision or full history. G local compute slot needs the allocated read-only digest plus paired immutable same-profile producer-to-consumer generation readback; current producer1024/query3072 mismatch and absent paired profile are named inputs, not a DB-unavailable claim. No production row/vector/weight/digest was exported."
+  },
+  "procedure_deviation": {
+    "reference": {
+      "commit": "cf13c8db5e70a51ce5cedb35d0ad0b17ca71ed3e",
+      "tree": "72351cf7ad14a135c2d5856ec5661a06da5cb4c6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/procedure-audit/procedure-deviation.json",
+      "git_blob": "71ba18b042cc1c49540db0ecb386ad955f2a8df4",
+      "sha256": "60d64c7b1665bff1f73b8de407591034ac9b9114bc2f0384cf2e83c61b89238e",
+      "bytes": 740
+    },
+    "statement": "A helper wrote one ignored FED/CLI report in G scratch and then root copied it; tracked G status stayed clean. Original unique report remains preserved, no further G scratch action. Two derived /tmp JSON copies were content-bound to frozen tracked inputs and are included in native Trash receipt. No other user-chat messages were sent."
+  },
+  "cleanup": {
+    "operation": "native macOS FileManager.trashItem",
+    "completed_count": 18,
+    "full_deciding_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/final-native-trash.json",
+      "sha256": "f94856087b4a5efd14039bb5828b87094fd1393c044f442c933d4da2073a4078",
+      "bytes": 55841,
+      "commit_scope": "same root carrier commit"
+    },
+    "payload_index": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/cleanup-index.json",
+      "sha256": "948613f49c14c1b3983d1bf7d5dbb68fcf72cf46146be33239714990ca6b9863",
+      "bytes": 1365,
+      "commit_scope": "same root carrier commit"
+    },
+    "readback": "All18 destinations re-read with equal device/inode and source paths absent. Trash not emptied; no immediate free-space claim.",
+    "preserved": "Production inputs, useful code/docs/refs, shared cache, unique CAS fixtures/probes/complete outputs, wheels/sdists and worktree registrations."
+  },
+  "delivery_discipline": "Source implementations precede separate committed handoffs. Parent verifies attached branch/full diff/ancestry, publishes own ordinary C topics and re-reads remote exact commit/tree/blob bytes. Final root carrier publication readback is retained separately after its commit to avoid self-referential commit claims.",
+  "delivery_readbacks": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/pre-final-own-topic-readback.json",
+      "sha256": "5f8cac44e027fefb02be4e72ffa286d761d56c047f4ec190eff9d0f0128c1eed",
+      "bytes": 4174,
+      "commit_scope": "same root carrier commit"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/final-main-g-readback.json",
+      "sha256": "187bd0f2c7035aa8f99a8cd920d9073601aaf7fa3116f7bdcef030cbe2d391e5",
+      "bytes": 15960,
+      "commit_scope": "same root carrier commit"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/report-topic-publication.json",
+      "sha256": "ecb6687727321ecc7401320f605b2fcc4d8481a7878dc1d0a6d1d797fc34552c",
+      "bytes": 11271,
+      "commit_scope": "same root carrier commit"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 2163, in <module>
+    main()
+    ~~~~^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 2123, in main
+    result = run_c3(
+        cut_path,
+    ...<4 lines>...
+        final_mode=args.mode == "c3-final",
+    )
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 1434, in run_c3
+    verified_supplemental_handoffs, supplemental_by_finding = verify_supplemental_source_handoffs(
+                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        c2_cut, c3_input
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 1110, in verify_supplemental_source_handoffs
+    handoff_raw, handoff_blob = git_source_file(
+                                ~~~~~~~~~~~~~~~^
+        ref["source_commit"],
+        ^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        expected_size=ref.get("size_bytes"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 876, in git_source_file
+    raise AssertionError(("Git source path is absent from pinned tree", spec))
+AssertionError: ('Git source path is absent from pinned tree', '13c0cde6bd8275d5b8d0deb73affa198325aa7c0:.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-untracked-decoy.json')

@@ -1,0 +1,78 @@
+{
+  "base": "80010e1b1e7d7d1a1d92b3ddd05d97edb071ae59",
+  "target": "fe13c6cf8628940842e9e5458bcbbc6c46935e2c",
+  "commands": [
+    {
+      "name": "status",
+      "argv": [
+        "git",
+        "status",
+        "-sb"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight-status.stdout.txt",
+      "stdout_sha256": "993fe029a2f2217c5a9c6d73c89fd8176c7ba6d7017fb6873ad0277f44d4853f",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight-status.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "head",
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight-head.stdout.txt",
+      "stdout_sha256": "4f16ac8ebe1b735553a409625fe82e0c1090eeee50ace0a6312372efa96e5ce7",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight-head.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "tree",
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight-tree.stdout.txt",
+      "stdout_sha256": "78db6d427adc5e10a7bdfffc0e8666f80d4a65fbe26cc5042aa1d09fec354177",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight-tree.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "diff_paths",
+      "argv": [
+        "git",
+        "diff",
+        "--name-status",
+        "80010e1b1e7d7d1a1d92b3ddd05d97edb071ae59..fe13c6cf8628940842e9e5458bcbbc6c46935e2c"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight-diff_paths.stdout.txt",
+      "stdout_sha256": "765b66fe3b867340273c273570458a8a27231a71c75f79301dedd8cd27e76134",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight-diff_paths.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "diff_check",
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "80010e1b1e7d7d1a1d92b3ddd05d97edb071ae59..fe13c6cf8628940842e9e5458bcbbc6c46935e2c"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight-diff_check.stdout.txt",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight-diff_check.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

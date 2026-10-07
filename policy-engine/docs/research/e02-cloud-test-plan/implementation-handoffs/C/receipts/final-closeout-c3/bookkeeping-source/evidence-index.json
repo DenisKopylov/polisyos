@@ -1,0 +1,274 @@
+{
+  "schema": "policyos.e02.C.bookkeeping_source_review_index.v1",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/review.md",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/review.md",
+      "sha256": "a1d613e2acb43f64f5f10638a0cef2b94aff1d9cd2695add75377baf86e47d22",
+      "bytes": 3733,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/review-summary.json",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/review-summary.json",
+      "sha256": "22ca8cc58c581391db06a5d84a02de11b585367dde078971f38d0ce2a2951514",
+      "bytes": 7921,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/preflight.command-results.json",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight.command-results.json",
+      "sha256": "4a6ea9a01d4188bf48f05934a1bfc124e6a3cee39e8f8907750f0483337df4e6",
+      "bytes": 4178,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/untracked-identical-control.command-results.json",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/untracked-identical-control.command-results.json",
+      "sha256": "0329d69d05171f13f90d7f40d1d4e1a7c048361411de136df938ee83ff927132",
+      "bytes": 4679,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/primary/primary-untracked-control.command-results.json",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/primary/primary-untracked-control.command-results.json",
+      "sha256": "8527b1c6a084f493dab2d8d0787d0e91dc50c1ae67d78db6e497c32a0f513b65",
+      "bytes": 4901,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/net-real/net-real.command-results.json",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-real.command-results.json",
+      "sha256": "b1fd4bf363097ad91e9d2c5f2dbcabdaecbcdff1a38228c99812619e91823f8a",
+      "bytes": 14313,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/finaldata/v9-review.json",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/.tmp/e02-C3/raw/independent-review-20261007-finaldata/v9-review.json",
+      "sha256": "ed29934f76ab3dca8558263f401535ba002ffeaadb667756b3c21f67e11ae5cb",
+      "bytes": 7493,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/finaldata/v9-validator.command-results.json",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/.tmp/e02-C3/raw/independent-review-20261007-finaldata/v9-validator.command-results.json",
+      "sha256": "3d69589573b797d939108745e592bd0882badce60fd011f175a441c84b8d8129",
+      "bytes": 3693,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/preflight-status.stdout.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight-status.stdout.txt",
+      "sha256": "993fe029a2f2217c5a9c6d73c89fd8176c7ba6d7017fb6873ad0277f44d4853f",
+      "bytes": 151,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/preflight-status.stderr.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight-status.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/preflight-head.stdout.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight-head.stdout.txt",
+      "sha256": "4f16ac8ebe1b735553a409625fe82e0c1090eeee50ace0a6312372efa96e5ce7",
+      "bytes": 41,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/preflight-head.stderr.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight-head.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/preflight-tree.stdout.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight-tree.stdout.txt",
+      "sha256": "78db6d427adc5e10a7bdfffc0e8666f80d4a65fbe26cc5042aa1d09fec354177",
+      "bytes": 41,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/preflight-tree.stderr.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight-tree.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/preflight-diff_paths.stdout.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight-diff_paths.stdout.txt",
+      "sha256": "765b66fe3b867340273c273570458a8a27231a71c75f79301dedd8cd27e76134",
+      "bytes": 330,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/preflight-diff_paths.stderr.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight-diff_paths.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/preflight-diff_check.stdout.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight-diff_check.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/preflight-diff_check.stderr.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/preflight-diff_check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/untracked-identical-builder.stdout.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/untracked-identical-builder.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/untracked-identical-builder.stderr.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/untracked-identical-builder.stderr.txt",
+      "sha256": "56299d7beaf8361bb32134387a65fc50552f792506c8b6b64e939e2f34057c17",
+      "bytes": 1818,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/untracked-identical-validator.stdout.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/untracked-identical-validator.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/untracked-identical-validator.stderr.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/untracked-identical-validator.stderr.txt",
+      "sha256": "d5fd703538108be29341fcd19cd04929c918fb9776132144f2a80d690dbf67f7",
+      "bytes": 1859,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/primary/builder.stdout.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/primary/builder.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/primary/builder.stderr.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/primary/builder.stderr.txt",
+      "sha256": "f1088bcb9f1f3c19609204641fd1113f52427f699a08c7ae1d83f13f45efabb9",
+      "bytes": 1897,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/primary/validator.stdout.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/primary/validator.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/primary/validator.stderr.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/primary/validator.stderr.txt",
+      "sha256": "886c02f8d6309530dfa0d0c934b1e3e8509e483ad230bcad4d672126e6eabf3c",
+      "bytes": 1898,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/net-real/net-positive-build.stdout.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-positive-build.stdout.txt",
+      "sha256": "2fae979b25b0dc63e3fe4b89c2bd18fc2e515e50a7a4f36e271b8858e610a02f",
+      "bytes": 824,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/net-real/net-positive-build.stderr.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-positive-build.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/net-real/net-positive-validate.stdout.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-positive-validate.stdout.txt",
+      "sha256": "e33825cb926de7f30cfd9bd434e1d50be8f0201ae1b8f481b8bb4c136ee8164e",
+      "bytes": 1624,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/net-real/net-positive-validate.stderr.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-positive-validate.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/net-real/net-untracked-build.stdout.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-untracked-build.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/net-real/net-untracked-build.stderr.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-untracked-build.stderr.txt",
+      "sha256": "7c3ca9396a3ba5e689ad03b5c6f5292b780ece3155b800f38c6b300be471541f",
+      "bytes": 2058,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/net-real/net-untracked-validate.stdout.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-untracked-validate.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/net-real/net-untracked-validate.stderr.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-untracked-validate.stderr.txt",
+      "sha256": "b202c42c1067fc5848e48a5d57368dd35fc01c947a9d3a15d21093d8d4d344a7",
+      "bytes": 2083,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/net-real/net-wrong-size-build.stdout.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-wrong-size-build.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/net-real/net-wrong-size-build.stderr.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-wrong-size-build.stderr.txt",
+      "sha256": "522ac9ed8cc6a3fa8e67e8ff0061592045fa5217d27185a31231c05c5b4d9c53",
+      "bytes": 2043,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/net-real/net-wrong-size-validate.stdout.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-wrong-size-validate.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final-closeout-c3/bookkeeping-source/net-real/net-wrong-size-validate.stderr.txt",
+      "source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-wrong-size-validate.stderr.txt",
+      "sha256": "6040f1a358d7a559ddd5fa5b2fc834bd5877552b5eb5c26d6f20c74c0a0c80c6",
+      "bytes": 2101,
+      "role": "exact independent source-review/deciding output; historical scope retained"
+    }
+  ],
+  "source_only_review": "fe13c6cf8628940842e9e5458bcbbc6c46935e2c / cc58bd3ae85fc7398e66a544c6b17d67241ec4f5; prior states in this review are historical, not final C54 verdicts",
+  "later_source_review": "4fc6bf936f2faa80f58475548e094a4270d2fb84 / e9c6bb9805ac945f5b0ffa79a2dbe5410604dfb3: v9 review found no source-mechanism blocker, only seven reason strings; final v10 data review resolves them in report9b92",
+  "scope": "Complete output files copied where original manifests reference paths. Raw manifests and independent review bytes preserved; source-identity fields are interpreted with the recorded review/preflight, not promoted by a declaration. Large derived cuts/fixture copies remain local and are referenced by their original hashes."
+}

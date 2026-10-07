@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py", line 2034, in <module>
+    main()
+    ~~~~^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py", line 2016, in main
+    build_c3(root, json_path, markdown_path, input_path), ensure_ascii=False, indent=2
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py", line 1416, in build_c3
+    verified_current_families = verify_current_source_family_refs(root, c2_cut, c3_input)
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py", line 1053, in verify_current_source_family_refs
+    handoff_raw, handoff_blob = git_source_file(
+                                ~~~~~~~~~~~~~~~^
+        root,
+        ^^^^^
+    ...<4 lines>...
+        expected_blob=ref["handoff_git_blob"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py", line 936, in git_source_file
+    raise RuntimeError(f"Git source path is absent from pinned tree: {spec}")
+RuntimeError: Git source path is absent from pinned tree: cf13c8db5e70a51ce5cedb35d0ad0b17ca71ed3e:.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/primary/untracked-primary-ING.json

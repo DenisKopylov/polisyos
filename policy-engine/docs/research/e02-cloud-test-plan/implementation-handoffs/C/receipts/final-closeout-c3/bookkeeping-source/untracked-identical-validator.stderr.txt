@@ -1,0 +1,25 @@
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 2163, in <module>
+    main()
+    ~~~~^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 2123, in main
+    result = run_c3(
+        cut_path,
+    ...<4 lines>...
+        final_mode=args.mode == "c3-final",
+    )
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 1445, in run_c3
+    portable_index = verify_portable_receipt_bindings(c2_cut, c2_source, c3_input)
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 1281, in verify_portable_receipt_bindings
+    raw, blob = git_source_file(
+                ~~~~~~~~~~~~~~~^
+        binding["source_commit"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        expected_size=binding["size_bytes"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 876, in git_source_file
+    raise AssertionError(("Git source path is absent from pinned tree", spec))
+AssertionError: ('Git source path is absent from pinned tree', '80010e1b1e7d7d1a1d92b3ddd05d97edb071ae59:.tmp/e02-C3/raw/independent-review-20261007-fe13-delta/decoy-R209.md')

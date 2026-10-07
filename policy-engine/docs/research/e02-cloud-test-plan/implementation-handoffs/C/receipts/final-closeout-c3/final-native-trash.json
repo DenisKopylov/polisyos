@@ -1,0 +1,1303 @@
+{
+  "schema": "policyos.e02.c3.native-trash.v1",
+  "action": "execute",
+  "captured_at_utc": "2026-10-07T11:12:39.495709+00:00",
+  "plan_refs": [
+    {
+      "path": ".tmp/e02-C3/raw/cleanup-plan/final-eligibility-v2.json",
+      "sha256": "7f08c09d01774c21f1890ec1f69d86c9939ef04f3b58e6355fbf5f06a4867a60"
+    },
+    {
+      "path": ".tmp/e02-C3/raw/cleanup-plan/final-env-node-modules-v3.json",
+      "sha256": "4c000a1b2b26916bcd94c38815aea8e5f20de723941bee3af834619576ec11c6"
+    }
+  ],
+  "source": {
+    "path": ".tmp/e02-C3/raw/cleanup/final_trash.py",
+    "sha256": "62efa906ba3503bd8a555af0ef3d4f24615058f311c5c58ceac24556f159f84a"
+  },
+  "native_source_sha256": "76941d1ff3d709b4840bde5629a8ab451620d173fdf30d7929ac5378898df6e5",
+  "native_binary_sha256": "6c630822e2cc54be1e1083827c1c685129829fd00b305158ab2ace9876dfee72",
+  "space_before": {
+    "argv": [
+      "/bin/df",
+      "-k",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "stdout": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239362496 181318340  24982696    88% 3474001 249826960    1%   /System/Volumes/Data\n",
+    "stderr": "",
+    "wall_seconds": 0.0035
+  },
+  "candidates": [
+    {
+      "kind": "archive",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source.tar",
+      "identity": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source.tar",
+        "exists": true,
+        "device": 16777231,
+        "inode": 173499077,
+        "type": "regular_file",
+        "mode": "0o644",
+        "entry_size_bytes": 462776320,
+        "mtime_ns": 1791361707809643821
+      },
+      "basis": ".tmp/e02-C3/raw/cleanup-plan/final-eligibility-v2.json",
+      "group": "root-07bbb61"
+    },
+    {
+      "kind": "source-extraction",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source",
+      "identity": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source",
+        "exists": true,
+        "device": 16777231,
+        "inode": 173499078,
+        "type": "directory",
+        "mode": "0o755",
+        "entry_size_bytes": 288,
+        "mtime_ns": 1791361709214911507
+      },
+      "basis": ".tmp/e02-C3/raw/cleanup-plan/final-eligibility-v2.json",
+      "group": "root-07bbb61"
+    },
+    {
+      "kind": "base-environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base",
+      "identity": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base",
+        "exists": true,
+        "device": 16777231,
+        "inode": 173542757,
+        "type": "directory",
+        "mode": "0o755",
+        "entry_size_bytes": 320,
+        "mtime_ns": 1791362113349616992
+      },
+      "basis": ".tmp/e02-C3/raw/cleanup-plan/final-eligibility-v2.json",
+      "group": "root-07bbb61"
+    },
+    {
+      "kind": "archive",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source.tar",
+      "identity": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source.tar",
+        "exists": true,
+        "device": 16777231,
+        "inode": 173583723,
+        "type": "regular_file",
+        "mode": "0o644",
+        "entry_size_bytes": 459991040,
+        "mtime_ns": 1791363932892288759
+      },
+      "basis": ".tmp/e02-C3/raw/cleanup-plan/final-eligibility-v2.json",
+      "group": "can-55b45d9a"
+    },
+    {
+      "kind": "source-extraction",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source",
+      "identity": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source",
+        "exists": true,
+        "device": 16777231,
+        "inode": 173583697,
+        "type": "directory",
+        "mode": "0o755",
+        "entry_size_bytes": 288,
+        "mtime_ns": 1791363941922238327
+      },
+      "basis": ".tmp/e02-C3/raw/cleanup-plan/final-eligibility-v2.json",
+      "group": "can-55b45d9a"
+    },
+    {
+      "kind": "base-environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base",
+      "identity": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base",
+        "exists": true,
+        "device": 16777231,
+        "inode": 173612285,
+        "type": "directory",
+        "mode": "0o755",
+        "entry_size_bytes": 320,
+        "mtime_ns": 1791364298209602070
+      },
+      "basis": ".tmp/e02-C3/raw/cleanup-plan/final-eligibility-v2.json",
+      "group": "can-55b45d9a"
+    },
+    {
+      "kind": "archive",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source.tar",
+      "identity": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source.tar",
+        "exists": true,
+        "device": 16777231,
+        "inode": 173684560,
+        "type": "regular_file",
+        "mode": "0o644",
+        "entry_size_bytes": 576071680,
+        "mtime_ns": 1791365134372431068
+      },
+      "basis": ".tmp/e02-C3/raw/cleanup-plan/final-eligibility-v2.json",
+      "group": "net-ing-c694daaf"
+    },
+    {
+      "kind": "source-extraction",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source",
+      "identity": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source",
+        "exists": true,
+        "device": 16777231,
+        "inode": 173684598,
+        "type": "directory",
+        "mode": "0o755",
+        "entry_size_bytes": 288,
+        "mtime_ns": 1791365147691397310
+      },
+      "basis": ".tmp/e02-C3/raw/cleanup-plan/final-eligibility-v2.json",
+      "group": "net-ing-c694daaf"
+    },
+    {
+      "kind": "base-environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base",
+      "identity": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base",
+        "exists": true,
+        "device": 16777231,
+        "inode": 173706466,
+        "type": "directory",
+        "mode": "0o755",
+        "entry_size_bytes": 320,
+        "mtime_ns": 1791365199926418499
+      },
+      "basis": ".tmp/e02-C3/raw/cleanup-plan/final-eligibility-v2.json",
+      "group": "net-ing-c694daaf"
+    },
+    {
+      "kind": "repeatable_node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/node_modules",
+      "identity": {
+        "device": 16777231,
+        "entry_bytes": 160,
+        "exists": true,
+        "inode": 173750208,
+        "mode": "0o755",
+        "mtime_ns": 1791366091035236351,
+        "mtime_utc": "2026-10-07T09:41:31.035236+00:00",
+        "nofollow_descendant_directories": 8777,
+        "nofollow_other_entries": 0,
+        "nofollow_regular_file_bytes": 595786567,
+        "nofollow_regular_files": 55248,
+        "nofollow_symlinks": 3714,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/node_modules",
+        "scoped_no_open_check": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "+D",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/node_modules"
+          ],
+          "exit_code": 1,
+          "field_count": 0,
+          "no_open_handles_observed": true,
+          "pid_command_fields": [],
+          "stderr": "",
+          "timed_out": false,
+          "wall_seconds": 1.1408
+        },
+        "type": "directory",
+        "walk_error_count": 0,
+        "walk_errors": []
+      },
+      "basis": ".tmp/e02-C3/raw/cleanup-plan/final-env-node-modules-v3.json"
+    },
+    {
+      "kind": "repeatable_node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules",
+      "identity": {
+        "device": 16777231,
+        "entry_bytes": 2464,
+        "exists": true,
+        "inode": 173867030,
+        "mode": "0o755",
+        "mtime_ns": 1791366090824225720,
+        "mtime_utc": "2026-10-07T09:41:30.824226+00:00",
+        "nofollow_descendant_directories": 19,
+        "nofollow_other_entries": 0,
+        "nofollow_regular_file_bytes": 28422,
+        "nofollow_regular_files": 20,
+        "nofollow_symlinks": 101,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules",
+        "scoped_no_open_check": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "+D",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules"
+          ],
+          "exit_code": 1,
+          "field_count": 0,
+          "no_open_handles_observed": true,
+          "pid_command_fields": [],
+          "stderr": "",
+          "timed_out": false,
+          "wall_seconds": 0.0886
+        },
+        "type": "directory",
+        "walk_error_count": 0,
+        "walk_errors": []
+      },
+      "basis": ".tmp/e02-C3/raw/cleanup-plan/final-env-node-modules-v3.json"
+    },
+    {
+      "kind": "repeatable_node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/apps/runtime-reference-shell/node_modules",
+      "identity": {
+        "device": 16777231,
+        "entry_bytes": 256,
+        "exists": true,
+        "inode": 173867041,
+        "mode": "0o755",
+        "mtime_ns": 1791366090824875222,
+        "mtime_utc": "2026-10-07T09:41:30.824875+00:00",
+        "nofollow_descendant_directories": 2,
+        "nofollow_other_entries": 0,
+        "nofollow_regular_file_bytes": 5280,
+        "nofollow_regular_files": 4,
+        "nofollow_symlinks": 5,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/apps/runtime-reference-shell/node_modules",
+        "scoped_no_open_check": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "+D",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/apps/runtime-reference-shell/node_modules"
+          ],
+          "exit_code": 1,
+          "field_count": 0,
+          "no_open_handles_observed": true,
+          "pid_command_fields": [],
+          "stderr": "",
+          "timed_out": false,
+          "wall_seconds": 0.0812
+        },
+        "type": "directory",
+        "walk_error_count": 0,
+        "walk_errors": []
+      },
+      "basis": ".tmp/e02-C3/raw/cleanup-plan/final-env-node-modules-v3.json"
+    },
+    {
+      "kind": "repeatable_node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules",
+      "identity": {
+        "device": 16777231,
+        "entry_bytes": 832,
+        "exists": true,
+        "inode": 173867037,
+        "mode": "0o755",
+        "mtime_ns": 1791366090825310556,
+        "mtime_utc": "2026-10-07T09:41:30.825310+00:00",
+        "nofollow_descendant_directories": 8,
+        "nofollow_other_entries": 0,
+        "nofollow_regular_file_bytes": 7214,
+        "nofollow_regular_files": 5,
+        "nofollow_symlinks": 32,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules",
+        "scoped_no_open_check": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "+D",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules"
+          ],
+          "exit_code": 1,
+          "field_count": 0,
+          "no_open_handles_observed": true,
+          "pid_command_fields": [],
+          "stderr": "",
+          "timed_out": false,
+          "wall_seconds": 0.0812
+        },
+        "type": "directory",
+        "walk_error_count": 0,
+        "walk_errors": []
+      },
+      "basis": ".tmp/e02-C3/raw/cleanup-plan/final-env-node-modules-v3.json"
+    },
+    {
+      "kind": "repeatable_node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/packages/cli/node_modules",
+      "identity": {
+        "device": 16777231,
+        "entry_bytes": 320,
+        "exists": true,
+        "inode": 173867040,
+        "mode": "0o755",
+        "mtime_ns": 1791366090824362846,
+        "mtime_utc": "2026-10-07T09:41:30.824363+00:00",
+        "nofollow_descendant_directories": 3,
+        "nofollow_other_entries": 0,
+        "nofollow_regular_file_bytes": 5684,
+        "nofollow_regular_files": 4,
+        "nofollow_symlinks": 7,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/packages/cli/node_modules",
+        "scoped_no_open_check": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "+D",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/packages/cli/node_modules"
+          ],
+          "exit_code": 1,
+          "field_count": 0,
+          "no_open_handles_observed": true,
+          "pid_command_fields": [],
+          "stderr": "",
+          "timed_out": false,
+          "wall_seconds": 0.0801
+        },
+        "type": "directory",
+        "walk_error_count": 0,
+        "walk_errors": []
+      },
+      "basis": ".tmp/e02-C3/raw/cleanup-plan/final-env-node-modules-v3.json"
+    },
+    {
+      "kind": "repeatable_node_modules",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/packages/runtime-api-client/node_modules",
+      "identity": {
+        "device": 16777231,
+        "entry_bytes": 320,
+        "exists": true,
+        "inode": 173867042,
+        "mode": "0o755",
+        "mtime_ns": 1791366090825211431,
+        "mtime_utc": "2026-10-07T09:41:30.825212+00:00",
+        "nofollow_descendant_directories": 2,
+        "nofollow_other_entries": 0,
+        "nofollow_regular_file_bytes": 6732,
+        "nofollow_regular_files": 5,
+        "nofollow_symlinks": 7,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/packages/runtime-api-client/node_modules",
+        "scoped_no_open_check": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "+D",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/packages/runtime-api-client/node_modules"
+          ],
+          "exit_code": 1,
+          "field_count": 0,
+          "no_open_handles_observed": true,
+          "pid_command_fields": [],
+          "stderr": "",
+          "timed_out": false,
+          "wall_seconds": 0.0805
+        },
+        "type": "directory",
+        "walk_error_count": 0,
+        "walk_errors": []
+      },
+      "basis": ".tmp/e02-C3/raw/cleanup-plan/final-env-node-modules-v3.json"
+    },
+    {
+      "kind": "fresh_root_test_environment",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv",
+      "identity": {
+        "device": 16777231,
+        "disposition": "HOLD until root final report/code checks complete, per parent. It is not used by package tests now, but retain until report gate closes.",
+        "entry_bytes": 320,
+        "exists": true,
+        "inode": 173253393,
+        "mode": "0o755",
+        "mtime_ns": 1791360138885809096,
+        "mtime_utc": "2026-10-07T08:02:18.885809+00:00",
+        "nofollow_descendant_directories": 1553,
+        "nofollow_other_entries": 0,
+        "nofollow_regular_file_bytes": 739922347,
+        "nofollow_regular_files": 14172,
+        "nofollow_symlinks": 3,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv",
+        "preserve_shared_cache": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/_cache/uv",
+        "scoped_no_open_check": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "+D",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv"
+          ],
+          "exit_code": 1,
+          "field_count": 0,
+          "no_open_handles_observed": true,
+          "pid_command_fields": [],
+          "stderr": "",
+          "timed_out": false,
+          "wall_seconds": 0.3253
+        },
+        "type": "directory",
+        "walk_error_count": 0,
+        "walk_errors": []
+      },
+      "basis": ".tmp/e02-C3/raw/cleanup-plan/final-env-node-modules-v3.json"
+    },
+    {
+      "kind": "derived_tracked_json_copy",
+      "path": "/tmp/e02c3-coverage.json",
+      "identity": {
+        "content_read_or_hashed_this_pass": false,
+        "device": 16777231,
+        "entry_bytes": 551054,
+        "exists": true,
+        "inode": 173411971,
+        "mode": "0o644",
+        "mtime_ns": 1791360870759175685,
+        "mtime_utc": "2026-10-07T08:14:30.759176+00:00",
+        "path": "/tmp/e02c3-coverage.json",
+        "same_device_inode_size_as_previous_receipt": false,
+        "type": "regular_file"
+      },
+      "expected_sha256": "03481f3fef76c5f6eab78a64febe95cb61d7c79555e18dcfc846c505c96d3bce",
+      "basis": ".tmp/e02-C3/raw/cleanup-plan/final-env-node-modules-v3.json"
+    },
+    {
+      "kind": "derived_tracked_json_copy",
+      "path": "/tmp/e02c3-allocation.json",
+      "identity": {
+        "content_read_or_hashed_this_pass": false,
+        "device": 16777231,
+        "entry_bytes": 6607,
+        "exists": true,
+        "inode": 173411972,
+        "mode": "0o644",
+        "mtime_ns": 1791360870767479774,
+        "mtime_utc": "2026-10-07T08:14:30.767480+00:00",
+        "path": "/tmp/e02c3-allocation.json",
+        "same_device_inode_size_as_previous_receipt": false,
+        "type": "regular_file"
+      },
+      "expected_sha256": "a1fe5cad509e32606df9710e5cbf942313a243341f58ccb0708692204d15c253",
+      "basis": ".tmp/e02-C3/raw/cleanup-plan/final-env-node-modules-v3.json"
+    }
+  ],
+  "records": [
+    {
+      "kind": "archive",
+      "preflight": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source.tar",
+        "device": 16777231,
+        "inode": 173499077,
+        "type": "regular_file",
+        "lsof": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "--",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source.tar"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.2355
+        },
+        "checked_at_utc": "2026-10-07T11:12:39.735752+00:00"
+      },
+      "native_command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/cleanup/trash-exact",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source.tar",
+          "16777231",
+          "173499077"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "{\"destination\":\"\\/Users\\/deniskopylov\\/.Trash\\/source.tar\",\"destination_identity_equal\":true,\"device\":\"16777231\",\"inode\":\"173499077\",\"operation\":\"FileManager.trashItem\",\"source\":\"\\/Users\\/deniskopylov\\/.codex\\/worktrees\\/e02-c-continuation-20261006\\/polisyos\\/.tmp\\/e02-C3\\/raw\\/installed-current\\/07bbb61\\/source.tar\",\"source_absent\":true}\n",
+        "stderr": "",
+        "wall_seconds": 0.4823
+      },
+      "readback": {
+        "destination": "/Users/deniskopylov/.Trash/source.tar",
+        "source_absent": true,
+        "same_device_inode": true,
+        "device": 16777231,
+        "inode": 173499077
+      }
+    },
+    {
+      "kind": "source-extraction",
+      "preflight": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source",
+        "device": 16777231,
+        "inode": 173499078,
+        "type": "directory",
+        "lsof": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "+D",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.6409
+        },
+        "checked_at_utc": "2026-10-07T11:12:40.859583+00:00"
+      },
+      "native_command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/cleanup/trash-exact",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source",
+          "16777231",
+          "173499078"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "{\"destination\":\"\\/Users\\/deniskopylov\\/.Trash\\/source\",\"destination_identity_equal\":true,\"device\":\"16777231\",\"inode\":\"173499078\",\"operation\":\"FileManager.trashItem\",\"source\":\"\\/Users\\/deniskopylov\\/.codex\\/worktrees\\/e02-c-continuation-20261006\\/polisyos\\/.tmp\\/e02-C3\\/raw\\/installed-current\\/07bbb61\\/source\",\"source_absent\":true}\n",
+        "stderr": "",
+        "wall_seconds": 0.0237
+      },
+      "readback": {
+        "destination": "/Users/deniskopylov/.Trash/source",
+        "source_absent": true,
+        "same_device_inode": true,
+        "device": 16777231,
+        "inode": 173499078
+      }
+    },
+    {
+      "kind": "base-environment",
+      "preflight": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base",
+        "device": 16777231,
+        "inode": 173542757,
+        "type": "directory",
+        "lsof": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "+D",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.6121
+        },
+        "checked_at_utc": "2026-10-07T11:12:41.495938+00:00"
+      },
+      "native_command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/cleanup/trash-exact",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base",
+          "16777231",
+          "173542757"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "{\"destination\":\"\\/Users\\/deniskopylov\\/.Trash\\/venv-base 14-12-41-514\",\"destination_identity_equal\":true,\"device\":\"16777231\",\"inode\":\"173542757\",\"operation\":\"FileManager.trashItem\",\"source\":\"\\/Users\\/deniskopylov\\/.codex\\/worktrees\\/e02-c-continuation-20261006\\/polisyos\\/.tmp\\/e02-C3\\/raw\\/installed-current\\/07bbb61\\/venv-base\",\"source_absent\":true}\n",
+        "stderr": "",
+        "wall_seconds": 0.0297
+      },
+      "readback": {
+        "destination": "/Users/deniskopylov/.Trash/venv-base 14-12-41-514",
+        "source_absent": true,
+        "same_device_inode": true,
+        "device": 16777231,
+        "inode": 173542757
+      }
+    },
+    {
+      "kind": "archive",
+      "preflight": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source.tar",
+        "device": 16777231,
+        "inode": 173583723,
+        "type": "regular_file",
+        "lsof": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "--",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source.tar"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.0925
+        },
+        "checked_at_utc": "2026-10-07T11:12:41.618735+00:00"
+      },
+      "native_command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/cleanup/trash-exact",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source.tar",
+          "16777231",
+          "173583723"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "{\"destination\":\"\\/Users\\/deniskopylov\\/.Trash\\/source.tar 14-12-41-633.tar\",\"destination_identity_equal\":true,\"device\":\"16777231\",\"inode\":\"173583723\",\"operation\":\"FileManager.trashItem\",\"source\":\"\\/Users\\/deniskopylov\\/.codex\\/worktrees\\/e02-c-continuation-20261006\\/polisyos\\/.tmp\\/e02-C3\\/raw\\/installed-can\\/55b45d9a\\/source.tar\",\"source_absent\":true}\n",
+        "stderr": "",
+        "wall_seconds": 0.0256
+      },
+      "readback": {
+        "destination": "/Users/deniskopylov/.Trash/source.tar 14-12-41-633.tar",
+        "source_absent": true,
+        "same_device_inode": true,
+        "device": 16777231,
+        "inode": 173583723
+      }
+    },
+    {
+      "kind": "source-extraction",
+      "preflight": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source",
+        "device": 16777231,
+        "inode": 173583697,
+        "type": "directory",
+        "lsof": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "+D",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.5737
+        },
+        "checked_at_utc": "2026-10-07T11:12:42.218693+00:00"
+      },
+      "native_command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/cleanup/trash-exact",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/source",
+          "16777231",
+          "173583697"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "{\"destination\":\"\\/Users\\/deniskopylov\\/.Trash\\/source 14-12-42-232\",\"destination_identity_equal\":true,\"device\":\"16777231\",\"inode\":\"173583697\",\"operation\":\"FileManager.trashItem\",\"source\":\"\\/Users\\/deniskopylov\\/.codex\\/worktrees\\/e02-c-continuation-20261006\\/polisyos\\/.tmp\\/e02-C3\\/raw\\/installed-can\\/55b45d9a\\/source\",\"source_absent\":true}\n",
+        "stderr": "",
+        "wall_seconds": 0.0239
+      },
+      "readback": {
+        "destination": "/Users/deniskopylov/.Trash/source 14-12-42-232",
+        "source_absent": true,
+        "same_device_inode": true,
+        "device": 16777231,
+        "inode": 173583697
+      }
+    },
+    {
+      "kind": "base-environment",
+      "preflight": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base",
+        "device": 16777231,
+        "inode": 173612285,
+        "type": "directory",
+        "lsof": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "+D",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.6498
+        },
+        "checked_at_utc": "2026-10-07T11:12:42.892967+00:00"
+      },
+      "native_command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/cleanup/trash-exact",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-can/55b45d9a/venv-base",
+          "16777231",
+          "173612285"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "{\"destination\":\"\\/Users\\/deniskopylov\\/.Trash\\/venv-base 14-12-42-909\",\"destination_identity_equal\":true,\"device\":\"16777231\",\"inode\":\"173612285\",\"operation\":\"FileManager.trashItem\",\"source\":\"\\/Users\\/deniskopylov\\/.codex\\/worktrees\\/e02-c-continuation-20261006\\/polisyos\\/.tmp\\/e02-C3\\/raw\\/installed-can\\/55b45d9a\\/venv-base\",\"source_absent\":true}\n",
+        "stderr": "",
+        "wall_seconds": 0.0271
+      },
+      "readback": {
+        "destination": "/Users/deniskopylov/.Trash/venv-base 14-12-42-909",
+        "source_absent": true,
+        "same_device_inode": true,
+        "device": 16777231,
+        "inode": 173612285
+      }
+    },
+    {
+      "kind": "archive",
+      "preflight": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source.tar",
+        "device": 16777231,
+        "inode": 173684560,
+        "type": "regular_file",
+        "lsof": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "--",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source.tar"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.0919
+        },
+        "checked_at_utc": "2026-10-07T11:12:43.012659+00:00"
+      },
+      "native_command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/cleanup/trash-exact",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source.tar",
+          "16777231",
+          "173684560"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "{\"destination\":\"\\/Users\\/deniskopylov\\/.Trash\\/source.tar 14-12-43-028.tar\",\"destination_identity_equal\":true,\"device\":\"16777231\",\"inode\":\"173684560\",\"operation\":\"FileManager.trashItem\",\"source\":\"\\/Users\\/deniskopylov\\/.codex\\/worktrees\\/e02-c-continuation-20261006\\/polisyos\\/.tmp\\/e02-C3\\/raw\\/installed-net-ing\\/c694daaf\\/source.tar\",\"source_absent\":true}\n",
+        "stderr": "",
+        "wall_seconds": 0.0256
+      },
+      "readback": {
+        "destination": "/Users/deniskopylov/.Trash/source.tar 14-12-43-028.tar",
+        "source_absent": true,
+        "same_device_inode": true,
+        "device": 16777231,
+        "inode": 173684560
+      }
+    },
+    {
+      "kind": "source-extraction",
+      "preflight": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source",
+        "device": 16777231,
+        "inode": 173684598,
+        "type": "directory",
+        "lsof": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "+D",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 1.1006
+        },
+        "checked_at_utc": "2026-10-07T11:12:44.139679+00:00"
+      },
+      "native_command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/cleanup/trash-exact",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source",
+          "16777231",
+          "173684598"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "{\"destination\":\"\\/Users\\/deniskopylov\\/.Trash\\/source 14-12-44-158\",\"destination_identity_equal\":true,\"device\":\"16777231\",\"inode\":\"173684598\",\"operation\":\"FileManager.trashItem\",\"source\":\"\\/Users\\/deniskopylov\\/.codex\\/worktrees\\/e02-c-continuation-20261006\\/polisyos\\/.tmp\\/e02-C3\\/raw\\/installed-net-ing\\/c694daaf\\/source\",\"source_absent\":true}\n",
+        "stderr": "",
+        "wall_seconds": 0.0683
+      },
+      "readback": {
+        "destination": "/Users/deniskopylov/.Trash/source 14-12-44-158",
+        "source_absent": true,
+        "same_device_inode": true,
+        "device": 16777231,
+        "inode": 173684598
+      }
+    },
+    {
+      "kind": "base-environment",
+      "preflight": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base",
+        "device": 16777231,
+        "inode": 173706466,
+        "type": "directory",
+        "lsof": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "+D",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.7351
+        },
+        "checked_at_utc": "2026-10-07T11:12:44.944399+00:00"
+      },
+      "native_command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/cleanup/trash-exact",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base",
+          "16777231",
+          "173706466"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "{\"destination\":\"\\/Users\\/deniskopylov\\/.Trash\\/venv-base 14-12-44-959\",\"destination_identity_equal\":true,\"device\":\"16777231\",\"inode\":\"173706466\",\"operation\":\"FileManager.trashItem\",\"source\":\"\\/Users\\/deniskopylov\\/.codex\\/worktrees\\/e02-c-continuation-20261006\\/polisyos\\/.tmp\\/e02-C3\\/raw\\/installed-net-ing\\/c694daaf\\/venv-base\",\"source_absent\":true}\n",
+        "stderr": "",
+        "wall_seconds": 0.0246
+      },
+      "readback": {
+        "destination": "/Users/deniskopylov/.Trash/venv-base 14-12-44-959",
+        "source_absent": true,
+        "same_device_inode": true,
+        "device": 16777231,
+        "inode": 173706466
+      }
+    },
+    {
+      "kind": "repeatable_node_modules",
+      "preflight": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/node_modules",
+        "device": 16777231,
+        "inode": 173750208,
+        "type": "directory",
+        "lsof": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "+D",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/node_modules"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 2.5439
+        },
+        "checked_at_utc": "2026-10-07T11:12:47.513461+00:00"
+      },
+      "native_command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/cleanup/trash-exact",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/node_modules",
+          "16777231",
+          "173750208"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "{\"destination\":\"\\/Users\\/deniskopylov\\/.Trash\\/node_modules\",\"destination_identity_equal\":true,\"device\":\"16777231\",\"inode\":\"173750208\",\"operation\":\"FileManager.trashItem\",\"source\":\"\\/Users\\/deniskopylov\\/.codex\\/worktrees\\/e02-c-c54-bindings-20261007\\/polisyos\\/policy-engine\\/node_modules\",\"source_absent\":true}\n",
+        "stderr": "",
+        "wall_seconds": 0.0248
+      },
+      "readback": {
+        "destination": "/Users/deniskopylov/.Trash/node_modules",
+        "source_absent": true,
+        "same_device_inode": true,
+        "device": 16777231,
+        "inode": 173750208
+      }
+    },
+    {
+      "kind": "repeatable_node_modules",
+      "preflight": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules",
+        "device": 16777231,
+        "inode": 173867030,
+        "type": "directory",
+        "lsof": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "+D",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.0906
+        },
+        "checked_at_utc": "2026-10-07T11:12:47.629712+00:00"
+      },
+      "native_command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/cleanup/trash-exact",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules",
+          "16777231",
+          "173867030"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "{\"destination\":\"\\/Users\\/deniskopylov\\/.Trash\\/node_modules 14-12-47-644\",\"destination_identity_equal\":true,\"device\":\"16777231\",\"inode\":\"173867030\",\"operation\":\"FileManager.trashItem\",\"source\":\"\\/Users\\/deniskopylov\\/.codex\\/worktrees\\/e02-c-c54-bindings-20261007\\/polisyos\\/policy-engine\\/apps\\/runtime-dashboard\\/node_modules\",\"source_absent\":true}\n",
+        "stderr": "",
+        "wall_seconds": 0.0244
+      },
+      "readback": {
+        "destination": "/Users/deniskopylov/.Trash/node_modules 14-12-47-644",
+        "source_absent": true,
+        "same_device_inode": true,
+        "device": 16777231,
+        "inode": 173867030
+      }
+    },
+    {
+      "kind": "repeatable_node_modules",
+      "preflight": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/apps/runtime-reference-shell/node_modules",
+        "device": 16777231,
+        "inode": 173867041,
+        "type": "directory",
+        "lsof": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "+D",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/apps/runtime-reference-shell/node_modules"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.0844
+        },
+        "checked_at_utc": "2026-10-07T11:12:47.739153+00:00"
+      },
+      "native_command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/cleanup/trash-exact",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/apps/runtime-reference-shell/node_modules",
+          "16777231",
+          "173867041"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "{\"destination\":\"\\/Users\\/deniskopylov\\/.Trash\\/node_modules 14-12-47-753\",\"destination_identity_equal\":true,\"device\":\"16777231\",\"inode\":\"173867041\",\"operation\":\"FileManager.trashItem\",\"source\":\"\\/Users\\/deniskopylov\\/.codex\\/worktrees\\/e02-c-c54-bindings-20261007\\/polisyos\\/policy-engine\\/apps\\/runtime-reference-shell\\/node_modules\",\"source_absent\":true}\n",
+        "stderr": "",
+        "wall_seconds": 0.0245
+      },
+      "readback": {
+        "destination": "/Users/deniskopylov/.Trash/node_modules 14-12-47-753",
+        "source_absent": true,
+        "same_device_inode": true,
+        "device": 16777231,
+        "inode": 173867041
+      }
+    },
+    {
+      "kind": "repeatable_node_modules",
+      "preflight": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules",
+        "device": 16777231,
+        "inode": 173867037,
+        "type": "directory",
+        "lsof": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "+D",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.092
+        },
+        "checked_at_utc": "2026-10-07T11:12:47.856236+00:00"
+      },
+      "native_command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/cleanup/trash-exact",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules",
+          "16777231",
+          "173867037"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "{\"destination\":\"\\/Users\\/deniskopylov\\/.Trash\\/node_modules 14-12-47-871\",\"destination_identity_equal\":true,\"device\":\"16777231\",\"inode\":\"173867037\",\"operation\":\"FileManager.trashItem\",\"source\":\"\\/Users\\/deniskopylov\\/.codex\\/worktrees\\/e02-c-c54-bindings-20261007\\/polisyos\\/policy-engine\\/packages\\/atlas-ui\\/node_modules\",\"source_absent\":true}\n",
+        "stderr": "",
+        "wall_seconds": 0.0256
+      },
+      "readback": {
+        "destination": "/Users/deniskopylov/.Trash/node_modules 14-12-47-871",
+        "source_absent": true,
+        "same_device_inode": true,
+        "device": 16777231,
+        "inode": 173867037
+      }
+    },
+    {
+      "kind": "repeatable_node_modules",
+      "preflight": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/packages/cli/node_modules",
+        "device": 16777231,
+        "inode": 173867040,
+        "type": "directory",
+        "lsof": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "+D",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/packages/cli/node_modules"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.0849
+        },
+        "checked_at_utc": "2026-10-07T11:12:47.967351+00:00"
+      },
+      "native_command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/cleanup/trash-exact",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/packages/cli/node_modules",
+          "16777231",
+          "173867040"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "{\"destination\":\"\\/Users\\/deniskopylov\\/.Trash\\/node_modules 14-12-47-981\",\"destination_identity_equal\":true,\"device\":\"16777231\",\"inode\":\"173867040\",\"operation\":\"FileManager.trashItem\",\"source\":\"\\/Users\\/deniskopylov\\/.codex\\/worktrees\\/e02-c-c54-bindings-20261007\\/polisyos\\/policy-engine\\/packages\\/cli\\/node_modules\",\"source_absent\":true}\n",
+        "stderr": "",
+        "wall_seconds": 0.0236
+      },
+      "readback": {
+        "destination": "/Users/deniskopylov/.Trash/node_modules 14-12-47-981",
+        "source_absent": true,
+        "same_device_inode": true,
+        "device": 16777231,
+        "inode": 173867040
+      }
+    },
+    {
+      "kind": "repeatable_node_modules",
+      "preflight": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/packages/runtime-api-client/node_modules",
+        "device": 16777231,
+        "inode": 173867042,
+        "type": "directory",
+        "lsof": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "+D",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/packages/runtime-api-client/node_modules"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.0842
+        },
+        "checked_at_utc": "2026-10-07T11:12:48.076062+00:00"
+      },
+      "native_command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/cleanup/trash-exact",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/packages/runtime-api-client/node_modules",
+          "16777231",
+          "173867042"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "{\"destination\":\"\\/Users\\/deniskopylov\\/.Trash\\/node_modules 14-12-48-090\",\"destination_identity_equal\":true,\"device\":\"16777231\",\"inode\":\"173867042\",\"operation\":\"FileManager.trashItem\",\"source\":\"\\/Users\\/deniskopylov\\/.codex\\/worktrees\\/e02-c-c54-bindings-20261007\\/polisyos\\/policy-engine\\/packages\\/runtime-api-client\\/node_modules\",\"source_absent\":true}\n",
+        "stderr": "",
+        "wall_seconds": 0.0245
+      },
+      "readback": {
+        "destination": "/Users/deniskopylov/.Trash/node_modules 14-12-48-090",
+        "source_absent": true,
+        "same_device_inode": true,
+        "device": 16777231,
+        "inode": 173867042
+      }
+    },
+    {
+      "kind": "fresh_root_test_environment",
+      "preflight": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv",
+        "device": 16777231,
+        "inode": 173253393,
+        "type": "directory",
+        "lsof": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "+D",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.5558
+        },
+        "checked_at_utc": "2026-10-07T11:12:48.656928+00:00"
+      },
+      "native_command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/cleanup/trash-exact",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv",
+          "16777231",
+          "173253393"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "{\"destination\":\"\\/Users\\/deniskopylov\\/.Trash\\/.venv\",\"destination_identity_equal\":true,\"device\":\"16777231\",\"inode\":\"173253393\",\"operation\":\"FileManager.trashItem\",\"source\":\"\\/Users\\/deniskopylov\\/.codex\\/worktrees\\/e02-c-continuation-20261006\\/polisyos\\/policy-engine\\/.venv\",\"source_absent\":true}\n",
+        "stderr": "",
+        "wall_seconds": 0.0252
+      },
+      "readback": {
+        "destination": "/Users/deniskopylov/.Trash/.venv",
+        "source_absent": true,
+        "same_device_inode": true,
+        "device": 16777231,
+        "inode": 173253393
+      }
+    },
+    {
+      "kind": "derived_tracked_json_copy",
+      "preflight": {
+        "path": "/tmp/e02c3-coverage.json",
+        "device": 16777231,
+        "inode": 173411971,
+        "type": "regular_file",
+        "lsof": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "--",
+            "/tmp/e02c3-coverage.json"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.0861
+        },
+        "checked_at_utc": "2026-10-07T11:12:48.768916+00:00",
+        "sha256": "03481f3fef76c5f6eab78a64febe95cb61d7c79555e18dcfc846c505c96d3bce"
+      },
+      "native_command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/cleanup/trash-exact",
+          "/tmp/e02c3-coverage.json",
+          "16777231",
+          "173411971"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "{\"destination\":\"\\/Users\\/deniskopylov\\/.Trash\\/e02c3-coverage.json\",\"destination_identity_equal\":true,\"device\":\"16777231\",\"inode\":\"173411971\",\"operation\":\"FileManager.trashItem\",\"source\":\"\\/tmp\\/e02c3-coverage.json\",\"source_absent\":true}\n",
+        "stderr": "",
+        "wall_seconds": 0.0242
+      },
+      "readback": {
+        "destination": "/Users/deniskopylov/.Trash/e02c3-coverage.json",
+        "source_absent": true,
+        "same_device_inode": true,
+        "device": 16777231,
+        "inode": 173411971
+      }
+    },
+    {
+      "kind": "derived_tracked_json_copy",
+      "preflight": {
+        "path": "/tmp/e02c3-allocation.json",
+        "device": 16777231,
+        "inode": 173411972,
+        "type": "regular_file",
+        "lsof": {
+          "argv": [
+            "/usr/sbin/lsof",
+            "-nP",
+            "-Fpc",
+            "--",
+            "/tmp/e02c3-allocation.json"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "",
+          "wall_seconds": 0.0877
+        },
+        "checked_at_utc": "2026-10-07T11:12:48.882913+00:00",
+        "sha256": "a1fe5cad509e32606df9710e5cbf942313a243341f58ccb0708692204d15c253"
+      },
+      "native_command": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/cleanup/trash-exact",
+          "/tmp/e02c3-allocation.json",
+          "16777231",
+          "173411972"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "exit_code": 0,
+        "stdout": "{\"destination\":\"\\/Users\\/deniskopylov\\/.Trash\\/e02c3-allocation.json\",\"destination_identity_equal\":true,\"device\":\"16777231\",\"inode\":\"173411972\",\"operation\":\"FileManager.trashItem\",\"source\":\"\\/tmp\\/e02c3-allocation.json\",\"source_absent\":true}\n",
+        "stderr": "",
+        "wall_seconds": 0.0239
+      },
+      "readback": {
+        "destination": "/Users/deniskopylov/.Trash/e02c3-allocation.json",
+        "source_absent": true,
+        "same_device_inode": true,
+        "device": 16777231,
+        "inode": 173411972
+      }
+    }
+  ],
+  "preservation": "Production data, useful tracked code/docs/refs, shared caches, wheels/sdists, CAS fixtures, probes and complete deciding outputs stay in place; native Trash is not emptied. No immediate free-space claim.",
+  "space_after": {
+    "argv": [
+      "/bin/df",
+      "-k",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "stdout": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239362496 181321848  24979188    88% 3474003 249791880    1%   /System/Volumes/Data\n",
+    "stderr": "",
+    "wall_seconds": 0.0026
+  },
+  "completed_count": 18,
+  "result": "native_trash_complete"
+}

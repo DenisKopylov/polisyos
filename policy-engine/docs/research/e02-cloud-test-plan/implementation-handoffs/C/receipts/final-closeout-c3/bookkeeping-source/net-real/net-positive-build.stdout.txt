@@ -1,0 +1,24 @@
+{
+  "json_path": ".tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-positive-cut.json",
+  "json_sha256": "8c5e5519d9a745e25de368c117799bb42d0d129d95e90bba26ab5b2969efdbe9",
+  "json_bytes": 187758,
+  "markdown_path": ".tmp/e02-C3/raw/independent-review-20261007-fe13-delta/net-real/net-positive.md",
+  "markdown_sha256": "613730f0b7727ed3e2a658a9dd1375d0ac3b30af7bd7641cbdedd5fa75e716ce",
+  "markdown_bytes": 73859,
+  "rows": 54,
+  "criterion_occurrences": 59,
+  "bundles": 33,
+  "g_formal_status_counts": {
+    "not_adjudicated": 54
+  },
+  "current_evaluation_state_counts": {
+    "c2_frozen_evidence_carried_forward": 39,
+    "criterion_binding_corrected": 5,
+    "fresh_source_handoff_reviewed": 10
+  },
+  "c2_root_verdict_counts_context_only": {
+    "closed": 31,
+    "held": 14,
+    "limited": 9
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "argv": [
+    "python3",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py",
+    "--repo-root",
+    ".",
+    "--mode",
+    "c3-final",
+    "--cut",
+    "policy-engine/.tmp/e02-C3/raw/census/C54-current-root-adjudication-20261007-v9.json",
+    "--markdown",
+    "policy-engine/.tmp/e02-C3/raw/census/C54-current-root-adjudication-20261007-v9.md",
+    "--input",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c3-final-adjudication-input.json",
+    "--expected-cut-sha",
+    "f449895808339318de68d91f3f2a7c79efe6e3e1d892233de7795b94296ca025",
+    "--expected-markdown-sha",
+    "0cda092cf9672877d19056f1e50915f331ac0a1cfc86d8c4d02c9fe83503b530"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+  "exit_code": 0,
+  "inputs": {
+    "input": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c3-final-adjudication-input.json",
+      "sha256": "e3c3226857fa5ac361f19b2d88b939f2085e2459e40abe61dca6f6b8e251b468",
+      "bytes": 63697
+    },
+    "cut": {
+      "path": "policy-engine/.tmp/e02-C3/raw/census/C54-current-root-adjudication-20261007-v9.json",
+      "sha256": "f449895808339318de68d91f3f2a7c79efe6e3e1d892233de7795b94296ca025",
+      "bytes": 307984
+    },
+    "markdown": {
+      "path": "policy-engine/.tmp/e02-C3/raw/census/C54-current-root-adjudication-20261007-v9.md",
+      "sha256": "0cda092cf9672877d19056f1e50915f331ac0a1cfc86d8c4d02c9fe83503b530",
+      "bytes": 116674
+    }
+  },
+  "stdout": {
+    "text": "{\n  \"result\": \"PASS\",\n  \"cut_sha256\": \"f449895808339318de68d91f3f2a7c79efe6e3e1d892233de7795b94296ca025\",\n  \"markdown_sha256\": \"0cda092cf9672877d19056f1e50915f331ac0a1cfc86d8c4d02c9fe83503b530\",\n  \"input_sha256\": \"e3c3226857fa5ac361f19b2d88b939f2085e2459e40abe61dca6f6b8e251b468\",\n  \"C2_source_validator\": \"PASS\",\n  \"C2_source_sha256\": \"38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc\",\n  \"C2_pointer_count\": 282,\n  \"historical_local_only_receipts\": 1,\n  \"portable_receipt_overrides_used\": [\n    \"R209\"\n  ],\n  \"G_snapshot\": {\n    \"commit\": \"ebae80eaa25482d84bc6ad2e78721bc318bc0228\",\n    \"tree\": \"4bc0ca606eaf5145e23769da3968a673d99a9abf\"\n  },\n  \"coverage_denominator\": {\n    \"all_bundles\": 127,\n    \"all_findings\": 282,\n    \"canonical_criterion_occurrences\": 291,\n    \"C_bundles\": 33,\n    \"C_findings\": 54,\n    \"C_hash_bound_criteria\": 59\n  },\n  \"rows\": 54,\n  \"criterion_occurrences_with_inclusive_source_hash\": 59,\n  \"bundles\": 33,\n  \"C2_root_verdict_context_counts\": {\n    \"closed\": 31,\n    \"held\": 14,\n    \"limited\": 9\n  },\n  \"G_formal_status_counts\": {\n    \"not_adjudicated\": 54\n  },\n  \"C3_evaluation_state_counts\": {\n    \"c2_frozen_evidence_carried_forward\": 44,\n    \"criterion_binding_corrected\": 5,\n    \"fresh_criterion_evidence_reviewed\": 5\n  },\n  \"current_root_verdict_counts\": {\n    \"closed\": 31,\n    \"held\": 14,\n    \"limited\": 9\n  },\n  \"C3_resolved_source_references\": 547,\n  \"C3_explicit_receipt_pointers\": 31,\n  \"supplemental_source_handoff_count\": 1,\n  \"supplemental_candidate_binding_count\": 2,\n  \"supplemental_selected_file_reference_occurrences\": 32,\n  \"tree_path_presence_checks\": 2,\n  \"markdown_rows\": 54,\n  \"new_C3_verdicts_assigned\": true\n}\n",
+    "sha256": "d79d4ecbd7723cd903b84317513f44d3b6ce3e8d8de44d496094d0361147b159",
+    "bytes": 1680
+  },
+  "stderr": {
+    "text": "",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  }
+}

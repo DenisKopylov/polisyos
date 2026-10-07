@@ -1,0 +1,5 @@
+import argparse,datetime,hashlib,json,os,pathlib,platform,subprocess,time
+p=argparse.ArgumentParser();p.add_argument('label');p.add_argument('command',nargs=argparse.REMAINDER);a=p.parse_args();root=pathlib.Path('/tmp/e02-F-continuation-20261006/cau');t=time.monotonic();r=subprocess.run(a.command,capture_output=True);refs={}
+for suffix,b in [('stdout',r.stdout),('stderr',r.stderr)]:
+ f=root/(a.label+'.'+suffix);f.write_bytes(b);refs[suffix]={'path':str(f),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+meta={'command':a.command,'cwd':os.getcwd(),'source_sha':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'source_tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),'utc':datetime.datetime.now(datetime.UTC).isoformat(),'elapsed_s':time.monotonic()-t,'exit_code':r.returncode,'environment':{'python':platform.python_version(),'executable':os.sys.executable,'PYTHONPATH':os.environ.get('PYTHONPATH')},**refs};(root/(a.label+'.execution.json')).write_text(json.dumps(meta,indent=2)+'\n');print(json.dumps(meta));raise SystemExit(r.returncode)

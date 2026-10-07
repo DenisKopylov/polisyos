@@ -1,0 +1,59 @@
+{
+  "api": {
+    "head": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+    "tree": "c7c71a12bc04238dce414455a06849a9f49a824f",
+    "merge_base": "90c72b51155321684c788cd5a03fbb70fc001d53",
+    "total_changed": 125,
+    "non_handoff_paths": [
+      "policy-engine/docs/reference/foundry/causal-installed-source-reconciliation.md",
+      "policy-engine/release-fragments/unreleased/2026-10-07-installed-graph-contract-reconciliation.toml",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_graph_contract_reconciliation.py"
+    ],
+    "product_diff_stat": ".../causal-installed-source-reconciliation.md      |  51 ++++++\n ...07-installed-graph-contract-reconciliation.toml |  28 ++++\n ...test_installed_graph_contract_reconciliation.py | 174 +++++++++++++++++++++\n 3 files changed, 253 insertions(+)",
+    "root_product_conflicts": []
+  },
+  "fit": {
+    "head": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+    "tree": "13736344f761ab911a1607fc2ebb9d722395ec68",
+    "merge_base": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "total_changed": 107,
+    "non_handoff_paths": [
+      "policy-engine/docs/reference/foundry/tmle-persisted-consumers.md",
+      "policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml",
+      "policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py"
+    ],
+    "product_diff_stat": ".../reference/foundry/tmle-persisted-consumers.md  |  98 ++++++\n .../2026-10-07-tmle-persisted-consumers.toml       |  24 ++\n .../test_tmle_persisted_evidence_consumers.py      | 363 +++++++++++++++++++++\n 3 files changed, 485 insertions(+)",
+    "root_product_conflicts": []
+  },
+  "eco": {
+    "head": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+    "tree": "334f80bc471c2a686ab4f7a5101c44d0cb4c6b90",
+    "merge_base": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "total_changed": 114,
+    "non_handoff_paths": [
+      "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+      "policy-engine/release-fragments/unreleased/2026-10-07-economic-baseline-consumer-proof.toml",
+      "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+      "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py"
+    ],
+    "product_diff_stat": ".../reference/foundry/economic-baseline-profile.md |  64 ++++++++\n ...026-10-07-economic-baseline-consumer-proof.toml |  14 ++\n .../agent_sim/test_signed_gini_producer_route.py   | 170 +++++++++++++++++++++\n .../plugins/test_historical_income_baseline.py     | 116 ++++++++++++++\n 4 files changed, 364 insertions(+)",
+    "root_product_conflicts": []
+  },
+  "graph": {
+    "head": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+    "tree": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+    "merge_base": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "total_changed": 7,
+    "non_handoff_paths": [
+      "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+      "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+      "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+      "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py"
+    ],
+    "product_diff_stat": ".../reference/scientist/causal-graph-intake.md     |  49 ++\n .../unreleased/2026-10-07-causal-graph-intake.toml |  27 ++\n .../methods/catalog/causal/graph_reconciliation.py |  81 +++-\n .../builtins/causal/reconcile_causal_graph.py      | 506 ++++++++++++++------\n .../catalog/causal/test_graph_reconciliation.py    |  19 +-\n .../causal/test_graph_intake_current_content.py    | 531 +++++++++++++++++++++\n .../builtins/causal/test_reconcile_causal_graph.py |  15 +-\n 7 files changed, 1042 insertions(+), 186 deletions(-)",
+    "root_product_conflicts": []
+  }
+}

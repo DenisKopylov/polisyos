@@ -1,0 +1,21 @@
+{
+  "before_sha": "27f172d56b59c3157275e90e50b1d00cc5219a91",
+  "before_tree": "32af7b212d15852eb1094aa2e0311570867c0dad",
+  "upstream_sha": "7185572917f7a3db5e93385a176cb611b35aff42",
+  "upstream_tree": "90fbdfba15cbc22e8cee477b2c21260c08e09197",
+  "command": [
+    "git",
+    "merge",
+    "--no-ff",
+    "-m",
+    "merge: carry root causal consumer checkpoint before confidence repair",
+    "7185572917f7a3db5e93385a176cb611b35aff42"
+  ],
+  "cwd": "/workspace/e02-F-tmle-20261006",
+  "exit_code": 0,
+  "wall_seconds": 0.137835036002798,
+  "after_sha": "6fe6e352ad5aff4055b490a7892ae123dad1c0ab",
+  "after_tree": "90fbdfba15cbc22e8cee477b2c21260c08e09197",
+  "status_after": "",
+  "branch": "refs/heads/codex/e02-F-tmle-20261006"
+}

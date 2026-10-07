@@ -14,6 +14,7 @@ from typing import Any, ClassVar
 import pandas as pd
 
 from polisyos.core.canon import streaming_hash
+from polisyos.data_forge.read_api.catalog import catalog_default_resource_path
 from polisyos.fabric.connectors.base import (
     ConnectionHandle,
     FetchRequest,
@@ -49,12 +50,7 @@ def _load_wvs_registry_indicators() -> dict[str, str]:
     try:
         import yaml
 
-        registry_path = (
-            Path(__file__).resolve().parents[5]
-            / "data"
-            / "dataset_catalog"
-            / "wvs_indicator_registry.yaml"
-        )
+        registry_path = Path(catalog_default_resource_path("wvs_indicator_registry.yaml"))
         if not registry_path.exists():
             return {}
         with open(registry_path) as fh:

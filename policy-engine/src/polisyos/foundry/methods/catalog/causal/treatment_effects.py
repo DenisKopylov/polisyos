@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from dataclasses import fields
 from typing import Any, ClassVar
 
 import numpy as np
@@ -20,10 +21,17 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
+from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
 from polisyos.foundry.methods.catalog.causal.tmle_core import (
+    ATENuisanceContract,
     fit_aipw_ate,
     fit_tmle_ate,
     result_payload,
+)
+from polisyos.ir.analytics.causal import (
+    CausalEffectReport,
+    CausalMethod,
+    EstimationStatus,
 )
 
 
@@ -158,8 +166,20 @@ class TMLEEstimator:
         namespace="",
         version="0.0.0",
         input_slots=_treatment_slots(),
-        output_slots=_result_slot(),
-        parameters=(),
+        output_slots=frozenset(
+            {
+                *_result_slot(),
+                SlotSpec("report", SlotType.SCALAR, Unit("report", "json")),
+                SlotSpec("envelope", SlotType.SCALAR, Unit("uncertainty", "json")),
+            }
+        ),
+        parameters=tuple(
+            ParameterSpec(
+                name=item.name,
+                default=getattr(ATENuisanceContract.from_params({}), item.name),
+            )
+            for item in fields(ATENuisanceContract)
+        ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
         backend=ComputeBackend.NUMPY,
@@ -186,27 +206,151 @@ class TMLEEstimator:
     )
 
     @staticmethod
-    def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
-        X = np.asarray(state["X"], dtype=float)
-        T = np.asarray(state["treatment"], dtype=float)
-        Y = np.asarray(state["outcome"], dtype=float)
+    def report_from_result(
+        *,
+        data: HTEObservationalData | Mapping[str, Any],
+        params: Mapping[str, Any],
+        result: Mapping[str, Any],
+    ) -> CausalEffectReport:
+        """Project a numerical TMLE result through the existing causal report.
+
+        Args:
+            data: Actual cross-sectional input used by the producer.
+            params: Native fitting and diagnostic parameters for this run.
+            result: Numerical result emitted by the canonical TMLE core.
+
+        Returns:
+            A non-gating candidate report. Unsupported inference profiles retain
+            a point-free failure report; the descriptive estimate stays in the
+            legacy result artifact. This projection grants no identification or
+            execution admission and does not re-estimate the supplied result.
+        """
+        treatment = np.asarray(
+            data.treatment if isinstance(data, HTEObservationalData) else data["treatment"],
+            dtype=float,
+        ).reshape(-1)
+        outcome = np.asarray(
+            data.outcome if isinstance(data, HTEObservationalData) else data["outcome"],
+            dtype=float,
+        ).reshape(-1)
+        limitations = list(result.get("inference_limitations", ()))
+        contract = ATENuisanceContract.from_params(params)
+        try:
+            numerical_values = tuple(
+                float(result[name]) for name in ("ate", "standard_error", "ci_lower", "ci_upper")
+            )
+            finite_interval = bool(
+                np.all(np.isfinite(numerical_values))
+                and numerical_values[1] >= 0.0
+                and numerical_values[2] <= numerical_values[3]
+            )
+        except (KeyError, TypeError, ValueError, OverflowError):
+            finite_interval = False
+        targeting = result.get("targeting_summary")
+        supported = (
+            contract.inference_profile == "regular_iid"
+            and result.get("inference_profile") == "regular_iid"
+            and result.get("status") == "candidate"
+            and result.get("interval_method") == "wald_eif_regular_iid"
+            and not limitations
+            and isinstance(targeting, Mapping)
+            and bool(targeting.get("converged"))
+            and finite_interval
+            and result.get("ci_lower") is not None
+            and result.get("ci_upper") is not None
+        )
+        status = EstimationStatus.SUCCESS
+        reason = None
+        if not supported:
+            numerical = "targeting_score_not_converged" in limitations
+            if not limitations and not finite_interval:
+                numerical = True
+                limitations.append("numerical_result_invalid")
+            status = (
+                EstimationStatus.NUMERICAL_FAILURE
+                if numerical
+                else EstimationStatus.ASSUMPTION_FAILED
+            )
+            reason = ", ".join(limitations) or "regular_iid_eif_profile_not_established"
+        return CausalEffectReport(
+            method=CausalMethod.TMLE,
+            status=status,
+            status_reason=reason,
+            estimand="ATE",
+            point_estimate=float(result["ate"]) if supported else None,
+            standard_error=float(result["standard_error"]) if supported else None,
+            confidence_interval=(float(result["ci_lower"]), float(result["ci_upper"]))
+            if supported
+            else None,
+            confidence_level=0.95 if supported else None,
+            inference_method="asymptotic" if supported else "none",
+            sample_size=len(outcome),
+            n_treated=int(np.count_nonzero(treatment > 0.5)),
+            n_control=int(np.count_nonzero(treatment <= 0.5)),
+            pre_periods=0,
+            post_periods=0,
+            method_params=contract.as_contract_payload(),
+            assumptions={
+                "exchangeability": "Consumer must establish exchangeability conditional on the supplied adjustment basis.",
+                "positivity": "Consumer must establish population positivity; observed diagnostics cover this sample only.",
+                "iid_sampling": "The regular_iid profile is consumer asserted, not sampling admission.",
+                "consistency": "Consumer must establish consistency and the treatment contrast.",
+            },
+            metadata={
+                "producer_fqn": TMLEEstimator.signature.fqn,
+                "inference_profile": contract.inference_profile,
+                "inference_limitations": limitations,
+                "assumption_basis": "consumer_asserted",
+                "gate_eligible": False,
+                "targeting_summary": result.get("targeting_summary"),
+            },
+        )
+
+    @staticmethod
+    def pure_step(
+        state: HTEObservationalData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
+        """Estimate native cross-sectional ATE and preserve both result consumers.
+
+        Args:
+            state: Typed HTE observations or the legacy X/treatment/outcome mapping.
+                Typed confounders join covariates in the nuisance adjustment basis.
+            params: Native nuisance fitting and current diagnostic parameters.
+
+        Returns:
+            The unchanged descriptive result, a canonical candidate/failure causal
+            report, and its existing non-gating uncertainty projection.
+        """
+        if isinstance(state, HTEObservationalData):
+            X = np.asarray(state.covariates, dtype=float)
+            if state.confounders is not None:
+                X = np.column_stack((X, np.asarray(state.confounders, dtype=float)))
+            T = np.asarray(state.treatment, dtype=float)
+            Y = np.asarray(state.outcome, dtype=float)
+        else:
+            X = np.asarray(state["X"], dtype=float)
+            T = np.asarray(state["treatment"], dtype=float)
+            Y = np.asarray(state["outcome"], dtype=float)
         fit_result, nuisance = fit_tmle_ate(X, T, Y, params)
         payload = result_payload(fit_result, nuisance)
-
+        result = {
+            "ate": fit_result.ate,
+            "standard_error": fit_result.standard_error,
+            "ci_lower": fit_result.ci_lower,
+            "ci_upper": fit_result.ci_upper,
+            "interval_method": fit_result.interval_method,
+            "eif_mean": fit_result.eif_mean,
+            "eif_standard_deviation": fit_result.eif_standard_deviation,
+            "targeting_summary": fit_result.targeting_summary,
+            "n_obs": len(Y),
+            "n_trimmed": int(np.sum(~nuisance.trim_mask)),
+            **payload,
+        }
+        report = TMLEEstimator.report_from_result(data=state, params=params, result=result)
         return {
-            "result": {
-                "ate": fit_result.ate,
-                "standard_error": fit_result.standard_error,
-                "ci_lower": fit_result.ci_lower,
-                "ci_upper": fit_result.ci_upper,
-                "interval_method": fit_result.interval_method,
-                "eif_mean": fit_result.eif_mean,
-                "eif_standard_deviation": fit_result.eif_standard_deviation,
-                "targeting_summary": fit_result.targeting_summary,
-                "n_obs": len(Y),
-                "n_trimmed": int(np.sum(~nuisance.trim_mask)),
-                **payload,
-            }
+            "result": result,
+            "report": report,
+            "envelope": report.to_uncertainty_envelope(),
         }
 
 

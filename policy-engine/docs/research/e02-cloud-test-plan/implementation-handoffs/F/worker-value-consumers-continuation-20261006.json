@@ -1,0 +1,314 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "worker-value-consumers-continuation-20261006",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "B212",
+    "B213"
+  ],
+  "branch": "codex/e02-F-closeout-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/65",
+  "slice_base_sha": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+  "slice_base_tree_sha": "63cdae9393a55b3acda824ab955fd89e3ca1c8b9",
+  "implementation_commits": [
+    "47a2ff90186628afafa4c01ecf7158325b0026fc",
+    "46932cd30935b08e1da795f505a9b443c9dc668a",
+    "386b361865fb22d6da241716481d919b6ebd8249"
+  ],
+  "candidate_source_sha": "386b361865fb22d6da241716481d919b6ebd8249",
+  "candidate_tree_sha": "4fe794fb3b1a57b4771594cf91e5f1202d73eccf",
+  "changed_paths": [
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py"
+  ],
+  "property": {
+    "statement": "The actual selected DoWhy worker, numerical report and fresh CAS envelope preserve SUCCESS/CI while remaining non-gating before genuine identification admission. Installed sibling monitor and current native value consumers retain their declared contract boundaries.",
+    "producer_artifact_bridge_consumer": [
+      "Python3.12 pinned DoWhy0.14 actualworker -> strict source-bound parent projection -> actualMethodJob -> CausalEffectReport/UncertaintyEnvelope CAS -> Python3.14 freshreader",
+      "actualsharp nativeRDD -> typedreport CAS -> freshreport -> project_method_value_evidence typedrefusal; actualstatsmodelsARIMA nativevalueprojection nonproductionpositive"
+    ],
+    "independent_oracle": "Existing worker interval/report projection and declared NumericPolicy canonicalize; full independent peer AST audit verifies only five assertion statements changed. Value reviewers independently execute actual producer/CAS/freshreader and native consumer.",
+    "negative_controls": [
+      "Real numeric/statistical projections remain bound; missing/fake/swapped proof keeps numericalSUCCESS+CI/markers but cannot admit readiness/value; property-removal3reportcap+1actualvalueguard FAIL retaining markers."
+    ],
+    "scope": "The causal report has no supported native value output contract and is refused upstream as method_output_contract_unresolved. No causal line312 reach or production positive is asserted.",
+    "runtime_path": [
+      "Python3.12 pinned DoWhy0.14 actualworker -> strict source-bound parent projection -> actualMethodJob -> CausalEffectReport/UncertaintyEnvelope CAS -> Python3.14 freshreader",
+      "actualsharp nativeRDD -> typedreport CAS -> freshreport -> project_method_value_evidence typedrefusal; actualstatsmodelsARIMA nativevalueprojection nonproductionpositive"
+    ],
+    "proxy_divergence": "A valid numerical SUCCESS and CI or proof-shaped CAS reference can remain in a non-gating report; raw report alias/markers and capability naming do not admit authority. Envelope uses its declared numeric normalization."
+  },
+  "checks": [
+    {
+      "source_sha": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "summary": "Historical firstcomposed1FAIL91PASS0warnings: prior test demanded gate-positive numerical report.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-boundaries/stdout",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-o",
+        "cache_dir=/tmp/e02-F-continuation-20261006/root-composed-boundaries/cache",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261006/root-composed-boundaries/tmp",
+        "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_gcm_job_persisted_fresh_reader_and_scientist_consumer",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader",
+        "tests/unit/foundry/methods/backends/test_dispatch_output_contract.py",
+        "tests/unit/ir/analytics/test_causal_identification_candidate.py",
+        "tests/unit/scientist/governance/test_causal_confidence_candidate.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py"
+      ],
+      "target_sha": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "environment": {
+        "interpreter": "actualapplication Python3.14.7 and selectedpinnedPython3.12.14 DoWhy0.14worker",
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+          "TMPDIR": "/tmp"
+        },
+        "cwd": "/workspace/e02-F-closeout-20261006/policy-engine"
+      },
+      "input_closure": "Actual seeded graph source, real worker source-bound result, MethodJob/CAS report, fresh Python3.14 reader and declared interval policy.",
+      "outcome": "FAIL"
+    },
+    {
+      "source_sha": "47a2ff90186628afafa4c01ecf7158325b0026fc",
+      "summary": "Own harness used absent envelope.ci; retained full output.",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-o",
+        "cache_dir=/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/cache",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/tmp",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader"
+      ],
+      "target_sha": "47a2ff90186628afafa4c01ecf7158325b0026fc",
+      "environment": {
+        "interpreter": "actualapplication Python3.14.7 and selectedpinnedPython3.12.14 DoWhy0.14worker",
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+          "TMPDIR": "/tmp"
+        },
+        "cwd": "/workspace/e02-F-closeout-20261006/policy-engine"
+      },
+      "input_closure": "Actual seeded graph source, real worker source-bound result, MethodJob/CAS report, fresh Python3.14 reader and declared interval policy.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-candidate/stdout"
+    },
+    {
+      "source_sha": "46932cd30935b08e1da795f505a9b443c9dc668a",
+      "summary": "Own harness compared uncanonicalized float interval with declared rounded envelope; retained full output.",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-o",
+        "cache_dir=/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/cache",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/tmp",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader"
+      ],
+      "target_sha": "46932cd30935b08e1da795f505a9b443c9dc668a",
+      "environment": {
+        "interpreter": "actualapplication Python3.14.7 and selectedpinnedPython3.12.14 DoWhy0.14worker",
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+          "TMPDIR": "/tmp"
+        },
+        "cwd": "/workspace/e02-F-closeout-20261006/policy-engine"
+      },
+      "input_closure": "Actual seeded graph source, real worker source-bound result, MethodJob/CAS report, fresh Python3.14 reader and declared interval policy.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-corrected/stdout"
+    },
+    {
+      "source_sha": "386b361865fb22d6da241716481d919b6ebd8249",
+      "summary": "Actual worker/MethodJob/CAS/freshPython3.14reader1PASS0warnings0SKIP/ERROR.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-policy/stdout",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-o",
+        "cache_dir=/tmp/e02-F-continuation-20261006/root-composed-worker-policy/cache",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/tmp",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader"
+      ],
+      "target_sha": "386b361865fb22d6da241716481d919b6ebd8249",
+      "environment": {
+        "interpreter": "actualapplication Python3.14.7 and selectedpinnedPython3.12.14 DoWhy0.14worker",
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+          "TMPDIR": "/tmp"
+        },
+        "cwd": "/workspace/e02-F-closeout-20261006/policy-engine"
+      },
+      "input_closure": "Actual seeded graph source, real worker source-bound result, MethodJob/CAS report, fresh Python3.14 reader and declared interval policy.",
+      "outcome": "PASS"
+    },
+    {
+      "source_sha": "386b361865fb22d6da241716481d919b6ebd8249",
+      "summary": "Independent peer source/AST/raw-output review GO_BOUNDED; unchanged product/backend definitions.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/dowhy-companion-review/review.json",
+      "command": "python3 /tmp/e02-F-continuation-20261006/foundry/audit_dowhy_companion.py",
+      "target_sha": "386b361865fb22d6da241716481d919b6ebd8249",
+      "environment": {
+        "interpreter": "python3",
+        "role": "readonly Git/Python AST/full receipt output audit; no product worker execution or environment change"
+      },
+      "input_closure": "All3 implementation commits and complete exact one-file diff; outer test AST and remaining embedded fresh-reader AST;4 full source-bound author receipts/stdout/stderr observations",
+      "outcome": "PASS"
+    },
+    {
+      "source_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+      "summary": "Actual20valueconsumerchecks0SKIP/ERROR1instrumentationwarning, retained numericalmarkers and real proofCAS.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/review.json",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest /tmp/e02-F-continuation-20261006/foundry/test_value_consumer_identification.py tests/unit/foundry/methods/test_value_evidence.py -o addopts= -p no:cacheprovider -q -s --tb=short --basetemp /tmp/e02-F-continuation-20261006/foundry/value-consumer/native-corrected-tmp",
+      "target_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "runtime_history": "supported SelectionHistoryStore in-memory injection; no shared history writes",
+        "cloud_quota_introduced": false
+      },
+      "input_closure": "Actual dispatcher sharp CCT HC0 fixed RD400-row SUCCESS+CI, typed report/graph/proof CAS and fresh readers; actual dispatcher statsmodelsARIMA(0,0,0)96-row native result→CAS→freshmodel→existing value projector; complete existing test_value_evidence.py for native run. Removal cases execute real path with memory-only code mutation and retained method/class/function identity and markers.",
+      "outcome": "PASS"
+    },
+    {
+      "source_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+      "summary": "Expected semantic discriminators3+1FAIL afterreportcap/valueguardremoval. Initial5fixtureFAIL and sourceguardERROR retained separately; invalid firstremoval probes excluded.",
+      "command": "Complete exact retained-marker report/value guard removal commands in committed independent reviewer execution records",
+      "target_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "runtime_history": "supported SelectionHistoryStore in-memory injection; no shared history writes",
+        "cloud_quota_introduced": false
+      },
+      "input_closure": "Actual dispatcher sharp CCT HC0 fixed RD400-row SUCCESS+CI, typed report/graph/proof CAS and fresh readers; actual dispatcher statsmodelsARIMA(0,0,0)96-row native result→CAS→freshmodel→existing value projector; complete existing test_value_evidence.py for native run. Removal cases execute real path with memory-only code mutation and retained method/class/function identity and markers.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/review.json"
+    },
+    {
+      "source_sha": "386b361865fb22d6da241716481d919b6ebd8249",
+      "summary": "Genuine current Runtime admitted wholeNode/identified causalvaluepositive requires canonical owner packet; no issuer/seal fabricated.",
+      "command": "not_run: exact canonical owner packet unavailable",
+      "target_sha": "386b361865fb22d6da241716481d919b6ebd8249",
+      "environment": "Owner local read-only input or future exact frozen installed profile",
+      "input_closure": "Genuine current Runtime admitted wholeNode/identified causalvaluepositive requires canonical owner packet; no issuer/seal fabricated.",
+      "outcome": "UNRUN",
+      "output": "Genuine current Runtime admitted wholeNode/identified causalvaluepositive requires canonical owner packet; no issuer/seal fabricated."
+    },
+    {
+      "summary": "Final assembled newwheel/sdist wave pending source/schema/publicinventory freeze; old5cd install remains historical exact candidate.",
+      "command": "not_run: new assembled source/schema/publicinventory not yet frozen",
+      "target_sha": "386b361865fb22d6da241716481d919b6ebd8249",
+      "environment": "Owner local read-only input or future exact frozen installed profile",
+      "input_closure": "Final assembled newwheel/sdist wave pending source/schema/publicinventory freeze; old5cd install remains historical exact candidate.",
+      "outcome": "UNRUN",
+      "output": "Final assembled newwheel/sdist wave pending source/schema/publicinventory freeze; old5cd install remains historical exact candidate."
+    }
+  ],
+  "source_dependencies": [
+    {
+      "source_sha": "ad8f0f7532022014c028d74d872c93fe3349d220",
+      "owner": "canonical MethodDispatcher/output monitor",
+      "property": "Normalized slots seam; positivealiases/siblings and true missing/malformednegative retained."
+    },
+    {
+      "source_sha": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "owner": "IR/Runtime causal report-envelope consumer boundary",
+      "property": "NumericalSUCCESS retains candidate scope and cannot self-admit identification."
+    }
+  ],
+  "independent_review": {
+    "reviewer": "/root/foundry",
+    "writer": "/root",
+    "decision": "GO_BOUNDED",
+    "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/dowhy-companion-review/review.json"
+  },
+  "capability_state_or_finding_state": "technicalconsumercompanion code-ready; original whole admitted authority/realassumptions limited; noautomatic historicalfinding closure",
+  "minimal_missing_owner_packets": [
+    {
+      "owner": "team-policyos-runtime + causalassumption/sourceowner",
+      "packet": "Exact admitted typedsource/graph/estimand/target/profile; current context/revision/lineage, appointed issuer/verifier, complete refs, consumer-generated freshchallenge and resolved content-bound identification basis. Unsupported nativevaluecontract requires its own existing semantic owner decision; no F self-issued evidence."
+    }
+  ],
+  "full_output_transport": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/transport.json",
+  "complete_implementation_diffs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/diffs/47a2ff90186628afafa4c01ecf7158325b0026fc.patch",
+      "bytes": 1759,
+      "sha256": "bcb172fd081ff14aa4c5fc2980c9bc88b24e9f5cdc6cf26519fd9b4fca8d547d",
+      "implementation_sha": "47a2ff90186628afafa4c01ecf7158325b0026fc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/diffs/46932cd30935b08e1da795f505a9b443c9dc668a.patch",
+      "bytes": 1311,
+      "sha256": "89a86b7bbe04bad88beb8ea35e913e0e847eb747338a04d5e0849364c452a7eb",
+      "implementation_sha": "46932cd30935b08e1da795f505a9b443c9dc668a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/diffs/386b361865fb22d6da241716481d919b6ebd8249.patch",
+      "bytes": 1393,
+      "sha256": "89906068b73ee54e5c3434a6ac485eb94f0604b47563b0fad5cf5cbee755c282",
+      "implementation_sha": "386b361865fb22d6da241716481d919b6ebd8249"
+    }
+  ],
+  "active_storage_preservation": {
+    "audit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/active-git-storage-relocation.json.gz",
+    "status": "PASS",
+    "objects": 4583,
+    "bytes": 217064927,
+    "all_object_SHA_refs_and24worktree_HEAD_tree_preserved": true,
+    "canonical_path": "/workspace/polisyos/.git/objects",
+    "active_target": "/tmp/e02-F-continuation-20261006/active-git-objects",
+    "not_cleanup_candidate": true,
+    "reason": "Overlay ENOSPC; live unique Git code storage moved under serialized writer pause, canonical symlink preserved. No retired fixture/environment deletion or history rewrite."
+  },
+  "patterns": {
+    "P38": "Actual semantic retained-marker controls",
+    "P40": "Existing shared identity/normalizedslot/non-gating seams; unsupportedauthority/valueprofile explicit limited/falsifier",
+    "P41": "not_established for inheritedglobalred; sourceequivalence is bounded paths only."
+  },
+  "cleanup": {
+    "native_trash_available": false,
+    "permanent_deletion_permitted": false,
+    "candidates_after_publication_readback_and_inactive_use": [
+      "/tmp/e02-F-continuation-20261006/root-composed-boundaries/tmp",
+      "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/tmp",
+      "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/tmp",
+      "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/tmp",
+      "/tmp/e02-F-continuation-20261006/foundry/value-consumer/native-tmp"
+    ],
+    "preserve": "Active Git objects, source/docs/uniqueinput/decidingoutputs and all currentlyactiveenvs. NoTrash exists; candidates retained."
+  },
+  "bundle_ids": [
+    "CAU-04"
+  ],
+  "baseline_cells": [],
+  "predicate_basis": "independently_reconciled",
+  "limitations_and_next_owner": [
+    "Actual numerical worker/consumer SUCCESS+CI remains a candidate; wholeNode and causal identification authority require existing Runtime/causalownerpacket.",
+    "Actual value consumer refuses unsupported causalmethod output contract upstream; no causal value semantics or productionpositive was fabricated.",
+    "Assembled wheel/sdist pending exact finalfreeze; old5cd installedproof and these distinctcomponent scientificsources are not finalGacceptance.",
+    "Historical/genuine harness FAIL/ERROR and optional backend UNRUN retained; P41 not_established."
+  ]
+}

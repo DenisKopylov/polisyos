@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/workspace/e02-F-graph-env/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+    "tests/unit/ir/test_causal_graph_contract.py",
+    "tests/unit/ir/test_causal_graph_networkx_roundtrip.py",
+    "tests/unit/remediation/test_grf_03.py",
+    "tests/unit/foundry/methods/catalog/causal/test_do_calculus_postpass.py"
+  ],
+  "cwd": "/workspace/e02-F-graph-review-20261006/policy-engine",
+  "PYTHONPATH": "src:.:/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages",
+  "source_sha": "07beb7c2986770e1b9901f3061a4768251c5a154",
+  "exit": 0,
+  "wall_s": 16.209888877987396,
+  "rss_kib": 606552
+}

@@ -1,0 +1,15 @@
+{
+  "slice_base_sha": "b52c64c36504e17da9ae3f70f5551bfd1e01a5d5",
+  "source_sha": "9824e04d630d42765ed44b9ff88702fcff885e08",
+  "source_tree": "9aeed3f6a3ed62594062ab8cb10b24d719335753",
+  "changed_paths": [
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py",
+    "policy-engine/docs/reference/foundry/causal-neighbor-fixtures.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-causal-neighbor-fixtures.toml"
+  ],
+  "production_paths_changed": [],
+  "full_patch_bytes": 23087,
+  "full_patch_sha256": "69833a1c2f7d23bbe8161a455234d49f548e492107a8867c7c8cf256d1096035"
+}

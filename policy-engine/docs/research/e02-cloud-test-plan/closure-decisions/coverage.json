@@ -1860,7 +1860,7 @@
         }
       ],
       "closure_now": "not_adjudicated",
-      "criterion_specific_acceptance_not_executed": "not_promoted returned before N9 is not proof N9 checked or refused.",
+      "criterion_specific_acceptance_not_executed": "A real N5 K_sim result traverses the runtime adapter into conditional simulation analysis while remaining unable to assert K_world, empirical effect, or external action; manually clearing its limitation is invalid.",
       "capability_label": "verification_missing"
     },
     {
@@ -2334,17 +2334,17 @@
       "closure_now": "not_adjudicated",
       "selected_plan_not_executed": {
         "selected_minimal_route": "**Рекомендуемое решение.** Отдельно отслеживать существование предыдущей группы и применять к ней слабое сравнение второй координаты: строгое улучшение первой уже обеспечено порядком групп. Внутри одной группы сохранять все настоящие равенства её максимума. Дополнить 3D теми же различающими тестами. Для отсутствующего предыдущего значения предпочтителен явный sentinel, не смешиваемый с числом неизвестной метрики.",
-        "concrete_next_task": "Выполнить `selected_minimal_route`, сохранив её ограничение; затем закрыть только этот остаток: Run/tenant/cell-bound Pareto provider is not wired from ExecutionContext/workflow construction to served frontier publisher. Literal source census only. Назначенный владелец: A workflow/provider appointment and actual ArtifactStore-bound bridge; D supplies mathematical/snapshot contract..",
-        "next_owner": "A workflow/provider appointment and actual ArtifactStore-bound bridge; D supplies mathematical/snapshot contract.",
-        "remaining_input": "Run/tenant/cell-bound Pareto provider is not wired from ExecutionContext/workflow construction to served frontier publisher. Literal source census only.",
+        "concrete_next_task": "Verify original fast-vs-direct Pareto agreement in 1–4D under normalized directions, permutations, one/all-coordinate ties and distinct duplicate IDs at exact candidate. Preserve current source evidence and P41 limits. Separately appoint/wire A’s run/tenant/cell-bound served provider with D’s registry contract; that additional capability is not the B109 comparator criterion.",
+        "next_owner": "D comparator/oracle owner for original B109; A provider/workflow owner with D for additional served capability.",
+        "remaining_input": "Original B109 exact-current comparator/oracle and required source/input evidence remain individually unadjudicated. Missing default served provider/export is a separately scoped capability, not the original comparator bar.",
         "consumer_paths": [
           "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
           "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py"
         ],
-        "independent_oracle_after_integration": "Независимая O(n²) all-pairs Pareto oracle над typed ObjectiveValues и exact supported hypervolume oracle.",
+        "independent_oracle_after_integration": "Independent slow all-pairs dominance comparator, 1–4D normalized directions, permutations, equal-coordinate groups and distinct duplicates; do not require hypervolume for B109.",
         "negative_control": "Сначала выполнить исходный counterexample/acceptance из полного bundle блока, затем удалить или подменить само runtime property, сохранив контрактные поля/маркеры; consumer result обязан отличиться. Сохранить позитивный контроль из блока.",
         "acceptance_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_pareto.py tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py tests/unit/scientist/methods/search/test_hypervolume_limitations.py -ra",
-        "capability_state_label": "implemented_but_not_orchestrated",
+        "capability_state_label": "verification_missing",
         "P40": {
           "bucket": "new_or_distinct_class",
           "relation": null
@@ -2378,7 +2378,7 @@
         }
       ],
       "closure_now": "not_adjudicated",
-      "criterion_specific_acceptance_not_executed": "caller-asserted cost/spent or VOI score can proxy for resource use.",
+      "criterion_specific_acceptance_not_executed": "An informative permitted check runs while the bounded research budget remains even if the economic value-proxy is low or unknown; observed exhaustion stops it. Caller-asserted VOI/spend cannot substitute for actual budget use.",
       "capability_label": "bridge_missing"
     },
     {
@@ -2455,9 +2455,9 @@
       "closure_now": "not_adjudicated",
       "selected_plan_not_executed": {
         "selected_minimal_route": "**Рекомендуемое решение.** Перед численным сравнением разрешать каждую обязательную метрику: measured finite / missing / invalid / неприменимо. Сохранять неполные результаты отдельно и выдавать точный следующий запрос, не превращая unknown в лучшую или худшую бесконечность. При изменении множества сравниваемых координат создавать явно другую задачу сравнения. Проверять finite у порогов и индикаторов; не «лечить» NaN произвольным clipping или нулём.",
-        "concrete_next_task": "Выполнить `selected_minimal_route`, сохранив её ограничение; затем закрыть только этот остаток: Independent complete source-feasible/unknown producer and bridge absent; ordinary builder still self-derives source denominator. Served champion accepts nonfinite/overflow ranking. Additional independent review residual: persisted snapshot schema_version3.0 is currently admitted; D registry/G profile acceptance must supply explicit known-version admission contract and refusing control. Назначенный владелец: A owns served builder/node; surgical proposed129line patch is supplied, not applied. D registry/G profile acceptance for persisted unknown snapshot version admission..",
+        "concrete_next_task": "Preserve original measured/missing/invalid/nonfinite states, invalid reasons, partial-versus-global denominator and finite-or-explicitly-unavailable outputs through actual CAS/upstream guards. Resolve source-feasible/unknown admission at its canonical producer/consumer. Treat persisted unknown schema-version admission as an additional profile obligation; finite-positive arithmetic underflow is a separately classified numerical limitation, not an automatic original B111 criterion.",
         "next_owner": "A owns served builder/node; surgical proposed129line patch is supplied, not applied. D registry/G profile acceptance for persisted unknown snapshot version admission.",
-        "remaining_input": "Independent complete source-feasible/unknown producer and bridge absent; ordinary builder still self-derives source denominator. Served champion accepts nonfinite/overflow ranking. Additional independent review residual: persisted snapshot schema_version3.0 is currently admitted; D registry/G profile acceptance must supply explicit known-version admission contract and refusing control.",
+        "remaining_input": "Independent source-feasible/unknown basis and truthful partial consumer remain unestablished; current served nonfinite/overflow output must be checked at exact source. Unknown snapshot-version admission is an additional profile/schema limit, separately scoped from original B111.",
         "consumer_paths": [
           "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
           "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py"
@@ -2915,18 +2915,18 @@
       "closure_now": "not_adjudicated",
       "selected_plan_not_executed": {
         "selected_minimal_route": "**Рекомендуемое исправление.** Передавать остановке снимок фактического учёта от существующего владельца бюджета с областью, валютой/единицей, уже подтверждёнными расходами и, где нужно, резервами. Проверять возможность нового расхода до запуска, а не использовать post-factum stopping как замену admission. Для budget-required режима отсутствие состояния — неизвестный учёт, не автоматически нулевой расход.",
-        "concrete_next_task": "Выполнить `selected_minimal_route`, сохранив её ограничение; затем закрыть только этот остаток: Real evaluator retry/cache-ledger admission and an independent production budget provider are not established by these CTL fixtures. Назначенный владелец: FUN/evaluator ledger provider and SearchService caller own actual spend source..",
-        "next_owner": "FUN/evaluator ledger provider and SearchService caller own actual spend source.",
-        "remaining_input": "Real evaluator retry/cache-ledger admission and an independent production budget provider are not established by these CTL fixtures.",
+        "concrete_next_task": "Exact D 68070854 has a G-executed 10-case canonical owner→controller→CAS/fresh-resume witness. Accept owner-compatible source and verify only affected consumers on the frozen integrated SHA; do not repeat unchanged deciding runs. Formal closure remains not_adjudicated.",
+        "next_owner": "D native factory and G integration, preserving B's canonical BudgetMiddleware/FileBudgetLedger.",
+        "remaining_input": "Exact integrated-source consumer verification and G code acceptance remain pending. Universal deployed production-provider or invoice-truth proof is not a prerequisite of original B120; deployment truth/use stays a separate not_established claim.",
         "consumer_paths": [
           "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
           "policy-engine/src/polisyos/scientist/methods/search/controller.py",
           "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py"
         ],
-        "independent_oracle_after_integration": "Reopen the existing FileBudgetLedger and compare snapshots around one actual resource-owner event: measured spend, limit key/unit, reservation settlement, stable charge_event_id, and no duplicate on retry. For FUN-01 also require equal full/split persisted snapshots and resume only against the changed owner snapshot; maintain warm/new/sentinel/evaluation counts separately. Stage trace or `compute_actual_usd` is not the oracle.",
+        "independent_oracle_after_integration": "Reopen the existing FileBudgetLedger and compare snapshots around the canonical resource-owner event: spend, key/unit, reservation settlement, stable event identity and no duplicate on restore/retry. Carry exact-680 test_service_owner_budget_factory.py evidence only for unchanged source/test/dependencies; after an upstream contract change rerun its affected cases on the frozen integrated SHA. Stage trace or agent-supplied compute_actual_usd is not the oracle. FUN-01 full/split requirements remain on their own criteria.",
         "negative_control": "Keep declared/stage cost (`compute_actual_usd=1`) and markers; suppress the actual ledger charge then reopen FileBudgetLedger: persisted spend must not advance and the gate must fail. Redeliver one charge_event_id and prove it is not charged twice. A changed stage trace without ledger mutation cannot pass.",
-        "acceptance_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_cost_stopping.py tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/orchestration/engine/test_budget.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/orchestration/engine/test_budget_ledger.py -ra",
-        "capability_state_label": "bridge_missing",
+        "acceptance_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/test_service_owner_budget_factory.py -ra",
+        "capability_state_label": "verification_missing",
         "P40": {
           "bucket": "new_or_distinct_class",
           "relation": null
@@ -4770,7 +4770,7 @@
         }
       ],
       "closure_now": "not_adjudicated",
-      "criterion_specific_acceptance_not_executed": "Actual admitted ETS forecast and paired held-out outcomes traverse strict CAS and the default gateway. A configured in-process verifier reruns ETS on training rows only, rejects leakage, independently recomputes held-out coverage/threshold/scope/time, and serves predictive-only support. Content-valid false receipt/control fails.",
+      "criterion_specific_acceptance_not_executed": "Pass task region/population and measurement semantics into the existing empirical profile/query before sorting, LIMIT, or aggregation; preserve source/unit, refuse unapproved mixed-unit averaging, distinguish a genuinely small sample from completeness, and make scope changes alter consumed-row identity.",
       "capability_label": "verification_missing"
     },
     {
@@ -7094,7 +7094,7 @@
         }
       ],
       "closure_now": "not_adjudicated",
-      "criterion_specific_acceptance_not_executed": "candidate ID/history row does not establish signature/current epoch.",
+      "criterion_specific_acceptance_not_executed": "Subject candidate identity is distinct from each per-iteration occurrence: preserve both in history, select one current occurrence, and bind the downstream result to the right version; blind deduplication loses evidence.",
       "capability_label": "verification_missing"
     },
     {
@@ -7152,7 +7152,7 @@
         }
       ],
       "closure_now": "not_adjudicated",
-      "criterion_specific_acceptance_not_executed": "whole checkout bytes or exit code proxy for deployed executable identity.",
+      "criterion_specific_acceptance_not_executed": "An absent/unavailable source denominator must not yield an empty successful result; distinguish parse errors from an actual forbidden caller, keep unrelated syntax errors out of the caller set, and verify the controlled source/deployment slice for actually executed code plus relevant loaded dependencies.",
       "capability_label": "producer_missing"
     },
     {
@@ -7181,7 +7181,7 @@
         }
       ],
       "closure_now": "not_adjudicated",
-      "criterion_specific_acceptance_not_executed": "field width or forcing mean inside credible interval changes statistical meaning.",
+      "criterion_specific_acceptance_not_executed": "Keep identification bounds separate from native statistical/model uncertainty for the same estimand/unit; zero-width identification is not zero total uncertainty, no arbitrary proxy width is allowed, and a mean need not be forced into an interval. Check the existing versioned carrier first; E B201/B202 quantile/joint-law/storage choices are separate.",
       "capability_label": "absent/unallocated"
     },
     {
@@ -9770,7 +9770,7 @@
         }
       ],
       "closure_now": "not_adjudicated",
-      "criterion_specific_acceptance_not_executed": "The legacy fiscal and labor profiles are non-equivalent; preserve their selectors, units, effect types and convergence semantics until a real optimizer/caller equivalence is shown. The caller/retirement seam is still open.",
+      "criterion_specific_acceptance_not_executed": "The frozen F paired-profile receipts cover a bounded comparison of the declared legacy and plugin fiscal/labor profiles across selected matched and divergent regimes, including state/units, timestep, tax, balance and RNG semantics. This is not whole-model or production-caller equivalence. Formal closure remains not adjudicated; no Gini/welfare sign-off or optimizer caller is required by LA-004. A possible C/PPO negative-wealth input into strict Gini remains a separate cross-edge without a combined runtime witness.",
       "method_decision_ref": "method-decisions.md#f-m14"
     },
     {
@@ -11026,7 +11026,7 @@
         }
       ],
       "closure_now": "not_adjudicated",
-      "criterion_specific_acceptance_not_executed": "`policy_loss_fn` is a live early economic baseline under the shared method owner. No equivalent modern economic objective or production optimizer caller is proven. Residual is objective/profile/compatibility equivalence and an actual optimizer consumer, not merely ECO fiscal/labor profile difference.",
+      "criterion_specific_acceptance_not_executed": "The unchanged historical `normalized_income_budget_loss` is preserved on its native `GlobalState` formula with legacy internal/public aliases and its guards/JIT/gradient behavior; frozen compatibility receipts cover the selected formula/import path. No normative-owner approval is required for this unchanged relocation. Formal closure remains not adjudicated. Production optimizer use and external/computed caller retirement are unestablished and remain a separate census/compatibility question; owner review is required only for a changed score/ranking or new objective.",
       "method_decision_ref": "method-decisions.md#f-m14"
     },
     {
@@ -11476,7 +11476,7 @@
         }
       ],
       "closure_now": "not_adjudicated",
-      "criterion_specific_acceptance_not_executed": "compiler-emitted requirement or recording resolver result proxies for admitted data.",
+      "criterion_specific_acceptance_not_executed": "Keep two acceptance occurrences for the same LA-046 source block/hash: ACQ-01 requires actual admitted N7 inputs to alter WMR (a recording resolver is insufficient); REQ-01 separately tests the generic compiler against an explicit named pilot profile, opaque scenario IDs, text/request, declared scope/date/jurisdiction, and negation. Neither occurrence closes the other; REQ-01 does not require N7 acquisition.",
       "capability_label": "verification_missing"
     },
     {

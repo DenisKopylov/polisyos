@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/remediation/test_emp_01.py::test_selection_diagram_requires_verified_causal_artifact",
+    "tests/unit/remediation/test_emp_01.py::test_raw_graph_without_artifact_bridge_fails_closed",
+    "--junitxml=/tmp/e02-F-continuation-20261007/root-quality/EMP01-narrow.xml"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "exit_code": 0,
+  "check": "PASS",
+  "actual_checkout_sha": "6a39465ee29bb50efcd431089deb8f043e26d762",
+  "product_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "product_and_test_bytes_unchanged": true,
+  "wall_s": 31.292391538619995,
+  "scope": "Actual A generation-cycle verified-causal-artifact admission refusal only; context fixture monkeypatch is not production authority; positive ArtifactStore/CausalGraphModelRef bridge remains unavailable A-owned consumer contract",
+  "selectors": [
+    "tests/unit/remediation/test_emp_01.py::test_selection_diagram_requires_verified_causal_artifact",
+    "tests/unit/remediation/test_emp_01.py::test_raw_graph_without_artifact_bridge_fails_closed"
+  ]
+}

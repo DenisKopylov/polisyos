@@ -1,0 +1,539 @@
+{
+  "full_files_read": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/ASSESSMENT.md",
+      "bytes": 8604,
+      "sha256": "81d235335f4b5bb8ffd2055ff2d349baec2a80e9711db4722f1bcdbadb7488c2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/README.md",
+      "bytes": 11029,
+      "sha256": "2f91e5a04610ef877dce4ed9121a045aefac01540662a85c12c340a5ed32b8e7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv",
+      "bytes": 451094,
+      "sha256": "afbf14fc428d89e20e409cd7f18db0a52bf17e2c0ecde1a2a5e33626c8b49152"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/events.jsonl",
+      "bytes": 258107,
+      "sha256": "71819c4589f3c838282cf3b5904af7f68b01825fb75711966190fa8770aa9e15"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/gates.json",
+      "bytes": 7050,
+      "sha256": "0ccb720dfa525e3b7dee956ec0c177c2b19ffb926fed0b6edf18b92cafbfd5c9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+      "bytes": 16991,
+      "sha256": "701a73c316eb1d9b842004efbb8856960f9ccbe896816b365a13a415a7c50410"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/properties.tsv",
+      "bytes": 10226,
+      "sha256": "c3406a53d35dce5f785adcfadd5c06b8c0bd4a4dd70da770b9cd62ae4d807c78"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "bytes": 6843,
+      "sha256": "fb8d1b841d24e9069f7618ab08bee23b5f20fb1027f32a4ce8ed3d7e662a1f83"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt",
+      "bytes": 71251,
+      "sha256": "5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F02.txt",
+      "bytes": 61014,
+      "sha256": "69b55ba8ab1cd438d9cd3da1093e8c9e08f18653123ebc27acb310f6c8015447"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+      "bytes": 75761,
+      "sha256": "1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt",
+      "bytes": 79431,
+      "sha256": "17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt",
+      "bytes": 97032,
+      "sha256": "2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt",
+      "bytes": 99912,
+      "sha256": "b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt",
+      "bytes": 74977,
+      "sha256": "eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt",
+      "bytes": 95586,
+      "sha256": "d4ccc20c4f1c70e35c9e07c049552e5a8a2a1eca750c350f23f13040468d7f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt",
+      "bytes": 75983,
+      "sha256": "0bd494ff47e618125b8fec7074f76e3c4375da60b0bc2a0fe8860f885ece88ff"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt",
+      "bytes": 71852,
+      "sha256": "c45428c7e6574666b0a5ef98ba0427e3137c7008046fad65d4ed4dc55620fe36"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt",
+      "bytes": 62579,
+      "sha256": "5d24641c10ed0943503e5c14c2965a849d5389a4ba35ece518418fe12a03f471"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt",
+      "bytes": 110036,
+      "sha256": "03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt",
+      "bytes": 87536,
+      "sha256": "7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt",
+      "bytes": 122592,
+      "sha256": "6746baa7b42a4fad583e640a8ba845806612b34c13a9688c86fbe7ff667fb50e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt",
+      "bytes": 85661,
+      "sha256": "efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv",
+      "bytes": 280085,
+      "sha256": "30755ddca05267c4aeec56154c1c9282ee985c3414b76991aecb99d0ecf59da2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/sources.json",
+      "bytes": 4860,
+      "sha256": "a08b728541bf0c424e985969760131e553873c3be91aa9b4d6e96a50e9556edb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/validation.json",
+      "bytes": 2167,
+      "sha256": "3b799f2bd08032363aa6d35aa3b18de90151537a755b8c6cf4b65c95603607ba"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/verification.json",
+      "bytes": 13971,
+      "sha256": "26fcc44ff5094586402edf421cb04faf944578be3f628edd2577f5ed589d2c17"
+    }
+  ],
+  "counts": {
+    "sources": 15,
+    "cells": 2074,
+    "routes": 2524,
+    "events_locators": 1170,
+    "owners": {
+      "bundles": 127,
+      "findings": 282,
+      "F_bundles": 17,
+      "F_findings": 35
+    }
+  },
+  "F_bundle_owner_rows": [
+    {
+      "bundle_id": "API-01",
+      "unit": "F",
+      "initial_writer_family": "F-W01",
+      "title": "Причинные фасады: explicit surface вместо отражающих globals"
+    },
+    {
+      "bundle_id": "CAU-01",
+      "unit": "F",
+      "initial_writer_family": "F-W02",
+      "title": "Standard DiD: допустимый дизайн, covariance и уровни CI"
+    },
+    {
+      "bundle_id": "CAU-02",
+      "unit": "F",
+      "initial_writer_family": "F-W02",
+      "title": "Staggered DiD: единицы, H0 и anticipation"
+    },
+    {
+      "bundle_id": "CAU-03",
+      "unit": "F",
+      "initial_writer_family": "F-W02",
+      "title": "RDD: честная RBC capability и линейная память WLS"
+    },
+    {
+      "bundle_id": "CAU-04",
+      "unit": "F",
+      "initial_writer_family": "F-W02",
+      "title": "DoWhy: реальный estimand и point-only результат"
+    },
+    {
+      "bundle_id": "CAU-05",
+      "unit": "F",
+      "initial_writer_family": "F-W02",
+      "title": "DiD: dedicated planning, old-slot replay и retirement umbrella"
+    },
+    {
+      "bundle_id": "ECO-01",
+      "unit": "F",
+      "initial_writer_family": "F-W03",
+      "title": "Два economic профиля и предметный baseline objective"
+    },
+    {
+      "bundle_id": "FIT-01",
+      "unit": "F",
+      "initial_writer_family": "F-W04",
+      "title": "Nuisance fit-core, актуальная диагностика и ограниченные folds"
+    },
+    {
+      "bundle_id": "FRY-01",
+      "unit": "F",
+      "initial_writer_family": "F-W05",
+      "title": "Foundry compile/catalog: randomization, families и прямой IR layout"
+    },
+    {
+      "bundle_id": "FRY-03",
+      "unit": "F",
+      "initial_writer_family": "F-W03",
+      "title": "Fiscal/labor: эквивалентный перенос живых PatchMap kernels"
+    },
+    {
+      "bundle_id": "GRF-01",
+      "unit": "F",
+      "initial_writer_family": "F-W06",
+      "title": "Правильные static ADMG m-separation и perfect-do"
+    },
+    {
+      "bundle_id": "GRF-02",
+      "unit": "F",
+      "initial_writer_family": "F-W06",
+      "title": "Неизменяемый граф, mixed-edge export и версии кэша"
+    },
+    {
+      "bundle_id": "GRF-03",
+      "unit": "F",
+      "initial_writer_family": "F-W06",
+      "title": "Известные направления и явная временная/частичная семантика"
+    },
+    {
+      "bundle_id": "LEX-01",
+      "unit": "F",
+      "initial_writer_family": "F-W07",
+      "title": "Lex: norm/compliance comparison отдельно от impact-topic эвристики"
+    },
+    {
+      "bundle_id": "SCM-01",
+      "unit": "F",
+      "initial_writer_family": "F-W06",
+      "title": "Наблюдаемые корни и выполняемый nonlinear payload"
+    },
+    {
+      "bundle_id": "SCM-02",
+      "unit": "F",
+      "initial_writer_family": "F-W06",
+      "title": "Factual abduction и две явные стороны attribution"
+    },
+    {
+      "bundle_id": "SCM-03",
+      "unit": "F",
+      "initial_writer_family": "F-W06",
+      "title": "Активный query-plan и сохранённый stochastic law"
+    }
+  ],
+  "F_finding_owner_rows": [
+    {
+      "finding_id": "B54",
+      "unit": "F",
+      "docx_analytical_package": "P14",
+      "source_closure_owner": "FIT-01",
+      "source_bundle_ids": "FIT-01",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B56",
+      "unit": "F",
+      "docx_analytical_package": "P13",
+      "source_closure_owner": "FIT-01",
+      "source_bundle_ids": "FIT-01",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B204",
+      "unit": "F",
+      "docx_analytical_package": "P33",
+      "source_closure_owner": "CAU-01",
+      "source_bundle_ids": "CAU-01",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B205",
+      "unit": "F",
+      "docx_analytical_package": "P33",
+      "source_closure_owner": "CAU-01",
+      "source_bundle_ids": "CAU-01",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B206",
+      "unit": "F",
+      "docx_analytical_package": "P33",
+      "source_closure_owner": "CAU-01",
+      "source_bundle_ids": "CAU-01",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B207",
+      "unit": "F",
+      "docx_analytical_package": "P33",
+      "source_closure_owner": "CAU-02",
+      "source_bundle_ids": "CAU-02",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B208",
+      "unit": "F",
+      "docx_analytical_package": "P33",
+      "source_closure_owner": "CAU-02",
+      "source_bundle_ids": "CAU-02",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B209",
+      "unit": "F",
+      "docx_analytical_package": "P33",
+      "source_closure_owner": "CAU-02",
+      "source_bundle_ids": "CAU-02",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B210",
+      "unit": "F",
+      "docx_analytical_package": "P33",
+      "source_closure_owner": "CAU-03",
+      "source_bundle_ids": "CAU-03",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B211",
+      "unit": "F",
+      "docx_analytical_package": "P33",
+      "source_closure_owner": "CAU-03",
+      "source_bundle_ids": "CAU-03",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B212",
+      "unit": "F",
+      "docx_analytical_package": "P33",
+      "source_closure_owner": "CAU-04",
+      "source_bundle_ids": "CAU-04",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B213",
+      "unit": "F",
+      "docx_analytical_package": "P33",
+      "source_closure_owner": "CAU-04",
+      "source_bundle_ids": "CAU-04",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B214",
+      "unit": "F",
+      "docx_analytical_package": "P34",
+      "source_closure_owner": "GRF-03",
+      "source_bundle_ids": "GRF-03",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B215",
+      "unit": "F",
+      "docx_analytical_package": "P35",
+      "source_closure_owner": "SCM-02",
+      "source_bundle_ids": "SCM-02",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B216",
+      "unit": "F",
+      "docx_analytical_package": "P34",
+      "source_closure_owner": "GRF-01",
+      "source_bundle_ids": "GRF-01",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B217",
+      "unit": "F",
+      "docx_analytical_package": "P34",
+      "source_closure_owner": "GRF-01",
+      "source_bundle_ids": "GRF-01",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B218",
+      "unit": "F",
+      "docx_analytical_package": "P34",
+      "source_closure_owner": "GRF-03",
+      "source_bundle_ids": "GRF-03",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B219",
+      "unit": "F",
+      "docx_analytical_package": "P34",
+      "source_closure_owner": "GRF-02",
+      "source_bundle_ids": "GRF-02",
+      "source_status": "held"
+    },
+    {
+      "finding_id": "B220",
+      "unit": "F",
+      "docx_analytical_package": "P34",
+      "source_closure_owner": "GRF-02",
+      "source_bundle_ids": "GRF-02",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B221",
+      "unit": "F",
+      "docx_analytical_package": "P35",
+      "source_closure_owner": "SCM-01",
+      "source_bundle_ids": "SCM-01",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B222",
+      "unit": "F",
+      "docx_analytical_package": "P35",
+      "source_closure_owner": "SCM-01",
+      "source_bundle_ids": "SCM-01",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B223",
+      "unit": "F",
+      "docx_analytical_package": "P35",
+      "source_closure_owner": "SCM-02",
+      "source_bundle_ids": "SCM-02",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B224",
+      "unit": "F",
+      "docx_analytical_package": "P35",
+      "source_closure_owner": "SCM-03",
+      "source_bundle_ids": "SCM-03",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "B225",
+      "unit": "F",
+      "docx_analytical_package": "P35",
+      "source_closure_owner": "SCM-03",
+      "source_bundle_ids": "SCM-03",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "LA-001",
+      "unit": "F",
+      "docx_analytical_package": "P24",
+      "source_closure_owner": "FRY-01",
+      "source_bundle_ids": "FRY-01",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "LA-002",
+      "unit": "F",
+      "docx_analytical_package": "P36",
+      "source_closure_owner": "FRY-01",
+      "source_bundle_ids": "FRY-01",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "LA-003",
+      "unit": "F",
+      "docx_analytical_package": "P36",
+      "source_closure_owner": "FRY-03",
+      "source_bundle_ids": "FRY-03",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "LA-004",
+      "unit": "F",
+      "docx_analytical_package": "P36",
+      "source_closure_owner": "ECO-01",
+      "source_bundle_ids": "ECO-01",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "LA-007",
+      "unit": "F",
+      "docx_analytical_package": "P34",
+      "source_closure_owner": "GRF-01",
+      "source_bundle_ids": "GRF-01",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "LA-016",
+      "unit": "F",
+      "docx_analytical_package": "P33",
+      "source_closure_owner": "CAU-05",
+      "source_bundle_ids": "CAU-01,CAU-05",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "LA-017",
+      "unit": "F",
+      "docx_analytical_package": "P39",
+      "source_closure_owner": "LEX-01",
+      "source_bundle_ids": "LEX-01",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "LA-019",
+      "unit": "F",
+      "docx_analytical_package": "P34",
+      "source_closure_owner": "GRF-01",
+      "source_bundle_ids": "GRF-01",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "LA-020",
+      "unit": "F",
+      "docx_analytical_package": "P34",
+      "source_closure_owner": "API-01",
+      "source_bundle_ids": "API-01",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "LA-035",
+      "unit": "F",
+      "docx_analytical_package": "P36",
+      "source_closure_owner": "ECO-01",
+      "source_bundle_ids": "ECO-01",
+      "source_status": "partial"
+    },
+    {
+      "finding_id": "LA-037",
+      "unit": "F",
+      "docx_analytical_package": "P12",
+      "source_closure_owner": "FRY-01",
+      "source_bundle_ids": "FRY-01",
+      "source_status": "partial"
+    }
+  ],
+  "baseline_grade": "transfer_and_navigation_only",
+  "raw_archives_received": 0
+}

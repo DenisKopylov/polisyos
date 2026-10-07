@@ -1,0 +1,858 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "api-installed-graph-reconciliation-20261007",
+  "closure_ids": [],
+  "finding_ids": [
+    "LA-007",
+    "LA-019",
+    "LA-020"
+  ],
+  "related_finding_ids": [
+    "LA-007",
+    "LA-019",
+    "LA-020",
+    "B220"
+  ],
+  "bundle_ids": [
+    "API-01",
+    "GRF-01",
+    "GRF-02"
+  ],
+  "slice_base_sha": "90c72b51155321684c788cd5a03fbb70fc001d53",
+  "implementation_commits": [
+    "3bfccecaa9b94e4237a7450d8a3d37fe6bb2288e",
+    "7f0161c6d8c197e548327df90ff33c2ecc8bde31",
+    "6f39b0edc48ec59db3731fa917c615b9f97e4dc0"
+  ],
+  "candidate_source_sha": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+  "candidate_tree_sha": "bd4d4488cbd8121fed1c0983d2e3cc3d8fef49a5",
+  "branch": "codex/e02-F-api-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/59",
+  "changed_paths": [
+    "policy-engine/docs/reference/foundry/causal-installed-source-reconciliation.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-installed-graph-contract-reconciliation.toml",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_graph_contract_reconciliation.py"
+  ],
+  "product_source_delta": "none; test/docs/releasefragment only; fullsrc/workers/HATCH/pyproject/lock exactlycanonical8236",
+  "source_roles": {
+    "canonical_distribution": {
+      "sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a"
+    },
+    "new_test_carrier": {
+      "sha": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+      "tree": "bd4d4488cbd8121fed1c0983d2e3cc3d8fef49a5",
+      "test_sha256": "65625b4786535bd2864b0a7726bed69cde7b0b0975efd364c8aa7ec292d0c27b"
+    },
+    "competing_carrier": {
+      "sha": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "tree": "ac7b625d29c799f54c62a18d1e1a05832fad0a17",
+      "remote_branch": "codex/e02-F-installed-worker-20261006",
+      "state": "unmerged_dependency_inspection_only",
+      "reviewed_base_sha": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5"
+    },
+    "root_evidence_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "fetched_G_dependency": {
+      "sha": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+      "tree": "f27a36aa7eae9d6e329e0602ea40b6169a5bcf35",
+      "role": "Published taskdependency, not acceptance ofall Fcarrierheads"
+    }
+  },
+  "reconciliation": {
+    "full_table_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/source-reconciliation.json.gz",
+      "bytes": 7769,
+      "sha256": "509256704769ffeb980e96a59f8cea1e36e66eac9f3687bfc32355fd001425d2",
+      "original_path": "/tmp/e02-F-continuation-20261007/api/source-reconciliation.json",
+      "decoded_bytes": 129263,
+      "decoded_sha256": "a63578415183fa1d6998b51c358f09f7f2f5c5e3b6871e2c14b1d4a6da9d1f94",
+      "encoding": "gzip-lossless"
+    },
+    "denominator": {
+      "all_changed_tracked_paths": 221,
+      "classifications": {
+        "reference_doc": 1,
+        "handoff_evidence": 214,
+        "release_fragment": 2,
+        "runtime_source": 3,
+        "test": 1
+      },
+      "source_test_reference_doc_fragment_tool_paths": 7,
+      "post_review_commits": 9
+    },
+    "IR_blobs": {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "unique_blobs": [
+        "342d416961ec817441574253320a9054c00d969e",
+        "8787cd95d63b342b5d9f5e760ffc8d73b1b8985d",
+        "f2635665550259d20323d29a784faf11dc8896b7"
+      ],
+      "bound_every_commit": true
+    },
+    "conclusion": "Keep canonical8236 contract. Competing3dde remains unmerged; its causal_graph.py differs only in two formatting hunks and normalized whole-module AST is identical. This does not transfer any whole-head PASS.",
+    "canonical_fragment_classification": "internal provider; competing publiclabel doesnotpromote graph facade"
+  },
+  "baseline_cells": [
+    "F08-P048"
+  ],
+  "baseline_grade": "source_reported compacttext; rawarchives0; adequacy not_established; no candidatePASS carried frombaseline",
+  "checks": [
+    {
+      "name": "complete competing history and canonical graph AST reconciliation",
+      "command": "python3 /tmp/e02-F-continuation-20261007/api/reconcile_installed_sources.py",
+      "target_sha": "90c72b51155321684c788cd5a03fbb70fc001d53",
+      "environment": "App Python3.14.7; installed8236 wheel/rebuilt-sdist or read-only Git inspection as named; no optional backend success inferred",
+      "input_closure": "Exactab56\u21923dde ninecommits/all221changedtrackedpaths; 214evidence+7definingcompanions; all7\u00d75bindings/all3definingIRblobs; actualtwoformattinghunks/wholeASTequal graph3dde\u21928236. Sourceinspection only, no wholeheadruntimeverdict.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/source-reconciliation.json.gz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/source-reconciliation.json.gz",
+        "bytes": 7769,
+        "sha256": "509256704769ffeb980e96a59f8cea1e36e66eac9f3687bfc32355fd001425d2",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/source-reconciliation.json",
+        "decoded_bytes": 129263,
+        "decoded_sha256": "a63578415183fa1d6998b51c358f09f7f2f5c5e3b6871e2c14b1d4a6da9d1f94",
+        "encoding": "gzip-lossless"
+      }
+    },
+    {
+      "name": "initial-3bfc wheel positive",
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python -I /tmp/e02-F-continuation-20261007/api/run_installed_graph_reconciliation.py /tmp/e02-F-continuation-20261007/api/wheel-consumer-config.json positive",
+      "target_sha": "3bfccecaa9b94e4237a7450d8a3d37fe6bb2288e",
+      "environment": "App Python3.14.7; installed8236 wheel/rebuilt-sdist or read-only Git inspection as named; no optional backend success inferred",
+      "input_closure": "Actualpytest2FAIL exit1 preserved. Nondeciding authorharness/domain error: static temporal ancestry misuse.",
+      "outcome": "ERROR",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/wheel-positive.stdout.gz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/wheel-positive.stdout.gz",
+        "bytes": 1341,
+        "sha256": "7b1365e6bbc1020880e4c4f6881e12462fc3a0ba4d216785c500c922f1eec36e",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/initial-3bfc/wheel-positive.stdout",
+        "decoded_bytes": 6480,
+        "decoded_sha256": "49dec856335ce1041f56ca0c9e66e0ed70c6ef6fdac6436bad2b259e556c6855",
+        "encoding": "gzip-lossless"
+      },
+      "actual_pytest": "2FAIL0skip/error",
+      "expected_control_failure": false,
+      "distribution_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536"
+    },
+    {
+      "name": "initial-3bfc wheel remove_row_isolation",
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python -I /tmp/e02-F-continuation-20261007/api/run_installed_graph_reconciliation.py /tmp/e02-F-continuation-20261007/api/wheel-consumer-config.json remove_row_isolation",
+      "target_sha": "3bfccecaa9b94e4237a7450d8a3d37fe6bb2288e",
+      "environment": "App Python3.14.7; installed8236 wheel/rebuilt-sdist or read-only Git inspection as named; no optional backend success inferred",
+      "input_closure": "Actualpytest2FAIL exit1 preserved. Nondeciding authorharness/domain error: static temporal ancestry misuse.",
+      "outcome": "ERROR",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/wheel-remove_row_isolation.stdout.gz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/wheel-remove_row_isolation.stdout.gz",
+        "bytes": 1345,
+        "sha256": "ad6911d4bbe2fa3b42ae74be92be1815c84d01cdbfd2b3b106ea9c688d9cb3fa",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/initial-3bfc/wheel-remove_row_isolation.stdout",
+        "decoded_bytes": 6492,
+        "decoded_sha256": "82a56fc8443159cfd75b15edf2e24c899eb0c138a09e563d1add3590344ae0bf",
+        "encoding": "gzip-lossless"
+      },
+      "actual_pytest": "2FAIL0skip/error",
+      "expected_control_failure": false,
+      "distribution_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536"
+    },
+    {
+      "name": "initial-3bfc sdist positive",
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python -I /tmp/e02-F-continuation-20261007/api/run_installed_graph_reconciliation.py /tmp/e02-F-continuation-20261007/api/sdist-consumer-config.json positive",
+      "target_sha": "3bfccecaa9b94e4237a7450d8a3d37fe6bb2288e",
+      "environment": "App Python3.14.7; installed8236 wheel/rebuilt-sdist or read-only Git inspection as named; no optional backend success inferred",
+      "input_closure": "Actualpytest2FAIL exit1 preserved. Nondeciding authorharness/domain error: static temporal ancestry misuse.",
+      "outcome": "ERROR",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/sdist-positive.stdout.gz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/sdist-positive.stdout.gz",
+        "bytes": 1340,
+        "sha256": "765aa1474ef45f6604ded38b61fed63981c645b919e5634ab556ed5b2be09005",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/initial-3bfc/sdist-positive.stdout",
+        "decoded_bytes": 6480,
+        "decoded_sha256": "75b2ed109c28574692c1cacbeffcce98f0239e85499550804bc7b336af19b857",
+        "encoding": "gzip-lossless"
+      },
+      "actual_pytest": "2FAIL0skip/error",
+      "expected_control_failure": false,
+      "distribution_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536"
+    },
+    {
+      "name": "initial-3bfc sdist remove_row_isolation",
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python -I /tmp/e02-F-continuation-20261007/api/run_installed_graph_reconciliation.py /tmp/e02-F-continuation-20261007/api/sdist-consumer-config.json remove_row_isolation",
+      "target_sha": "3bfccecaa9b94e4237a7450d8a3d37fe6bb2288e",
+      "environment": "App Python3.14.7; installed8236 wheel/rebuilt-sdist or read-only Git inspection as named; no optional backend success inferred",
+      "input_closure": "Actualpytest2FAIL exit1 preserved. Nondeciding authorharness/domain error: static temporal ancestry misuse.",
+      "outcome": "ERROR",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/sdist-remove_row_isolation.stdout.gz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/initial-3bfc/sdist-remove_row_isolation.stdout.gz",
+        "bytes": 1345,
+        "sha256": "a3ddcc3f99ae5e80e49fb2b3ef093529ceff58c3a2a71a33a186e2083abf9b28",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/initial-3bfc/sdist-remove_row_isolation.stdout",
+        "decoded_bytes": 6492,
+        "decoded_sha256": "368e1c36ab073896d6509c255a24a839f4fc9ce438a247d00c4ab5e7bc055d93",
+        "encoding": "gzip-lossless"
+      },
+      "actual_pytest": "2FAIL0skip/error",
+      "expected_control_failure": false,
+      "distribution_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536"
+    },
+    {
+      "name": "observer-7f wheel positive",
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python -I /tmp/e02-F-continuation-20261007/api/run_installed_graph_reconciliation.py /tmp/e02-F-continuation-20261007/api/wheel-consumer-config.json positive",
+      "target_sha": "7f0161c6d8c197e548327df90ff33c2ecc8bde31",
+      "environment": "App Python3.14.7; installed8236 wheel/rebuilt-sdist or read-only Git inspection as named; no optional backend success inferred",
+      "input_closure": "Actualpytest2FAIL exit1 preserved. ObserverJSON typedArtifactID serialization error after semantic fresh-reader assertions; not wholePASS.",
+      "outcome": "ERROR",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/wheel-positive.stdout.gz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/wheel-positive.stdout.gz",
+        "bytes": 2357,
+        "sha256": "4ca0e683b265c7420603346f2cc44a713faaf04c7a6b05099150d771779313e1",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/observer-7f/wheel-positive.stdout",
+        "decoded_bytes": 13329,
+        "decoded_sha256": "8bfc799f7ab603e1ca2ac0bdbeda41e2e0bcc32d452645ea40f5d1cd978ed797",
+        "encoding": "gzip-lossless"
+      },
+      "actual_pytest": "2FAIL0skip/error",
+      "expected_control_failure": false,
+      "distribution_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536"
+    },
+    {
+      "name": "observer-7f wheel remove_row_isolation",
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python -I /tmp/e02-F-continuation-20261007/api/run_installed_graph_reconciliation.py /tmp/e02-F-continuation-20261007/api/wheel-consumer-config.json remove_row_isolation",
+      "target_sha": "7f0161c6d8c197e548327df90ff33c2ecc8bde31",
+      "environment": "App Python3.14.7; installed8236 wheel/rebuilt-sdist or read-only Git inspection as named; no optional backend success inferred",
+      "input_closure": "Actualpytest2FAIL exit1 preserved. True row-isolation behavioral removal at unchanged semantic assertion.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/wheel-remove_row_isolation.stdout.gz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/wheel-remove_row_isolation.stdout.gz",
+        "bytes": 1520,
+        "sha256": "a7d1369b9fd8b8ca97b56748bce5b6f1ccdbd0493c4f91cfbb3b58aa70193bd5",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/observer-7f/wheel-remove_row_isolation.stdout",
+        "decoded_bytes": 6778,
+        "decoded_sha256": "ac3ca1780742e48f8e52a1c9ebc133395814722e6aa25765edfb66b315681bf7",
+        "encoding": "gzip-lossless"
+      },
+      "actual_pytest": "2FAIL0skip/error",
+      "expected_control_failure": true,
+      "distribution_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536"
+    },
+    {
+      "name": "observer-7f sdist positive",
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python -I /tmp/e02-F-continuation-20261007/api/run_installed_graph_reconciliation.py /tmp/e02-F-continuation-20261007/api/sdist-consumer-config.json positive",
+      "target_sha": "7f0161c6d8c197e548327df90ff33c2ecc8bde31",
+      "environment": "App Python3.14.7; installed8236 wheel/rebuilt-sdist or read-only Git inspection as named; no optional backend success inferred",
+      "input_closure": "Actualpytest2FAIL exit1 preserved. ObserverJSON typedArtifactID serialization error after semantic fresh-reader assertions; not wholePASS.",
+      "outcome": "ERROR",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/sdist-positive.stdout.gz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/sdist-positive.stdout.gz",
+        "bytes": 2357,
+        "sha256": "324a3794c873b4c017e79d30b915fe02785110476f532b008f4610c39a8e410c",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/observer-7f/sdist-positive.stdout",
+        "decoded_bytes": 13329,
+        "decoded_sha256": "d1faeb1a3d7e092d0e3f2712458f17ad6caf93c499bb10fa1a2ad6a3376d9efc",
+        "encoding": "gzip-lossless"
+      },
+      "actual_pytest": "2FAIL0skip/error",
+      "expected_control_failure": false,
+      "distribution_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536"
+    },
+    {
+      "name": "observer-7f sdist remove_row_isolation",
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python -I /tmp/e02-F-continuation-20261007/api/run_installed_graph_reconciliation.py /tmp/e02-F-continuation-20261007/api/sdist-consumer-config.json remove_row_isolation",
+      "target_sha": "7f0161c6d8c197e548327df90ff33c2ecc8bde31",
+      "environment": "App Python3.14.7; installed8236 wheel/rebuilt-sdist or read-only Git inspection as named; no optional backend success inferred",
+      "input_closure": "Actualpytest2FAIL exit1 preserved. True row-isolation behavioral removal at unchanged semantic assertion.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/sdist-remove_row_isolation.stdout.gz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/observer-7f/sdist-remove_row_isolation.stdout.gz",
+        "bytes": 1520,
+        "sha256": "e7020be5fe4b4d330256c3ea2338c862d81165d046fbe91ebb84ae6209e1c895",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/observer-7f/sdist-remove_row_isolation.stdout",
+        "decoded_bytes": 6778,
+        "decoded_sha256": "2789ac1936241707b8ee411774bd768cd4373009f0438ddecdb469fa0e96bc4d",
+        "encoding": "gzip-lossless"
+      },
+      "actual_pytest": "2FAIL0skip/error",
+      "expected_control_failure": true,
+      "distribution_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536"
+    },
+    {
+      "name": "final wheel positive",
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python -I /tmp/e02-F-continuation-20261007/api/run_installed_graph_reconciliation.py /tmp/e02-F-continuation-20261007/api/wheel-consumer-config.json positive",
+      "target_sha": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+      "environment": "App Python3.14.7; installed8236 wheel/rebuilt-sdist or read-only Git inspection as named; no optional backend success inferred",
+      "input_closure": "Two real parameter/CSV\u2192CAS\u2192fresh-I typedgraph cases; all3459installedbytes before/after unchanged, all761owned origins underownsite. Positive2PASS; removal2behavioralFAIL; no liveKuzu or effectvalidity.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/wheel-positive.stdout.gz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/wheel-positive.stdout.gz",
+        "bytes": 18154,
+        "sha256": "5f0cd3094a06385d2f762a682b5fd6d46e7b117cab7a182f93ea5b4980242306",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/wheel-positive.stdout",
+        "decoded_bytes": 291819,
+        "decoded_sha256": "8de3b0e9a545dfcf665225b544f283dd2e2b313dccddf5b98e793019012d6132",
+        "encoding": "gzip-lossless"
+      },
+      "actual_pytest": "2PASS0skip/error/warnings",
+      "expected_control_failure": false,
+      "distribution_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "metadata_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/wheel-positive.json",
+        "bytes": 1091,
+        "sha256": "48002ae850379993f43cf9e56fbd85afc70204f91a4338304a875f7c9b8de595",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/wheel-positive.json",
+        "decoded_bytes": 1091,
+        "decoded_sha256": "48002ae850379993f43cf9e56fbd85afc70204f91a4338304a875f7c9b8de595",
+        "encoding": "identity"
+      },
+      "proof_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/wheel-installed-proof-positive.json.gz",
+        "bytes": 9999,
+        "sha256": "ef4a26a3a7f817a359fad18b1c2992dc529ad228912f38b87aed0d8c4f0814c8",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/wheel-installed-proof-positive.json",
+        "decoded_bytes": 149325,
+        "decoded_sha256": "dce154a7f818b1147efd0e538827d2d612193726b662b576028b51b20afc28d8",
+        "encoding": "gzip-lossless"
+      }
+    },
+    {
+      "name": "final wheel remove_row_isolation",
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python -I /tmp/e02-F-continuation-20261007/api/run_installed_graph_reconciliation.py /tmp/e02-F-continuation-20261007/api/wheel-consumer-config.json remove_row_isolation",
+      "target_sha": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+      "environment": "App Python3.14.7; installed8236 wheel/rebuilt-sdist or read-only Git inspection as named; no optional backend success inferred",
+      "input_closure": "Two real parameter/CSV\u2192CAS\u2192fresh-I typedgraph cases; all3459installedbytes before/after unchanged, all761owned origins underownsite. Positive2PASS; removal2behavioralFAIL; no liveKuzu or effectvalidity.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/wheel-remove_row_isolation.stdout.gz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/wheel-remove_row_isolation.stdout.gz",
+        "bytes": 1519,
+        "sha256": "dffcd306d1c8afc2357445fe9111e084a945c463d2bdc7e57213419327b1bc1d",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/wheel-remove_row_isolation.stdout",
+        "decoded_bytes": 6777,
+        "decoded_sha256": "2162f95aaef7171c7041cc9d2ee9071f7e862fd1bbf8e417e7dbec47bcb3eb1e",
+        "encoding": "gzip-lossless"
+      },
+      "actual_pytest": "2FAIL0skip/error/warnings",
+      "expected_control_failure": true,
+      "distribution_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "metadata_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/wheel-remove_row_isolation.json",
+        "bytes": 1127,
+        "sha256": "0381ee328237e079aae8110bb86f6fd5b9f3f78bf3c8e70449582697a86f186e",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/wheel-remove_row_isolation.json",
+        "decoded_bytes": 1127,
+        "decoded_sha256": "0381ee328237e079aae8110bb86f6fd5b9f3f78bf3c8e70449582697a86f186e",
+        "encoding": "identity"
+      },
+      "proof_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/wheel-installed-proof-remove_row_isolation.json.gz",
+        "bytes": 10060,
+        "sha256": "4b65b216e88470f7315868916dd9bc21049e326897ff155be75db900712e05d7",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/wheel-installed-proof-remove_row_isolation.json",
+        "decoded_bytes": 149432,
+        "decoded_sha256": "0b9044d81e8926748f9bc8a73517c97e2659ae8a4d4404f0b90a6723be473089",
+        "encoding": "gzip-lossless"
+      }
+    },
+    {
+      "name": "final sdist positive",
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python -I /tmp/e02-F-continuation-20261007/api/run_installed_graph_reconciliation.py /tmp/e02-F-continuation-20261007/api/sdist-consumer-config.json positive",
+      "target_sha": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+      "environment": "App Python3.14.7; installed8236 wheel/rebuilt-sdist or read-only Git inspection as named; no optional backend success inferred",
+      "input_closure": "Two real parameter/CSV\u2192CAS\u2192fresh-I typedgraph cases; all3459installedbytes before/after unchanged, all761owned origins underownsite. Positive2PASS; removal2behavioralFAIL; no liveKuzu or effectvalidity.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/sdist-positive.stdout.gz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/sdist-positive.stdout.gz",
+        "bytes": 18152,
+        "sha256": "b1c442826c3420844a2a7613168d7fc29acb37d2ac998db88c8cdcaa15cefd5e",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/sdist-positive.stdout",
+        "decoded_bytes": 291819,
+        "decoded_sha256": "774b79ab3bbb7ce3ef75aea6b6ccbf12988407e3136ae16b00e7a3b332bb3a51",
+        "encoding": "gzip-lossless"
+      },
+      "actual_pytest": "2PASS0skip/error/warnings",
+      "expected_control_failure": false,
+      "distribution_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "metadata_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/sdist-positive.json",
+        "bytes": 1092,
+        "sha256": "2ad1d99f90f072ea89b0192e173ece2a6de2ef7e3e88d889ef9464778fb937ee",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/sdist-positive.json",
+        "decoded_bytes": 1092,
+        "decoded_sha256": "2ad1d99f90f072ea89b0192e173ece2a6de2ef7e3e88d889ef9464778fb937ee",
+        "encoding": "identity"
+      },
+      "proof_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/sdist-installed-proof-positive.json.gz",
+        "bytes": 9996,
+        "sha256": "e16c2cf728bca5c46b3bc0b2a55b335f60c63acf962f021bbc0265b1f1f0e619",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/sdist-installed-proof-positive.json",
+        "decoded_bytes": 149325,
+        "decoded_sha256": "0afeb8146871b0ca1edd571ab7419c70249001b562008079438f8c19a5edce24",
+        "encoding": "gzip-lossless"
+      }
+    },
+    {
+      "name": "final sdist remove_row_isolation",
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python -I /tmp/e02-F-continuation-20261007/api/run_installed_graph_reconciliation.py /tmp/e02-F-continuation-20261007/api/sdist-consumer-config.json remove_row_isolation",
+      "target_sha": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+      "environment": "App Python3.14.7; installed8236 wheel/rebuilt-sdist or read-only Git inspection as named; no optional backend success inferred",
+      "input_closure": "Two real parameter/CSV\u2192CAS\u2192fresh-I typedgraph cases; all3459installedbytes before/after unchanged, all761owned origins underownsite. Positive2PASS; removal2behavioralFAIL; no liveKuzu or effectvalidity.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/sdist-remove_row_isolation.stdout.gz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/sdist-remove_row_isolation.stdout.gz",
+        "bytes": 1519,
+        "sha256": "0722102a1258817d49311e12de5f55376d901cc146c9c2f31517d351dcadd463",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/sdist-remove_row_isolation.stdout",
+        "decoded_bytes": 6777,
+        "decoded_sha256": "b9bf1fdcc21cde85671a3fca92177569a74c94d8d6b73c1da0b3b287b3195c5f",
+        "encoding": "gzip-lossless"
+      },
+      "actual_pytest": "2FAIL0skip/error/warnings",
+      "expected_control_failure": true,
+      "distribution_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "metadata_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/sdist-remove_row_isolation.json",
+        "bytes": 1127,
+        "sha256": "3de91e5affdf62039b79785bc6a05e721c1b8add59bb4a905ed2cf9b9e2a3871",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/sdist-remove_row_isolation.json",
+        "decoded_bytes": 1127,
+        "decoded_sha256": "3de91e5affdf62039b79785bc6a05e721c1b8add59bb4a905ed2cf9b9e2a3871",
+        "encoding": "identity"
+      },
+      "proof_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/sdist-installed-proof-remove_row_isolation.json.gz",
+        "bytes": 10058,
+        "sha256": "11eb3c6eb85a52ad5aa3269d4a8ec5a3686199fcdcf8780e38bc151124911931",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/sdist-installed-proof-remove_row_isolation.json",
+        "decoded_bytes": 149432,
+        "decoded_sha256": "2ea5bec3db6eff83203c4cbcca57ab5a5f7a31c2c160d01af32bed0746a01e10",
+        "encoding": "gzip-lossless"
+      }
+    },
+    {
+      "name": "independent CAU whole history and final affected consumer GO",
+      "command": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python -I /tmp/e02-F-continuation-20261007/api/run_installed_graph_reconciliation.py /tmp/e02-F-continuation-20261007/cau/api-review/final-wheel-config.json positive",
+      "target_sha": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "input_closure": "Independentall9/221/7\u00d75/3IRbindings; wheel2PASS; separate propertyremoval2FAIL; initial7fobserverERROR retained; all3459installedbytes unchanged. Sdist belongs author evidence only.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/independent-review.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/independent-review.json",
+        "bytes": 9464,
+        "sha256": "2aed54bf598618110f073923d27fb2560301299db963bb2ba8460003d8b7b93b",
+        "original_path": "/tmp/e02-F-continuation-20261007/cau/api-review/independent-review.json",
+        "decoded_bytes": 9464,
+        "decoded_sha256": "2aed54bf598618110f073923d27fb2560301299db963bb2ba8460003d8b7b93b",
+        "encoding": "identity"
+      },
+      "full_selection_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/transfer-selection.json",
+        "bytes": 6168,
+        "sha256": "f3a9c44736b8f16d6b6b307cd088b1a9732f69d3ff520b834b42254d2ffcdb9f",
+        "original_path": "/tmp/e02-F-continuation-20261007/cau/api-review/transfer-selection.json",
+        "decoded_bytes": 6168,
+        "decoded_sha256": "f3a9c44736b8f16d6b6b307cd088b1a9732f69d3ff520b834b42254d2ffcdb9f",
+        "encoding": "identity"
+      },
+      "actual_native_outcome": "2PASS0skip/error/warnings",
+      "distribution_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536"
+    },
+    {
+      "name": "Ruff ownedtestcheck",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m ruff check policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_graph_contract_reconciliation.py",
+      "target_sha": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+      "environment": "App Python3.14.7; installed8236 wheel/rebuilt-sdist or read-only Git inspection as named; no optional backend success inferred",
+      "input_closure": "Exactapprovedtest/fragment; no globalquality-gate exclusion or newwidegate claim.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/ruff-check.stdout.gz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/ruff-check.stdout.gz",
+        "bytes": 39,
+        "sha256": "47f394a1497b1873bc6e6d6f9bb92aa51b990821f1ddd7770a933ffd29c456cd",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/ruff-check.stdout",
+        "decoded_bytes": 19,
+        "decoded_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "encoding": "gzip-lossless"
+      }
+    },
+    {
+      "name": "Ruff ownedtestformat",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m ruff format --check policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_graph_contract_reconciliation.py",
+      "target_sha": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+      "environment": "App Python3.14.7; installed8236 wheel/rebuilt-sdist or read-only Git inspection as named; no optional backend success inferred",
+      "input_closure": "Exactapprovedtest/fragment; no globalquality-gate exclusion or newwidegate claim.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/ruff-format.stdout.gz",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/ruff-format.stdout.gz",
+        "bytes": 45,
+        "sha256": "cbf2503f00b68a2268f9fa2069e038bafe4ce570d7224ef53044ed62613db8f5",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/ruff-format.stdout",
+        "decoded_bytes": 25,
+        "decoded_sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+        "encoding": "gzip-lossless"
+      }
+    },
+    {
+      "name": "Canonical one-fragment selected contract validation",
+      "command": "PYTHONPATH=policy-engine/src:policy-engine/tools:policy-engine /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python policy-engine/tools/ops_runners/release/check_compatibility_release_gates.py --repo-root /workspace/e02-F-api-20261006/policy-engine --fragments-dir /tmp/e02-F-continuation-20261007/api/fragment-selector --fail-on-contract-errors --json-output /tmp/e02-F-continuation-20261007/api/fragment-validation-enforced.json",
+      "target_sha": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+      "environment": "App Python3.14.7; installed8236 wheel/rebuilt-sdist or read-only Git inspection as named; no optional backend success inferred",
+      "input_closure": "Exactapprovedtest/fragment; no globalquality-gate exclusion or newwidegate claim.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/fragment-validation-enforced.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/fragment-validation-enforced.json",
+        "bytes": 545,
+        "sha256": "285c055ecaa2f98bf23fee6513111bc63e3602382e280cec65dedc8b0ad62bea",
+        "original_path": "/tmp/e02-F-continuation-20261007/api/fragment-validation-enforced.json",
+        "decoded_bytes": 545,
+        "decoded_sha256": "285c055ecaa2f98bf23fee6513111bc63e3602382e280cec65dedc8b0ad62bea",
+        "encoding": "identity"
+      }
+    },
+    {
+      "name": "future composed candidate installed affected wave",
+      "command": "UNRUN: root final source freeze and fresh archive/site identities not yet issued; add actual unique2case carrier to finalaffectedwave",
+      "target_sha": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+      "environment": "Fresh App3.14 wheel/rebuilt-sdist; actualownsite origins; selected3.12 worker only for selectors that invoke it",
+      "input_closure": "Missing final composed source/build identity; retained8236 sites cannot establish a future candidate verdict",
+      "outcome": "UNRUN",
+      "output": "No future native output; explicitly pending root/finalwave owner.",
+      "future_composed_target_sha": null,
+      "target_role": "current testcarrier; future distribution source is explicitly unknown"
+    }
+  ],
+  "property": {
+    "statement": "Canonical detached row, graph wire schema, currentcopy topology, and complete fresh persisted-reader export agree on the tested static/temporal structural profiles. Source-carrier byte changes and runtime-candidate identities remain distinct.",
+    "runtime_path": [
+      "canonicalCausalGraphModel",
+      "ordinary parameter consumer and actual CSV helpers",
+      "FileSystemCAS typed graph artifact",
+      "fresh isolated installed reader",
+      "fullNetworkX multiedge payload and staticprofile consumer/refusal"
+    ],
+    "proxy_divergence": "Schema/export markers and immutableprivatepreparation remain unchanged when rowreaders return sharedmutable dictionaries. The actualparameter/CSV/copy consumers then diverge; finaltwo-case oracle fails inbothinstalledprofiles. A receiptcarrier head alone also doesnot identify the archive builtfrom8236.",
+    "negative_controls": [
+      "Author final propertyremoval2FAIL/profile",
+      "Independent CAU wheelpropertyremoval2FAIL",
+      "Mixedtemporalstaticrefusal asserted inparent andfreshreader"
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "verification_only_slice_finished; originalAPI3recommendations source-bound; futurecandidateinstalledwaveUNRUN; formalGfindingdecisionsseparate",
+  "per_id": [
+    {
+      "id": "LA-007",
+      "original_criterion_recommendation": "closed_original_maintained_supported_window",
+      "criterion_source": {
+        "card_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "card_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "card_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines": [
+          254,
+          280
+        ],
+        "excerpt_sha256": "f0b3ae2a0552d0b28a06b02d50dad0aaefb418a5cf7bcd52d6a1664edd9c90e0"
+      },
+      "basis": "Prior exact8236 full maintainedcensus and both actual199caseinstalledwindows; source/profile/hatch/lock bytes identical throughthisverification-only carrier. No new provider fix/redelivery.",
+      "G_acceptance": "Separate integration adjudication; no new acceptance asserted.",
+      "criterion": "OriginalLA007 emptyfilename-sibling retirement plus actualpackage/find_spec/filename-loader/config/docs/installwindow, source alreadyremoved beforebase198."
+    },
+    {
+      "id": "LA-019",
+      "original_criterion_recommendation": "closed_original_maintained_supported_window",
+      "criterion_source": {
+        "card_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "card_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "card_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines": [
+          930,
+          959
+        ],
+        "excerpt_sha256": "cbc1ce3fc94f7590d343300b41db34e53ac4b87e2a9c242ff20859423665c3aa"
+      },
+      "basis": "Prior exact8236 full maintainedcensus and both actual199caseinstalledwindows; source/profile/hatch/lock bytes identical throughthisverification-only carrier. No new provider fix/redelivery.",
+      "G_acceptance": "Separate integration adjudication; no new acceptance asserted.",
+      "criterion": "OriginalLA019 twoemptyfilename-sibling retirements whilepreservingrealcausal-engine/interferencepackages andactualinstalledrelatedpackagecalls."
+    },
+    {
+      "id": "LA-020",
+      "original_criterion_recommendation": "closed_original_maintained_supported_window",
+      "criterion_source": {
+        "card_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "card_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "card_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines": [
+          960,
+          989
+        ],
+        "excerpt_sha256": "f87876bc9a834d23256c57f6aee11b5a6483cd8d159d816081db9404110ef3d5"
+      },
+      "basis": "Prior exact8236 full maintainedcensus and both actual199caseinstalledwindows; source/profile/hatch/lock bytes identical throughthisverification-only carrier. No new provider fix/redelivery.",
+      "G_acceptance": "Separate integration adjudication; no new acceptance asserted.",
+      "criterion": "OriginalLA020 publicre-export isexplicitnamedownerbinding; preserve documenteddirect/star/FQN/pickle/pydoc/private/monkeypatch compatibilitywindow; internalhelpersmigrateonlywheremaintainedcaller exists."
+    },
+    {
+      "id": "B220",
+      "original_criterion_recommendation": "related_verification_only_canonical_owner_adjudicates",
+      "basis": "New detachedrow/CSV/versionedCASfresh-reader controls; canonicalgraphunchanged andwholeASTsame3dde/8236. Whole topology/cache/weakref finding includes earlierowner controls and remainsseparate."
+    }
+  ],
+  "original_window_adjudication_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/original-api-window-adjudication.json",
+    "bytes": 12446,
+    "sha256": "efd7d5199411e89582d26bb6d553fa3cb9d5dea23e2b073cfb1cd2cc8be27b30",
+    "original_path": "/tmp/e02-F-continuation-20261007/api/original-api-window-adjudication.json",
+    "decoded_bytes": 12446,
+    "decoded_sha256": "efd7d5199411e89582d26bb6d553fa3cb9d5dea23e2b073cfb1cd2cc8be27b30",
+    "encoding": "identity"
+  },
+  "full_code_profile_binding_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/author/supported-window-binding.json",
+    "bytes": 21093,
+    "sha256": "dad455fbdda6eab2e0bee0e16f4c75bd0a60c8977f80592b0711a0bb745a3943",
+    "original_path": "/tmp/e02-F-continuation-20261007/api/supported-window-binding.json",
+    "decoded_bytes": 21093,
+    "decoded_sha256": "dad455fbdda6eab2e0bee0e16f4c75bd0a60c8977f80592b0711a0bb745a3943",
+    "encoding": "identity"
+  },
+  "prior_full_maintained_census": {
+    "output_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/census-8236-full.json.gz",
+      "bytes": 101555,
+      "sha256": "93aa7998ecc2718b6783c83c91745c35294e230813e2bcf8ec657da0f8070f8b",
+      "original_path": "/tmp/e02-F-continuation-20261006/api/census-8236-full.json",
+      "decoded_bytes": 2044623,
+      "decoded_sha256": "a4616b37c5ba57c6050e9b8c068dec4e14752ea2f96af92e9b66517f34566093",
+      "encoding": "gzip-lossless"
+    },
+    "denominator": {
+      "binary_nul": 1,
+      "extension:.blob": 11,
+      "extension:.candidate": 1,
+      "extension:.cfg": 1,
+      "extension:.cjs": 9,
+      "extension:.css": 17,
+      "extension:.csv": 15,
+      "extension:.cypher": 2,
+      "extension:.docx": 1,
+      "extension:.duckdb": 4,
+      "extension:.example": 3,
+      "extension:.fixture": 2,
+      "extension:.gz": 185,
+      "extension:.html": 3,
+      "extension:.ini": 11,
+      "extension:.initial-candidate": 1,
+      "extension:.js": 4,
+      "extension:.json": 4111,
+      "extension:.jsonc": 1,
+      "extension:.jsonl": 14,
+      "extension:.lock": 3,
+      "extension:.log": 20,
+      "extension:.md": 2187,
+      "extension:.mdc": 1,
+      "extension:.mjs": 40,
+      "extension:.nul": 1,
+      "extension:.patch": 15,
+      "extension:.pkl": 2,
+      "extension:.png": 42,
+      "extension:.py": 6815,
+      "extension:.pyi": 5,
+      "extension:.receiver-only": 1,
+      "extension:.rego": 23,
+      "extension:.reproducible": 1,
+      "extension:.retired": 1,
+      "extension:.sh": 46,
+      "extension:.sha256": 1,
+      "extension:.sql": 6,
+      "extension:.sqlite": 2,
+      "extension:.sqlite-wal": 2,
+      "extension:.stderr": 266,
+      "extension:.stdout": 196,
+      "extension:.svg": 18,
+      "extension:.tf": 1,
+      "extension:.tmpl": 7,
+      "extension:.toml": 297,
+      "extension:.tpl": 1,
+      "extension:.ts": 519,
+      "extension:.tsv": 6,
+      "extension:.tsx": 720,
+      "extension:.txt": 860,
+      "extension:.typed": 2,
+      "extension:.webm": 6,
+      "extension:.whl": 1,
+      "extension:.xml": 79,
+      "extension:.xz": 3,
+      "extension:.yaml": 85,
+      "extension:.yml": 72,
+      "extension:.zip": 8,
+      "extension:<none>": 62,
+      "non_utf8": 260,
+      "python": 6815,
+      "python_parsed": 6815,
+      "python_tracked": 6815,
+      "tracked_entries": 16819,
+      "utf8_text": 16558
+    },
+    "literal_imports": 243,
+    "literal_import_files": 91,
+    "dynamic_AST_candidates": 225,
+    "candidate_classifications": {
+      "computed_argument_unresolved": 155,
+      "finite_source_configuration": 36,
+      "fixed_other_namespace": 13,
+      "literal_target_candidate": 21
+    },
+    "computed_AST_candidates_are_not_actual_clients": true,
+    "address_strings": 18,
+    "addressed_syntactic_uses": 340,
+    "filename_basis_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006/author/filename-loader-8236-classification.json.gz",
+      "bytes": 1930758,
+      "sha256": "19944500c39b89a1cd2180f2ec6bcdd57d55de9473b7bfe5ff54cad517457b00",
+      "original_path": "/tmp/e02-F-continuation-20261006/api/filename-loader-8236-classification.json",
+      "decoded_bytes": 12729788,
+      "decoded_sha256": "80ac6849946ffcade877984d7b5992bf102a2308e505f3cdd8de91f0b2fda1a8",
+      "encoding": "gzip-lossless"
+    },
+    "filename_lexical_counts_by_role": {
+      "runtime_source": 18,
+      "configuration_or_other_tracked_source": 19,
+      "documentation": 432,
+      "historical_research_source": 232,
+      "test_source": 41,
+      "tool_source": 11
+    },
+    "loader_AST_counts_by_role": {
+      "configuration_or_other_tracked_source": 13,
+      "documentation": 9,
+      "historical_research_source": 19,
+      "runtime_source": 4,
+      "test_source": 27,
+      "tool_source": 1
+    },
+    "runtime_loader_computed_arguments": "Four generic maintained loader paths accept computed file paths; none establishes retiredfilename usage. Unknown external/config/alias callers remain explicit."
+  },
+  "prior_exact_installed_witness": {
+    "git_sha": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+    "bytes": 60843,
+    "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8",
+    "complete_companions": 53,
+    "stored_and_decoded_all_verified": true,
+    "scope": "Independent final installed consumer witness and eight marker-kept removal FAILs; fullpostguardsPASS. API owns build/census/assembly preparation, reviewer owns scientific runtime launches."
+  },
+  "distribution_profile": {
+    "archives": {
+      "wheel": {
+        "path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/dist-source/policy_engine-0.1.0-py3-none-any.whl",
+        "bytes": 15116457,
+        "sha256": "5b056289a0a804f339890b603e4a0c7a8d7ee50d8b9ec9a0e910a12a66778869"
+      },
+      "sdist": {
+        "path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/dist-source/policy_engine-0.1.0.tar.gz",
+        "bytes": 91236828,
+        "sha256": "19121b3a50b7c2bef35a93af94e78bfdf7f378d98b52a90069f01cf30e237a52"
+      },
+      "rebuilt_wheel": {
+        "path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/dist-rebuilt/policy_engine-0.1.0-py3-none-any.whl",
+        "bytes": 15116457,
+        "sha256": "5b056289a0a804f339890b603e4a0c7a8d7ee50d8b9ec9a0e910a12a66778869"
+      }
+    },
+    "sites": {
+      "wheel": {
+        "path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/lib/python3.14/site-packages",
+        "verified_product_files": 3459,
+        "complete_actual_python_files": 3146,
+        "extra_missing_python": []
+      },
+      "sdist": {
+        "path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/lib/python3.14/site-packages",
+        "verified_product_files": 3459,
+        "complete_actual_python_files": 3146,
+        "extra_missing_python": []
+      }
+    },
+    "installed_pythons": {
+      "wheel": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python",
+      "sdist": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python"
+    },
+    "worker_python": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+    "force_resources": 7,
+    "complete_product_resource_files": 3459,
+    "tracked_product_files": 3452
+  },
+  "independent_review": {
+    "review_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/independent-review.json",
+      "bytes": 9464,
+      "sha256": "2aed54bf598618110f073923d27fb2560301299db963bb2ba8460003d8b7b93b",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/api-review/independent-review.json",
+      "decoded_bytes": 9464,
+      "decoded_sha256": "2aed54bf598618110f073923d27fb2560301299db963bb2ba8460003d8b7b93b",
+      "encoding": "identity"
+    },
+    "full_transfer_selection_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/transfer-selection.json",
+      "bytes": 6168,
+      "sha256": "f3a9c44736b8f16d6b6b307cd088b1a9732f69d3ff520b834b42254d2ffcdb9f",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/api-review/transfer-selection.json",
+      "decoded_bytes": 6168,
+      "decoded_sha256": "f3a9c44736b8f16d6b6b307cd088b1a9732f69d3ff520b834b42254d2ffcdb9f",
+      "encoding": "identity"
+    },
+    "source_test_target": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+    "runtime_distribution_target": "8236d9c368336a5ea20c1586f29aea7321db6536",
+    "result": "GO bounded history/affectedconsumer contract; no whole3dde/Gacceptance/backend authority inference"
+  },
+  "full_output_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/full-output-manifest.json",
+    "bytes": 65255,
+    "sha256": "c0a77d5de2d7674d2328192b863ba663733ff40c5e8c7fbf73e0f466877ecce1"
+  },
+  "limitations_and_next_owner": [
+    "No productchange required by source reconciliation; canonicalGraph writer alone owns future corrections",
+    "Futurefinalcomposedarchives/sites stillUNRUN and must runactualaffectednewcarrier againstcurrentproducer/reader code; no second199wave here",
+    "38canonicalstaticnamespaces UNKNOWN/nulltotal/known0 retained; candidate names and measuredsupportedfacades are distinct",
+    "External/computed loader/caller paths explicitlyunresolved, not repository-wideabsence",
+    "App3.14 profile excludes DoWhy/EconML; these narrowtests use actualNetworkX/CAS but invoke neither optionalbackend. Their absence isnot apositivebackend witness",
+    "Parameter-recorder verifies actualto_kuzu dictionary emission ABI; liveKuzu DB notexecuted",
+    "No DGP effect identification, real-observational data validity, Runtime authority, seal, issuer or law admission claim",
+    "Currentfullquality/fullinvocation reds are not rerun or attributedinherited; P41 provenance not_established inthisslice",
+    "Full moderate decidingbytes transportedlosslessly. Prior source/census/199outputs live at byte-bound ancestor90 and independenta2d Gitrefs; archivebinaries/environments retainedlocal/cleanupcandidate only"
+  ],
+  "cleanup_candidates": [
+    "/tmp/e02-F-continuation-20261007/api/*-consumer temporarytestcopies and testCAS dirs after finalusersfinish",
+    "Retained8236 wheel/sdist environments/archives stillactive finalwave/reference inputs; do notremove"
+  ],
+  "transport": "ordinaryown-topic push/readback; no main/force/rewrite/competingmerge",
+  "patterns": [
+    "P14",
+    "P27",
+    "P29",
+    "P31",
+    "P32",
+    "P35",
+    "P36",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ]
+}

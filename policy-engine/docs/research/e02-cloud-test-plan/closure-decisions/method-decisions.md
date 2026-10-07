@@ -1,3 +1,5 @@
+Current criterion-scope correction: [B109/B111/B100 errata](../integration/reviews/original-criteria-errata-2026-10-06.md). B109 is fast/direct comparator acceptance; the served provider is additional capability. B111 keeps invalid-state/partial-denominator/finite-or-unavailable semantics; schema-v3 migration and finite-positive underflow are separately scoped. Historical outcomes and status counts below are retained.
+
 # Численные методы: решения, которые должны дать функцию
 
 Goal: восстановить математически корректную поддержанную функцию на canonical
@@ -8,16 +10,12 @@ owner, сохранить provenance и consumer semantics, уменьшить �
 
 | Свойство | Выбранное направление | Почему / проверка |
 | --- | --- | --- |
-| CAU-03/B210: robust bias correction в RDD | Тонкий адаптер настоящего `rdrobust` для corrected profile; текущий uncorrected local polynomial оставить явно отдельным. | Пакет реализует correction вместе с соответствующей inference; в задаче должны быть curvature, heteroskedastic DGP, ненулевая correction и coverage. Квадратичный fit и отказ corrected mode не реализуют RBC. [Официальный rdrobust](https://rdpackages.github.io/rdrobust/). Target-runtime профиль ещё требуется фактически проверить. |
+| CAU-03/B210: robust bias correction в RDD | Native clean-room CCT sharp HC0 на sourcefb022aa; pinned rdrobust2.1.0 — реально выполненный development-only differential oracle. | RDD receipt15a checks0–5/12: native/CAS/consumer,4036 cases,2000 replicates per arm, retained-marker RBC removal. GPL product bundling отдельно и не блокирует native implementation; sharp fixed profile/real assumptions см. [F-M6](#f-m6). |
 | BER-01/LA-036: conditional explanation | Bound conditional sampler over admitted source law; обычный KernelExplainer допустим только для объявленного replacement/marginal профиля. | Его documented background masking заменяет отсутствующие признаки значениями background rows. Это не общий conditional sampler при зависимых признаках. Контроль: correlated Gaussian, где conditional и replacement coalitions дают различные Shapley values. [KernelExplainer API](https://shap.readthedocs.io/en/stable/generated/shap.KernelExplainer.html). |
 | UQ / Sobol low-discrepancy generation | Использовать уже доступный SciPy QMC и валидировать фактический sampling design; статистическую error estimate получать по корректным independent scrambles/репликациям. | `random_base2` сохраняет balance при 2^m; skip/thinning/arbitrary n могут лишать последовательность этого свойства. Это не запрет любых n, а запрет приписывать им гарантию balance. [SciPy Sobol](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.qmc.Sobol.html). |
 | Causal estimation vs identification и interval inference | Расширять существующий typed causal owner, подключая выбранный estimator по его estimand/assumptions. | DoWhy разделяет model→identify→estimate→refute. EconML DRLearner задаёт cross-fitting и inference profiles; библиотечный вызов не подтверждает истинность causal graph и не делает каждый flexible learner CI достоверным. [DoWhy](https://arxiv.org/abs/2011.04216), [EconML DR](https://econml.azurewebsites.net/spec/estimation/dr.html). |
 
-Таблица — proposed engineering choices. Перед публикацией corrected profile
-его owner закрепляет backend version, actual parameters, dtype, source inputs,
-fit/split seeds, среду и полный runtime call. Пока этого нет, профиль остаётся
-`UNRUN`/unsupported с точной причиной; это не основание возвращать пакет как
-полностью выполненный.
+Таблица сохраняет proposed choices C–E; строка CAU-03/F выше обновлена по actual receipt. Для proposed профиля owner закрепляет backend version, actual parameters, dtype, source inputs, fit/split seeds, среду и полный runtime call; без них `UNRUN`/unsupported. Current F evidence и его границы приведены отдельно ниже, не как полный composed-product PASS.
 
 ## Что требуется от каждого окончательного method decision
 
@@ -39,7 +37,7 @@ fit/split seeds, среду и полный runtime call. Пока этого н
 
 ## Карта конкретных method decisions
 
-Решения ниже выбраны для следующей реализации. Численные oracles — спецификации проверок, не новые PASS. Детали deployment находятся в runtime-profiles; одинаковые источники закона и persisted поля должны следовать одному semantic решению, а не расходиться по веткам.
+Исторические решения C–E ниже выбраны для следующей реализации; их oracles — спецификации, не новые PASS. F-раздел обновлён source-bound receipts без scientific rerun. Детали deployment находятся в runtime-profiles; одинаковые источники закона и persisted поля следуют одному semantic решению.
 
 <a id="methods-c"></a>
 
@@ -214,6 +212,8 @@ fit/split seeds, среду и полный runtime call. Пока этого н
 <a id="d-m4"></a>
 
 ### D-M4 — Funnel continuation and authoritative resource charging
+
+Current B120 qualification: D680’s canonical owner→public SearchLoopRunner→CAS/fresh resume is verified by G’s10-case exact-source run; original B120 does not require universal deployment/invoice truth. The older funnel/promotion observations below retain their pinned scope and do not block that bounded B120 mechanism. FUN-01/02/03 and B164 remain separate; code acceptance and integrated replay are pending.
 
 **Finding IDs.** FUN-01:B156; FUN-01:B158; FUN-01:B159; FUN-02:B157; FUN-02:B160; FUN-02:B162; FUN-02:B165; FUN-03:B161; FUN-03:B163; FUN-03:B164; CTL-01:B118; CTL-01:B119; CTL-03:B120; CTL-03:B121; CTL-03:B123
 
@@ -445,452 +445,186 @@ fit/split seeds, среду и полный runtime call. Пока этого н
 
 <a id="methods-f"></a>
 
-## F — выбранные методы
+## F — source-bound методы и отдельные решения о приёмке
+
+**Текущий basis.** [F receipt registry](F.md#receipts) фиксирует carrier/source/tree/check identity. Этот раздел сопоставляет опубликованные результаты с оригинальными cards; он не запускает scientific waves, не объявляет общий composed runtime PASS и не принимает authority/G. Предшествующий G97 method plan целиком сохранён как `method-decisions.md@d9c48853c5ab9ad7473df204bf3a7a1995a32057`; его future/UNRUN утверждения относятся к тому source. Stable F-M1–F-M16 anchors сохранены.
 
 <a id="f-m1"></a>
 
-### F-M1 — Typed causal uncertainty: separate outcome/ITE distributions, posterior credible intervals, and estimator confidence intervals
+### F-M1 — Typed causal uncertainty: distribution, posterior и estimator CI
 
-**Finding IDs.** B215; B223
+**IDs / свойство.** B215/B223: fixed-fit outcome/ITE draws, posterior credible intervals и sampling CI estimator — разные quantities. More draws уменьшают MC error, но не создают estimator refit/sample law.
 
-**Свойство.** A CI is a sampling-distribution statement about an estimator; quantiles over outcomes or individual effects are distributions, not CI bounds. A Bayesian posterior interval is a third meaning and must keep its posterior/model lineage.
+**Current implementation/evidence.** SCM6d Gaussian abduction использует `U|x`: mean `D Aᵀ(A D Aᵀ)⁺(x-b)`, covariance `D−D Aᵀ(A D Aᵀ)⁺A D`; reconstruction/singular inconsistency и shared-U contrasts проверены. Typed query/twin/CAS readers сохраняют distribution/credible meanings и не повышают unsupported partial nonlinear posterior до gate-eligible CI. ROOT3afb связывает actual selected CAS bytes/manifest, complete inputs и current report diagnostic basis; это отдельное consumer свойство, не новая inferential calibration.
 
-**Сегодняшнее расхождение.** Stochastic GCM and twin paths derive bounds from outcome/ITE draws yet pass through the common causal uncertainty IR as BOOTSTRAP plus CONFIDENCE_INTERVAL, is_heuristic_ci=false, and sometimes gate_eligible=true. Fixed-fit predictive draws and heterogeneous ITE draws do not resample/refit the estimator. The shared IR's default semantics let the consumers confuse these meanings.
+**Oracle/negative.** `U~N(0,1),Y=U+ε, ε~N(0,1),Y=2` даёт `U|Y=2~N(1,.5)`; known `Y=1+3X` даёт same-arm0 и do2−do0=6. Fixed-model percentile output с сохранёнными CI markers не становится sampling CI. Unknown/nonlinear partial evidence остаётся typed limited.
 
-**Выбранная реализация.** Correct the common IR/producer/consumer path as one change: add or use distinct typed result kinds for predictive outcome distribution, ITE distribution, posterior credible interval, and estimator CI; keep GCM/twin draws in the first two kinds. For a frequentist GCM/twin CI, add a declared iid-unit nonparametric bootstrap that resamples observational units, refits every mechanism/model, recomputes the same target estimand, and derives the interval from the replicate estimators. Persist resampling unit, refit scope, seed, replicate count, target, and coverage profile. Do not promote until actual CAS readback consumers enforce the kind.
-
-**Отвергнутый вариант.** Do not call more draws from a fixed fitted model a bootstrap; do not rename percentile output or set confidence markers to manufacture inference; do not make all uncertainty unavailable when a supported refit profile can be implemented.
-
-**Canonical paths.** policy-engine/src/polisyos/ir/analytics/uncertainty.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/ir/analytics/causal_queries.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/ir/analytics/twin_network.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_query.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py@97c85fae2d4505ec8248540d98b9556296244208
-
-**Зависимости.** No new library for the semantic correction. The bootstrap requires stable source-bound iid unit rows, deterministic refit seed/schedule and a consumer that reads the persisted typed result. The optional DoWhy runtime is not installed in the cited Python 3.14.2 baseline.
-
-**Положительная функция и независимый oracle.** For exact Gaussian abduction, U~N(0,1), Y=U+epsilon with epsilon~N(0,1), observe Y=2: posterior U|Y=2 is exactly N(1,0.5); compare the posterior credible interval to that analytic distribution and keep it tagged posterior. Separately, on an iid known-effect SCM, refit-bootstrap ATE CI over independent dataset replicates should achieve its declared approximate coverage profile; doubling sample size should shrink estimator-CI width roughly by sqrt(2), while fixed-model predictive span stays stable.
-
-**Различающий negative.** Hold fitted model/data fixed and multiply the number of predictive draws by 100: the output distribution can stabilize but must remain ineligible as estimator CI. A fake BOOTSTRAP/CI marker with percentiles from the same fixed model must fail the fresh-reader gate. Make two observed treatment levels share a perfectly correlated unit effect: the ITE distribution is not its sampling CI.
-
-**Границы.** The exact Gaussian posterior applies only to the specified conjugate SCM. A refit bootstrap is an approximate sampling interval under iid sampling and a fixed identified graph/estimand; it does not establish unmeasured-confounding assumptions or universal finite-sample coverage. Keep all such output candidate/limited until input law, fit failures and gate consumer are bound.
-
-**Runtime.** No new package is needed for IR semantics. GCM bootstrap execution cost and the target DoWhy/NetworkX Python combination were not measured; the optional backend receipts are skip/UNRUN, not runtime PASS.
-
-**Основания.** policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm.json@85c16de9f16a4e21c05c516271b6c81e08b7a39f#sha256=4c4bd3eb636a9e460c2fd239adbdc1a238463315d4c0899ba0bc8e6d4e4f3050; [первичный источник](https://github.com/py-why/dowhy/blob/main/dowhy/causal_estimators/linear_regression_estimator.py)
+**Limits.** No real-world graph/identification/parameter-posterior authority; новый refit-bootstrap estimator CI требует собственного source/units/refit/coverage receipt и не комиссионируется этим update.
 
 <a id="f-m2"></a>
 
-### F-M2 — Cross-fitted TMLE and nuisance cache/resource contract
+### F-M2 — TMLE nuisance identity, diagnostics и study resources
 
-**Finding IDs.** B54; B56
+**IDs / current evidence.** B54 original fit-cache criterion closed на TMLE55d2: explicit key остаётся namespace поверх content identity, immutable issued numeric fit cores отделены от current diagnostic reports. Real sklearn fits/folds/data axes, reader mutation и native DGP/removal controls измерены в `F/tmle-20261006.json`.
 
-**Свойство.** Treatment-effect targeting must match the declared outcome family/estimand; nuisance cache identity must bind source data, folds, model, seed and fit options; execution must stay within the orchestration budget without omitting folds.
+**Distinct B56 remainder.** Local fold execution/metadata не доказывают общий admitted study/process resource cap. Actual native TMLE persisted report → fresh ConfidencePass/value consumer выполнен на source0c/8d: 53 cases плюс independent mixed-reference controls. SUCCESS/CI сохраняются, causal blocker остаётся при missing/corrupt sibling simulation CAS. Genuine admitted shared-study workload/budget всё ещё UNRUN; consumer proof его не заменяет. Все folds/repeats/seeds/results должны сохраняться, resource gate не может выиграть omission.
 
-**Сегодняшнее расхождение.** G97's cache hashes data/config and its tests exercise fresh diagnostics, but __shared_nuisance_key remains caller-asserted. The fold worker default is task count rather than the global runtime cap. TMLE's fluctuation is identity-link for all outcome families, and its normal EIF interval plus overlap/ESS widening is asymptotic/custom rather than a general finite-sample coverage guarantee.
+**Method profile.** Native targeting owner сохраняется; binary/bounded outcome fluctuation и continuous identity-link профили нельзя смешивать. EIF normal inference — declared iid/regularity/positivity asymptotic profile, не universal finite coverage. zEpid отсутствующий/import-only reference не PASS.
 
-**Выбранная реализация.** Retain the canonical cross-fit/TMLE owner; use an outcome-family-specific fluctuation (logit fluctuation for binary/bounded Q, identity only for its stated continuous profile), preserve the score equation and fold lineage, and bind the shared-cache key to a recomputed content/config identity. Wire the existing global worker budget into fold scheduling. Use an EIF normal CI only for the declared regular, positivity-supported iid profile; do not add a black-box package as a substitute for target/consumer semantics.
-
-**Отвергнутый вариант.** Do not accept a supplied cache key as provenance; do not clip a binary prediction then claim the same unconstrained identity-link update; do not use cross-fitting or a 'coverage guard' alone as proof of coverage.
-
-**Canonical paths.** policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py@ef3f208db031671d9f0d5cefe1ffa68af0650f0a; policy-engine/tests/unit/foundry/methods/catalog/causal/test_nuisance_resolver_wiring.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/remediation/test_fit_01.py@97c85fae2d4505ec8248540d98b9556296244208
-
-**Зависимости.** Current path uses existing NumPy/sklearn-compatible nuisance backends. Receipt ran 33 selected tests, but DoWhy/EconML optional backends were absent/UNRUN. The orchestrator worker budget is a required runtime input, not a new dependency.
-
-**Положительная функция и независимый oracle.** Known binary-outcome DGP with randomized A, one measured confounder W, known Q0/Q1 and nonzero ATE: compare estimate to analytic population ATE, targeting fluctuation score to zero, every Q prediction to [0,1], and output lineage to exact held-out folds. Repeat at declared overlap profile to estimate empirical coverage with a stated Monte Carlo tolerance.
-
-**Различающий negative.** Binary Q predictions at 0.01/0.99 plus a deliberately poor initial fit must not leave [0,1] after targeting. Same supplied __shared_nuisance_key with altered data/fold IDs/model options must miss cache. Exceed worker budget pressure while retaining every fold; a green result from omitted folds fails.
-
-**Границы.** EIF normal inference is asymptotic and requires iid independent units, regularity, positivity and appropriate nuisance behavior. No interval is gate-eligible under observed positivity failure, unresolved target identity, or unsupported outcome law. Source receipt validates code probes, not domain-wide estimand coverage.
-
-**Runtime.** No added package is required in this profile. The execution budget wiring and a full actual consumer replay are still needed after integration; no runtime command was run for this audit.
-
-**Основания.** policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle.json@ef3f208db031671d9f0d5cefe1ffa68af0650f0a#sha256=2e6e0c9997dc8f9ee80c3cc273ea84572b78189c3dfcf17c88a9d1db1aee9fc3; [первичный источник](https://onlinelibrary.wiley.com/doi/10.1155/2014/502678); [первичный источник](https://doi.org/10.1111/ectj.12097)
+**Negative / authority.** Same supplied key with changed X/T/Y/fold/model misses; nested prediction/report mutation не меняет cached source. Actual simultaneous study pressure должен проверять свой реальный broker, не строку cap. Admitted real data/evaluator authority отдельно от known-DGP/cache evidence.
 
 <a id="f-m3"></a>
 
-### F-M3 — Two-period DiD estimator and parallel-trend diagnostic
+### F-M3 — Standard DiD: estimability, effective covariance, diagnostic truth
 
-**Finding IDs.** B204; B205; B206
+**IDs.** B204/B205/B206. Native interaction coefficient сохраняет 2×2 ATT; actual HC1 iid-row и unit-cluster CR0 profiles различны. No-pre design refused; too few preperiods дают `not_testable`, не `passed`; nonrejection не доказывает parallel trends.
 
-**Свойство.** For supported 2x2 input, interaction coefficient is the declared DiD contrast; inference must use the declared independent sampling unit. A diagnostic with too few preperiods is not evidence that parallel trends passed.
+**Evidence.** DIDcebe `published-native`/removals и DIAGNOSTICS0b producer/maintained route. ROOT3afb actual report consumers independently recompute whole diagnostic input/result basis, including typed DiagnosticTest; изменение time_treatment при той же scalar θ обязано обнаруживаться. Standard ATT3 hand oracle и actual Statsmodels diagnostic/covariance comparison — code witnesses, не identification.
 
-**Сегодняшнее расхождение.** G97 correctly rejects t0=0 and computes the 2x2 interaction with HC1 or unit-cluster CR0. However _parallel_trend_diagnostic returns passed=true with p_value=None for t0<3. Cluster CR0 with normal critical values has no small-cluster finite-sample guarantee. Dedicated and umbrella callers must share the confidence-level/contrast semantics.
+**B206 dual source.** Native .8/.95/.99 critical values/invalid-level refusal в DiD **и** RDDfb checks0/5/12; нельзя приписать RDD только DiD tree. CR0/z algebra не гарантирует small-cluster coverage.
 
-**Выбранная реализация.** Keep the direct interaction OLS owner and explicit HC1 iid-row vs unit-cluster CR0 profiles; replace boolean pretrend result with not_testable, evidence_of_violation, or no_detected_pretrend. Make pretrend evidence a declared limitation, never a gate proving the identifying assumption. Add a separately named small-cluster method only if its actual correction is implemented and independently checked.
-
-**Отвергнутый вариант.** Do not treat insufficient preperiods or non-rejection as proof of parallel trends; do not label HC1 as clustered or CR0/z as finite-sample correct for any cluster count.
-
-**Canonical paths.** policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/methods/catalog/causal/test_did.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/remediation/test_cau_01.py@97c85fae2d4505ec8248540d98b9556296244208
-
-**Зависимости.** No new library; a separate statsmodels reference was exercised in the CAU development environment. The original shared environment had a statsmodels collection error; DoWhy cells were skipped.
-
-**Положительная функция и независимый oracle.** Synthetic 2x2 panel with known ATT=3 and at least three preperiods with zero differential pretrend: compare coefficient/covariance to an independent group-labeled statsmodels design and hand-derived 2x2 means; confidence level 80/95/99 must change bounds monotonically.
-
-**Различающий negative.** Set t0=0 (rank deficiency) and t0=1/2 (diagnostic underpowered): first must be INPUT_INVALID, latter not_testable, never passed. Reassign one unit's cluster label and ensure clustered variance changes while HC1 does not pretend to be cluster robust.
-
-**Границы.** Causal ATT still requires conditional parallel trends/no anticipation/appropriate composition; a pretrend test cannot establish those assumptions. CR0/z is a large-number-of-independent-units approximation only; small cluster count and serial dependence need a separately validated profile.
-
-**Runtime.** NumPy/statsmodels profile has a recorded separate environment PASS; statsmodels availability in the original shared runtime failed collection. Do not promote that environment gap to product failure or call skipped DoWhy PASS.
-
-**Основания.** policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json@08aaccebfce37aa652ff243fce8037ff48020807#sha256=561a89549fe513551a793b3cc07587c2d652d51cb170c0b619b4dd39e39a6e0c; [первичный источник](https://arxiv.org/abs/1803.09015)
+**Proxy negative.** Producer/reader digest removal, stale/coherently forged diagnostic payload, cluster-as-HC1 и fixed95 critical removal FAIL при retained status/fields. Current worker/caller checks имеют собственные SHA; broad real parallel-trends admission UNRUN.
 
 <a id="f-m4"></a>
 
-### F-M4 — CAU-05 dedicated DiD method ownership and caller migration
+### F-M4 — Dedicated DiD ownership и maintained request migration
 
-**Finding IDs.** LA-016
+**ID.** LA-016 — две coverage bindings к одному original block. DIAGNOSTICS0b actual maintained G2 request создаёт dedicated Standard FQN; registry/dispatcher/flags/slot/CAS и historical direct-import window сохранены. Default umbrella retirement доказан actual caller, не directory name.
 
-**Свойство.** A dedicated method route must preserve the prior effective estimator inputs/output while removing the deprecated umbrella as the active owner; package presence alone is not caller retirement.
+**Evidence/negative.** DIAGNOSTICS checks6/7/14/15/17, caller byte replays на source0b; DIDcebe maintained benchmark controls сохраняют numerics. Old adapter/default-route removal различает реальную migration. Historical benchmark diagnostic FAIL/not_testable не превращается в detected violation или parallel-trends proof.
 
-**Сегодняшнее расхождение.** The source has dedicated DiD code/metadata, but the handoff does not establish a full live old-slot caller census, route cutover or actual retirement. This is an ownership/bridge gap separate from the DiD math in B204-B206.
-
-**Выбранная реализация.** Keep one canonical dedicated DiD owner. Enumerate all dispatch plans/importers; migrate each with identical effective estimand, cohort, confidence, covariance and persisted output, then remove the old route only after actual imported consumers prove the retirement.
-
-**Отвергнутый вариант.** Do not infer closure from equal wrapper outputs, a dedicated filename, or constructor-only identity tests; do not keep two independently evolving implementations.
-
-**Canonical paths.** policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/remediation/test_cau_05.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/methods/catalog/causal/test_did.py@97c85fae2d4505ec8248540d98b9556296244208
-
-**Зависимости.** No external library. Needs complete actual dispatcher/import/caller inventory and a CAS/native reader path.
-
-**Положительная функция и независимый oracle.** For every enumerated legacy caller, compare the actual dispatched canonical method, typed parameters, persisted output and fresh-reader values against a hand-calculated 2x2 DiD fixture; removing legacy route after migration leaves all callers resolvable.
-
-**Различающий negative.** Rewire one real consumer to the old slot and remove the old route: migration acceptance must fail. Change confidence level or cluster labels while keeping route names: output binding must detect the effective input difference.
-
-**Границы.** This proves route/ownership semantics only; it does not validate parallel trends, covariance coverage, or identification assumptions.
-
-**Runtime.** No external runtime requirement; dispatcher discovery and artifact consumer must run in the actual integration runtime.
-
-**Основания.** policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAU-05.md@c40d4acae1ce58b597267255026d9356565828fd#LA-016
+**Limits.** Finite maintained window, not every hypothetical external frozen client. Scientific B204–209 criteria и runtime authority принимаются отдельно.
 
 <a id="f-m5"></a>
 
-### F-M5 — Staggered DiD: θ_sel cohort-size target with unit-shared studentized Mammen multiplier
+### F-M5 — Fixed θ_sel, share influence и closed unit-Mammen inversion
 
-**Finding IDs.** B207; B208; B209
+**IDs.** B207/B208/B209. Historical G97 θ_W/percentile limitations не описание DIDcebe.
 
-**Свойство.** Estimate one predeclared scalar target from eligible ATT(g,t) cells. Point estimate, influence function, null test and interval must represent the same target; one multiplier is shared across all cells for each independent panel unit. Anticipation-contaminated controls are ineligible.
+**Current quantity.** Freeze eligible horizon `E_g`, `K_g=|E_g|`; `τ_g=K_g⁻¹Σ_{t∈E_g}ATT(g,t)`; `π_g=P(G=g|ever-treated)`; `θ_sel=Σ_g π_g τ_g`. IF includes cell/cohort mean contribution **and** ratio-share term `1{ever-treated}/p_E·(τ_G−θ_sel)`. Не заменять estimated shares фиксированными weights или исключать cells с draw-specific renormalization.
 
-**Сегодняшнее расхождение.** G97 has bounded anticipation eligibility and one shared unit multiplier, but its bootstrap percentiles are descriptive. It computes the current θ_W-style cell-size aggregation, holds weights fixed in draws and labels coverage/p-value not_established; the old absolute-bootstrap-versus-observed comparison is not a null test.
+**Multiplier/test/CI.** One iid mean0/variance1 Mammen multiplier на panel unit shared across every cell: values `(1−√5)/2,(1+√5)/2`, probabilities `(√5+1)/(2√5),(√5−1)/(2√5)`. Center studentized draws; compare H0 against the centered law. For B draws/declared decimal confidence L, actual implementation sets `m=ceil((1−L)(B+1)−1)` and refuses insufficient m; sorted absolute-statistic index `B−m` selects the radius. Tail count uses the **same closed effect-scale intervals** as reported CI; canonical `null_rejected = tail_count < m`, with descriptive p `(1+tail_count)/(B+1)`. Decimal→integer decision and closed endpoint/nextafter controls avoid a binary .05 mismatch; a naive quantile-only inversion is not the implemented boundary.
 
-**Выбранная реализация.** Use the Callaway–Sant’Anna within-cohort post-period average, then ever-treated cohort-share aggregate. Declare a fixed study horizon and eligible-period set E_g per cohort before inference; K_g=|E_g|; τ_g=K_g⁻¹ Σ_{t∈E_g} ATT(g,t); π_g=P(G=g | G<∞); θ_sel=Σ_g π_g τ_g. Estimate π_g from the sample and include its ratio-estimation term. For the fixed population target, ψ_i^θ=Σ_g π_g ψ_i^{τ_g} + 1{G_i<∞}/p_E·(τ_{G_i}−θ_sel), p_E=P(G<∞), with ψ_i^{τ_g} the influence function of that cohort’s within-period-average ATT functional. Do not substitute only fixed cell weights or omit the cohort-share term. On n independent panel units, use iid Mammen multipliers V_ib, shared by unit across every cell, with values (1−√5)/2 and (1+√5)/2 and probabilities (√5+1)/(2√5) and (√5−1)/(2√5). Form θ*_b=θhat+n⁻¹Σ_i V_ib ψhat_i^θ, σhat²=n⁻¹Σ_i(ψhat_i^θ)², Z_b=√n(θ*_b−θhat)/σhat. For H0:θ=θ0, Tobs=√n(θhat−θ0)/σhat; p=(1+#{|Z_b|≥|Tobs|})/(B+1). The two-sided 95% interval is θhat ± q_.95(|Z_b|)σhat/√n, inverting this same scalar test. Pointwise scalar inference is the default; simultaneous bands are a separate profile.
+**Actual oracle/evidence.** DIDcebe check3 complete `test_did_selected_participation.py::test_seeded_serial_panel_null_coverage_and_alternative_binomial_bounds`: **160** known serial-panel datasets per arm; true0CI154/160, true1.5CI154/160, null6/160reject, alternative160/160reject under declared binomial bounds. Hand cohort-time oracle differs from θ_W; share/uncentered/eligibility removals FAIL. DIAGNOSTICS0b changes diagnostic ownership and callers; it does **not** rerun or relabel this160-DGP wave.
 
-**Отвергнутый вариант.** Do not let longer-exposed cohorts gain extra weight through θ_W when θ_sel is the declared target; do not treat estimated cohort shares as fixed without declaring a different conditional target; do not renormalize E_g separately inside each draw; do not use noncentered percentile estimates for a null p-value; do not leave pairs bootstrap and IF multiplier as unresolved alternatives.
-
-**Canonical paths.** policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/methods/catalog/causal/test_did.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/remediation/test_cau_02.py@97c85fae2d4505ec8248540d98b9556296244208
-
-**Зависимости.** No new package. Requires row-identity-bound panel units, fixed E_g/horizon, cohort shares, valid cell IFs, shared seeded multipliers, persisted target/statistic metadata, and the actual fresh-reader causal-output consumer.
-
-**Положительная функция и независимый oracle.** Use a known staggered panel DGP with at least two unequally sized cohorts, unequal follow-up lengths, nonzero cohort/time effects, never-treated controls and no anticipation. Compare every ATT(g,t), θ_sel and its estimated-share IF term to an independently derived oracle; ensure the result differs from θ_W when cohort follow-up lengths/effects differ. Repeat seeded null and alternative samples to assess pointwise size and 95% coverage with binomial Monte-Carlo bounds. Change only the declared E_g/aggregation and verify the target change is preserved through CAS and a fresh consumer.
-
-**Различающий negative.** A zero-effect DGP must not produce p≈1/2 merely because an uncentered bootstrap estimate is compared with the observed estimate. Delete the estimated cohort-share IF term while retaining all field names and require the heterogeneous-cohort oracle to fail. Change E_g, cohort identity or unit multiplier alignment while preserving result markers and require consumer binding to reject. A treated-during-anticipation control is excluded; setting anticipation to zero is the positive control.
-
-**Границы.** Large independent-unit asymptotics only; no small-cluster guarantee, serial dependence beyond the sampling-unit cluster, simultaneous familywise band or universal parallel-trends claim. Conditional parallel trends, no anticipation, common support and no interference remain identifying assumptions. Fixed E_g/support failure produces a typed limitation, not draw-specific redefinition of the target.
-
-**Runtime.** Current NumPy/Python route is sufficient. Existing receipt validates the bounded cohort/anticipation behavior, not B208 null size or coverage; no tests were run for this mathematical decision.
-
-**Основания.** policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json@08aaccebfce37aa652ff243fce8037ff48020807#sha256=561a89549fe513551a793b3cc07587c2d652d51cb170c0b619b4dd39e39a6e0c; policy-engine/_build/e02-g-closure-research-20261005/F-plan-independent-review.md#sha256=9e097992caad9de84c237e1d33458b2cb6b13b0067d8cfb0f0826eaaef6779e6; [первичный источник](https://arxiv.org/abs/1803.09015)
+**Limits.** Original finite iid/large-independent-unit scientific discriminator recommended closed. Admitted production assumptions/authority остаются отдельным downstream contract, не новым исходным criterion. No official external `did` witness, small-G/simultaneous bands or real-panel coverage. Fixed support failure refuses the whole requested target rather than silently changing it.
 
 <a id="f-m6"></a>
 
-### F-M6 — Sharp RDD: pinned rdrobust RBC profile, with explicit GPL distribution decision
+### F-M6 — Native clean-room sharp CCT RBC; external oracle scope
 
-**Finding IDs.** B210; B211
+**IDs.** B210/B211; B206 additionally binds requested levels. Current scientific source `fb022aa12599ee1617f83d154cd9a8027b2a58b8`, tree `bee112b9284e11b78c96d2f91660f330d68b26c7`; carrier `15a04c4400497374416e167a5f61ebc12f61b8e4`.
 
-**Свойство.** The inferential result must be a robust bias-corrected sharp-RD estimate and interval, accounting for leading-bias estimation in both point and variance. O(np) memory is a separate performance property.
+**Selected product implementation.** Canonical `RegressionDiscontinuity` computes published CCT2014 corrected weights `a−L d`; HC0 q-fit residual variance includes bias-estimate variance **and covariance**. Product code imports no rdrobust. Supports sharp assignment, fixed symmetric h/b, p1/2, q=p+1, triangular/uniform/epanechnikov, HC0, distinct X, full-rank weighted designs. Report binds tau_bc, se.rb, requested robustCI/options/row hash; conventional weighted/homoskedastic profile stays distinct. Small Gram matrices/vector weights avoid NxN diagonal matrices.
 
-**Сегодняшнее расхождение.** G97 vectorizes weighted least squares to avoid an n×n matrix but retains homoskedastic WLS covariance. bias_correction is not RBC; its bandwidth is explicitly IK-like MVP and its count-ratio density diagnostic is not McCrary. No typed treatment-received vector supports fuzzy LATE.
+**Real independent reference.** Approved development-only locked rdrobust2.1.0, source `4322d4f57ce653668043f9bb262f00bbc2423554`, wheel SHA `8179f8f75445876297317a9805b81cbbf2e1e39bf804a460a8c23d0d7fa33263`, actually installed/run under isolated Python3.14.2; native application Python3.14.7. This is not metadata-only compatibility and not a product extra. GPL bundling decision is separate **only if product distribution of that external package is proposed**; it does not block the already implemented native clean-room RBC.
 
-**Выбранная реализация.** Scientific reference/profile: official Python rdrobust==2.1.0, source commit 4322d4f57ce653668043f9bb262f00bbc2423554 and universal wheel SHA-256 8179f8f75445876297317a9805b81cbbf2e1e39bf804a460a8c23d0d7fa33263. For sharp RD bind tau_bc, the robust se.rb value (not se.us), and the robust CI row (not the bias-corrected point with conventional SE); persist echoed cutoff, p, q, h, b, kernel, vce, level, masspoints, bandwidth selector and source/data identity. Package metadata reports GPL-3.0-only; policy-engine/LICENSE is proprietary, so the distribution owner must explicitly choose whether the package may be shipped. A subprocess is not assumed to settle that license decision. If package distribution is declined, implement the published CCT RBC formulas as a finite alternative task and use rdrobust as an external differential oracle only under an approved test/dependency arrangement; do not leave RBC indefinitely unsupported. Keep current conventional sharp local-linear as a separately named method. Fuzzy/LATE stays unavailable absent typed first-stage input and independently verified ratio/covariance.
+**Evidence / negative.** RDD checks0/1/2/3/4/5/12: actual4036 differential cases, maximum CI difference3.658229275060876e−11; 2000 independent datasets each true0/true3, coverage1879/2000 and1877/2000, declared99% binomial intervals include .95. Actual RBC removal retains markers but12108 numeric differences and84.35%/83.80% coverage reject it. Native .8/.95/.99/invalid levels and canonical dispatcher→report→CAS→fresh dematerializer are measured; no fabricated .90 test. Earlier no-MC removal harness gap remains historical; corrected final removal has the full denominator.
 
-**Отвергнутый вариант.** Do not call quadratic regression, a bias flag, or O(np) WLS a robust bias-corrected CI. Do not select the conventional or bias-corrected-with-conventional-SE row as the RBC interval. Do not infer license permission from process isolation. Do not claim fuzzy LATE from x/y alone.
-
-**Canonical paths.** policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/remediation/test_cau_03.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/LICENSE@c40d4acae1ce58b597267255026d9356565828fd
-
-**Зависимости.** rdrobust 2.1.0 requires Python >=3.9; PyPI artifact is a universal py3-none-any wheel, but no Python 3.14 target import/consumer run was measured. Resolve exact transitive environment and package/Wheel consumer before runtime claim. Distribution gate: obtain explicit owner decision for GPL-3.0-only package against the proprietary project license. If declined, implement CCT 2014 RBC formulas in project code and retain exact reference version/checksum where its testing use is approved.
-
-**Положительная функция и независимый oracle.** Use source-bound curved left/right regression functions with heteroskedastic noise; compare the application result field-by-field to an independent direct rdrobust 2.1.0 call on identical pinned rows/options, verify tau_bc responds to nonzero leading bias and robust CI uses se.rb. Run at least 2,000 seeded independent null and nonzero-effect draws to evaluate empirical 95% coverage against binomial Monte-Carlo bounds. If own RBC is selected for licensing reasons, use this same direct-library oracle plus the published CCT equations.
-
-**Различающий negative.** Remove only the real RBC producer while retaining settings/markers and require direct-result and repeated-coverage probes to fail. Swap robust and conventional SE/CI rows, alter cutoff/bandwidth/source rows, or omit the license choice while retaining package name; consumer/acceptance must reject. A fuzzy label with no treatment-received vector is invalid.
-
-**Границы.** Sharp RD only. RBC is asymptotic under continuity/local-polynomial and bandwidth assumptions, no manipulation and valid sampling; simulated coverage validates implementation under that DGP, not real-design admissibility. Fuzzy LATE and a real McCrary density test are separate capabilities.
-
-**Runtime.** The pinned wheel is py3-none-any and metadata says Python >=3.9, but the wheel provenance says uploaded with CPython 3.13.14; this does not establish target Python 3.14 behavior. Exact environment install, import, actual producer → persisted artifact → fresh reader consumer, and license disposition are separate gates. No install/tests were run for this decision.
-
-**Основания.** policy-engine/_build/e02-g-closure-research-20261005/F-plan-independent-review.md#sha256=9e097992caad9de84c237e1d33458b2cb6b13b0067d8cfb0f0826eaaef6779e6; policy-engine/LICENSE@c40d4acae1ce58b597267255026d9356565828fd; [первичный источник](https://pypi.org/project/rdrobust/2.1.0/); [первичный источник](https://github.com/rdpackages/rdrobust/blob/4322d4f57ce653668043f9bb262f00bbc2423554/Python/rdrobust/src/rdrobust/rdrobust.py); [первичный источник](https://doi.org/10.3982/ECTA11757); [первичный источник](https://rdpackages.github.io/references/Cattaneo-Keele-Titiunik_2023_SIM.pdf)
+**Limits.** B210/B211 original finite criteria closed. No fuzzy treatment/compliance input, cluster/otherVCE/automaticselector/masspoint adjustment or real cutoff continuity/manipulation authority. Existing IK-like bandwidth and count-ratio diagnostic stay heuristic, not IK/McCrary. Full docs/architecture/compatibility failures retain their exact outcomes; original source equations and method profile are in `docs/reference/foundry/causal-rdd-profile.md@fb022aa…`.
 
 <a id="f-m7"></a>
 
-### F-M7 — DoWhy v0.14 linear ATE in an isolated, typed Python 3.12 worker
+### F-M7 — Genuine DoWhy0.14 worker with nonauthoritative parent binding
 
-**Finding IDs.** B212; B213
+**IDs.** B212 point-only/no manufactured CI; B213 actual estimand/contrast/target binding. The criteria are distinct and must not swap labels.
 
-**Свойство.** Identification, estimator/contrast/target, estimate and interval are distinct typed outputs bound to the actual producer. The selected scalar confidence interval must be shape- and level-validated, not inferred from labels.
+**Current evidence.** Source423 actual configured Python3.12 worker executes `CausalModel→identify_effect(proceed_when_unidentifiable=False)→estimate_effect` selected linear ATE. Python3.14 parent validates bounded versioned JSON/request/source/graph/target and persists typed report/CAS; historical installed5cd wheel/sdist consumers are real, source-specific. Missing worker/timeout/malformed version/hash/interval refuses; legitimate point-only remains no CI. ROOT3afb current typed-view/diagnostic boundary adds its own receipt; source8236 wheel/rebuilt-sdist consumers реально исполнены; new0c/8d TMLE persisted ConfidencePass witness выполнен отдельно, не новый423 backend run.
 
-**Сегодняшнее расхождение.** G97 wrapper does not explicitly bind control/treatment values or target_units; supported labels include mediation profiles without a demonstrated estimator. The CI parser flattens arbitrary shapes, takes the first two values, and swaps reversed endpoints. DoWhy is absent/UNRUN in the Python 3.14 baseline.
+**Profile/negative.** Selected control0/treatment1/ATE/no modifiers/backdoor.linear_regression; effective confidence level and one finite ordered interval exact shape(2,) or(1,2). Multirow/reversed/nonfinite/mismatched level refuses, never flatten/swap/fabricate. Real Statsmodels independent OLS interval and known confounded linear DGP; changed adjustment/target cannot pass merely on estimand type string. Mediation profiles unsupported absent actual method-specific input/oracle.
 
-**Выбранная реализация.** Use real DoWhy 0.14 through an isolated Python 3.12 worker dispatched by the existing execution-resource orchestration. This is a selected, scoped cross-interpreter worker extension to F’s original no-parallel-shim prompt under this research recommendation, not a way to claim native Python 3.14 availability. Worker imports no PolicyOS code and has no authority: versioned JSON request/reply binds schema, exact source/data identity, graph, treatment/outcome, adjustment, method/version, contrast, target, and confidence level; its estimate remains a candidate until the application persists the typed result and a fresh reader consumer validates it. Worker call must be CausalModel→identify_effect(proceed_when_unidentifiable=False)→estimate_effect using the returned estimand and method backdoor.linear_regression, control_value=0, treatment_value=1, target_units="ate", no effect modifiers, confidence_intervals=True and method_params={"confidence_level":0.95}; after the call, assert estimate.estimator.confidence_level == 0.95 and explicitly obtain the interval with estimate.get_confidence_intervals(confidence_level=0.95), then bind/validate those endpoints and compare to direct statsmodels OLS alpha=0.05. Do not infer effective level from an echoed JSON request. Validate one scalar interval only: accept exact shape (2,) or (1,2), finite ordered endpoints, and exact bound level; reject extra contrasts/rows, reversed bounds, NaN/Inf and level mismatch without flattening, first-row selection, swapping or repair. Distinguish a legitimate point-only result from malformed interval. Keep CDE/NDE/NIE unsupported until an estimator-specific mediator DGP and actual consumer path exist.
-
-**Отвергнутый вариант.** Do not call a marker or worker import a DoWhy result; do not silently add an unapproved shim inside the shared 3.14 runtime. Do not let a separate process or JSON envelope assert its own provenance/authority. Do not flatten or repair malformed CI output; do not report mediation from the ATE estimator.
-
-**Canonical paths.** policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/remediation/test_cau_04.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/ir/analytics/causal.py@97c85fae2d4505ec8248540d98b9556296244208
-
-**Зависимости.** Lock a separate Python 3.12 worker environment to DoWhy==0.14 and all transitive artifacts; DoWhy 0.14 official package metadata requires Python >=3.9,<3.14 and the wheel SHA-256 is 9c5855d80601e0feb2d0d232c19e7b660db4cd0ea04ace2ebaefcdb3599ab9db. Exact statsmodels and worker dependencies must be locked from the built worker. Integrate only through the existing bounded execution-resource orchestration; do not import worker internals into the application.
-
-**Положительная функция и независимый oracle.** Known linear-confounded DGP: A has conditional positivity given X; Y=2A+1.5X+epsilon with iid Normal(0,1), and no unmeasured confounding. Compare identified adjustment set, ATE=2 and `estimate.get_confidence_intervals(confidence_level=0.95)` exactly with direct statsmodels OLS treatment-coefficient t interval at alpha=0.05; assert `estimate.estimator.confidence_level == 0.95`; repeat independent samples under this Gaussian profile for nominal finite-sample coverage. Bind persisted response to source hash, worker version, estimand/adjustment, values 0/1, ATE target and level; read it from a fresh consumer. Varying contrast/target must change the actual estimator call or be rejected when outside the selected profile.
-
-**Различающий negative.** Unblocked-backdoor/hedge fixture must not identify an ATE; remove a confounder while preserving request labels and require consumer failure. Reject interval arrays with shape (2,2), extra values, reversed endpoints, NaN/Inf or another level. Keep shape markers but replace actual estimate with a stub and require producer/CAS/fresh-reader oracle to fail. A mediation request is unavailable, never a label-only pass.
-
-**Границы.** The exact OLS t interval requires full-rank correctly specified linear constant-effect regression with iid homoskedastic Gaussian errors, valid graph/adjustment, positivity and no unmeasured confounding; it does not prove those causal assumptions. Other outcomes/effect modifiers/estimators need their own validated uncertainty profile. Worker result is non-authoritative and cannot become a publishable claim by itself.
-
-**Runtime.** Python 3.12 worker is an explicit compatibility target separate from G97’s Python >=3.14<3.15 application runtime. DoWhy 0.14 will not install in that interpreter. The actual worker build, execution-resource bridge, persisted artifact, fresh consumer, and affected importer tests are mandatory and not yet run; no backend PASS follows from baseline skips or metadata.
-
-**Основания.** policy-engine/_build/e02-g-closure-research-20261005/F-plan-independent-review.md#sha256=9e097992caad9de84c237e1d33458b2cb6b13b0067d8cfb0f0826eaaef6779e6; [первичный источник](https://pypi.org/project/dowhy/0.14/); [первичный источник](https://github.com/py-why/dowhy/blob/178ecc9c690a02f2801c1f70da2695f5744186cc/dowhy/causal_model.py); [первичный источник](https://github.com/py-why/dowhy/blob/178ecc9c690a02f2801c1f70da2695f5744186cc/dowhy/causal_estimators/linear_regression_estimator.py); [первичный источник](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.OLSResults.conf_int.html)
+**Runtime/authority.** DoWhy0.14 excludes Python3.14; application markers remain excluded and are not positive witnesses. Explicit locked3.12 computation profile is not whole-app downgrade or parallel fake backend. Source423 finite original criteria B212/B213 recommended closed. Whole Runtime-admitted Node и real identification/evaluator/appointment/fresh challenge остаются отдельными UNRUN contracts.
 
 <a id="f-m8"></a>
 
-### F-M8 — ADMG m-separation, perfect-do surgery and narrowly named package cleanup
+### F-M8 — Static ADMG separation/surgery and exact empty sibling scope
 
-**Finding IDs.** B216; B217; LA-007; LA-019
+**IDs.** B216/B217, LA-007/LA-019. Shared STATIC518 admission rejects original unresolved endpoint pairs/compact temporal lag **before** native inference, no-op rule, surgery, builders or rewrites. Supported endpoint pairs are tail→arrow, reverse arrow←tail normalized, arrow↔arrow, lagNone/0.
 
-**Свойство.** ADMG separation uses endpoint marks/collider ancestry; perfect do removes incoming directed and incident bidirected edges while preserving outgoing paths. Package cleanup must target verified empty shims only.
+**Complete finite denominator.** 8 providers,62 graph-taking entries/builders =57 static causal entries +5 raw endpoint/orientation utilities; actual source census2699Python files/179 resolved absolute-import/FQN callers.634 defining/cache checks and independent559 unique consumer cases PASS; 133PASS/3FAIL/2SKIP affected neighbors retained. Three malformed AMN/SID fixtures reproduce on exactbase provider; no P41 inherited label without full disjoint denominator. Actual Rule1/IDC/IDC*/CTF consumers +latent-DAG moralization oracle, not only importability.
 
-**Сегодняшнее расхождение.** G97 fixes the known reverse-edge normalization and includes finite oracle evidence: 200 three-node ADMGs, 2,400 ordered m-separation queries, plus selected do-calculus consumers. This supports the bounded primitive, not general identification completeness or all PAG extensions. Python package/facade exports have real owners; adjacent directories are not empty-file shims.
-
-**Выбранная реализация.** Keep the compact native ADMG algorithms and their independent latent-DAG/ancestral-moralization oracle for this bounded domain. Use Ananke's m_separated as an optional differential oracle on the same semantics; use NetworkX only after explicit latent-DAG expansion because its API is DAG d-separation. Delete only the exact three verified empty .py shim files, with imports/wheel consumers checked individually.
-
-**Отвергнутый вариант.** Do not project mixed edges into a plain DAG and call it m-separation; do not infer id_engine or Rule1-3 completeness from the finite separator corpus; do not remove directories named like empty files.
-
-**Canonical paths.** policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py@85c16de9f16a4e21c05c516271b6c81e08b7a39f; policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_s_ops.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/methods/catalog/causal/test_do_calculus_postpass.py@97c85fae2d4505ec8248540d98b9556296244208
-
-**Зависимости.** Current native bounded method needs no graph package. Optional Ananke version and true NetworkX 3.6.1 runtime must be pinned for differential/wheel checks; shared graph environment lacked NetworkX.
-
-**Положительная функция и независимый oracle.** Retain the receipt's finite enumerated three-node ADMG set and compare every query/action set with independently constructed latent DAG expansion plus ancestor-moralization; assert endpoint reversal, collider conditioning and perfect-do edge changes against explicit hand fixtures.
-
-**Различающий negative.** Change only a bidirected edge, collider conditioning set or one removed parent while leaving graph names/markers fixed; native result must differ from oracle. Attempt deletion of a nonempty package directory or import via exact shim path and ensure cleanup consumer detects it.
-
-**Границы.** Finite algorithmic correctness only for enumerated graph sizes/shapes and tested do-calculus forms. Not causal identification, all Rule1-3 contexts, unrestricted PAG/CPDAG extension or domain evidence.
-
-**Runtime.** Receipt: 123 selected checks passed with one optional DoWhy skip; NetworkX was missing in the shared environment and its actual graph contract run had import errors, not a product PASS. Test the supported pinned dependency consumer separately.
-
-**Основания.** policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm.json@85c16de9f16a4e21c05c516271b6c81e08b7a39f#sha256=4c4bd3eb636a9e460c2fd239adbdc1a238463315d4c0899ba0bc8e6d4e4f3050; [первичный источник](https://ananke.readthedocs.io/en/latest/ananke.graphs.html); [первичный источник](https://networkx.org/documentation/stable/reference/algorithms/d_separation.html)
+**Negative/limits.** CPDAG Y—Z original real rewrite FAIL retained; shared admission removal no-opRule1 FAIL and reverse normalization removal directed-law FAIL. Finite static ADMG only, not arbitrary PAG completion/ID completeness. LA-007/019 exact empty files already absent base198; nonempty packages preserved, no new deletion. API90c supported filename/loader/docs/installed packet на source8236 исполнен. API605 reconciles nine later carrier commits: causal_graph.py AST equivalent, canonical internal contract retained; new2case consumer and2removal controls выполнены. Unknown computed/external callers не actual clients и не invented closure prerequisite.
 
 <a id="f-m9"></a>
 
-### F-M9 — Mixed graph export immutability and time/PAG boundary
+### F-M9 — Multiedges, deep immutable cache, known reverse и lag boundary
 
-**Finding IDs.** B219; B220; B214; B218
+**IDs.** B219/B220/B214/B218. SCM6d actual NetworkX3.6.1 MultiDiGraph exporter/readback proves keyed directed/bidirected/temporal multiset/order. Historical missing-wheel/import-errors are tooling nonreceipts superseded only by this actual bounded witness.
 
-**Свойство.** Persisted/exported graph must preserve typed directed, bidirected and lagged edges/key identity; immutable topology and derived caches must agree after copy. Static DAG consumers may not silently drop time or resolve an ambiguous PAG arbitrarily.
+**Cache property.** CACHE213/e2c stores deeply immutable JSON tuples and returns fresh plain tuple/dict rows; native75PASS/independent23PASS, nested/weakref/warm-copy controls, three retained-marker removals FAIL. Preceding mutable-row FAIL is preserved, not overridden by old6d overclaim; Kuzu row/CSV ABI values unchanged, no liveKuzu run.
 
-**Сегодняшнее расхождение.** MultiDiGraph supports keyed parallel edge types, deep topology/cache behavior has a bounded implementation slice, known reversed arrows normalize, and static GCM refuses lag edges. B219 remains held because the actual NetworkX exporter/readback consumer did not run in the common environment. Circle-edge rejection avoids false certainty but no general PAG extension or temporal SCM inference exists.
-
-**Выбранная реализация.** Keep typed native edge storage and adapt/export to actual pinned NetworkX MultiDiGraph with round-trip reader checks. For current static GCM, retain explicit refusal on lagged/circle edges. Add a separate time-unrolled (variable,time) profile only if it preserves lag order, initial conditions and horizon; do not claim it in the static method. Resolve one reversed known edge by endpoint normalization; keep ambiguous PAGs set-valued or limited.
-
-**Отвергнутый вариант.** Do not use a lossy DiGraph projection for mixed edges, infer temporal semantics from a filename, drop lag edges, or pick one DAG extension for a PAG without declaring uncertainty.
-
-**Canonical paths.** policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/foundry/methods/catalog/causal/_graph_projection.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/ir/test_causal_graph_contract.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/ir/test_causal_graph_contract.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/remediation/test_grf_03.py@97c85fae2d4505ec8248540d98b9556296244208
-
-**Зависимости.** NetworkX==3.6.1 is the recorded intended consumer version; no actual runtime pass in the shared environment. Temporal expansion is own code and needs a separately versioned schema/profile.
-
-**Положительная функция и независимый oracle.** Round-trip X->Y, X<->Y, duplicate keyed relations, and lag-1/lag-2 through actual NetworkX build, serialize/CAS, fresh read and exported graph; compare immutable adjacency and ancestors cold/warm. On a 4-step unroll, a known lag-1 recurrence must connect only adjacent time slices and be a DAG.
-
-**Различающий negative.** Remove the bidirected edge, merge parallel edges, mutate nested cached topology, or make lag1 indistinguishable from lag2 while leaving type strings: consumer/readback oracle must fail. A CPDAG/PAG circle without a unique extension must return explicit set-valued/unsupported state, not an arbitrary DAG.
-
-**Границы.** B219 held pending actual backend consumer. B220 finite topology/cache contract only. Reversed-edge fix covers the known orientation case; time refusal is not temporal inference and arbitrary PAG identification remains unimplemented.
-
-**Runtime.** NetworkX missing in shared environment; selected graph contract had 15 passed / 11 import errors. Keep this environment nonreceipt separate from product verdict. Build/import on pinned supported runtime before closure.
-
-**Основания.** policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm.json@85c16de9f16a4e21c05c516271b6c81e08b7a39f#sha256=4c4bd3eb636a9e460c2fd239adbdc1a238463315d4c0899ba0bc8e6d4e4f3050; [первичный источник](https://networkx.org/documentation/stable/reference/classes/multidigraph.html); [первичный источник](https://networkx.org/documentation/stable/reference/algorithms/d_separation.html)
+**Profiles.** Known reverse default normalizes correctly; canonical DAG Scientist Node profile does not admit every known PAG/CPDAG type. Lag1/2/self-lag remain representation/export facts; STATIC518 refuses compact temporal inference. B218 original lag/self-lag representation/export/static-refusal criterion recommended closed. B214 remains limited for explicit sound partial/conditional extension capability. Intake647 validates current selected CAS/composition bodies and preserves known endpoints; unresolved marks/compact lag typed-refuse before static persistence. Serialization не identification.
 
 <a id="f-m10"></a>
 
-### F-M10 — DoWhy GCM actual mechanism fit and persisted SCM producer
+### F-M10 — Source-bound root law, fitted polynomial compatibility и SCM versions
 
-**Finding IDs.** B221; B222
+**IDs.** B221/B222. SCM6d real selected DoWhy GCM worker fit→persisted source/row-bound SCM→fresh query is distinct from import-only NumPy fallback. Empirical roots retain aligned joint-row law; unknown/unprovided law stays typed limited.
 
-**Свойство.** A fitted SCM artifact must be produced by the selected mechanism fitter on source-bound aligned rows, then survive persisted fresh-reader intervention queries. Backend availability or a self-declared mechanism name is not a fit witness.
+**Original polynomial criterion.** POLY6f actual existing `_fit_additive_noise_poly`→explicit manualSCM1.0→realCAS/dispatcher query/twin fresh process executes fitted additive payload: x² do2→4, not OLS1.36; LINEAR1+3X→7; complete fact X1/Y1.25 preserves residual.25 and shared-world ITE3. Independent degree3 helper gives query8/counter8.25/ITE3.25. Removal `_polynomial_predict` retains coefficients/markers but2FAIL, linear1PASS. Original B222 does not require commissioning a new default nonlinear fitter; partial nonlinear posterior remains limited/non-gating.
 
-**Сегодняшнее расхождение.** The GCM path checks whether dowhy.gcm imports but then continues with local NumPy OLS/empirical fitting; nonlinear helper/fixture is not reached on that real fit branch. Aligned empirical roots are carried, but source strings do not authenticate CAS/source data identity. Existing finite tests do not prove a true DoWhy mechanism fit produced the persisted artifact.
+**Version companion.** VERSIONeaf9/docs e94 current default/catalog/snapshot/CAS1.1 agree; missing/explicit historical1.0 remain1.0 without worker authority upgrade. Genuine64-row gcm worker, public class identity/pickle/CAS, native15PASS/independent9 adversaries and retained-marker version removals measured. Constructor default change declared breaking; old CAS compatibility is explicit. Full generator FAIL for other feedback nested refs is not SCM-ownPASS or P41 inheritance.
 
-**Выбранная реализация.** Use the actual maintained DoWhy GCM producer for this selected method: construct StructuralCausalModel from the validated directed graph; explicitly set each declared root/conditional mechanism class (do not rely on automatic assignment where mechanism selection is ungrounded); call gcm.fit with the bound frame; serialize fitted mechanisms, graph, versions, row/source hash, fit seed/options and supported schema; read it in a new process and answer an intervention query from that persisted artifact. A true DoWhy fit is the functional target, not an import-only fallback. Preserve local fit as a separately named method if needed.
-
-**Отвергнутый вариант.** Do not set dowhy_available and run NumPy code while reporting DoWhy backend success; do not use an auto-selected model label as truth; do not bind empirical samples by axis/length/string ID alone.
-
-**Canonical paths.** policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_query.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/remediation/test_scm_01.py@97c85fae2d4505ec8248540d98b9556296244208
-
-**Зависимости.** Pin supported DoWhy, NetworkX, NumPy, pandas, scikit-learn and Python versions as one declared profile. Actual DoWhy installation/wheel fit/readback was not done; the cited default environment marks it absent/UNRUN. Need data artifact source/CAS resolver at fit and readback.
-
-**Положительная функция и независимый oracle.** Generate root X~N(0,1), Y=2X+epsilon with epsilon~N(0,1); bind the exact aligned rows and explicit linear additive-noise mechanism; run actual DoWhy gcm.fit, persist, start a fresh reader, and query do(X=1) vs do(X=0). Oracle ATE=2; verify fitted parameters/residual sampling and consumer result against independently computed least-squares/reference values.
-
-**Различающий negative.** Keep import/version/SCMSpec markers but replace actual gcm.fit with current NumPy helper: backend-provenance consumer must fail. Permute Y rows or change one source hash while retaining vector shape/declared ID: aligned-row binding must reject; remove the fitted artifact before readback and consumer must not recompute a different model silently.
-
-**Границы.** Known-DGP test validates producer binding and one explicit additive-noise SCM; it does not establish graph orientation, causal sufficiency, mechanism selection, or empirical domain effects. Auto assignment quality/independence checks are diagnostics, not proof of graph truth.
-
-**Runtime.** Official DoWhy repository documents StructuralCausalModel -> mechanism assignment -> gcm.fit. Compatibility in the project's target Python 3.14.2 wheel has not been measured. Dependency installation, artifact serialization ABI, and actual consumer are mandatory separate gates.
-
-**Основания.** policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm.json@85c16de9f16a4e21c05c516271b6c81e08b7a39f#sha256=4c4bd3eb636a9e460c2fd239adbdc1a238463315d4c0899ba0bc8e6d4e4f3050; [первичный источник](https://github.com/py-why/dowhy)
+**Limits.** Finite empirical/affine/additive univariate polynomial profiles; no interaction-polynomial generality, arbitrary nonlinear posterior or real model authority. Version/schema companion does not reopen/close all scientific IDs by itself.
 
 <a id="f-m11"></a>
 
-### F-M11 — SCM query law admission, exact abduction, and effect distribution typing
+### F-M11 — Surgical planning and stochastic-law tail oracle
 
-**Finding IDs.** B224; B225
+**IDs.** B224/B225. Replaced natural mechanism bypass and pruning preserve relevant factual ancestors/shared noise; unknown policy law never silently becomes atomic do. Existing Normal/Uniform/TruncNormal/explicit atomic static profiles bind parameters/seed/support.
 
-**Свойство.** Intervention changes only the target equation; stochastic draws require a declared law, support and query scope. Unsupported stochastic law or temporal query must not silently become atomic do or static inference.
+**Independent oracle.** Original `test_scm_result_semantics.py@6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181:L222–250` computes Normal CDF with **math.erfc**, and positive-tail conditional CDF from survival-function differences, including [8,9] and [-12,-10]. It is independent of sampler SciPy; prior «independent SciPyCDF» label is corrected, not a new581-test run.
 
-**Сегодняшнее расхождение.** Intervention pruning removes target inputs/descendants correctly and three laws are implemented (normal/uniform/truncated normal). Unsupported law refusal is honest, but does not make generic SCM distribution support complete. The separate B215/B223 uncertainty-semantics defect is assigned to the common IR decision above.
-
-**Выбранная реализация.** Keep the current typed Normal/Uniform/TruncatedNormal static laws and exact surgery; validate each sampler against its analytic CDF/quantiles. Persist law parameters, seed, support and query horizon with the artifact. Refuse unknown laws and static GCM queries over lag edges until an explicitly versioned time-unrolled profile exists.
-
-**Отвергнутый вариант.** Do not generalize one conjugate posterior to arbitrary nonlinear SCMs; do not switch unsupported stochastic law to atomic do; do not call outcome or ITE quantiles a confidence interval or upgrade non-converged inference.
-
-**Canonical paths.** policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/foundry/methods/catalog/causal/dynamic_graph_dscm.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/foundry/methods/catalog/causal/space_time_dscm.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/remediation/test_scm_03.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/remediation/test_scm_02.py@97c85fae2d4505ec8248540d98b9556296244208
-
-**Зависимости.** Analytic Gaussian profile uses native NumPy/SciPy routines in the selected path; SciPy is not guaranteed in every runtime extra. DoWhy GCM path depends on the separate actual backend install described above.
-
-**Положительная функция и независимый oracle.** For each declared normal/uniform/truncated-normal structural noise law, compare sampled CDF/quantiles with closed-form values; for Y=f(X,N), verify do(X=x) changes descendants and cuts target inputs while preserving all unrelated equations.
-
-**Различающий negative.** Provide an unknown law, a lagged graph to static GCM, or an unsupported posterior: query must return typed unavailable/limited and remain non-gating. A name/marker for a supported law with an altered sampler must fail the analytic distribution check.
-
-**Границы.** Native stochastic support is limited to the three declared laws and tested static query paths. General nonlinear abduction, arbitrary distribution families, temporal inference and empirical graph identification remain unsupported.
-
-**Runtime.** No target environment run in this review. Preserve separate optional dependency state; import absence and skip are UNRUN. Ensure current supported SciPy/DoWhy versions and query artifact schema are recorded at consumer runtime.
-
-**Основания.** policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm.json@85c16de9f16a4e21c05c516271b6c81e08b7a39f#sha256=4c4bd3eb636a9e460c2fd239adbdc1a238463315d4c0899ba0bc8e6d4e4f3050
+**Negative/limits.** Invalid scales/nonfinite/unknown syntax/support refuse; continuous truncated tails cannot collapse into endpoint atoms. Full-graph/action oracle, reorder/irrelevant-node and law-removal controls retain original source. Static compact lag/unknown posterior refuses; no universal stochastic family/temporal/production-authority claim.
 
 <a id="f-m12"></a>
 
-### F-M12 — Foundry compiler seed, mechanism activation and installed layout consumer
+### F-M12 — Original Treasury, family/IC and native IR layout migrations
 
-**Finding IDs.** LA-001; LA-002; LA-037
+**IDs.** LA-001/LA-002/LA-037 have separate original acceptance. Treasury03bb/63425 real compile root→salts32-word fold→native RNG/public execution proves seed/order/replay; versioned v1 intentionally preserves same node draw steps0/1, legacy plans preserve old law.
 
-**Свойство.** Execution randomness, mechanism family and layout must flow from compiler inputs through a persisted artifact into actual state-changing consumer behavior; inventory/class identity alone is not activation.
+**FAMILY7f/docs3e181.** Four canonical family IDs/assumptions/parameters and unknown-ID refusal; actual IC service→IR certificate CAS/fresh reader; five real descriptors/class resolutions, four typed unsupported execution refusals. Original family specification need not be executable: optional four family→state kernels are not a closure prerequisite. Nonmonotone tax/wrong payment actual negatives and catalog/family-owner removal FAIL.
 
-**Сегодняшнее расхождение.** Compiler tests prove artifact/CAS/layout/family behaviors, but ExecPlan.random_seed=17 can coexist with TreasuryPlan.root_seed=0. Direct randomization helpers accept an explicit seed, so they do not prove compiler binding. Mechanism family inventory is not by itself a live state operation; source import identity is not an installed wheel consumer.
+**LA-037 consumer.** Native IR five object/builders, direct Trinity binding, both known wrappers direct toIR, native income_tax→layout→patch/state/CAS; real maintained page with three Python directives and five layout anchors. Installed wheel/sdist each13PASS only for exactly byte-identical three IR owner/wrapper files, not newly installed Treasury/monitor behavior. Layout-body removal fails actual consumers even with builder/type markers.
 
-**Выбранная реализация.** Keep native compiler and typed IR. Make one ratified seed source bind to treasury salt and persist the same seed/source lineage; either use the execution seed or explicitly model a separate owner-approved root seed. Wire a family certificate to the actual state operation; prove layout class identity in built wheel/sdist import. Do not replace compiler paths with test-only construction.
-
-**Отвергнутый вариант.** Do not accept matching seed field names when values differ; do not equate registered family with an executable mechanism; do not use source-tree import identity as installed API proof.
-
-**Canonical paths.** policy-engine/src/polisyos/foundry/compile/trinity_compiler.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/foundry/compile/randomization.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/compile/test_randomization.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/contracts/test_layout.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py@97c85fae2d4505ec8248540d98b9556296244208
-
-**Зависимости.** No new numerical package. Requires canonical compiler, CAS artifact reader, actual execution consumer and built wheel/sdist install/import profile.
-
-**Положительная функция и независимый oracle.** Compile deterministic fixture with seed 17 and known node plan, then read artifact via fresh reader and execute it: every stream salt and certificate must bind seed/source; same seed replays exactly, changed seed changes keyed streams. Registered family must produce its known state delta through actual consumer. Installed wheel exports the exact IR class object identities.
-
-**Различающий negative.** Compile with execution seed 17 and root seed 0 while keeping both field names: fail unless separate seed authority is explicitly declared and cross-bound. Register a family with no executable state transition or remove layout owner from installed package; consumer acceptance must fail.
-
-**Границы.** Deterministic synthetic producer/consumer proof only; no claim about economic validity or real policy simulation. Salt correctness does not prove future randomness quality beyond the tested deterministic contract.
-
-**Runtime.** Current compile receipt had 45 targeted and 14 independent checks, but no installed consumer/wheel run is shown; target packaging and import compatibility remain required.
-
-**Основания.** policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts.json@ea577ac3185829e066a39f51a8a2eae8f1bb5d43#sha256=34c41ca91eab404b3fbdfdba376108f1205ed47010d1e540b7f7b6f960f3e3ca
+**Limits.** Original finite LA-002/037 migration complete; strict full docs/architecture/production gates separate. Compatibility addresses stay supported until their owner lifecycle decision; no invented retirement date or new economic law.
 
 <a id="f-m13"></a>
 
-### F-M13 — Fiscal/labor kernel migration equivalence
+### F-M13 — LA-003 equivalent relocation with preserved fiscal/labor law
 
-**Finding IDs.** LA-003
+**Original criterion.** Registration/spec, string class paths, PatchMap/active-target masks/fiscal balance/employer IDs/firm labor counts/PRNG progression/compiler/replay and existing fiscal/labor/gradient tests. Relocation preserves old ID/fingerprint; changed economic law needs its own version.
 
-**Свойство.** A migration is equivalent only when intended state transitions/patches match under the same typed inputs and random stream, not because similarly named mechanisms or dtypes compile.
+**Current evidence.** ECO412 actual registry→compile→CAS→execute→apply_patch_map/load snapshot and adapter→native consumers compare complete patches/masks/accounting/count/key under finite equivalent fixtures; deliberate plugin-law divergences are LA-004, not relocation failure. Fiscal debit removal5FAIL/2outsidecontrolsPASS. Historical decimal .10 escape1000.0000149011612 vs1000 corrected FISCAL132 by incoming-state dtype at actual ParamDecimal/compiler/CAS consumer. Original bounded relocation recommended closed; 24defaultfloat32 profiles byte-identical, separate40lower/int/x64 profiles disclose dtype/reduction differences. ABM diagnostic FAIL и P41 not_established сохраняются, law/tolerance не изменены для сокрытия результата.
 
-**Сегодняшнее расхождение.** Live fiscal and labor kernels operate on WorldState/PatchMap while the Economics plugin uses separate EconomicState/mechanisms; dtype receipt does not compare these producer paths or complete downstream state changes.
-
-**Выбранная реализация.** Keep each canonical execution kernel and plugin as separate owners until matched differential evidence shows a specific contract is equivalent. Build a deterministic adapter only for explicitly ratified equivalent equations; otherwise state separate semantics instead of merging by name.
-
-**Отвергнутый вариант.** Do not treat dtype/construction tests, adjacent class names, or average outcome similarity as migration equivalence.
-
-**Canonical paths.** policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/foundry/execute/mechanisms/labor.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/remediation/test_fry_03.py@97c85fae2d4505ec8248540d98b9556296244208
-
-**Зависимости.** Existing typed WorldState, PatchMap and EconomicState paths; actual executor consumers and seed binding are required.
-
-**Положительная функция и независимый oracle.** For a deliberately equivalent narrow fiscal fixture, hand-calculate tax, subsidy, balance and target mask; run both actual kernel and plugin paths on same state/seed; compare complete typed patches and state invariants, not only averages.
-
-**Различающий negative.** Use wealth-vs-income units and a wage/job-transition fixture; expected distinct outputs prove comparator detects semantic divergence. Perturb only seed and verify stochastic effects are not silently ignored.
-
-**Границы.** Only the ratified equation/state subset can be marked equivalent. No claim of whole-economy policy equivalence from a small synthetic slice.
-
-**Runtime.** No new dependency. Must use actual canonical execution/plugin consumers; source-only comparison is insufficient.
-
-**Основания.** policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype.json@bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42#sha256=c7c0f21acfb3537c9c0a53ef39a36a762193a4b0bb3d0da07bd5c0653f173979; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-deciding.txt@bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42#sha256=879ece00b605c674668941c27eb018d15f1dcfd680d25bf7c30359fbc449ff3f
+**Separate numeric companion.** CARRYc003 temporal output cast to incoming state dtype, actual abstract PPO-loss promoted carries and declared MetricsBuffer storage casts fixes two real train/ES dtype failures; own37PASS +independent37PASS. It does not decide fiscal decimal arithmetic, production calibration or universal migration equivalence. P41 remains not_established for overlapping broader gate.
 
 <a id="f-m14"></a>
 
-### F-M14 — Economics score meaning and profile separation
+### F-M14 — LA-004 distinct models; LA-035 equivalent historical baseline
 
-**Finding IDs.** LA-004; LA-035
+**LA-004 original acceptance, closed finite profile.** Native reported-income flat tax updates income/government.balance and threshold labor/employer/count/key; EconomicsPlugin progressive wealth tax and find/separation/wage dynamics operate on EconomicState. ECO412 full state/units/time-step/taxbase/RNG/budget mapping, deliberately equal regimes **and** deliberate divergence, accounting/seed/observables actual producer→consumer proofs satisfy this criterion. Richer plugin is not drop-in replacement; no welfare normative choice is needed to establish inequivalence.
 
-**Свойство.** A score's units, sign, scale dependence, state variables and audience must match its declared normative/economic meaning; dtype correction does not ratify the objective.
+**LA-035 original equivalent relocation, recommended closed.** Original `-mean(income)/max(mean(abs(income)),1)+10·budget_penalty`, min_balance−1000, all population entries, aliases/nativeGlobalState/JIT/grad/numeric guards preserved. Positive income≥1 remains exactly−1 at every scale; это normalized historical baseline, не raw-income maximization. ECO193 actual state/guard/JIT/gradient/literal caller tests: author83PASS, independent28+55PASS, 64Fraction evaluations/2analytic gradients and actual sign/guard removals FAIL. Existing formula unchanged; new optimizer or normative welfare packet не требуется исходной карточкой. New ranking/objective intent, если будет запрошен, требует отдельного owner decision/version. ROOT072 hold сохранён исторически.
 
-**Сегодняшнее расхождение.** normalized_income_budget_loss uses -mean(income)/max(mean(abs(income)),1)+10*budget_penalty. For nonnegative mean income >=1 the income term is exactly -1 at every income scale; progressive tax/wealth mechanics and live flat income-tax kernel also operate on different state/equation paths.
-
-**Выбранная реализация.** Retain this formula as a separately named historical baseline until its semantic owner ratifies units/sign/normalization. Keep distinct objective profiles for the economic plugin and world execution kernels; add a new scale-sensitive welfare/income objective only after explicit normative owner approval and test the actual consumer.
-
-**Отвергнутый вариант.** Do not silently call the normalized score income maximization or welfare; do not merge wealth and income or progressive and flat tax paths by dtype or name.
-
-**Canonical paths.** policy-engine/src/polisyos/foundry/plugins/economics/baselines.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/plugins/test_economics_dtype.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/remediation/test_eco_01.py@97c85fae2d4505ec8248540d98b9556296244208
-
-**Зависимости.** No new package. A semantic owner decision and actual objective consumer are prerequisites for changing policy interpretation.
-
-**Положительная функция и независимый oracle.** Hand-compute zero, subunit, unit, and >1 nonnegative income vectors plus budget penalties; scale income by 10 and verify the historical ratio is exactly invariant when both means exceed one. Consumer stores the result under the historical profile name.
-
-**Различающий negative.** A purported income-maximization replacement that returns the same score after multiplying incomes by 10 fails a declared scale-sensitive objective test. A wealth vector passed into income objective must be type/unit-rejected or explicitly converted.
-
-**Границы.** Arithmetic and consumer binding only; no normative welfare judgment or empirical economic validity is inferred from synthetic examples.
-
-**Runtime.** Existing dtype path receipt shows 60 dtype tests plus consumer subsets. It does not establish semantic owner signoff or fiscal/labor kernel equivalence.
-
-**Основания.** policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype.json@bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42#sha256=c7c0f21acfb3537c9c0a53ef39a36a762193a4b0bb3d0da07bd5c0653f173979; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-deciding.txt@bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42#sha256=879ece00b605c674668941c27eb018d15f1dcfd680d25bf7c30359fbc449ff3f
+**Separate Gini property, no new ID.** Existing @foundry-owners numeric-guardrails decision admits classical Gini only on finite nonnegative active resources. Current canonical hard calculator/admission used by aggregate/PureExecutor, objectives, plugin/report API and enumerated live readers; signed simulations remain allowed with Gini disabled. Stale finite cache does not license current[-2,1]/[-1,2]. Dated DistributionAwareExecutor snapshot retains last_update_step and historical meaning. Current dtype metadata/float32storage precision preserved, equations/norm/weights/RNG unchanged. New193 actual EconomicsTrainingAdapter→actor/temporal consumption→registered labor/tax/transfers/savings→active signed wealth проверен: eager bridge и requested JIT PPO metrics refuse classical Gini before aggregate/API; nonnegative active population positive. Plain trajectory without requested Gini may retain signed wealth. Это отдельная property, не новый ID, welfare convention или замена historical LA-035.
 
 <a id="f-m15"></a>
 
-### F-M15 — Lexical/legal obligation diff kept separate from causal impact claims
+### F-M15 — Lex norm diff and topic hypotheses without effect/authority promotion
 
-**Finding IDs.** LA-017
+**ID.** LA-017 finite pass-plan dedupe/source binding,CAS/CLI witnesses on Lex00a6 retained. Actual ExprAST, config/report identity, all four native norm-diff states, issue keys/pass configuration, persisted reports/refs and supported CLI/CAS relocation measured; original bounded migration recommended closed. Dedupe alone не является основанием этого решения; current-law authoritative conclusion остаётся отдельным local-only packet.
 
-**Свойство.** A source-bound normative text comparison may nominate affected topics but does not establish direction/magnitude/population of causal effects or current legal authority.
-
-**Сегодняшнее расхождение.** The frozen NormPack/ExprAST/CAS/CLI route binds the compared inputs, but affected_kpis is heuristic topic similarity. StubBackend/default CLI and synthetic passes are not an admitted law source or a real causal outcome.
-
-**Выбранная реализация.** Keep the exact source/effective-date/authority-backed obligation diff as the Lex owner; name similarity output topic_candidates and make it non-gating. Route any effect claim to a separate causal estimator with independently grounded data and estimand.
-
-**Отвергнутый вариант.** Do not label lexical similarity as measured KPI impact, legal force, or current applicable law; do not promote a stubbed backend because CAS binding passes.
-
-**Canonical paths.** policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/core/components/_cli_lex.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py@97c85fae2d4505ec8248540d98b9556296244208
-
-**Зависимости.** No statistical package. Real source authority/effective date and actual consumer binding are separate institutional inputs.
-
-**Положительная функция и независимый oracle.** Use a frozen synthetic NormPack pair with exact article/version/effective-date identity and hand-authored obligation changes; assert the diff preserves source binding and emits separate candidate topics through CAS/fresh reader.
-
-**Различающий negative.** Paraphrase the same obligation or insert unrelated text with high keyword overlap: candidate topic ranking may change, but no causal KPI estimate or legal authority assertion is allowed. Repealed/out-of-date source and missing source proof must block authority-grade projection.
-
-**Границы.** Textual obligation-change detection only; real legal source grounding and causal effect measurement are out of scope for the lexical heuristic.
-
-**Runtime.** Lex receipt reports native tests and remove-property consumer controls; actual legal corpus/source authority is not in supplied inputs. Stub backend is transport/schema only.
-
-**Основания.** policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-input-binding.json@3fab28d98997527b2a26d46fe4e16220e42383b7#sha256=4f0623168329cfc5c4006c5beb79dc205704beb1dc8b537e47b5d2c09e519c20
+**Interpretation.** Source/effective-date/legal authority, textual obligation diff, candidate topic similarity and causal effects are distinct. Synthetic NormPack/StubBackend transport does not prove current-law authority; missing institutional authority is not by itself a prerequisite to a generic synthetic migration test. No current law/real effect claimed; real-data-dependent packet stays local G.
 
 <a id="f-m16"></a>
 
-### F-M16 — Causal facade public identity and external consumer census
+### F-M16 — Supported public causal facade ABI and current packet boundary
 
-**Finding IDs.** LA-020
+**ID.** LA-020; LA-007/019 supported package consumers separately. Historical API729 actual49native, wheel/sdist48PASS/1Git-censusdeselection each, complete literal/computed-input denominator and exact package byte identity remain source-specific. Object/FQN/pickle/docs/monkeypatch consumers require canonical identity, not no-reflection count.
 
-**Свойство.** Facade compatibility means the declared public symbol resolves to the same canonical object through actual package consumers, and removals account for the complete supported caller set.
+**Current measured.** API90c/source8236 actual wheel and rebuilt-sdist consumers each199PASS, full3459files/site and seven resources bound, no missing/extra sources. API605 reconciliation of3dde vs8236 selects identical producer/reader AST with two formatting-only hunks, test-only property2PASS and2removalFAIL per retained installed profile. New source519 has exact source-bound wheel91/rebuilt-sdist91 and six expected property-removal FAIL (`installed-default-resource-final-20261007.json@de197363d4ba8a86b0e8c2fa0ff31c2858643d1c`);3464-file sites/four packaged curated defaults and independent29 are complete, separate from earlier8236 each199. Current scanner5957 ERROR−9 twice/Ruff103FAIL/public-surface38FAIL remain. Additional ONEwheel actual graph MethodJob→Node→CAS→different-PID reader is separately source-bound; no new Runtime/scientific authority positive. 225dynamic candidates/38UNKNOWN static exports remain classification limits, not actual client counts or universal external zero.
 
-**Сегодняшнее расхождение.** The candidate verifies 26 selected identity/import cases and preserves canonical symbol identity, but the complete export/import/monkeypatch/docs/serialized-name consumer denominator is not established. Utility judge fails on both measured slice base and candidate, while P41 complete disjoint input census is absent; inherited status is not established.
+**Negative/limits.** Clone/export/bridge removals with identical labels must fail actual consumer calls. Exact empty siblings already absent198; preserve nonempty packages. No blanket arbitrary third-party private ABI guarantee, full hosted docs/authority acceptance or P41 inheritance from overlapping failures.
 
-**Выбранная реализация.** Keep one explicit identity-preserving package facade and canonical owner paths. Complete the actual supported consumer census (public/star/underscore imports, FQN serialization, docs and monkeypatching), then build/install wheel and sdist consumers before retiring any symbol.
-
-**Отвергнутый вариант.** Do not infer all-consumer safety from 26 tests; do not add wrapper clones; do not call a shared base/candidate selector failure inherited without exact slice-base replay and zero intersection across its complete input denominator.
-
-**Canonical paths.** policy-engine/src/polisyos/foundry/methods/catalog/causal/__init__.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/methods/catalog/causal/test__causal_engine_contracts.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/methods/catalog/causal/test__interference_contracts.py@97c85fae2d4505ec8248540d98b9556296244208
-
-**Зависимости.** No runtime dependency. Requires full repository consumer enumeration and package build/install readback.
-
-**Положительная функция и независимый oracle.** Build wheel and sdist, install into clean consumer environment, import every enumerated supported symbol through public path and compare object identity to canonical owner. Run representative serialized FQN and documented monkeypatch/import consumers.
-
-**Различающий negative.** Delete one actually referenced export or substitute a wrapper clone that has identical name/signature: installed consumer identity/use test must fail. Demonstrate census script denominator equals the complete tracked caller set.
-
-**Границы.** Only declared in-repository and supported package consumers are covered after census; unenumerated third-party private imports are not claimed compatible.
-
-**Runtime.** Current receipt shows 26 candidate facade checks. Wheel/sdist consumers and complete census remain unperformed; selector base/candidate failure does not establish P41 inheritance.
-
-**Основания.** policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json@0b6d872d8a681b1725abb5e2e3f57f9668e31c69#sha256=f07ae3db66b8dd4ea34359e059bc5d1bd120b7080188f5b34e978c900de6e388
+Recovered graph fresh-child exact receipt: `installed-default-resource-recovery-20261007.json@c4ddc4bcbddc2a7526f541d51196b176e4311362` (20686B/SHA256 `90dc84a5d1cc424cd9768937693fe8e32267f2a4a1b1b8a78151ce03c35bff88`), actual519 ONEwheel selected Node/CAS→different-PID `-I` reader, 970/83 own origins/zero escapes. Separate from native91+91; old unknown pre-outage attempt remains UNRUN.

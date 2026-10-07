@@ -1,0 +1,136 @@
+{
+  "finding_id": "B211",
+  "primary_owner_from_full_TSV": {
+    "finding_id": "B211",
+    "unit": "F",
+    "docx_analytical_package": "P33",
+    "source_closure_owner": "CAU-03",
+    "source_bundle_ids": "CAU-03",
+    "source_status": "partial"
+  },
+  "bundle_owner_from_full_TSV": {
+    "bundle_id": "CAU-03",
+    "unit": "F",
+    "initial_writer_family": "F-W02",
+    "title": "RDD: честная RBC capability и линейная память WLS"
+  },
+  "original_card_refs": [
+    {
+      "criterion_id": "B211",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        5182,
+        5193
+      ],
+      "bytes": 2695,
+      "sha256": "cf651667294eca28d2feef026f185292e15f443e1d3f4e8d515b40b67835b674",
+      "title": "## B211. Локальная RDD-подгонка материализует квадратичную диагональную матрицу весов",
+      "byte_binding_check": "PASS"
+    }
+  ],
+  "original_text": "## B211. Локальная RDD-подгонка материализует квадратичную диагональную матрицу весов\n\n**Приоритет:** высокая экономия относительно малого объёма правки на используемом RDD-пути. **Основание:** _fit_local_polynomial; RD04–RD05. [C20.R03]\n\n**Проблема.** Для n наблюдений одной стороны создаётся np.diag(weights), затем XᵀWX и XᵀWy. Большая N×N матрица не нужна для диагонального оператора; дополнительно pseudoinverse одинаковой маленькой XᵀWX вызывается дважды.\n\n**Воспроизведение.** На 400 точках одной стороны зафиксирована матрица 400×400, 1 280 000 bytes. Векторно-взвешенный design с двумя столбцами занял 6400 bytes. Диагонально-свободная формула дала тот же intercept=3,040424179788 и SE=0,005783542516. Независимый weighted-QR совпал по точке. Это сравнение выделенных структур и значений, не измеренный коэффициент ускорения всего RDD.\n\n**Рекомендуемое исправление.** Минимально: Xᵀ(w⊙X), Xᵀ(w⊙y), одна разрешённая факторизация; не менять одновременно статистический смысл residual covariance. Следующий численно устойчивый вариант — weighted QR/SVD, масштабирование running variable относительно bandwidth и контроль ранга. Увеличение числа точек тогда не создаёт искусственный расход O(n²) только ради хранения весов.\n\n**Приёмка.** Сопоставить точку, SE текущего профиля и effective sample count на всех поддержанных kernel/order. Случаи недостаточной опоры сохраняют точный отказ. Исправление производительности не доказывает правильность нынешней covariance или RBC — B210 остаётся отдельной задачей. Пакетирование нескольких bandwidth допускается только с корректной идентичностью выбранной области и профиля.\n\n",
+  "primary_acceptance_scope": "Diagonal-free weighted polynomial design/score covariance with point/SE/ESS/kernel/order/refusal equivalence; no whole-estimator speedup claim.",
+  "source_chain": {
+    "producer": "RegressionDiscontinuity.pure_step",
+    "artifact": "sharp RBC CausalEffectReport + uncertainty_envelope",
+    "bridge": "MethodJob/CAS + canonical declared-slot dematerializer",
+    "consumer": "fresh report reader"
+  },
+  "actual_recorded_consumer": "RegressionDiscontinuity weighted design → report/dispatcher",
+  "surface": "Declared Standard/Staggered DiD or RDD method parameters and typed CausalEffectReport/envelope consumer ABI",
+  "deciding_receipt_refs": [
+    {
+      "git_ref": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "head": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json",
+      "bytes": 68616,
+      "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60",
+      "git_blob": "460e5bda9602955fbf7084cca64edd63906724d1",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B211"
+      ]
+    }
+  ],
+  "deciding_per_ID_carrier_ref": {
+    "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B211.json",
+    "bytes": 12775,
+    "sha256": "daa67af3c10f3daf11ff086c9f935cf098cc984ab9fb81663048af559e478d1e",
+    "git_blob": "a706e18338e62b9286e4557db9553b265287b540"
+  },
+  "scientific_implementation": {
+    "sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+    "tree": "bee112b9284e11b78c96d2f91660f330d68b26c7",
+    "not_receipt_carrier": true
+  },
+  "recorded_independent_oracle_and_negative": "Native permutation/kernel/order/reference and no dense diag control",
+  "complete_raw_receipt_checks_refs": [
+    "15a04c4400497374416e167a5f61ebc12f61b8e4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json#/checks/0",
+    "15a04c4400497374416e167a5f61ebc12f61b8e4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json#/checks/1",
+    "15a04c4400497374416e167a5f61ebc12f61b8e4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json#/checks/2",
+    "15a04c4400497374416e167a5f61ebc12f61b8e4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json#/checks/3",
+    "15a04c4400497374416e167a5f61ebc12f61b8e4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json#/checks/4",
+    "15a04c4400497374416e167a5f61ebc12f61b8e4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json#/checks/5",
+    "15a04c4400497374416e167a5f61ebc12f61b8e4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json#/checks/6",
+    "15a04c4400497374416e167a5f61ebc12f61b8e4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json#/checks/7",
+    "15a04c4400497374416e167a5f61ebc12f61b8e4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json#/checks/8",
+    "15a04c4400497374416e167a5f61ebc12f61b8e4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json#/checks/9",
+    "15a04c4400497374416e167a5f61ebc12f61b8e4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json#/checks/10",
+    "15a04c4400497374416e167a5f61ebc12f61b8e4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json#/checks/11",
+    "15a04c4400497374416e167a5f61ebc12f61b8e4:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json#/checks/12"
+  ],
+  "historical_ROOT072": {
+    "check": "PASS",
+    "outcome": "closed",
+    "technical_original_criterion_recommendation": "closed",
+    "current_continuation_outcome_recommendation": "closed",
+    "original_criterion_remainder": "None in selected supported linear-algebra property.",
+    "actual_consumer": "RegressionDiscontinuity weighted design → report/dispatcher",
+    "oracle_and_negative": "Native permutation/kernel/order/reference and no dense diag control",
+    "separate_unavailable_inputs_or_authority": "No whole-estimator measured speedup or new statistical law inferred."
+  },
+  "independent_original_criterion_recommendation": {
+    "check": "PASS",
+    "outcome": "closed",
+    "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+    "scientific_rerun": false,
+    "review_scope": "independent criterion/evidence reconciliation; not an independently rerun estimator measurement",
+    "missing_actual_original_criterion": null,
+    "new_owner_review_pending": false,
+    "not_formal_G_closure": true
+  },
+  "separate_unavailable_inputs_or_authority": "No whole-estimator measured speedup or new statistical law inferred.",
+  "existing_author_or_reviewer_conflict": "Reviewer previously authored CAU and graph-intake provider; current independent role is ROOT original-criterion reconciliation. Prior scientific validation uses source-bound independent economics/graph/API receipts, not self-claimed fresh independent math.",
+  "schema": "e02.F.original-finding.v3",
+  "primary_bundle": "CAU-03",
+  "criterion_short": "Diagonal-free weighted polynomial design/score covariance with point/SE/ESS/kernel/order/refusal equivalence; no whole-estimator speedup claim.",
+  "check_result": "PASS",
+  "F_finding_outcome": "closed",
+  "F_technical_recommendation": "closed",
+  "F_rationale": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+  "code_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+  "code_tree": "bee112b9284e11b78c96d2f91660f330d68b26c7",
+  "consumer": "RegressionDiscontinuity weighted design → report/dispatcher",
+  "oracle_and_negative": "Native permutation/kernel/order/reference and no dense diag control",
+  "G_finding_acceptance": {
+    "status": "not_issued",
+    "formal_G_closed": false
+  },
+  "G_code_acceptance": {
+    "status": "not_inferred",
+    "source_sha": null,
+    "basis": "Independent F GO/code-ready is not G code acceptance"
+  },
+  "original_missing_input": null,
+  "original_next_owner": null,
+  "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+  "root_assembled_source": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "not_new_numerical_proof": true
+  },
+  "new_property_followups_not_automatically_original_reopen": []
+}

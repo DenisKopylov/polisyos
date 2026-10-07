@@ -1,0 +1,163 @@
+{
+  "finding_id": "LA-017",
+  "primary_owner_from_full_TSV": {
+    "finding_id": "LA-017",
+    "unit": "F",
+    "docx_analytical_package": "P39",
+    "source_closure_owner": "LEX-01",
+    "source_bundle_ids": "LEX-01",
+    "source_status": "partial"
+  },
+  "bundle_owner_from_full_TSV": {
+    "bundle_id": "LEX-01",
+    "unit": "F",
+    "initial_writer_family": "F-W07",
+    "title": "Lex: norm/compliance comparison отдельно от impact-topic эвристики"
+  },
+  "original_card_refs": [
+    {
+      "criterion_id": "LA-017",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+      "lines": [
+        540,
+        570
+      ],
+      "bytes": 3335,
+      "sha256": "6d9ba04eca544917e9fce398fa9fce7a17ef81b1ae7f44216d74892c35ed072c",
+      "title": "## LA-017. Lex simulator: норм-различия, проверки и эвристика воздействия смешаны",
+      "byte_binding_check": "PASS"
+    }
+  ],
+  "original_text": "## LA-017. Lex simulator: норм-различия, проверки и эвристика воздействия смешаны\n\n**Перемещение по смысловой роли**\n\n**Статус.** Фактическая функция установлена; преимущественно полезный код, не мёртвый симулятор.\n\n**Точная область:**\n\n`src/polisyos/lex/simulator/engine.py`\n\n`src/polisyos/lex/simulator/diff.py`\n\n`src/polisyos/lex/simulator/report.py`\n\n**Что установлено и почему это legacy-кандидат.** NormImpactAnalyzer сравнивает NormPacks, запускает legal/safety passes и строит compliance transitions. Его _infer_affected_kpis лишь сопоставляет OBLIGATION с compliance_cost, PROHIBITION с operational_restrictions, прочее — с regulatory_flexibility. Ни эффекты поведения, ни величины издержек из этого соответствия не вычисляются. Название simulator/impact шире выполненной функции.\n\n**Что сохранить.** Реальный norm diff, сравнение issues, provenance и persistence. Простая типизация потенциально затронутых тем полезна как подсказка, но не как экономическая или причинная симуляция.\n\n**Куда перенести / с чем объединить.** Предлагаемые normpack/diff.py и legal_evaluation/impact_diff.py под существующими Lex-владельцами; report рядом с фактическим владельцем сравнения. Эвристические tags отделить и назвать как candidate impact topics; для количественного эффекта существующие Scientist/Foundry routes, не новый механизм в Lex.\n\n**Порядок миграции.** Сначала уточнить report semantics, не переписывая historical schema незаметно. Затем перенести согласованный модуль с public alias. diff.py/report.py обозначены как необходимые dependencies переноса: их полный текст здесь не анализировался, поэтому собственное слияние этих файлов остаётся условным.\n\n**Приёмочная проверка.** Unchanged/added/removed/modified norms, одинаковые issue keys, pass configuration, сохранённые report IDs/refs и отсутствие превращения candidate tags в измеренные KPI. Проверить реальных downstream-consumers.\n\n**Приоритет.** Средняя цена; высокий эффект для смысловой навигации.\n\n**Граница вывода.** Нельзя переносить весь package в Foundry: правовое сравнение остаётся задачей Lex. И нельзя утверждать измеренный вред только по эвристическому имени KPI.\n\n**Основания:** E30.\n\n<!-- PAGEBREAK -->\n",
+  "primary_acceptance_scope": "Actual unchanged/added/removed/modified norm diff, issue keys/pass config, persisted report IDs/refs and real downstream rendering; candidate tags never measured KPI. Equivalent relocation separate from current-law authority.",
+  "source_chain": {
+    "producer": "NormImpactAnalyzer actual LegalPass/NormDiff",
+    "artifact": "lex.norm_diff + lex.norm_impact_report schema1.0",
+    "bridge": "canonical analyzer → FileSystemCAS → CLI norm-impact rendering",
+    "consumer": "fresh NormImpactReport/NormDiff reader and render_impact_markdown"
+  },
+  "actual_recorded_consumer": "NormImpactAnalyzer actual LegalPass→CAS→fresh NormDiff/Impact reader→CLI markdown",
+  "surface": "Lex canonical normpack.diff/legal_evaluation.impact_diff plus simulator compatibility aliases, persisted report/ref schema and actual CLI candidate-topic rendering",
+  "deciding_receipt_refs": [
+    {
+      "git_ref": "77166daa0ff8b9659e3978447f9016c691694266",
+      "head": "77166daa0ff8b9659e3978447f9016c691694266",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json",
+      "bytes": 24363,
+      "sha256": "0d6e1e2bde0a76edfe74fed0ed278df7c73fc209c982cbfcf54fbb7347631f1a",
+      "git_blob": "3bfa207d53815eece517683aee3e13532463b656",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/LA-017"
+      ]
+    },
+    {
+      "git_ref": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+      "head": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json",
+      "bytes": 36426,
+      "sha256": "78b60c417b9c8ebbdb4abc64c616f7296168bfb290d2169e4a3bd7a0322babc1",
+      "git_blob": "11aa040f5fb257f9f61c76c4b340cc2f15541b2e",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/LA-017"
+      ],
+      "json_pointer": "/per_id/3"
+    },
+    {
+      "git_ref": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+      "head": "c4ba643d8c4775ec92b4e47e6c1622c50f14a676",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json",
+      "bytes": 36426,
+      "sha256": "78b60c417b9c8ebbdb4abc64c616f7296168bfb290d2169e4a3bd7a0322babc1",
+      "git_blob": "11aa040f5fb257f9f61c76c4b340cc2f15541b2e",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/LA-017"
+      ]
+    }
+  ],
+  "deciding_per_ID_carrier_ref": {
+    "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-017.json",
+    "bytes": 19616,
+    "sha256": "7599809acc2c8652435cad35161a5b94dc951f178f9b102f2fe0e29ccbc2270c",
+    "git_blob": "da564e579d3947ee924e2adbdf42efed9adfd9ba"
+  },
+  "scientific_implementation": {
+    "sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+    "tree": "e84f7a4d1cb91c624264e6c95f5d0c07fb3510f3",
+    "not_receipt_carrier": true
+  },
+  "recorded_independent_oracle_and_negative": "00a24native checks, duplicateplan dedupe3FAIL controls, actualsyntheticLegalPass→persistedreport",
+  "complete_raw_receipt_checks_refs": [
+    "77166daa0ff8b9659e3978447f9016c691694266:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json#/checks/0",
+    "77166daa0ff8b9659e3978447f9016c691694266:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json#/checks/1",
+    "77166daa0ff8b9659e3978447f9016c691694266:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json#/checks/2",
+    "77166daa0ff8b9659e3978447f9016c691694266:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json#/checks/3",
+    "77166daa0ff8b9659e3978447f9016c691694266:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json#/checks/4",
+    "77166daa0ff8b9659e3978447f9016c691694266:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json#/checks/5",
+    "77166daa0ff8b9659e3978447f9016c691694266:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json#/checks/6",
+    "77166daa0ff8b9659e3978447f9016c691694266:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json#/checks/7",
+    "c4ba643d8c4775ec92b4e47e6c1622c50f14a676:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json#/checks/0",
+    "c4ba643d8c4775ec92b4e47e6c1622c50f14a676:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json#/checks/1",
+    "c4ba643d8c4775ec92b4e47e6c1622c50f14a676:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json#/checks/2",
+    "c4ba643d8c4775ec92b4e47e6c1622c50f14a676:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json#/checks/3",
+    "c4ba643d8c4775ec92b4e47e6c1622c50f14a676:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json#/checks/4",
+    "c4ba643d8c4775ec92b4e47e6c1622c50f14a676:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json#/checks/5",
+    "c4ba643d8c4775ec92b4e47e6c1622c50f14a676:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-public-export-continuation-20261006.json#/checks/6"
+  ],
+  "historical_ROOT072": {
+    "check": "PASS",
+    "outcome": "limited",
+    "technical_original_criterion_recommendation": "limited",
+    "current_continuation_outcome_recommendation": "limited",
+    "original_criterion_remainder": "Original full supported caller/config migration/corpus compatibility still needs exact owner packet; dedupe alone is partial.",
+    "actual_consumer": "NormImpactAnalyzer actual LegalPass→CAS→fresh NormDiff/Impact reader→CLI markdown",
+    "oracle_and_negative": "00a24native checks, duplicateplan dedupe3FAIL controls, actualsyntheticLegalPass→persistedreport",
+    "separate_unavailable_inputs_or_authority": "Current-law authority/source corpus is local and UNRUN; topics are not causal quantified effects."
+  },
+  "independent_original_criterion_recommendation": {
+    "check": "PASS",
+    "outcome": "closed",
+    "basis": "Exact supported native norm-diff/issue/pass/report/topic downstream properties are measured by original+canonical relocation tests and24native/fresh-reader receipts. Neither arbitrary corpus/global retirement nor current-law authority is in original acceptance; if an actually supported caller is missing it must be named rather than replacing the criterion.",
+    "scientific_rerun": false,
+    "review_scope": "independent criterion/evidence reconciliation; not an independently rerun estimator measurement",
+    "missing_actual_original_criterion": null,
+    "new_owner_review_pending": false,
+    "not_formal_G_closure": true
+  },
+  "separate_unavailable_inputs_or_authority": "Current-law authority/source corpus is local and UNRUN; topics are not causal quantified effects.",
+  "existing_author_or_reviewer_conflict": null,
+  "schema": "e02.F.original-finding.v3",
+  "primary_bundle": "LEX-01",
+  "criterion_short": "Actual unchanged/added/removed/modified norm diff, issue keys/pass config, persisted report IDs/refs and real downstream rendering; candidate tags never measured KPI. Equivalent relocation separate from current-law authority.",
+  "check_result": "PASS",
+  "F_finding_outcome": "closed",
+  "F_technical_recommendation": "closed",
+  "F_rationale": "Exact supported native norm-diff/issue/pass/report/topic downstream properties are measured by original+canonical relocation tests and24native/fresh-reader receipts. Neither arbitrary corpus/global retirement nor current-law authority is in original acceptance; if an actually supported caller is missing it must be named rather than replacing the criterion.",
+  "code_sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+  "code_tree": "e84f7a4d1cb91c624264e6c95f5d0c07fb3510f3",
+  "consumer": "NormImpactAnalyzer actual LegalPass→CAS→fresh NormDiff/Impact reader→CLI markdown",
+  "oracle_and_negative": "00a24native checks, duplicateplan dedupe3FAIL controls, actualsyntheticLegalPass→persistedreport",
+  "G_finding_acceptance": {
+    "status": "not_issued",
+    "formal_G_closed": false
+  },
+  "G_code_acceptance": {
+    "status": "accepted_source",
+    "source_sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+    "basis": "Published G checkpoint ancestry/current user accepted-source statement; finding acceptance separate"
+  },
+  "original_missing_input": null,
+  "original_next_owner": null,
+  "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+  "root_assembled_source": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "not_new_numerical_proof": true
+  },
+  "new_property_followups_not_automatically_original_reopen": []
+}

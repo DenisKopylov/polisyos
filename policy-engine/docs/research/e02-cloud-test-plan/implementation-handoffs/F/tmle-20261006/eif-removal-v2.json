@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-F-20261006-receipts/tmle/removal_replayer.py",
+    "eif"
+  ],
+  "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+  "source_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+  "exit": 1,
+  "wall_s": 23.533073283993872
+}

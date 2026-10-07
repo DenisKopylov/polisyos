@@ -1,0 +1,46 @@
+{
+  "primary": {
+    "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007.json",
+    "git_blob": "a9bee7918f8bab3a12e9b1bc8d9ddcbfb9b58e50",
+    "bytes": 106928,
+    "sha256": "24a72061e9e4379753f349f56c110b516cef300457b94e2d6a5e066b702f760e"
+  },
+  "science": "193b3582a72c640c1d06a131f93502654a77a36a",
+  "doc_candidate": "c0084cd530c1dbe01eedfb9b5c24f055954a97be",
+  "observed_root_head": "7ba0ce11648aac20351e7e9f4bf3fa61c0a847de",
+  "runtime_unchanged": {
+    "product_to_science": "PASS, complete src/polisyos Git diff denominator zero",
+    "science_to_doc": "PASS, complete src/polisyos Git diff denominator zero"
+  },
+  "native_junit": [
+    {
+      "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/native.xml.xz",
+      "decoded": {
+        "bytes": 15081,
+        "sha256": "e008d8810f6d54211800a8fedc58929de7d091c993c19296db12c175837006e9"
+      },
+      "values": {
+        "tests": 83,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    }
+  ],
+  "mechanical_document_table_counts": {
+    "row_count": 35,
+    "closed": 33,
+    "limited": 2,
+    "held": 0,
+    "scope": "caption arithmetic only; independent full35 semantic adjudication is assigned to CAU/ROOT"
+  },
+  "source_guard_after": {
+    "root_head": "7ba0ce11648aac20351e7e9f4bf3fa61c0a847de",
+    "status": "?? policy-engine/workers/dowhy-014/.venv\n",
+    "outcome": "PASS; three working doc byte identities unchanged during this audit"
+  },
+  "outcome": "PASS"
+}
+COMPLETE 108 evidence files 7839324 decoded bytes; 13 runtime providers; 4 owned sources; 13 canonical checks

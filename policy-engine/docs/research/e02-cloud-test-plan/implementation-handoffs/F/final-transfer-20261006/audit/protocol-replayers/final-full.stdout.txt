@@ -1,0 +1,25 @@
+{"component": "fit", "check": "FAIL", "issues": 1, "hash_records": 53, "decoded": 8, "finding_ids": ["B54", "B56"]}
+{"component": "b220", "check": "PASS", "issues": 0, "hash_records": 58, "decoded": 0, "finding_ids": ["B220"]}
+{"component": "eco", "check": "PASS", "issues": 0, "hash_records": 99, "decoded": 43, "finding_ids": ["LA-003", "LA-004", "LA-035"]}
+{"component": "lex", "check": "PASS", "issues": 0, "hash_records": 41, "decoded": 1, "finding_ids": ["LA-017"]}
+{"component": "dowhy", "check": "PASS", "issues": 0, "hash_records": 109, "decoded": 1, "finding_ids": ["B212", "B213"]}
+{"component": "rdd", "check": "PASS", "issues": 0, "hash_records": 86, "decoded": 3, "finding_ids": ["B210", "B211"]}
+{"component": "cau", "check": "PASS", "issues": 0, "hash_records": 181, "decoded": 146, "finding_ids": ["B204", "B205", "B206", "B207", "B208", "B209", "LA-016"]}
+{"component": "graph", "check": "PASS", "issues": 0, "hash_records": 506, "decoded": 29, "finding_ids": ["B214", "B215", "B216", "B217", "B218", "B219", "B221", "B222", "B223", "B224", "B225", "LA-007", "LA-019"]}
+{"component": "api", "check": "FAIL", "issues": 2, "hash_records": 3073, "decoded": 81, "finding_ids": ["LA-020"]}
+{"component": "fry", "check": "FAIL", "issues": 2, "hash_records": 3160, "decoded": 92, "finding_ids": ["LA-001", "LA-002", "LA-037"]}
+OWNER_KEYS ['finding_id', 'unit', 'docx_analytical_package', 'source_closure_owner', 'source_bundle_ids', 'source_status']
+Protocol/byte audit FAIL
+9 exact heads; 7270 per-component unique Git byte records, 404 decoded bodies
+Primary mapping 35/35; missing=[] extra=[] duplicate={}
+{"component": "intake", "check": "PASS", "issues": 0, "hash_records": 109, "decoded": 99, "finding_ids": ["B214", "B218"]}
+{"component": "root_consumer", "check": "PASS", "issues": 0, "hash_records": 121, "decoded": 9, "finding_ids": ["owned_numerical_bridge"]}
+{"component": "graph_native", "check": "PASS", "issues": 0, "hash_records": 372, "decoded": 29, "finding_ids": []}
+{"component": "installed", "check": "PASS", "issues": 0, "hash_records": 3058, "decoded": 5, "finding_ids": ["B212", "B213", "B221", "B223", "LA-020"]}
+{"component": "installed_latest", "check": "FAIL", "issues": 3, "hash_records": 6548, "decoded": 11, "finding_ids": ["B212", "B213", "B220", "B221", "B223", "LA-020"]}
+[{"component": "root_consumer", "head": "92148340601ac6ea69f0dbd4764aae7428ad83d7", "check": "PASS", "issue_count": 0}, {"component": "installed", "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb", "check": "PASS", "issue_count": 0}, {"component": "intake", "head": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31", "check": "PASS", "issue_count": 0}, {"component": "installed_latest", "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb", "check": "FAIL", "issue_count": 3}, {"component": "graph_native", "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f", "check": "PASS", "issue_count": 0}]
+F published protocol/byte audit FAIL
+10 primary + 4 companion + 1 ancillary exact Git receipts; primary mapping35/35 and bundles17/17
+Git hash references 11008; per-component records 17574; distinct decoded bodies 314
+Primary reported finding outcomes {'closed': 17, 'limited': 16, 'held': 2}; these are bounded author recommendations, not ledger closure.
+issues 8

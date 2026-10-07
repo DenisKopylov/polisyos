@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/tmp/e02-F-continuation-20261007/cau/bind_published_reviews.py",
+    "--repo",
+    "/workspace/e02-F-cau-20261006",
+    "--input",
+    "/tmp/e02-F-continuation-20261007/cau/original35-independent-review-final.json",
+    "--output",
+    "/tmp/e02-F-continuation-20261007/cau/original35-independent-review-publication.json"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/cau",
+  "python": "3.12.14",
+  "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+  "purpose": "stdlib immutable Git binding only; no product backend",
+  "exit": 0,
+  "elapsed_s": 0.08997321128845215,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/publication-binding.stdout",
+    "bytes": 308,
+    "sha256": "977a8558337ad4fcc907c498fedffb439ff2e2648d9be674239df399f71f2b9d"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/publication-binding.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_sha": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+  "reviewed_root_source": "8236d9c368336a5ea20c1586f29aea7321db6536"
+}

@@ -1,0 +1,230 @@
+Merge made by the 'ort' strategy.
+ .../reference/foundry/economic-baseline-profile.md |   64 +
+ .../economic-baseline-consumer-proof-20261007.json | 1902 ++++++
+ .../.gitignore                                     |   53 +
+ .../COMMON.md                                      |   28 +
+ .../F-failures-query.json                          |  772 +++
+ .../F-failures-query.stderr.txt.xz                 |  Bin 0 -> 32 bytes
+ .../LA004-query.json                               |  270 +
+ .../LA004-query.stderr.txt.xz                      |  Bin 0 -> 32 bytes
+ .../LA035-query.json                               |  270 +
+ .../LA035-query.stderr.txt.xz                      |  Bin 0 -> 32 bytes
+ .../admission.json                                 | 4775 +++++++++++++++
+ .../baseline-consumer-census.json.xz               |  Bin 0 -> 613216 bytes
+ .../build_adjudication.py                          |   22 +
+ .../build_census.py                                |   31 +
+ .../bundle-owners-F.json                           |  104 +
+ .../check_fragment.py                              |    7 +
+ .../classify_references.py                         |   33 +
+ .../current-caption-role-classification.json       |  896 +++
+ .../defining-prefreeze.stderr.txt.xz               |  Bin 0 -> 32 bytes
+ .../defining-prefreeze.stdout.txt.xz               |  Bin 0 -> 1092 bytes
+ .../defining-prefreeze.xml.xz                      |  Bin 0 -> 572 bytes
+ .../defining-v2.stderr.txt.xz                      |  Bin 0 -> 32 bytes
+ .../defining-v2.stdout.txt.xz                      |  Bin 0 -> 1504 bytes
+ .../defining-v2.xml.xz                             |  Bin 0 -> 1368 bytes
+ .../dependent-reference-locators.json              | 6107 ++++++++++++++++++++
+ .../doc-delta.diff.xz                              |  Bin 0 -> 804 bytes
+ .../doc-fidelity.json                              |   12 +
+ .../doc-runtime-test-identical.diff.xz             |  Bin 0 -> 32 bytes
+ .../environment.json                               |    1 +
+ .../finding-owners-F.json                          |  282 +
+ .../format.receipt.json                            |   34 +
+ .../format.stderr.txt.xz                           |  Bin 0 -> 32 bytes
+ .../format.stdout.txt.xz                           |  Bin 0 -> 84 bytes
+ .../fragment.stderr.txt.xz                         |  Bin 0 -> 32 bytes
+ .../fragment.stdout.txt.xz                         |  Bin 0 -> 620 bytes
+ .../implementation.diff.xz                         |  Bin 0 -> 5996 bytes
+ .../independent-cau/assemble_review.py             |   12 +
+ .../independent-cau/census-review.json             |   72 +
+ .../independent-cau/census.stderr.xz               |  Bin 0 -> 32 bytes
+ .../independent-cau/census.stdout.xz               |  Bin 0 -> 1304 bytes
+ .../independent-cau/doc-delta-review.json          |   15 +
+ .../independent-cau/gini-removal-config.json       |   25 +
+ .../independent-cau/gini-removal.execution.json    |  144 +
+ .../independent-cau/gini-removal.stderr.xz         |  Bin 0 -> 32 bytes
+ .../independent-cau/gini-removal.stdout.xz         |  Bin 0 -> 1380 bytes
+ .../independent-cau/independent-review.json        |  852 +++
+ .../independent-cau/independent_economic_oracle.py |   39 +
+ .../independent-cau/native-config.json             |   33 +
+ .../independent-cau/native.execution.json          |  141 +
+ .../independent-cau/native.stderr.xz               |  Bin 0 -> 32 bytes
+ .../independent-cau/native.stdout.xz               |  Bin 0 -> 528 bytes
+ .../independent-cau/oracle-config.json             |   24 +
+ .../independent-cau/oracle-removal-config.json     |   25 +
+ .../independent-cau/oracle-removal.execution.json  |  133 +
+ .../independent-cau/oracle-removal.stderr.xz       |  Bin 0 -> 616 bytes
+ .../independent-cau/oracle-removal.stdout.xz       |  Bin 0 -> 180 bytes
+ .../independent-cau/oracle.execution.json          |  132 +
+ .../independent-cau/oracle.stderr.xz               |  Bin 0 -> 32 bytes
+ .../independent-cau/oracle.stdout.xz               |  Bin 0 -> 2096 bytes
+ .../independent-cau/remove_gini_admission.py       |   14 +
+ .../independent-cau/review.stderr.xz               |  Bin 0 -> 32 bytes
+ .../independent-cau/review.stdout.xz               |  Bin 0 -> 416 bytes
+ .../independent-cau/run_review_check.py            |   19 +
+ .../independent-cau/siblings-config.json           |   35 +
+ .../independent-cau/siblings.execution.json        |  143 +
+ .../independent-cau/siblings.stderr.xz             |  Bin 0 -> 32 bytes
+ .../independent-cau/siblings.stdout.xz             |  Bin 0 -> 376 bytes
+ .../independent-cau/transfer-selection.json        |  193 +
+ .../independent-cau/verify_census.py               |   19 +
+ ...nitial-harness-removal-gini-domain.receipt.json |   32 +
+ ...itial-harness-removal-gini-domain.stderr.txt.xz |  Bin 0 -> 292 bytes
+ ...itial-harness-removal-gini-domain.stdout.txt.xz |  Bin 0 -> 32 bytes
+ .../initial-harness-removal.py                     |   25 +
+ .../initial-harness-signed-route-probe.py          |   41 +
+ ...nitial-harness-signed-route-probe.stderr.txt.xz |  Bin 0 -> 476 bytes
+ ...nitial-harness-signed-route-probe.stdout.txt.xz |  Bin 0 -> 32 bytes
+ .../native-origins.json.xz                         |  Bin 0 -> 189784 bytes
+ .../native.receipt.json                            |   93 +
+ .../native.stderr.txt.xz                           |  Bin 0 -> 32 bytes
+ .../native.stdout.txt.xz                           |  Bin 0 -> 1088 bytes
+ .../native.xml.xz                                  |  Bin 0 -> 1892 bytes
+ .../old-held-literal.diff.xz                       |  Bin 0 -> 32 bytes
+ .../origin_plugin.py                               |    9 +
+ .../original-criterion-adjudication.json           |  676 +++
+ .../receipt-diff-check.stderr.txt.xz               |  Bin 0 -> 32 bytes
+ .../receipt-diff-check.stdout.txt.xz               |  Bin 0 -> 588 bytes
+ .../removal-baseline-guard-origins.json.xz         |  Bin 0 -> 188416 bytes
+ .../removal-baseline-guard.receipt.json            |   42 +
+ .../removal-baseline-guard.stderr.txt.xz           |  Bin 0 -> 32 bytes
+ .../removal-baseline-guard.stdout.txt.xz           |  Bin 0 -> 1544 bytes
+ .../removal-baseline-guard.xml.xz                  |  Bin 0 -> 1020 bytes
+ .../removal-baseline-sign-origins.json.xz          |  Bin 0 -> 188416 bytes
+ .../removal-baseline-sign.receipt.json             |   42 +
+ .../removal-baseline-sign.stderr.txt.xz            |  Bin 0 -> 32 bytes
+ .../removal-baseline-sign.stdout.txt.xz            |  Bin 0 -> 1800 bytes
+ .../removal-baseline-sign.xml.xz                   |  Bin 0 -> 1188 bytes
+ .../removal-gini-domain-origins.json.xz            |  Bin 0 -> 188392 bytes
+ .../removal-gini-domain.receipt.json               |   42 +
+ .../removal-gini-domain.stderr.txt.xz              |  Bin 0 -> 32 bytes
+ .../removal-gini-domain.stdout.txt.xz              |  Bin 0 -> 1604 bytes
+ .../removal-gini-domain.xml.xz                     |  Bin 0 -> 708 bytes
+ .../removal.py                                     |   25 +
+ .../ruff.receipt.json                              |   33 +
+ .../ruff.stderr.txt.xz                             |  Bin 0 -> 32 bytes
+ .../ruff.stdout.txt.xz                             |  Bin 0 -> 76 bytes
+ .../run_check.py                                   |   22 +
+ .../runtime-same.diff.xz                           |  Bin 0 -> 32 bytes
+ .../signed-route-probe.py                          |   41 +
+ .../signed-route-probe.stderr.txt.xz               |  Bin 0 -> 272 bytes
+ .../signed-route-probe.stdout.txt.xz               |  Bin 0 -> 1148 bytes
+ .../source-fidelity-checks.json                    |   35 +
+ ...026-10-07-economic-baseline-consumer-proof.toml |   14 +
+ .../agent_sim/test_signed_gini_producer_route.py   |  170 +
+ .../plugins/test_historical_income_baseline.py     |  116 +
+ 114 files changed, 19191 insertions(+)
+ create mode 100644 policy-engine/docs/reference/foundry/economic-baseline-profile.md
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/.gitignore
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/COMMON.md
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/F-failures-query.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/F-failures-query.stderr.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/LA004-query.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/LA004-query.stderr.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/LA035-query.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/LA035-query.stderr.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/admission.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/baseline-consumer-census.json.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/build_adjudication.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/build_census.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/bundle-owners-F.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/check_fragment.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/classify_references.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/current-caption-role-classification.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/defining-prefreeze.stderr.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/defining-prefreeze.stdout.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/defining-prefreeze.xml.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/defining-v2.stderr.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/defining-v2.stdout.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/defining-v2.xml.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/dependent-reference-locators.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/doc-delta.diff.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/doc-fidelity.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/doc-runtime-test-identical.diff.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/environment.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/finding-owners-F.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/format.receipt.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/format.stderr.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/format.stdout.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/fragment.stderr.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/fragment.stdout.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/implementation.diff.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/assemble_review.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/census-review.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/census.stderr.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/census.stdout.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/doc-delta-review.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/gini-removal-config.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/gini-removal.execution.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/gini-removal.stderr.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/gini-removal.stdout.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/independent-review.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/independent_economic_oracle.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/native-config.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/native.execution.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/native.stderr.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/native.stdout.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/oracle-config.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/oracle-removal-config.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/oracle-removal.execution.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/oracle-removal.stderr.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/oracle-removal.stdout.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/oracle.execution.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/oracle.stderr.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/oracle.stdout.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/remove_gini_admission.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/review.stderr.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/review.stdout.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/run_review_check.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/siblings-config.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/siblings.execution.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/siblings.stderr.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/siblings.stdout.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/transfer-selection.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/verify_census.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/initial-harness-removal-gini-domain.receipt.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/initial-harness-removal-gini-domain.stderr.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/initial-harness-removal-gini-domain.stdout.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/initial-harness-removal.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/initial-harness-signed-route-probe.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/initial-harness-signed-route-probe.stderr.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/initial-harness-signed-route-probe.stdout.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/native-origins.json.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/native.receipt.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/native.stderr.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/native.stdout.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/native.xml.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/old-held-literal.diff.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/origin_plugin.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/original-criterion-adjudication.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/receipt-diff-check.stderr.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/receipt-diff-check.stdout.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-guard-origins.json.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-guard.receipt.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-guard.stderr.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-guard.stdout.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-guard.xml.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-sign-origins.json.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-sign.receipt.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-sign.stderr.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-sign.stdout.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-sign.xml.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-gini-domain-origins.json.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-gini-domain.receipt.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-gini-domain.stderr.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-gini-domain.stdout.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-gini-domain.xml.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/ruff.receipt.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/ruff.stderr.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/ruff.stdout.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/run_check.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/runtime-same.diff.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/signed-route-probe.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/signed-route-probe.stderr.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/signed-route-probe.stdout.txt.xz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/source-fidelity-checks.json
+ create mode 100644 policy-engine/release-fragments/unreleased/2026-10-07-economic-baseline-consumer-proof.toml
+ create mode 100644 policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py
+ create mode 100644 policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py

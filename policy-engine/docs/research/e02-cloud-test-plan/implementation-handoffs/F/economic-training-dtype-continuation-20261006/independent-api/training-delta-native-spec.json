@@ -1,0 +1,23 @@
+{
+  "source_root": "/workspace/e02-F-economics-20261006",
+  "target_sha": "c003bd673fd672726db18773bf888357a468d901",
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/foundry/agent_sim/test_training_dtype.py",
+    "tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py",
+    "-q",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/eco-independent/training-delta-native"
+}

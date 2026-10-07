@@ -1,0 +1,34 @@
+{
+  "source_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+  "source_tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+    "-k",
+    "public_complete_report_builder"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "environment_overrides": {
+    "PYTHONPATH": "src:."
+  },
+  "started_utc": "2026-10-06T11:20:59.860013+00:00",
+  "wall_s": 16.84797786899435,
+  "exit": 0,
+  "outputs": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/worker-helper-projection.stdout.txt",
+      "bytes": 2041,
+      "sha256": "0039c9b7b330e68834ef7b389ebfbecf3306945823851e234c2bf9177d3ca1d7"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/graph/scm-final6d/worker-helper-projection.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

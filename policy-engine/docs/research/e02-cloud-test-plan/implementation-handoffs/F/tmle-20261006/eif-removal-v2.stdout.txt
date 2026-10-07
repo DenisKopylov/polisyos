@@ -1,0 +1,45 @@
+{"mode": "eif", "module": "/workspace/e02-F-tmle-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py", "function": "fit_tmle_ate", "original_function_sha256": "f78d082d6ade96b07727a6427fcb2cc91fb7bb8a744976e70d5d655259a21ec0", "mutated_function_sha256": "15b2e9b2e0dfd0442545bbbb83a9d094ccbec4ba1024f050df3034f57517480b", "selector": "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_native_binary_target_score_ate_and_eif_oracle", "mutation_scope": "memory-only; markers and test unchanged"}
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-F-tmle-20261006/policy-engine
+configfile: pytest.ini
+plugins: langsmith-0.6.0, jaxtyping-0.3.4, xdist-3.8.0, anyio-4.12.0, asyncio-1.3.0, benchmark-5.2.3, hypothesis-6.151.2
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 1 item
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py F
+
+=================================== FAILURES ===================================
+______________ test_native_binary_target_score_ate_and_eif_oracle ______________
+
+    def test_native_binary_target_score_ate_and_eif_oracle() -> None:
+        x, a, y = _dgp(n=3000)
+        result, bundle = core.fit_tmle_ate(x, a, y, _params())
+        summary = result.targeting_summary
+        assert summary["fluctuation_link"] == "logit"
+        assert summary["converged"]
+        assert abs(summary["targeting_score"]) < 1e-8
+        assert 0 <= summary["targeted_q_min"] <= summary["targeted_q_max"] <= 1
+        assert abs(result.ate - 0.3) < 0.06
+        assert result.ci_lower < 0.3 < result.ci_upper
+        independent_se = np.std(result.eif_values, ddof=1) / np.sqrt(len(y))
+>       assert result.standard_error == pytest.approx(independent_se)
+E       assert np.float64(0....6885716199788) == 0.01671275188826927 ± 1.7e-08
+E         
+E         comparison failed
+E         Obtained: 0.02046885716199788
+E         Expected: 0.01671275188826927 ± 1.7e-08
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:145: AssertionError
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_native_binary_target_score_ate_and_eif_oracle
+========================= 1 failed, 1 warning in 0.75s =========================

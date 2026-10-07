@@ -1,0 +1,41 @@
+{
+  "source_sha": "8f69812ec28098385b2063db89f7e04d354c18cb",
+  "source_tree": "edc02a2f45f299ab1e379b4a28d24be8abd0b3b4",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-o",
+    "cache_dir=/tmp/e02-F-continuation-20261006/root-tmle-consumer-selected-worker/cache",
+    "--basetemp",
+    "/tmp/e02-F-continuation-20261006/root-tmle-consumer-selected-worker/tmp",
+    "tests/unit/scientist/nodes/builtins/simulate/test_tmle_selected_consumer.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "environment_overrides": {
+    "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+    "TMPDIR": "/tmp",
+    "E02_TEST_DOWHY_WORKER_PYTHON": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python"
+  },
+  "exit_code": 0,
+  "wall_seconds": 78.01658499600308,
+  "ending_head": "8f69812ec28098385b2063db89f7e04d354c18cb",
+  "outputs": {
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261006/root-tmle-consumer-selected-worker/stdout",
+      "bytes": 1027,
+      "sha256": "5e04ccaef05cc5d4c9a3d9b347e7fd3ef48366b74f38bb1fc8bd641f37a2e8c8"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261006/root-tmle-consumer-selected-worker/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

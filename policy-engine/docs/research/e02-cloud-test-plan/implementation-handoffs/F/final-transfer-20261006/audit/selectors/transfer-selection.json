@@ -1,0 +1,592 @@
+{
+  "schema": "policyos.e02.F.selector-audit-transfer-selection.v3",
+  "audit_sha256": "4df85b238a606271bd6caca21e6a169902b2efb5478f28ee7edcb1724ff8ba28",
+  "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "scope": "Complete17/35 selector/card/source denominator plus published newB220source213 and source5cd installed independent36PASS companion, preserving historical gaps/FAIL/UNRUN. No G97 or production admission.",
+  "files": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/selector-equivalence-audit.json",
+      "relative_path": "selector-equivalence-audit.json",
+      "bytes": 1834986,
+      "sha256": "4df85b238a606271bd6caca21e6a169902b2efb5478f28ee7edcb1724ff8ba28",
+      "required": true,
+      "sanitation": "none; complete deciding bytes retained"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/selector-original-source-cards.json",
+      "relative_path": "selector-original-source-cards.json",
+      "bytes": 152393,
+      "sha256": "1c8999227ca187eb33eff2e3b392f96a2a7cba244e251625d51dd0ac790d42f4",
+      "required": true,
+      "sanitation": "none; complete deciding bytes retained"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/selector-audit-navigation.json",
+      "relative_path": "selector-audit-navigation.json",
+      "bytes": 1102419,
+      "sha256": "f2ec925aea3a375a2bdd27d7a68a30b09a2ece12410e70155d369cbdc000ce38",
+      "required": true,
+      "sanitation": "none; complete deciding bytes retained"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/selector-audit-owner-snapshot.json",
+      "relative_path": "selector-audit-owner-snapshot.json",
+      "bytes": 2096,
+      "sha256": "7aebbf2ab292d1a5c8ab42c73731066bbc53b3907cc61aced61e3d9ccc3a08cd",
+      "required": true,
+      "sanitation": "none; complete deciding bytes retained"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/selector_audit_replayer.py",
+      "relative_path": "selector_audit_replayer.py",
+      "bytes": 7232,
+      "sha256": "f0c2c2eec8ed65ff1a489f73bb0ee49fc6fd54db6f16e07a71a5a9cc6d2093d0",
+      "required": true,
+      "sanitation": "none; complete deciding bytes retained"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/selector_equivalence_finalize.py",
+      "relative_path": "selector_equivalence_finalize.py",
+      "bytes": 29139,
+      "sha256": "8817e361fd3cbd9c5a7a38038a31bd2e44c6add40c377bf0a552b13aac9f4161",
+      "required": true,
+      "sanitation": "none; complete deciding bytes retained"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/coverage-selector-generator.json",
+      "relative_path": "coverage-selector-generator.json",
+      "bytes": 1402,
+      "sha256": "3f6311296126324945423fac9709718ad414d025b34229893162214e7dae90af",
+      "required": true,
+      "sanitation": "none; complete deciding bytes retained"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/coverage-selector-generator.stdout.txt",
+      "relative_path": "coverage-selector-generator.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "required": true,
+      "sanitation": "none; complete deciding bytes retained"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/coverage-selector-generator.stderr.txt",
+      "relative_path": "coverage-selector-generator.stderr.txt",
+      "bytes": 785,
+      "sha256": "2587fee645c6d964042e15107dec881a78e7891ad033829a2cd4d763ddb9ee1a",
+      "required": true,
+      "sanitation": "none; complete deciding bytes retained"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/graph-selector-source-equivalence.json",
+      "relative_path": "graph-selector-source-equivalence.json",
+      "bytes": 3223,
+      "sha256": "411349841c408eec30a8350882d76553e91d1e071214f8080fafc8ea5b0a5714",
+      "required": true,
+      "sanitation": "none; complete deciding bytes retained"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/build-handoff.py",
+      "relative_path": "b220-author-evidence/build-handoff.py",
+      "bytes": 10360,
+      "sha256": "4185f93f7875b2565e738ff7105d6ea7131073615353cb406d03a540c107e49a",
+      "required": true,
+      "sanitation": "none; complete deciding bytes retained"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/selector-finalize-current-components.stdout.txt",
+      "relative_path": "selector-finalize-current-components.stdout.txt",
+      "bytes": 665,
+      "sha256": "e6b665b4fff7de2698e0b08f62690fe5088a82555cd8ccff07cdf86a4dac4c19",
+      "required": true,
+      "sanitation": "none; complete deciding bytes retained"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/selector-finalize-current-components.stderr.txt",
+      "relative_path": "selector-finalize-current-components.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "required": true,
+      "sanitation": "none; complete deciding bytes retained"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/selector_transfer_finalize.py",
+      "relative_path": "selector_transfer_finalize.py",
+      "bytes": 5123,
+      "sha256": "a2b1979c1a217e136399884f9ef6cdae42e8ea2f415b2ea5b0c191928d5fc578",
+      "required": true,
+      "sanitation": "none; complete deciding bytes retained"
+    }
+  ],
+  "existing_git_files": [
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/baseline-B220.json",
+      "git_blob": "58f32419cafd63fed855c42d584fe3137de0b02b",
+      "bytes": 14287,
+      "sha256": "7dda1f35e7a6869c7717223806b53d73671ab1a6a78dcf6460a56b176f18fe52",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/baseline-B220.json",
+      "original_relative_path": "b220-author-evidence/baseline-B220.json",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/emp01.json",
+      "git_blob": "ec8afd98f339e871a2deb1f0a17bb6f071c92966",
+      "bytes": 2934,
+      "sha256": "d1a4ebde21e56f725f7dc085f481041cfad16bad83f1e1b67f313478c5ea2de5",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/emp01.json",
+      "original_relative_path": "b220-author-evidence/emp01.json",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/emp01.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/emp01.stderr.txt",
+      "original_relative_path": "b220-author-evidence/emp01.stderr.txt",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/emp01.stdout.txt",
+      "git_blob": "0b7f76faae21f2076a9f0bb9cc300e8fb3c4f583",
+      "bytes": 31598,
+      "sha256": "c5bcb704999037dcf7c7809e687e88bfb0350b98aeacaa899258fc8ed33ed1dd",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/emp01.stdout.txt",
+      "original_relative_path": "b220-author-evidence/emp01.stdout.txt",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/environment.json",
+      "git_blob": "dde67be4cad3da7674e57debf70748119e17c32f",
+      "bytes": 1438,
+      "sha256": "5d54576f0ad0cd4622e7cb27658bafa23531c132f35a9667b0afb4cbb96fd358",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/environment.json",
+      "original_relative_path": "b220-author-evidence/environment.json",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/fragment-check.stdout.txt",
+      "git_blob": "062187ed0b4d8b2153b8f8a5263494b054db0cd2",
+      "bytes": 856,
+      "sha256": "e991d9383557fd68719d0b908b9970ce0a286b9f67c83d53fd58e961eb8283de",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/fragment-check.stdout.txt",
+      "original_relative_path": "b220-author-evidence/fragment-check.stdout.txt",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/native.json",
+      "git_blob": "5110ae4eedcd182a6e4088eeaa6a67a4cd96fa32",
+      "bytes": 3747,
+      "sha256": "6838766401a4f008ae742118cbd4b8263bb99ca6874670a7cc2d556d3fe5e87b",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/native.json",
+      "original_relative_path": "b220-author-evidence/native.json",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/native.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/native.stderr.txt",
+      "original_relative_path": "b220-author-evidence/native.stderr.txt",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/native.stdout.txt",
+      "git_blob": "14574039cb53464868ce8ebe38e79890c6598aec",
+      "bytes": 699,
+      "sha256": "1acc8b5ffe439e46f2d40b1f076aae7b128b29933efea1245970bc89d461dfe5",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/native.stdout.txt",
+      "original_relative_path": "b220-author-evidence/native.stdout.txt",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/nested_freeze.json",
+      "git_blob": "20258b1d327f7860ebd6450209dcf8c5b7b8bf6e",
+      "bytes": 2900,
+      "sha256": "a66cf16fad9b152e4b092315fe9301bdda2a12b43c4c6587066ce646514098a2",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/nested_freeze.json",
+      "original_relative_path": "b220-author-evidence/nested_freeze.json",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/nested_freeze.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/nested_freeze.stderr.txt",
+      "original_relative_path": "b220-author-evidence/nested_freeze.stderr.txt",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/nested_freeze.stdout.txt",
+      "git_blob": "a34a18edbdea0a421209a14cf11e5144113f1cf1",
+      "bytes": 3373,
+      "sha256": "f490c1fa6b437dfb2d1c759e4df48c0ec9cc8cb1bcbb3bb54f47a8f20ad689cf",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/nested_freeze.stdout.txt",
+      "original_relative_path": "b220-author-evidence/nested_freeze.stdout.txt",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/original-row-mutation.json",
+      "git_blob": "b5b027f11a9dafa34e45c93229139577d9364fbb",
+      "bytes": 1907,
+      "sha256": "58b5b97e7c783c8839546131a0fa5c38ba6be01594b6078ea28170886a7250c3",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/original-row-mutation.json",
+      "original_relative_path": "b220-author-evidence/original-row-mutation.json",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/original-row-mutation.py",
+      "git_blob": "490d42bff30296b134c4473a8bc9a5cb0caa7f5e",
+      "bytes": 1109,
+      "sha256": "77b77ba99f8ecf0cf7680c242abf0504f98ba038fc03cf8d19a31b934f60621f",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/original-row-mutation.py",
+      "original_relative_path": "b220-author-evidence/original-row-mutation.py",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/original-row-mutation.stderr.txt",
+      "git_blob": "4ecb6d31aa59a5ff54b5bce9c3a0cc1f40ef010f",
+      "bytes": 164,
+      "sha256": "99c8516f1b76d8cd8186bbe58ee780e17780b1d23f67dce57bd40c55fffe5bf1",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/original-row-mutation.stderr.txt",
+      "original_relative_path": "b220-author-evidence/original-row-mutation.stderr.txt",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/original-row-mutation.stdout.txt",
+      "git_blob": "2064094cd542446eb1c9ca524c8e6224d88e37ef",
+      "bytes": 1933,
+      "sha256": "17bae615a9d84e8c97676ae6fe26075632e06dfffc038deb929f3948aa46679e",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/original-row-mutation.stdout.txt",
+      "original_relative_path": "b220-author-evidence/original-row-mutation.stdout.txt",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/removal-replayer.py",
+      "git_blob": "0300a096e68e223e6520f7cc62d3798b2ea728ab",
+      "bytes": 1591,
+      "sha256": "4346cea5080eedaec69bf3951d3991f0ff9736296685632be42277ff8b3f8ecd",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/removal-replayer.py",
+      "original_relative_path": "b220-author-evidence/removal-replayer.py",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/row_isolation.json",
+      "git_blob": "174d6e1b28e4cd852e9104890dda5a2ca01764ba",
+      "bytes": 2902,
+      "sha256": "c59f5a34ec229e087a930062617aabda7bb8c5c13e981afca8d0221a4aad6aa3",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/row_isolation.json",
+      "original_relative_path": "b220-author-evidence/row_isolation.json",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/row_isolation.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/row_isolation.stderr.txt",
+      "original_relative_path": "b220-author-evidence/row_isolation.stderr.txt",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/row_isolation.stdout.txt",
+      "git_blob": "13fce07207c8510eea7c9fb5aa7b644959483f2c",
+      "bytes": 3447,
+      "sha256": "449fb3d369934c00556c3b09f57d089035767af6c1c0f8230d4fb8c72f234935",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/row_isolation.stdout.txt",
+      "original_relative_path": "b220-author-evidence/row_isolation.stdout.txt",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/run-check.py",
+      "git_blob": "1b67913879da1fd0793165149cd64f3c70212627",
+      "bytes": 2319,
+      "sha256": "49498a1490e1819881bccf39be71efe77f640cbedd33bd28a3cdc776fd29c512",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/run-check.py",
+      "original_relative_path": "b220-author-evidence/run-check.py",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/weakref_cleanup.json",
+      "git_blob": "a526c2b7f427c42fb923443a80f33e60235e5ad1",
+      "bytes": 2909,
+      "sha256": "aa85779ecd198140f85b27e631946ffb5acae01e90dd0700a4ff1197cc96e933",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/weakref_cleanup.json",
+      "original_relative_path": "b220-author-evidence/weakref_cleanup.json",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/weakref_cleanup.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/weakref_cleanup.stderr.txt",
+      "original_relative_path": "b220-author-evidence/weakref_cleanup.stderr.txt",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/author/weakref_cleanup.stdout.txt",
+      "git_blob": "c09c760c329f3b0630efdbabe8705c1e58764e9e",
+      "bytes": 2438,
+      "sha256": "d836302c215c1567dfa97fb9eb1c219d35ec5c7993fa142e3d1c9cfa8515e56a",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-author-evidence/weakref_cleanup.stdout.txt",
+      "original_relative_path": "b220-author-evidence/weakref_cleanup.stdout.txt",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/independent/environment.json",
+      "git_blob": "ff244698f88479b69e15e68f6fea6159504be313",
+      "bytes": 1292,
+      "sha256": "967356901ebd99c172aaab91cbf00c41f7e4df59ff1282afc2ab8ae3b57dec27",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/environment.json",
+      "original_relative_path": "b220-independent-review/environment.json",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/independent/execute_review.py",
+      "git_blob": "6c1ffe0cec02cb2b3007c7c2625083dbcec99b0f",
+      "bytes": 3020,
+      "sha256": "f77858637af74c187218698d006504870d25f3e33e0d77ac7bd27a32b8db733d",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/execute_review.py",
+      "original_relative_path": "b220-independent-review/execute_review.py",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/independent/native.json",
+      "git_blob": "06073fbf0837e217a069a7227cbcf2d814c1a697",
+      "bytes": 3271,
+      "sha256": "dd4e33acc03eed2ac86f8cf7bbadcd3357cde566714014d85ff75d9c32417a8a",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/native.json",
+      "original_relative_path": "b220-independent-review/native.json",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/independent/native.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/native.stderr.txt",
+      "original_relative_path": "b220-independent-review/native.stderr.txt",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/independent/native.stdout.txt",
+      "git_blob": "bd15279bf9bb7ffcbfb5c880fa897858c510be3d",
+      "bytes": 619,
+      "sha256": "d94ab6df5e6aa37ef461d3e4f363678efdfda7a118750c7980e9964d1b02d7f6",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/native.stdout.txt",
+      "original_relative_path": "b220-independent-review/native.stdout.txt",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/independent/release-rendered.md",
+      "git_blob": "2e0a539240ce9e57af8e44466b6467856b33687d",
+      "bytes": 977,
+      "sha256": "94b5969cd8b1086f0336cd3546d1274502a38b7911bd6fa156b1907a9a5c225e",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/release-rendered.md",
+      "original_relative_path": "b220-independent-review/release-rendered.md",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/independent/release-validation.json",
+      "git_blob": "6ca0507d02564a38fc3c8ef2bb145fb24ba68606",
+      "bytes": 852,
+      "sha256": "4eb5b200b64b5d83ef2e1b5cfccba43c419ed54f1fcc6026b87d87ac57c09ee4",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/release-validation.json",
+      "original_relative_path": "b220-independent-review/release-validation.json",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/independent/release-validation.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/release-validation.stderr.txt",
+      "original_relative_path": "b220-independent-review/release-validation.stderr.txt",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/independent/release-validation.stdout.txt",
+      "git_blob": "6ca0507d02564a38fc3c8ef2bb145fb24ba68606",
+      "bytes": 852,
+      "sha256": "4eb5b200b64b5d83ef2e1b5cfccba43c419ed54f1fcc6026b87d87ac57c09ee4",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/release-validation.stdout.txt",
+      "original_relative_path": "b220-independent-review/release-validation.stdout.txt",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/independent/review.json",
+      "git_blob": "f4591ec7056f6508a63e4c827e7b3f0ce88d7205",
+      "bytes": 21742,
+      "sha256": "e8f7cc95ba3a58dcd9c6fb68552adcc01eb05605a346abdc3c84060ea1203b34",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/review.json",
+      "original_relative_path": "b220-independent-review/review.json",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/independent/test_b220_independent.py",
+      "git_blob": "1291a50624a71b9c77b90a20d1a1fb0b1d060d3a",
+      "bytes": 4167,
+      "sha256": "10e8ddd855f765ca7023bc9689c672024ccd139eafabad172a41bcf41e99832f",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/test_b220_independent.py",
+      "original_relative_path": "b220-independent-review/test_b220_independent.py",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006/independent/validate_release.py",
+      "git_blob": "bdb4c59437838a666502f67386ec1ebb1f227fdb",
+      "bytes": 2248,
+      "sha256": "a145a85fe252ffb0bd1cc158507ffbe50506562c7df88d46aa521339f4caead9",
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/validate_release.py",
+      "original_relative_path": "b220-independent-review/validate_release.py",
+      "required": true,
+      "transport": "existing complete committed bytes; do not copy/reconstruct summary",
+      "sanitation": "none"
+    }
+  ],
+  "total_bytes": 3149823,
+  "existing_git_bytes": 121591,
+  "unique_copy_files": 14,
+  "complete_existing_git_files": 36,
+  "checks": [
+    {
+      "name": "complete committed B220 byte-reference transport binding",
+      "outcome": "PASS",
+      "output": "All36 author/reviewer complete files read from pinned bf335 Git and equal exact scratch originals; same blob/hash/size, no summary substitution.",
+      "command": "python3 selector_transfer_finalize.py --repo <fetched-repo> --scratch <full-audit-scratch>"
+    },
+    {
+      "name": "coverage-defined selector generator",
+      "outcome": "ERROR",
+      "output": "coverage.json omits test_paths; exact documented generator KeyError occurs before pytest. Full stderr and execution source are unique copied files."
+    },
+    {
+      "name": "credential and signedquery scan",
+      "outcome": "PASS",
+      "output": "Complete50 copied/Git-referenced files: no matched credential/signedquery patterns; no sanitation."
+    }
+  ],
+  "sanitation": {
+    "patterns": {
+      "github_token": "\\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})\\b",
+      "aws_access_key": "\\b(?:AKIA|ASIA)[A-Z0-9]{16}\\b",
+      "private_key": "-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----",
+      "signed_query": "[?&](?:X-Amz-Signature|X-Goog-Signature|sig|signature|access_token|api_key)=[A-Za-z0-9%_+/-]{12,}"
+    },
+    "hits": {
+      "github_token": [],
+      "aws_access_key": [],
+      "private_key": [],
+      "signed_query": []
+    },
+    "action": "none; all bytes unchanged"
+  },
+  "G_rerun_guidance": "Fetch each owning topic/PR and pinned existing_git_files refs; read all complete byte-bound files. Bind native selectors to the actual composed candidate/provider SHA before fresh run. Missing proposed filenames were never executed; installed caller ABI does not establish real-data causal authority."
+}

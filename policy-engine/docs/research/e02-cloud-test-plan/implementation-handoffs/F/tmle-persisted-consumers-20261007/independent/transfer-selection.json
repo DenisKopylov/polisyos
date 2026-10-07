@@ -1,0 +1,123 @@
+{
+  "scientific_source_sha": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+  "metadata_candidate_sha": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/capture_native.py",
+      "bytes": 2247,
+      "sha256": "c460e5a23a9f2ac0e9667c0752d3eb8982828d773cf06bbf873890868fb8c393"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-command.json",
+      "bytes": 1843,
+      "sha256": "344eb68db07ad844f3fd10d7175855d9ad6df9841dd2a2d8f45e73d5ee942dcd"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-result.json",
+      "bytes": 2367,
+      "sha256": "addcdc4997608b6efc04438b77d4d520a5d97d0400d931935533e121e3f7fe2e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native.stdout.txt",
+      "bytes": 275541,
+      "sha256": "533a0c9d0d456bb3b64506a16f3253a4d95b4263b6ae3eb5e83e77e7c566c7c0"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native.xml",
+      "bytes": 11339,
+      "sha256": "0bb63be55c0a708e5630da393784f43f01b16a4cebf7e2aed72e613a133a60e0"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/capture_mixed.py",
+      "bytes": 2912,
+      "sha256": "b16ee889c3de70dcba70de8219c0291d353c7a5772dc272dbfe7b21237bc585a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/check_mixed_native_consumer.py",
+      "bytes": 4898,
+      "sha256": "4cb29ba8caff118c77a4c951d3c62d4757fd96460698788656168b96f4a9d941"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/mixed-controls.json",
+      "bytes": 7492,
+      "sha256": "83cf84bffbf33593397fc855de9f0914601e389c19d2c9710b239482ad208d7d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/cas-input-manifest.json",
+      "bytes": 18281,
+      "sha256": "9dc8030ade92919154ed5638b36e190306e5c13699f9a9398431f1a24924f022"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-cas-input.tar.gz",
+      "bytes": 18922,
+      "sha256": "88b506fe8bf8ee767032b9e879c66bb608c6de989d1713c3ff3b8666690a069b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/review.json",
+      "bytes": 13199,
+      "sha256": "ae3e0d37552c0d9a7f14c0565d23211705e32d0c04607a9d380846bd864e2150"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/finish_review.py",
+      "bytes": 8280,
+      "sha256": "a39a373aa6229710e3589ee9c6fb3a38bc567a099db77f53651cfaa6fdabbc73"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/mixed_priority.json",
+      "bytes": 2212,
+      "sha256": "9898e269b972c6bfe01c63ae9c0cb970ced7212519f3ea28404ebdf08a7b3a16"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/mixed_priority.stdout.txt",
+      "bytes": 2314,
+      "sha256": "c42e74a155fda84df4e75d8bc20877c424943fc3210da0acd49973b86ecc2efb"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/mixed_priority.stderr.txt",
+      "bytes": 716,
+      "sha256": "0469400ed660ce7320d9d7c4f6be6e53689b9f00ce5eef5bd57d338b9d9a8b86"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/malformed_top.json",
+      "bytes": 2208,
+      "sha256": "966bd98af313f80900932a5556015379ace89c5110fe8da7ddfdd3b8316e454e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/malformed_top.stdout.txt",
+      "bytes": 1686,
+      "sha256": "c0e2e41feae41f88d2cfab8f7b747e3646b298a08d507a5036751ed57ab867ac"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/malformed_top.stderr.txt",
+      "bytes": 848,
+      "sha256": "56b8dd844cac73bf5ba7311b8a72dac7436897854514b2f647c36ddbff8a2cb2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/remove_role_issue.json",
+      "bytes": 2253,
+      "sha256": "6bae19200c515151601468191cd1285ed1c079b81025e88b4a9864b990810c19"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/remove_role_issue.stdout.txt",
+      "bytes": 1850,
+      "sha256": "9f0f87cad057b7ee8159bbebbdd4b287ad48654529bd8077cd847bc39bd584aa"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/remove_role_issue.stderr.txt",
+      "bytes": 1792,
+      "sha256": "2d879bff517ef7d5555c152b583403dfef8471f0318c0d3da52d24a02443b3d3"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/producer-packet.json",
+      "bytes": 2488,
+      "sha256": "17c25ebb61d81592d7d60f90fa0095afaca21aef11922f9eed740c031792d5cd"
+    }
+  ],
+  "scope": "23 unique independent measured inputs/outputs/replayers; no copied tracked bodies",
+  "publication": "FIT author may commit these verbatim as independent companions; own F authority packet will cite published refs"
+}

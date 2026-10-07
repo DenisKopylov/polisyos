@@ -1,0 +1,31 @@
+{
+  "command": [
+    "python3",
+    "/tmp/e02-F-continuation-20261006/cau/caller-census-replay.py",
+    "--ref",
+    "0b522ed173730b4ec744253bb75b6ee260bfcebb",
+    "--output",
+    "/tmp/e02-F-continuation-20261006/cau/caller-immutable-final.json"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006",
+  "source_sha": "0b522ed173730b4ec744253bb75b6ee260bfcebb",
+  "source_tree": "a402720194c41d0b6c5bb93cceb326cd4699df72",
+  "utc": "2026-10-06T15:16:50.098019+00:00",
+  "elapsed_s": 5.2256442709913244,
+  "exit_code": 0,
+  "environment": {
+    "python": "3.12.14",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "PYTHONPATH": null
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/caller-final-replay.stdout",
+    "bytes": 234,
+    "sha256": "b3ce7b37ee7fc2a573ccf074eb79b44c5fcf78a6d2b4c131fce5dff74dd758fd"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/caller-final-replay.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--no-index",
+    "--",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v3.py",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py"
+  ],
+  "exit_code": 1,
+  "meaning": "Expected complete forward helper delta capture, not a scientific FAIL."
+}

@@ -1,0 +1,19 @@
+{
+  "output": {
+    "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/different-stored-same-decoded.selected.json",
+    "bytes": 6938,
+    "sha256": "cbef164b83972972d2de7525b1c04f5fea8e9ae8610763bf478d26ae2ff1390a"
+  },
+  "counts": {
+    "logical_files": 6,
+    "unique_transport_files": 6,
+    "aliases": 0,
+    "existing_git_files": 0,
+    "changed_prior_inputs": 0,
+    "unique_raw_transport_bytes": 30935
+  },
+  "pending_extensions": [],
+  "root_source_writes": false,
+  "Git_writes": false,
+  "tests_run": false
+}

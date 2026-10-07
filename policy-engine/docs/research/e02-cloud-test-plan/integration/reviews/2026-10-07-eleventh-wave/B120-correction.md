@@ -1,0 +1,9 @@
+# B120 — original criterion and completed bounded native bridge
+
+Original binding: `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5`, B120 lines3192–3205, SHA-256 `5217798c76f0d4b4fdb0bcac33fb4b6eaf726f690f2c8babfbac7a37744c3b29`.
+
+The criterion requires the existing canonical budget owner's scoped/unit-aware confirmed spend and relevant reserves to reach admission/stopping/result, with no cached double charge or retry zeroing. It forbids substituting an agent-supplied number and does not claim all external budget constraints are bypass-proof. G's later coverage text added a universal independent production-provider prerequisite. That added bar is withdrawn; deployment/vendor invoice truth remains a separate unestablished claim.
+
+G independently executed exact D `68070854bddba2593efaef59a107a3cbe3b08d4d` / tree `459895cbc549d8f4b6c8fd38510f5ab2cb690c4e`: [10-case native factory receipt](../../checks/2026-10-07-eleventh-wave/D-budget/README.md), all833 loaded modules and2926 source/test/config inputs exact. TextGateway input drives real settlement/enforcer/canonical ledger, actual SearchLoopRunner, CAS checkpoint and fresh restore/resume. Paid and true zero, unresolvedtiny amounts, owner-change race, changed key/limit and immutable ledger/oldcheckpoint controls are observed. Its input is a declared fixture provider, not actual deployment billing.
+
+B120 bounded native code/consumer property is supported. G code acceptance and exact frozen integrated consumer verification remain pending; no formal finding closes here. Original cards and closure_now are unchanged. Operative D.md/coverage/B continuation and dependent tenth-wave prose now distinguish this completed bounded bridge from separate FUN/evaluator and production claims. The governed coverage JSON changed onlysix B120 plan fields surgically; no other row/criterion/status changed.

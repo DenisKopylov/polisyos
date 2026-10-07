@@ -1,0 +1,1279 @@
+[
+  {
+    "label": "valid-files-gzip-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip.selected.json",
+      "--include-selection",
+      "valid-files-gzip=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.08065394998993725,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-refresh.stdout.txt",
+      "bytes": 528,
+      "sha256": "947d92f4850c7b45fbaa039b4d15506321699d4ae08fc365e5b66a9cea05b1b6"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "valid-files-gzip-publish",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "--selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip.selected.json",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--materialize",
+      "--destination",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-files-gzip"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.07229482498951256,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-publish.stdout.txt",
+      "bytes": 782,
+      "sha256": "87e205f9e087fd62d2fe5a8ae50accc851a77019a434e8be6b0d581b5c00e5cc"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "valid-files-gzip-lossless-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-lossless.selected.json",
+      "--include-selection",
+      "valid-files-gzip-lossless=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-lossless.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.06714093498885632,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-lossless-refresh.stdout.txt",
+      "bytes": 537,
+      "sha256": "6113e7fbf5070ef18d7409361f3b0e857c5f6abca0d35528d70865436003d1b7"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-lossless-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "valid-files-gzip-lossless-publish",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "--selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-lossless.selected.json",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--materialize",
+      "--destination",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-files-gzip-lossless"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.06403144801151939,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-lossless-publish.stdout.txt",
+      "bytes": 800,
+      "sha256": "0c52680171f18e88c99d4bb01fe14e885ab4f6fdbcad23a6cb8660c0cd5552d2"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip-lossless-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "valid-items-gzip-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip.selected.json",
+      "--include-selection",
+      "valid-items-gzip=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.07812696800101548,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-refresh.stdout.txt",
+      "bytes": 528,
+      "sha256": "35731a2f2ae521b8a6d54cc47004677c5000c435f15779a4dc0712a1e39447c5"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "valid-items-gzip-publish",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "--selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip.selected.json",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--materialize",
+      "--destination",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-items-gzip"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.07200468599330634,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-publish.stdout.txt",
+      "bytes": 782,
+      "sha256": "9331d111e38d22817c03612ff934bd3fbce5f3035fb93867993312b84e5cd0d7"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "valid-items-gzip-lossless-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-lossless.selected.json",
+      "--include-selection",
+      "valid-items-gzip-lossless=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-lossless.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.06276468199212104,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-lossless-refresh.stdout.txt",
+      "bytes": 537,
+      "sha256": "ad6cacc57d78c50b5dd97d5b0cae2022804f774e6ce812669c028962f705ebbc"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-lossless-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "valid-items-gzip-lossless-publish",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "--selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-lossless.selected.json",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--materialize",
+      "--destination",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-items-gzip-lossless"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.06263090198626742,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-lossless-publish.stdout.txt",
+      "bytes": 800,
+      "sha256": "7fe567906d9c2c16e2137566c946872c132f5ea51131c1657928f140eb5ddc5b"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-items-gzip-lossless-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "valid-selection-gzip-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip.selected.json",
+      "--include-selection",
+      "valid-selection-gzip=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.06197895901277661,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-refresh.stdout.txt",
+      "bytes": 532,
+      "sha256": "7d2d334611251d07b47614f8085fbea933928f827b77d8a7341d25fda3edc020"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "valid-selection-gzip-publish",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "--selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip.selected.json",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--materialize",
+      "--destination",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-selection-gzip"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.06196442199870944,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-publish.stdout.txt",
+      "bytes": 790,
+      "sha256": "c1d28e550bb8de26fc1da6cd212713c977ef30eac0f473c4ee54cd74d1f6311f"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "valid-selection-gzip-lossless-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-lossless.selected.json",
+      "--include-selection",
+      "valid-selection-gzip-lossless=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-lossless.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.0692555489949882,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-lossless-refresh.stdout.txt",
+      "bytes": 541,
+      "sha256": "47e96c2336cbcaae5519db7e0d9965e466f9e267bf68d1a26bc18ccd86bcf50a"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-lossless-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "valid-selection-gzip-lossless-publish",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "--selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-lossless.selected.json",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--materialize",
+      "--destination",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-valid-selection-gzip-lossless"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.059311485005309805,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-lossless-publish.stdout.txt",
+      "bytes": 808,
+      "sha256": "8f53fdd150dfd91ca78118de0b335633f6799f33b36e3c12a04992905d27b6b8"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-selection-gzip-lossless-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "bad-stored-sha-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-stored-sha.selected.json",
+      "--include-selection",
+      "bad-stored-sha=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-stored-sha.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.06680185301229358,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-stored-sha-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-stored-sha-refresh.stderr.txt",
+      "bytes": 623,
+      "sha256": "ff5e92c69cb8ff5dee147b9aff8ec3f0747f2c740ef686eae042a0534da7f58e"
+    }
+  },
+  {
+    "label": "bad-stored-size-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-stored-size.selected.json",
+      "--include-selection",
+      "bad-stored-size=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-stored-size.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.061787813989212736,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-stored-size-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-stored-size-refresh.stderr.txt",
+      "bytes": 623,
+      "sha256": "ff5e92c69cb8ff5dee147b9aff8ec3f0747f2c740ef686eae042a0534da7f58e"
+    }
+  },
+  {
+    "label": "bad-decoded-sha-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-decoded-sha.selected.json",
+      "--include-selection",
+      "bad-decoded-sha=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-decoded-sha.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.06473000897676684,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-decoded-sha-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-decoded-sha-refresh.stderr.txt",
+      "bytes": 669,
+      "sha256": "c6b6b353c6b685430c4f5ac629e13ed64c9f4630e133802cd0cba367a27a92f1"
+    }
+  },
+  {
+    "label": "bad-decoded-size-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-decoded-size.selected.json",
+      "--include-selection",
+      "bad-decoded-size=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-decoded-size.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.06211551299202256,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-decoded-size-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/bad-decoded-size-refresh.stderr.txt",
+      "bytes": 669,
+      "sha256": "c6b6b353c6b685430c4f5ac629e13ed64c9f4630e133802cd0cba367a27a92f1"
+    }
+  },
+  {
+    "label": "missing-decoded-identity-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/missing-decoded-identity.selected.json",
+      "--include-selection",
+      "missing-decoded-identity=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/missing-decoded-identity.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.06301397498464212,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/missing-decoded-identity-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/missing-decoded-identity-refresh.stderr.txt",
+      "bytes": 691,
+      "sha256": "58a1c8187b77b9be0f2e8ea0269e22f7f48ca348226c64203b6125dbf66e3f62"
+    }
+  },
+  {
+    "label": "unknown-encoding-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/unknown-encoding.selected.json",
+      "--include-selection",
+      "unknown-encoding=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/unknown-encoding.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.060956446977797896,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/unknown-encoding-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/unknown-encoding-refresh.stderr.txt",
+      "bytes": 667,
+      "sha256": "56bc89bd7d13404431b8e8f6ae39fb77dcd9a5617331af8a42fedb34d6408f35"
+    }
+  },
+  {
+    "label": "unknown-codec-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/unknown-codec.selected.json",
+      "--include-selection",
+      "unknown-codec=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/unknown-codec.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.062353696004720405,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/unknown-codec-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/unknown-codec-refresh.stderr.txt",
+      "bytes": 644,
+      "sha256": "1f78ebca809164c040aedd0e61c7034ed687fd46b335125ee9d666199da9fadd"
+    }
+  },
+  {
+    "label": "contradictory-codec-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/contradictory-codec.selected.json",
+      "--include-selection",
+      "contradictory-codec=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/contradictory-codec.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.05965915200067684,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/contradictory-codec-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/contradictory-codec-refresh.stderr.txt",
+      "bytes": 625,
+      "sha256": "db8085b288d0d6defedc0461ff144cfa5de3f501b1c138d5fd6e365bb6ce5349"
+    }
+  },
+  {
+    "label": "codec-only-wrong-decoded-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/codec-only-wrong-decoded.selected.json",
+      "--include-selection",
+      "codec-only-wrong-decoded=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/codec-only-wrong-decoded.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.06327355801477097,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/codec-only-wrong-decoded-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/codec-only-wrong-decoded-refresh.stderr.txt",
+      "bytes": 625,
+      "sha256": "84c9894c2fcda2be2a0b510fb92f92230b566f45fd96a0e088dee8993b6015b7"
+    }
+  },
+  {
+    "label": "codec-only-correct-decoded-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/codec-only-correct-decoded.selected.json",
+      "--include-selection",
+      "codec-only-correct-decoded=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/codec-only-correct-decoded.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.060758046980481595,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/codec-only-correct-decoded-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/codec-only-correct-decoded-refresh.stderr.txt",
+      "bytes": 625,
+      "sha256": "84c9894c2fcda2be2a0b510fb92f92230b566f45fd96a0e088dee8993b6015b7"
+    }
+  },
+  {
+    "label": "ambiguous-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/ambiguous.selected.json",
+      "--include-selection",
+      "ambiguous=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/ambiguous.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.06347167698550038,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/ambiguous-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/ambiguous-refresh.stderr.txt",
+      "bytes": 650,
+      "sha256": "ec7080899fce98f8220342decb0c4c0afb234a79c5aa8672dce8f6580ae67a17"
+    }
+  },
+  {
+    "label": "identity-false-decoded-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-false-decoded.selected.json",
+      "--include-selection",
+      "identity-false-decoded=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-false-decoded.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.06324059597682208,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-false-decoded-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-false-decoded-refresh.stderr.txt",
+      "bytes": 722,
+      "sha256": "46f85a56bcd9e3d8d3fa3674f1dfc06c0f2fda274095ef334c524adaebdd13a9"
+    }
+  },
+  {
+    "label": "identity-incomplete-decoded-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-incomplete-decoded.selected.json",
+      "--include-selection",
+      "identity-incomplete-decoded=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-incomplete-decoded.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.0646471620129887,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-incomplete-decoded-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-incomplete-decoded-refresh.stderr.txt",
+      "bytes": 722,
+      "sha256": "46f85a56bcd9e3d8d3fa3674f1dfc06c0f2fda274095ef334c524adaebdd13a9"
+    }
+  },
+  {
+    "label": "identity-valid-decoded-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-valid-decoded.selected.json",
+      "--include-selection",
+      "identity-valid-decoded=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-valid-decoded.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.06359559699194506,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-valid-decoded-refresh.stdout.txt",
+      "bytes": 534,
+      "sha256": "363ca182364238d971c50f1aa86697dce838fb3796ca86f52347ddc2d82af7b1"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-valid-decoded-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "identity-valid-decoded-publish",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "--selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-valid-decoded.selected.json",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--materialize",
+      "--destination",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-identity-valid-decoded"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.05983391799964011,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-valid-decoded-publish.stdout.txt",
+      "bytes": 794,
+      "sha256": "e505ba8bb493902448994597488d7659897d16036558987529cfcafc3efe4656"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identity-valid-decoded-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "different-stored-same-decoded-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/different-stored-same-decoded.selected.json",
+      "--include-selection",
+      "different-stored-same-decoded=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/different-stored-same-decoded.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.06421345699345693,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/different-stored-same-decoded-refresh.stdout.txt",
+      "bytes": 541,
+      "sha256": "acd9453eab484b3e67b50e919d9d337ba6be1b1551c92eb32d9fa0181c1abc0b"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/different-stored-same-decoded-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "different-stored-same-decoded-publish",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "--selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/different-stored-same-decoded.selected.json",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--materialize",
+      "--destination",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-different-stored-same-decoded"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.06424458499532193,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/different-stored-same-decoded-publish.stdout.txt",
+      "bytes": 808,
+      "sha256": "21bce07bd218f003a65f58238ba2c9a447ee9ae7e7f57310656532f0c02bde5e"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/different-stored-same-decoded-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "identical-stored-and-decoded-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identical-stored-and-decoded.selected.json",
+      "--include-selection",
+      "identical-stored-and-decoded=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identical-stored-and-decoded.input.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.0627723159850575,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identical-stored-and-decoded-refresh.stdout.txt",
+      "bytes": 540,
+      "sha256": "bacf90f25eeb23fb1039c97751a1443c8bdf7be3c0ac2dee2090819bea115ec1"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identical-stored-and-decoded-refresh.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "identical-stored-and-decoded-publish",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "--selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identical-stored-and-decoded.selected.json",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--materialize",
+      "--destination",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/materialized-identical-stored-and-decoded"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.06295802400563844,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identical-stored-and-decoded-publish.stdout.txt",
+      "bytes": 806,
+      "sha256": "df02da66e6ee74f529a965cf17f6d319770cc18647301db6d13215a2dd95fd71"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/identical-stored-and-decoded-publish.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "forged-decoded-only-alias-publish",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "--selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/forged-decoded-only-alias.selected.json",
+      "--repository",
+      "/workspace/e02-F-api-20261006"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.061248379992321134,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/forged-decoded-only-alias-publish.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/forged-decoded-only-alias-publish.stderr.txt",
+      "bytes": 503,
+      "sha256": "59939b230906a97816fd1b3097beabe47ac25ff0a8a1910d0f0cb2044638bf20"
+    }
+  },
+  {
+    "label": "forged-input-binding-publish",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "--selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/forged-input-binding.selected.json",
+      "--repository",
+      "/workspace/e02-F-api-20261006"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.06062944798031822,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/forged-input-binding-publish.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/forged-input-binding-publish.stderr.txt",
+      "bytes": 803,
+      "sha256": "71c2a5797706710f75d8da9bf2371047e504194fa2260ce11268ad1fb6c373a6"
+    }
+  },
+  {
+    "label": "stripped-alias-binding-publish",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "--selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/stripped-alias-binding.selected.json",
+      "--repository",
+      "/workspace/e02-F-api-20261006"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.05718417398747988,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/stripped-alias-binding-publish.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/stripped-alias-binding-publish.stderr.txt",
+      "bytes": 803,
+      "sha256": "185baa2d643c701d6b7f83c100c52c51c66a851aa344714f0698c592e9fe730e"
+    }
+  },
+  {
+    "label": "future-git-refusal-refresh",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/future-git-refusal.selected.json",
+      "--include-selection",
+      "future-git-refusal=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/future-git-refusal.input.json",
+      "--existing-git-spec",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/future-git-spec.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.06620343000395223,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/future-git-refusal-refresh.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/future-git-refusal-refresh.stderr.txt",
+      "bytes": 883,
+      "sha256": "fc9677cc463f979a0efea9750ef92f2ada52d6eef0618feb4112bba21a8a1c53"
+    }
+  },
+  {
+    "label": "recursive-output",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/recursive.selected.json",
+      "--include-file",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/recursive.selected.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "seconds": 0.06180703200516291,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/recursive-output.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/recursive-output.stderr.txt",
+      "bytes": 758,
+      "sha256": "19537d7a5cc5e584763fbd1b3506cda1e9fb8d65bfc63de82d695b1c8373cf9f"
+    }
+  }
+]

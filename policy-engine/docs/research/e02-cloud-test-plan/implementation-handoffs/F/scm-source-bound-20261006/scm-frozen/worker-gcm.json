@@ -1,0 +1,39 @@
+{
+  "source_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+  "source_tree": "2e90d63e7149a4816d409c770dfeff3db0a71539",
+  "argv": [
+    "/workspace/e02-F-graph-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/test_worker.py",
+    "-k",
+    "genuine_gcm_assignment or gcm_fit_removal",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "--tb=short"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine/workers/dowhy-014",
+  "environment_overrides": {
+    "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/workers/dowhy-014"
+  },
+  "started_utc": "2026-10-06T10:38:52.318047+00:00",
+  "wall_s": 9.127626132991281,
+  "exit": 0,
+  "outputs": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/worker-gcm.stdout.txt",
+      "bytes": 36,
+      "sha256": "557691fa77c7d8410892755c0db28f0f2c79ef62e80f160055605ef2c78318d0"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/graph/scm-frozen/worker-gcm.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

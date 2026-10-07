@@ -1,0 +1,8 @@
+{
+  "check": "PASS",
+  "actual_merge": "ea9a606f06dad1f94c0f841ec1ec7a53fc694f5c",
+  "tree": "4d5fccfc3f89c7149af500b523e5ad44a3838df2",
+  "virtual_result_only_used_as_comparison": true,
+  "all_four_captured_commands_exit": 0,
+  "basis": "Actual immutable commit identity and parents are separately validated in full review, not inferred from merge-tree."
+}

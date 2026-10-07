@@ -1,0 +1,41 @@
+{
+  "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "owner_receipt_heads": {
+    "API-01": "449d32909928caf39382f4ff02ac74b0adf277eb",
+    "CAU-01": "fe7a8354bab24678fa9c8361fe80acb8cddae2fe",
+    "CAU-02": "fe7a8354bab24678fa9c8361fe80acb8cddae2fe",
+    "CAU-03": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+    "CAU-04": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+    "CAU-05": "fe7a8354bab24678fa9c8361fe80acb8cddae2fe",
+    "ECO-01": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+    "FIT-01": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+    "FRY-01": "f4fa51e6dd247cfd967450263579d67233a743d6",
+    "FRY-03": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+    "GRF-01": "a0a050d24c137b4893a7b52b2f83ea710da46471",
+    "GRF-02": "a0a050d24c137b4893a7b52b2f83ea710da46471",
+    "GRF-03": "a0a050d24c137b4893a7b52b2f83ea710da46471",
+    "LEX-01": "77166daa0ff8b9659e3978447f9016c691694266",
+    "SCM-01": "a0a050d24c137b4893a7b52b2f83ea710da46471",
+    "SCM-02": "a0a050d24c137b4893a7b52b2f83ea710da46471",
+    "SCM-03": "a0a050d24c137b4893a7b52b2f83ea710da46471"
+  },
+  "owner_implementation_sha": {
+    "API-01": "729d137279b7d6334230045e420255762fe55f08",
+    "CAU-01": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+    "CAU-02": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+    "CAU-03": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+    "CAU-04": "423165322e508a293ffd23918c039c99fb37e7a7",
+    "CAU-05": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+    "ECO-01": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+    "FIT-01": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+    "FRY-01": "63425f734946979cfc990e9cb91b00163f051898",
+    "FRY-03": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+    "GRF-01": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+    "GRF-02": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+    "GRF-03": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+    "LEX-01": "00a6eda114b903bc5abe86902cd8372426f739a1",
+    "SCM-01": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+    "SCM-02": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+    "SCM-03": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181"
+  }
+}

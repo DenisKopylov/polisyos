@@ -1,0 +1,311 @@
+[
+  {
+    "name": "uv-version",
+    "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+    "argv": [
+      "uv",
+      "--version"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final",
+    "exit_code": 0,
+    "wall_seconds": 0.006725931016262621,
+    "environment": {
+      "UV_CACHE_DIR": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "absent"
+    },
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-version.stdout.txt",
+      "bytes": 38,
+      "sha256": "d27c5539d426b7ed041c1d392e585a95dc9090b740d43a659fc38e4e48adadf6"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "app-python-version",
+    "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "-I",
+      "-c",
+      "import platform,sys;print(platform.python_version());print(sys.executable)"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final",
+    "exit_code": 0,
+    "wall_seconds": 0.0226726490072906,
+    "environment": {
+      "UV_CACHE_DIR": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "absent"
+    },
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/app-python-version.stdout.txt",
+      "bytes": 73,
+      "sha256": "f125cbeb0fcd08cedb1a6e2e96c3ec724f526541693418e6c71ee3b7366dd8e9"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/app-python-version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "worker-python-version",
+    "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+    "argv": [
+      "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+      "-I",
+      "-c",
+      "import platform,sys;print(platform.python_version());print(sys.executable)"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final",
+    "exit_code": 0,
+    "wall_seconds": 0.021978576987748966,
+    "environment": {
+      "UV_CACHE_DIR": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "absent"
+    },
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/worker-python-version.stdout.txt",
+      "bytes": 89,
+      "sha256": "b3bbdafdaa281bb99eba81b7b24a290ab8b5734130b09bfe046f28bff290a1be"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/worker-python-version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "build-source",
+    "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+    "argv": [
+      "uv",
+      "build",
+      "--python",
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "--wheel",
+      "--sdist",
+      "--out-dir",
+      "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-source"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/source/policy-engine",
+    "exit_code": 0,
+    "wall_seconds": 26.749427258997457,
+    "environment": {
+      "UV_CACHE_DIR": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "absent"
+    },
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/build-source.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/build-source.stderr.txt",
+      "bytes": 316,
+      "sha256": "c11a015b008df911ddc2617bdffed2b0822c196dcda8127d544c7bcf5b42d5dd"
+    }
+  },
+  {
+    "name": "build-rebuilt-sdist-wheel",
+    "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+    "argv": [
+      "uv",
+      "build",
+      "--python",
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "--wheel",
+      "--out-dir",
+      "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-rebuilt"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-extracted/policy_engine-0.1.0",
+    "exit_code": 0,
+    "wall_seconds": 2.441757349995896,
+    "environment": {
+      "UV_CACHE_DIR": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "absent"
+    },
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/build-rebuilt-sdist-wheel.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/build-rebuilt-sdist-wheel.stderr.txt",
+      "bytes": 157,
+      "sha256": "683a6a4e2af71330770a9200fd4d51d99f9793dc53adc106a7779fe1e2352497"
+    }
+  },
+  {
+    "name": "wheel-create-env",
+    "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+    "argv": [
+      "uv",
+      "venv",
+      "--python",
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final",
+    "exit_code": 0,
+    "wall_seconds": 0.010182027996052057,
+    "environment": {
+      "UV_CACHE_DIR": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "absent"
+    },
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-create-env.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-create-env.stderr.txt",
+      "bytes": 191,
+      "sha256": "cbd98d3d14f46acad73704f80af24471300b321357ddecdc9469c841b88bfd67"
+    }
+  },
+  {
+    "name": "wheel-install",
+    "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+    "argv": [
+      "uv",
+      "pip",
+      "install",
+      "--python",
+      "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/bin/python",
+      "--no-deps",
+      "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-source/policy_engine-0.1.0-py3-none-any.whl"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final",
+    "exit_code": 0,
+    "wall_seconds": 0.1820421149895992,
+    "environment": {
+      "UV_CACHE_DIR": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "absent"
+    },
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-install.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-install.stderr.txt",
+      "bytes": 285,
+      "sha256": "6ba89c4d812327a18555bd38d27ea868d6ffb3c514eee8c3e67322315df08c38"
+    }
+  },
+  {
+    "name": "wheel-dependency-site",
+    "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/lib/python3.14/site-packages/e02_readonly_dependencies.pth",
+    "content": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages\n",
+    "scope": "One literal dependency directory only; no product .pth, editable install or source path."
+  },
+  {
+    "name": "sdist-create-env",
+    "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+    "argv": [
+      "uv",
+      "venv",
+      "--python",
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final",
+    "exit_code": 0,
+    "wall_seconds": 0.008940436993725598,
+    "environment": {
+      "UV_CACHE_DIR": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "absent"
+    },
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-create-env.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-create-env.stderr.txt",
+      "bytes": 191,
+      "sha256": "b78259ae23113bf944a234fa407efc5c269a1c95d4a4a0521418dda0dfce1b98"
+    }
+  },
+  {
+    "name": "sdist-install",
+    "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+    "argv": [
+      "uv",
+      "pip",
+      "install",
+      "--python",
+      "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/bin/python",
+      "--no-deps",
+      "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-rebuilt/policy_engine-0.1.0-py3-none-any.whl"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final",
+    "exit_code": 0,
+    "wall_seconds": 0.17862826900091022,
+    "environment": {
+      "UV_CACHE_DIR": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "absent"
+    },
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-install.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-install.stderr.txt",
+      "bytes": 286,
+      "sha256": "93743f361bb0d5dc4b36c85c19c8accf0a580f319d5c9ab13803c61b277f63f1"
+    }
+  },
+  {
+    "name": "sdist-dependency-site",
+    "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/lib/python3.14/site-packages/e02_readonly_dependencies.pth",
+    "content": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages\n",
+    "scope": "One literal dependency directory only; no product .pth, editable install or source path."
+  },
+  {
+    "name": "wheel-archive",
+    "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-source/policy_engine-0.1.0-py3-none-any.whl",
+    "bytes": 15118848,
+    "sha256": "9e9935e7f27fc0abeed5153b1791f3f34cafa4f77555a85bfae8f49d3bc8e6b4"
+  },
+  {
+    "name": "sdist-archive",
+    "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-source/policy_engine-0.1.0.tar.gz",
+    "bytes": 119168300,
+    "sha256": "b76e7b2dd704f55c83268bae2c889a2bc8b4e821f236db3d3f7109fd07c756e4"
+  },
+  {
+    "name": "rebuilt_wheel-archive",
+    "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-rebuilt/policy_engine-0.1.0-py3-none-any.whl",
+    "bytes": 15118848,
+    "sha256": "9e9935e7f27fc0abeed5153b1791f3f34cafa4f77555a85bfae8f49d3bc8e6b4"
+  }
+]

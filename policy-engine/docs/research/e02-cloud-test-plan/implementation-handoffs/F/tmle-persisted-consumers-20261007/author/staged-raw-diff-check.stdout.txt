@@ -1,0 +1,2 @@
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment-corrected.stdout.txt:24: new blank line at EOF.
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/probe.stderr.txt:2: new blank line at EOF.

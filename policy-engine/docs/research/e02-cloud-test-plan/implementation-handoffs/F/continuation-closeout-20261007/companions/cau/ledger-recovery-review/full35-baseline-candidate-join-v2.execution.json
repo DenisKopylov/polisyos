@@ -1,0 +1,34 @@
+{
+  "command": [
+    "python3",
+    "join_full35.py"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review",
+  "exit": 0,
+  "elapsed_s": 1.7397122383117676,
+  "environment": {
+    "python": "3.12.14",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "purpose": "stdlib immutable Git metadata verification only"
+  },
+  "target": {
+    "sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+    "tree": "d24808dc3eeed4881256f2a70cdeb02357c425c7"
+  },
+  "capture_replayer": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/capture_metadata_check.py",
+    "bytes": 1628,
+    "sha256": "0eb3653d46c5587432f882ca1ef8d6c6e91102e0d50e081a11512cd2a1864a11"
+  },
+  "scope_guard": "All deciding reads immutable target Gitshow; no repo writes",
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/full35-baseline-candidate-join-v2.stdout",
+    "bytes": 626,
+    "sha256": "dbbdb61af57225b59cb7577a0dcf8af637c4b5baf26ce0ceeb50807854556f62"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/full35-baseline-candidate-join-v2.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

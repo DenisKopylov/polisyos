@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="18" time="37.356" timestamp="2026-10-06T16:07:14.516596+00:00" hostname="6d6fd139922b"><testcase classname="tests.unit.foundry.agent_sim.test_training_dtype" name="test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[plain-float32-float32-False]" time="4.406" /><testcase classname="tests.unit.foundry.agent_sim.test_training_dtype" name="test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[plain-float32-float32-True]" time="4.288" /><testcase classname="tests.unit.foundry.agent_sim.test_training_dtype" name="test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[plain-float32-float64-True]" time="2.213" /><testcase classname="tests.unit.foundry.agent_sim.test_training_dtype" name="test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[plain-float64-float32-True]" time="1.787" /><testcase classname="tests.unit.foundry.agent_sim.test_training_dtype" name="test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[plain-float64-float64-True]" time="2.070" /><testcase classname="tests.unit.foundry.agent_sim.test_training_dtype" name="test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[plain-mixed-float32-True]" time="1.902" /><testcase classname="tests.unit.foundry.agent_sim.test_training_dtype" name="test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[plain-mixed-float64-True]" time="2.865" /><testcase classname="tests.unit.foundry.agent_sim.test_training_dtype" name="test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[metrics-float32-float32-False]" time="4.352" /><testcase classname="tests.unit.foundry.agent_sim.test_training_dtype" name="test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[metrics-float32-float32-True]" time="3.936" /><testcase classname="tests.unit.foundry.agent_sim.test_training_dtype" name="test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[metrics-float32-float64-True]" time="0.565"><failure message="FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.&#10;--------------------&#10;For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.">tests/unit/foundry/agent_sim/test_training_dtype.py:77: in test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters
+    result = trainer(jax.random.PRNGKey(19))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/jit_training.py:557: in trainer
+    final_params, losses, final_buffer, final_step_counter = _trainer_jit(rng_key)
+                                                             ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/jit_training.py:554: in _trainer_jit
+    return _train_loop_with_metrics(rng_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/jit_training.py:538: in _train_loop_with_metrics
+    final_carry, losses = jax.lax.scan(
+src/polisyos/foundry/agent_sim/jit_training.py:517: in episode_step
+    new_buffer, new_step_counter = jax.lax.cond(
+src/polisyos/foundry/agent_sim/jit_training.py:509: in _collect_and_record
+    buffer, step_counter = _collect_metrics_buffer(
+src/polisyos/foundry/agent_sim/jit_training.py:470: in _collect_metrics_buffer
+    buffer = jax.lax.cond(should_collect, _collect, lambda b: b, buffer)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/jit_training.py:467: in _collect
+    return buf.write_histogram_at(defn.name, value, bins, idx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/metrics.py:94: in write_histogram_at
+    k: (v.at[idx].set(hist.astype(v.dtype)) if k == name else v)
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/numpy/array_methods.py:859: in set
+    return scatter._scatter_update(
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:88: in _scatter_update
+    return internal_scatter(x, y, tuple(dynamic_idx))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: in _scatter_impl
+    warnings.warn(
+E   FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.</failure></testcase><testcase classname="tests.unit.foundry.agent_sim.test_training_dtype" name="test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[metrics-float64-float32-True]" time="3.455" /><testcase classname="tests.unit.foundry.agent_sim.test_training_dtype" name="test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[metrics-float64-float64-True]" time="0.592"><failure message="FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.&#10;--------------------&#10;For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.">tests/unit/foundry/agent_sim/test_training_dtype.py:77: in test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters
+    result = trainer(jax.random.PRNGKey(19))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/jit_training.py:557: in trainer
+    final_params, losses, final_buffer, final_step_counter = _trainer_jit(rng_key)
+                                                             ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/jit_training.py:554: in _trainer_jit
+    return _train_loop_with_metrics(rng_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/jit_training.py:538: in _train_loop_with_metrics
+    final_carry, losses = jax.lax.scan(
+src/polisyos/foundry/agent_sim/jit_training.py:517: in episode_step
+    new_buffer, new_step_counter = jax.lax.cond(
+src/polisyos/foundry/agent_sim/jit_training.py:509: in _collect_and_record
+    buffer, step_counter = _collect_metrics_buffer(
+src/polisyos/foundry/agent_sim/jit_training.py:470: in _collect_metrics_buffer
+    buffer = jax.lax.cond(should_collect, _collect, lambda b: b, buffer)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/jit_training.py:467: in _collect
+    return buf.write_histogram_at(defn.name, value, bins, idx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/metrics.py:94: in write_histogram_at
+    k: (v.at[idx].set(hist.astype(v.dtype)) if k == name else v)
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/numpy/array_methods.py:859: in set
+    return scatter._scatter_update(
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:88: in _scatter_update
+    return internal_scatter(x, y, tuple(dynamic_idx))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: in _scatter_impl
+    warnings.warn(
+E   FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.</failure></testcase><testcase classname="tests.unit.foundry.agent_sim.test_training_dtype" name="test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[metrics-mixed-float32-True]" time="3.624" /><testcase classname="tests.unit.foundry.agent_sim.test_training_dtype" name="test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters[metrics-mixed-float64-True]" time="0.485"><failure message="FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.&#10;--------------------&#10;For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.">tests/unit/foundry/agent_sim/test_training_dtype.py:77: in test_real_plain_and_metric_trainer_promotes_loss_carry_and_preserves_parameters
+    result = trainer(jax.random.PRNGKey(19))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/jit_training.py:557: in trainer
+    final_params, losses, final_buffer, final_step_counter = _trainer_jit(rng_key)
+                                                             ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/jit_training.py:554: in _trainer_jit
+    return _train_loop_with_metrics(rng_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/jit_training.py:538: in _train_loop_with_metrics
+    final_carry, losses = jax.lax.scan(
+src/polisyos/foundry/agent_sim/jit_training.py:517: in episode_step
+    new_buffer, new_step_counter = jax.lax.cond(
+src/polisyos/foundry/agent_sim/jit_training.py:509: in _collect_and_record
+    buffer, step_counter = _collect_metrics_buffer(
+src/polisyos/foundry/agent_sim/jit_training.py:470: in _collect_metrics_buffer
+    buffer = jax.lax.cond(should_collect, _collect, lambda b: b, buffer)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/jit_training.py:467: in _collect
+    return buf.write_histogram_at(defn.name, value, bins, idx)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/metrics.py:94: in write_histogram_at
+    k: (v.at[idx].set(hist.astype(v.dtype)) if k == name else v)
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/numpy/array_methods.py:859: in set
+    return scatter._scatter_update(
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:88: in _scatter_update
+    return internal_scatter(x, y, tuple(dynamic_idx))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/ops/scatter.py:104: in _scatter_impl
+    warnings.warn(
+E   FutureWarning: scatter inputs have incompatible types: cannot safely cast value from dtype=float64 to dtype=float32 with jax_numpy_dtype_promotion=standard. In future JAX releases this will result in an error.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.</failure></testcase><testcase classname="tests.unit.foundry.agent_sim.test_training_dtype" name="test_metric_scalar_storage_explicitly_encodes_destination_dtype[eager-float32]" time="0.276" /><testcase classname="tests.unit.foundry.agent_sim.test_training_dtype" name="test_metric_scalar_storage_explicitly_encodes_destination_dtype[eager-float64]" time="0.091" /><testcase classname="tests.unit.foundry.agent_sim.test_training_dtype" name="test_metric_scalar_storage_explicitly_encodes_destination_dtype[jit-float32]" time="0.037" /><testcase classname="tests.unit.foundry.agent_sim.test_training_dtype" name="test_metric_scalar_storage_explicitly_encodes_destination_dtype[jit-float64]" time="0.024" /></testsuite></testsuites>

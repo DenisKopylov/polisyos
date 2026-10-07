@@ -1,0 +1,47 @@
+{
+  "source_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "source_tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+  "check": "PASS",
+  "worker_author_profile": "e5895da2ebbb5f6108e398d78258b973dbdc7b68",
+  "unchanged_complete_assets": [
+    {
+      "path": "policy-engine/workers/dowhy-014/worker.py",
+      "bytes": 10652,
+      "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/protocol.py",
+      "bytes": 4704,
+      "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/uv.lock",
+      "bytes": 98340,
+      "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/pyproject.toml",
+      "bytes": 379,
+      "sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/.python-version",
+      "bytes": 5,
+      "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d"
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/tests/test_worker.py",
+      "bytes": 10899,
+      "sha256": "cd0e9f0547e711c0d5763e91d9ea04e0a9424ec81f52d829b3dc5cff094aca46"
+    }
+  ],
+  "helper_author_commit": "f6e80c4cb812f2e561791df9d323ebfbe40f7dd9",
+  "helper": {
+    "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+    "bytes": 16599,
+    "sha256": "582ad243fec5406d577154b7bc1f97e03664cf01843e1fa6f23c3ea28746db56"
+  },
+  "scope": "complete actual worker/protocol/lock/math/test profile identity; parent report projection dependency is separately checked, README docs changed without numeric authority"
+}

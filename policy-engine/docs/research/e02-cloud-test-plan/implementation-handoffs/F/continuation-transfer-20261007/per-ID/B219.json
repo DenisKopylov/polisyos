@@ -1,0 +1,216 @@
+{
+  "finding_id": "B219",
+  "primary_owner_from_full_TSV": {
+    "finding_id": "B219",
+    "unit": "F",
+    "docx_analytical_package": "P34",
+    "source_closure_owner": "GRF-02",
+    "source_bundle_ids": "GRF-02",
+    "source_status": "held"
+  },
+  "bundle_owner_from_full_TSV": {
+    "bundle_id": "GRF-02",
+    "unit": "F",
+    "initial_writer_family": "F-W06",
+    "title": "Неизменяемый граф, mixed-edge export и версии кэша"
+  },
+  "original_card_refs": [
+    {
+      "criterion_id": "B219",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        5375,
+        5388
+      ],
+      "bytes": 3117,
+      "sha256": "c3c2613bd397c8dd5d252ccb15562a6aa2f4bee46e36fa86eff1b12bf7c30009",
+      "title": "## B219. Простое DiGraph-представление перезаписывает параллельные причинные отношения",
+      "byte_binding_check": "PASS"
+    }
+  ],
+  "original_text": "## B219. Простое DiGraph-представление перезаписывает параллельные причинные отношения\n\n**Происхождение и приоритет:** C21-04. Условно высокий на границе, обещающей полный каузальный граф. Основание: `CausalGraphModel.to_networkx`. [C21.R01]\n\n**Проблема.** Адаптер создаёт `networkx.DiGraph`, где одна упорядоченная пара вершин имеет одну запись атрибутов. Но исходный IR может хранить одновременно направленное воздействие X→Y и bidirected-связь X↔Y, а также несколько лагов. Последний `add_edge` заменяет атрибуты предыдущего отношения.\n\n**EDGE01–EDGE02.** Два исходных отношения X→Y и X↔Y дают одно ребро. Перестановка записей меняет surviving `mark_src` между tail и arrow. Два лаговых ребра также сокращаются до одного. Контрольный `MultiDiGraph` с полной идентичностью рёбер сохраняет оба. Поддержка parallel edges является явным свойством этого контейнера. [C21.E04]\n\n**Исправление.** Выбрать представление по назначению: отдельные directed/bidirected adjacency либо типизированный mixed-edge graph; для транспорта допустим MultiDiGraph с ключом, включающим тип концов и lag. Полные сведения о свидетельствах остаются прикреплёнными к правильному ребру. Простой DiGraph может сохраняться как явно ограниченная проекция для задач, которым она действительно достаточна.\n\nВажно: MultiDiGraph ремонтирует хранение, но сам по себе не делает обычный directed-path алгоритм каузальным. Потребитель должен интерпретировать метки и временную структуру. Нельзя заменять bidirected-связь двумя произвольными причинными стрелками.\n\n**Положительная граница.** Нативный `CachedAdjacency` уже хранит directed- и bidirected-множества раздельно. Не заявляется, что весь ID-engine проходит через NetworkX или теряет эту пару. Rustworkx/Kuzu не исполнялись. Приёмка — round-trip и неизменность результата при перестановке edges, отдельно для каждого реально используемого backend и класса графа.\n\n",
+  "primary_acceptance_scope": "Actual native MultiDiGraph export retains every parallel edge identity/mark/lag/evidence/payload under order changes; no live Kuzu inference.",
+  "source_chain": {
+    "producer": "CausalGraphModel immutable topology/model_copy/export",
+    "artifact": "detached row preparations and complete parallel edge records",
+    "bridge": "native NetworkX3.6.1 / schema1.0 CAS",
+    "consumer": "fresh graph reader, ancestors/export/cache readers"
+  },
+  "actual_recorded_consumer": "CausalGraphModel.to_networkx → NetworkX3.6.1 MultiDiGraph → CAS/fresh reader",
+  "surface": "CausalGraphModel typed graph and internal immutable cache/export provider; actual NetworkX/CSV/CAS reader values",
+  "deciding_receipt_refs": [
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+      "bytes": 150139,
+      "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+      "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B219"
+      ]
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+      "bytes": 150139,
+      "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+      "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B219"
+      ],
+      "json_pointer": "/per_id/5"
+    },
+    {
+      "git_ref": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+      "bytes": 60843,
+      "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8",
+      "git_blob": "0ebf3b625085f6521f7430b3d919e8e11848fc21",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B219"
+      ]
+    }
+  ],
+  "deciding_per_ID_carrier_ref": {
+    "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B219.json",
+    "bytes": 29456,
+    "sha256": "28794897fdce223e1def341971ebeafca087c9f5f664bf6d436e6cfc37e3cf37",
+    "git_blob": "488a9a2ae481e891b2b3649081193e1964089105"
+  },
+  "scientific_implementation": {
+    "sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+    "tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+    "not_receipt_carrier": true
+  },
+  "recorded_independent_oracle_and_negative": "Fullpayload120 permutations/60unique; DiGraph substitution retains markers but edge multiset FAIL",
+  "complete_raw_receipt_checks_refs": [
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/0",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/1",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/2",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/3",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/4",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/5",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/6",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/7",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/8",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/9",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/10",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/11",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/12",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/13",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/14",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/15",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/16",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/17",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/18",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/19",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/20",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/21",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/22",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/23",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/24",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/25",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/26",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/27",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/28",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/29",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/30",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/31",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/32",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/33",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/34",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/35",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/36",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/0",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/1",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/2",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/3",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/4",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/5",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/6",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/7",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/8",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/9",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/10",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/11",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/12",
+    "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json#/checks/13"
+  ],
+  "historical_ROOT072": {
+    "check": "PASS",
+    "outcome": "closed",
+    "technical_original_criterion_recommendation": "closed",
+    "current_continuation_outcome_recommendation": "closed",
+    "original_criterion_remainder": "None for actual native NetworkX export profile.",
+    "actual_consumer": "CausalGraphModel.to_networkx → NetworkX3.6.1 MultiDiGraph → CAS/fresh reader",
+    "oracle_and_negative": "Fullpayload120 permutations/60unique; DiGraph substitution retains markers but edge multiset FAIL",
+    "separate_unavailable_inputs_or_authority": "Live Kuzu/Rustworkx transports not run, not implied."
+  },
+  "independent_original_criterion_recommendation": {
+    "check": "PASS",
+    "outcome": "closed",
+    "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+    "scientific_rerun": false,
+    "review_scope": "independent criterion/evidence reconciliation; not an independently rerun estimator measurement",
+    "missing_actual_original_criterion": null,
+    "new_owner_review_pending": false,
+    "not_formal_G_closure": true
+  },
+  "separate_unavailable_inputs_or_authority": "Live Kuzu/Rustworkx transports not run, not implied.",
+  "existing_author_or_reviewer_conflict": null,
+  "current_20261007_supplemental_review_refs": [
+    {
+      "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007.json",
+      "bytes": 53396,
+      "sha256": "67d54b44a65b303621ccbaed4b56d34bb43a1e210556292e21614967864b89e2",
+      "git_blob": "41eb49e017d64686c2e70cfe932d66720c7d5f44"
+    },
+    {
+      "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/independent-cau/independent-review.json",
+      "bytes": 9464,
+      "sha256": "2aed54bf598618110f073923d27fb2560301299db963bb2ba8460003d8b7b93b",
+      "git_blob": "9db18c93289f9f8fb0b8ca5a5b2137051cb490a1",
+      "material_role": "Complete independent final6f test-carrier review of installed8236 runtime; initial7f observer failure retained"
+    }
+  ],
+  "schema": "e02.F.original-finding.v3",
+  "primary_bundle": "GRF-02",
+  "criterion_short": "Actual native MultiDiGraph export retains every parallel edge identity/mark/lag/evidence/payload under order changes; no live Kuzu inference.",
+  "check_result": "PASS",
+  "F_finding_outcome": "closed",
+  "F_technical_recommendation": "closed",
+  "F_rationale": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+  "code_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+  "code_tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+  "consumer": "CausalGraphModel.to_networkx → NetworkX3.6.1 MultiDiGraph → CAS/fresh reader",
+  "oracle_and_negative": "Fullpayload120 permutations/60unique; DiGraph substitution retains markers but edge multiset FAIL",
+  "G_finding_acceptance": {
+    "status": "not_issued",
+    "formal_G_closed": false
+  },
+  "G_code_acceptance": {
+    "status": "not_inferred",
+    "source_sha": null,
+    "basis": "Independent F GO/code-ready is not G code acceptance"
+  },
+  "original_missing_input": null,
+  "original_next_owner": null,
+  "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+  "root_assembled_source": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "not_new_numerical_proof": true
+  },
+  "new_property_followups_not_automatically_original_reopen": []
+}

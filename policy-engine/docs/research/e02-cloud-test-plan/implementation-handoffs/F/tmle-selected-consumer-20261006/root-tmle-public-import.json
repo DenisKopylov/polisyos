@@ -1,0 +1,11 @@
+{
+  "source_sha": "12dce5675edfd345663591fd3219f2f8ea5e4fc2",
+  "source_tree": "264d51adc56f21b1113a1065093b6553802a1cc5",
+  "old_reviewed_source": "d09e2b546f5ccf2ed1c297e9578661358270f92b",
+  "native_public_identity": true,
+  "all_function_class_AST_equal": true,
+  "old_sha256": "4593ac298f517153f63e98539c2e9853baf1adab7c23f0238f1910b6a581d0e9",
+  "new_sha256": "5f87ad9bd88f8f6209b860bff5f19055492866657c3663e74d367b330f7c2069",
+  "check": "PASS",
+  "scope": "Import-only canonical facade migration; actualfinalinstalledNode replay separate."
+}

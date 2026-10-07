@@ -1,0 +1,348 @@
+{
+  "schema": "policyos.e02.independent_transport_helper_review.v1",
+  "unit": "F",
+  "slice": "root-final-transport-v5-independent",
+  "reviewer": "causal_api",
+  "outcome": "PASS",
+  "capability_state": "GO bounded V5 explicit row-list/codec custody delta; no scientific finding closure",
+  "closure_ids": [],
+  "source_files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "bytes": 17081,
+      "sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "bytes": 11741,
+      "sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "bytes": 1375,
+      "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py.full.diff",
+      "bytes": 5726,
+      "sha256": "5417458b15e7e1185e7888532242b201a0b4171497db2d8ece23fdcf003a4660"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py.full.diff",
+      "bytes": 4500,
+      "sha256": "9cc0773fb98ef8f67bf4122537dfb772ba8680750fe9464340c7d34fe8442649"
+    }
+  ],
+  "frozen_previous_v4_NO_GO": {
+    "review": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/review.json",
+      "bytes": 7988,
+      "sha256": "c843fc0c9c48dc31911bf17eed1173e4777dff19b90fcb349871792a216ad67e"
+    },
+    "transfer_selection": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v4-independent/transfer-selection.json",
+      "bytes": 19009,
+      "sha256": "a2f86e70676dfb0e1a9e6710312435b5a2e38e23ee0b26992f4371cd0d72f821"
+    },
+    "actual_escape": "Codec-only metadata with false decoded identity was admitted as identity; historical FAIL stays immutable. Different stored gzip headers were deduplicated by decoded identity, an explicitly unresolved custody basis then.",
+    "V5_resolution": "Explicit codec/encoding refusal and stored+decoded dedup/alias/Git matching now execute on tiny controls."
+  },
+  "repository_read_only_identity": {
+    "path": "/workspace/e02-F-api-20261006",
+    "head": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+    "tree": "c7c71a12bc04238dce414455a06849a9f49a824f",
+    "tracked_clean": true,
+    "final_source_used_by_fixture": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "meaning": "Fixture source_window is an existing immutable Git source; it is not a new production or authority acceptance."
+  },
+  "environment": {
+    "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "python_version": "Python 3.14.7",
+    "PYTHONPATH": "absent",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "stdlib_only": true
+  },
+  "checks": [
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python probe_v5.py",
+      "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/probe.stdout.txt",
+      "complete_execution_records": {
+        "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/executions.json",
+        "bytes": 56519,
+        "sha256": "97d4de9fd281674e11d9386f3cb726dc2332ecd837159d66bae3d28f010dfae4"
+      },
+      "actual_deciding_controls": 27,
+      "actual_helper_commands": 36,
+      "source_guard": {
+        "refresh_selection_v5.py": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d",
+        "publish_transport_v5.py": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2",
+        "transport_text_policy.py": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+      }
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python git_binding_probe.py",
+      "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-probe.stdout.txt",
+      "complete_execution_records": {
+        "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/executions.json",
+        "bytes": 4401,
+        "sha256": "b73a75f2a4cb2e0c56152ee4fae8d0b1c998b2e790289b3dc44fe8fdce00c816"
+      },
+      "actual_deciding_properties": 2,
+      "actual_commands": 3
+    },
+    {
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python owner_metadata_probe.py",
+      "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/owner-metadata.stdout.json",
+      "scope": "Complete metadata hashes/schema/row denominator; selected large bodies not read/retested."
+    }
+  ],
+  "predicate_basis": "recomputed",
+  "input_closure": {
+    "tiny_payload_bytes": 15,
+    "payload_bytes_literal_repr": "b'alpha  \\r\\nbeta\\n\\n'",
+    "three_gzip_inputs": "A/C identical stored gzip; B different timestamp header, equal decoded payload; A/C valid alias, B separate custody object.",
+    "actual_published_small_gzip": {
+      "outcome": "PASS",
+      "cases": 2,
+      "actual_Git_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "observed_remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+      "actual_Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/app-python-version.stdout.txt.gz",
+      "actual_stored_binding": {
+        "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/actual-git.gz",
+        "bytes": 90,
+        "sha256": "8aea3a1349f69e9136bbff2779f1c3dadb8d36f1c9ff1d37260691c2901d4361"
+      },
+      "actual_decoded_binding": {
+        "bytes": 73,
+        "sha256": "f125cbeb0fcd08cedb1a6e2e96c3ec724f526541693418e6c71ee3b7366dd8e9"
+      },
+      "exact_stored_body_matches_existing_Git": true,
+      "same_decoded_different_stored_body_not_false_existing_Git": true,
+      "all_helper_source_hashes": {
+        "refresh_selection_v5.py": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d",
+        "publish_transport_v5.py": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2"
+      },
+      "science_tests_run": false
+    },
+    "actual_owner_selection_metadata": [
+      {
+        "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/transfer-selection.json",
+        "bytes": 13972,
+        "sha256": "664e03368ab39b6a28206906af574d557d69c125195e5f6d21df9807779cd1b2",
+        "schema": "files",
+        "rows": 42,
+        "encodings": {
+          "identity": 36,
+          "gzip": 6
+        }
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/transfer-selection-final.json",
+        "bytes": 17608,
+        "sha256": "65409d69d6fdfd29a101b4b66aee5ca2ab3fdd34e837ac02689248ffa2dd2716",
+        "schema": "selection",
+        "rows": 73,
+        "encodings": {
+          "identity": 73
+        }
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/final-review-transfer-selection.json",
+        "bytes": 164923,
+        "sha256": "58885bdbb9bd1c366dedf1b1cce0695e4505ee3f07f6e53bbc9405a09d747ee7",
+        "schema": "items",
+        "rows": 563,
+        "encodings": {
+          "identity": 561,
+          "gzip-lossless": 2
+        }
+      }
+    ]
+  },
+  "results": [
+    {
+      "case": "valid-files-gzip",
+      "outcome": "PASS",
+      "full_stored_and_decoded_exact": true,
+      "stored_domain_and_binding_retained": true
+    },
+    {
+      "case": "valid-files-gzip-lossless",
+      "outcome": "PASS",
+      "full_stored_and_decoded_exact": true,
+      "stored_domain_and_binding_retained": true
+    },
+    {
+      "case": "valid-items-gzip",
+      "outcome": "PASS",
+      "full_stored_and_decoded_exact": true,
+      "stored_domain_and_binding_retained": true
+    },
+    {
+      "case": "valid-items-gzip-lossless",
+      "outcome": "PASS",
+      "full_stored_and_decoded_exact": true,
+      "stored_domain_and_binding_retained": true
+    },
+    {
+      "case": "valid-selection-gzip",
+      "outcome": "PASS",
+      "full_stored_and_decoded_exact": true,
+      "stored_domain_and_binding_retained": true
+    },
+    {
+      "case": "valid-selection-gzip-lossless",
+      "outcome": "PASS",
+      "full_stored_and_decoded_exact": true,
+      "stored_domain_and_binding_retained": true
+    },
+    {
+      "case": "bad-stored-sha",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "bad-stored-size",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "bad-decoded-sha",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "bad-decoded-size",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "missing-decoded-identity",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "unknown-encoding",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "unknown-codec",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "contradictory-codec",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "codec-only-wrong-decoded",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "codec-only-correct-decoded",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "ambiguous",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "identity-false-decoded",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "identity-incomplete-decoded",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "identity-valid-decoded",
+      "outcome": "PASS",
+      "whitespace_and_CRLF_not_normalized": true
+    },
+    {
+      "case": "different-stored-same-decoded",
+      "outcome": "PASS",
+      "both_distinct_containers_exactly_transportable": true,
+      "count_scope_explicit_per_custody_object": true
+    },
+    {
+      "case": "identical-stored-and-decoded",
+      "outcome": "PASS",
+      "valid_alias_full_both_domain_binding_retained": true,
+      "one_stored_object_for_identical_inputs": true
+    },
+    {
+      "case": "forged-decoded-only-alias",
+      "outcome": "PASS",
+      "forged_stored_basis_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "forged-input-binding",
+      "outcome": "PASS",
+      "forged_stored_basis_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "stripped-alias-binding",
+      "outcome": "PASS",
+      "unbound_alias_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "future-git-refusal",
+      "outcome": "PASS",
+      "unknown_Git_ref_refused": true
+    },
+    {
+      "case": "recursive-output",
+      "outcome": "PASS",
+      "self_output_refused_without_overwrite": true
+    }
+  ],
+  "properties": {
+    "supported_inputs": "Exactly one row list files/items/selection. Explicit identity, gzip and gzip-lossless. A codec field must be supported, explicit and compatible with encoding.",
+    "stored_and_decoded_domains": "Actual file bytes bind original stored input. Full decompression binds decoded bytes. Precompressed bytes are copied exactly, never recompressed/double-gzipped/normalized.",
+    "aliases": "Only identical decoded AND original stored quantity aliases; manifest retains input_encoding/input_binding. Different stored gzip containers survive separately. Forged or stripped alias basis rejects.",
+    "Git_matching": "Actual existing published Git quantity is stored input for precompressed originals, not decoded bytes; same decoded/different container cannot reuse unrelated stored Git body.",
+    "counts": "Transported decoded bytes counted per distinct stored custody object; aliases excluded. Manifest explicitly does not claim decoded payload distinctness.",
+    "self_and_future": "Current output is never its own input; unknown future Git ref rejects. Selection input hashed only in publisher output manifest."
+  },
+  "source_review_scope": {
+    "full_scripts_and_small_diffs_read": true,
+    "old_manifest_seed_current_final_use": "This delta review uses empty tiny seed/prior to isolate codec/schema/alias/Git corrections; existing V3 prior retention/source reachability mechanisms are read but no broad end-to-end owner pack reexecution claimed.",
+    "producer_author_and_independent_reviewer_distinct": true
+  },
+  "limitations_and_next_owner": [
+    "No product/source/Git/site/environment mutation; all writes are unique independent scratch artifacts.",
+    "No 171MB payload or full Graph/Econ/CAU selected bodies duplicated/read; complete owner metadata denominator only. ROOT final materialization must verify actual full body/stored/decoded bindings before publication.",
+    "No scientific tests/backend/authority/finding closure. Production authority remains UNRUN and canonical static 38 UNKNOWN/FAIL scope unchanged.",
+    "No future self/Git identity minted. Review is scratch-bound to exact V5 helper bytes; ROOT/Foundry must transport full deciding outputs and preserve frozen V4 NO-GO."
+  ]
+}

@@ -268,14 +268,11 @@ class CausalQuery(BaseModel):
             target_intervention = self.contrast.target
             if self.intervention_spec is not None and self.intervention_spec != target_intervention:
                 raise ValueError("intervention_spec conflicts with the explicit attribution target")
-            if (
-                self.treatment_value is not None
-                and (
-                    target_intervention.type is not InterventionType.ATOMIC
-                    or target_intervention.value is None
-                    or not math.isclose(
-                        float(self.treatment_value), float(target_intervention.value), rel_tol=0.0
-                    )
+            if self.treatment_value is not None and (
+                target_intervention.type is not InterventionType.ATOMIC
+                or target_intervention.value is None
+                or not math.isclose(
+                    float(self.treatment_value), float(target_intervention.value), rel_tol=0.0
                 )
             ):
                 raise ValueError("treatment_value must match the attribution target intervention")
@@ -299,18 +296,138 @@ class CausalQuery(BaseModel):
     def effective_treatment_value(self) -> float | None:
         if self.intervention_spec is not None and self.intervention_spec.value is not None:
             return float(self.intervention_spec.value)
-        if (
-            self.contrast is not None
-            and self.contrast.target.value is not None
-        ):
+        if self.contrast is not None and self.contrast.target.value is not None:
             return float(self.contrast.target.value)
         if self.treatment_value is not None:
             return float(self.treatment_value)
         return None
 
 
-_CAUSAL_QUERY_RESULT_SCHEMA_VERSION = "1.1"
+_CAUSAL_QUERY_RESULT_SCHEMA_VERSION = "1.2"
 _LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION = "1.0"
+
+
+class CausalResultKind(str, Enum):
+    """Meaning of draws from a fixed SCM, distinct from estimator sampling."""
+
+    OUTCOME_DISTRIBUTION = "outcome_distribution"
+    ITE_DISTRIBUTION = "ite_distribution"
+    POSTERIOR_CREDIBLE_INTERVAL = "posterior_credible_interval"
+
+
+class CausalEstimatorInterval(BaseModel):
+    """An iid-unit bootstrap interval from refitted replicate estimators.
+
+    The record describes sampling inference under its declared iid/model scope.
+    Source custody, graph identification and domain authority remain separate.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    result_kind: Literal["estimator_confidence_interval"] = "estimator_confidence_interval"
+    method: Literal["iid_unit_refit_bootstrap"] = "iid_unit_refit_bootstrap"
+    resampling_unit: Literal["iid_observation_row"] = "iid_observation_row"
+    confidence_level: float = Field(default=0.95, gt=0.0, lt=1.0)
+    point_estimate: float
+    interval: tuple[float, float]
+    source_artifact_id: str = Field(min_length=1)
+    source_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    data_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    row_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    graph_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    resample_indices_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    target_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    n_units: int = Field(ge=2, strict=True)
+    replicate_count: int = Field(ge=2, strict=True)
+    seed: int = Field(strict=True)
+    refit_scope: tuple[str, ...] = Field(min_length=1)
+    fit_profile: str = Field(min_length=1)
+    fit_request_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    refit_worker_response: dict[str, Any]
+    replicate_estimates: tuple[float, ...]
+    coverage_profile: Literal["approximate_iid_percentile_fixed_identified_graph"] = (
+        "approximate_iid_percentile_fixed_identified_graph"
+    )
+
+    @field_validator("point_estimate", "confidence_level", mode="before")
+    @classmethod
+    def _require_numeric_scalar(cls, value: Any) -> Any:
+        if type(value) not in {float, int}:
+            raise ValueError("estimator inference requires finite JSON number primitives")
+        return value
+
+    @field_validator("interval", "replicate_estimates", mode="before")
+    @classmethod
+    def _require_numeric_vector(cls, value: Any) -> Any:
+        if not isinstance(value, (list, tuple)) or any(
+            type(item) not in {float, int} for item in value
+        ):
+            raise ValueError("estimator inference requires arrays of finite JSON number primitives")
+        return value
+
+    @model_validator(mode="after")
+    def _validate_replicates(self) -> CausalEstimatorInterval:
+        values = (self.point_estimate, *self.interval, *self.replicate_estimates)
+        if not all(math.isfinite(value) for value in values):
+            raise ValueError("estimator interval and replicate estimates must be finite")
+        if len(self.replicate_estimates) != self.replicate_count:
+            raise ValueError("replicate count must match refitted estimator count")
+        if self.interval[0] > self.interval[1]:
+            raise ValueError("estimator interval bounds must be ordered")
+        if not self.interval[0] <= self.point_estimate <= self.interval[1]:
+            raise ValueError("estimator interval must contain its point estimate")
+        return self
+
+    def to_uncertainty_envelope(self) -> UncertaintyEnvelope:
+        """Project estimator inference without admitting domain authority."""
+        return UncertaintyEnvelope(
+            point_estimate=self.point_estimate,
+            confidence_interval=self.interval,
+            confidence_level=self.confidence_level,
+            distribution_family=DistributionFamily.BOOTSTRAP,
+            source=UncertaintySource.CAUSAL,
+            propagation_method=PropagationMethod.MONTE_CARLO,
+            interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
+            sample_size=self.n_units,
+            gate_eligible=False,
+            metadata={
+                **self.model_dump(mode="json", exclude={"refit_worker_response"}),
+                "authority_limitation": "iid law and causal graph require separate admission",
+            },
+        )
+
+
+def _causal_distribution_envelope(
+    *,
+    kind: CausalResultKind,
+    point: float,
+    bounds: tuple[float, float],
+    n_samples: int | None,
+    level: float,
+    metadata: dict[str, Any],
+) -> UncertaintyEnvelope:
+    """Use the current shared IR conservatively for fixed-model distributions."""
+    posterior = kind is CausalResultKind.POSTERIOR_CREDIBLE_INTERVAL
+    return UncertaintyEnvelope(
+        point_estimate=point,
+        confidence_interval=bounds,
+        confidence_level=level if posterior else None,
+        distribution_family=DistributionFamily.BAYESIAN
+        if posterior
+        else DistributionFamily.UNKNOWN,
+        source=UncertaintySource.CAUSAL,
+        propagation_method=PropagationMethod.MONTE_CARLO,
+        interval_semantics=IntervalSemantics.CREDIBLE_INTERVAL
+        if posterior
+        else IntervalSemantics.HEURISTIC_RANGE,
+        sample_size=n_samples,
+        is_heuristic_ci=not posterior,
+        gate_eligible=False,
+        metadata={
+            **metadata,
+            "result_kind": kind.value,
+            "authority_limitation": "fixed-model distribution is not estimator sampling inference",
+        },
+    )
 
 
 class CausalQueryResult(BaseModel):
@@ -320,6 +437,9 @@ class CausalQueryResult(BaseModel):
 
     schema_version: str = Field(_CAUSAL_QUERY_RESULT_SCHEMA_VERSION, pattern=r"^\d+\.\d+$")
     query: CausalQuery
+    result_kind: CausalResultKind = CausalResultKind.OUTCOME_DISTRIBUTION
+    interval_level: float = Field(default=0.95, gt=0.0, lt=1.0)
+    estimator_interval: CausalEstimatorInterval | None = None
     result_mean: float
     result_std: float = Field(ge=0.0)
     result_ci: tuple[float, float]
@@ -337,7 +457,7 @@ class CausalQueryResult(BaseModel):
         if payload.get("schema_version") is None:
             return payload
         source_version = str(payload["schema_version"])
-        if source_version == _LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION:
+        if source_version in {_LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION, "1.1"}:
             metadata = dict(payload.get("metadata") or {})
             if any(
                 metadata.get(key) is not None
@@ -352,6 +472,8 @@ class CausalQueryResult(BaseModel):
                 payload["metadata"] = metadata
             else:
                 payload.pop("metadata", None)
+            payload["result_kind"] = CausalResultKind.OUTCOME_DISTRIBUTION.value
+            payload["estimator_interval"] = None
             payload["schema_version"] = _CAUSAL_QUERY_RESULT_SCHEMA_VERSION
         return payload
 
@@ -407,7 +529,7 @@ class CausalQueryResult(BaseModel):
                 if key in metadata and metadata[key] != expected:
                     raise ValueError(f"{key} metadata conflicts with query contrast")
                 metadata[key] = expected
-            return self.model_copy(update={"metadata": metadata})
+            object.__setattr__(self, "metadata", metadata)
         return self
 
     def to_uncertainty_envelope(self) -> UncertaintyEnvelope:
@@ -422,26 +544,24 @@ class CausalQueryResult(BaseModel):
                 if key in metadata and metadata[key] != expected:
                     raise ValueError(f"{key} metadata conflicts with query contrast")
                 metadata[key] = expected
-        return UncertaintyEnvelope(
-            point_estimate=float(self.result_mean),
-            confidence_interval=(
-                float(self.result_ci[0]),
-                float(self.result_ci[1]),
-            ),
-            confidence_level=0.95,
-            distribution_family=DistributionFamily.BOOTSTRAP,
-            source=UncertaintySource.CAUSAL,
-            propagation_method=PropagationMethod.MONTE_CARLO,
-            interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
-            sample_size=int(self.query.n_samples),
-            is_heuristic_ci=False,
-            gate_eligible=True,
+        return _causal_distribution_envelope(
+            kind=self.result_kind,
+            point=float(self.result_mean),
+            bounds=self.result_ci,
+            level=self.interval_level,
+            n_samples=self.query.n_samples,
             metadata={
                 "query_type": self.query.query_type.value,
                 "treatment_variable": self.query.treatment_variable,
                 "outcome_variable": self.query.outcome_variable,
                 **metadata,
             },
+        )
+
+    def to_estimator_uncertainty_envelope(self) -> UncertaintyEnvelope | None:
+        """Return a separate estimator CI only when a refit record exists."""
+        return (
+            self.estimator_interval.to_uncertainty_envelope() if self.estimator_interval else None
         )
 
 
@@ -473,9 +593,22 @@ def persist_causal_query_result(
             "new causal query results must use schema version "
             f"{_CAUSAL_QUERY_RESULT_SCHEMA_VERSION}"
         )
+    payload = result.model_dump(mode="json")
+    metadata = dict(payload.get("metadata") or {})
+    # A historical reader's manifest-bound version describes the artifact it
+    # read. Re-publication has a new manifest, so retain that history under an
+    # explicitly diagnostic migration field rather than asserting two current
+    # source versions for one CAS payload.
+    if metadata.get("source_schema_version") in {"1.0", "1.1"}:
+        metadata["historical_schema_replay"] = {
+            key: metadata.pop(key)
+            for key in ("source_schema_version", "source_schema_name")
+            if key in metadata
+        }
+        payload["metadata"] = metadata
     ref = put_json_artifact(
         store,
-        result.model_dump(mode="json"),
+        payload,
         kind="ir.causal_query_result",
         schema_name=schema_name,
         schema_version=resolved_schema_version,
@@ -494,9 +627,7 @@ def load_causal_query_result(
     manifest = store.get_manifest(ref.artifact_id)
     schema = getattr(manifest, "artifact_schema", None)
     if schema is None:
-        raise ValueError(
-            "causal query result CAS manifest is missing artifact schema metadata"
-        )
+        raise ValueError("causal query result CAS manifest is missing artifact schema metadata")
     payload_version = payload.get("schema_version") if isinstance(payload, Mapping) else None
     manifest_version = getattr(schema, "version", None)
     if manifest_version is not None and payload_version not in (None, manifest_version):
@@ -504,9 +635,12 @@ def load_causal_query_result(
             "causal query result payload/CAS schema version mismatch: "
             f"payload={payload_version}, manifest={manifest_version}"
         )
-    source_version = str(manifest_version or payload_version or _LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION)
+    source_version = str(
+        manifest_version or payload_version or _LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION
+    )
     if source_version not in {
         _LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION,
+        "1.1",
         _CAUSAL_QUERY_RESULT_SCHEMA_VERSION,
     }:
         raise ValueError(f"unsupported causal query result schema version: {source_version}")
@@ -517,9 +651,7 @@ def load_causal_query_result(
     metadata = dict(normalized_payload.get("metadata") or {})
     claimed_source_version = metadata.get("source_schema_version")
     claimed_schema_name = metadata.get("source_schema_name")
-    if schema is None and (
-        claimed_source_version is not None or claimed_schema_name is not None
-    ):
+    if schema is None and (claimed_source_version is not None or claimed_schema_name is not None):
         raise ValueError("causal query result source provenance requires a CAS manifest")
     authoritative_schema_name = str(getattr(schema, "name", "")) if schema is not None else None
     if schema is not None:
@@ -537,11 +669,13 @@ def load_causal_query_result(
             metadata["source_schema_version"] = source_version
         if claimed_schema_name is not None:
             metadata["source_schema_name"] = authoritative_schema_name
-    if source_version == _LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION:
+    if source_version in {_LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION, "1.1"}:
         metadata["source_schema_version"] = source_version
         if authoritative_schema_name is not None:
             metadata["source_schema_name"] = authoritative_schema_name
         normalized_payload["schema_version"] = _CAUSAL_QUERY_RESULT_SCHEMA_VERSION
+        normalized_payload["result_kind"] = CausalResultKind.OUTCOME_DISTRIBUTION.value
+        normalized_payload["estimator_interval"] = None
     if metadata:
         normalized_payload["metadata"] = metadata
     return CausalQueryResult.model_validate(normalized_payload)
@@ -549,12 +683,14 @@ def load_causal_query_result(
 
 __all__ = [
     "CausalAttributionSpec",
-    "CausalInterventionSpec",
     "CausalContrastRegime",
     "CausalContrastSpec",
+    "CausalEstimatorInterval",
+    "CausalInterventionSpec",
     "CausalQuery",
     "CausalQueryResult",
     "CausalRegime",
+    "CausalResultKind",
     "InterventionSpec",
     "InterventionType",
     "QueryType",

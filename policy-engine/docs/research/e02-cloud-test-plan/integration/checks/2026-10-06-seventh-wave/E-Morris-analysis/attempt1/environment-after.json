@@ -1,0 +1,82 @@
+{
+  "active_matching_processes": [],
+  "captured_at": "2026-10-06T19:03:31.209984+00:00",
+  "files": [
+    {
+      "bytes": 9654,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/probe.py",
+      "sha256": "9d4dced9d01390c86c98d4b38d3cbea17d7a8c0e84e70b3e5a79d7075897bbc3"
+    },
+    {
+      "bytes": 328,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/inputs.json",
+      "sha256": "02e3b25797ce6f468efe1da748b5da73ef8e4f6d24846e75b1c49d459d571f8c"
+    },
+    {
+      "bytes": 1836,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/command.json",
+      "sha256": "16b3ba2ad0871130868834ca3eaeff572f2dcb4e46bb727502b973109d46bbbf"
+    },
+    {
+      "bytes": 1805,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/environment-before.json",
+      "sha256": "395a79e8d9eb9f8dd1ef9216435dd15d3360f5be0d714cdda5fd7691c9fc88ed"
+    },
+    {
+      "bytes": 5174,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/result.json",
+      "sha256": "dd4a6951903e26ec4e4e21a821c6a6f4d67b58a46e352ef0747522f9cd6c0e2a"
+    },
+    {
+      "bytes": 4730,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/stdout.txt",
+      "sha256": "04c83a53b4b1f06b0e1cf8eba4a234b959ebaea7b93b33ca7c99b9e7d37a59b9"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 3011,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/report.md",
+      "sha256": "45d94ca1fdec60a045b58490ff10c402791eb5831df12869414feb2b8baf813a"
+    },
+    {
+      "bytes": 1866,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/setup-failure-result.json",
+      "sha256": "99aeb9193ecf4663443289975fef30d88aa87336c9eea7bd67e80ab0afea3fbe"
+    },
+    {
+      "bytes": 1766,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/setup-failure-stdout.txt",
+      "sha256": "d24d553089a4c08f79d097e2c2fbdfa02d3c6e6d3939b782e371d2ea7f43a0a4"
+    },
+    {
+      "bytes": 69,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/setup-failure-stderr.txt",
+      "sha256": "d2b35cacadc66b7fad8dedd1be5244e17150a6625978c9330f831bd7a9cd6b1e"
+    },
+    {
+      "bytes": 1968,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/setup-failure-2-result.json",
+      "sha256": "9e9e48a6caea8646cdfe1a8ad4d2138e94b260621cff6a41ed29207ec25b718d"
+    },
+    {
+      "bytes": 1868,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/setup-failure-2-stdout.txt",
+      "sha256": "fe78d6c4a3d6238445b8f653aaf08d95d8e98fea43623c946f1b4e5a6b8fa313"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/setup-failure-2-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "git": {
+    "branch": "codex/e02-integration",
+    "head": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+    "porcelain": ""
+  },
+  "probe_result_status": "UNRUN_RESOURCE_CEILING"
+}

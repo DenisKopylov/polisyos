@@ -1,0 +1,4 @@
+{
+  "schema": "policyos.e02.lossless_utf8_output.v1",
+  "text": "Traceback (most recent call last):\n  File \"/tmp/e02-F-continuation-20261006/tmle-common-report/check_metadata.py\", line 21, in <module>\n    assert old==current, \"Additional actual schema delta requires root reconciliation\"\n           ^^^^^^^^^^^^\nAssertionError: Additional actual schema delta requires root reconciliation\n"
+}

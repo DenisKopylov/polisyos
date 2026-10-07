@@ -38,6 +38,11 @@ from polisyos.core.contracts.foundry import (
 )
 from polisyos.foundry._registry import create_mechanism_from_spec
 from polisyos.foundry.agent_sim.agents import AdaptiveAgentMechanism
+from polisyos.foundry.compile.randomization import (
+    TREASURY_SALTS_PROFILE,
+    TreasuryPlan,
+    build_treasury_plan,
+)
 from polisyos.foundry.execute._internal.models import (
     ExecuteArtifacts,
     ExecutionStrictness,
@@ -116,6 +121,91 @@ _CLASSIFIED_EXECUTOR_FAILURES = (
 # ---------------------------------------------------------------------------
 
 
+def _execution_treasury(
+    store: FileSystemCAS,
+    program_ref: ArtifactRef | ArtifactID | str,
+    exec_plan_ref: ArtifactRef | ArtifactID | str,
+    program: ProgramGraph,
+    plan: ExecPlan,
+) -> TreasuryPlan | None:
+    """Admit the explicit salt law only through its selected CAS input lineage."""
+    profiles = [note for note in plan.notes if note.startswith("randomization:")]
+    if not profiles:
+        return None
+    if profiles != [TREASURY_SALTS_PROFILE]:
+        raise ValueError("unsupported_randomization_profile")
+    if plan.program_ref.artifact_id != artifact_id(program_ref):
+        raise ValueError("treasury_exec_program_mismatch")
+    manifest = store.get_manifest(exec_plan_ref)
+    if manifest.kind != "foundry.exec_plan":
+        raise ValueError("treasury_exec_manifest_kind")
+
+    def one_input(inputs: Any, role: str) -> Any:
+        edges = [item for item in inputs if item.role == role]
+        if len(edges) != 1:
+            raise ValueError(f"treasury_requires_one_{role}_input")
+        return edges[0]
+
+    program_edge = one_input(manifest.inputs, "program_graph")
+    if program_edge.artifact_id != artifact_id(program_ref):
+        raise ValueError("treasury_program_input_mismatch")
+    requested_profile = getattr(program_ref, "manifest_profile_sha256", None)
+    if requested_profile is not None and requested_profile != program_edge.manifest_profile_sha256:
+        raise ValueError("treasury_program_profile_mismatch")
+    bound_program_ref = ArtifactRef(
+        artifact_id=program_edge.artifact_id,
+        manifest_profile_sha256=program_edge.manifest_profile_sha256,
+        kind="foundry.program_graph",
+        media_type="application/json",
+    )
+    program_manifest = store.get_manifest(bound_program_ref)
+    if program_manifest.kind != "foundry.program_graph":
+        raise ValueError("treasury_program_manifest_kind")
+    # Reading the selected input also verifies its content bytes and ownership.
+    load_model(store, bound_program_ref, ProgramGraph)
+    lowered_edge = one_input(program_manifest.inputs, "lowered_ir")
+    if (
+        program.lowered_ir_ref is None
+        or lowered_edge.artifact_id != program.lowered_ir_ref.artifact_id
+    ):
+        raise ValueError("treasury_lowered_ir_input_mismatch")
+
+    edge = one_input(manifest.inputs, "treasury_plan")
+    ref = ArtifactRef(
+        artifact_id=edge.artifact_id,
+        manifest_profile_sha256=edge.manifest_profile_sha256,
+        kind="foundry.treasury_plan",
+        media_type="application/json",
+    )
+    treasury_manifest = store.get_manifest(ref)
+    if treasury_manifest.kind != ref.kind or treasury_manifest.artifact_schema != SchemaInfo(
+        name="polisyos.foundry.TreasuryPlan", version="1.0"
+    ):
+        raise ValueError("treasury_manifest_schema_or_kind")
+    treasury_program_edge = one_input(treasury_manifest.inputs, "program_graph")
+    if treasury_program_edge != program_edge:
+        raise ValueError("treasury_source_program_mismatch")
+    treasury = load_model(store, ref, TreasuryPlan)
+    expected = build_treasury_plan(program, root_seed=plan.random_seed or 0)
+    if (
+        treasury.schema_version != "1.0"
+        or treasury.root_seed != expected.root_seed
+        or treasury.node_salts != expected.node_salts
+        or treasury.stream_salts != expected.stream_salts
+    ):
+        raise ValueError("treasury_seed_or_salts_mismatch")
+    return treasury
+
+
+def _treasury_node_key(root_key: jax.Array, treasury: TreasuryPlan, node_id: str) -> jax.Array:
+    """Version one folds low then high 32-bit words of the stream and node salts."""
+    key = root_key
+    for salt in (treasury.stream_salts["default"], treasury.node_salts[node_id]):
+        key = jax.random.fold_in(key, salt & 0xFFFFFFFF)
+        key = jax.random.fold_in(key, salt >> 32)
+    return key
+
+
 def execute_program_graph(
     store: FileSystemCAS,
     *,
@@ -128,7 +218,7 @@ def execute_program_graph(
     selector_field_registry: SelectorFieldRegistry | None = None,
     constraint_registry: ConstraintRegistry | None = None,
     step: int = 0,
-    seed: int = 0,
+    seed: int | None = None,
     base_ref: ArtifactRef | None = None,
     project_root: str | None = None,
     capture_env: bool = False,
@@ -140,6 +230,13 @@ def execute_program_graph(
     strictness: ExecutionStrictness = ExecutionStrictness.FAIL_CLOSED,
 ) -> ExecuteArtifacts:
     """Execute program graph."""
+    start_time = time.perf_counter()
+    program_graph = load_model(store, program_ref, ProgramGraph)
+    exec_plan = load_model(store, exec_plan_ref, ExecPlan)
+    treasury = _execution_treasury(store, program_ref, exec_plan_ref, program_graph, exec_plan)
+    effective_seed = (
+        seed if seed is not None else ((exec_plan.random_seed or 0) if treasury is not None else 0)
+    )
     env_manifest_ref: EnvironmentManifestRef | None = None
     env_fingerprint: str | None = None
     if capture_env:
@@ -148,8 +245,13 @@ def execute_program_graph(
             include_git=True,
             include_dependencies=True,
             custom_metadata={
-                "seed": seed,
-                "seed_source": "jax_prng",
+                "seed": effective_seed,
+                "seed_source": "explicit_override"
+                if seed is not None
+                else ("exec_plan" if treasury is not None else "legacy_default"),
+                "randomization_profile": TREASURY_SALTS_PROFILE
+                if treasury is not None
+                else "legacy",
                 "exec_plan_id": str(artifact_id(exec_plan_ref)),
             },
         )
@@ -157,9 +259,6 @@ def execute_program_graph(
         env_fingerprint = env_manifest.fingerprint
         _log_environment_captured(env_manifest)
 
-    start_time = time.perf_counter()
-    program_graph = load_model(store, program_ref, ProgramGraph)
-    exec_plan = load_model(store, exec_plan_ref, ExecPlan)
     if program_graph.lowered_ir_ref is None:
         raise ValueError("program_graph_missing_lowered_ir_ref")
     lowered_ir = load_model(store, program_graph.lowered_ir_ref, LoweredIR)
@@ -183,7 +282,8 @@ def execute_program_graph(
     if n_firms is None:
         n_firms = int(base_state.firms.capital.shape[0])
 
-    key = jax.random.PRNGKey(seed)
+    key = jax.random.PRNGKey(effective_seed)
+    root_key = key
     tax_rate_value = _resolve_income_tax_rate(
         program_graph,
         store,
@@ -248,9 +348,7 @@ def execute_program_graph(
             artifact_input_ref(exec_plan_ref, role="exec_plan"),
         ]
         if base_ref is not None:
-            report_inputs.append(
-                input_ref_from_artifact_ref(base_ref, role="base_state_snapshot")
-            )
+            report_inputs.append(input_ref_from_artifact_ref(base_ref, role="base_state_snapshot"))
         if node.params_ref is not None:
             report_inputs.append(
                 input_ref_from_artifact_ref(node.params_ref, role="mechanism_params")
@@ -287,6 +385,7 @@ def execute_program_graph(
             skipped_nodes += 1
             continue
         barrier_target = mask_barrier_targets.get(node_id, node_id)
+        node_key = _treasury_node_key(root_key, treasury, node_id) if treasury is not None else key
         if patch_records and _depends_on_executed_mutation(
             barrier_target,
             incoming_dependencies=incoming_dependencies,
@@ -319,7 +418,7 @@ def execute_program_graph(
                         selector_field_registry=selector_field_registry,
                         masks=masks,
                         step=step,
-                        key=key,
+                        key=node_key,
                         n_agents=n_agents,
                         n_firms=n_firms,
                         mechanism_registry=mechanism_registry,
@@ -380,7 +479,7 @@ def execute_program_graph(
                     selector_field_registry=selector_field_registry,
                     masks=masks,
                     step=step,
-                    key=key,
+                    key=node_key,
                     n_agents=n_agents,
                     n_firms=n_firms,
                     mechanism_registry=mechanism_registry,
@@ -419,7 +518,7 @@ def execute_program_graph(
                 method_class = registry.get(method_fqn, version=node.method_version)
                 signature = method_class.signature
                 dispatcher = MethodDispatcher.get_instance()
-                key, step_key = jax.random.split(key)
+                key, step_key = jax.random.split(node_key)
                 method_result = dispatcher.dispatch(
                     method_class=method_class,
                     signature=signature,
@@ -478,9 +577,7 @@ def execute_program_graph(
         artifact_input_ref(exec_plan_ref, role="exec_plan"),
     ]
     if program_graph.lowered_ir_ref is not None:
-        inputs.append(
-            input_ref_from_artifact_ref(program_graph.lowered_ir_ref, role="lowered_ir")
-        )
+        inputs.append(input_ref_from_artifact_ref(program_graph.lowered_ir_ref, role="lowered_ir"))
     if parameter_override_bundle_ref is not None:
         inputs.append(
             input_ref_from_artifact_ref(

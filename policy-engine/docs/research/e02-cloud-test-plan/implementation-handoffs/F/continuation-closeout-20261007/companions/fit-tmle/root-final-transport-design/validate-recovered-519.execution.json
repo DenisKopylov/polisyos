@@ -1,0 +1,16 @@
+{
+  "command": [
+    "python3",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v3.py",
+    "--selection",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-recovered-519-v3.json",
+    "--repository",
+    "/workspace/e02-F-closeout-20261006"
+  ],
+  "cwd": "/workspace",
+  "exit_code": 0,
+  "started_epoch": 1791375478.9211783,
+  "wall_s": 0.9316288529953454,
+  "source_and_Git_writes": false,
+  "science_tests_run": false
+}

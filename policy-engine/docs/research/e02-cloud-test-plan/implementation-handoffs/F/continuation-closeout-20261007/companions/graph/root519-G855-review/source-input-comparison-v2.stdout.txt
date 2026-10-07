@@ -1,0 +1,169 @@
+{
+  "check": "FAIL",
+  "pairs": [
+    {
+      "label": "own published→root519",
+      "a": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+      "b": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "selection": [
+        "policy-engine/src/",
+        "policy-engine/tools/",
+        "policy-engine/workers/",
+        "policy-engine/architecture/",
+        "policy-engine/schemas/",
+        "policy-engine/data/dataset_catalog/",
+        "policy-engine/.python-version",
+        "policy-engine/hatch.toml",
+        "policy-engine/pyproject.toml",
+        "policy-engine/uv.lock"
+      ],
+      "selected_path_denominator": 4359,
+      "selected_changed_paths": [],
+      "all_changed_path_denominator": 889
+    },
+    {
+      "label": "root519→virtualmerge",
+      "a": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "b": "9ac56f67695e9244a55c2c8a63c77263808a0588",
+      "selection": [
+        "policy-engine/src/",
+        "policy-engine/tools/",
+        "policy-engine/workers/",
+        "policy-engine/architecture/",
+        "policy-engine/schemas/",
+        "policy-engine/data/dataset_catalog/",
+        "policy-engine/.python-version",
+        "policy-engine/hatch.toml",
+        "policy-engine/pyproject.toml",
+        "policy-engine/uv.lock"
+      ],
+      "selected_path_denominator": 4359,
+      "selected_changed_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/README.md"
+      ],
+      "all_changed_path_denominator": 374
+    },
+    {
+      "label": "mergebase→G855",
+      "a": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "b": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "selection": [
+        "policy-engine/src/",
+        "policy-engine/tools/",
+        "policy-engine/workers/",
+        "policy-engine/architecture/",
+        "policy-engine/schemas/",
+        "policy-engine/data/dataset_catalog/",
+        "policy-engine/.python-version",
+        "policy-engine/hatch.toml",
+        "policy-engine/pyproject.toml",
+        "policy-engine/uv.lock"
+      ],
+      "selected_path_denominator": 4348,
+      "selected_changed_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/README.md"
+      ],
+      "all_changed_path_denominator": 374
+    }
+  ],
+  "components": [
+    {
+      "name": "graph-intake-current-content-20261007",
+      "primary_own": {
+        "git_ref": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007.json",
+        "bytes": 89153,
+        "sha256": "f3cbaadef8f0fb163150356bfa3a46edbd343bbd3934b0b86a919be7d629688b",
+        "git_blob": "df227f1efbd870db9c2de811c3ed472b2a532716"
+      },
+      "primary_root": {
+        "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007.json",
+        "bytes": 89153,
+        "sha256": "f3cbaadef8f0fb163150356bfa3a46edbd343bbd3934b0b86a919be7d629688b",
+        "git_blob": "df227f1efbd870db9c2de811c3ed472b2a532716"
+      },
+      "primary_byte_identical": true,
+      "candidate_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+      "candidate_tree": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+      "manifest_binding": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/outputs.json",
+        "bytes": 133199,
+        "sha256": "e6948907fbae06ebd42e4e45f7c9834ce01085b4cdf2114690481e3f2e55ba5d"
+      },
+      "manifest_own": {
+        "git_ref": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/outputs.json",
+        "bytes": 133199,
+        "sha256": "e6948907fbae06ebd42e4e45f7c9834ce01085b4cdf2114690481e3f2e55ba5d",
+        "git_blob": "8cfc9d772d6abf69ef9d2d0413fbafdd5a4c1e9f"
+      },
+      "manifest_root": {
+        "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/outputs.json",
+        "bytes": 133199,
+        "sha256": "e6948907fbae06ebd42e4e45f7c9834ce01085b4cdf2114690481e3f2e55ba5d",
+        "git_blob": "8cfc9d772d6abf69ef9d2d0413fbafdd5a4c1e9f"
+      },
+      "material_count": 223,
+      "material_all_valid": true,
+      "source_all_identical": true
+    },
+    {
+      "name": "catalog-default-resources-20261007",
+      "primary_own": {
+        "git_ref": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007.json",
+        "bytes": 102004,
+        "sha256": "8b7754451abfbfe2c78fcd261de84ebe8b3de1c373a8f23d7561c8b9c71b75af",
+        "git_blob": "62e24ee89c64ab756a8f5e914d44e0c4983e1f50"
+      },
+      "primary_root": null,
+      "primary_byte_identical": false,
+      "candidate_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+      "candidate_tree": "120103b1a375b5d405632936b2934f2b36a320f7",
+      "manifest_binding": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/outputs.json",
+        "bytes": 104943,
+        "sha256": "1435329de7dede38088bbad0aebc1bd041c8043efab32e907e435143db648d18"
+      },
+      "manifest_own": {
+        "git_ref": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/catalog-default-resources-20261007/outputs.json",
+        "bytes": 104943,
+        "sha256": "1435329de7dede38088bbad0aebc1bd041c8043efab32e907e435143db648d18",
+        "git_blob": "9fb89e88084e779032c56b3742c35415f4850c67"
+      },
+      "manifest_root": null,
+      "material_count": 173,
+      "material_all_valid": false,
+      "source_all_identical": true
+    }
+  ],
+  "ancestry": [
+    {
+      "ancestor": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+      "descendant": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "returncode": 0,
+      "ancestor_established": true
+    },
+    {
+      "ancestor": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+      "descendant": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "returncode": 0,
+      "ancestor_established": true
+    },
+    {
+      "ancestor": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+      "descendant": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "returncode": 1,
+      "ancestor_established": false
+    },
+    {
+      "ancestor": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "descendant": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "returncode": 1,
+      "ancestor_established": false
+    }
+  ]
+}

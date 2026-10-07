@@ -1,0 +1,64 @@
+{"mode": "normalization", "cheap_proxy": "same public name, scalar shape, float32 dtype and finite ordinary output", "proxy_outcome": "PASS", "ordinary": 0.2222222238779068}
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-F-economics-20261006/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-F-economics-20261006/policy-engine
+configfile: pytest.ini
+plugins: langsmith-0.6.0, jaxtyping-0.3.4, xdist-3.8.0, anyio-4.12.0, asyncio-1.3.0, benchmark-5.2.3, hypothesis-6.151.2
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 4 items
+
+tests/unit/foundry/agent_sim/test_gini_science.py::test_float32_gini_normalizes_before_sum_overflow[eager] FAILED [ 25%]
+tests/unit/foundry/agent_sim/test_gini_science.py::test_float32_gini_normalizes_before_sum_overflow[jit] FAILED [ 50%]
+tests/unit/foundry/agent_sim/test_gini_science.py::test_float64_gini_survives_extreme_finite_rescaling[eager] FAILED [ 75%]
+tests/unit/foundry/agent_sim/test_gini_science.py::test_float64_gini_survives_extreme_finite_rescaling[jit] FAILED [100%]
+
+=================================== FAILURES ===================================
+___________ test_float32_gini_normalizes_before_sum_overflow[eager] ____________
+tests/unit/foundry/agent_sim/test_gini_science.py:92: in test_float32_gini_normalizes_before_sum_overflow
+    assert float(function(values, jnp.ones(3, dtype=jnp.bool_))) == pytest.approx(2 / 9, abs=2e-7)
+E   assert nan == 0.2222222222222222 ± 2.0e-07
+E
+E     comparison failed
+E     Obtained: nan
+E     Expected: 0.2222222222222222 ± 2.0e-07
+____________ test_float32_gini_normalizes_before_sum_overflow[jit] _____________
+tests/unit/foundry/agent_sim/test_gini_science.py:92: in test_float32_gini_normalizes_before_sum_overflow
+    assert float(function(values, jnp.ones(3, dtype=jnp.bool_))) == pytest.approx(2 / 9, abs=2e-7)
+E   assert nan == 0.2222222222222222 ± 2.0e-07
+E
+E     comparison failed
+E     Obtained: nan
+E     Expected: 0.2222222222222222 ± 2.0e-07
+__________ test_float64_gini_survives_extreme_finite_rescaling[eager] __________
+tests/unit/foundry/agent_sim/test_gini_science.py:84: in test_float64_gini_survives_extreme_finite_rescaling
+    assert float(actual) == pytest.approx(2 / 9, abs=1e-14)
+E   assert 0.0 == 0.2222222222222222 ± 1.0e-14
+E
+E     comparison failed
+E     Obtained: 0.0
+E     Expected: 0.2222222222222222 ± 1.0e-14
+___________ test_float64_gini_survives_extreme_finite_rescaling[jit] ___________
+tests/unit/foundry/agent_sim/test_gini_science.py:84: in test_float64_gini_survives_extreme_finite_rescaling
+    assert float(actual) == pytest.approx(2 / 9, abs=1e-14)
+E   assert 0.0 == 0.2222222222222222 ± 1.0e-14
+E
+E     comparison failed
+E     Obtained: 0.0
+E     Expected: 0.2222222222222222 ± 1.0e-14
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_float32_gini_normalizes_before_sum_overflow[eager]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_float32_gini_normalizes_before_sum_overflow[jit]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_float64_gini_survives_extreme_finite_rescaling[eager]
+FAILED tests/unit/foundry/agent_sim/test_gini_science.py::test_float64_gini_survives_extreme_finite_rescaling[jit]
+========================= 4 failed, 1 warning in 0.90s =========================
+{"mode": "normalization", "property_deleted": true, "expected_test_returncode": 1, "actual_test_returncode": 1, "removal_rejected": true}

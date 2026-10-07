@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "python3",
+    "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/verify_final_root.py",
+    "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/frozen-config.json",
+    "--controls"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review",
+  "Python": "3.12.14",
+  "environment": {
+    "PYTHONPATH": null,
+    "scope": "stdlib/Git metadata only; no product/scientific imports, installations or cleanup"
+  },
+  "source_receipt_sha": "cbfc2647b63b7b43e608532abb2159d3785bab42",
+  "source_receipt_tree": "37e88297463ae4084c5812ba20fddfc65d373d3d",
+  "main_receipt_sha": "b300da2e134a67fbd6f585a21ab42286c356fe7e",
+  "script_bytes": 21982,
+  "script_sha256": "0d869472ed4e4bcdfba9bc9d4abc268789d20299bb1dd1c5b8f3b16fa935a2ee",
+  "config_bytes": 1153,
+  "config_sha256": "ebac165e86721db5cc97cda5907dd36123ad97d6ee7e9a5a6e6d8cfb3e5fe5fb",
+  "exit_code": 0,
+  "wall_seconds": 25.83082636099425,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-cbfc-items-adapter.stdout.json",
+    "bytes": 835801,
+    "sha256": "3361143897ee9ce88b53f833b433aefc2627087285ea5b09bd5cebd0f3287d95"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-cbfc-items-adapter.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

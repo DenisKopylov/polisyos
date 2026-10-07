@@ -1,0 +1,79 @@
+{
+  "adjudication": "Earlier report statement that no unselected generated files remained was inaccurate as a file-count claim. Three empty generated root.lock files exist in retry checkout. Their byte/allocated total is zero; the selected candidate inputs and focused PASS remain unchanged.",
+  "allocated_file_bytes_total": 0,
+  "candidate_selected_input_count": 2933,
+  "candidate_sha": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+  "candidate_source_changed": false,
+  "candidate_tree": "98405fab6c567d9fd44a5e30387c0ba32a7c7cf9",
+  "g_branch": "codex/e02-integration",
+  "g_head": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+  "g_status_porcelain": "",
+  "git_refs_changed": false,
+  "initial_checkout_lockfile_count": 0,
+  "lockfile_count": 3,
+  "logical_file_bytes_total": 0,
+  "observed_at_utc": "2026-10-06T19:36:49.610868+00:00",
+  "postrun_generated_lockfiles": [
+    {
+      "allocated_bytes": 0,
+      "candidate_git_tree_entry": false,
+      "device": 16777231,
+      "inode": 173072016,
+      "mode": "0o644",
+      "mtime_utc": "2026-10-06T19:17:05.968616+00:00",
+      "path": "policy-engine/.polisyos/runtime/grounding_risk/113f17352c33a964bb56669fef2691026d3cb32614457f8920372b70e2ea905b/cas/artifacts/ownership/transactions/root.lock",
+      "selected_manifest_member": false,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "allocated_bytes": 0,
+      "candidate_git_tree_entry": false,
+      "device": 16777231,
+      "inode": 173071864,
+      "mode": "0o644",
+      "mtime_utc": "2026-10-06T19:16:51.894282+00:00",
+      "path": "policy-engine/.polisyos/runtime/grounding_risk/7e4ed391a496176204d0c47262c93a0f2d95cd8ae7ed27215b979ef03819b648/cas/artifacts/ownership/transactions/root.lock",
+      "selected_manifest_member": false,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "allocated_bytes": 0,
+      "candidate_git_tree_entry": false,
+      "device": 16777231,
+      "inode": 173072128,
+      "mode": "0o644",
+      "mtime_utc": "2026-10-06T19:17:06.041969+00:00",
+      "path": "policy-engine/.polisyos/runtime/grounding_risk/cd6b607367949e4fc885fb094b4cf72a3022910f398132aaf3f824fe540f1f78/cas/artifacts/ownership/transactions/root.lock",
+      "selected_manifest_member": false,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    }
+  ],
+  "preserved_raw_receipt_sha256": {
+    "inputs/source-905820ceac5860c7d1c4ebcbdde7b1265afb0b15-closure2.tar": "97769f1db7d1300e87413d978573f2c1fd84fc6f8e097f21296252cf7ff6dc03",
+    "inputs/source-manifest-retry.json": "d8ba144656bad4532a670f66ba30c8b85dde69f9120e2c5bd7aff03f384599c0",
+    "outputs/attempt1/a11.xml": "8e22019c7f93d3e79ae832320f6e299c8baab1489edb54948e6a1c1e90035972",
+    "outputs/attempt1/pytest.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "outputs/attempt1/pytest.stdout.txt": "92e5a09008e01870308b0080949000ce25155414c9862455fdc1ca803866a555",
+    "outputs/attempt2/a11.xml": "16b9a34b886e3c61159f883d08a93f448bfcaa98ffe89c9cdfbdd452c18704ee",
+    "outputs/attempt2/n8-child-command.json": "52990873d846f04ca9ec0d3603d2dc66ea6c3f1b6526f7cd5afde01bb3da6935",
+    "outputs/attempt2/n8-child-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "outputs/attempt2/n8-child-stdout.jsonl": "8c794bb98dd7012906526e01ec0ec1e64bc9832376f7e2c958b6d9a8fcd9b69c",
+    "outputs/attempt2/pytest-a11-run.json": "f2d06bdab5ad8feee67fefe0a88424b7dd35f32b6ab73e14eca77c9fc03872ff",
+    "outputs/attempt2/pytest-module-origin-verification.json": "febc175e5b38bd16a1caac3f2cd6cc4bf1e481f6f9dfaae92ba8288b2155e32c",
+    "outputs/attempt2/pytest-module-origins.json": "9c653a50416f0016f0c08affa151ba940673f9ed103ac115320b5de55e9c6966",
+    "outputs/attempt2/pytest.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "outputs/attempt2/pytest.stdout.txt": "e83b5ac62c16073e94abc1bd0d4c16d1d814f9f875183d7736055f2d83834b1b",
+    "outputs/attempt2/source-inputs-after-pytest.json": "de2adc8a3c778b7d4111fca202722fc51276f1b4a13240dbea601f79cb75aabb",
+    "outputs/attempt2/source-inputs-before.json": "a6a652183d53b148a3a35635f0cbd449d3948519efef880c1d248e4f8645a5d4"
+  },
+  "retry_test_window_utc": {
+    "ended": "2026-10-06T19:17:12.731641+00:00",
+    "exit_code": 0,
+    "started": "2026-10-06T19:16:42.990231+00:00"
+  },
+  "source_inputs_match_before_and_after": true,
+  "tests_rerun": false
+}

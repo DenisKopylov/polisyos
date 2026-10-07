@@ -1,0 +1,173 @@
+{
+  "finding_id": "B215",
+  "primary_owner_from_full_TSV": {
+    "finding_id": "B215",
+    "unit": "F",
+    "docx_analytical_package": "P35",
+    "source_closure_owner": "SCM-02",
+    "source_bundle_ids": "SCM-02",
+    "source_status": "partial"
+  },
+  "bundle_owner_from_full_TSV": {
+    "bundle_id": "SCM-02",
+    "unit": "F",
+    "initial_writer_family": "F-W06",
+    "title": "Factual abduction и две явные стороны attribution"
+  },
+  "original_card_refs": [
+    {
+      "criterion_id": "B215",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        5230,
+        5243
+      ],
+      "bytes": 3763,
+      "sha256": "285a9f3f9267aaf97e7844c252fffd271febbc5cfb5212bcbbdefd7252f119a9",
+      "title": "## B215. Абдукция принимает подставленное среднее скрытого родителя за наблюдённый факт",
+      "byte_binding_check": "PASS"
+    }
+  ],
+  "original_text": "## B215. Абдукция принимает подставленное среднее скрытого родителя за наблюдённый факт\n\n**Приоритет:** высокий для контрфактуала с неполным factual context; точный линейно-Gaussian путь возможен без универсального sampler. **Основание:** _abduce_linear_noises и _simulate_samples; CF01–CF03. [C20.R11–R12, C20.E05]\n\n**Проблема.** Перед восстановлением шума ненаблюдаемые узлы заполняются линейным предсказанием или нулём. Проверка all(parent in pseudo_observed) затем считает их известными и вычисляет один residual для наблюдённого потомка. При counterfactual simulation этот residual фиксируется вместо условного распределения экзогенных переменных.\n\n**Воспроизведение.** SCM: X=Ux, Y=X+Uy, независимые Ux,Uy~N(0,1). Factual evidence содержит только Y=2, запрос do(X=0). Точный Gaussian conditioning даёт Uy|Y=2 со средним 1 и дисперсией 0,5. Исходная абдукция подставила X=0, восстановила Uy=2; 100 контрфактических реализаций дали среднее 2 и дисперсию 0. При полном наблюдении X=1,Y=2 контроль правильно даёт детерминированный Y(0)=1.\n\n**Рекомендуемое исправление.** Различать фактически наблюдённых родителей и модельно восстановленные значения. Когда invertible-механизм и все необходимые factual inputs действительно известны, использовать существующую точную residual-инверсию. В линейно-Gaussian случае с неполным наблюдением решать условную Gaussian-задачу; в общем случае нужна явная поддержанная posterior-abduction либо ограничение соответствующего контрфактуала. Фиксировать одну и ту же posterior-noise реализацию для сравниваемых миров и хранить её происхождение.\n\n**Экономия.** Для линейного случая условную факторизацию можно подготовить один раз для заданного observation pattern и модели, затем переиспользовать векторизованные реализации. Увеличение числа draws исходного детерминированного residual только повторит неверную точку. Не нужно запрещать все counterfactuals либо подменять factual-condition обычным intervention-запросом.\n\n**Граница.** Исполнены выбранные настоящие traversal/abduction/sample-loop тела, но механизм ограничен явно тестовым LINEAR/ATOMIC backend и небольшими DTO. Полные GCMQuery/twin-network, проверка идентификации SCM, native query-result и CAS не запускались. Формула контрольного Gaussian-conditioning рассчитана напрямую; это не inference из реальных социальных данных.\n\n",
+  "primary_acceptance_scope": "Partial factual affine-Gaussian posterior mean/covariance/singular support, full factual residual inversion, same posterior U across twin worlds; nonlinear unknown posterior remains limited.",
+  "source_chain": {
+    "producer": "GCMQuery/TwinNetworkQuery",
+    "artifact": "typed conditional/contrast result + both query refs",
+    "bridge": "canonical generated two-slot ABI / real CAS custody",
+    "consumer": "fresh RunCausalQueriesNode canonical peer/result projection"
+  },
+  "actual_recorded_consumer": "GCMQuery/TwinNetworkQuery → typed conditional result → genuine CAS/fresh reader",
+  "surface": "Declared SCM model/query/result DTOs, GCM/Twin method outputs and generated canonical CAS/fresh-reader consumer seam",
+  "deciding_receipt_refs": [
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+      "bytes": 150139,
+      "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+      "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B215"
+      ]
+    },
+    {
+      "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+      "bytes": 150139,
+      "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+      "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/B215"
+      ],
+      "json_pointer": "/per_id/1"
+    }
+  ],
+  "deciding_per_ID_carrier_ref": {
+    "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B215.json",
+    "bytes": 28871,
+    "sha256": "0a27871100f1a4a271704b634084fecac7bfa9e6fef3b4d2288ed727417184d3",
+    "git_blob": "95ba911112a4a26deec235bcb79641b18e10db32"
+  },
+  "scientific_implementation": {
+    "sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+    "tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+    "not_receipt_carrier": true
+  },
+  "recorded_independent_oracle_and_negative": "Independent affine Gaussian mean/cov/singular evidence; Y2 gives Uy mean1/var.5; fullX1Y2→Y0=1",
+  "complete_raw_receipt_checks_refs": [
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/0",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/1",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/2",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/3",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/4",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/5",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/6",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/7",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/8",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/9",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/10",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/11",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/12",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/13",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/14",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/15",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/16",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/17",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/18",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/19",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/20",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/21",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/22",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/23",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/24",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/25",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/26",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/27",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/28",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/29",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/30",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/31",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/32",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/33",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/34",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/35",
+    "bf335dd687c313fda9001fa3bb1365df6bc5ae1f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json#/checks/36"
+  ],
+  "historical_ROOT072": {
+    "check": "PASS",
+    "outcome": "closed",
+    "technical_original_criterion_recommendation": "closed",
+    "current_continuation_outcome_recommendation": "closed",
+    "original_criterion_remainder": "None for declared affine Gaussian profile.",
+    "actual_consumer": "GCMQuery/TwinNetworkQuery → typed conditional result → genuine CAS/fresh reader",
+    "oracle_and_negative": "Independent affine Gaussian mean/cov/singular evidence; Y2 gives Uy mean1/var.5; fullX1Y2→Y0=1",
+    "separate_unavailable_inputs_or_authority": "Nonlinear/unknown-law partial posterior is typed limited; no real-data identification."
+  },
+  "independent_original_criterion_recommendation": {
+    "check": "PASS",
+    "outcome": "closed",
+    "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+    "scientific_rerun": false,
+    "review_scope": "independent criterion/evidence reconciliation; not an independently rerun estimator measurement",
+    "missing_actual_original_criterion": null,
+    "new_owner_review_pending": false,
+    "not_formal_G_closure": true
+  },
+  "separate_unavailable_inputs_or_authority": "Nonlinear/unknown-law partial posterior is typed limited; no real-data identification.",
+  "existing_author_or_reviewer_conflict": null,
+  "schema": "e02.F.original-finding.v3",
+  "primary_bundle": "SCM-02",
+  "criterion_short": "Partial factual affine-Gaussian posterior mean/covariance/singular support, full factual residual inversion, same posterior U across twin worlds; nonlinear unknown posterior remains limited.",
+  "check_result": "PASS",
+  "F_finding_outcome": "closed",
+  "F_technical_recommendation": "closed",
+  "F_rationale": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+  "code_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+  "code_tree": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4",
+  "consumer": "GCMQuery/TwinNetworkQuery → typed conditional result → genuine CAS/fresh reader",
+  "oracle_and_negative": "Independent affine Gaussian mean/cov/singular evidence; Y2 gives Uy mean1/var.5; fullX1Y2→Y0=1",
+  "G_finding_acceptance": {
+    "status": "not_issued",
+    "formal_G_closed": false
+  },
+  "G_code_acceptance": {
+    "status": "not_inferred",
+    "source_sha": null,
+    "basis": "Independent F GO/code-ready is not G code acceptance"
+  },
+  "original_missing_input": null,
+  "original_next_owner": null,
+  "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+  "root_assembled_source": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "not_new_numerical_proof": true
+  },
+  "new_property_followups_not_automatically_original_reopen": []
+}

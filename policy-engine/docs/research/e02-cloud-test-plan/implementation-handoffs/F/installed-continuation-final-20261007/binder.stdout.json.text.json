@@ -1,0 +1,6 @@
+{
+  "schema": "policyos.e02.lossless_utf8_text.v1",
+  "decoded_bytes": 173,
+  "decoded_sha256": "c4741fe39ba18820c337a39ff681d4275caf96b791fee40a6ef820fcee6eee5f",
+  "text": "{\"source_sha\": \"b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a\", \"tracked_product_files\": 3452, \"forced_resources\": 7, \"complete_product_resource_files\": 3459, \"outcome\": \"PASS\"}\n"
+}

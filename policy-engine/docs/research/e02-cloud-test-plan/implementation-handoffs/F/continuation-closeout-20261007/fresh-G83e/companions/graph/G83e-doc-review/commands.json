@@ -1,0 +1,91 @@
+[
+  {
+    "name": "identity",
+    "argv": [
+      "git",
+      "show",
+      "-s",
+      "--format=%H%n%T%n%P",
+      "83e7c0e934d0b40644dec8a24264a0602ef013e7"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/identity.stdout",
+      "bytes": 123,
+      "sha256": "4c1454f6efd314ec858f5f638a5b9bd4e9cec08d675b343502b8a64c39837fbb"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/identity.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "paths",
+    "argv": [
+      "git",
+      "diff",
+      "--name-status",
+      "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "83e7c0e934d0b40644dec8a24264a0602ef013e7"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/paths.stdout",
+      "bytes": 4836,
+      "sha256": "266232c18f0a0375fbb88be8035039954b6a6704ed7ae8cc3ded852e136352ef"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/paths.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "full-diff",
+    "argv": [
+      "git",
+      "diff",
+      "--no-ext-diff",
+      "--no-renames",
+      "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "83e7c0e934d0b40644dec8a24264a0602ef013e7"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/full-diff.stdout",
+      "bytes": 291196,
+      "sha256": "a52560e502cd23f87ccb4fe77bca9c77a06d4d28af498131b2ce3d821ed88d84"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/full-diff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "83e7c0e934d0b40644dec8a24264a0602ef013e7"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "returncode": 2,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/diff-check.stdout",
+      "bytes": 318,
+      "sha256": "6eb5dbaa8cbb445189cb5d16f093851f5a9be2102efb12f93e0e23c914ce2a3c"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/diff-check.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+]

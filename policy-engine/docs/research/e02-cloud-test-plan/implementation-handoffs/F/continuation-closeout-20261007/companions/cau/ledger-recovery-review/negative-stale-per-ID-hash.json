@@ -1,0 +1,140 @@
+{
+  "schema": "F-independent-final-ledger-delta-review/v1",
+  "check": "FAIL",
+  "control": "stale-per-ID-hash",
+  "negative_harness_outcome": "PASS",
+  "target": {
+    "sha": "46cc03546f2572986962555ddf04d858163c1cf6",
+    "tree": "bb2ceacff846b68466a03fce767f7d300b18240e"
+  },
+  "product_source": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "prior_source8236": "8236d9c368336a5ea20c1586f29aea7321db6536",
+    "new_product_paths": [
+      "policy-engine/hatch.toml",
+      "policy-engine/src/polisyos/data_forge/domains/README.md",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+      "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+    ],
+    "unchanged_scientific_estimators_reuse_exact_source_bound_receipts": true,
+    "first_installed_freeze": {
+      "sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+      "wheel": {
+        "PASS": 130,
+        "FAIL": 32,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "rebuilt_sdist": {
+        "PASS": 130,
+        "FAIL": 32,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "cause": "Four curated default catalog YAML absent; installed paths outside package. Full failure and warning custody retained; unchanged API2/FIT53/ECO28 passed each."
+    },
+    "full_product_patch": "See committed root closeout companions source8236-to-freeze-product-full.patch"
+  },
+  "previous_complete_audit": {
+    "sha": "d8334672f44d24dd32113264f96ca3f7954dace4",
+    "scope": "Complete previous1659stored/480decoded scientific custody audit preserved at its source; not rewalked by this metadata delta review"
+  },
+  "oracle_inputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/expected-original35-compact.json",
+      "bytes": 57856,
+      "sha256": "0867b703c8dcef66e9fbabb8593a1a371f16c177580c5c3621d15a02372e1f66"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/validate_root_current35.py",
+      "bytes": 21486,
+      "sha256": "8ed487013cf0a43ca5c4c5fa752e86cf161b300037aaa96f6cb39829340d5297"
+    }
+  ],
+  "replayer": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/validate_final_ledger_delta.py",
+    "bytes": 20516,
+    "sha256": "1ef7050cf96a8d3d6e91610f16bef7048f2c98a26f497d95630b1f1d5adf6e75"
+  },
+  "environment": {
+    "python": "3.12.14",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "purpose": "stdlib immutable Git metadata verifier; no product/backend execution"
+  },
+  "denominator": {
+    "IDs": 35,
+    "bundles": 17,
+    "original_bindings": 36
+  },
+  "recommendations": {
+    "F_original_finding_recommendation": {
+      "closed": 33,
+      "limited": 2
+    },
+    "F_bounded_technical_recommendation": {
+      "closed": 33,
+      "limited": 2
+    },
+    "check_results": {
+      "PASS": 34,
+      "UNRUN": 1
+    },
+    "formal_G_closures": 0,
+    "historical_ROOT072": {
+      "finding": {
+        "closed": 25,
+        "limited": 9,
+        "held": 1
+      },
+      "technical": {
+        "closed": 30,
+        "limited": 4,
+        "held": 1
+      },
+      "checks": {
+        "PASS": 33,
+        "UNRUN": 2
+      }
+    }
+  },
+  "issues": [
+    {
+      "exception": "AssertionError",
+      "message": "artifact bytes/hash: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B204.json"
+    }
+  ],
+  "complete_independent_row_reconciliation": [],
+  "primary_and_card_metadata_artifacts_verified": [],
+  "complete_deciding_check_pointer_count": 0,
+  "actual_primary_json_selectors": [],
+  "complete_current_manifest_metadata": [],
+  "source_order_complete_actual_footprints": [],
+  "authored_implementation_diff": null,
+  "criteria_scopes": {
+    "original": "33closed/2limited;34PASS/1UNRUN",
+    "technical_original": "33closed/2limited",
+    "G_formal_closed": 0,
+    "assembled_readiness": "source519 affected91/profile plus6rawFAIL and separate ONEwheel child; no global/institutional/scientific approval"
+  },
+  "no_numerical_reruns": true,
+  "no_unchanged_raw_output_rewalk": true,
+  "limitations": [
+    "Historical175c four non-deciding references remain UNRUN; previous full-custody partiality retained",
+    "Python3.14 in-process DoWhy/EconML exclusions are UNRUN; genuine selected3.12 receipts separate",
+    "Original B214 supported partial/conditional route limited, B56 admitted common workload UNRUN",
+    "Missing exact Runtime/PDCsemantic/identification/value/currentlaw/Abridge positives remain distinct followups",
+    "Current source5957 scanner first+retry ERROR -9 incomplete;Ruff103FAIL/publicsurface38FAIL;P41not_established",
+    "Metadata delta review is not new numerical evidence, institutionally accepted code, or formal G finding closure"
+  ],
+  "elapsed_s": 0.024754422018304467
+}

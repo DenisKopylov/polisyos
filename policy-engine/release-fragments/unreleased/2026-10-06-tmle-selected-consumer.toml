@@ -1,0 +1,29 @@
+id = "2026-10-06-tmle-selected-consumer"
+title = "Reconcile native TMLE at the selected typed causal consumer"
+type = "fixed"
+component = "scientist"
+owner = "team-policyos-scientist"
+summary = "The canonical TMLE job keeps its typed adjustment input and reconciles report/envelope with the native persisted result."
+evidence = ["tests/unit/scientist/nodes/builtins/simulate/test_tmle_selected_consumer.py", "docs/reference/scientist/causal-selected-consumers.md"]
+change_class = "internal-only"
+surface_classification = "internal: selected causal job report reconciliation"
+compatibility = "Native numerical fitting and the descriptive result remain unchanged. Typed HTE input routes to canonical cross-sectional TMLE; report and envelope require coherent native projection."
+migration = "Deploy the canonical TMLE report producer and generated enum/schema companion together. Keep result for descriptive limited profiles."
+limitations = "The regular IID profile is caller asserted. Positive production budget and authority admission require the existing canonical owner packet."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/scientist/causal-selected-consumers.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "tmle-selected-consumer"
+change_class = "internal-only"
+impact = "compatible"
+surface = "internal: selected causal job report reconciliation"
+owner = "team-policyos-scientist"
+version_owner = "team-policyos-scientist"
+deprecation_window = "not_applicable"
+release_note = "TMLE uses actual typed HTE observations and exact native report projection before numerical consumption."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/scientist/causal-selected-consumers.md"]
+runbook_docs = []

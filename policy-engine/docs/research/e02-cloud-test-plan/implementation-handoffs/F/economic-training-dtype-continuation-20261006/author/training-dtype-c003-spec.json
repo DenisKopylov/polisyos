@@ -1,0 +1,28 @@
+{
+  "source_root": "/workspace/e02-F-economics-20261006",
+  "target_sha": "c003bd673fd672726db18773bf888357a468d901",
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "environment": {
+    "JAX_ENABLE_X64": "true",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:tools:."
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py",
+    "tests/unit/foundry/agent_sim/test_training_dtype.py",
+    "tests/unit/foundry/agent_sim/test_agent_simulation_step6.py::test_jit_trainer_compiles",
+    "tests/unit/foundry/agent_sim/test_agent_simulation_step6.py::test_es_runs",
+    "tests/unit/foundry/agent_sim/test_jit_training.py",
+    "-q",
+    "-ra",
+    "--tb=short",
+    "--junitxml=/tmp/e02-F-continuation-20261006/economics/training-dtype-c003.xml"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/economics/training-dtype-c003",
+  "artifact_paths": [
+    "/tmp/e02-F-continuation-20261006/economics/training-dtype-c003.xml"
+  ]
+}

@@ -1,0 +1,310 @@
+........................................................................ [ 40%]
+sssss..sssssss..............................................FFFFFF...... [ 81%]
+.................................                                        [100%]
+=================================== FAILURES ===================================
+_ test_real_process_preserves_control_exception_without_retry[sync-SystemExit] _
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/tmp-new-b-runtime-e187/test_real_process_preserves_co0')
+mode = 'sync', control = 'SystemExit'
+
+    @pytest.mark.parametrize("control", ["SystemExit", "KeyboardInterrupt", "SystemExitUnsupported"])
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    def test_real_process_preserves_control_exception_without_retry(tmp_path, mode, control):
+        effects = tmp_path / "attempts"
+        script = """import asyncio,json,multiprocessing,sys
+    from pathlib import Path
+    from unittest.mock import MagicMock
+    from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync, execute_with_retry_async
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    path=Path(sys.argv[1]); mode, control=sys.argv[2:]
+    class Node:
+     def execute(self,ctx,state):
+      with path.open('a') as stream:stream.write('attempt\\n')
+      if control=='SystemExit':raise SystemExit(17)
+      if control=='SystemExitUnsupported':raise SystemExit(object())
+      raise KeyboardInterrupt()
+    kwargs=dict(retry_policy=RetryPolicy(max_retries=2),timeout_s=.5,alias='actual-control')
+    try:
+     if mode=='sync':execute_with_retry_sync(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs)
+     else:asyncio.run(execute_with_retry_async(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs))
+    except BaseException as exc:
+     print(json.dumps(dict(type=type(exc).__name__,code=getattr(exc,'code',None),cause_code=getattr(exc.__cause__,'code',None),cause_category=getattr(exc.__cause__,'category',None),attempts=len(path.read_text().splitlines()),live_children=[p.pid for p in multiprocessing.active_children()])))
+    """
+        completed = subprocess.run(
+            [sys.executable, "-c", script, str(effects), mode, control],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
+        )
+        assert completed.returncode == 0, completed.stderr
+        observed = json.loads(completed.stdout)
+        if control == "SystemExitUnsupported":
+            assert observed["type"] == "RetryExhaustedError", observed
+            assert observed["cause_code"] == "node.control_unsupported", observed
+            assert observed["cause_category"] == "fatal", observed
+        else:
+>           assert observed["type"] == control, observed
+E           AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}
+E           assert 'NodeTimeoutError' == 'SystemExit'
+E             
+E             - SystemExit
+E             + NodeTimeoutError
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1767: AssertionError
+_ test_real_process_preserves_control_exception_without_retry[sync-KeyboardInterrupt] _
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/tmp-new-b-runtime-e187/test_real_process_preserves_co1')
+mode = 'sync', control = 'KeyboardInterrupt'
+
+    @pytest.mark.parametrize("control", ["SystemExit", "KeyboardInterrupt", "SystemExitUnsupported"])
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    def test_real_process_preserves_control_exception_without_retry(tmp_path, mode, control):
+        effects = tmp_path / "attempts"
+        script = """import asyncio,json,multiprocessing,sys
+    from pathlib import Path
+    from unittest.mock import MagicMock
+    from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync, execute_with_retry_async
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    path=Path(sys.argv[1]); mode, control=sys.argv[2:]
+    class Node:
+     def execute(self,ctx,state):
+      with path.open('a') as stream:stream.write('attempt\\n')
+      if control=='SystemExit':raise SystemExit(17)
+      if control=='SystemExitUnsupported':raise SystemExit(object())
+      raise KeyboardInterrupt()
+    kwargs=dict(retry_policy=RetryPolicy(max_retries=2),timeout_s=.5,alias='actual-control')
+    try:
+     if mode=='sync':execute_with_retry_sync(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs)
+     else:asyncio.run(execute_with_retry_async(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs))
+    except BaseException as exc:
+     print(json.dumps(dict(type=type(exc).__name__,code=getattr(exc,'code',None),cause_code=getattr(exc.__cause__,'code',None),cause_category=getattr(exc.__cause__,'category',None),attempts=len(path.read_text().splitlines()),live_children=[p.pid for p in multiprocessing.active_children()])))
+    """
+        completed = subprocess.run(
+            [sys.executable, "-c", script, str(effects), mode, control],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
+        )
+        assert completed.returncode == 0, completed.stderr
+        observed = json.loads(completed.stdout)
+        if control == "SystemExitUnsupported":
+            assert observed["type"] == "RetryExhaustedError", observed
+            assert observed["cause_code"] == "node.control_unsupported", observed
+            assert observed["cause_category"] == "fatal", observed
+        else:
+>           assert observed["type"] == control, observed
+E           AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}
+E           assert 'NodeTimeoutError' == 'KeyboardInterrupt'
+E             
+E             - KeyboardInterrupt
+E             + NodeTimeoutError
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1767: AssertionError
+_ test_real_process_preserves_control_exception_without_retry[sync-SystemExitUnsupported] _
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/tmp-new-b-runtime-e187/test_real_process_preserves_co2')
+mode = 'sync', control = 'SystemExitUnsupported'
+
+    @pytest.mark.parametrize("control", ["SystemExit", "KeyboardInterrupt", "SystemExitUnsupported"])
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    def test_real_process_preserves_control_exception_without_retry(tmp_path, mode, control):
+        effects = tmp_path / "attempts"
+        script = """import asyncio,json,multiprocessing,sys
+    from pathlib import Path
+    from unittest.mock import MagicMock
+    from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync, execute_with_retry_async
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    path=Path(sys.argv[1]); mode, control=sys.argv[2:]
+    class Node:
+     def execute(self,ctx,state):
+      with path.open('a') as stream:stream.write('attempt\\n')
+      if control=='SystemExit':raise SystemExit(17)
+      if control=='SystemExitUnsupported':raise SystemExit(object())
+      raise KeyboardInterrupt()
+    kwargs=dict(retry_policy=RetryPolicy(max_retries=2),timeout_s=.5,alias='actual-control')
+    try:
+     if mode=='sync':execute_with_retry_sync(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs)
+     else:asyncio.run(execute_with_retry_async(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs))
+    except BaseException as exc:
+     print(json.dumps(dict(type=type(exc).__name__,code=getattr(exc,'code',None),cause_code=getattr(exc.__cause__,'code',None),cause_category=getattr(exc.__cause__,'category',None),attempts=len(path.read_text().splitlines()),live_children=[p.pid for p in multiprocessing.active_children()])))
+    """
+        completed = subprocess.run(
+            [sys.executable, "-c", script, str(effects), mode, control],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
+        )
+        assert completed.returncode == 0, completed.stderr
+        observed = json.loads(completed.stdout)
+        if control == "SystemExitUnsupported":
+>           assert observed["type"] == "RetryExhaustedError", observed
+E           AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}
+E           assert 'NodeTimeoutError' == 'RetryExhaustedError'
+E             
+E             - RetryExhaustedError
+E             + NodeTimeoutError
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1763: AssertionError
+_ test_real_process_preserves_control_exception_without_retry[async-SystemExit] _
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/tmp-new-b-runtime-e187/test_real_process_preserves_co3')
+mode = 'async', control = 'SystemExit'
+
+    @pytest.mark.parametrize("control", ["SystemExit", "KeyboardInterrupt", "SystemExitUnsupported"])
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    def test_real_process_preserves_control_exception_without_retry(tmp_path, mode, control):
+        effects = tmp_path / "attempts"
+        script = """import asyncio,json,multiprocessing,sys
+    from pathlib import Path
+    from unittest.mock import MagicMock
+    from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync, execute_with_retry_async
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    path=Path(sys.argv[1]); mode, control=sys.argv[2:]
+    class Node:
+     def execute(self,ctx,state):
+      with path.open('a') as stream:stream.write('attempt\\n')
+      if control=='SystemExit':raise SystemExit(17)
+      if control=='SystemExitUnsupported':raise SystemExit(object())
+      raise KeyboardInterrupt()
+    kwargs=dict(retry_policy=RetryPolicy(max_retries=2),timeout_s=.5,alias='actual-control')
+    try:
+     if mode=='sync':execute_with_retry_sync(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs)
+     else:asyncio.run(execute_with_retry_async(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs))
+    except BaseException as exc:
+     print(json.dumps(dict(type=type(exc).__name__,code=getattr(exc,'code',None),cause_code=getattr(exc.__cause__,'code',None),cause_category=getattr(exc.__cause__,'category',None),attempts=len(path.read_text().splitlines()),live_children=[p.pid for p in multiprocessing.active_children()])))
+    """
+        completed = subprocess.run(
+            [sys.executable, "-c", script, str(effects), mode, control],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
+        )
+        assert completed.returncode == 0, completed.stderr
+        observed = json.loads(completed.stdout)
+        if control == "SystemExitUnsupported":
+            assert observed["type"] == "RetryExhaustedError", observed
+            assert observed["cause_code"] == "node.control_unsupported", observed
+            assert observed["cause_category"] == "fatal", observed
+        else:
+>           assert observed["type"] == control, observed
+E           AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}
+E           assert 'NodeTimeoutError' == 'SystemExit'
+E             
+E             - SystemExit
+E             + NodeTimeoutError
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1767: AssertionError
+_ test_real_process_preserves_control_exception_without_retry[async-KeyboardInterrupt] _
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/tmp-new-b-runtime-e187/test_real_process_preserves_co4')
+mode = 'async', control = 'KeyboardInterrupt'
+
+    @pytest.mark.parametrize("control", ["SystemExit", "KeyboardInterrupt", "SystemExitUnsupported"])
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    def test_real_process_preserves_control_exception_without_retry(tmp_path, mode, control):
+        effects = tmp_path / "attempts"
+        script = """import asyncio,json,multiprocessing,sys
+    from pathlib import Path
+    from unittest.mock import MagicMock
+    from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync, execute_with_retry_async
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    path=Path(sys.argv[1]); mode, control=sys.argv[2:]
+    class Node:
+     def execute(self,ctx,state):
+      with path.open('a') as stream:stream.write('attempt\\n')
+      if control=='SystemExit':raise SystemExit(17)
+      if control=='SystemExitUnsupported':raise SystemExit(object())
+      raise KeyboardInterrupt()
+    kwargs=dict(retry_policy=RetryPolicy(max_retries=2),timeout_s=.5,alias='actual-control')
+    try:
+     if mode=='sync':execute_with_retry_sync(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs)
+     else:asyncio.run(execute_with_retry_async(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs))
+    except BaseException as exc:
+     print(json.dumps(dict(type=type(exc).__name__,code=getattr(exc,'code',None),cause_code=getattr(exc.__cause__,'code',None),cause_category=getattr(exc.__cause__,'category',None),attempts=len(path.read_text().splitlines()),live_children=[p.pid for p in multiprocessing.active_children()])))
+    """
+        completed = subprocess.run(
+            [sys.executable, "-c", script, str(effects), mode, control],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
+        )
+        assert completed.returncode == 0, completed.stderr
+        observed = json.loads(completed.stdout)
+        if control == "SystemExitUnsupported":
+            assert observed["type"] == "RetryExhaustedError", observed
+            assert observed["cause_code"] == "node.control_unsupported", observed
+            assert observed["cause_category"] == "fatal", observed
+        else:
+>           assert observed["type"] == control, observed
+E           AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}
+E           assert 'NodeTimeoutError' == 'KeyboardInterrupt'
+E             
+E             - KeyboardInterrupt
+E             + NodeTimeoutError
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1767: AssertionError
+_ test_real_process_preserves_control_exception_without_retry[async-SystemExitUnsupported] _
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/tmp-new-b-runtime-e187/test_real_process_preserves_co5')
+mode = 'async', control = 'SystemExitUnsupported'
+
+    @pytest.mark.parametrize("control", ["SystemExit", "KeyboardInterrupt", "SystemExitUnsupported"])
+    @pytest.mark.parametrize("mode", ["sync", "async"])
+    def test_real_process_preserves_control_exception_without_retry(tmp_path, mode, control):
+        effects = tmp_path / "attempts"
+        script = """import asyncio,json,multiprocessing,sys
+    from pathlib import Path
+    from unittest.mock import MagicMock
+    from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync, execute_with_retry_async
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    path=Path(sys.argv[1]); mode, control=sys.argv[2:]
+    class Node:
+     def execute(self,ctx,state):
+      with path.open('a') as stream:stream.write('attempt\\n')
+      if control=='SystemExit':raise SystemExit(17)
+      if control=='SystemExitUnsupported':raise SystemExit(object())
+      raise KeyboardInterrupt()
+    kwargs=dict(retry_policy=RetryPolicy(max_retries=2),timeout_s=.5,alias='actual-control')
+    try:
+     if mode=='sync':execute_with_retry_sync(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs)
+     else:asyncio.run(execute_with_retry_async(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs))
+    except BaseException as exc:
+     print(json.dumps(dict(type=type(exc).__name__,code=getattr(exc,'code',None),cause_code=getattr(exc.__cause__,'code',None),cause_category=getattr(exc.__cause__,'category',None),attempts=len(path.read_text().splitlines()),live_children=[p.pid for p in multiprocessing.active_children()])))
+    """
+        completed = subprocess.run(
+            [sys.executable, "-c", script, str(effects), mode, control],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
+        )
+        assert completed.returncode == 0, completed.stderr
+        observed = json.loads(completed.stdout)
+        if control == "SystemExitUnsupported":
+>           assert observed["type"] == "RetryExhaustedError", observed
+E           AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}
+E           assert 'NodeTimeoutError' == 'RetryExhaustedError'
+E             
+E             - RetryExhaustedError
+E             + NodeTimeoutError
+
+tests/unit/scientist/orchestration/engine/test_retry.py:1763: AssertionError
+=============================== warnings summary ===============================
+tests/unit/scientist/orchestration/engine/test_retry.py: 37 warnings
+  /Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=18560) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_real_process_preserves_control_exception_without_retry[sync-SystemExit]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_real_process_preserves_control_exception_without_retry[sync-KeyboardInterrupt]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_real_process_preserves_control_exception_without_retry[sync-SystemExitUnsupported]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_real_process_preserves_control_exception_without_retry[async-SystemExit]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_real_process_preserves_control_exception_without_retry[async-KeyboardInterrupt]
+FAILED tests/unit/scientist/orchestration/engine/test_retry.py::test_real_process_preserves_control_exception_without_retry[async-SystemExitUnsupported]
+6 failed, 159 passed, 12 skipped, 37 warnings in 15.27s

@@ -1,0 +1,227 @@
+{
+  "archive": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-cas-input.tar.gz",
+    "bytes": 18922,
+    "sha256": "88b506fe8bf8ee767032b9e879c66bb608c6de989d1713c3ff3b8666690a069b"
+  },
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/02/1f/021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96.blob",
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96",
+      "archive_member": "artifacts/sha256/02/1f/021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96.blob"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/02/1f/021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96.manifest.json",
+      "bytes": 353,
+      "sha256": "04c1803024f7a329e04176b49d7e03cfddf795ba00c8a08af6fb9c69bc231855",
+      "archive_member": "artifacts/sha256/02/1f/021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/02/1f/021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96.view.d3b55cec2c25198055b61e9ba9e1ed1c07a71e292d141fcbb46f12fecd56de52.manifest.json",
+      "bytes": 353,
+      "sha256": "04c1803024f7a329e04176b49d7e03cfddf795ba00c8a08af6fb9c69bc231855",
+      "archive_member": "artifacts/sha256/02/1f/021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96.view.d3b55cec2c25198055b61e9ba9e1ed1c07a71e292d141fcbb46f12fecd56de52.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/1f/ff/1fffa11a5575ae971ea18862b60ae5c14ebb37198246430ff8893c94dcc55cd4.blob",
+      "bytes": 12,
+      "sha256": "1fffa11a5575ae971ea18862b60ae5c14ebb37198246430ff8893c94dcc55cd4",
+      "archive_member": "artifacts/sha256/1f/ff/1fffa11a5575ae971ea18862b60ae5c14ebb37198246430ff8893c94dcc55cd4.blob"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/1f/ff/1fffa11a5575ae971ea18862b60ae5c14ebb37198246430ff8893c94dcc55cd4.manifest.json",
+      "bytes": 543,
+      "sha256": "74c62f71399be68b32f44c5f18349d7ad8624f9a33521a04e572235c54c12252",
+      "archive_member": "artifacts/sha256/1f/ff/1fffa11a5575ae971ea18862b60ae5c14ebb37198246430ff8893c94dcc55cd4.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/1f/ff/1fffa11a5575ae971ea18862b60ae5c14ebb37198246430ff8893c94dcc55cd4.view.2862b06eef825059b200ec66366612274f5051bb52e5fb2677f55a9a9639049b.manifest.json",
+      "bytes": 543,
+      "sha256": "74c62f71399be68b32f44c5f18349d7ad8624f9a33521a04e572235c54c12252",
+      "archive_member": "artifacts/sha256/1f/ff/1fffa11a5575ae971ea18862b60ae5c14ebb37198246430ff8893c94dcc55cd4.view.2862b06eef825059b200ec66366612274f5051bb52e5fb2677f55a9a9639049b.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/32/20/32206371a0c0cfcd48c7befa313dba7996e1005b3464e0ed92c2e709854cd706.blob",
+      "bytes": 574,
+      "sha256": "32206371a0c0cfcd48c7befa313dba7996e1005b3464e0ed92c2e709854cd706",
+      "archive_member": "artifacts/sha256/32/20/32206371a0c0cfcd48c7befa313dba7996e1005b3464e0ed92c2e709854cd706.blob"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/32/20/32206371a0c0cfcd48c7befa313dba7996e1005b3464e0ed92c2e709854cd706.manifest.json",
+      "bytes": 631,
+      "sha256": "db909b5651206f16903a0a3a2cd5a5b5fe4cb624edd264e9156c24c0eab1d2a8",
+      "archive_member": "artifacts/sha256/32/20/32206371a0c0cfcd48c7befa313dba7996e1005b3464e0ed92c2e709854cd706.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/32/20/32206371a0c0cfcd48c7befa313dba7996e1005b3464e0ed92c2e709854cd706.view.97892007b7b5a307bde290da7e805d43e4db81f4a39e4434188e307a6b81d379.manifest.json",
+      "bytes": 631,
+      "sha256": "db909b5651206f16903a0a3a2cd5a5b5fe4cb624edd264e9156c24c0eab1d2a8",
+      "archive_member": "artifacts/sha256/32/20/32206371a0c0cfcd48c7befa313dba7996e1005b3464e0ed92c2e709854cd706.view.97892007b7b5a307bde290da7e805d43e4db81f4a39e4434188e307a6b81d379.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/42/65/426568b2688b0c93206aca68a2c393f49a577b368e8e436de0b9255e475e1f7c.blob",
+      "bytes": 25,
+      "sha256": "426568b2688b0c93206aca68a2c393f49a577b368e8e436de0b9255e475e1f7c",
+      "archive_member": "artifacts/sha256/42/65/426568b2688b0c93206aca68a2c393f49a577b368e8e436de0b9255e475e1f7c.blob"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/42/65/426568b2688b0c93206aca68a2c393f49a577b368e8e436de0b9255e475e1f7c.manifest.json",
+      "bytes": 551,
+      "sha256": "a61a609b7160be1da70761e46b88daa14dd23e4ca92c411f8e3150012374d489",
+      "archive_member": "artifacts/sha256/42/65/426568b2688b0c93206aca68a2c393f49a577b368e8e436de0b9255e475e1f7c.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/42/65/426568b2688b0c93206aca68a2c393f49a577b368e8e436de0b9255e475e1f7c.view.e014f9853637731eed96bdd65bc67efa8dc89b287414ea04f22b9cd5634b3b65.manifest.json",
+      "bytes": 551,
+      "sha256": "a61a609b7160be1da70761e46b88daa14dd23e4ca92c411f8e3150012374d489",
+      "archive_member": "artifacts/sha256/42/65/426568b2688b0c93206aca68a2c393f49a577b368e8e436de0b9255e475e1f7c.view.e014f9853637731eed96bdd65bc67efa8dc89b287414ea04f22b9cd5634b3b65.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/53/77/5377227d0c43143de6be6a39c616719323b8f69c580b17ce7ba32e42390df62f.blob",
+      "bytes": 1314,
+      "sha256": "5377227d0c43143de6be6a39c616719323b8f69c580b17ce7ba32e42390df62f",
+      "archive_member": "artifacts/sha256/53/77/5377227d0c43143de6be6a39c616719323b8f69c580b17ce7ba32e42390df62f.blob"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/53/77/5377227d0c43143de6be6a39c616719323b8f69c580b17ce7ba32e42390df62f.manifest.json",
+      "bytes": 724,
+      "sha256": "19d792c037cf87c48e30ea12c13fa919a1e5b5a4e98830b5ff273aac2b978076",
+      "archive_member": "artifacts/sha256/53/77/5377227d0c43143de6be6a39c616719323b8f69c580b17ce7ba32e42390df62f.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/53/77/5377227d0c43143de6be6a39c616719323b8f69c580b17ce7ba32e42390df62f.view.b52da06ec2ebe1d26c77daac04677afa8354c0d57c16afd6736a8fd451b75fc8.manifest.json",
+      "bytes": 724,
+      "sha256": "19d792c037cf87c48e30ea12c13fa919a1e5b5a4e98830b5ff273aac2b978076",
+      "archive_member": "artifacts/sha256/53/77/5377227d0c43143de6be6a39c616719323b8f69c580b17ce7ba32e42390df62f.view.b52da06ec2ebe1d26c77daac04677afa8354c0d57c16afd6736a8fd451b75fc8.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/53/d9/53d90fdc25334c266ac0fd88aaa0b9318dec41d8c400c348ba227f2854831225.blob",
+      "bytes": 361,
+      "sha256": "53d90fdc25334c266ac0fd88aaa0b9318dec41d8c400c348ba227f2854831225",
+      "archive_member": "artifacts/sha256/53/d9/53d90fdc25334c266ac0fd88aaa0b9318dec41d8c400c348ba227f2854831225.blob"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/53/d9/53d90fdc25334c266ac0fd88aaa0b9318dec41d8c400c348ba227f2854831225.manifest.json",
+      "bytes": 552,
+      "sha256": "a1ccbce1674c9950cc33bc02310a763bc71f95cd3253c88766a8b40f1d71e6fc",
+      "archive_member": "artifacts/sha256/53/d9/53d90fdc25334c266ac0fd88aaa0b9318dec41d8c400c348ba227f2854831225.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/53/d9/53d90fdc25334c266ac0fd88aaa0b9318dec41d8c400c348ba227f2854831225.view.e014f9853637731eed96bdd65bc67efa8dc89b287414ea04f22b9cd5634b3b65.manifest.json",
+      "bytes": 552,
+      "sha256": "a1ccbce1674c9950cc33bc02310a763bc71f95cd3253c88766a8b40f1d71e6fc",
+      "archive_member": "artifacts/sha256/53/d9/53d90fdc25334c266ac0fd88aaa0b9318dec41d8c400c348ba227f2854831225.view.e014f9853637731eed96bdd65bc67efa8dc89b287414ea04f22b9cd5634b3b65.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/6e/e4/6ee48bbda9709d4cdff0a3e089c01966434664e0853b04c33236879e012b2e34.blob",
+      "bytes": 1315,
+      "sha256": "6ee48bbda9709d4cdff0a3e089c01966434664e0853b04c33236879e012b2e34",
+      "archive_member": "artifacts/sha256/6e/e4/6ee48bbda9709d4cdff0a3e089c01966434664e0853b04c33236879e012b2e34.blob"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/6e/e4/6ee48bbda9709d4cdff0a3e089c01966434664e0853b04c33236879e012b2e34.manifest.json",
+      "bytes": 730,
+      "sha256": "552149ba56269da5f09ea88e3fef8e1bced55e5af4f70c78851713901e38cd95",
+      "archive_member": "artifacts/sha256/6e/e4/6ee48bbda9709d4cdff0a3e089c01966434664e0853b04c33236879e012b2e34.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/6e/e4/6ee48bbda9709d4cdff0a3e089c01966434664e0853b04c33236879e012b2e34.view.98e631113bc3f702d4a54a3938cc600f93f1cadf6bc8d2cb48881a1a96f0e48c.manifest.json",
+      "bytes": 730,
+      "sha256": "552149ba56269da5f09ea88e3fef8e1bced55e5af4f70c78851713901e38cd95",
+      "archive_member": "artifacts/sha256/6e/e4/6ee48bbda9709d4cdff0a3e089c01966434664e0853b04c33236879e012b2e34.view.98e631113bc3f702d4a54a3938cc600f93f1cadf6bc8d2cb48881a1a96f0e48c.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/90/94/90940e4f67c0f8903e9d2d3f67c1d65104f399899c8c0fbf365cfa8d442edaca.blob",
+      "bytes": 17201,
+      "sha256": "90940e4f67c0f8903e9d2d3f67c1d65104f399899c8c0fbf365cfa8d442edaca",
+      "archive_member": "artifacts/sha256/90/94/90940e4f67c0f8903e9d2d3f67c1d65104f399899c8c0fbf365cfa8d442edaca.blob"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/90/94/90940e4f67c0f8903e9d2d3f67c1d65104f399899c8c0fbf365cfa8d442edaca.manifest.json",
+      "bytes": 778,
+      "sha256": "ea96c00ef1f91ebcb16b9f9c69c66445cb02841810716107d00d2c96addd3843",
+      "archive_member": "artifacts/sha256/90/94/90940e4f67c0f8903e9d2d3f67c1d65104f399899c8c0fbf365cfa8d442edaca.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/90/94/90940e4f67c0f8903e9d2d3f67c1d65104f399899c8c0fbf365cfa8d442edaca.view.088ca4301e3d97c7a251e2bf2d2233d781ade5c84cc0551a7594e9b8c834e552.manifest.json",
+      "bytes": 778,
+      "sha256": "ea96c00ef1f91ebcb16b9f9c69c66445cb02841810716107d00d2c96addd3843",
+      "archive_member": "artifacts/sha256/90/94/90940e4f67c0f8903e9d2d3f67c1d65104f399899c8c0fbf365cfa8d442edaca.view.088ca4301e3d97c7a251e2bf2d2233d781ade5c84cc0551a7594e9b8c834e552.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/99/6f/996f56136d05fbec24e7ce38022f3593a1f96fa605f789e85828a17f41dce16d.blob",
+      "bytes": 7739,
+      "sha256": "996f56136d05fbec24e7ce38022f3593a1f96fa605f789e85828a17f41dce16d",
+      "archive_member": "artifacts/sha256/99/6f/996f56136d05fbec24e7ce38022f3593a1f96fa605f789e85828a17f41dce16d.blob"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/99/6f/996f56136d05fbec24e7ce38022f3593a1f96fa605f789e85828a17f41dce16d.manifest.json",
+      "bytes": 747,
+      "sha256": "a25ba1039c19abb7aa8592b182bcd17c4af2bf2931cb04a100e0aa8509b2c5ca",
+      "archive_member": "artifacts/sha256/99/6f/996f56136d05fbec24e7ce38022f3593a1f96fa605f789e85828a17f41dce16d.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/99/6f/996f56136d05fbec24e7ce38022f3593a1f96fa605f789e85828a17f41dce16d.view.63814366ce2b419defb1ba104124e9dfc349e04d814e8908b05f8ae3cf7b5980.manifest.json",
+      "bytes": 747,
+      "sha256": "a25ba1039c19abb7aa8592b182bcd17c4af2bf2931cb04a100e0aa8509b2c5ca",
+      "archive_member": "artifacts/sha256/99/6f/996f56136d05fbec24e7ce38022f3593a1f96fa605f789e85828a17f41dce16d.view.63814366ce2b419defb1ba104124e9dfc349e04d814e8908b05f8ae3cf7b5980.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/ad/20/ad206068c29722297302d4fadb11c198d45356f4a95c319d937e57a9290aa547.blob",
+      "bytes": 13,
+      "sha256": "ad206068c29722297302d4fadb11c198d45356f4a95c319d937e57a9290aa547",
+      "archive_member": "artifacts/sha256/ad/20/ad206068c29722297302d4fadb11c198d45356f4a95c319d937e57a9290aa547.blob"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/ad/20/ad206068c29722297302d4fadb11c198d45356f4a95c319d937e57a9290aa547.manifest.json",
+      "bytes": 541,
+      "sha256": "6a0b3b2b90c77674d234faa33a21d5dec455aad580baf9876c4d70a21bda0250",
+      "archive_member": "artifacts/sha256/ad/20/ad206068c29722297302d4fadb11c198d45356f4a95c319d937e57a9290aa547.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/ad/20/ad206068c29722297302d4fadb11c198d45356f4a95c319d937e57a9290aa547.view.74379c8710cd3bb843cbb845c8a0de6d53bb50016e09e57603ccd2c64565580d.manifest.json",
+      "bytes": 541,
+      "sha256": "6a0b3b2b90c77674d234faa33a21d5dec455aad580baf9876c4d70a21bda0250",
+      "archive_member": "artifacts/sha256/ad/20/ad206068c29722297302d4fadb11c198d45356f4a95c319d937e57a9290aa547.view.74379c8710cd3bb843cbb845c8a0de6d53bb50016e09e57603ccd2c64565580d.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/d6/71/d671d21736330644711d4455492ed337aa31101ff6f7667c598e233b843d8e42.blob",
+      "bytes": 3745,
+      "sha256": "d671d21736330644711d4455492ed337aa31101ff6f7667c598e233b843d8e42",
+      "archive_member": "artifacts/sha256/d6/71/d671d21736330644711d4455492ed337aa31101ff6f7667c598e233b843d8e42.blob"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/d6/71/d671d21736330644711d4455492ed337aa31101ff6f7667c598e233b843d8e42.manifest.json",
+      "bytes": 731,
+      "sha256": "c27ac9c0facded34c24a4b536d3e54514f8bfbdaf4b3b3ab9f05da47e6cec132",
+      "archive_member": "artifacts/sha256/d6/71/d671d21736330644711d4455492ed337aa31101ff6f7667c598e233b843d8e42.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/d6/71/d671d21736330644711d4455492ed337aa31101ff6f7667c598e233b843d8e42.view.a1823a921911eb0ab2deb54f8aed914f38c28b0e02b43cd17944504c55233527.manifest.json",
+      "bytes": 731,
+      "sha256": "c27ac9c0facded34c24a4b536d3e54514f8bfbdaf4b3b3ab9f05da47e6cec132",
+      "archive_member": "artifacts/sha256/d6/71/d671d21736330644711d4455492ed337aa31101ff6f7667c598e233b843d8e42.view.a1823a921911eb0ab2deb54f8aed914f38c28b0e02b43cd17944504c55233527.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/f8/d8/f8d86d03a2ea2f122bb20daf16d7351c8b35c7a798281e62a65db3f526621f1b.blob",
+      "bytes": 66737,
+      "sha256": "f8d86d03a2ea2f122bb20daf16d7351c8b35c7a798281e62a65db3f526621f1b",
+      "archive_member": "artifacts/sha256/f8/d8/f8d86d03a2ea2f122bb20daf16d7351c8b35c7a798281e62a65db3f526621f1b.blob"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/f8/d8/f8d86d03a2ea2f122bb20daf16d7351c8b35c7a798281e62a65db3f526621f1b.manifest.json",
+      "bytes": 551,
+      "sha256": "5e17179c118ca8e3748ba6d8848edbf08e63d379b6b31a8f4dc03ae5be0f2349",
+      "archive_member": "artifacts/sha256/f8/d8/f8d86d03a2ea2f122bb20daf16d7351c8b35c7a798281e62a65db3f526621f1b.manifest.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas/artifacts/sha256/f8/d8/f8d86d03a2ea2f122bb20daf16d7351c8b35c7a798281e62a65db3f526621f1b.view.c228bfd9d29f702742445324e7a4e88d993b79f48fc65b6d9b15b0ab31985479.manifest.json",
+      "bytes": 551,
+      "sha256": "5e17179c118ca8e3748ba6d8848edbf08e63d379b6b31a8f4dc03ae5be0f2349",
+      "archive_member": "artifacts/sha256/f8/d8/f8d86d03a2ea2f122bb20daf16d7351c8b35c7a798281e62a65db3f526621f1b.view.c228bfd9d29f702742445324e7a4e88d993b79f48fc65b6d9b15b0ab31985479.manifest.json"
+    }
+  ],
+  "total_raw_bytes": 113901,
+  "scope": "unique actual synthetic producer CAS; no production inputs, tracked product sources, ownership journals, or locks"
+}

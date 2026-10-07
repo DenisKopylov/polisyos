@@ -1,0 +1,74 @@
+{
+  "schema": "independent-native-check/1",
+  "config": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/api-review/final-removal-config.json",
+    "bytes": 926,
+    "sha256": "020f1bd067714fd02b6b7cf0a1612bcd72a339d654797d671cd87e371f68eb35"
+  },
+  "argv": [
+    "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python",
+    "-I",
+    "/tmp/e02-F-continuation-20261007/api/run_installed_graph_reconciliation.py",
+    "/tmp/e02-F-continuation-20261007/cau/api-review/final-wheel-config.json",
+    "remove_row_isolation"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/api/wheel-consumer",
+  "source_sha": "6f39b0edc48ec59db3731fa917c615b9f97e4dc0",
+  "source_tree": "bd4d4488cbd8121fed1c0983d2e3cc3d8fef49a5",
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "launcher_python": "3.12.14",
+  "source_before": [
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_graph_contract_reconciliation.py",
+      "bytes": 7224,
+      "sha256": "65625b4786535bd2864b0a7726bed69cde7b0b0975efd364c8aa7ec292d0c27b",
+      "git_blob": "0444ce845d1854e43e00ddbb601af3447cd38c93"
+    },
+    {
+      "path": "policy-engine/docs/reference/foundry/causal-installed-source-reconciliation.md",
+      "bytes": 3267,
+      "sha256": "861e0fc37295187894e7f29102947763f297dbc6ee3f85bb371b6de69f7f67a3",
+      "git_blob": "1912baaf98832a17d2e3155d1103785b2bdf3c9c"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-installed-graph-contract-reconciliation.toml",
+      "bytes": 1738,
+      "sha256": "850307f46070a9b3b1efc3acd24d9d2283738838f9df8e0dc53c791c6e280902",
+      "git_blob": "96e3ac7fad502a53282f48ad0e0c3270dcaf7ddf"
+    }
+  ],
+  "source_after": [
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_graph_contract_reconciliation.py",
+      "bytes": 7224,
+      "sha256": "65625b4786535bd2864b0a7726bed69cde7b0b0975efd364c8aa7ec292d0c27b",
+      "git_blob": "0444ce845d1854e43e00ddbb601af3447cd38c93"
+    },
+    {
+      "path": "policy-engine/docs/reference/foundry/causal-installed-source-reconciliation.md",
+      "bytes": 3267,
+      "sha256": "861e0fc37295187894e7f29102947763f297dbc6ee3f85bb371b6de69f7f67a3",
+      "git_blob": "1912baaf98832a17d2e3155d1103785b2bdf3c9c"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-installed-graph-contract-reconciliation.toml",
+      "bytes": 1738,
+      "sha256": "850307f46070a9b3b1efc3acd24d9d2283738838f9df8e0dc53c791c6e280902",
+      "git_blob": "96e3ac7fad502a53282f48ad0e0c3270dcaf7ddf"
+    }
+  ],
+  "exit": 1,
+  "wall_s": 14.580081056017661,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/api-review/final-removal.stdout",
+    "bytes": 6777,
+    "sha256": "942c37f25dc353e22d4a879f1ee3cb8427c40b770a50e22ad7a452866a0d99b9"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/api-review/final-removal.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

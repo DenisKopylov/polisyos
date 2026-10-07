@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/bin/python",
+    "-I",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/probe_additional_consumers.py",
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/installed-config.json",
+    "wheel",
+    "/workspace/e02-F-closeout-20261006/policy-engine/data/dataset_catalog",
+    "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/state"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review",
+  "env_changes": {
+    "PYTHONPATH": "removed if inherited",
+    "PYTHONHOME": "removed if inherited"
+  },
+  "new_resource_quota": false,
+  "exit": 0,
+  "wall_seconds": 1.92299845899106,
+  "outputs": {
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/wheel-additional.stdout.txt",
+      "bytes": 76612,
+      "sha256": "0f9f1eb4cc30bf8060bf3da7b53ff34e25f606fb83d85280c98daf65b0aa4f31"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/wheel-additional.stderr.txt",
+      "bytes": 1082,
+      "sha256": "bb1b5b79d46b458a84a7d1ffd69e5dd1d8f480655a72a15caf5eaab32ee23eff"
+    }
+  }
+}

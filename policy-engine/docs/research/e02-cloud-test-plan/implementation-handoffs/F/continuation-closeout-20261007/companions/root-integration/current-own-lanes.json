@@ -1,0 +1,79 @@
+[
+  {
+    "lane": "root",
+    "branch_expected": "codex/e02-F-closeout-20261006",
+    "path_absolute": "/workspace/e02-F-closeout-20261006",
+    "actual_branch": "codex/e02-F-closeout-20261006",
+    "head": "6a39465ee29bb50efcd431089deb8f043e26d762",
+    "tree": "25fbb0accb6c05a7426a7f7b02c112439b026821",
+    "full_status": "M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/G-local-causal-reruns.json\n?? policy-engine/workers/dowhy-014/.venv",
+    "active": "F continuation lanes retained until finalreview/publication; no retirement or nativeTrash available",
+    "admission": "Exact matching pair resume doctor full JSON in continuation-intake-20261007 committed receipt; no new checkout/worktree created"
+  },
+  {
+    "lane": "graph",
+    "branch_expected": "codex/e02-F-graph-20261006",
+    "path_absolute": "/workspace/e02-F-graph-20261006",
+    "actual_branch": "codex/e02-F-graph-20261006",
+    "head": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+    "tree": "014203f04f72a477407df231372775f403e0cefb",
+    "full_status": "",
+    "active": "F continuation lanes retained until finalreview/publication; no retirement or nativeTrash available",
+    "admission": "Exact matching pair resume doctor full JSON in continuation-intake-20261007 committed receipt; no new checkout/worktree created"
+  },
+  {
+    "lane": "api",
+    "branch_expected": "codex/e02-F-api-20261006",
+    "path_absolute": "/workspace/e02-F-api-20261006",
+    "actual_branch": "codex/e02-F-api-20261006",
+    "head": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+    "tree": "c7c71a12bc04238dce414455a06849a9f49a824f",
+    "full_status": "",
+    "active": "F continuation lanes retained until finalreview/publication; no retirement or nativeTrash available",
+    "admission": "Exact matching pair resume doctor full JSON in continuation-intake-20261007 committed receipt; no new checkout/worktree created"
+  },
+  {
+    "lane": "fit",
+    "branch_expected": "codex/e02-F-tmle-20261006",
+    "path_absolute": "/workspace/e02-F-tmle-20261006",
+    "actual_branch": "codex/e02-F-tmle-20261006",
+    "head": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+    "tree": "13736344f761ab911a1607fc2ebb9d722395ec68",
+    "full_status": "",
+    "active": "F continuation lanes retained until finalreview/publication; no retirement or nativeTrash available",
+    "admission": "Exact matching pair resume doctor full JSON in continuation-intake-20261007 committed receipt; no new checkout/worktree created"
+  },
+  {
+    "lane": "economics",
+    "branch_expected": "codex/e02-F-economics-20261006",
+    "path_absolute": "/workspace/e02-F-economics-20261006",
+    "actual_branch": "codex/e02-F-economics-20261006",
+    "head": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+    "tree": "334f80bc471c2a686ab4f7a5101c44d0cb4c6b90",
+    "full_status": "",
+    "active": "F continuation lanes retained until finalreview/publication; no retirement or nativeTrash available",
+    "admission": "Exact matching pair resume doctor full JSON in continuation-intake-20261007 committed receipt; no new checkout/worktree created"
+  },
+  {
+    "lane": "cau",
+    "branch_expected": "codex/e02-F-cau-20261006",
+    "path_absolute": "/workspace/e02-F-cau-20261006",
+    "actual_branch": "codex/e02-F-cau-20261006",
+    "head": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+    "tree": "d24808dc3eeed4881256f2a70cdeb02357c425c7",
+    "full_status": "",
+    "active": "F continuation lanes retained until finalreview/publication; no retirement or nativeTrash available",
+    "admission": "Exact matching pair resume doctor full JSON in continuation-intake-20261007 committed receipt; no new checkout/worktree created"
+  },
+  {
+    "lane": "foundry",
+    "branch_expected": "codex/e02-F-fry-20261006",
+    "path_absolute": "/workspace/e02-F-fry-20261006",
+    "actual_branch": "codex/e02-F-fry-20261006",
+    "head": "0552bd338dad23b2eabb0d22a1c7c4eb4bcd61d6",
+    "tree": "ce0da4f7d0fb7d313bf98547571a2c2a0487df35",
+    "full_status": "",
+    "active": "F continuation lanes retained until finalreview/publication; no retirement or nativeTrash available",
+    "admission": "Exact matching pair resume doctor full JSON in continuation-intake-20261007 committed receipt; no new checkout/worktree created"
+  }
+]

@@ -70,6 +70,7 @@ __all__ = [
     "bind_legal_subject_annotations",
     "build_method_catalog_provenance_manifest",
     "build_method_catalog_runtime_identity",
+    "causal_worker_execution_context",
     "compile",
     "compile_program",
     "execute",
@@ -80,9 +81,28 @@ __all__ = [
     "produce_legal_subject_spine",
     "recognize_legal_correspondence",
     "select_method_candidates_for_requirements",
+    "validate_source_bound_causal_estimator_interval",
+    "validate_source_bound_causal_worker_response",
+    "validate_source_bound_gcm_spec",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "causal_worker_execution_context": (
+        "polisyos.foundry.methods.catalog.causal._dowhy_worker",
+        "worker_execution_context",
+    ),
+    "validate_source_bound_causal_estimator_interval": (
+        "polisyos.foundry.methods.catalog.causal.gcm_query",
+        "validate_persisted_estimator_interval",
+    ),
+    "validate_source_bound_causal_worker_response": (
+        "polisyos.foundry.methods.catalog.causal._dowhy_worker",
+        "validate_persisted_worker_response",
+    ),
+    "validate_source_bound_gcm_spec": (
+        "polisyos.foundry.methods.catalog.causal.gcm_fit",
+        "validate_persisted_gcm_spec",
+    ),
     "InputContractMethodSelection": ("polisyos.foundry.methods.selection", "InputContractMethodSelection"),
     "select_method_for_input_contract": ("polisyos.foundry.methods.selection", "select_method_for_input_contract"),
     "DependencyProfileResolutionFailure": (

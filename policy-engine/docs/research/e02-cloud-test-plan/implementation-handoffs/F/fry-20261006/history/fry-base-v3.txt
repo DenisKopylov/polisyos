@@ -1,0 +1,64 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_____ test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[0] _____
+
+tmp_path = PosixPath('/workspace/e02-F-20261006-receipts/fry-base-v3-tmp/test_compiled_seed_and_persist0')
+seed = 0
+
+    @pytest.mark.parametrize("seed", [0, 17, 2147483655])
+    def test_compiled_seed_and_persisted_salts_drive_actual_native_kernel(tmp_path, seed):
+        store, report, content = _compile(tmp_path / "cas", seed)
+        plan = _load(store, report.exec_plan_ref, ExecPlan)
+        graph = _load(store, report.program_graph_ref, ProgramGraph)
+        treasury = _load(store, report.treasury_plan_ref, TreasuryPlan)
+        assert treasury.root_seed == plan.random_seed == seed
+>       assert PROFILE in plan.notes
+E       AssertionError: assert 'randomization:treasury_salts_v1' in ['synthetic_mechanism_binding_from_kind:stochastic_action', 'trinity_coverage_audit:ok']
+E        +  where ['synthetic_mechanism_binding_from_kind:stochastic_action', 'trinity_coverage_audit:ok'] = ExecPlan(program_ref=ProgramGraphRef(artifact_id=ArtifactID(root='sha256:e5bbeb050a298fcd67e3e3975aca6fa0416e768b6c899...t=True, max_steps=None, notes=['synthetic_mechanism_binding_from_kind:stochastic_action', 'trinity_coverage_audit:ok']).notes
+
+tests/unit/foundry/compile/test_treasury_execution.py:109: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 10:37:04 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.adaptive_agent@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['adaptive-agent', 'builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-06 10:37:04 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.income_tax@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'tax'] version=1.0.0
+2026-10-06 10:37:04 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.labor_market@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'labor', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-06 10:37:04 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.queue@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'queue', 'runtime', 'structural'] version=1.0.0
+2026-10-06 10:37:04 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.tax_subsidy@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'subsidy'] version=1.0.0
+____ test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[17] _____
+
+tmp_path = PosixPath('/workspace/e02-F-20261006-receipts/fry-base-v3-tmp/test_compiled_seed_and_persist1')
+seed = 17
+
+    @pytest.mark.parametrize("seed", [0, 17, 2147483655])
+    def test_compiled_seed_and_persisted_salts_drive_actual_native_kernel(tmp_path, seed):
+        store, report, content = _compile(tmp_path / "cas", seed)
+        plan = _load(store, report.exec_plan_ref, ExecPlan)
+        graph = _load(store, report.program_graph_ref, ProgramGraph)
+        treasury = _load(store, report.treasury_plan_ref, TreasuryPlan)
+>       assert treasury.root_seed == plan.random_seed == seed
+E       AssertionError: assert 0 == 17
+E        +  where 0 = TreasuryPlan(schema_version='1.0', root_seed=0, node_salts={'op.check_constraints': 11848494224294290333, 'op.mask.sto...r reproducible execution streams.', 'Node salts are derived from stable node identifiers and the treasury root seed.']).root_seed
+E        +  and   17 = ExecPlan(program_ref=ProgramGraphRef(artifact_id=ArtifactID(root='sha256:e5bbeb050a298fcd67e3e3975aca6fa0416e768b6c899...t=True, max_steps=None, notes=['synthetic_mechanism_binding_from_kind:stochastic_action', 'trinity_coverage_audit:ok']).random_seed
+
+tests/unit/foundry/compile/test_treasury_execution.py:108: AssertionError
+_ test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[2147483655] _
+
+tmp_path = PosixPath('/workspace/e02-F-20261006-receipts/fry-base-v3-tmp/test_compiled_seed_and_persist2')
+seed = 2147483655
+
+    @pytest.mark.parametrize("seed", [0, 17, 2147483655])
+    def test_compiled_seed_and_persisted_salts_drive_actual_native_kernel(tmp_path, seed):
+        store, report, content = _compile(tmp_path / "cas", seed)
+        plan = _load(store, report.exec_plan_ref, ExecPlan)
+        graph = _load(store, report.program_graph_ref, ProgramGraph)
+        treasury = _load(store, report.treasury_plan_ref, TreasuryPlan)
+>       assert treasury.root_seed == plan.random_seed == seed
+E       AssertionError: assert 0 == 2147483655
+E        +  where 0 = TreasuryPlan(schema_version='1.0', root_seed=0, node_salts={'op.check_constraints': 11848494224294290333, 'op.mask.sto...r reproducible execution streams.', 'Node salts are derived from stable node identifiers and the treasury root seed.']).root_seed
+E        +  and   2147483655 = ExecPlan(program_ref=ProgramGraphRef(artifact_id=ArtifactID(root='sha256:e5bbeb050a298fcd67e3e3975aca6fa0416e768b6c899...t=True, max_steps=None, notes=['synthetic_mechanism_binding_from_kind:stochastic_action', 'trinity_coverage_audit:ok']).random_seed
+
+tests/unit/foundry/compile/test_treasury_execution.py:108: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[0]
+FAILED tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[17]
+FAILED tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[2147483655]
+3 failed in 7.40s

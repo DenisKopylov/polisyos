@@ -1,0 +1,14 @@
+{
+  "source_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+  "mode": "snapshot_old_default",
+  "outcome": "FAIL",
+  "expected_rejection_met": true,
+  "canonical_check_errors": [
+    "snapshot out of date: /workspace/e02-F-graph-20261006/policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json"
+  ],
+  "property_removed": "current default/version/native-schema digest",
+  "markers_retained": "schema names, field names, model keys, original provider code, other98 manifest entries",
+  "source_writes": false,
+  "target_path": "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+  "original_source_sha256": "e0709ef298134086b4f57c279ac1cdd5cb173afaf1b8577a458bccca31387df4"
+}

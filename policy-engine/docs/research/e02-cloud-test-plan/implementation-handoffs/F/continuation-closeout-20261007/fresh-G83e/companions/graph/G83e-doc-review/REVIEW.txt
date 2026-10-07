@@ -1,0 +1,16 @@
+Independent review: GO_BOUNDED / metadata preservation PASS
+
+Exact actual ordinary merge: ea9a606f06dad1f94c0f841ec1ec7a53fc694f5c
+Tree: 4d5fccfc3f89c7149af500b523e5ad44a3838df2
+Parents: ROOT92e1eea364e9038fc7f6868335b2c98226d2dab2 and G83e7c0e934d0b40644dec8a24264a0602ef013e7.
+G parent: 855cb26a7a2c9fea60356663cf81e7d01e20c738.
+
+All42 changed paths are research documentation/evidence. Actual merge path/status denominator equals G855→83e; no product/source/test/build/schema delta.41 full G files are byte-exact. The sole shared method-decisions file retains the complete new G C–E sections and the prior source-bound ROOT F section/introduction; all16 F anchors remain.
+
+coverage.json has exactly six scalar B120 next-action changes. Its original criterion refs, historical labels, closure_now=not_adjudicated and all non-B120 rows are unchanged. All35 F IDs,36 original criterion occurrences,17 bundles are identical across G855/G83e/ROOT92/actualea.43 selected F ledger/primary/per-ID Git blobs are unchanged, including original35 current records. No previous full custody/body replay is repeated.
+
+B120 removes an extra universal invoice/deployment prerequisite and keeps exact measured-owner budget property and pending G/integrated acceptance separate. Committed G-D680 JUnit and actual receipt/output bytes consistently report10PASS/0FAIL/ERROR/SKIP. This reviewer did not execute D tests or revalidate uncommitted source inventories. Original D680 source object is unavailable locally: source-custody UNRUN. First strict local source-probe ERROR is preserved in the initial script/execution/fullstderr, without converting it to PASS or fetching another owner's source.
+
+Actual full merge diff-check: FAIL(exit2), two trailing-whitespace lines in the new G D-budget raw pytest stdout. Full raw bytes are preserved. No runtime defect or P41 inherited attribution is inferred; P41 not_established. This does not alter the bounded merge-preservation PASS.
+
+No source edits, Git mutations, branch changes, cleanup, scientific/backend/installed/production runs. C/D/E source acceptance and formal closure are outside this review. Review signed by leaf graph_scm, independent of the G author/publisher; the scope is metadata and merge preservation, not re-review of graph_scm-authored numerical mechanisms.

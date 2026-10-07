@@ -1,0 +1,104 @@
+[
+  {
+    "bundle_id": "API-01",
+    "unit": "F",
+    "initial_writer_family": "F-W01",
+    "title": "Причинные фасады: explicit surface вместо отражающих globals"
+  },
+  {
+    "bundle_id": "CAU-01",
+    "unit": "F",
+    "initial_writer_family": "F-W02",
+    "title": "Standard DiD: допустимый дизайн, covariance и уровни CI"
+  },
+  {
+    "bundle_id": "CAU-02",
+    "unit": "F",
+    "initial_writer_family": "F-W02",
+    "title": "Staggered DiD: единицы, H0 и anticipation"
+  },
+  {
+    "bundle_id": "CAU-03",
+    "unit": "F",
+    "initial_writer_family": "F-W02",
+    "title": "RDD: честная RBC capability и линейная память WLS"
+  },
+  {
+    "bundle_id": "CAU-04",
+    "unit": "F",
+    "initial_writer_family": "F-W02",
+    "title": "DoWhy: реальный estimand и point-only результат"
+  },
+  {
+    "bundle_id": "CAU-05",
+    "unit": "F",
+    "initial_writer_family": "F-W02",
+    "title": "DiD: dedicated planning, old-slot replay и retirement umbrella"
+  },
+  {
+    "bundle_id": "ECO-01",
+    "unit": "F",
+    "initial_writer_family": "F-W03",
+    "title": "Два economic профиля и предметный baseline objective"
+  },
+  {
+    "bundle_id": "FIT-01",
+    "unit": "F",
+    "initial_writer_family": "F-W04",
+    "title": "Nuisance fit-core, актуальная диагностика и ограниченные folds"
+  },
+  {
+    "bundle_id": "FRY-01",
+    "unit": "F",
+    "initial_writer_family": "F-W05",
+    "title": "Foundry compile/catalog: randomization, families и прямой IR layout"
+  },
+  {
+    "bundle_id": "FRY-03",
+    "unit": "F",
+    "initial_writer_family": "F-W03",
+    "title": "Fiscal/labor: эквивалентный перенос живых PatchMap kernels"
+  },
+  {
+    "bundle_id": "GRF-01",
+    "unit": "F",
+    "initial_writer_family": "F-W06",
+    "title": "Правильные static ADMG m-separation и perfect-do"
+  },
+  {
+    "bundle_id": "GRF-02",
+    "unit": "F",
+    "initial_writer_family": "F-W06",
+    "title": "Неизменяемый граф, mixed-edge export и версии кэша"
+  },
+  {
+    "bundle_id": "GRF-03",
+    "unit": "F",
+    "initial_writer_family": "F-W06",
+    "title": "Известные направления и явная временная/частичная семантика"
+  },
+  {
+    "bundle_id": "LEX-01",
+    "unit": "F",
+    "initial_writer_family": "F-W07",
+    "title": "Lex: norm/compliance comparison отдельно от impact-topic эвристики"
+  },
+  {
+    "bundle_id": "SCM-01",
+    "unit": "F",
+    "initial_writer_family": "F-W06",
+    "title": "Наблюдаемые корни и выполняемый nonlinear payload"
+  },
+  {
+    "bundle_id": "SCM-02",
+    "unit": "F",
+    "initial_writer_family": "F-W06",
+    "title": "Factual abduction и две явные стороны attribution"
+  },
+  {
+    "bundle_id": "SCM-03",
+    "unit": "F",
+    "initial_writer_family": "F-W06",
+    "title": "Активный query-plan и сохранённый stochastic law"
+  }
+]

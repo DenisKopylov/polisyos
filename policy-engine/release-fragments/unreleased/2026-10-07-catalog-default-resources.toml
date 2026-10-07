@@ -1,0 +1,28 @@
+id = "2026-10-07-catalog-default-resources"
+title = "Preserve curated catalog defaults in installed packages"
+type = "fixed"
+component = "data-forge"
+owner = "team-data-forge"
+summary = "Use one canonical source/installed Path resolver and exact original YAML projections for all four curated catalog defaults."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.data_forge.read_api.catalog.catalog_default_resource_path; internal: curated catalog resource selection and packaging"
+compatibility = "Existing durable Path APIs, explicit custom paths and optional proxy/WVS fallback policies remain supported."
+migration = "Rebuild and install the package so the four original YAML projections accompany the canonical catalog provider; raw observations remain external."
+public_surface_inventory_reviewed = true
+generated_client_compatibility = "not_required"
+migration_docs = ["docs/reference/data-forge/catalog-default-resources.md"]
+runbook_docs = ["docs/reference/data-forge/catalog-default-resources.md"]
+evidence = ["tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py", "tests/repo_quality/tools/test_catalog_default_resources_packaging.py"]
+
+[[compatibility_change]]
+id = "catalog-default-resource-packaging"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "public_experimental: polisyos.data_forge.read_api.catalog.catalog_default_resource_path; internal: catalog default resource provider and Hatch package projections"
+owner = "team-data-forge"
+version_owner = "team-data-forge"
+deprecation_window = "not_applicable: no supported Path or resource removal"
+release_note = "Add the experimental nested catalog_default_resource_path facade with canonical function identity, four allowed names, a durable Path and ValueError for unsupported names; all default readers use exact original source or unpacked-package resource projections."
+generated_client_compatibility = "not_required"
+migration_docs = ["docs/reference/data-forge/catalog-default-resources.md"]
+runbook_docs = ["docs/reference/data-forge/catalog-default-resources.md"]

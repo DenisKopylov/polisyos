@@ -1,0 +1,2 @@
+{"mode": "candidate", "counterfactual": true, "canonical_source_sha256": "bc52074e63f5aa72c977b1fa3b1cdba98683a31294fc8209eaba546b4b190425", "executed_source_sha256": "b3066b5a25457e10e593f465febb16f620c74918cb81cf85f3888a7eaf0ff8a2", "override_target": "polisyos.foundry.execute.mechanisms.fiscal"}
+{"output": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/lowprecision-candidate.json", "cases": 40}

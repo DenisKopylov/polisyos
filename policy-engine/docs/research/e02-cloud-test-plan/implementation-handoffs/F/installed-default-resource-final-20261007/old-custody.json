@@ -1,0 +1,10 @@
+{
+  "outcome": "PASS",
+  "old_source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "complete_old_source_files": 17843,
+  "complete_old_source_bytes": 550021601,
+  "old_source_aggregate": "e41e977c3416854676bf70423effdb2d6e4f4f307e586fd006a25ab493b82182",
+  "complete_old_site_product_resource_checks": 6918,
+  "complete_old_archives": 3,
+  "old_receipt_outputs_mutated": false
+}

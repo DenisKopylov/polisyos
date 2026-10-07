@@ -1,0 +1,104 @@
+{
+  "check": "PASS",
+  "verdict": "GO_BOUNDED assembly/input-custody and original-scope ledger resolution",
+  "runtime_test_build_schema_union": {
+    "selection": [
+      "policy-engine/src/",
+      "policy-engine/tools/",
+      "policy-engine/workers/",
+      "policy-engine/architecture/",
+      "policy-engine/schemas/",
+      "policy-engine/data/",
+      ".github/",
+      "policy-engine/.python-version",
+      "policy-engine/hatch.toml",
+      "policy-engine/pyproject.toml",
+      "policy-engine/uv.lock",
+      "policy-engine/tests/**"
+    ],
+    "documentation_md_excluded_from_runtime_only": true,
+    "path_denominator": 7450,
+    "runtime_build_schema_path_denominator": 4122,
+    "test_path_denominator": 3328,
+    "changed_paths": [
+      "policy-engine/tests/unit/remediation/test_req_01_installed.py"
+    ]
+  },
+  "runtime_identity_check": "PASS",
+  "G_nonconflict_retention": "PASS",
+  "G_nonconflict_paths": 372,
+  "components": [
+    {
+      "name": "graph-intake-current-content-20261007",
+      "source_inputs": 7,
+      "material": 223,
+      "gzip": 28,
+      "check": "PASS"
+    },
+    {
+      "name": "catalog-default-resources-20261007",
+      "source_inputs": 18,
+      "material": 173,
+      "gzip": 96,
+      "check": "PASS"
+    }
+  ],
+  "ledger_resolution": {
+    "F.md": {
+      "actual": {
+        "git_ref": "79895c6758307a56b1613a8d1c19daa3f0d92c25",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+        "bytes": 26857,
+        "sha256": "724f37608e3f3cbd3ff3445f7bcbd26f90c916c51bb50016ce7389a0c1fd77f4",
+        "git_blob": "bfe0e18813d014b977005f62ffe91ff4363fc387"
+      },
+      "matches_exact_reviewed_proposal": true,
+      "markers_present": false,
+      "finding_rows": 35,
+      "distinct_IDs": 35,
+      "exact_current_ID_denominator": true,
+      "recommendation_counts": {
+        "closed": 33,
+        "limited": 2
+      },
+      "limited_IDs": [
+        "B214",
+        "B56"
+      ],
+      "semantic_scope": "F recommendations on original cards; G formal acceptance not granted; B214 bounded partial capability and B56 admitted competing-study inputs remain limited"
+    },
+    "method-decisions.md": {
+      "actual": {
+        "git_ref": "79895c6758307a56b1613a8d1c19daa3f0d92c25",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+        "bytes": 106804,
+        "sha256": "634a938933b2589dbc130622dff5d24d3be44f85410b79eafa2d85f1d91c1ccf",
+        "git_blob": "e20bcf5527d4151b0cf669568848033b2007881f"
+      },
+      "matches_exact_reviewed_proposal": true,
+      "markers_present": false,
+      "all_G_C_D_E_bytes_preserved": true,
+      "all_ROOT_F_method_bytes_preserved": true,
+      "G_B109_B111_B100_notice_preserved": true,
+      "F_anchors": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16"
+      ]
+    }
+  },
+  "own_pair_unchanged": true
+}

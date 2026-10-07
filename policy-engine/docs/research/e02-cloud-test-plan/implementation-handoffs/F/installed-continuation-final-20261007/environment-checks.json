@@ -1,0 +1,42 @@
+[
+  {
+    "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "argv": [
+      "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/bin/python",
+      "-I",
+      "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/environment.py"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-consumer",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-environment.stdout.json",
+      "bytes": 8195,
+      "sha256": "255d1965382124c750942b4c733536a44bc4cbf681f3a1e0192c16cf111a95fa"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-environment.stderr.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "argv": [
+      "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-env/bin/python",
+      "-I",
+      "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/environment.py"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-consumer",
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-environment.stdout.json",
+      "bytes": 8195,
+      "sha256": "abc057d8873a6a53e1502d8d04c47ba8aafbdce23094788e56dff3c63f133a20"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-environment.stderr.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+]

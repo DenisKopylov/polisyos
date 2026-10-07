@@ -1,0 +1,200 @@
+{
+  "finding_id": "LA-003",
+  "primary_owner_from_full_TSV": {
+    "finding_id": "LA-003",
+    "unit": "F",
+    "docx_analytical_package": "P36",
+    "source_closure_owner": "FRY-03",
+    "source_bundle_ids": "FRY-03",
+    "source_status": "partial"
+  },
+  "bundle_owner_from_full_TSV": {
+    "bundle_id": "FRY-03",
+    "unit": "F",
+    "initial_writer_family": "F-W03",
+    "title": "Fiscal/labor: эквивалентный перенос живых PatchMap kernels"
+  },
+  "original_card_refs": [
+    {
+      "criterion_id": "LA-003",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+      "lines": [
+        136,
+        166
+      ],
+      "bytes": 3450,
+      "sha256": "8e52a4ec93513e106070221058490c2c1c1d337ff27ddd7c453bb655e44710d5",
+      "title": "## LA-003. Fiscal/labor: живые kernels ранних базовых моделей",
+      "byte_binding_check": "PASS"
+    }
+  ],
+  "original_text": "## LA-003. Fiscal/labor: живые kernels ранних базовых моделей\n\n**Перемещение по смысловой роли**\n\n**Статус.** Живой код; кандидат на уточнение профиля и перенос, не прямое удаление.\n\n**Точная область:**\n\n`src/polisyos/foundry/mechanisms/fiscal.py`\n\n`src/polisyos/foundry/mechanisms/labor.py`\n\n`src/polisyos/foundry/mechanisms/__init__.py`\n\n**Что установлено и почему это legacy-кандидат.** IncomeTax/TaxSubsidy эмитируют PatchMap; LaborMarketMechanism заново выбирает занятость по threshold и фирму из равномерного распределения. Это узкие модели, а не универсальный рынок труда. Но каталог уже вызывает эти классы через runtime_mechanism_class_path: это backend зарегистрированных методов, а не забытый независимый методовый каталог.\n\n**Что сохранить.** Patch-first ABI, active/target masks, фискальный баланс, employer IDs, firm labor counts, PRNG key progression и дешёвые контрольные модели. Существующий runtime-каталог уже ограничивает evidence/authority-scope этих методов.\n\n**Куда перенести / с чем объединить.** Предлагаемый src/polisyos/foundry/execute/mechanisms/{fiscal,labor}.py под существующим execute/ как низкоуровневый доменный backend. Методовые adapters остаются в methods/catalog/mechanism/runtime.py. До согласования import-direction допустимо оставить текущий путь, но явно назвать профиль baseline.\n\n**Порядок миграции.** Разделить relocation и изменение модели. Сначала эквивалентный перенос со старым method ID, затем при желании новая версия модели с иной динамикой. Обновить строковые class paths, registry descriptors и exports; не переносить численный код внутрь обёртки ради одного файла.\n\n**Приёмочная проверка.** Регистрация, создание по spec, одинаковые patches/key при фиксированных входах, masked/inactive cases, compiler/replay и существующие fiscal/labor/gradient tests. Новый содержательный закон требует отдельной версии, а не тех же fingerprints.\n\n**Приоритет.** Средняя цена. Выше приоритета косметического выравнивания дерева — точный статус baseline-модели.\n\n**Граница вывода.** Простая модель не является legacy только из-за простоты. Доказательств готовой эквивалентной замены и всех production-вызовов нет; смысловая граница уже частично защищена metadata.\n\n**Основания:** E01, E04, E05, E06.\n\n<!-- PAGEBREAK -->\n",
+  "primary_acceptance_scope": "Equivalent baseline fiscal/labor relocation/spec registration, PatchMap/masks/budget/employer/key, compiler/replay and existing gradients; deliberate precision profile not new law.",
+  "source_chain": {
+    "producer": "registry-created baseline fiscal/labor methods",
+    "artifact": "PatchMap + PRNG key and GlobalState",
+    "bridge": "ParamDecimal/spec compiler/CAS/ExecutorGraph/apply_patch_map",
+    "consumer": "actual balances/current metrics/fresh state reader"
+  },
+  "actual_recorded_consumer": "Maintained mechanism registry/spec → compile API/ParamDecimal/CAS/ExecutorGraph → IncomeTax/Employer/subsidy PatchMap → actual GlobalState/balance/current metrics → fresh reader; old fingerprints/laws and active-population admission retained.",
+  "surface": "Maintained mechanism registry/spec/FQN→baseline execute mechanisms→PatchMap/PRNG key/compiler/replay contracts",
+  "deciding_receipt_refs": [
+    {
+      "git_ref": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json",
+      "bytes": 109240,
+      "sha256": "cd005af9bf2e45edcd88f54b4bb223636351abefc991a52828167f2070aead1e",
+      "git_blob": "a32c2ff95bbb0ae5de30003b140110521b63f625",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/LA-003"
+      ]
+    },
+    {
+      "git_ref": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+      "head": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json",
+      "bytes": 127652,
+      "sha256": "ced279a2a9ce169c271c4dedbb2ac18a27193de75dd7cd2cf80375fb633c4162",
+      "git_blob": "f238b5b306f772e9faea07bdaef474d0ed4f5e67",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/LA-003"
+      ],
+      "json_pointer": "/per_id_outcomes/0"
+    },
+    {
+      "git_ref": "3912782bfd55cc87f76757310c32603ecbe58cc3",
+      "head": "3912782bfd55cc87f76757310c32603ecbe58cc3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json",
+      "bytes": 229832,
+      "sha256": "540ea3357ab032df188b2b8c413aa6e8fa45ce81055e2e8f3bdcb7f3ef06979b",
+      "git_blob": "218fd9e2ed875b2e2e148749f7449698bdd818b0",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/LA-003"
+      ]
+    }
+  ],
+  "deciding_per_ID_carrier_ref": {
+    "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-003.json",
+    "bytes": 33109,
+    "sha256": "66079efa1a24a30761b20a5d6b44e62e451c9782908942cd2bc1e3400731f800",
+    "git_blob": "cbccbb5a75b0afabef450b257b16b2ec404899b9"
+  },
+  "scientific_implementation": {
+    "sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+    "tree": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+    "not_receipt_carrier": true
+  },
+  "recorded_independent_oracle_and_negative": "Real registry ParamDecimal .10 → lowered CAS → native fiscal eager/JIT PatchMap/state → fresh CAS reader exact budget; existing34/24 FP32 profiles preserved, min32/64 active-state dtype compatibility declared; forced32 actualCAS and3 marker-retaining removals FAIL. Native124PASS/1 separately reported ABM diagnostic FAIL retained; P41 not_established; FIT independent83PASS plus2 realCAS controls.",
+  "complete_raw_receipt_checks_refs": [
+    "fb51511fef60c5123875e99ab2f19a9a0bd5d16f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json#/checks/0",
+    "fb51511fef60c5123875e99ab2f19a9a0bd5d16f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json#/checks/1",
+    "fb51511fef60c5123875e99ab2f19a9a0bd5d16f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json#/checks/2",
+    "fb51511fef60c5123875e99ab2f19a9a0bd5d16f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json#/checks/3",
+    "fb51511fef60c5123875e99ab2f19a9a0bd5d16f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json#/checks/4",
+    "fb51511fef60c5123875e99ab2f19a9a0bd5d16f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json#/checks/5",
+    "fb51511fef60c5123875e99ab2f19a9a0bd5d16f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json#/checks/6",
+    "fb51511fef60c5123875e99ab2f19a9a0bd5d16f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json#/checks/7",
+    "fb51511fef60c5123875e99ab2f19a9a0bd5d16f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json#/checks/8",
+    "fb51511fef60c5123875e99ab2f19a9a0bd5d16f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json#/checks/9",
+    "fb51511fef60c5123875e99ab2f19a9a0bd5d16f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json#/checks/10",
+    "fb51511fef60c5123875e99ab2f19a9a0bd5d16f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json#/checks/11",
+    "fb51511fef60c5123875e99ab2f19a9a0bd5d16f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json#/checks/12",
+    "fb51511fef60c5123875e99ab2f19a9a0bd5d16f:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json#/checks/13",
+    "d9c48853c5ab9ad7473df204bf3a7a1995a32057:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json#/checks/0",
+    "d9c48853c5ab9ad7473df204bf3a7a1995a32057:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json#/checks/1",
+    "d9c48853c5ab9ad7473df204bf3a7a1995a32057:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json#/checks/2",
+    "d9c48853c5ab9ad7473df204bf3a7a1995a32057:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json#/checks/3",
+    "d9c48853c5ab9ad7473df204bf3a7a1995a32057:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json#/checks/4",
+    "d9c48853c5ab9ad7473df204bf3a7a1995a32057:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json#/checks/5",
+    "d9c48853c5ab9ad7473df204bf3a7a1995a32057:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json#/checks/6",
+    "d9c48853c5ab9ad7473df204bf3a7a1995a32057:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json#/checks/7",
+    "d9c48853c5ab9ad7473df204bf3a7a1995a32057:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json#/checks/8",
+    "d9c48853c5ab9ad7473df204bf3a7a1995a32057:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json#/checks/9",
+    "d9c48853c5ab9ad7473df204bf3a7a1995a32057:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json#/checks/10",
+    "d9c48853c5ab9ad7473df204bf3a7a1995a32057:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json#/checks/11",
+    "d9c48853c5ab9ad7473df204bf3a7a1995a32057:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json#/checks/12",
+    "d9c48853c5ab9ad7473df204bf3a7a1995a32057:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json#/checks/13",
+    "d9c48853c5ab9ad7473df204bf3a7a1995a32057:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json#/checks/14",
+    "d9c48853c5ab9ad7473df204bf3a7a1995a32057:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json#/checks/15",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/0",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/1",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/2",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/3",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/4",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/5",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/6",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/7",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/8",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/9",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/10",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/11",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/12",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/13",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/14",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/15",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/16",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/17",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/18",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/19",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/20",
+    "3912782bfd55cc87f76757310c32603ecbe58cc3:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-fiscal-precision-continuation-20261006.json#/checks/21"
+  ],
+  "historical_ROOT072": {
+    "check": "PASS",
+    "outcome": "closed",
+    "technical_original_criterion_recommendation": "closed",
+    "current_continuation_outcome_recommendation": "closed",
+    "original_criterion_remainder": "None for bounded original native fiscal/labor migration with declared precision compatibility profile. ABM diagnostic FAIL is separately reported and remains red; selected base replay does not establish P41.",
+    "actual_consumer": "Maintained mechanism registry/spec → compile API/ParamDecimal/CAS/ExecutorGraph → IncomeTax/Employer/subsidy PatchMap → actual GlobalState/balance/current metrics → fresh reader; old fingerprints/laws and active-population admission retained.",
+    "oracle_and_negative": "Real registry ParamDecimal .10 → lowered CAS → native fiscal eager/JIT PatchMap/state → fresh CAS reader exact budget; existing34/24 FP32 profiles preserved, min32/64 active-state dtype compatibility declared; forced32 actualCAS and3 marker-retaining removals FAIL. Native124PASS/1 separately reported ABM diagnostic FAIL retained; P41 not_established; FIT independent83PASS plus2 realCAS controls.",
+    "separate_unavailable_inputs_or_authority": "No equivalence to richer plugin or admitted production calibration."
+  },
+  "independent_original_criterion_recommendation": {
+    "check": "PASS",
+    "outcome": "closed",
+    "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+    "scientific_rerun": false,
+    "review_scope": "independent criterion/evidence reconciliation; not an independently rerun estimator measurement",
+    "missing_actual_original_criterion": null,
+    "new_owner_review_pending": false,
+    "not_formal_G_closure": true
+  },
+  "separate_unavailable_inputs_or_authority": "No equivalence to richer plugin or admitted production calibration.",
+  "existing_author_or_reviewer_conflict": null,
+  "schema": "e02.F.original-finding.v3",
+  "primary_bundle": "FRY-03",
+  "criterion_short": "Equivalent baseline fiscal/labor relocation/spec registration, PatchMap/masks/budget/employer/key, compiler/replay and existing gradients; deliberate precision profile not new law.",
+  "check_result": "PASS",
+  "F_finding_outcome": "closed",
+  "F_technical_recommendation": "closed",
+  "F_rationale": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+  "code_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+  "code_tree": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+  "consumer": "Maintained mechanism registry/spec → compile API/ParamDecimal/CAS/ExecutorGraph → IncomeTax/Employer/subsidy PatchMap → actual GlobalState/balance/current metrics → fresh reader; old fingerprints/laws and active-population admission retained.",
+  "oracle_and_negative": "Real registry ParamDecimal .10 → lowered CAS → native fiscal eager/JIT PatchMap/state → fresh CAS reader exact budget; existing34/24 FP32 profiles preserved, min32/64 active-state dtype compatibility declared; forced32 actualCAS and3 marker-retaining removals FAIL. Native124PASS/1 separately reported ABM diagnostic FAIL retained; P41 not_established; FIT independent83PASS plus2 realCAS controls.",
+  "G_finding_acceptance": {
+    "status": "not_issued",
+    "formal_G_closed": false
+  },
+  "G_code_acceptance": {
+    "status": "not_inferred",
+    "source_sha": null,
+    "basis": "Independent F GO/code-ready is not G code acceptance"
+  },
+  "original_missing_input": null,
+  "original_next_owner": null,
+  "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+  "root_assembled_source": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "not_new_numerical_proof": true
+  },
+  "new_property_followups_not_automatically_original_reopen": []
+}

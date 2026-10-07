@@ -1,0 +1,16 @@
+{
+  "timestamp_epoch": 1791365818.4307725,
+  "scanner_attempt": "/tmp/e02-F-continuation-20261007/root-quality-final/invocation.execution.json",
+  "actual_exit_code": -9,
+  "correct_canonical_check": "ERROR",
+  "full_receipt_present": false,
+  "product_defect_or_completed_global_gate": "not_established",
+  "old_runner_classification": "FAIL for every nonzero; erroneous for SIGKILL, retained unchanged",
+  "root_prior_message_correction": "Invocation did not return exit3/complete UNRESOLVED. No full input scanner denominator result available for this attempt.",
+  "host_memory_files": {
+    "memory.events": "low 0\nhigh 0\nmax 1104717\noom 19\noom_kill 7\noom_group_kill 0\n",
+    "memory.max": "17179869184\n",
+    "memory.current": "11869392896\n",
+    "memory.peak": "17181339648\n"
+  }
+}

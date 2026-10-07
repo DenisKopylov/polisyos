@@ -1,0 +1,77 @@
+{
+  "schema": "policyos.e02.integration_decisions.v1",
+  "date": "2026-10-06",
+  "publisher": "G",
+  "branch": "codex/e02-integration",
+  "integration_sha": "312e6d7c12e1d623f1ac9502c187e7cb92e48045",
+  "integration_tree": "11ffd482cf4324a25ca16e77d8b113c8bc9eebad",
+  "previous_checkpoint": "checkpoint-08.json",
+  "published_continuation_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "accepted_slices": [
+    {
+      "unit": "B",
+      "slice": "strict-budget-and-durable-settlement",
+      "candidate_sha": "2c52e1fe747627b227b5695e578b800cb7eade8b",
+      "candidate_tree": "9898e7ae4b7ec3a403b9a2e91cbcc7dcc475537c",
+      "accepted_merge": "1e2f604b0dd7f88cb6a71b4f46a21aec5974e153",
+      "input_head": "71b1ce0c5d6e16704c90853fd884e63058481ce9",
+      "handoff_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-settlement.json@71b1ce0c5d6e16704c90853fd884e63058481ce9",
+      "receipt": "checks/2026-10-06-second-wave/b-durability.json",
+      "code_decision": "GO_bounded_local_ledger",
+      "finding_closure": false,
+      "limitations": "Caller supplies event payload digest; production assembly/external billing/source authority not established. Snapshot is current in-memory projection; disk upgrades on explicit mutation/bootstrap."
+    },
+    {
+      "unit": "B",
+      "slice": "executor-callback-capacity",
+      "candidate_sha": "fd0a8b0044bb51539d812c2d0957381ed52ed3fd",
+      "candidate_tree": "894501580e379d140108a58cc87b7739cdb52400",
+      "accepted_merge": "ad5c560d821cd812e6968d60bdb8dfd745a598d7",
+      "input_head": "141e1f47f375ef6805ede2a427f7555ae9690cf3",
+      "handoff_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor.json@141e1f47f375ef6805ede2a427f7555ae9690cf3",
+      "receipt": "checks/2026-10-06-second-wave/b-executor.json",
+      "code_decision": "GO_bounded_worker_callback_capacity",
+      "finding_closure": false,
+      "limitations": "Does not claim bounded external backlog, full run_coro_sync bridge saturation, absolute invocation deadline, provider parity or Linux process source acceptance."
+    },
+    {
+      "unit": "F",
+      "slice": "lex-pass-plan-deduplication",
+      "candidate_sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+      "candidate_tree": "e84f7a4d1cb91c624264e6c95f5d0c07fb3510f3",
+      "accepted_merge": "312e6d7c12e1d623f1ac9502c187e7cb92e48045",
+      "input_head": "309a0be6630db3cfc8e410f7866f1ed4e95bb722",
+      "handoff_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json@309a0be6630db3cfc8e410f7866f1ed4e95bb722",
+      "receipt": "checks/2026-10-06-second-wave/f-lex.json",
+      "code_decision": "GO_bounded_deduplicated_dispatch_with_reviewed_G_companion",
+      "finding_closure": false,
+      "limitations": "Synthetic ExprAST property only; current law/corpus/authority and full LA-017 remain limited. Receipt-tail oversized diagnostic not imported."
+    }
+  ],
+  "independent_reviewers": [
+    "git_admission",
+    "docs_links",
+    "risk_causal_lex",
+    "prompt_a",
+    "prompt_e",
+    "prompt_f",
+    "publication_tester",
+    "G"
+  ],
+  "finding_closures": [],
+  "affected_consumer_receipt": "checks/2026-10-06-second-wave/checkpoint09-consumers.json",
+  "review_queue": "reviews/2026-10-06-second-wave.md",
+  "freeze": "not_frozen_for_E02; source312 frozen only for58-case affected-consumer check",
+  "broad_replay": "UNRUN until shared source freeze and independent reviews",
+  "unavailable_inputs": [
+    "Full baseline raw archives not transferred;15text inputs verified by importer this run",
+    "Production law/history/evaluator/issuer inputs only local read-only where criterion requires; not used by generic ledger/executor/Lex checks"
+  ],
+  "skipped_backends": [
+    "G Torch/GPyTorch/BoTorch replay UNRUN; use bound independent fixed-profile D oracle only in its scope",
+    "Linux supervisor source not integrated in this checkpoint; its author receipts are Linux-specific",
+    "Ray/Temporal/external-store cache backends not established"
+  ],
+  "main_publication": "future_publication_requires_separate_explicit_authorization",
+  "remote_readback": "Ordinary integration push and exact remote readback follow this record commit."
+}

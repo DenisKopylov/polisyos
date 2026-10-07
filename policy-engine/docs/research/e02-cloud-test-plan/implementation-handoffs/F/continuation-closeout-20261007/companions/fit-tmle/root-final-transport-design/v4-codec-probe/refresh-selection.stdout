@@ -1,0 +1,19 @@
+{
+  "output": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v4-codec-probe/selection-output.json",
+    "bytes": 6154,
+    "sha256": "58be57013c1af72a31a2300ae26f133764a2881b1cb8c79b7c37558ccb85f2d3"
+  },
+  "counts": {
+    "logical_files": 5,
+    "unique_transport_files": 5,
+    "aliases": 0,
+    "existing_git_files": 0,
+    "changed_prior_inputs": 0,
+    "unique_raw_transport_bytes": 28493
+  },
+  "pending_extensions": [],
+  "root_source_writes": false,
+  "Git_writes": false,
+  "tests_run": false
+}

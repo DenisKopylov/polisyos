@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import math
 from collections.abc import Mapping
 from statistics import NormalDist
@@ -120,6 +121,71 @@ def _fit_local_polynomial(
     return intercept, intercept_se, float(x_side.shape[0])
 
 
+def _fit_rbc_polynomial(
+    x_centered: np.ndarray,
+    y_vec: np.ndarray,
+    *,
+    cutoff_side: str,
+    poly_order: int,
+    bias_order: int,
+    kernel: str,
+    bandwidth: float,
+    bias_bandwidth: float,
+) -> tuple[float, float, float, float, int, int]:
+    """Compute sharp-RD CCT corrected weights and their HC0 variance on one side.
+
+    This is a clean-room specialization of CCT (2014), Appendix A.1/A.2,
+    Theorem A.1(V), for derivative zero, q=p+1 and fixed h/b. With scaled
+    polynomial bases, a=e0' inv(Rp'Wh Rp) Rp'Wh and
+    d=e(p+1)' inv(Rq'Wb Rq) Rq'Wb. The corrected weight is a-L*d, where
+    L=(a @ (x/h)**(p+1))*(h/b)**(p+1). Squaring that combined weight
+    includes the bias-estimation variance and its covariance with the
+    conventional estimate. HC0 uses q-fit residuals, including observations
+    in the union of the h and b windows; only small Gram matrices are formed.
+    """
+    side = x_centered >= 0 if cutoff_side == "right" else x_centered < 0
+    x_side, y_side = x_centered[side], y_vec[side]
+    wh = _kernel_weights(x_side / bandwidth, kernel=kernel)
+    wb = _kernel_weights(x_side / bias_bandwidth, kernel=kernel)
+    union = (wh > 0) | (wb > 0)
+    x_side, y_side, wh, wb = x_side[union], y_side[union], wh[union], wb[union]
+    n_h, n_b = int(np.sum(wh > 0)), int(np.sum(wb > 0))
+    if min(n_h, n_b) < max(10, bias_order + 2):
+        raise ValueError(f"insufficient RBC weighted support on {cutoff_side} side")
+
+    rp = np.vander(x_side / bandwidth, poly_order + 1, increasing=True)
+    rq = np.vander(x_side / bias_bandwidth, bias_order + 1, increasing=True)
+    for design, weights in ((rp, wh), (rq, wb)):
+        if np.linalg.matrix_rank(np.sqrt(weights)[:, None] * design) < design.shape[1]:
+            raise ValueError(f"rank deficient RBC design on {cutoff_side} side")
+    map_p = np.linalg.solve(rp.T @ (wh[:, None] * rp), rp.T * wh)
+    map_q = np.linalg.solve(rq.T @ (wb[:, None] * rq), rq.T * wb)
+    a = map_p[0]
+    leading = float(a @ ((x_side / bandwidth) ** (poly_order + 1)))
+    leading *= (bandwidth / bias_bandwidth) ** (poly_order + 1)
+    bias_weights = leading * map_q[poly_order + 1]
+    corrected_weights = a - bias_weights
+    conventional = float(a @ y_side)
+    corrected = float(corrected_weights @ y_side)
+    residual_p = y_side - rp @ (map_p @ y_side)
+    residual_q = y_side - rq @ (map_q @ y_side)
+    variance_us = float(np.sum((a * residual_p) ** 2))
+    variance_rb = float(np.sum((corrected_weights * residual_q) ** 2))
+    values = np.array([conventional, corrected, variance_us, variance_rb])
+    if not np.isfinite(values).all():
+        raise ValueError("non-finite RBC fit or variance")
+    return conventional, corrected, variance_us, variance_rb, n_h, n_b
+
+
+def _rdd_input_digest(data: RDDObservationalData) -> str:
+    """Bind admitted row order, outcome, running variable and cutoff bytes."""
+    digest = hashlib.sha256(b"policyos.sharp-rdd.input.v1\0")
+    digest.update(np.asarray([data.sample_size], dtype="<i8").tobytes())
+    for array in (data.running_variable, data.outcome, [data.cutoff]):
+        digest.update(np.asarray(array, dtype="<f8").tobytes())
+    return digest.hexdigest()
+
+
 def _manipulation_test(x_centered: np.ndarray, bandwidth: float) -> DiagnosticTest:
     eps = bandwidth / 5.0
     left_count = int(np.sum((x_centered < 0.0) & (x_centered >= -eps)))
@@ -186,6 +252,12 @@ class RegressionDiscontinuity:
             ParameterSpec(name="bandwidth", default=None),
             ParameterSpec(name="kernel", default="triangular"),
             ParameterSpec(name="bias_correction", default=False),
+            ParameterSpec(name="bias_bandwidth", default=None),
+            ParameterSpec(name="bias_polynomial_order", default=None),
+            ParameterSpec(name="vce", default="hc0"),
+            ParameterSpec(name="masspoints", default="off"),
+            ParameterSpec(name="bandwidth_selector", default="fixed"),
+            ParameterSpec(name="design", default="sharp"),
             ParameterSpec(name="manipulation_test", default=True),
             ParameterSpec(name="n_bins_density", default=50),
             ParameterSpec(name="confidence_level", default=0.95),
@@ -221,7 +293,7 @@ class RegressionDiscontinuity:
             ),
             "local_randomization": "Near cutoff assignment approximates randomization.",
         },
-        when_to_use="Sharp or fuzzy RDD with a forcing/running variable and clear cutoff; local average treatment effect near threshold",
+        when_to_use="Sharp RDD with a forcing/running variable and clear cutoff; fixed-bandwidth CCT RBC or separate conventional local polynomial",
         when_not_to_use="No clear discontinuity; manipulation of running variable; small bandwidth yields <30 obs",
         typical_min_obs=100,
         output_interpretation="RD estimate: LATE at the cutoff. Positive = treatment increases outcome at threshold.",
@@ -303,11 +375,9 @@ class RegressionDiscontinuity:
             return wrap_causal_output(report, warnings=[reason])
         kernel = kernel_value.lower()
 
-        if bias_correction:
-            reason = (
-                "unsupported RBC: bias-corrected RDD inference requires a validated "
-                "rdrobust backend"
-            )
+        design = params.get("design", "sharp")
+        if design != "sharp" or params.get("fuzzy") is not None:
+            reason = "fuzzy RDD requires typed treatment/compliance input; only sharp is supported"
             report = build_failure_report(
                 method=CausalMethod.REGRESSION_DISCONTINUITY,
                 status=EstimationStatus.ASSUMPTION_FAILED,
@@ -319,19 +389,36 @@ class RegressionDiscontinuity:
                 pre_periods=0,
                 post_periods=0,
                 assumptions=dict(RegressionDiscontinuity.metadata.assumptions),
-                method_params={"bias_correction": True},
-                metadata={
-                    "capability": "unsupported_rbc",
-                    "backend": "rdrobust",
-                    "supported_profile": "uncorrected_local_polynomial",
-                },
+                method_params={"bias_correction": bias_correction, "design": str(design)},
+                metadata={"capability": "unsupported_fuzzy_treatment_input"},
             )
             return wrap_causal_output(report, warnings=[reason])
 
         poly_order = polynomial_order
         bandwidth = params.get("bandwidth")
-        bandwidth_value = float(bandwidth) if bandwidth is not None else _auto_bandwidth(x_centered)
-        if bandwidth_value <= 0:
+        try:
+            if isinstance(bandwidth, bool):
+                raise ValueError("bandwidth must be finite and positive")
+            if bias_correction and bandwidth is None:
+                raise ValueError("RBC requires explicit fixed bandwidth and bias_bandwidth")
+            bandwidth_value = (
+                float(bandwidth) if bandwidth is not None else _auto_bandwidth(x_centered)
+            )
+        except (TypeError, ValueError) as exc:
+            report = build_failure_report(
+                method=CausalMethod.REGRESSION_DISCONTINUITY,
+                status=EstimationStatus.INPUT_INVALID,
+                reason=str(exc),
+                estimand="LATE",
+                sample_size=data.sample_size,
+                n_treated=treated_count,
+                n_control=control_count,
+                pre_periods=0,
+                post_periods=0,
+                assumptions=dict(RegressionDiscontinuity.metadata.assumptions),
+            )
+            return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"])
+        if not math.isfinite(bandwidth_value) or bandwidth_value <= 0:
             report = build_failure_report(
                 method=CausalMethod.REGRESSION_DISCONTINUITY,
                 status=EstimationStatus.INPUT_INVALID,
@@ -346,9 +433,34 @@ class RegressionDiscontinuity:
             )
             return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"])
 
+        bias_order = poly_order + 1
+        bias_bandwidth_value = 0.0
         try:
             confidence_level = float(params.get("confidence_level", 0.95))
             z_critical = _normal_critical_value(confidence_level)
+            if bias_correction:
+                requested_q = params.get("bias_polynomial_order")
+                if requested_q is not None:
+                    if isinstance(requested_q, bool) or not isinstance(requested_q, int):
+                        raise ValueError("bias_polynomial_order must be p+1")
+                    bias_order = requested_q
+                if bias_order != poly_order + 1:
+                    raise ValueError("bias_polynomial_order must be p+1")
+                b = params.get("bias_bandwidth")
+                if isinstance(b, bool) or b is None:
+                    raise ValueError("RBC requires finite positive bias_bandwidth")
+                bias_bandwidth_value = float(b)
+                if not math.isfinite(bias_bandwidth_value) or bias_bandwidth_value <= 0:
+                    raise ValueError("RBC requires finite positive bias_bandwidth")
+                for key, value in (
+                    ("vce", "hc0"),
+                    ("masspoints", "off"),
+                    ("bandwidth_selector", "fixed"),
+                ):
+                    if params.get(key, value) != value:
+                        raise ValueError(f"RBC supports only {key}={value}")
+                if params.get("cluster") is not None:
+                    raise ValueError("RBC HC0 profile does not support clustering")
         except (TypeError, ValueError) as exc:
             report = build_failure_report(
                 method=CausalMethod.REGRESSION_DISCONTINUITY,
@@ -364,23 +476,75 @@ class RegressionDiscontinuity:
             )
             return wrap_causal_output(report, warnings=[report.status_reason or "invalid input"])
 
+        rbc_params: dict[str, Any] = {}
         try:
-            right_mu, right_se, right_n = _fit_local_polynomial(
-                x_centered,
-                data.outcome,
-                cutoff_side="right",
-                poly_order=poly_order,
-                kernel=kernel,
-                bandwidth=bandwidth_value,
-            )
-            left_mu, left_se, left_n = _fit_local_polynomial(
-                x_centered,
-                data.outcome,
-                cutoff_side="left",
-                poly_order=poly_order,
-                kernel=kernel,
-                bandwidth=bandwidth_value,
-            )
+            if bias_correction:
+                if np.unique(data.running_variable).size != data.sample_size:
+                    raise ValueError("RBC first profile requires unique running-variable support")
+                sides = [
+                    _fit_rbc_polynomial(
+                        x_centered,
+                        data.outcome,
+                        cutoff_side=side,
+                        poly_order=poly_order,
+                        bias_order=bias_order,
+                        kernel=kernel,
+                        bandwidth=bandwidth_value,
+                        bias_bandwidth=bias_bandwidth_value,
+                    )
+                    for side in ("left", "right")
+                ]
+                left, right = sides
+                tau_us = right[0] - left[0]
+                tau_bc = right[1] - left[1]
+                se_us = math.sqrt(left[2] + right[2])
+                se_rb = math.sqrt(left[3] + right[3])
+                left_mu, right_mu = left[1], right[1]
+                left_se, right_se = math.sqrt(left[3]), math.sqrt(right[3])
+                left_n, right_n = left[4], right[4]
+                rbc_params = {
+                    "profile": "sharp_cct_rbc_hc0_fixed",
+                    "producer": "PolicyOS clean-room CCT2014 weights",
+                    "tau_us": tau_us,
+                    "tau_bc": tau_bc,
+                    "bias": tau_us - tau_bc,
+                    "se_us": se_us,
+                    "se_rb": se_rb,
+                    "bias_polynomial_order": bias_order,
+                    "bias_bandwidth": bias_bandwidth_value,
+                    "h": [bandwidth_value, bandwidth_value],
+                    "b": [bias_bandwidth_value, bias_bandwidth_value],
+                    "p": poly_order,
+                    "q": bias_order,
+                    "vce": "hc0",
+                    "masspoints": "off",
+                    "bandwidth_selector": "fixed",
+                    "cluster": None,
+                    "design": "sharp",
+                    "cutoff": float(data.cutoff),
+                    "n_bias_left": left[5],
+                    "n_bias_right": right[5],
+                    "input_sha256": _rdd_input_digest(data),
+                    "confidence_level": confidence_level,
+                    "authority_limit": "Sharp iid asymptotic profile; real-data continuity, no manipulation and bandwidth validity not established by computation",
+                }
+            else:
+                right_mu, right_se, right_n = _fit_local_polynomial(
+                    x_centered,
+                    data.outcome,
+                    cutoff_side="right",
+                    poly_order=poly_order,
+                    kernel=kernel,
+                    bandwidth=bandwidth_value,
+                )
+                left_mu, left_se, left_n = _fit_local_polynomial(
+                    x_centered,
+                    data.outcome,
+                    cutoff_side="left",
+                    poly_order=poly_order,
+                    kernel=kernel,
+                    bandwidth=bandwidth_value,
+                )
         except Exception as exc:
             report = build_failure_report(
                 method=CausalMethod.REGRESSION_DISCONTINUITY,
@@ -437,12 +601,21 @@ class RegressionDiscontinuity:
             post_periods=0,
             assumptions=dict(RegressionDiscontinuity.metadata.assumptions),
             method_params={
+                "profile": "sharp_conventional_local_polynomial",
+                "variance_profile": "weighted_residual_homoskedastic"
+                if not bias_correction
+                else "cct_corrected_weights_hc0",
+                "bandwidth_selector": "heuristic_ik_like" if bandwidth is None else "fixed",
+                "treatment_assignment": "running_variable>=cutoff",
                 "bandwidth": bandwidth_value,
                 "kernel": kernel,
                 "polynomial_order": poly_order,
                 "bias_correction": bias_correction,
-                "confidence_procedure": "normal_two_sided",
+                "confidence_procedure": "cct_rbc_normal_two_sided"
+                if bias_correction
+                else "normal_two_sided",
                 "critical_value": z_critical,
+                **rbc_params,
             },
         )
         return wrap_causal_output(report)

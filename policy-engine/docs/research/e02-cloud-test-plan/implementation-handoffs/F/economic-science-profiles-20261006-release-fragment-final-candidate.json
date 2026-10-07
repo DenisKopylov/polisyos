@@ -1,0 +1,36 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-c",
+    "import pathlib,tomllib; from tools.ops_runners.release.check_compatibility_release_gates import _validate_fragments; from tools.ops_runners.release.build_release_notes import load_fragments; root=pathlib.Path.cwd(); policy=tomllib.loads((root/\"architecture/gates/compatibility_release.toml\").read_text()); fragments=[x for x in load_fragments(root/\"release-fragments/unreleased\") if x[\"id\"]==\"2026-10-06-economic-gini-science\"]; errors,findings=_validate_fragments(root,policy,fragments,breaking_classes=()); print({\"fragment_count\":len(fragments),\"errors\":[x.as_dict() for x in errors],\"findings\":[x.as_dict() for x in findings],\"review\":\"Existing Foundry facade exports and internal numerical owner paths reviewed against committed public-surface contract/inventory; no exports, signatures or layout changed.\"}); assert len(fragments)==1 and not errors"
+  ],
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "head": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+  "head_tree": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+  "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "source_diff_bytes": 0,
+  "pythonpath": "src:tools:.",
+  "start_unix": 1791281627.9336066,
+  "wall_seconds": 0.12003564834594727,
+  "maximum_child_rss_kib": 20240,
+  "returncode": 0,
+  "output": {
+    "path": "/workspace/e02-F-20261006-receipts/economics/release-fragment-final-candidate.txt",
+    "bytes": 236,
+    "sha256": "473000dfb8ccc9ab310f8cf71f26a7ff83dc613904c13aeeb7a66437d8fe0826"
+  },
+  "input_hashes_before": {
+    "src/polisyos/foundry/agent_sim/distributions.py": "d70bf04939c6227326ce37212693a7d39b6c8a9515ac39f987e908d2cb3bcfc3",
+    "src/polisyos/foundry/agent_sim/state.py": "5984b26f6ecda6f1449c78d879dc57cfd13e61ce0d53f58dff8a1302f9ad5be0",
+    "tests/unit/foundry/agent_sim/test_gini_science.py": "dd9a30ae48f61f88464a0aaa8b9536e3f90ac36df4f91a9cb04d35298294d49f",
+    "tests/unit/foundry/plugins/test_economic_profiles.py": "02eda95ab8abe859f08e44aa5c56417b992f6985199417480ef621fd64c03b5b"
+  },
+  "input_hashes_after": {
+    "src/polisyos/foundry/agent_sim/distributions.py": "d70bf04939c6227326ce37212693a7d39b6c8a9515ac39f987e908d2cb3bcfc3",
+    "src/polisyos/foundry/agent_sim/state.py": "5984b26f6ecda6f1449c78d879dc57cfd13e61ce0d53f58dff8a1302f9ad5be0",
+    "tests/unit/foundry/agent_sim/test_gini_science.py": "dd9a30ae48f61f88464a0aaa8b9536e3f90ac36df4f91a9cb04d35298294d49f",
+    "tests/unit/foundry/plugins/test_economic_profiles.py": "02eda95ab8abe859f08e44aa5c56417b992f6985199417480ef621fd64c03b5b"
+  },
+  "input_bytes_stable": true,
+  "head_after": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6"
+}

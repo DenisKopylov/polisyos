@@ -1,0 +1,636 @@
+{
+  "schema": "policyos.e02.native_consumer_census.v1",
+  "source_sha": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+  "suite_attributes": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "53",
+    "time": "546.100",
+    "timestamp": "2026-10-07T07:36:34.647789+00:00",
+    "hostname": "6d6fd139922b"
+  },
+  "actual_fresh_readers": 53,
+  "forged_envelope_reader_cases": 52,
+  "unmodified_native_reader_cases": 1,
+  "simulation_failed_load_warnings": 36,
+  "pytest_warnings": 0,
+  "test_cases": [
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[none-index-index-0.0]",
+      "time": "15.504"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[none-index-index-1.0]",
+      "time": "16.666"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[none-index-top-0.0]",
+      "time": "19.808"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[none-index-top-1.0]",
+      "time": "21.247"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[healthy-index-index-0.0]",
+      "time": "19.043"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[healthy-index-index-1.0]",
+      "time": "11.552"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[healthy-index-top-0.0]",
+      "time": "8.833"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[healthy-index-top-1.0]",
+      "time": "8.085"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[healthy-top-index-0.0]",
+      "time": "8.566"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[healthy-top-index-1.0]",
+      "time": "8.292"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[healthy-top-top-0.0]",
+      "time": "7.902"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[healthy-top-top-1.0]",
+      "time": "7.254"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[healthy-top_string-index-0.0]",
+      "time": "9.077"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[healthy-top_string-index-1.0]",
+      "time": "7.997"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[healthy-top_string-top-0.0]",
+      "time": "7.129"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[healthy-top_string-top-1.0]",
+      "time": "7.392"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[missing-index-index-0.0]",
+      "time": "7.380"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[missing-index-index-1.0]",
+      "time": "7.357"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[missing-index-top-0.0]",
+      "time": "7.101"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[missing-index-top-1.0]",
+      "time": "7.246"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[missing-top-index-0.0]",
+      "time": "7.194"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[missing-top-index-1.0]",
+      "time": "7.338"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[missing-top-top-0.0]",
+      "time": "7.479"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[missing-top-top-1.0]",
+      "time": "7.517"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[missing-top_string-index-0.0]",
+      "time": "7.511"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[missing-top_string-index-1.0]",
+      "time": "7.941"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[missing-top_string-top-0.0]",
+      "time": "7.619"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[missing-top_string-top-1.0]",
+      "time": "7.662"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[corrupt-index-index-0.0]",
+      "time": "7.680"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[corrupt-index-index-1.0]",
+      "time": "7.621"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[corrupt-index-top-0.0]",
+      "time": "7.254"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[corrupt-index-top-1.0]",
+      "time": "7.329"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[corrupt-top-index-0.0]",
+      "time": "7.487"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[corrupt-top-index-1.0]",
+      "time": "7.534"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[corrupt-top-top-0.0]",
+      "time": "10.131"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[corrupt-top-top-1.0]",
+      "time": "16.113"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[corrupt-top_string-index-0.0]",
+      "time": "12.053"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[corrupt-top_string-index-1.0]",
+      "time": "25.555"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[corrupt-top_string-top-0.0]",
+      "time": "22.099"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[corrupt-top_string-top-1.0]",
+      "time": "19.611"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[wrong_model-index-index-0.0]",
+      "time": "18.168"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[wrong_model-index-index-1.0]",
+      "time": "7.995"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[wrong_model-index-top-0.0]",
+      "time": "9.528"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[wrong_model-index-top-1.0]",
+      "time": "11.702"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[wrong_model-top-index-0.0]",
+      "time": "8.607"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[wrong_model-top-index-1.0]",
+      "time": "7.653"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[wrong_model-top-top-0.0]",
+      "time": "7.962"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[wrong_model-top-top-1.0]",
+      "time": "7.498"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[wrong_model-top_string-index-0.0]",
+      "time": "7.862"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[wrong_model-top_string-index-1.0]",
+      "time": "7.615"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[wrong_model-top_string-top-0.0]",
+      "time": "7.376"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_native_tmle_candidate_survives_sibling_cas_and_ratio_challenges[wrong_model-top_string-top-1.0]",
+      "time": "7.234"
+    },
+    {
+      "classname": "tests.unit.scientist.governance.test_tmle_persisted_evidence_consumers",
+      "name": "test_unmodified_native_report_reaches_both_fresh_consumers",
+      "time": "7.857"
+    }
+  ],
+  "case_denominator": [
+    {
+      "causal_location": "index",
+      "min_ratio": 0.0,
+      "simulation_kind": "none",
+      "simulation_location": "index"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 1.0,
+      "simulation_kind": "none",
+      "simulation_location": "index"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 0.0,
+      "simulation_kind": "none",
+      "simulation_location": "index"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 1.0,
+      "simulation_kind": "none",
+      "simulation_location": "index"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 0.0,
+      "simulation_kind": "healthy",
+      "simulation_location": "index"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 1.0,
+      "simulation_kind": "healthy",
+      "simulation_location": "index"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 0.0,
+      "simulation_kind": "healthy",
+      "simulation_location": "index"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 1.0,
+      "simulation_kind": "healthy",
+      "simulation_location": "index"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 0.0,
+      "simulation_kind": "healthy",
+      "simulation_location": "top"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 1.0,
+      "simulation_kind": "healthy",
+      "simulation_location": "top"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 0.0,
+      "simulation_kind": "healthy",
+      "simulation_location": "top"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 1.0,
+      "simulation_kind": "healthy",
+      "simulation_location": "top"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 0.0,
+      "simulation_kind": "healthy",
+      "simulation_location": "top_string"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 1.0,
+      "simulation_kind": "healthy",
+      "simulation_location": "top_string"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 0.0,
+      "simulation_kind": "healthy",
+      "simulation_location": "top_string"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 1.0,
+      "simulation_kind": "healthy",
+      "simulation_location": "top_string"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 0.0,
+      "simulation_kind": "missing",
+      "simulation_location": "index"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 1.0,
+      "simulation_kind": "missing",
+      "simulation_location": "index"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 0.0,
+      "simulation_kind": "missing",
+      "simulation_location": "index"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 1.0,
+      "simulation_kind": "missing",
+      "simulation_location": "index"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 0.0,
+      "simulation_kind": "missing",
+      "simulation_location": "top"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 1.0,
+      "simulation_kind": "missing",
+      "simulation_location": "top"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 0.0,
+      "simulation_kind": "missing",
+      "simulation_location": "top"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 1.0,
+      "simulation_kind": "missing",
+      "simulation_location": "top"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 0.0,
+      "simulation_kind": "missing",
+      "simulation_location": "top_string"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 1.0,
+      "simulation_kind": "missing",
+      "simulation_location": "top_string"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 0.0,
+      "simulation_kind": "missing",
+      "simulation_location": "top_string"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 1.0,
+      "simulation_kind": "missing",
+      "simulation_location": "top_string"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 0.0,
+      "simulation_kind": "corrupt",
+      "simulation_location": "index"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 1.0,
+      "simulation_kind": "corrupt",
+      "simulation_location": "index"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 0.0,
+      "simulation_kind": "corrupt",
+      "simulation_location": "index"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 1.0,
+      "simulation_kind": "corrupt",
+      "simulation_location": "index"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 0.0,
+      "simulation_kind": "corrupt",
+      "simulation_location": "top"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 1.0,
+      "simulation_kind": "corrupt",
+      "simulation_location": "top"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 0.0,
+      "simulation_kind": "corrupt",
+      "simulation_location": "top"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 1.0,
+      "simulation_kind": "corrupt",
+      "simulation_location": "top"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 0.0,
+      "simulation_kind": "corrupt",
+      "simulation_location": "top_string"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 1.0,
+      "simulation_kind": "corrupt",
+      "simulation_location": "top_string"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 0.0,
+      "simulation_kind": "corrupt",
+      "simulation_location": "top_string"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 1.0,
+      "simulation_kind": "corrupt",
+      "simulation_location": "top_string"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 0.0,
+      "simulation_kind": "wrong_model",
+      "simulation_location": "index"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 1.0,
+      "simulation_kind": "wrong_model",
+      "simulation_location": "index"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 0.0,
+      "simulation_kind": "wrong_model",
+      "simulation_location": "index"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 1.0,
+      "simulation_kind": "wrong_model",
+      "simulation_location": "index"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 0.0,
+      "simulation_kind": "wrong_model",
+      "simulation_location": "top"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 1.0,
+      "simulation_kind": "wrong_model",
+      "simulation_location": "top"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 0.0,
+      "simulation_kind": "wrong_model",
+      "simulation_location": "top"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 1.0,
+      "simulation_kind": "wrong_model",
+      "simulation_location": "top"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 0.0,
+      "simulation_kind": "wrong_model",
+      "simulation_location": "top_string"
+    },
+    {
+      "causal_location": "index",
+      "min_ratio": 1.0,
+      "simulation_kind": "wrong_model",
+      "simulation_location": "top_string"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 0.0,
+      "simulation_kind": "wrong_model",
+      "simulation_location": "top_string"
+    },
+    {
+      "causal_location": "top",
+      "min_ratio": 1.0,
+      "simulation_kind": "wrong_model",
+      "simulation_location": "top_string"
+    },
+    {
+      "relabelled": false
+    }
+  ],
+  "single_report_identity": {
+    "bundle_id": "sha256:90940e4f67c0f8903e9d2d3f67c1d65104f399899c8c0fbf365cfa8d442edaca",
+    "report_id": "sha256:d671d21736330644711d4455492ed337aa31101ff6f7667c598e233b843d8e42",
+    "source_id": "sha256:f8d86d03a2ea2f122bb20daf16d7351c8b35c7a798281e62a65db3f526621f1b",
+    "report_method": "tmle",
+    "report_status": "success",
+    "point": 0.31977576818843334,
+    "ci": [
+      0.2473855352885151,
+      0.3921660010883516
+    ],
+    "persisted_envelope_point": 0.319775768188,
+    "persisted_envelope_ci": [
+      0.247385535289,
+      0.392166001088
+    ]
+  },
+  "value_refusal_counts": {
+    "method_output_contract_unresolved": 53
+  },
+  "causal_blocker_counts": {
+    "1": 53
+  },
+  "full_stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/tmle/native.stdout.txt",
+    "bytes": 273625,
+    "sha256": "f61a5d5f5e330aa12b13bc4d780a81c435f5668434583b95e46eee3fab51ccb7"
+  },
+  "limits": [
+    "Known synthetic bounded DGP and configured two-fold one-repeat consumer fixture; no real-data, coverage, cache or default-fold rerun.",
+    "Upstream value contract refused; downstream gate predicate not reached.",
+    "Positive statistical/operational authority and actual admitted competing-study budget remain UNRUN."
+  ]
+}

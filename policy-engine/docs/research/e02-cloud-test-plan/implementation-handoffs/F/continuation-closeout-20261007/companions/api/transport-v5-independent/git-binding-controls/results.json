@@ -1,0 +1,23 @@
+{
+  "outcome": "PASS",
+  "cases": 2,
+  "actual_Git_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+  "observed_remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+  "actual_Git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/app-python-version.stdout.txt.gz",
+  "actual_stored_binding": {
+    "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/actual-git.gz",
+    "bytes": 90,
+    "sha256": "8aea3a1349f69e9136bbff2779f1c3dadb8d36f1c9ff1d37260691c2901d4361"
+  },
+  "actual_decoded_binding": {
+    "bytes": 73,
+    "sha256": "f125cbeb0fcd08cedb1a6e2e96c3ec724f526541693418e6c71ee3b7366dd8e9"
+  },
+  "exact_stored_body_matches_existing_Git": true,
+  "same_decoded_different_stored_body_not_false_existing_Git": true,
+  "all_helper_source_hashes": {
+    "refresh_selection_v5.py": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d",
+    "publish_transport_v5.py": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2"
+  },
+  "science_tests_run": false
+}

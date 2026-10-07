@@ -1,0 +1,46 @@
+{
+  "source_sha": "63425f734946979cfc990e9cb91b00163f051898",
+  "scientific_source_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+  "changed_paths": [
+    "policy-engine/docs/reference/foundry/randomization-profile.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-foundry-treasury-salts.toml",
+    "policy-engine/src/polisyos/foundry/compile/randomization.py",
+    "policy-engine/src/polisyos/foundry/compile/trinity_compiler.py",
+    "policy-engine/src/polisyos/foundry/execute/_internal/graph/README.md",
+    "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+    "policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+    "policy-engine/tests/unit/foundry/compile/test_treasury_execution.py"
+  ],
+  "source_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/compile/randomization.py",
+      "sha256": "8b49c7b17d328aa8c117de72410cd11ce489c305a9f46294ebb0ac5a1aa07a4a",
+      "bytes": 2179
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/compile/trinity_compiler.py",
+      "sha256": "7608e9476321519fe9f8a024dc483caf909d97cefb185a7ec491fc21651bbe07",
+      "bytes": 17693
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+      "sha256": "db3f2630e0c7ca4ad159a4d4b1d8ed99892189b0d76e00ff8c669a0992d8625a",
+      "bytes": 46124
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/compile/test_treasury_execution.py",
+      "sha256": "98a9a099cfe96f674e64161e1ffa4d5b9853dc6b526be7b4924e76248cf3efc9",
+      "bytes": 22267
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+      "sha256": "867f43def30b6a27fd780718ca502c69f7c617246f160b09e827dfff8928f5be",
+      "bytes": 8018
+    }
+  ],
+  "commands": [
+    "ruff check",
+    "ruff format --check",
+    "git diff --check"
+  ]
+}

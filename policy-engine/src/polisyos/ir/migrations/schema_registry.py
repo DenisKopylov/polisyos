@@ -13,6 +13,23 @@ def register_default_schema_rules() -> None:
     """Register built-in IR schema compatibility declarations."""
 
     register_schema_version(
+        "structural_causal_model_spec",
+        "1.0",
+        compatibility=CompatibilityMode.NONE,
+        notes=("Historical/manual SCM baseline; no selected worker authority is inherited.",),
+    )
+    register_schema_version(
+        "structural_causal_model_spec",
+        "1.1",
+        compatibility=CompatibilityMode.BACKWARD,
+        readable_versions=("1.0",),
+        additive_optional_fields=("training_rows", "fit_provenance"),
+        notes=(
+            "Current reader preserves legacy 1.0 payload versions without a new backend claim.",
+            "Selected GCM 1.1 requires source-bound training rows and observed worker provenance.",
+        ),
+    )
+    register_schema_version(
         "trinity_bundle",
         "1.0",
         compatibility=CompatibilityMode.FULL,

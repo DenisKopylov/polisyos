@@ -1,0 +1,12 @@
+{
+  "command": [
+    "git",
+    "fetch",
+    "origin",
+    "refs/heads/main:refs/remotes/origin/main",
+    "refs/heads/codex/e02-integration:refs/remotes/origin/codex/e02-integration",
+    "refs/heads/codex/e02-F-closeout-20261006:refs/remotes/origin/codex/e02-F-closeout-20261006"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006",
+  "returncode": 0
+}

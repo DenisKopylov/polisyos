@@ -1,0 +1,19 @@
+{
+  "output": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/v5-codec-probe/different-containers-output.json",
+    "bytes": 7151,
+    "sha256": "9bfc3adcdebac11c5dc9664349e6ef9d5881202820f7f23f4ccb03853165e980"
+  },
+  "counts": {
+    "logical_files": 6,
+    "unique_transport_files": 6,
+    "aliases": 0,
+    "existing_git_files": 0,
+    "changed_prior_inputs": 0,
+    "unique_raw_transport_bytes": 31094
+  },
+  "pending_extensions": [],
+  "root_source_writes": false,
+  "Git_writes": false,
+  "tests_run": false
+}

@@ -1,0 +1,137 @@
+{
+  "finding_id": "LA-037",
+  "primary_owner_from_full_TSV": {
+    "finding_id": "LA-037",
+    "unit": "F",
+    "docx_analytical_package": "P12",
+    "source_closure_owner": "FRY-01",
+    "source_bundle_ids": "FRY-01",
+    "source_status": "partial"
+  },
+  "bundle_owner_from_full_TSV": {
+    "bundle_id": "FRY-01",
+    "unit": "F",
+    "initial_writer_family": "F-W05",
+    "title": "Foundry compile/catalog: randomization, families и прямой IR layout"
+  },
+  "original_card_refs": [
+    {
+      "criterion_id": "LA-037",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+      "lines": [
+        2146,
+        2178
+      ],
+      "bytes": 5602,
+      "sha256": "79dc9efe37fc67c6b481db97f51d50a38d4aea4cff051ce0ffcf864ce049589c",
+      "title": "## LA-037. Slot layout: две последовательные compatibility-обёртки после переноса в IR",
+      "byte_binding_check": "PASS"
+    }
+  ],
+  "original_text": "## LA-037. Slot layout: две последовательные compatibility-обёртки после переноса в IR\n\n**C — завершение адресной миграции; перенос алгоритма не требуется**\n\n**Точная область:**\n\n`src/polisyos/foundry/methods/layout.py`\n\n`src/polisyos/foundry/methods/compiler/layout.py`\n\n**Статус.** Оба hop прочитаны полностью; конечный IR-владелец и действующий compiler caller подтверждены. Две обёртки не являются двумя layout-алгоритмами.\n\n**Что установлено.** Внешний `methods/layout.py` вызывает общий `_reexport_module` с target `foundry.methods.compiler.layout`. Сам target импортирует лишь пять объектов из `polisyos.ir.kernel.slots`: три типа и два builder. Таким образом, «канонический» адрес первой миграции уже стал compatibility второго переноса. Trinity compiler всё ещё импортирует `build_slot_layout` через самый внешний путь; документация рекомендует промежуточный, а найденный тест специально сохраняет старую Foundry-поверхность. [E116–E122]\n\nПрочитанный конечный владелец действительно содержит `SlotLayout`, `SlotFamily`, `SlotFamilyManifest`, `build_slot_layout` и `build_slot_family_manifest`. Здесь не предлагается переносить layout в IR заново или заводить четвёртый registry.\n\n**Что сохранить.** Identity типов/функций и семантику builders: пропуск slots без `state_path`, grouping/family inventory, порядок и fallback для global family. Полный численный/execution контракт нельзя заменить одной типовой fixture. Сохранить compiler tests и различие между проверкой текущего поведения и временным условием доступности старого import-path.\n\n**Куда перенести / с чем объединить.** Существующий `src/polisyos/ir/kernel/slots.py` — конечный адрес. Для first-party imports использовать его напрямую там, где import direction уже позволяет IR. Если внешний Foundry facade действительно нужен как стабильный контракт, сохранить **один** осознанный facade с прямыми явными bindings, а не обязательную цепочку двух. Сам `_internal/reexport.py` этим решением не удаляется: есть другие consumers, включая loss facade.\n\n**Порядок миграции.** Переключить Trinity и установленных клиентов, references/API-doc directives и config/FQN consumers. При временной поддержке внешнего адреса сначала направить его прямо к IR; только затем выводить промежуточный wrapper. Закрытие последнего поддерживаемого public facade требует собственного lifecycle-решения. Отрицательные проверки от возврата старого самостоятельного layout-кода оставить у архитектурных/contract tests.\n\n**Фактическая проверка.** r04-P23–P25 исполняют оба точных wrapper и точный reexport-helper с fixture IR objects. Все пять объектов сохраняют identity; внешняя поверхность содержит ровно эти пять имён. Блокирование промежуточного адреса ломает ещё не перенаправленный внешний facade. Настоящий `ir.kernel.slots` в этих probes не исполняется.\n\n**Приёмка.** Native slot-layout/family tests, compiler output и registry defaults, public imports/identity, docs build и package distribution. Проверить именно старые и промежуточные адреса; поиск только `compiler.layout` не найдёт callers внешнего `methods.layout` и наоборот. Переименование Python-пути не меняет сохранённые slot IDs и data manifests.\n\n**Приоритет.** Небольшая по коду, конечная по зависимостям миграция. Ни ожидаемое ускорение Foundry, ни существенное уменьшение объёма данных не заявляются.\n\n**Граница вывода.** IR source прочитан в диапазоне 1–230, включая оба builder, но не весь registry. Положительные caller/test/docs fragments доказывают наличие зависимостей, не их полный перечень. Удалять обе обёртки до миграции известных consumers нельзя.\n\n**Основания:** E116–E122. Локальные проверки: r04-P23–P25.\n\n<!-- PAGEBREAK -->\n",
+  "primary_acceptance_scope": "Actual IR slot/family builders, compiler/default registry/output, one intentional direct facade, identity/caller/docs/distribution support; no two-hop algorithm or new layout law.",
+  "source_chain": {
+    "producer": "compile randomization/IR slot builders/catalog family owner",
+    "artifact": "TreasuryPlan/SlotLayout/IR certificate refs",
+    "bridge": "compile.api.compile → compile_trinity / ICVerificationRequest → CAS",
+    "consumer": "execute.api.execute → execute_program_graph → adaptive_agent / fresh IR reader"
+  },
+  "actual_recorded_consumer": "IR.kernel.slots → TrinityCompiler/default registry → PatchOp/state/CAS; scoped realMkDocs Python handler; installed owners",
+  "surface": "Canonical IR slot-layout/family builders and supported direct Foundry facade, Trinity compiler/default registry/docs/install consumers",
+  "deciding_receipt_refs": [
+    {
+      "git_ref": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json",
+      "bytes": 77903,
+      "sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e",
+      "git_blob": "12937d746fc2a65adfb6022e24ec00f61083f492",
+      "check": "PASS",
+      "origins": [
+        "ROOT_adjudication/LA-037"
+      ]
+    }
+  ],
+  "deciding_per_ID_carrier_ref": {
+    "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-037.json",
+    "bytes": 19761,
+    "sha256": "c489a5eb64f359bd3ddbcc33d41d36b00656deefe5bc3f0a83523e2e3e68e46d",
+    "git_blob": "1aad7aeaf575c7a9f7320bc87e21930d1d643c39"
+  },
+  "scientific_implementation": {
+    "sha": "63425f734946979cfc990e9cb91b00163f051898",
+    "tree": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
+    "not_receipt_carrier": true
+  },
+  "recorded_independent_oracle_and_negative": "7f05native40 + actualcompile1 + layoutCAS3, layout removalFAIL; realstatepage buildPASS; exactownerbytes installed5cd13wheel/13sdist",
+  "complete_raw_receipt_checks_refs": [
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/0",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/1",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/2",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/3",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/4",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/5",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/6",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/7",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/8",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/9",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/10",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/11",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/12",
+    "f4fa51e6dd247cfd967450263579d67233a743d6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json#/checks/13"
+  ],
+  "historical_ROOT072": {
+    "check": "PASS",
+    "outcome": "closed",
+    "technical_original_criterion_recommendation": "closed",
+    "current_continuation_outcome_recommendation": "closed",
+    "original_criterion_remainder": "None in original supported finite catalog/IC/native IR/direct caller/docs/install migration; optional new family state kernels and full compatibility retirement are not original acceptance prerequisites.",
+    "actual_consumer": "IR.kernel.slots → TrinityCompiler/default registry → PatchOp/state/CAS; scoped realMkDocs Python handler; installed owners",
+    "oracle_and_negative": "7f05native40 + actualcompile1 + layoutCAS3, layout removalFAIL; realstatepage buildPASS; exactownerbytes installed5cd13wheel/13sdist",
+    "separate_unavailable_inputs_or_authority": "Fullstrictdocs/architecture/production admission not implied by scoped page; optionalfamilyexecution notcriterion."
+  },
+  "independent_original_criterion_recommendation": {
+    "check": "PASS",
+    "outcome": "closed",
+    "basis": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+    "scientific_rerun": false,
+    "review_scope": "independent criterion/evidence reconciliation; not an independently rerun estimator measurement",
+    "missing_actual_original_criterion": null,
+    "new_owner_review_pending": false,
+    "not_formal_G_closure": true
+  },
+  "separate_unavailable_inputs_or_authority": "Fullstrictdocs/architecture/production admission not implied by scoped page; optionalfamilyexecution notcriterion.",
+  "existing_author_or_reviewer_conflict": null,
+  "schema": "e02.F.original-finding.v3",
+  "primary_bundle": "FRY-01",
+  "criterion_short": "Actual IR slot/family builders, compiler/default registry/output, one intentional direct facade, identity/caller/docs/distribution support; no two-hop algorithm or new layout law.",
+  "check_result": "PASS",
+  "F_finding_outcome": "closed",
+  "F_technical_recommendation": "closed",
+  "F_rationale": "Verified original block/TSV/source-tree/receipt bytes and pointers support the recorded bounded native discriminator; extra universal production authority is not substituted for this finite property.",
+  "code_sha": "63425f734946979cfc990e9cb91b00163f051898",
+  "code_tree": "dab61c3e7a161e00837f5a128fc2768a36e9b19a",
+  "consumer": "IR.kernel.slots → TrinityCompiler/default registry → PatchOp/state/CAS; scoped realMkDocs Python handler; installed owners",
+  "oracle_and_negative": "7f05native40 + actualcompile1 + layoutCAS3, layout removalFAIL; realstatepage buildPASS; exactownerbytes installed5cd13wheel/13sdist",
+  "G_finding_acceptance": {
+    "status": "not_issued",
+    "formal_G_closed": false
+  },
+  "G_code_acceptance": {
+    "status": "not_inferred",
+    "source_sha": null,
+    "basis": "Independent F GO/code-ready is not G code acceptance"
+  },
+  "original_missing_input": null,
+  "original_next_owner": null,
+  "next_concrete_result": "G review/adopt exact own topic histories; composed integration freeze replay only if affected",
+  "root_assembled_source": {
+    "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "not_new_numerical_proof": true
+  },
+  "new_property_followups_not_automatically_original_reopen": []
+}

@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-F-20261006-receipts/root-review/economics_controls.py"
+  ],
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "source_sha": "3f4ebe5641f68535ce5dbdf57db859bffc241bb3",
+  "tree": "14959cdd4fa5802ade6c68befc2f05a748bb2e94",
+  "status": "",
+  "exit": 0,
+  "wall_s": 26.6610564970033,
+  "pythonpath": "/workspace/e02-F-economics-20261006/policy-engine/src:/workspace/e02-F-economics-20261006/policy-engine",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/root-review/economics-controls.stdout",
+      "sha256": "da7aad4584fc3c69f49dd3bb66fda735048337ac9f29225ed1b96e9452adf863",
+      "bytes": 237
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/root-review/economics-controls.stderr",
+      "sha256": "170804ac9a89247510da08f1be9c1bf13fe0ca162db286bcd5f18378aaa867aa",
+      "bytes": 255
+    }
+  }
+}

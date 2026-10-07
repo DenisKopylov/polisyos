@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py", line 205, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py", line 155, in main
+    for p in args.include_file:add_file(p)
+                               ~~~~~~~~^^^
+  File "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py", line 58, in add_file
+    if p==args.output.resolve():raise ValueError('recursive selection input')
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: recursive selection input

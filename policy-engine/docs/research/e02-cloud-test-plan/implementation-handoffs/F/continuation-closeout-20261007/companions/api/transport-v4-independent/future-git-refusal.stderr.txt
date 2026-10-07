@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py", line 187, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py", line 130, in main
+    expected=git_binding(args.repository,row['git_ref'],row['path'])
+  File "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v4.py", line 27, in git_binding
+    if code:raise ValueError(f'Git readback failed {ref}:{path}: {err!r}')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Git readback failed ffffffffffffffffffffffffffffffffffffffff:AGENTS.md: b"fatal: path 'AGENTS.md' exists on disk, but not in 'ffffffffffffffffffffffffffffffffffffffff'\n"

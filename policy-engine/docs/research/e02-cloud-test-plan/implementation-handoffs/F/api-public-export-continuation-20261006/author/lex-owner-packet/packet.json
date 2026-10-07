@@ -1,0 +1,114 @@
+{
+  "kind": "read_only_local_owner_input_packet",
+  "finding_ids": [
+    "LA-017"
+  ],
+  "source_sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+  "accepted_lex_delta": "00a6eda114b903bc5abe86902cd8372426f739a1",
+  "source_bindings": [
+    {
+      "git_ref": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "path": "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+      "bytes": 15975,
+      "sha256": "144030072b61170d93ba387cb9f8977ff73e867f7ba2bb5b873a979a3c3e8230",
+      "output_path": "/tmp/e02-F-continuation-20261006/api/lex-owner-packet/source-00.txt"
+    },
+    {
+      "git_ref": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "path": "policy-engine/src/polisyos/lex/simulator/engine.py",
+      "bytes": 179,
+      "sha256": "11b8417241a535508f1e41f4876c8650defd70fd33647c480c4b1d9db46e17d9",
+      "output_path": "/tmp/e02-F-continuation-20261006/api/lex-owner-packet/source-01.txt"
+    },
+    {
+      "git_ref": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "path": "policy-engine/src/polisyos/lex/simulator/report.py",
+      "bytes": 331,
+      "sha256": "e983c41a73fcc7b36c0717c961544820969e43675aa25c3f87929de299b9274d",
+      "output_path": "/tmp/e02-F-continuation-20261006/api/lex-owner-packet/source-02.txt"
+    },
+    {
+      "git_ref": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "path": "policy-engine/src/polisyos/lex/simulator/cli.py",
+      "bytes": 2541,
+      "sha256": "5d627f7f97e05096748d75e45aea5548526301dfce33f2bb6a53e8cc1bf86a68",
+      "output_path": "/tmp/e02-F-continuation-20261006/api/lex-owner-packet/source-03.txt"
+    },
+    {
+      "git_ref": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "path": "policy-engine/src/polisyos/core/components/_cli_lex.py",
+      "bytes": 3287,
+      "sha256": "0d99b29dfe41c73d8a62d767e5666e012ae66dc6750c15f194e855156e4764e1",
+      "output_path": "/tmp/e02-F-continuation-20261006/api/lex-owner-packet/source-04.txt"
+    },
+    {
+      "git_ref": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "path": "policy-engine/src/polisyos/core/governance/passes/legal_pass.py",
+      "bytes": 3587,
+      "sha256": "9f5b1f65b37e608a127ffff7559b311ee4d0fc4707433fd95393d98a9300b3b5",
+      "output_path": "/tmp/e02-F-continuation-20261006/api/lex-owner-packet/source-05.txt"
+    },
+    {
+      "git_ref": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "path": "policy-engine/src/polisyos/ir/loading/norm_pack.py",
+      "bytes": 3985,
+      "sha256": "6613777ebe6fb355d537b39b9b4968dd9dcc866a2173696f95207d5a0e21686d",
+      "output_path": "/tmp/e02-F-continuation-20261006/api/lex-owner-packet/source-06.txt"
+    },
+    {
+      "git_ref": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "path": "policy-engine/src/polisyos/scientist/agent/norm_loader.py",
+      "bytes": 2929,
+      "sha256": "3458c0c8c080ecefeefe1232855ec440570dedd5a23e0441bae6f358a855ad91",
+      "output_path": "/tmp/e02-F-continuation-20261006/api/lex-owner-packet/source-07.txt"
+    },
+    {
+      "git_ref": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "path": "policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py",
+      "bytes": 9775,
+      "sha256": "f45085e041d7f9d9040b189ed156b3420f7e7dbfa7caa43765dcb98702d0a3b7",
+      "output_path": "/tmp/e02-F-continuation-20261006/api/lex-owner-packet/source-08.txt"
+    }
+  ],
+  "canonical_consumer": "polisyos.lex.legal_evaluation.impact_diff.NormImpactAnalyzer.analyze",
+  "compatibility_consumers": [
+    "polisyos.lex.simulator.engine.NormImpactAnalyzer",
+    "polisyos.lex.simulator.report.NormImpactReport",
+    "polisyos.lex.simulator.cli.render_impact_markdown"
+  ],
+  "maintained_plan": {
+    "arguments": "constructor passes: tuple[str,...], legal_backend, ValidationProfile; analyze old_pack,new_pack,context,decision_packet_ref,persist",
+    "actual_semantics": "G source freezes a tuple and canonically deduplicates first occurrences, rejects unsupported pass IDs before analysis, runs LegalPass/SafetyPass per old/new pack, persists NormDiff and NormImpactReport using canonical CAS bytes.",
+    "report_consumer": "render_impact_markdown reports compliance transitions and Candidate Impact Topics; affected KPI heuristic is not a measured causal effect."
+  },
+  "minimal_local_owner_packet": [
+    {
+      "role": "old/new NormPack bytes and exact CAS refs/manifests",
+      "requirement": "NormPack schema_version/pack_id/jurisdiction/effective_date/norms plus source-backed NormRef citations or admitted legacy source_document/version. Custodian must select actual current-law scope and preserve both raw bytes and hashes, not invent pack refs."
+    },
+    {
+      "role": "legal evaluation policy/context",
+      "requirement": "Exact maintained ValidationProfile, canonical pass plan and legal_backend selection; actual ir/state/registry_bundle consumed via PassContext. Backend must be explicitly available for the intended legal checks."
+    },
+    {
+      "role": "source/custody/time admission",
+      "requirement": "Existing local law owner must issue jurisdiction/as-of/provision source custody and hash/role bindings if source-card scientific/legal criterion requires them; model presence or descriptive metadata does not issue authority."
+    },
+    {
+      "role": "output evidence",
+      "requirement": "Exact old/new pack bytes, NormDiff CAS bytes/manifest, NormImpactReport CAS bytes/manifest, unique passes_executed, compliance issue transitions and produced markdown; tamper/missing/changed-source negatives separate from synthetic fixtures."
+    }
+  ],
+  "observed_limits": [
+    "No production/current-law NormPack refs or custody issuer were provided to this lane: local current-law run UNRUN.",
+    "Core CLI _cmd_lex_impact does not pass legal_backend; LegalPass(None) defaults to StubBackend. CLI import/exit or synthetic report is not native legal-authority proof.",
+    "CASNormPackLoader ignores as_of and maps explicit configured refs by jurisdiction/domain; it is not a current-law admission resolver.",
+    "NormImpactAnalyzer report pack IDs are not substitutes for owner-issued physical CAS/citation custody and semantic legal authority.",
+    "Accepted duplicate-plan/input-binding delta remains accepted at G source; this packet introduces no Lex source change or whole LA017 closure."
+  ],
+  "available_generic_selector": "tests/unit/lex/legal_evaluation/test_impact_diff.py",
+  "selector_scope": "Existing synthetic expr_ast/CLI/frozen-plan/CAS controls; not run again because accepted Lex delta has no new code change in this task",
+  "production_command": null,
+  "production_command_state": "UNRUN: no exact owner-issued input refs/authority/context arguments available; no placeholder command fabricated",
+  "accepted_delta_ancestor_of_source": true
+}

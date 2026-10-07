@@ -1,0 +1,105 @@
+{
+  "checks": [
+    {
+      "seed": "1",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-c",
+        "from tools.devx.architecture import guardrails as g;print(g.render_public_surface_json(g.build_public_surface_inventory(g._parse_public_surface(g.REPO_ROOT/'architecture/public_surface/contract.toml'))),end='')"
+      ],
+      "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+      "source_sha": "35b1808c63fa84dd0555ff9043e0aaffe9831e7b",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261006/api/generation-portability-seed1.stdout",
+        "bytes": 293714,
+        "sha256": "40285fa3ed9426bf91798b84c83b2827af3817c5166616770273520f1a702dec"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/api/generation-portability-seed1.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "seed": "2",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-c",
+        "from tools.devx.architecture import guardrails as g;print(g.render_public_surface_json(g.build_public_surface_inventory(g._parse_public_surface(g.REPO_ROOT/'architecture/public_surface/contract.toml'))),end='')"
+      ],
+      "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+      "source_sha": "35b1808c63fa84dd0555ff9043e0aaffe9831e7b",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261006/api/generation-portability-seed2.stdout",
+        "bytes": 302146,
+        "sha256": "09802e29f470a10cabc4aa4154ac5f92eee56d4130a9070b3f8481a7fccfa92e"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/api/generation-portability-seed2.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "byte_equal": false,
+  "differing_entrypoints": [
+    {
+      "entrypoint": "polisyos.core.contracts",
+      "seed1_reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/core/__init__.py:from __future__ import annotations",
+      "seed2_reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/core/contracts/__init__.py:from __future__ import annotations"
+    },
+    {
+      "entrypoint": "polisyos.core.observability",
+      "seed1_reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/core/__init__.py:from __future__ import annotations",
+      "seed2_reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/core/observability/__init__.py:from __future__ import annotations"
+    },
+    {
+      "entrypoint": "polisyos.core.security",
+      "seed1_reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/core/__init__.py:from __future__ import annotations",
+      "seed2_reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/core/security/__init__.py:from __future__ import annotations"
+    },
+    {
+      "entrypoint": "polisyos.core.trace",
+      "seed1_reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/core/__init__.py:from __future__ import annotations",
+      "seed2_reason": "Unresolved import-time ClassDef outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/core/trace/record.py:class RunTerminality(StrEnum):\n    \"\"\"Producer-owned knowledge state for whether a run has terminated.\"\"\"\n    TERMINAL = 'terminal'\n    NON_TERMINAL = 'non_terminal'\n    NOT_ESTABLISHED = 'not_established'"
+    },
+    {
+      "entrypoint": "polisyos.ir.analytics",
+      "seed1_reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/ir/analytics/__init__.py:from __future__ import annotations",
+      "seed2_reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/ir/__init__.py:from __future__ import annotations"
+    },
+    {
+      "entrypoint": "polisyos.foundry.api",
+      "seed1_reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/foundry/__init__.py:from __future__ import annotations",
+      "seed2_reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/foundry/api.py:from __future__ import annotations"
+    },
+    {
+      "entrypoint": "polisyos.foundry.compile",
+      "seed1_reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/foundry/__init__.py:from __future__ import annotations",
+      "seed2_reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/foundry/compile/__init__.py:from __future__ import annotations"
+    },
+    {
+      "entrypoint": "polisyos.scientist.governance.continuous",
+      "seed1_reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/scientist/__init__.py:from __future__ import annotations",
+      "seed2_reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/scientist/governance/continuous/__init__.py:from __future__ import annotations"
+    },
+    {
+      "entrypoint": "polisyos.runtime.quality",
+      "seed1_reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/runtime/__init__.py:from __future__ import annotations",
+      "seed2_reason": "Unresolved import-time ClassDef outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/runtime/quality/acquisition_planner.py:class AcquisitionActionRecord(BaseModel):\n    \"\"\"ADR-0166 acquisition action record for one gap.\"\"\"\n    model_config = ConfigDict(extra='forbid', frozen=True)\n    schema_version: str = ACQUISITION_PLANNER_SCHEMA_VERSION\n    acquisition_id: str = Field(min_length=1)\n    gap_id: str = Field(min_length=1)\n    gap_type: AcquisitionGapType\n    claim_ref: str = Field(min_length=1)\n    scenario_requirement_refs: tuple[str, ...] = Field(default=())\n    requirement_gap_ref: str | None = None\n    requirement_family: str | None = None\n    compiled_requirement_ref: str | None = None\n    requirement_schema_version: str | None = None\n    missing_requirement_fields: tuple[str, ...] = Field(default=())\n    authority_level: AuthorityLevel\n    mandatory_gate_state: MandatoryGateState\n    mandatory_gate_refs: tuple[str, ...] = Field(default=())\n    eligible_strategies: tuple[AcquisitionStrategy, ...] = Field(default=())\n    ineligible_strategies: tuple[str, ...] = Field(default=())\n    strategy_records: tuple[AcquisitionStrategyRecord, ...] = Field(default=())\n    ineligible_strategy_records: tuple[AcquisitionStrategyRecord, ...] = Field(default=())\n    voi_ranking_ref: str | None = None\n    recommended_strategy: AcquisitionStrategy\n    decision_owner: str = Field(min_length=1)\n    decision_owner_ref: str | None = None\n    commit_authority: str = Field(min_length=1)\n    terminal_disposition: AcquisitionDisposition\n    limitation_ref: str | None = None\n    accepted_deficit_ref: str | None = None\n    blocker_ref: str | None = None\n    producer_expected: str | None = None\n    producer_output_ref: str | None = None\n    calibration_feedback_ref: str | None = None\n    public_projection_effect: str = Field(min_length=1)\n    next_actions: tuple[AcquisitionNextAction, ...] = Field(default=())\n    status: Literal['ready', 'limited', 'blocked'] = 'ready'\n    planner_posture: Literal['advisory'] = 'advisory'\n    runtime_event_ref: str = Field(min_length=1)\n    evidence_ref: str = Field(min_length=1)\n    authority_boundary: dict[str, tuple[str, ...]] = Field(default_factory=dict)\n\n    @model_validator(mode='after')\n    def _validate_distinct_terminal_refs(self) -> AcquisitionActionRecord:\n        if self.terminal_disposition is AcquisitionDisposition.CLOSEOUT_BLOCK:\n            if not self.blocker_ref:\n                raise ValueError('closeout_block acquisition records require blocker_ref')\n            if self.limitation_ref or self.accepted_deficit_ref:\n                raise ValueError('closeout_block cannot also be limitation or deficit')\n        if self.terminal_disposition in {AcquisitionDisposition.PUBLISH_WITH_LIMITATION, AcquisitionDisposition.PROXY_WITH_LIMITATION} and (not self.limitation_ref):\n            raise ValueError('limitation acquisition records require limitation_ref')\n        if self.terminal_disposition is AcquisitionDisposition.ACCEPTED_DEFICIT and (not self.accepted_deficit_ref):\n            raise ValueError('accepted_deficit acquisition records require accepted_deficit_ref')\n        return self"
+    },
+    {
+      "entrypoint": "polisyos.lex.knowledge",
+      "seed1_reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/lex/knowledge/__init__.py:from __future__ import annotations",
+      "seed2_reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/lex/__init__.py:from __future__ import annotations"
+    },
+    {
+      "entrypoint": "polisyos.data_forge.read_api",
+      "seed1_reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/data_forge/read_api/__init__.py:from __future__ import annotations",
+      "seed2_reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/data_forge/__init__.py:from __future__ import annotations"
+    }
+  ],
+  "absolute_locator_example": "Unresolved import-time ImportFrom outside pure-declaration grammar: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/common/__init__.py:from __future__ import annotations"
+}

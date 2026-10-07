@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from polisyos.foundry.methods.catalog.causal.admg_ops import (
+    _validate_static_admg,
     ancestors,
     remove_incoming_edges,
     remove_outgoing_edges,
@@ -171,6 +172,7 @@ def apply_ctf_rule1(
     z_vars: frozenset[str],
 ) -> tuple[CounterfactualNode, IRProofStep] | None:
     """CTF-R1: remove same-world observations from counterfactual conditioning."""
+    _validate_static_admg(amn)
     z = z_vars & frozenset(node.conditioning)
     if not z:
         return None
@@ -228,6 +230,7 @@ def apply_ctf_rule2(
     z_vars: frozenset[str],
 ) -> tuple[CounterfactualNode, IRProofStep] | None:
     """CTF-R2: exchange same-world interventions for observations."""
+    _validate_static_admg(amn)
     z = z_vars & frozenset(node.intervention)
     if not z:
         return None
@@ -291,6 +294,7 @@ def apply_ctf_rule3(
     z_vars: frozenset[str],
 ) -> tuple[CounterfactualNode, IRProofStep] | None:
     """CTF-R3: delete redundant same-world counterfactual interventions."""
+    _validate_static_admg(amn)
     z = z_vars & frozenset(node.intervention)
     if not z:
         return None
@@ -522,6 +526,7 @@ def rewrite_ctf_estimand(
     max_iterations: int = 20,
 ) -> tuple[EstimandAST, list[IRProofStep]]:
     """Apply ctf-calculus on an EstimandAST until reaching a fixed point."""
+    _validate_static_admg(graph)
     if not ast_contains_counterfactual(ast.root):
         return ast, []
 

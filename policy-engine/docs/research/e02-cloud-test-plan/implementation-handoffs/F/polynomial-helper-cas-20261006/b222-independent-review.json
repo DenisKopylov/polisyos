@@ -1,0 +1,244 @@
+{
+  "schema": "F.independent-polynomial-consumer-review.v1",
+  "reviewer": "/root/cau",
+  "writer": "/root/graph_scm",
+  "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+  "source_tree": "1481e08664a271f12e77807f2468906efd7e40c5",
+  "check": "PASS",
+  "review_decision": "GO_BOUNDED",
+  "outcome": "limited",
+  "finding_id": "B222",
+  "original_criterion": {
+    "id": "B222",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "lines": [
+      5417,
+      5430
+    ],
+    "bytes": 3359,
+    "sha256": "b13339d3c9e2d80995027a0f1acbaf09ccad855a643deb0b283c065bc4232aa5"
+  },
+  "original_criterion_interpretation": "Conditional compatibility of the existing prepared/helper polynomial payload with public query, sampling, abduction residual and Twin-world consumers. Original card explicitly does not claim automatic polynomial fit in the standard observed-data HybridSCMFit branch.",
+  "original_criterion_recommendation": "closed_bounded for its conditional known-synthetic fitted-payload compatibility property; formal G ledger remains separate",
+  "current_issues": [],
+  "runtime_path": [
+    "actual CAS x/y rows -> existing _fit_additive_noise_poly",
+    "typed StructuralCausalModelSpec(schema_version1.0, fit_methodmanual, no selected-worker provenance)",
+    "persisted SCM -> real registered MethodJob/run_job -> actual method_result_ref",
+    "native GCMQuery and TwinNetworkQuery -> persisted typed result -> fresh-process read and re-execution"
+  ],
+  "oracle_basis": "independently_reconciled",
+  "checks": [
+    {
+      "name": "b222-independent-native6f",
+      "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "source_tree": "1481e08664a271f12e77807f2468906efd7e40c5",
+      "check": "PASS",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py",
+        "tests/unit/remediation/test_scm_01.py"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 30.10813879100897,
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:."
+      },
+      "output": "/tmp/e02-F-continuation-20261006/cau/b222-independent-native6f.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-native6f.stdout",
+        "bytes": 6245,
+        "sha256": "3e2c043571160c0e04b2c588032ece3bcd0389472fd130ea3fe329ca31924a92"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-native6f.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-native6f.execution.json",
+        "bytes": 1193,
+        "sha256": "6692d12563c60dca735885797f5e65328b9f8bd0f1dc90894955b1968dd911a4"
+      },
+      "cases": 8,
+      "pass": 8,
+      "fail": 0,
+      "skip": 0,
+      "error": 0,
+      "warnings_total": 14,
+      "scope": "Original polynomial-helper criterion pipeline and nearest SCM-01 siblings, with actual MethodJobs/CAS/fresh subprocess readers"
+    },
+    {
+      "name": "b222-independent-removal6f",
+      "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "source_tree": "1481e08664a271f12e77807f2468906efd7e40c5",
+      "check": "FAIL",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/graph/remove-polynomial-property.py"
+      ],
+      "exit_code": 1,
+      "elapsed_s": 15.645308702005423,
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:."
+      },
+      "output": "/tmp/e02-F-continuation-20261006/cau/b222-independent-removal6f.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-removal6f.stdout",
+        "bytes": 8601,
+        "sha256": "c21fa12fe9e9bd1e4bbe4416d61ef0a66c6ed9b65a1cd2ff4b1520bf91cb1e89"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-removal6f.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-removal6f.execution.json",
+        "bytes": 1016,
+        "sha256": "cbb80a9c148aeb4fc739b989c062bcbc2752ecf2e5465cef19e48c7baa10cf46"
+      },
+      "negative_control": true,
+      "expected_check": "FAIL",
+      "actual_behavioral_failures": 2,
+      "property_preserving_linear_control_pass": 1,
+      "setup_nonmeasurements": 0,
+      "scope": "Only actual canonical polynomial evaluator returns None; fitted fields/signatures/source bytes unchanged. GCM and Twin genuine positive tests fail; LINEAR same-field control succeeds."
+    },
+    {
+      "name": "b222-independent-oracle6f",
+      "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "source_tree": "1481e08664a271f12e77807f2468906efd7e40c5",
+      "check": "ERROR",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle.py"
+      ],
+      "exit_code": 1,
+      "elapsed_s": 6.908904388998053,
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:."
+      },
+      "output": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f.stderr",
+        "bytes": 1199,
+        "sha256": "1038a7935dbdf34c3d35e90b5de59eb492520fadfcc3f453d9faab79f6913ff0"
+      },
+      "execution_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f.execution.json",
+        "bytes": 1008,
+        "sha256": "8dcdf561222908d148f8e381e61c044699365425c31629ac811b757ea9db6f29"
+      },
+      "classification": "independent_oracle_fixture_validation_error",
+      "deciding": false,
+      "scope": "Initial cubic fixture omitted required root source/alignment fields; native constructor rightly refuses before scientific consumer assertions"
+    },
+    {
+      "name": "b222-independent-oracle6f-corrected",
+      "source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+      "source_tree": "1481e08664a271f12e77807f2468906efd7e40c5",
+      "check": "PASS",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle-v2.py"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 6.884740519002662,
+      "environment": {
+        "python": "3.14.7",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:."
+      },
+      "output": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f-corrected.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f-corrected.stdout",
+        "bytes": 3535,
+        "sha256": "a519a7532af4c709ada65022924c56763ffdafd61cc6b448da32707389994f35"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f-corrected.stderr",
+        "bytes": 1077,
+        "sha256": "2eec546a935f1e7da14874a7d43290b52bff56652d352640747c4699a85a9e8e"
+      },
+      "execution_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-oracle6f-corrected.execution.json",
+        "bytes": 1034,
+        "sha256": "cf4e5cf709646fa90c7206d203f96673cbc8b1f11ce678748af61a5a9e2eca6d"
+      },
+      "scope": "Independent cubic-law fit from actual CAS rows, typedmanual1.0 persisted SCM, actual query/Twin jobs, partial-nonlinear profile falsifier and actual default native_hybrid family",
+      "oracle_expected": {
+        "query": 8.0,
+        "factual": 5.0,
+        "counter": 8.25,
+        "ite": 3.25
+      },
+      "partial_nonlinear_abduction_profile": "limited_imputed_fallback",
+      "abduction_gate_eligible": false,
+      "estimator_interval": null,
+      "default_observed_fit": "LINEAR"
+    }
+  ],
+  "source_begin_ref": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-source-begin.json",
+    "bytes": 2903,
+    "sha256": "577800dcc01736d8ad7947d604db45f6a24eb8a0149e4b0b4ed4590d9d715773"
+  },
+  "source_end_ref": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/b222-independent-source-end.json",
+    "bytes": 2824,
+    "sha256": "5894ad66152ac86abb02ed6a2d1ad6b174029fbd78beb27b9181e350729e3f71"
+  },
+  "source_stability": "All8 observed relevant tracked source/test file hashes match exactGit6f and remain equal at end; graph author explicitly held tracked source throughout all native executions. Begin binding file was written after initial native launch, before removal/oracle; its capture is not claimed to predate initial launch.",
+  "proxy_divergence": "fit_mode/poly fields and very small polynomial residual noise may remain present while deleting canonical polynomial evaluation; both query/twin actual consumers then fail. LINEAR declared family must continue1+3X=7 despite retained polynomial fields.",
+  "independent_cubic_law": "f(x)=2+3x-.5x\u00b2+.25x\u00b3, f1=4.75, f2=8. FactualY5 yields residual.25; shared-noise counter8.25 and ITE3.25. Actual helper recovers coefficients from41 CAS rows; its linear surrogate has intercept1.3/slope3.6295, yielding8.559 atx2, visibly different from polynomial8.",
+  "profile_falsifier": {
+    "capability": "General nonlinear conditional-noise posterior for partial factual observations",
+    "check": "PASS",
+    "actual_case": "Same fitted cubic manual model; factual_condition={Y:5}, X unobserved",
+    "actual_disposition": "limited_imputed_fallback with nonempty limitation, abduction_gate_eligibleFalse and envelopeFalse",
+    "smallest_missing_capability": "An actual conditional nonlinear exogenous-noise/root joint posterior under the declared observation and structural laws, source-bound to complete factual evidence",
+    "capability_exists_here": false,
+    "source_boundary": "Canonical _linear_gaussian_posterior returnsNone for additive_noise_poly; legacy residual path remains explicitly limited. No nonlinear default fitter or posterior commissioned."
+  },
+  "limitations": [
+    "Known synthetic fitted-payload compatibility only; no admitted real-data causal identification or evaluation authority.",
+    "Explicit manual schema1.0 compatibility profile. This review does not establish selected DoWhy worker fit/provenance or new schema1.1 runtime.",
+    "Full-factual residual algebra is verified; its observational plausibility or general nonlinear posterior calibration is not claimed.",
+    "Estimator intervals remainNone; fixed-model query/ITE outcome distributions and deterministic draws are not estimator sampling CIs.",
+    "Default native_hybrid observed-data fitter actually remainsLINEAR; automatic polynomial selection is outside this original criterion.",
+    "All14 native warnings are retained verbatim, including the cacheprovider review/config warning and actual raw runtime monitor warnings; no full ABI/PythonCI green claim.",
+    "Initial independent oracle constructorERROR is preserved as harness input error; corrected run is separate and never relabels the failed run.",
+    "No source/schema/ledger writes, checkout/ref mutation, extra dependency install or shared env change by independent reviewer.",
+    "No numerical sweep repeated; finite checks prove original conditional criterion only."
+  ],
+  "pattern_pass": [
+    "P10 semantic-law oracle",
+    "P14 finite authority scope",
+    "P29 property removal with markers retained",
+    "P35 full8 selector denominator",
+    "P36 original14line criterion hash",
+    "P40 explicit nonlinear posterior residual and falsifier",
+    "P41 no inherited broad-gate claim"
+  ]
+}

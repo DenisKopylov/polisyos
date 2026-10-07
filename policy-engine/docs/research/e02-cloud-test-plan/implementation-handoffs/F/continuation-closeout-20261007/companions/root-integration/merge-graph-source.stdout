@@ -1,0 +1,12 @@
+Merge made by the 'ort' strategy.
+ .../reference/scientist/causal-graph-intake.md     |  49 ++
+ .../unreleased/2026-10-07-causal-graph-intake.toml |  27 ++
+ .../methods/catalog/causal/graph_reconciliation.py |  81 +++-
+ .../builtins/causal/reconcile_causal_graph.py      | 506 ++++++++++++++------
+ .../catalog/causal/test_graph_reconciliation.py    |  19 +-
+ .../causal/test_graph_intake_current_content.py    | 531 +++++++++++++++++++++
+ .../builtins/causal/test_reconcile_causal_graph.py |  15 +-
+ 7 files changed, 1042 insertions(+), 186 deletions(-)
+ create mode 100644 policy-engine/docs/reference/scientist/causal-graph-intake.md
+ create mode 100644 policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml
+ create mode 100644 policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py

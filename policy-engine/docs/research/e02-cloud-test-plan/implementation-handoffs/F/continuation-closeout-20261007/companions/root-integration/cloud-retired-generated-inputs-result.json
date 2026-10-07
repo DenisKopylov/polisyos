@@ -1,0 +1,24 @@
+{
+  "authorized_exact_paths": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/sdist-extracted",
+      "removed": true,
+      "elapsed_s": 0.08066439628601074
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-source",
+      "removed": true,
+      "elapsed_s": 0.00752711296081543
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-rebuilt",
+      "removed": true,
+      "elapsed_s": 0.0009462833404541016
+    }
+  ],
+  "preinventory_path": "/tmp/e02-F-continuation-20261007/root-integration/cloud-retired-generated-inputs-preinventory.json",
+  "preinventory_bytes": 3874961,
+  "preinventory_sha256": "cd4837884097f930e176b67bf5f9870b2331cc003bccaef5cb90c601a8dfc8a8",
+  "source_docs_unique_deciding_outputs_removed": false,
+  "Trash_instruction_local_only": true
+}

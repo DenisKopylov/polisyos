@@ -11,6 +11,8 @@ from typing import TYPE_CHECKING, Any
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.data_forge.domains.catalog._resources import catalog_default_resource_path
+
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
@@ -57,12 +59,7 @@ class VariablePairAlignmentScore(BaseModel):
 
 def default_seed_alignments_path() -> Path:
     """Default seed alignments path helper."""
-    return (
-        Path(__file__).resolve().parents[6]
-        / "data"
-        / "dataset_catalog"
-        / "seed_variable_alignments.yaml"
-    )
+    return Path(catalog_default_resource_path("seed_variable_alignments.yaml"))
 
 
 _LEGACY_CANONICAL_VAR_ALIASES: dict[str, str] = {

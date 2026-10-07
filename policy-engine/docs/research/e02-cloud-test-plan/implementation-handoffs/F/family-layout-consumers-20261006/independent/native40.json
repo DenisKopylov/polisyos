@@ -1,0 +1,182 @@
+{
+  "reviewer": "F/fit_tmle, independent of foundry author",
+  "source_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+  "source_tree": "d1b9a51e9ac48bf79251a53a0478cad7305da41a",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py",
+    "tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+    "tests/unit/foundry/mechanisms/test_mechanism_design.py",
+    "tests/unit/foundry/contracts/test_layout.py",
+    "tests/unit/foundry/compile/test_trinity_compiler.py",
+    "-o",
+    "addopts=",
+    "-q",
+    "-ra",
+    "-o",
+    "cache_dir=/tmp/e02-F-continuation-20261006/fit-fry-review/native40-cache",
+    "--basetemp",
+    "/tmp/e02-F-continuation-20261006/fit-fry-review/native40-tmp"
+  ],
+  "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+    "overrides": {
+      "PYTHONPATH": "src:tools"
+    },
+    "packages": {
+      "pytest": "9.0.2",
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5"
+    },
+    "quota_introduced": false
+  },
+  "input_closure": [
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "2bac1cc0f59c236419bc41a199844677872bc664",
+      "bytes": 11681,
+      "sha256": "3abfcab5247de83372f956d0974a86a12c3d2cf30826cbcbc6821bd78fc00555"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "a76ec31da00b706e251a43e72d0b4a4ba58b09f3",
+      "bytes": 8646,
+      "sha256": "e8a26613978c76c52c8deeff620f82b81a9b033f5d2661baed7d5d78df4f4092"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/mechanisms/test_mechanism_design.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "02f1dc19ff01ca6edb7aa8652bab9ff9558bc3de",
+      "bytes": 947,
+      "sha256": "7f9cfc895b5abad2df04e9a53289e1a353b8ffbafb0e75b3ce4c373ed14144a9"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "ecab027e577267ffd680d96b816bee31352f922e",
+      "bytes": 4626,
+      "sha256": "475e5f0d195c9facbfbc56feef13b9cf385ec734de6b5b6a1b0beb8e5c5b1901"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "e853b6ecd7dae25148f9a526b3029aa0aeb705cd",
+      "bytes": 16866,
+      "sha256": "d8da13a8a19f53f4357456ef6c4da09060c900a910ba8f4d1712776e2ded1e37"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "1cf28e384f09f6e9a3224b776d54f6588b8d19f2",
+      "bytes": 8018,
+      "sha256": "867f43def30b6a27fd780718ca502c69f7c617246f160b09e827dfff8928f5be"
+    },
+    {
+      "path": "policy-engine/docs/reference/foundry/state.md",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "4285201b5ecfa2d4e4b207bd61dd80e84d4f2b9f",
+      "bytes": 4810,
+      "sha256": "008b08d202406a570cc837a2c6f78c6f68bedcefb59057b7d0cdd269ba3a90a9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/families.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "82b0dfa3b8b1bc34e038f37e567562f8bed2c6d0",
+      "bytes": 3839,
+      "sha256": "f2d93bcbf6af0623f2d3b7290cb6dddcf3b776ef235ee37072fb26e3686cd019"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/mechanisms/design.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "a00264c882eef6ce1e01db271454fb36371b07a1",
+      "bytes": 742,
+      "sha256": "40d35c0a867710d15a9b447370da4eda1be211eb6fc4336067f1160fc2b3f25e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/mechanism_design.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "c4f27c281dad325194cfe7c458fe396b13ae5a5e",
+      "bytes": 30226,
+      "sha256": "40a58363f5b019c0b01153872c9f784fcc19909692e1b40c3a84a8c691cd8123"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/verification/ic/service.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "c248f5e1c7fa1ec91aafbf3fef960a335d85580d",
+      "bytes": 87657,
+      "sha256": "8c29a0639c5ccadefd69cda575e690bbb846bc3a770dcd0f2345ef9df049497d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/kernel/slots.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "1d656cc5b6643f6378f8dc54f4cc4272895cb6b8",
+      "bytes": 18445,
+      "sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/layout.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "a48ecff22baec80ddaf8d2939417f48086a00555",
+      "bytes": 350,
+      "sha256": "fb528428135bf40ddf36336bbdac7043b049d4ef9bf7e954ada1c9727100a69b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/compiler/layout.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "a732c7945a25c09de05ee0a7be8f1a8ec8c90fe3",
+      "bytes": 220,
+      "sha256": "d0f981b9d24ed767107a9238f5bc9a16c6f5b45ed533a01adf0c35e52cd6f1b7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/runtime.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "5c107ad0fd66811c0702e1a808eb31b2c62561f0",
+      "bytes": 21006,
+      "sha256": "f2c622c699f85375925582d2d66ff683f40d3a925834f4ed523b2203d3ac8a23"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/compile/trinity_compiler.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "d80a17cd92b0127b85abd4e48bb4ed271283efae",
+      "bytes": 17693,
+      "sha256": "7608e9476321519fe9f8a024dc483caf909d97cefb185a7ec491fc21651bbe07"
+    }
+  ],
+  "outcome": "PASS",
+  "output": "/tmp/e02-F-continuation-20261006/fit-fry-review/native40.stdout.txt",
+  "output_ref": {
+    "path": "/tmp/e02-F-continuation-20261006/fit-fry-review/native40.stdout.txt",
+    "bytes": 99,
+    "sha256": "6d06aadc35fe8b6836959b1fff8a291b9a581bfeda0a16c9847e7ab0e38e9e0c"
+  },
+  "stderr_ref": {
+    "path": "/tmp/e02-F-continuation-20261006/fit-fry-review/native40.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "exit_code": 0,
+  "wall_seconds": 13.049323140992783,
+  "child_max_rss_kib": 695100,
+  "counts": {
+    "passed": 40,
+    "failed": 0,
+    "skipped": 0,
+    "warnings": 0,
+    "errors": 0
+  },
+  "pytest_summary": "40 passed in 8.61s",
+  "mode": "native40",
+  "expected_outcome": "PASS",
+  "source_worktree_after": "clean/attached/exact unchanged7f",
+  "scope": "Original LA002 family/certificate/runtime loading and LA037 layout/callers/compiler output bounded migration contract; no admitted real-data/global IC/unknown external retirement claim."
+}

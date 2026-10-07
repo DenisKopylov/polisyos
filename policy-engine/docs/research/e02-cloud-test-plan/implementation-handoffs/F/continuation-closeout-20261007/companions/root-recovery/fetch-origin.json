@@ -1,0 +1,13 @@
+{
+  "command": [
+    "git",
+    "fetch",
+    "origin"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006",
+  "started_epoch": 1791374774.0442348,
+  "finished_epoch": 1791374775.4009724,
+  "exit_code": 0,
+  "stdout": "/tmp/e02-F-continuation-20261007/root-recovery/fetch-origin.stdout",
+  "stderr": "/tmp/e02-F-continuation-20261007/root-recovery/fetch-origin.stderr"
+}

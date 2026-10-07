@@ -1,0 +1,5 @@
+[codex/e02-F-tmle-20261006 df5057dd3] fix(scientist): retain confidence blockers on degraded simulation reads
+ 4 files changed, 248 insertions(+), 2 deletions(-)
+ create mode 100644 policy-engine/docs/reference/scientist/causal-confidence-issue-preservation.md
+ create mode 100644 policy-engine/release-fragments/unreleased/2026-10-06-causal-confidence-issue-preservation.toml
+ create mode 100644 policy-engine/tests/unit/scientist/governance/test_confidence_issue_accumulation.py

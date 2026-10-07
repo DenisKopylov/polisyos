@@ -1,0 +1,20 @@
+[
+  "policy-engine/schemas/snapshots/ir/causal_effect_report.schema.json",
+  "policy-engine/schemas/snapshots/ir/hte_result.schema.json",
+  "policy-engine/schemas/snapshots/ir/_manifest.json",
+  "policy-engine/docs/reference/ir/schema-catalog.md",
+  "policy-engine/docs/reference/schemas.md",
+  "policy-engine/release-fragments/unreleased/2026-10-06-tmle-report-schema.toml",
+  "policy-engine/src/polisyos/ir/analytics/causal.py",
+  "policy-engine/src/polisyos/ir/analytics/hte.py",
+  "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+  "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+  "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+  "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+  "policy-engine/src/polisyos/ir/artifacts/io.py",
+  "policy-engine/src/polisyos/ir/model_layer/canon.py",
+  "policy-engine/src/polisyos/ir/registry/refs.py",
+  "policy-engine/src/polisyos/core/artifacts/store.py",
+  "policy-engine/tools/quality/diagnostics/gen_schema.py",
+  "policy-engine/tools/quality/diagnostics/generate_ir_reference_catalog.py"
+]

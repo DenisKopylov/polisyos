@@ -1,0 +1,6 @@
+{
+  "encoding": "utf8-json-string",
+  "raw_stdout_or_stderr": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python: can't open file '/workspace/e02-F-20261006-receipts/cau/reconcile-intake-final-probe.py': [Errno 2] No such file or directory\n",
+  "raw_sha256": "960ce18b9c067c22a91d8267c36f310d29bacdabea3796be6ede08546cdb7253",
+  "raw_bytes": 193
+}

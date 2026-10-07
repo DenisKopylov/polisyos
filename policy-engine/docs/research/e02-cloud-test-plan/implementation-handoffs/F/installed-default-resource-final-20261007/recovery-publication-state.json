@@ -1,0 +1,52 @@
+{
+  "schema": "policyos.e02.recovery_publication.v1",
+  "outcome": "PASS",
+  "mode": "receipt_only",
+  "tested_source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "tested_source_tree_sha": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+  "own_attached_branch": "codex/e02-F-fry-20261006",
+  "own_slice_base_sha": "c22786dfce8308bb7d48a177ccb1b109843262b5",
+  "own_slice_base_tree": "2a13485d2b198b51643f78929a15d920b58e8e86",
+  "own_tracked_status_clean": true,
+  "fresh_G_sha": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+  "fresh_G_tree": "2e228785406834ba128bb7b4dd9c636a6a2a1cb5",
+  "mandatory_instructions": "Root AGENTS.md, policy-engine CONTRIBUTING.md, E02 HANDOFF.md and exact G855 tenth-wave F review/resume/COMMON prompts fully read before receipt writes; no newly inferred baseline result.",
+  "admission": {
+    "actual_original_path": "/tmp/e02-F-continuation-20261007/root-recovery/e02-F-fry-20261006/admission.stdout",
+    "copied_output": "recovery-admission.stdout.json",
+    "bytes": 147928,
+    "sha256": "0a06ec4241b19255c2bd0b42fc65f13cc7e7f890963d99361e13b03deda45168",
+    "status": "admitted",
+    "unresolved_inputs": [],
+    "scope": "Actual canonical root tool receipt; earlier lane-local uv harness ERROR remains in root recovery owner packet, not relabeled PASS."
+  },
+  "remote_readback": {
+    "command": "git ls-remote origin refs/heads/codex/e02-F-closeout-20261006 refs/heads/codex/e02-F-fry-20261006",
+    "cwd": "/workspace/e02-F-fry-20261006",
+    "exit_code": 0,
+    "stdout": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82\trefs/heads/codex/e02-F-closeout-20261006\nc22786dfce8308bb7d48a177ccb1b109843262b5\trefs/heads/codex/e02-F-fry-20261006\n",
+    "meaning": "External scientific object is actually published/fetchable at observed root topic; this is not G code/authority acceptance."
+  },
+  "uncertain_pre_offline_assembly": {
+    "primary_exists_before_recovery": false,
+    "companion_prefix_exists_before_recovery": false,
+    "assembly_stdout_exists_before_recovery": false,
+    "assembly_stderr_exists_before_recovery": false,
+    "peer_selection_copy_exists_before_recovery": false,
+    "outcome": "not_established",
+    "interpretation": "Prior execution outcome unknown; actual recovered filesystem showed no resulting assembly artifacts. No claim that an unpublished receipt had been completed."
+  },
+  "frozen_peer_selection": {
+    "bytes": 8108,
+    "sha256": "aaf0e955e75ec0a7c83c8cfc2a6cfd0cdc9d5a2afb8990dbb1ded154f020ebb7",
+    "files": 29,
+    "review_bytes": 20652,
+    "review_sha256": "e315caff26b9efbf86bb1122b8e789f2eb8344521c3c1790c37b7ea149010937",
+    "all_29_stored_and_declared_decoded_payloads_revalidated": true
+  },
+  "separate_additive_child_attempt": "Original unknown extra attempt has no saved script/output in recovered filesystem; not established. Any newly authorized separate narrow API proof is outside this frozen original29 receipt and must have its own complete deciding bytes.",
+  "native_repeated_for_publication": false,
+  "product_or_environment_mutation": false,
+  "cleanup_or_deletion": false,
+  "old_retired_archive_guard": "Do not rerun old b5 archive guard after root retirement; retain actual completed pre-retirement observations as historical proof and availability limitation."
+}

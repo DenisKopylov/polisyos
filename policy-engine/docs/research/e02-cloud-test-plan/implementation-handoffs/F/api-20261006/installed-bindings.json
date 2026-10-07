@@ -1,0 +1,52 @@
+{
+  "source_sha": "729d137279b7d6334230045e420255762fe55f08",
+  "wheel_sha256": "fcf6fdcba77630799a2dbdacab1ac9c2ce6286605675992f0c44da74635c2231",
+  "installed_product_binding": [
+    {
+      "installed_site": "/workspace/e02-F-20261006-receipts/api/wheel-env/lib/python3.14/site-packages",
+      "all_product_files_reconciled": 2910,
+      "source_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "direct_url": {
+        "url": "file:///workspace/e02-F-20261006-receipts/api/candidate-dist/policy_engine-0.1.0-py3-none-any.whl",
+        "archive_info": {}
+      }
+    },
+    {
+      "installed_site": "/workspace/e02-F-20261006-receipts/api/sdist-env/lib/python3.14/site-packages",
+      "all_product_files_reconciled": 2910,
+      "source_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "direct_url": {
+        "url": "file:///workspace/e02-F-20261006-receipts/api/candidate-dist/policy_engine-0.1.0.tar.gz",
+        "archive_info": {}
+      }
+    }
+  ],
+  "GRF01_LA007_LA019_companions": [
+    {
+      "package": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "origin": "/workspace/e02-F-20261006-receipts/api/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/catalog/causal/causal_engine/__init__.py",
+      "retired_sibling_filename": "/workspace/e02-F-20261006-receipts/api/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/catalog/causal/causal_engine.py",
+      "exact_filename_loader": "FileNotFoundError expected",
+      "ordinary_package_import": "PASS"
+    },
+    {
+      "package": "polisyos.foundry.methods.catalog.causal.id_engine",
+      "origin": "/workspace/e02-F-20261006-receipts/api/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/catalog/causal/id_engine/__init__.py",
+      "retired_sibling_filename": "/workspace/e02-F-20261006-receipts/api/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/catalog/causal/id_engine.py",
+      "exact_filename_loader": "FileNotFoundError expected",
+      "ordinary_package_import": "PASS"
+    },
+    {
+      "package": "polisyos.foundry.methods.catalog.causal.interference",
+      "origin": "/workspace/e02-F-20261006-receipts/api/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/catalog/causal/interference/__init__.py",
+      "retired_sibling_filename": "/workspace/e02-F-20261006-receipts/api/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/catalog/causal/interference.py",
+      "exact_filename_loader": "FileNotFoundError expected",
+      "ordinary_package_import": "PASS"
+    }
+  ],
+  "limits": [
+    "Direct filename callers to retired empty shims must migrate; no arbitrary external loader census or primary GRF closure claimed.",
+    "Installed product bytes verified; shared third-party dependencies not independently rebuilt.",
+    "Family certificate witnessed in installed tests; state activation pending FRY owner."
+  ]
+}

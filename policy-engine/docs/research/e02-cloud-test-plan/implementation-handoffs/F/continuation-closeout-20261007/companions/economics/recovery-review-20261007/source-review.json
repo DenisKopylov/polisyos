@@ -1,0 +1,867 @@
+{
+  "schema": "policyos.e02.F.economic-G-tenth-source-review.v1",
+  "reviewer": "economics",
+  "mode": "read-only source/evidence comparison; no independent self-review of authored economicscode; no native/DGP/oracle/scanner repetitions",
+  "verdict": "GO_SOURCE_QUALIFIED_RECONCILIATION; GLOBAL_SCANNER_ERROR_REMAINS",
+  "own_source": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+  "own_tree": "334f80bc471c2a686ab4f7a5101c44d0cb4c6b90",
+  "root_source": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "root_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+  "G_source": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+  "G_tree": "2e228785406834ba128bb7b4dd9c636a6a2a1cb5",
+  "admission": {
+    "path": "/tmp/e02-F-continuation-20261007/root-recovery/e02-F-economics-20261006/admission.stdout",
+    "bytes": 147980,
+    "sha256": "44b4898e9bd097b860071f2bb27859dcbed764f0e51be35c8e38e2e1c5ffc392"
+  },
+  "mandatoryinstructions": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/AGENTS.stdout",
+      "bytes": 22656,
+      "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/CONTRIBUTING.stdout",
+      "bytes": 10553,
+      "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/HANDOFF.stdout",
+      "bytes": 20260,
+      "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/G-tenth-F.md.stdout",
+      "bytes": 17214,
+      "sha256": "6fcc13f11194d20e7a3bbadb2d70397da0b2c16e9695f43375a69c8bf222d89b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/G-tenth-F-criteria-correction.md.stdout",
+      "bytes": 6784,
+      "sha256": "c1afc93ce7dc62b0dbc7c1489e7d5dd113b60c9d2a5d2487e44a40fcda7d7d11"
+    }
+  ],
+  "original_cards": [
+    {
+      "finding_id": "LA-035",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        2066,
+        2102
+      ],
+      "block_bytes": 7176,
+      "block_sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69",
+      "same_original_bytes_F8236_F519_G855": true
+    },
+    {
+      "finding_id": "LA-004",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        167,
+        197
+      ],
+      "block_bytes": 3498,
+      "block_sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a",
+      "same_original_bytes_F8236_F519_G855": true
+    }
+  ],
+  "source_inputs": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+      "all_declared_sources_bytes_identical": true,
+      "by_source": {
+        "8236d9c368336a5ea20c1586f29aea7321db6536": {
+          "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+          "git_blob": "cc8e24623bcd76b57924fe5a8e906bfce3b43181",
+          "bytes": 29885,
+          "sha256": "4cb032845cf53f16415b483a1b7dd8d266d49cd12339677e13f41ccccdfea291"
+        },
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+          "git_blob": "cc8e24623bcd76b57924fe5a8e906bfce3b43181",
+          "bytes": 29885,
+          "sha256": "4cb032845cf53f16415b483a1b7dd8d266d49cd12339677e13f41ccccdfea291"
+        },
+        "fa53da2812eaa8578f79ec914b3b2abe4c491f3d": {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+          "git_blob": "cc8e24623bcd76b57924fe5a8e906bfce3b43181",
+          "bytes": 29885,
+          "sha256": "4cb032845cf53f16415b483a1b7dd8d266d49cd12339677e13f41ccccdfea291"
+        }
+      },
+      "profile": "Existingruntime/testprofile unchanged8236→519",
+      "G855": {
+        "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+        "path": "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+        "git_blob": "4bb5664d4275986a6f25e1d5214cfafd414351ee",
+        "bytes": 28194,
+        "sha256": "2b8a2471da8542e5f6d5f5652072ed04cea897720fc594fa57feccffe33aa7ee"
+      },
+      "G855_equal_F519": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/state.py",
+      "all_declared_sources_bytes_identical": true,
+      "by_source": {
+        "8236d9c368336a5ea20c1586f29aea7321db6536": {
+          "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/state.py",
+          "git_blob": "ee5b613dff2807accca1faa3ee940322b8dbc760",
+          "bytes": 7645,
+          "sha256": "964e1d9dfdea573df4201263d6a5346fd6d42b40f3074ea59a10b4cd285676da"
+        },
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/state.py",
+          "git_blob": "ee5b613dff2807accca1faa3ee940322b8dbc760",
+          "bytes": 7645,
+          "sha256": "964e1d9dfdea573df4201263d6a5346fd6d42b40f3074ea59a10b4cd285676da"
+        },
+        "fa53da2812eaa8578f79ec914b3b2abe4c491f3d": {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/state.py",
+          "git_blob": "ee5b613dff2807accca1faa3ee940322b8dbc760",
+          "bytes": 7645,
+          "sha256": "964e1d9dfdea573df4201263d6a5346fd6d42b40f3074ea59a10b4cd285676da"
+        }
+      },
+      "profile": "Existingruntime/testprofile unchanged8236→519",
+      "G855": {
+        "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+        "path": "policy-engine/src/polisyos/foundry/plugins/economics/state.py",
+        "git_blob": "ee5b613dff2807accca1faa3ee940322b8dbc760",
+        "bytes": 7645,
+        "sha256": "964e1d9dfdea573df4201263d6a5346fd6d42b40f3074ea59a10b4cd285676da"
+      },
+      "G855_equal_F519": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/objectives.py",
+      "all_declared_sources_bytes_identical": true,
+      "by_source": {
+        "8236d9c368336a5ea20c1586f29aea7321db6536": {
+          "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/objectives.py",
+          "git_blob": "c8966fa5ead8349a83df72b82ece7c36b6fe97e1",
+          "bytes": 4276,
+          "sha256": "71a89f0b55eac0d420ee74db09f06f23d8174c93e79428a4929e5181726b25fa"
+        },
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/objectives.py",
+          "git_blob": "c8966fa5ead8349a83df72b82ece7c36b6fe97e1",
+          "bytes": 4276,
+          "sha256": "71a89f0b55eac0d420ee74db09f06f23d8174c93e79428a4929e5181726b25fa"
+        },
+        "fa53da2812eaa8578f79ec914b3b2abe4c491f3d": {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/objectives.py",
+          "git_blob": "c8966fa5ead8349a83df72b82ece7c36b6fe97e1",
+          "bytes": 4276,
+          "sha256": "71a89f0b55eac0d420ee74db09f06f23d8174c93e79428a4929e5181726b25fa"
+        }
+      },
+      "profile": "Existingruntime/testprofile unchanged8236→519",
+      "G855": {
+        "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+        "path": "policy-engine/src/polisyos/foundry/plugins/economics/objectives.py",
+        "git_blob": "7b8b2df6c60e61aefafcbacfedc9ca9faedb9bd7",
+        "bytes": 3941,
+        "sha256": "02f15748e361c3ed375062d3b3d1a824838cc6ce1fa6854c37360d751fdea468"
+      },
+      "G855_equal_F519": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/plugin.py",
+      "all_declared_sources_bytes_identical": true,
+      "by_source": {
+        "8236d9c368336a5ea20c1586f29aea7321db6536": {
+          "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/plugin.py",
+          "git_blob": "f6f05130cadf4397129a3c4a0ed11320e70d68e2",
+          "bytes": 6966,
+          "sha256": "ff61358038184967b9039d8cc0e6bd05bf653e0ba26124ac37182aa4c9db08c5"
+        },
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/plugin.py",
+          "git_blob": "f6f05130cadf4397129a3c4a0ed11320e70d68e2",
+          "bytes": 6966,
+          "sha256": "ff61358038184967b9039d8cc0e6bd05bf653e0ba26124ac37182aa4c9db08c5"
+        },
+        "fa53da2812eaa8578f79ec914b3b2abe4c491f3d": {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/plugin.py",
+          "git_blob": "f6f05130cadf4397129a3c4a0ed11320e70d68e2",
+          "bytes": 6966,
+          "sha256": "ff61358038184967b9039d8cc0e6bd05bf653e0ba26124ac37182aa4c9db08c5"
+        }
+      },
+      "profile": "Existingruntime/testprofile unchanged8236→519",
+      "G855": {
+        "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+        "path": "policy-engine/src/polisyos/foundry/plugins/economics/plugin.py",
+        "git_blob": "9520d00e4ab3f17bd62a886f5f2c6e03e518d371",
+        "bytes": 6838,
+        "sha256": "40e579d2d4efa4e3bc4da3f46462f075a88a3422b1492ede8ef5439accb7bb94"
+      },
+      "G855_equal_F519": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/analysis.py",
+      "all_declared_sources_bytes_identical": true,
+      "by_source": {
+        "8236d9c368336a5ea20c1586f29aea7321db6536": {
+          "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/analysis.py",
+          "git_blob": "42e44c09277e71a1ff16c99de29c50aaf1226f04",
+          "bytes": 9393,
+          "sha256": "0ff782e2d9828701012bb6708e4eea3c462d257af1fe717ebf9557310ab58223"
+        },
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/analysis.py",
+          "git_blob": "42e44c09277e71a1ff16c99de29c50aaf1226f04",
+          "bytes": 9393,
+          "sha256": "0ff782e2d9828701012bb6708e4eea3c462d257af1fe717ebf9557310ab58223"
+        },
+        "fa53da2812eaa8578f79ec914b3b2abe4c491f3d": {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/analysis.py",
+          "git_blob": "42e44c09277e71a1ff16c99de29c50aaf1226f04",
+          "bytes": 9393,
+          "sha256": "0ff782e2d9828701012bb6708e4eea3c462d257af1fe717ebf9557310ab58223"
+        }
+      },
+      "profile": "Existingruntime/testprofile unchanged8236→519",
+      "G855": {
+        "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+        "path": "policy-engine/src/polisyos/foundry/agent_sim/analysis.py",
+        "git_blob": "ee7f6f8df2e39063f6ae81d6d02abbe752a03e79",
+        "bytes": 9064,
+        "sha256": "de8eb85ec91aacb2cbd1c81bc9b76a9d6bd05b95d3ca7c6595c15d7dff421765"
+      },
+      "G855_equal_F519": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/credit_assignment.py",
+      "all_declared_sources_bytes_identical": true,
+      "by_source": {
+        "8236d9c368336a5ea20c1586f29aea7321db6536": {
+          "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/credit_assignment.py",
+          "git_blob": "8bf4f3ecfb849a19c4e274be2960e3c4657bd4ab",
+          "bytes": 6354,
+          "sha256": "a02de06376ebbba07ab2c726d211c5b709f98bbaf9a3198e99fd44054a058b63"
+        },
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/credit_assignment.py",
+          "git_blob": "8bf4f3ecfb849a19c4e274be2960e3c4657bd4ab",
+          "bytes": 6354,
+          "sha256": "a02de06376ebbba07ab2c726d211c5b709f98bbaf9a3198e99fd44054a058b63"
+        },
+        "fa53da2812eaa8578f79ec914b3b2abe4c491f3d": {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/credit_assignment.py",
+          "git_blob": "8bf4f3ecfb849a19c4e274be2960e3c4657bd4ab",
+          "bytes": 6354,
+          "sha256": "a02de06376ebbba07ab2c726d211c5b709f98bbaf9a3198e99fd44054a058b63"
+        }
+      },
+      "profile": "Existingruntime/testprofile unchanged8236→519",
+      "G855": {
+        "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+        "path": "policy-engine/src/polisyos/foundry/agent_sim/credit_assignment.py",
+        "git_blob": "9f4abe50d283aea708bc21b60d9ae54e06b7a2a5",
+        "bytes": 6242,
+        "sha256": "aa82d122a08dc40eb8ad4b35ce04aac1ac8f7e74e722f42da55acd7746f9bd85"
+      },
+      "G855_equal_F519": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/government_policy.py",
+      "all_declared_sources_bytes_identical": true,
+      "by_source": {
+        "8236d9c368336a5ea20c1586f29aea7321db6536": {
+          "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/government_policy.py",
+          "git_blob": "4fc4524e9889edfbec5f0dafe528170911a10457",
+          "bytes": 7146,
+          "sha256": "a1090d78fea6f2982c2595b93cd717a7e18eaa24186dab81102733bb886e54dc"
+        },
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/government_policy.py",
+          "git_blob": "4fc4524e9889edfbec5f0dafe528170911a10457",
+          "bytes": 7146,
+          "sha256": "a1090d78fea6f2982c2595b93cd717a7e18eaa24186dab81102733bb886e54dc"
+        },
+        "fa53da2812eaa8578f79ec914b3b2abe4c491f3d": {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/government_policy.py",
+          "git_blob": "4fc4524e9889edfbec5f0dafe528170911a10457",
+          "bytes": 7146,
+          "sha256": "a1090d78fea6f2982c2595b93cd717a7e18eaa24186dab81102733bb886e54dc"
+        }
+      },
+      "profile": "Existingruntime/testprofile unchanged8236→519",
+      "G855": {
+        "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+        "path": "policy-engine/src/polisyos/foundry/agent_sim/government_policy.py",
+        "git_blob": "5e7b9efbbd3d795190082283d02d07cc74e0514b",
+        "bytes": 6925,
+        "sha256": "12c5b9de5f8945aeb0e5ad4ced21a9fa8f8fca6d2adcfeab819a217a81a7b19e"
+      },
+      "G855_equal_F519": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/modes.py",
+      "all_declared_sources_bytes_identical": true,
+      "by_source": {
+        "8236d9c368336a5ea20c1586f29aea7321db6536": {
+          "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/modes.py",
+          "git_blob": "070df688d333733b698d3419eae4688a213114ae",
+          "bytes": 12644,
+          "sha256": "3e6833aec7c1fb6a6862f6cbff8473720256fea3f001ddf4ad041fb6d820f640"
+        },
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/modes.py",
+          "git_blob": "070df688d333733b698d3419eae4688a213114ae",
+          "bytes": 12644,
+          "sha256": "3e6833aec7c1fb6a6862f6cbff8473720256fea3f001ddf4ad041fb6d820f640"
+        },
+        "fa53da2812eaa8578f79ec914b3b2abe4c491f3d": {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/modes.py",
+          "git_blob": "070df688d333733b698d3419eae4688a213114ae",
+          "bytes": 12644,
+          "sha256": "3e6833aec7c1fb6a6862f6cbff8473720256fea3f001ddf4ad041fb6d820f640"
+        }
+      },
+      "profile": "Existingruntime/testprofile unchanged8236→519",
+      "G855": {
+        "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+        "path": "policy-engine/src/polisyos/foundry/agent_sim/modes.py",
+        "git_blob": "1f7d89bb6df3fe52d097d78839be9fb93535aa99",
+        "bytes": 12468,
+        "sha256": "5b28a6cd9220253754e2b35deaf6e4a87a1a359652335dd284eea894326d692a"
+      },
+      "G855_equal_F519": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/metrics.py",
+      "all_declared_sources_bytes_identical": true,
+      "by_source": {
+        "8236d9c368336a5ea20c1586f29aea7321db6536": {
+          "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/metrics.py",
+          "git_blob": "9eddfb90e83c4a9b41cf48da2c50f113371dcb01",
+          "bytes": 9411,
+          "sha256": "199a51c29ed308f6a95eacc921c2ad0041c413d538e54c06b41ba492732caed0"
+        },
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/metrics.py",
+          "git_blob": "9eddfb90e83c4a9b41cf48da2c50f113371dcb01",
+          "bytes": 9411,
+          "sha256": "199a51c29ed308f6a95eacc921c2ad0041c413d538e54c06b41ba492732caed0"
+        },
+        "fa53da2812eaa8578f79ec914b3b2abe4c491f3d": {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/metrics.py",
+          "git_blob": "9eddfb90e83c4a9b41cf48da2c50f113371dcb01",
+          "bytes": 9411,
+          "sha256": "199a51c29ed308f6a95eacc921c2ad0041c413d538e54c06b41ba492732caed0"
+        }
+      },
+      "profile": "Existingruntime/testprofile unchanged8236→519",
+      "G855": {
+        "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+        "path": "policy-engine/src/polisyos/foundry/agent_sim/metrics.py",
+        "git_blob": "bd2536409b1766c38582862e0a0dff6b9a66ddad",
+        "bytes": 9194,
+        "sha256": "c4a65cbabefe504868a37e91a21c250e293faf08872f442fbbbae3af850c6179"
+      },
+      "G855_equal_F519": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+      "all_declared_sources_bytes_identical": true,
+      "by_source": {
+        "8236d9c368336a5ea20c1586f29aea7321db6536": {
+          "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+          "git_blob": "26db61e0be81e97c550a822cfcefafa004ed3a0a",
+          "bytes": 37839,
+          "sha256": "63a2e796d1a279a4191b267599d1f344a36e3e944e1c238c2935b06aca132c96"
+        },
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+          "git_blob": "26db61e0be81e97c550a822cfcefafa004ed3a0a",
+          "bytes": 37839,
+          "sha256": "63a2e796d1a279a4191b267599d1f344a36e3e944e1c238c2935b06aca132c96"
+        },
+        "fa53da2812eaa8578f79ec914b3b2abe4c491f3d": {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+          "git_blob": "26db61e0be81e97c550a822cfcefafa004ed3a0a",
+          "bytes": 37839,
+          "sha256": "63a2e796d1a279a4191b267599d1f344a36e3e944e1c238c2935b06aca132c96"
+        }
+      },
+      "profile": "Existingruntime/testprofile unchanged8236→519",
+      "G855": {
+        "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+        "git_blob": "00558e4d7a2b01ed0f2aa1c6ec38aa8d1171c76a",
+        "bytes": 37726,
+        "sha256": "12abe0368717b6cb4d9d05c8c540730a82d664b68deef06044c584f507bac51e"
+      },
+      "G855_equal_F519": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+      "all_declared_sources_bytes_identical": true,
+      "by_source": {
+        "8236d9c368336a5ea20c1586f29aea7321db6536": {
+          "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+          "git_blob": "77c803bca19be9689906cb5c92ed6f824c5fe45c",
+          "bytes": 1629,
+          "sha256": "85f12a1ef624ba4fd96c08b0874e27d5dc3a0b65c0ce5663d7484f61793c36d3"
+        },
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+          "git_blob": "77c803bca19be9689906cb5c92ed6f824c5fe45c",
+          "bytes": 1629,
+          "sha256": "85f12a1ef624ba4fd96c08b0874e27d5dc3a0b65c0ce5663d7484f61793c36d3"
+        },
+        "fa53da2812eaa8578f79ec914b3b2abe4c491f3d": {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+          "git_blob": "77c803bca19be9689906cb5c92ed6f824c5fe45c",
+          "bytes": 1629,
+          "sha256": "85f12a1ef624ba4fd96c08b0874e27d5dc3a0b65c0ce5663d7484f61793c36d3"
+        }
+      },
+      "profile": "Existingruntime/testprofile unchanged8236→519",
+      "G855": {
+        "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+        "path": "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+        "git_blob": "77c803bca19be9689906cb5c92ed6f824c5fe45c",
+        "bytes": 1629,
+        "sha256": "85f12a1ef624ba4fd96c08b0874e27d5dc3a0b65c0ce5663d7484f61793c36d3"
+      },
+      "G855_equal_F519": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/_internal/loss.py",
+      "all_declared_sources_bytes_identical": true,
+      "by_source": {
+        "8236d9c368336a5ea20c1586f29aea7321db6536": {
+          "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+          "path": "policy-engine/src/polisyos/foundry/methods/_internal/loss.py",
+          "git_blob": "7654932a01fc820be523717e5247b71733566e89",
+          "bytes": 232,
+          "sha256": "e32770ae2079f857c3be2718189b3747f5e374c901f25015437d949fe14b77f0"
+        },
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/src/polisyos/foundry/methods/_internal/loss.py",
+          "git_blob": "7654932a01fc820be523717e5247b71733566e89",
+          "bytes": 232,
+          "sha256": "e32770ae2079f857c3be2718189b3747f5e374c901f25015437d949fe14b77f0"
+        },
+        "fa53da2812eaa8578f79ec914b3b2abe4c491f3d": {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/src/polisyos/foundry/methods/_internal/loss.py",
+          "git_blob": "7654932a01fc820be523717e5247b71733566e89",
+          "bytes": 232,
+          "sha256": "e32770ae2079f857c3be2718189b3747f5e374c901f25015437d949fe14b77f0"
+        }
+      },
+      "profile": "Existingruntime/testprofile unchanged8236→519",
+      "G855": {
+        "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+        "path": "policy-engine/src/polisyos/foundry/methods/_internal/loss.py",
+        "git_blob": "7654932a01fc820be523717e5247b71733566e89",
+        "bytes": 232,
+        "sha256": "e32770ae2079f857c3be2718189b3747f5e374c901f25015437d949fe14b77f0"
+      },
+      "G855_equal_F519": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/loss.py",
+      "all_declared_sources_bytes_identical": true,
+      "by_source": {
+        "8236d9c368336a5ea20c1586f29aea7321db6536": {
+          "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+          "path": "policy-engine/src/polisyos/foundry/methods/loss.py",
+          "git_blob": "adb22c1032cdbf559fecad96dbe5a1e4eaf08be9",
+          "bytes": 227,
+          "sha256": "23c1070b37ee54a5a6af6ddeede0b0c833d0bfd30df66d4a6714564238b343ef"
+        },
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/src/polisyos/foundry/methods/loss.py",
+          "git_blob": "adb22c1032cdbf559fecad96dbe5a1e4eaf08be9",
+          "bytes": 227,
+          "sha256": "23c1070b37ee54a5a6af6ddeede0b0c833d0bfd30df66d4a6714564238b343ef"
+        },
+        "fa53da2812eaa8578f79ec914b3b2abe4c491f3d": {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/src/polisyos/foundry/methods/loss.py",
+          "git_blob": "adb22c1032cdbf559fecad96dbe5a1e4eaf08be9",
+          "bytes": 227,
+          "sha256": "23c1070b37ee54a5a6af6ddeede0b0c833d0bfd30df66d4a6714564238b343ef"
+        }
+      },
+      "profile": "Existingruntime/testprofile unchanged8236→519",
+      "G855": {
+        "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+        "path": "policy-engine/src/polisyos/foundry/methods/loss.py",
+        "git_blob": "adb22c1032cdbf559fecad96dbe5a1e4eaf08be9",
+        "bytes": 227,
+        "sha256": "23c1070b37ee54a5a6af6ddeede0b0c833d0bfd30df66d4a6714564238b343ef"
+      },
+      "G855_equal_F519": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/runtime/numeric.py",
+      "all_declared_sources_bytes_identical": true,
+      "by_source": {
+        "8236d9c368336a5ea20c1586f29aea7321db6536": {
+          "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+          "path": "policy-engine/src/polisyos/foundry/runtime/numeric.py",
+          "git_blob": "6acaa921a23f6dc57f5eeb314a92b3c456d6d791",
+          "bytes": 1015,
+          "sha256": "08306248559ab1a622d20b00dbb8aeec9b4d1f0c279022ec35575ddef35cd220"
+        },
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/src/polisyos/foundry/runtime/numeric.py",
+          "git_blob": "6acaa921a23f6dc57f5eeb314a92b3c456d6d791",
+          "bytes": 1015,
+          "sha256": "08306248559ab1a622d20b00dbb8aeec9b4d1f0c279022ec35575ddef35cd220"
+        },
+        "fa53da2812eaa8578f79ec914b3b2abe4c491f3d": {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/src/polisyos/foundry/runtime/numeric.py",
+          "git_blob": "6acaa921a23f6dc57f5eeb314a92b3c456d6d791",
+          "bytes": 1015,
+          "sha256": "08306248559ab1a622d20b00dbb8aeec9b4d1f0c279022ec35575ddef35cd220"
+        }
+      },
+      "profile": "Existingruntime/testprofile unchanged8236→519",
+      "G855": {
+        "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+        "path": "policy-engine/src/polisyos/foundry/runtime/numeric.py",
+        "git_blob": "6acaa921a23f6dc57f5eeb314a92b3c456d6d791",
+        "bytes": 1015,
+        "sha256": "08306248559ab1a622d20b00dbb8aeec9b4d1f0c279022ec35575ddef35cd220"
+      },
+      "G855_equal_F519": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/contracts/state.py",
+      "all_declared_sources_bytes_identical": true,
+      "by_source": {
+        "8236d9c368336a5ea20c1586f29aea7321db6536": {
+          "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+          "path": "policy-engine/src/polisyos/foundry/contracts/state.py",
+          "git_blob": "42e3251a9b82608d1d2f77e5b6e30e935708b44f",
+          "bytes": 16421,
+          "sha256": "40ef94643b25a00ab5dd2d8eb4db97dca2dcfb646a0eda855869c91de05f9338"
+        },
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/src/polisyos/foundry/contracts/state.py",
+          "git_blob": "42e3251a9b82608d1d2f77e5b6e30e935708b44f",
+          "bytes": 16421,
+          "sha256": "40ef94643b25a00ab5dd2d8eb4db97dca2dcfb646a0eda855869c91de05f9338"
+        },
+        "fa53da2812eaa8578f79ec914b3b2abe4c491f3d": {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/src/polisyos/foundry/contracts/state.py",
+          "git_blob": "42e3251a9b82608d1d2f77e5b6e30e935708b44f",
+          "bytes": 16421,
+          "sha256": "40ef94643b25a00ab5dd2d8eb4db97dca2dcfb646a0eda855869c91de05f9338"
+        }
+      },
+      "profile": "Existingruntime/testprofile unchanged8236→519",
+      "G855": {
+        "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+        "path": "policy-engine/src/polisyos/foundry/contracts/state.py",
+        "git_blob": "42e3251a9b82608d1d2f77e5b6e30e935708b44f",
+        "bytes": 16421,
+        "sha256": "40ef94643b25a00ab5dd2d8eb4db97dca2dcfb646a0eda855869c91de05f9338"
+      },
+      "G855_equal_F519": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/agent_sim/test_gini_science.py",
+      "all_declared_sources_bytes_identical": true,
+      "by_source": {
+        "8236d9c368336a5ea20c1586f29aea7321db6536": {
+          "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+          "path": "policy-engine/tests/unit/foundry/agent_sim/test_gini_science.py",
+          "git_blob": "22c77bb7fd74a9960d031c3e31b5963d5983f284",
+          "bytes": 8660,
+          "sha256": "226fcfed7c9b7ab818147d01795cfcb6d8b7368cecba9e6cc696563f31dc166c"
+        },
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/tests/unit/foundry/agent_sim/test_gini_science.py",
+          "git_blob": "22c77bb7fd74a9960d031c3e31b5963d5983f284",
+          "bytes": 8660,
+          "sha256": "226fcfed7c9b7ab818147d01795cfcb6d8b7368cecba9e6cc696563f31dc166c"
+        },
+        "fa53da2812eaa8578f79ec914b3b2abe4c491f3d": {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/tests/unit/foundry/agent_sim/test_gini_science.py",
+          "git_blob": "22c77bb7fd74a9960d031c3e31b5963d5983f284",
+          "bytes": 8660,
+          "sha256": "226fcfed7c9b7ab818147d01795cfcb6d8b7368cecba9e6cc696563f31dc166c"
+        }
+      },
+      "profile": "Existingruntime/testprofile unchanged8236→519",
+      "G855_absent": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/agent_sim/test_gini_domain.py",
+      "all_declared_sources_bytes_identical": true,
+      "by_source": {
+        "8236d9c368336a5ea20c1586f29aea7321db6536": {
+          "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+          "path": "policy-engine/tests/unit/foundry/agent_sim/test_gini_domain.py",
+          "git_blob": "e4e75a82ac381db09fa4b93c608b22e1d57b95fa",
+          "bytes": 7130,
+          "sha256": "e076b7e0f996d579d711e4f3fb20e4171f7933001e64ba08050e48db5ba8bed0"
+        },
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/tests/unit/foundry/agent_sim/test_gini_domain.py",
+          "git_blob": "e4e75a82ac381db09fa4b93c608b22e1d57b95fa",
+          "bytes": 7130,
+          "sha256": "e076b7e0f996d579d711e4f3fb20e4171f7933001e64ba08050e48db5ba8bed0"
+        },
+        "fa53da2812eaa8578f79ec914b3b2abe4c491f3d": {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/tests/unit/foundry/agent_sim/test_gini_domain.py",
+          "git_blob": "e4e75a82ac381db09fa4b93c608b22e1d57b95fa",
+          "bytes": 7130,
+          "sha256": "e076b7e0f996d579d711e4f3fb20e4171f7933001e64ba08050e48db5ba8bed0"
+        }
+      },
+      "profile": "Existingruntime/testprofile unchanged8236→519",
+      "G855_absent": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+      "all_declared_sources_bytes_identical": true,
+      "by_source": {
+        "193b3582a72c640c1d06a131f93502654a77a36a": {
+          "git_ref": "193b3582a72c640c1d06a131f93502654a77a36a",
+          "path": "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+          "git_blob": "e7c9601aa273822e5a5f050bdb6f17ca4f0fadb7",
+          "bytes": 4971,
+          "sha256": "fb2bd027688ad5688132d2673e9c2e52005bd876e258b9a04f49fbb7e307a9bf"
+        },
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+          "git_blob": "e7c9601aa273822e5a5f050bdb6f17ca4f0fadb7",
+          "bytes": 4971,
+          "sha256": "fb2bd027688ad5688132d2673e9c2e52005bd876e258b9a04f49fbb7e307a9bf"
+        },
+        "fa53da2812eaa8578f79ec914b3b2abe4c491f3d": {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+          "git_blob": "e7c9601aa273822e5a5f050bdb6f17ca4f0fadb7",
+          "bytes": 4971,
+          "sha256": "fb2bd027688ad5688132d2673e9c2e52005bd876e258b9a04f49fbb7e307a9bf"
+        }
+      },
+      "profile": "Newconsumercompanion introduced193; absent8236",
+      "G855_absent": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+      "all_declared_sources_bytes_identical": true,
+      "by_source": {
+        "193b3582a72c640c1d06a131f93502654a77a36a": {
+          "git_ref": "193b3582a72c640c1d06a131f93502654a77a36a",
+          "path": "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+          "git_blob": "837ecded46cf58203b7aca69c684139170c59e98",
+          "bytes": 7881,
+          "sha256": "adf3645051001e0e7a6a5f6af13b935517baeb5d0165a6f6ae9d902b99eb110c"
+        },
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82": {
+          "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+          "path": "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+          "git_blob": "837ecded46cf58203b7aca69c684139170c59e98",
+          "bytes": 7881,
+          "sha256": "adf3645051001e0e7a6a5f6af13b935517baeb5d0165a6f6ae9d902b99eb110c"
+        },
+        "fa53da2812eaa8578f79ec914b3b2abe4c491f3d": {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/tests/unit/foundry/agent_sim/test_signed_gini_producer_route.py",
+          "git_blob": "837ecded46cf58203b7aca69c684139170c59e98",
+          "bytes": 7881,
+          "sha256": "adf3645051001e0e7a6a5f6af13b935517baeb5d0165a6f6ae9d902b99eb110c"
+        }
+      },
+      "profile": "Newconsumercompanion introduced193; absent8236",
+      "G855_absent": true
+    }
+  ],
+  "positive_Gini_math_profile": {
+    "original244_source": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+    "original244_tree": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+    "positive_ratio_AST_sha256": "c3963763420a97278f3236365dc1c970bc9d2521dcf50984f82c9ef9e6c56ff4",
+    "positive_ratio_ast_equal_prior532_F8236": true,
+    "whole_functions_and_tests_not_identical_prior532_F8236": true,
+    "actual_delta": "Added finite/nonnegative active admission + zero-total signed behavior changed to refusal; one signed zero-mean test renamed/replaced. No blanket244result transfer.",
+    "hard_empty_AST_equal": true,
+    "test_function_AST_delta": {
+      "same": [
+        "_pairwise_gini",
+        "test_exact_gini_exhaustive_small_nonnegative_population",
+        "test_exact_gini_matches_pairwise_oracle_across_units",
+        "test_float32_gini_normalizes_before_sum_overflow",
+        "test_float64_gini_survives_extreme_finite_rescaling",
+        "test_native_aggregate_and_pure_executor_share_active_population_oracle",
+        "test_no_active_population_has_typed_zero",
+        "test_scientific_statistic_reaches_native_plugin_and_global_state_consumers"
+      ],
+      "changed": [],
+      "removed": [
+        "test_undefined_signed_zero_mean_is_not_a_finite_inequality_score"
+      ],
+      "added": [
+        "test_signed_zero_mean_is_refused_by_the_classical_metric_domain"
+      ]
+    },
+    "F8236_F519_existing_Gini_product_oracle_domain_blobs_equal": true,
+    "new193_LA035_and_signedroute_test_blobs_equal_193_Ecarrier_519": true,
+    "unchanged_nonnegative_Fraction_pairwise_oracle": "Existing test_gini_science.py source-bound244run, not rerun.",
+    "LA035_Fraction_panels": "Existing independent_cau32×eager/JIT=64 panels test normalized-income/budget; not Gini.",
+    "signed_route": "ActualC/PPO route supported fa53source193/native83/independent28+55; no repeated nativework, no productiondata/calibration/authority admission.",
+    "full_original244_deciding_metadata": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-native-final-candidate.json",
+      "ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "bytes": 2440,
+      "sha256": "ddd8b2cbe422691580858c62cf98b50e8ea8750889168f085235ceb474535ff9",
+      "full_receipt": {
+        "command": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "tests/unit/foundry/agent_sim/test_gini_science.py",
+          "tests/unit/foundry/plugins/test_economic_profiles.py",
+          "tests/unit/foundry/plugins/test_economics_dtype.py",
+          "tests/unit/foundry/mechanisms/test_fiscal.py",
+          "tests/unit/foundry/mechanisms/test_labor.py",
+          "tests/unit/remediation/test_eco_01.py",
+          "tests/unit/remediation/test_fry_03.py",
+          "-o",
+          "addopts=",
+          "-v",
+          "--tb=short",
+          "--junitxml=/workspace/e02-F-20261006-receipts/economics/economic-native-final-candidate.xml"
+        ],
+        "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+        "head": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+        "head_tree": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+        "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source_diff_bytes": 0,
+        "pythonpath": "src:tools:.",
+        "start_unix": 1791281511.034631,
+        "wall_seconds": 62.20736050605774,
+        "maximum_child_rss_kib": 1935568,
+        "returncode": 0,
+        "output": {
+          "path": "/workspace/e02-F-20261006-receipts/economics/economic-native-final-candidate.txt",
+          "bytes": 36108,
+          "sha256": "6ec3837d5fd47180c8aad45fcdca24d87dbb37827e08fb49f4d356004b32be9d"
+        },
+        "input_hashes_before": {
+          "src/polisyos/foundry/agent_sim/distributions.py": "d70bf04939c6227326ce37212693a7d39b6c8a9515ac39f987e908d2cb3bcfc3",
+          "src/polisyos/foundry/agent_sim/state.py": "5984b26f6ecda6f1449c78d879dc57cfd13e61ce0d53f58dff8a1302f9ad5be0",
+          "tests/unit/foundry/agent_sim/test_gini_science.py": "dd9a30ae48f61f88464a0aaa8b9536e3f90ac36df4f91a9cb04d35298294d49f",
+          "tests/unit/foundry/plugins/test_economic_profiles.py": "02eda95ab8abe859f08e44aa5c56417b992f6985199417480ef621fd64c03b5b"
+        },
+        "input_hashes_after": {
+          "src/polisyos/foundry/agent_sim/distributions.py": "d70bf04939c6227326ce37212693a7d39b6c8a9515ac39f987e908d2cb3bcfc3",
+          "src/polisyos/foundry/agent_sim/state.py": "5984b26f6ecda6f1449c78d879dc57cfd13e61ce0d53f58dff8a1302f9ad5be0",
+          "tests/unit/foundry/agent_sim/test_gini_science.py": "dd9a30ae48f61f88464a0aaa8b9536e3f90ac36df4f91a9cb04d35298294d49f",
+          "tests/unit/foundry/plugins/test_economic_profiles.py": "02eda95ab8abe859f08e44aa5c56417b992f6985199417480ef621fd64c03b5b"
+        },
+        "input_bytes_stable": true,
+        "head_after": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6"
+      }
+    }
+  },
+  "LA035": {
+    "recommendation": "closed original equivalentrelocationtechnicalcriterion; no formalGacceptance self-claim",
+    "whole_five_baseline_alias_guard_GlobalState_blobs_equal_F8236_F519_G855": true,
+    "existing_finite_evidence": {
+      "handoff_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007.json",
+      "bytes": 106928,
+      "sha256": "24a72061e9e4379753f349f56c110b516cef300457b94e2d6a5e066b702f760e",
+      "scientific_tests_source": "193b3582a72c640c1d06a131f93502654a77a36a",
+      "scientific_tests_tree": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b",
+      "handoff_candidate": "c0084cd530c1dbe01eedfb9b5c24f055954a97be",
+      "handoff_tree": "9bbaa69dc195dd38adb04c9d52fc4cd700824bc7",
+      "zero_product_source_delta": true
+    },
+    "formula": "-mean(income)/max(mean(abs(income)),1)+10*(max(0,min_balance-balance)/max(abs(min_balance),1))**2; fixedoriginalfloat32 GlobalState profile/invalidinf guard",
+    "negative_zero_mixed_scale_budget_NaNInf_importsideeffects_nativeguard_JITgrad": "Alreadydecidedbyexact83nativeandindependent28+55/64Fractionpanels at193; no repeat or broadsourcecopyPASS.",
+    "obsolete_hold": "Namedproductionoptimizer/welfarenorm/principalpacket notoriginalunchangedrelocationprerequisite; explicitoldheldJSON remainsdatedhistory.",
+    "limits": "Constructed/external/untrackedcallers andproductionuse not established; unknown census boundary not prerequisite for ownfinite supportedcallerrelocation; newranking/objective needsowner/version."
+  },
+  "LA004": {
+    "recommendation": "closed originalfinite distinctnative/pluginfiscal/labor comparison criterion; not Gini orwelfarenorm",
+    "card": "LA_r09_original.md:167–197",
+    "law_profiles": "Deliberate matched anddivergent laws not drop-in equivalence. Canonicalmigration/precision evidence separatelysourcebound; noequivalenceallproductionmodels."
+  },
+  "G855_delta": {
+    "actual_old_hard_Gini": "epsilon n_act*total+1e-8 and n_act+1e-8 still present; noadmit_gini_population; liveobjectives/rewards readcachedscalar insteadcurrentpopulation",
+    "owner": "G ordinaryintegration of acceptedFscientificsource; this is not newFmathdefect or newfindingID",
+    "relative_actual_sources": "CompleteF8236→G855economicdiff captured. All17preexistingdeclaredsource/testpaths equalF8236→F519; two newerconsumercompanions introduced193 andidentical193→519. No product delta8236→519; no whole83testdenominator reuse at8236.",
+    "guidance": "Resolve current F/method ledgerdocs forward with originalcards/Gtenthdecision; do not overwrite acceptedFnormalization/admission/livecurrentpopulationreaders with olderGbytes, do not equate signedsimulationlaw with requestedclassicalGini. Newsource/consumer deltas only need affectedchecks; no unchanged244/64rerun."
+  },
+  "current_captions": {
+    "declared31_manifest": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-caption-31-source-qualified-locators.json",
+      "bytes": 138433,
+      "sha256": "2f9526ebd451d3ef813a2a2831f19178b3f70464015991552efcba2d9b80bb7b"
+    },
+    "current_operating_manifest": {
+      "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-operating-caption-locators.json",
+      "bytes": 32334,
+      "sha256": "7f0f640711df80dbdbb42335d4299c16cff81eacbcca0161de2cc1cc507f59ef"
+    },
+    "ROOT_only_writer": true,
+    "immutable_sourcehistory_not_rewritten": true
+  },
+  "scanner_retry": {
+    "path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/retry-review-delta.json",
+    "bytes": 4043,
+    "sha256": "03edce1216e8d5a5f42c99fc8b405129905880671a3904d319c861d5c900eb3c"
+  },
+  "reviewer_harness": "Initial source-equality loop incorrectly included two consumer tests introduced193 at older8236; exactmissing paths preserved in recovery-review.initial.stderr, corrected to193/519/owncarrier. Existing17 source/testprofile unchanged; subsequent own receipt-candidate assertion assumed scientific193 rather than actualdoc-onlyc008, corrected to actual9bbaa candidate while nativechecks193 remain exact. Original secondstderr retained; no product failure.",
+  "P41": "not_established; neither scannerattempt completed, andchangedcurrentinput overlapexists; exactG855differentinput cannotinheritFresult.",
+  "no_cleanup_delete_or_env_mutation": true
+}

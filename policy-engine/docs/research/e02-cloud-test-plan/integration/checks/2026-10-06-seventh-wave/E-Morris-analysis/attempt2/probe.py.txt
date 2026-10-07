@@ -1,0 +1,231 @@
+from __future__ import annotations
+
+import json
+import hashlib
+import os
+import resource
+import signal
+import subprocess
+import sys
+import time
+import warnings
+from pathlib import Path
+
+
+OUT = Path(__file__).parent
+INPUT = json.loads((OUT / "inputs.json").read_text())
+started = time.monotonic()
+REPO = OUT.parents[4]
+SOURCE_ROOT = Path(os.environ["CANDIDATE_SOURCE"])
+
+
+def _timed_out(signum: int, frame: object) -> None:
+    raise TimeoutError("28-second in-process probe ceiling reached")
+
+
+class ResourceCeiling(Exception):
+    pass
+
+
+signal.signal(signal.SIGALRM, _timed_out)
+signal.alarm(28)
+result: dict[str, object] = {
+    "status": "started",
+    "candidate": INPUT["candidate"],
+    "candidate_tree": INPUT["tree"],
+    "inputs_sha256": __import__("hashlib").sha256((OUT / "inputs.json").read_bytes()).hexdigest(),
+    "process": {"python": sys.executable, "python_version": sys.version, "cwd": os.getcwd()},
+    "environment": {
+        key: os.environ.get(key)
+        for key in (
+            "CANDIDATE_SOURCE",
+            "OVERLAY",
+            "PYTHONPATH",
+            "PYTHONNOUSERSITE",
+            "PYTHONDONTWRITEBYTECODE",
+            "PYTHONHASHSEED",
+            "OMP_NUM_THREADS",
+            "OPENBLAS_NUM_THREADS",
+            "MKL_NUM_THREADS",
+            "VECLIB_MAXIMUM_THREADS",
+            "BLIS_NUM_THREADS",
+            "NUMEXPR_NUM_THREADS",
+        )
+    },
+}
+
+try:
+    git_head = subprocess.check_output(
+        ["git", "-C", str(REPO), "rev-parse", "HEAD"], text=True
+    ).strip()
+    git_branch = subprocess.check_output(
+        ["git", "-C", str(REPO), "symbolic-ref", "--short", "HEAD"], text=True
+    ).strip()
+    git_status = subprocess.check_output(
+        ["git", "-C", str(REPO), "status", "--porcelain"], text=True
+    )
+    candidate_tree = subprocess.check_output(
+        ["git", "-C", str(REPO), "rev-parse", f"{INPUT['candidate']}^{{tree}}"], text=True
+    ).strip()
+    source_pins: list[dict[str, object]] = []
+    for relative in (
+        "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+    ):
+        source_file = SOURCE_ROOT / relative.removeprefix("policy-engine/src/")
+        source_bytes = source_file.read_bytes()
+        committed_bytes = subprocess.check_output(
+            ["git", "-C", str(REPO), "show", f"{INPUT['candidate']}:{relative}"]
+        )
+        blob = subprocess.check_output(
+            ["git", "-C", str(REPO), "rev-parse", f"{INPUT['candidate']}:{relative}"],
+            text=True,
+        ).strip()
+        source_pins.append(
+            {
+                "git_path": relative,
+                "archive_path": str(source_file),
+                "bytes": len(source_bytes),
+                "sha256": hashlib.sha256(source_bytes).hexdigest(),
+                "git_blob": blob,
+                "matches_candidate_blob": source_bytes == committed_bytes,
+            }
+        )
+    result["checkout"] = {
+        "branch": git_branch,
+        "head": git_head,
+        "porcelain_status": git_status,
+        "candidate_tree_actual": candidate_tree,
+        "source_pins": source_pins,
+    }
+    if (
+        git_branch != "codex/e02-integration"
+        or git_head != "127dc7ab8365d29eb656fe32c0c894f6cc971286"
+        or git_status
+        or candidate_tree != INPUT["tree"]
+        or not all(pin["matches_candidate_blob"] for pin in source_pins)
+    ):
+        raise RuntimeError("branch/candidate/source identity precondition failed")
+
+    import numpy as np
+    from importlib.metadata import version
+
+    import polisyos.scientist.methods.doe.analysis as analysis_module
+    import polisyos.scientist.methods.doe.designs as designs_module
+    from polisyos.scientist.methods.doe.analysis import analyze_sensitivity
+    from polisyos.scientist.methods.doe.designs import SensitivityPlan
+
+    plan = SensitivityPlan(
+        parameters=INPUT["plan"]["parameters"],
+        n_trajectories=INPUT["plan"]["n_trajectories"],
+        max_estimated_runs=INPUT["plan"]["max_estimated_runs"],
+        seed=INPUT["plan"]["seed"],
+    )
+    result["runtime"] = {
+        "numpy": np.__version__,
+        "salib": version("SALib"),
+        "analysis_module": analysis_module.__file__,
+        "designs_module": designs_module.__file__,
+        "salib_morris_module": None,
+    }
+    if not (
+        str(analysis_module.__file__).startswith(str(SOURCE_ROOT) + os.sep)
+        and str(designs_module.__file__).startswith(str(SOURCE_ROOT) + os.sep)
+    ):
+        raise RuntimeError("PolicyOS source did not resolve from the pinned candidate archive")
+    result["declared"] = {
+        "method": plan.method.value,
+        "parameters": [item.name for item in plan.parameter_specs],
+        "num_parameters": plan.num_parameters,
+        "n_trajectories": plan.n_trajectories,
+        "num_levels": plan.parameter_specs[0].num_levels,
+        "estimated_runs": plan.estimated_runs,
+        "max_estimated_runs": plan.max_estimated_runs,
+    }
+
+    import SALib.analyze.morris as morris_module
+
+    result["runtime"]["salib_morris_module"] = morris_module.__file__
+    if not str(morris_module.__file__).startswith(os.environ["OVERLAY"] + os.sep):
+        raise RuntimeError("SALib Morris analyzer did not resolve from the prepared overlay")
+    rss_peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    rss_peak_bytes = int(rss_peak if sys.platform == "darwin" else rss_peak * 1024)
+    result["pre_analysis_peak_rss_bytes"] = rss_peak_bytes
+    result["resource_cap_bytes"] = 384 * 1024 * 1024
+    if rss_peak_bytes > 384 * 1024 * 1024:
+        raise ResourceCeiling("imports exceeded the 384 MiB cap; analyzer was not called")
+
+    cases: dict[str, object] = {}
+    for case_name in ("control", "excess"):
+        rows = np.asarray(INPUT[f"{case_name}_samples"], dtype=float)
+        outputs = 2.0 * rows[:, 0]
+        case: dict[str, object] = {
+            "samples": rows.tolist(),
+            "outputs": outputs.tolist(),
+            "supplied_rows": int(rows.shape[0]),
+            "supplied_trajectories_by_block_size": int(rows.shape[0] // (plan.num_parameters + 1)),
+        }
+        try:
+            with warnings.catch_warnings(record=True) as caught:
+                warnings.simplefilter("always")
+                analyzed = analyze_sensitivity(plan, rows, outputs)
+            case["decision"] = "accepted"
+            case["result"] = {
+                "total_runs": analyzed.total_runs,
+                "successful_runs": analyzed.successful_runs,
+                "failed_runs": analyzed.failed_runs,
+                "mu_star": analyzed.mu_star,
+                "sigma": analyzed.sigma,
+                "metadata": analyzed.metadata,
+            }
+            case["warnings"] = [str(item.message) for item in caught]
+        except ValueError as exc:  # evidence includes a genuine input rejection
+            case["decision"] = "refused"
+            case["exception"] = {"type": type(exc).__name__, "message": str(exc)}
+        cases[case_name] = case
+
+    result["cases"] = cases
+    control = cases["control"]
+    if not isinstance(control, dict) or control.get("decision") != "accepted":
+        raise RuntimeError("healthy two-row Morris control was not accepted")
+    control_result = control.get("result")
+    if not isinstance(control_result, dict) or abs(float(control_result["mu_star"]["x"]) - 2.0) > 1e-12:
+        raise RuntimeError("native Morris linear control did not recover mu_star=2")
+    excess = cases["excess"]
+    if isinstance(excess, dict) and excess.get("decision") == "accepted":
+        excess_result = excess.get("result")
+        result["property_outcome"] = {
+            "finding": "valid excess Morris trajectory rows are accepted beyond the admitted plan cap",
+            "plan_estimated_runs": plan.estimated_runs,
+            "plan_max_estimated_runs": plan.max_estimated_runs,
+            "declared_trajectories": plan.n_trajectories,
+            "supplied_rows": excess["supplied_rows"],
+            "supplied_complete_trajectories": excess["supplied_trajectories_by_block_size"],
+            "reported_total_runs": excess_result["total_runs"] if isinstance(excess_result, dict) else None,
+            "reported_estimated_runs": excess_result["metadata"].get("estimated_runs") if isinstance(excess_result, dict) else None,
+            "reported_n_trajectories": excess_result["metadata"].get("n_trajectories") if isinstance(excess_result, dict) else None,
+        }
+    elif isinstance(excess, dict) and excess.get("decision") == "refused":
+        result["property_outcome"] = {
+            "finding": "valid excess Morris trajectory input is refused",
+            "reason": excess.get("exception"),
+        }
+    result["status"] = "completed"
+except ResourceCeiling as exc:
+    result["status"] = "UNRUN_RESOURCE_CEILING"
+    result["error"] = str(exc)
+except TimeoutError as exc:
+    result["status"] = "UNRUN_TIMEOUT"
+    result["error"] = str(exc)
+except Exception as exc:
+    result["status"] = "error"
+    result["error"] = {"type": type(exc).__name__, "message": str(exc)}
+finally:
+    signal.alarm(0)
+    result["elapsed_seconds"] = round(time.monotonic() - started, 6)
+    peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    result["peak_rss_bytes"] = int(peak if sys.platform == "darwin" else peak * 1024)
+    (OUT / "result.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
+    print(json.dumps(result, sort_keys=True))

@@ -1,0 +1,79 @@
+{
+  "source_sha": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+  "tree": "dc4b6a932a11cba4470b9bbcf299d2d2f51b2301",
+  "base": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+  "paths": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py",
+      "bytes": 5580,
+      "sha256": "0e048675e3a559a625e0f2fb0431926749b9ae7eabb6353e93f57148d8c6c7f5",
+      "git_blob": "3e310064e1301fc6d773514c665c6df540134766"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/mechanisms/fiscal.py",
+      "bytes": 282,
+      "sha256": "a055451e6d6bc553c266970f8595d936715de4252074820e73f3cf45efac97d2",
+      "git_blob": "bf28760bb58ce670168b350327bc5a80f1aa8510"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/_registry.py",
+      "bytes": 11685,
+      "sha256": "f9a3b8ef31a5be5a3b0010b2bc25ffb75fb6e2c5c7d567b75f1bac0c021de9a9",
+      "git_blob": "e720ed6acbc8fae57039967aa2b5cfea5c142660"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/compile/api.py",
+      "bytes": 4376,
+      "sha256": "0f3e3a5c2fb74596ac0d385047d3014597d51ad10dc02278da713aa0d6111954",
+      "git_blob": "4e94b5734779fe9d0eb7774e1b528686820003ee"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/api.py",
+      "bytes": 50884,
+      "sha256": "083d9692e173f45b21206a83081f6b4afa501788b545dddbaaec2cbcc64d355f",
+      "git_blob": "68997f94a8d6d1a9bb280ef66a88dd32db62a958"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/executor.py",
+      "bytes": 2305,
+      "sha256": "7577afbd9236d6a7e2670888c923f7a79f98df39521e967919eb56b2ebe788db",
+      "git_blob": "1319ad807b921d5809e481e7967c56c3ae3f3fa7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/contracts/state.py",
+      "bytes": 16421,
+      "sha256": "40ef94643b25a00ab5dd2d8eb4db97dca2dcfb646a0eda855869c91de05f9338",
+      "git_blob": "42e3251a9b82608d1d2f77e5b6e30e935708b44f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/kernel/slots.py",
+      "bytes": 18445,
+      "sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81",
+      "git_blob": "1d656cc5b6643f6378f8dc54f4cc4272895cb6b8"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/execute/mechanisms/test_fiscal_precision.py",
+      "bytes": 8124,
+      "sha256": "8831a116e5754886c301f3b4ea101f7b068e886d88d690ef40f4e402e7123ede",
+      "git_blob": "83b1a3315f80b7cf77e7a2b4cc26b1f6bf1e463c"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/mechanisms/test_fiscal.py",
+      "bytes": 4814,
+      "sha256": "59a54f8c242c819e782ec6395e7c026cd5c6cc98d8467af3414e7edf0ea9bff5",
+      "git_blob": "2343db54890b1d8d5c4d2da53707bfa895f6224b"
+    },
+    {
+      "path": "policy-engine/docs/reference/foundry/fiscal-calculation-dtype.md",
+      "bytes": 3269,
+      "sha256": "139d384a70685df4c60b02e1598bad378b8035b7a8abbc2cd56511414b519625",
+      "git_blob": "56e2c06d43a5f9232de3494849a647ac0ec4151f"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-economic-fiscal-calculation-dtype.toml",
+      "bytes": 2686,
+      "sha256": "46a5498acbd340e7efb844f37e491dc8d43d691df6f6b5eeb0a16b5cb1d86def",
+      "git_blob": "40f61d47a2705704f1111341045b58de1feae587"
+    }
+  ]
+}

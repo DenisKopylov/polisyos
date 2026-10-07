@@ -1,0 +1,335 @@
+{
+  "schema": "policyos.e02.complete-transfer-selection.v1",
+  "reviewer": "graph_scm",
+  "check": "PASS",
+  "outcome": "GO_BOUNDED",
+  "scope": "Actual immutable ea9a G83e documentation merge preservation only",
+  "actual_merge_sha": "ea9a606f06dad1f94c0f841ec1ec7a53fc694f5c",
+  "current_deciding_reference_check": "PASS",
+  "other_owner_D680_source_custody_check": "UNRUN",
+  "whole_merge_diff_check": "FAIL",
+  "P41": "not_established",
+  "items": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/identity.stdout",
+      "bytes": 123,
+      "sha256": "4c1454f6efd314ec858f5f638a5b9bd4e9cec08d675b343502b8a64c39837fbb",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/identity.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/paths.stdout",
+      "bytes": 4836,
+      "sha256": "266232c18f0a0375fbb88be8035039954b6a6704ed7ae8cc3ded852e136352ef",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/paths.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/diff-check.stdout",
+      "bytes": 318,
+      "sha256": "6eb5dbaa8cbb445189cb5d16f093851f5a9be2102efb12f93e0e23c914ce2a3c",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/diff-check.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/commands.json",
+      "bytes": 2783,
+      "sha256": "74dff74de8d57c90fc7658dcab8c2fc16b79785c484bb51829f56df8e18c6924",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/review_actual_G83e.initial.py",
+      "bytes": 19069,
+      "sha256": "4c056093a34a6647decbcf4033440cc50d01a63fd7b90be55f0a5e7d87d721f3",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/review_actual_G83e.py",
+      "bytes": 20817,
+      "sha256": "8acc0eee4515d2d0963038f8039ae18e6455a723215f46a6f803375d8cb82e47",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/independent-review.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/independent-review.stderr",
+      "bytes": 1447,
+      "sha256": "9cd5d12f8fa225eb116c3acaa885f9ab9adaad3353296eaad4bf4aa5f51fabf5",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/independent-review.execution.json",
+      "bytes": 724,
+      "sha256": "38d3eebcd5707563b9c3192af02580d9c6db4726a43de57a85df0f23067f3486",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/independent-review-current.stdout",
+      "bytes": 595,
+      "sha256": "1b6c6dc2d624aa1509615eb2c632c37a25d45f0f05b6194a0723831539826196",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/independent-review-current.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/independent-review-current.execution.json",
+      "bytes": 739,
+      "sha256": "3a6b7a689e2bd12fd187f3da9c2e53be995f5aa4226e971249b7a03f237d0ca5",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/D680-local-source-probe.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/D680-local-source-probe.stderr",
+      "bytes": 81,
+      "sha256": "76de13f277ff07ce34529d3a87a7c339fac1f5386b639760e34f49ad46ff1526",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/actual-merge-name-status.stdout",
+      "bytes": 4836,
+      "sha256": "266232c18f0a0375fbb88be8035039954b6a6704ed7ae8cc3ded852e136352ef",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/actual-merge-name-status.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/actual-merge-diff-check.stdout",
+      "bytes": 318,
+      "sha256": "6eb5dbaa8cbb445189cb5d16f093851f5a9be2102efb12f93e0e23c914ce2a3c",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/actual-merge-diff-check.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/extra-root-record-check.json",
+      "bytes": 358,
+      "sha256": "75b934c307603da85a400281278da39c39f72e91735033e3af9d4365000a27b2",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/REVIEW.txt",
+      "bytes": 2316,
+      "sha256": "ec963b7e225d2c4eb71fb2c7ad0498a87f45ea7241d5e4a00f0df7eb2791887d",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/actual-ea9a-review.json.gz",
+      "bytes": 25747,
+      "sha256": "4c4a79768dda78b1522f83ab06821f293ef3854133b02122986759de388c60c6",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input",
+      "encoding": "gzip",
+      "decoded_bytes": 269614,
+      "decoded_sha256": "76bcba01f5e50f74731630d3c5e3f9150525b1cda948a09d1d7d3d627dc566b5",
+      "original_raw_path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/actual-ea9a-review.json"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/full-diff.stdout.gz",
+      "bytes": 81461,
+      "sha256": "4e1ba8fc6771f298e4cd4444b9a6edd4a9d803f7150a2a51326f663e927d47e6",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input",
+      "encoding": "gzip",
+      "decoded_bytes": 291196,
+      "decoded_sha256": "a52560e502cd23f87ccb4fe77bca9c77a06d4d28af498131b2ce3d821ed88d84",
+      "original_raw_path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/full-diff.stdout"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/actual-merge-full-binary.patch.gz",
+      "bytes": 82623,
+      "sha256": "b314caab9f0d9a4e3fc3f96af6dccf9b0ba94c951a7ba33f4849d081a0e9bcdb",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input",
+      "encoding": "gzip",
+      "decoded_bytes": 293799,
+      "decoded_sha256": "776c1afb25730bab1d955400a28bbeef7cb7c8e8641c2b04e1185569f485f7c1",
+      "original_raw_path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/actual-merge-full-binary.patch"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/G83e-full-patch.stdout.gz",
+      "bytes": 82631,
+      "sha256": "dbb3c196066e13c78dea8361ab3a4cd9b4035731a0baed560340c246796674b0",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input",
+      "encoding": "gzip",
+      "decoded_bytes": 293800,
+      "decoded_sha256": "4618bc8b407e90f56f2006d0c001b7fa8df43be9c3487d8d717a31995d2b25c4",
+      "original_raw_path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-full-patch.stdout"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/ordinary-G83e-merge.json",
+      "bytes": 3468,
+      "sha256": "c4e94d9dca6071b8d701d03ba5d4abf56bbd05620fc5e2980adc6f36213d110b",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-identity.stdout",
+      "bytes": 123,
+      "sha256": "01f8a1c4a245a62aa4debd2ce602957e28724f12d8ba79f0f96328a9af958d18",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-identity.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-full-patch.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-merge-tree.stdout",
+      "bytes": 41,
+      "sha256": "f7850528765c35ed4d94a4b68daddd67d9b80ff4e8fd03b6ebe6ebb850242842",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-merge-tree.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-ordinary-merge.stdout",
+      "bytes": 7586,
+      "sha256": "61acb5341c5867a92af69af67f788d14bb7c6f65fd81dae3d3c8873a03ef82e2",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-fresh-G-83e/G83e-ordinary-merge.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/G-review.md",
+      "bytes": 3279,
+      "sha256": "6d68518248fbec547711c4766488aa689d272b28c789eb48c567a7f43672e6d0",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input",
+      "git_source": {
+        "sha": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/README.md"
+      },
+      "copy_byte_binding_check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/D-budget-review.md",
+      "bytes": 2753,
+      "sha256": "23528b0b89c49a43de44c341cc6697ee4196707cce67b6829f32ee162871efd6",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input",
+      "git_source": {
+        "sha": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/README.md"
+      },
+      "copy_byte_binding_check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/D-budget-result.md",
+      "bytes": 4330,
+      "sha256": "9af9fc5418b51ee1c1bf83768867f36723f3e71b28a7bf315e71e12e9711412c",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input",
+      "git_source": {
+        "sha": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eleventh-wave/D-budget/final-report.md"
+      },
+      "copy_byte_binding_check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/B120-original-scope.md",
+      "bytes": 1970,
+      "sha256": "98ebad8c14fde6c2c9cf4c1a434be71b06347b9837a0bd6971c3d0c3100ebd5d",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input",
+      "git_source": {
+        "sha": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/B120-correction.md"
+      },
+      "copy_byte_binding_check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/final-G-publication-review.md",
+      "bytes": 4305,
+      "sha256": "6d54afc3815e213203e2755918f63c1d07d07358add66203be7f03efc1a5e2be",
+      "role": "complete_deciding_output_or_replayer_or_source_read_input",
+      "git_source": {
+        "sha": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-eleventh-wave/final-publication-review.md"
+      },
+      "copy_byte_binding_check": "PASS"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/validate_transfer_selection.py",
+      "bytes": 920,
+      "sha256": "9bf94ee50e74c612be47f6bf9f6c3947bcd771c049abbb7e88a09ee6bb39f626",
+      "role": "portable_full_stored_and_decoded_byte_validator"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/transfer-selection-input41.json",
+      "bytes": 14739,
+      "sha256": "55d6724e236782e61aa305a39fb2fc9e1296cd65b87b70b86e4a010d9ed27c4d",
+      "role": "immutable_input41_and_its_full_validation_outputs"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/selection-input41-validation.stdout",
+      "bytes": 7412,
+      "sha256": "5c2b4ef4fc4ccf9e0f531d9371efb3c03d8e3a4b5aa29cd9a951f5dd0afa9b32",
+      "role": "immutable_input41_and_its_full_validation_outputs"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/selection-input41-validation.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "immutable_input41_and_its_full_validation_outputs"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/selection-input41-validation.execution.json",
+      "bytes": 1001,
+      "sha256": "b4e2476a15acdba482e70cd47ab4c096064f84a3087d73f3486b96849d925c1d",
+      "role": "immutable_input41_and_its_full_validation_outputs"
+    }
+  ],
+  "file_count": 45,
+  "stored_bytes": 383749,
+  "decoded_bytes_for_encoded_only": 1148409,
+  "originals_preserved_in_scratch": true,
+  "no_uncompressed_duplicates_selected_for_encoded_bodies": true,
+  "validation_scope": {
+    "initial_stored_and_decoded41": "PASS",
+    "four_appended_complete_validation_materials_bound_by_final_selection": "PASS",
+    "self_reference_not_claimed": true
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "fetch_exit": 0,
+  "G": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+  "G_tree": "ae067d9bcd96ff123b76d3b6eebef27a1736079c",
+  "main": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "main_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "relations": {
+    "ff277db7798fc312654704fa51c52e00f53f10f4": true,
+    "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7": true,
+    "00a6eda114b903bc5abe86902cd8372426f739a1": true,
+    "072d45a56d1119fe3e7665cec2cbbdca015d2934": false
+  }
+}

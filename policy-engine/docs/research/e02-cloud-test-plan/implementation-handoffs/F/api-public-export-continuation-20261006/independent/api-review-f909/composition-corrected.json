@@ -1,0 +1,110 @@
+{
+  "name": "composition-corrected",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/graph/api-review-f909/inspect_composition_corrected.py"
+  ],
+  "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+  "source_tree": "c856bac7be6970c52161f4534aabb31524ddd9d8",
+  "slice_base_sha": "34808bdae09b4a8dbd35bda989c4dc787dcb4e86",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-F-api-20261006/policy-engine/src:/workspace/e02-F-api-20261006/policy-engine/tools:/workspace/e02-F-api-20261006/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+    "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "shared_environment_readonly": true,
+    "cloud_quota_introduced": false
+  },
+  "exit_code": 0,
+  "check": "PASS",
+  "wall_seconds": 8.52614481600176,
+  "rss_kib": 567396,
+  "source_begin": [
+    {
+      "source_path": "policy-engine/architecture/public_surface/inventory.json",
+      "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+      "bytes": 305296,
+      "sha256": "93a37fc07dd2c58c8bb76c268718790e476290e70ca3f6181cdf1ddad0fe9a84"
+    },
+    {
+      "source_path": "policy-engine/docs/reference/public-surface.md",
+      "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+      "bytes": 127724,
+      "sha256": "928f050cf4b43bd8b0af692ce9895869710c2cbe25f0c93fb77a6c537d7a61a0"
+    },
+    {
+      "source_path": "policy-engine/hatch.toml",
+      "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+      "bytes": 1481,
+      "sha256": "ef5c6ee52de3d70bec617489f09ba1d3be4af3d5687b6404162aad6cc7b6bad0"
+    },
+    {
+      "source_path": "policy-engine/release-fragments/unreleased/2026-10-06-api-installed-causal-profile.toml",
+      "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+      "bytes": 1848,
+      "sha256": "ea5981d832cb7fac333f1adaa8b98563cadc57c20d5090f3ad9b94902e44da84"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+      "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+      "bytes": 14673,
+      "sha256": "9cd7393102c16a05a4e7dd936e494addcc706e01d89a5cda6e24826e25ba2748"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py",
+      "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+      "bytes": 11758,
+      "sha256": "b8f9227a18737490a539a70cbace221344a72e4935c6f28d9a7f35b65dc40f42"
+    }
+  ],
+  "source_end": [
+    {
+      "source_path": "policy-engine/architecture/public_surface/inventory.json",
+      "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+      "bytes": 305296,
+      "sha256": "93a37fc07dd2c58c8bb76c268718790e476290e70ca3f6181cdf1ddad0fe9a84"
+    },
+    {
+      "source_path": "policy-engine/docs/reference/public-surface.md",
+      "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+      "bytes": 127724,
+      "sha256": "928f050cf4b43bd8b0af692ce9895869710c2cbe25f0c93fb77a6c537d7a61a0"
+    },
+    {
+      "source_path": "policy-engine/hatch.toml",
+      "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+      "bytes": 1481,
+      "sha256": "ef5c6ee52de3d70bec617489f09ba1d3be4af3d5687b6404162aad6cc7b6bad0"
+    },
+    {
+      "source_path": "policy-engine/release-fragments/unreleased/2026-10-06-api-installed-causal-profile.toml",
+      "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+      "bytes": 1848,
+      "sha256": "ea5981d832cb7fac333f1adaa8b98563cadc57c20d5090f3ad9b94902e44da84"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+      "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+      "bytes": 14673,
+      "sha256": "9cd7393102c16a05a4e7dd936e494addcc706e01d89a5cda6e24826e25ba2748"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py",
+      "source_sha": "f9095536592150362747b063c0f4cf3aac899bb0",
+      "bytes": 11758,
+      "sha256": "b8f9227a18737490a539a70cbace221344a72e4935c6f28d9a7f35b65dc40f42"
+    }
+  ],
+  "output_refs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-f909/composition-corrected.stdout.txt",
+      "bytes": 33427,
+      "sha256": "3a1cbea942491b16f104d9734d6162de9d80febcdd1213a7edc6125ad3c3c3dd"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-f909/composition-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

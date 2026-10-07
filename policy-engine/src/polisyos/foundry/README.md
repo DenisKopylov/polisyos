@@ -99,6 +99,21 @@ deep-importing ad hoc internals.
 
 ## Internal Layout
 
+### Source-bound causal computation
+
+Cross-package consumers import `causal_worker_execution_context`,
+`validate_source_bound_gcm_spec`,
+`validate_source_bound_causal_estimator_interval`, and
+`validate_source_bound_causal_worker_response` from `polisyos.foundry`.
+Each lazy export resolves to the existing canonical method-provider function,
+with its original callable and pickle identity. The context binds an actual
+source reference and CAS to the selected worker invocation. The validators
+reopen the source and reconcile rows, graph, request, worker code/lock and
+supported fitted outputs. They introduce no second scheduler or artifact store.
+Source custody and supported numerical execution remain distinct from causal
+identification, sampling-law admission and policy authority. See
+[structural causal models](../../../docs/reference/foundry/structural-causal-models.md).
+
 - [`api.py`](api.py), [`__init__.py`](__init__.py), [`compile/`](compile/), and
   [`execute/`](execute/) own the stable public Foundry facades.
 - [`contracts/`](contracts/README.md) owns runtime state, patch, and fidelity

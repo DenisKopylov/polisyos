@@ -50,7 +50,7 @@ LA-004 compares deliberately matched and divergent native/plugin fiscal/labor la
 
 B214 remains limited for the exact sound partial/conditional extension capability; current graph content/certificate/query-cache follow-up is repaired. B56 admitted shared-study resource consumer remains UNRUN; local four-study fixture and actual individual folds do not prove admission.
 
-Historical FAIL/ERROR/SKIP/UNRUN and unavailable175c non-deciding provenance remain recorded; P41 not_established. Final installed affected-wave output and complete dependency/source-order records are published separately and referenced in this index once available. No main/integration publication or deletion.
+Historical FAIL/ERROR/SKIP/UNRUN and unavailable175c non-deciding provenance remain recorded; P41 not_established. Final source519 installed affected-wave output and complete dependency/source-order records are published at de197/c4 and bound by exact refs in this index. No main/integration publication or deletion.
 
 Recovered deciding installed evidence: `installed-default-resource-final-20261007.json@de197363d4ba8a86b0e8c2fa0ff31c2858643d1c` binds exact519 wheel91/rebuilt-sdist91 PASS and six expected raw property-removal FAIL. Original frozen29 independent review and source/archive/site guards are complete. Separate recovered ONEwheel graph MethodJob→Node→selectedCAS→different-PID `-I` reader passed; no sdist-child completion inferred. The root carrier merged G855 ordinarily at `79895c6758307a56b1613a8d1c19daa3f0d92c25` / tree `5bfbc2720c92fccb63ab2f288971b182cd09073b`; no F runtime/test/build/schema input delta from519, only non-F README/requirement test/docs.
 

@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--override-ini=cache_dir=/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/root-frozen-six-v4/cache",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/root-frozen-six-v4/pytest-tmp",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/root-frozen-six-v4/native.xml",
+    "tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+  "environment_overrides": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/src",
+    "TMPDIR": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/root-frozen-six-v4",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "execution_git_head": "26284c3fa7968f75eb0e3d5d390698172ef37554",
+  "implementation": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+  "implementation_tree": "4bb3d7ef227f7745ab22a23f41f4618766e8b350",
+  "source_files": {
+    "policy-engine/src/polisyos/fabric/data_plane/streaming.py": {
+      "sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119",
+      "bytes": 119041
+    },
+    "policy-engine/tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py": {
+      "sha256": "88e35f698a7f4a8dc1a8b6ac8e11d89981640a07dabeed6d1f6e699afafd7d3d",
+      "bytes": 23940
+    }
+  }
+}

@@ -186,6 +186,43 @@
     "classification": "same known class widened through the shared close/retry invariant",
     "evidence": "C158 two-red witness, six focused passes, four expected removal-control failures"
   },
+  "supplemental_frozen_source_verification": {
+    "candidate_sha": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+    "candidate_tree_sha": "4bb3d7ef227f7745ab22a23f41f4618766e8b350",
+    "execution_git_head": "26284c3fa7968f75eb0e3d5d390698172ef37554",
+    "outcome": "PASS",
+    "collected": 6,
+    "passed": 6,
+    "reason": "Exact frozen-source command capture repairs the older six-test receipt command gap. Runtime/test bytes match the implementation Git blobs; documentation-only transfer head differs. No broader suite was repeated.",
+    "outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-frozen-c3/command.json",
+        "sha256": "57b0fbcd412ac047bfc04ec360740cd109d966b1b5cce973ca40359f5b79e9de",
+        "bytes": 1762
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-frozen-c3/result.json",
+        "sha256": "43471cb4837c59c17ba7c4cfd7abc4ac152dd05e94464bcbd8f92d9a4b47d1fe",
+        "bytes": 1991
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-frozen-c3/stdout.txt",
+        "sha256": "a700a4ca92f46cc357a74a6892be6dcddb8ad58dd01bbeffd1418732bfc4048c",
+        "bytes": 584
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-frozen-c3/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-frozen-c3/native.xml",
+        "sha256": "3d014a577c46324f87fde3ccbc7fc6895d5eb940e029a7faae6183b2d5019aaa",
+        "bytes": 1431
+      }
+    ],
+    "limits": "One no-cache-provider pytest cache_dir warning; no OS-kill, full-production or RSS assertion; original incomplete command receipt remains history."
+  },
   "checks": [
     {
       "id": "targeted-importer-tests",

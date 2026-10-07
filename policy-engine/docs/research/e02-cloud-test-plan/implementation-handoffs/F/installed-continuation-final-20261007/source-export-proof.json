@@ -1,0 +1,27 @@
+{
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+  "command": [
+    "git",
+    "-C",
+    "/workspace/e02-F-fry-20261006",
+    "archive",
+    "--format=tar",
+    "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a"
+  ],
+  "cwd": "/workspace/e02-F-fry-20261006",
+  "exit_code": 0,
+  "archive": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/source-git.tar.gz",
+    "bytes": 153663487,
+    "sha256": "8e07a0f8a7b511941d9b903ea8008189429cd4e84d85f447ff0095fc406e3a81"
+  },
+  "source_root": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/source",
+  "complete_Git_blob_files_verified": 17843,
+  "complete_bytes_verified": 550021601,
+  "ordered_path_hash_size_aggregate": "e41e977c3416854676bf70423effdb2d6e4f4f307e586fd006a25ab493b82182",
+  "root_uncommitted_docs": "excluded by exact Gitarchive; not source inputs",
+  "wall_seconds": 36.54995919999783,
+  "outcome": "PASS",
+  "new_quota": false
+}

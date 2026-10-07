@@ -1,0 +1,6 @@
+{
+  "schema": "policyos.e02.lossless_utf8_text.v1",
+  "decoded_bytes": 173,
+  "decoded_sha256": "a96ec6080723a7584def826d031faaa0a7989b779bcd109a273656accb2612b4",
+  "text": "{\"kind\": \"sdist\", \"exit_code\": 1, \"wall_seconds\": 554.751582382014, \"status\": \"FAIL\"}\n{\"kind\": \"wheel\", \"exit_code\": 1, \"wall_seconds\": 555.1368211999943, \"status\": \"FAIL\"}\n"
+}

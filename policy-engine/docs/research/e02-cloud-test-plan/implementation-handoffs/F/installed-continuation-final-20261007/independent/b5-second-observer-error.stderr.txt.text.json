@@ -1,0 +1,6 @@
+{
+  "schema": "policyos.e02.lossless_utf8_text.v1",
+  "decoded_bytes": 227,
+  "decoded_sha256": "7685c77d5033823748482dd485b085cacf916f21b81a93632808ae8ec2e13715",
+  "text": "Traceback (most recent call last):\n  File \"/tmp/e02-F-continuation-20261007/api/installed-final-independent/review_b5_packet.py\", line 125, in <module>\n    assert len(observers)==53\n           ^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+}

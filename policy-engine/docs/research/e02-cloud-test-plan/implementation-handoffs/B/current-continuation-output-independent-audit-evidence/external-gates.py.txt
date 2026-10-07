@@ -1,0 +1,86 @@
+"""Keep exact backend gate inputs; relocate only outputs after overlay ENOSPC."""
+import datetime
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import time
+
+root = Path('/workspace/e02-B-current-coordination')
+product = root / 'policy-engine'
+handoff = product / 'docs/research/e02-cloud-test-plan/implementation-handoffs/B'
+sha = '6fa9b7142ba590c3173f1cd3be097286db5acc4d'
+out = Path(__file__).resolve().parent / sys.argv[1]
+assert sys.argv[1] in ('verify', 'parity')
+out.mkdir(exist_ok=False)
+spec = importlib.util.spec_from_file_location('e02_external_input_admission', handoff / 'final-root-evidence/run_successor.py')
+admission = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(admission)
+admission.SHA = sha
+assert admission.git('rev-parse', 'HEAD') == sha
+assert admission.git('status', '--porcelain') == ''
+assert admission.git('symbolic-ref', '--short', 'HEAD') == 'codex/e02-B-current-coordination'
+python = root / '.polisyos/e02-B-current/environment/bin/python'
+uv = root / '.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv'
+env = dict(os.environ)
+for name in admission.CAPS:
+    env.pop(name, None)
+env.update(UV_PROJECT_ENVIRONMENT=str(python.parent.parent), UV_NO_SYNC='1',
+           PYTHONPATH=str(product / 'src') + ':' + str(product), POLISYOS_METRICS_PORT='0',
+           E02_ORACLE_PRODUCT_ROOT=str(product),
+           TIKTOKEN_CACHE_DIR=str(root / '.polisyos/e02-B-current/tools/tokenizer-input/cache'),
+           E02_DUR_PROCESS_SOURCE_ROOT=str(root), E02_DUR_PROCESS_SOURCE_SHA=sha,
+           E02_MONEY_SOURCE_ROOT=str(root), E02_MONEY_SOURCE_SHA=sha,
+           E02_REMOVE_PROTECTION='0')
+env['PATH'] = ':'.join([str(python.parent), str(uv.parent),
+                     '/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin',
+                     '/tmp/e02-B-opa-latest-preparation-1db95544/bin', env['PATH']])
+os.environ['E02_LA057_COHORT_INPUT_FILE'] = '/tmp/e02-B-continuation-wheel-6fa9b7142ba5/cohort-input-environment.json'
+os.environ['E02_B38_POSTGRES_DSN_FILE'] = '/tmp/e02-B38-pg-evidence/postgres-dsn'
+os.environ['E02_B38_POSTGRES_DRIVER_ROOT'] = '/tmp/e02-B38-pg-profile'
+inputs = admission.bind_verification_inputs(env)
+suite, flag = ('verify', '--backend-only') if sys.argv[1] == 'verify' else ('ci-parity', '--skip-browser')
+argv = [str(python), str(handoff / 'gate-input-audit/uncapped_constituents.py'),
+        '--product-root', str(product), '--uv', str(uv), '--suite', suite,
+        '--execute', '--expected-source', sha, '--', flag]
+def resources():
+    return {'storage': {p: dict(zip(('total','used','free'), shutil.disk_usage(p)))
+                        for p in ('/workspace', '/tmp', '/dev/shm')},
+            'memory.events': Path('/sys/fs/cgroup/memory.events').read_text(),
+            'memory.current': Path('/sys/fs/cgroup/memory.current').read_text(),
+            'attribution': 'observed counters; signal sender/causality not established'}
+record = {'sha':sha, 'tree':admission.git('rev-parse','HEAD^{tree}'), 'command':argv,
+          'cwd':str(product), 'inputs':inputs, 'resources_before':resources(),
+          'output_relocation':'deciding stdout/receipt in a NEW preserved /tmp namespace; canonical gate cwd/argv/assertions/backends unchanged',
+          'harness_environment_deltas':['omit former empty fresh tools PYTHONPATH suffix; no observer is loaded for these backend gates', 'explicit ordinary E02_REMOVE_PROTECTION=0 rather than ambient value'],
+          'selected_environment':{k:env.get(k) for k in ['PYTHONPATH','PATH','UV_PROJECT_ENVIRONMENT','UV_NO_SYNC','POLISYOS_METRICS_PORT','TIKTOKEN_CACHE_DIR','E02_DUR_PROCESS_SOURCE_ROOT','E02_DUR_PROCESS_SOURCE_SHA','E02_MONEY_SOURCE_ROOT','E02_MONEY_SOURCE_SHA','E02_REMOVE_PROTECTION']},
+          'numeric_caps_absent':{k:k not in env for k in admission.CAPS},
+          'launcher_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+          'utc_start':datetime.datetime.now(datetime.UTC).isoformat()}
+(out / 'profile-before-exec.json').write_text(json.dumps(record,indent=2)+'\n')
+start = time.monotonic()
+log = out / 'stdout.txt'
+with log.open('xb') as stream:
+    try:
+        child = subprocess.Popen(argv, cwd=product, env=env, stdout=stream, stderr=subprocess.STDOUT)
+    except OSError as error:
+        record.update(exec_setup_error={'type':type(error).__name__,'errno':error.errno}, harness_state='UNRUN', exit_code=127, process_rusage_maxrss_kib=None)
+    else:
+        record.update(child_pid=child.pid, harness_state='EXECUTED', exec_setup_error=None)
+        (out / 'profile-before-exec.json').write_text(json.dumps(record,indent=2)+'\n')
+        _, status, usage = os.wait4(child.pid, 0)
+        child.returncode = os.waitstatus_to_exitcode(status)
+        record.update(exit_code=child.returncode, process_rusage_maxrss_kib=usage.ru_maxrss)
+record.update(
+              wall_s=time.monotonic()-start, utc_end=datetime.datetime.now(datetime.UTC).isoformat(),
+              resources_after=resources(), head_after=admission.git('rev-parse','HEAD'),
+              output_path=str(log), output_bytes=log.stat().st_size,
+              output_sha256=hashlib.sha256(log.read_bytes()).hexdigest())
+assert record['head_after'] == sha
+(out / 'receipt.json').write_text(json.dumps(record,indent=2)+'\n')
+print(json.dumps(record,indent=2))
+raise SystemExit(record['exit_code'])

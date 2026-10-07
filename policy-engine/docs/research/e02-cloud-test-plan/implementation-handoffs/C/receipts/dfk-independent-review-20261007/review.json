@@ -1,0 +1,267 @@
+{
+  "c4_status_snapshot": {
+    "commit": "613cfb589df239dc0b62e0ab1a5ed60eab42c17e",
+    "g_formal_status": "not_adjudicated for the four findings",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c4-v4.json",
+    "tree": "a21a01c1b87dc1a02b49747414a1018a9ab05fa3"
+  },
+  "criteria": [
+    {
+      "c4_snapshot": "held",
+      "id": "LA-005",
+      "original_card": "C/DKF-01 at slice base; CD02 lines 198-224; source SHA ec6ce93b380334ba9e5d13e13ce8ecf637afd057b99008b3aa1b462d29194266",
+      "review": "bounded source retirement is coherent with the internal-by-default public-surface rule and the plugin API remains the actual SimulationConfig owner; selected local UTF-8 census and exact negative-import test support local absence. External support, old published archives, and persisted historical identities remain not_established; no wheel/sdist was built. This supports at most a limited current claim, not closure."
+    },
+    {
+      "c4_snapshot": "limited",
+      "id": "LA-006",
+      "original_card": "C/DKF-01 at slice base; CD02 lines 225-253; source SHA 4bc6fa503bce03a1516620c492168088242d61e0ba90697a9377480c13d189fe",
+      "review": "tracked tombstone is already absent in the pinned source path; exact import/resource negatives and canonical registry/dispatcher plus agent-simulation runner controls are present. 317 nonliteral loader destinations, external callers, and archive behavior remain not_established/UNRUN; retain limited."
+    },
+    {
+      "c4_snapshot": "held",
+      "id": "LA-026",
+      "original_card": "C/DKF-01 at slice base; CD02 lines 1372-1417; source SHA 48da21eccebfe89cf7cc0ed9dba75b26752d06f78625f92088e3cb9ebc88fa1a",
+      "review": "retirement of the three-string placeholder is bounded and the canonical registry/evolution/migration APIs remain; tests and selected local census support the local source claim. External serialized identities and built distribution membership remain not_established/UNRUN. This supports at most a limited current claim, not closure."
+    },
+    {
+      "c4_snapshot": "held",
+      "id": "LA-027",
+      "original_card": "C/DKF-01 at slice base; CD02 lines 1418-1465; source SHA a78cbc850be0ec8fdbec3076613780d16dfc169517f5f1568f42a6a80cd3e8ce",
+      "review": "alias remains an identity-preserving re-export and the canonical consumer is exercised. The proposed relative notice window starts only when the notice is published; no actual release date/sunset is assigned and external support remains not_established. This supports at most limited compatibility evidence, not alias retirement or closure."
+    }
+  ],
+  "raw_evidence": [
+    {
+      "bytes": 2345,
+      "name": "independent_final_delta",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review-final/final-delta-command-results.json",
+      "sha256": "b95f818ba539a1ad883189a190ffd1b897730caf01abdc2d9addaddaf19c362c"
+    },
+    {
+      "bytes": 80,
+      "name": "independent_final_test_stdout",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review-final/preserved-fixture-test.stdout",
+      "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+    },
+    {
+      "bytes": 0,
+      "name": "independent_final_test_stderr",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review-final/preserved-fixture-test.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 19,
+      "name": "independent_final_ruff_stdout",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review-final/ruff-test.stdout",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "bytes": 0,
+      "name": "independent_final_ruff_stderr",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review-final/ruff-test.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 884,
+      "name": "independent_full_tests_manifest",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review/focused-suite-candidate-path.command.json",
+      "sha256": "bbb3baa6cc204e6897b97b3f78a988efe7bb0453bcee089fee9fdfd6333695e2"
+    },
+    {
+      "bytes": 80,
+      "name": "independent_full_tests_stdout",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review/focused-suite-candidate-path.stdout",
+      "sha256": "f44919a3367dc52929a8af8f8919d5f9536d2eb90b5c6c6d38b1e58904be21bc"
+    },
+    {
+      "bytes": 0,
+      "name": "independent_full_tests_stderr",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review/focused-suite-candidate-path.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2380,
+      "name": "independent_runtime_origin_manifest",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review/runtime-origin-control.command.json",
+      "sha256": "3b29504b0d9ba0ccf77094cf6318def2187df84437ede84e528f724a046c74f2"
+    },
+    {
+      "bytes": 1339,
+      "name": "independent_runtime_origin_stdout",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review/runtime-origin-control.stdout",
+      "sha256": "9494702c8841a4176f63481439056f8b93397e439f53255462adaefa30d3d32a"
+    },
+    {
+      "bytes": 0,
+      "name": "independent_runtime_origin_stderr",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review/runtime-origin-control.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1010,
+      "name": "independent_tool_origin_manifest",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review/tool-origin.command.json",
+      "sha256": "b968a627241567b27246692ec1e3b230687a648b2a76be67ee4b3277129c293f"
+    },
+    {
+      "bytes": 274,
+      "name": "independent_tool_origin_stdout",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review/tool-origin.stdout",
+      "sha256": "aea8f4adc2cc0b5823e9f869b670897239fedc17794f5ad13d841fa51a030ea6"
+    },
+    {
+      "bytes": 0,
+      "name": "independent_tool_origin_stderr",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review/tool-origin.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 896,
+      "name": "independent_ruff_manifest",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review/ruff-focused.command.json",
+      "sha256": "baa9f0982d7d834540710c6e62e7fb751784cf6823da0378cc8790162ca8b83c"
+    },
+    {
+      "bytes": 19,
+      "name": "independent_ruff_stdout",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review/ruff-focused.stdout",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "bytes": 0,
+      "name": "independent_ruff_stderr",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review/ruff-focused.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 987,
+      "name": "release_gate_manifest",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review/compat-release-gate.command.json",
+      "sha256": "127657b996f6d88b866ea210bb5626ae314401c546fdb84d949c3c3a9a690092"
+    },
+    {
+      "bytes": 1337,
+      "name": "release_gate_stdout",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review/compat-release-gate.stdout",
+      "sha256": "3d541cf01dfe1d92ba838a8941bf4d3b505c514f37fb1df30ab1388f1be061bd"
+    },
+    {
+      "bytes": 0,
+      "name": "release_gate_stderr",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review/compat-release-gate.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 11422,
+      "name": "author_full_census_manifest",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/.tmp/e02-C5/raw/dfk/full-census-v2.command.json",
+      "sha256": "14ba4bbff96c18f5390b66e2dbf199b7a4f3a3bdbc6fa89ef7b43ca223069843"
+    },
+    {
+      "bytes": 7405038,
+      "name": "author_full_census_stdout",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/.tmp/e02-C5/raw/dfk/full-census-v2.stdout.json",
+      "sha256": "f8621ccc45e89a2289bdea914346cb42150e40d5c00caa172111055c59175a96"
+    },
+    {
+      "bytes": 0,
+      "name": "author_full_census_stderr",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/.tmp/e02-C5/raw/dfk/full-census-v2.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 16507,
+      "name": "author_product_census_manifest",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/.tmp/e02-C5/raw/dfk/product-census-v2.command.json",
+      "sha256": "a8b544749eb60751b8f2c37c6c95906adbaf4cd5e3bc5f6b22695e508049ee55"
+    },
+    {
+      "bytes": 6584331,
+      "name": "author_product_census_stdout",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/.tmp/e02-C5/raw/dfk/product-census-v2.stdout.json",
+      "sha256": "68e1c4243bde3a9349c4eedaa499351748fe57be3e2265842a60f8d5561ddc4c"
+    },
+    {
+      "bytes": 0,
+      "name": "author_product_census_stderr",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/.tmp/e02-C5/raw/dfk/product-census-v2.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 4164,
+      "name": "author_focused_tests_manifest",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/.tmp/e02-C5/raw/dfk/post-trash-focused-suite.command.json",
+      "sha256": "3c45ebad1d1b1cb4d5e50e611beae4e3b2c80ea01dc7d7f611384cb06f23cdd5"
+    },
+    {
+      "bytes": 536,
+      "name": "author_focused_tests_stdout",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/.tmp/e02-C5/raw/dfk/post-trash-focused-suite.stdout",
+      "sha256": "b37c5fc734ac3832c8522128883d0e6f644ce6614e600d0a8be26fd5ae3b6d64"
+    },
+    {
+      "bytes": 0,
+      "name": "author_focused_tests_stderr",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/.tmp/e02-C5/raw/dfk/post-trash-focused-suite.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1744,
+      "name": "native_trash_preflight",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/dfk-native-retirement/preflight.json",
+      "sha256": "1b109d4a909e0cc759fa1ad915f4d7f3e66104e4138e7074ec58f707766814f6"
+    },
+    {
+      "bytes": 3041,
+      "name": "native_trash_readback",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/dfk-native-retirement/native-trash-readback.json",
+      "sha256": "0ae389019c633a6a29ffe604cd538e327f2aa4fa66b3af9cfc8a9668d1fd4231"
+    },
+    {
+      "bytes": 604,
+      "name": "hook_failure_command",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review-final/commit-hook-failure.command.json",
+      "sha256": "5040b04e7c26afe406f5a6fc5a5eea256a3ccb1b59b9d0bd60404190725707a9"
+    },
+    {
+      "bytes": 230,
+      "name": "hook_failure_stderr",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos/policy-engine/.tmp/e02-C5/raw/dfk-review-final/commit-hook-failure.stderr",
+      "sha256": "7492a8c61b08778a8ccd72c3308b71d3548e688b4825d40f6c250ee52b8d9c59"
+    }
+  ],
+  "recommendation": "A fresh current finding record may represent LA-005, LA-026, and LA-027 as limited only if it binds the owner choices and explicitly carries the external/persisted/archive residuals. LA-006 remains limited. None of these source results supports closed status or changes G formal state.",
+  "review_disposition": "GO_FOR_BOUNDED_SOURCE_IMPLEMENTATION; NO_FINDING_CLOSURE_OR_G_ADJUDICATION",
+  "review_findings": [
+    "All 8 changed paths reviewed. The source changes remove only the exact early Foundry DTO module and the three-string GeneratedSchemaModule placeholder; no fields were copied into a new owner.",
+    "The compatibility alias remains and preserves object identity for CompatibilityMode, SchemaRegistry, and SchemaVersion. Foundry plugin SimulationConfig remains the actual plugin type.",
+    "The scanner v2 tests exercise module-file, package-initializer, and package-resource candidates, a restored-package negative import control, outside-root rejection, and partial unreadable-input behavior.",
+    "The source census is a pre-removal snapshot bound to slice-base tracked inputs; it is not represented as a post-removal tree census. It read 13,678 of 13,678 selected full-tree UTF-8 inputs from 13,773 tracked paths and 13,651 selected product-root inputs from 13,745 paths. Its 317 nonliteral loader destinations remain unresolved.",
+    "The release-fragment checker exited 1 with two Lex fragment public-surface errors; the DFK fragment had no findings/errors. No base replay/full-input disjointness proof was performed, so P41 attribution for those errors is not_established.",
+    "Hatchling was unavailable in the review environment; wheel/sdist build and installed-package membership remain UNRUN. External clients and persisted historical payloads remain not_established.",
+    "The final a13 delta only changes the test fixture from unlink to a byte-preserving rename and assertion. That exact test passed independently on the final candidate; source/runtime checks from bd4 carry because the only intervening candidate change is this test-only diff."
+  ],
+  "schema": "policyos.e02.c5.dfk_independent_review.v1",
+  "slice": {
+    "candidate_commit": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+    "candidate_parent": "bd4e96536ac6ed3e5084b3ab924d1bd2dc668fdb",
+    "candidate_parent_tree": "8ef2819c4542dde83112cff73e057114abee8046",
+    "candidate_path_delta": [
+      "M\tpolicy-engine/docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md",
+      "M\tpolicy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/DECISION_RECORDS.md",
+      "A\tpolicy-engine/release-fragments/unreleased/2026-10-07-e02-dfk-schema-lifecycle.toml",
+      "M\tpolicy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md",
+      "D\tpolicy-engine/src/polisyos/data_forge/kernel/schemas/codegen.py",
+      "D\tpolicy-engine/src/polisyos/foundry/domain/schema.py",
+      "M\tpolicy-engine/tests/unit/remediation/test_dfk_01.py",
+      "M\tpolicy-engine/tools/quality/validation/schema_fqn_census.py"
+    ],
+    "candidate_tree": "35d9c02156f8a27335b858bfe8053d7cbc6a54f2",
+    "review_branch": "codex/e02-C-dfk-review-20261007",
+    "review_branch_attachment": "refs/heads/codex/e02-C-dfk-review-20261007",
+    "slice_base_commit": "28b04149e6477216f37c2ab2e0abfc54b8857ac6",
+    "slice_base_tree": "715e11ef478d6c8827494e6da89ed08792708fb2"
+  },
+  "tooling_note": "The ordinary documentation commit attempt was blocked by the missing Lefthook binary in this worktree. The hook did not run (tooling UNRUN). Root authorized a command-local core.hooksPath=/dev/null bypass for this review-record commit only."
+}

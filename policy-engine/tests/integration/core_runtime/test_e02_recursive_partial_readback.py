@@ -356,4 +356,4 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
             headers={"X-Tenant-ID": foreign_claims.tenant_id},
         )
         assert denied.status_code == 403, denied.text
-        assert denied.json()["code"] == "tenant_not_found"
+        assert denied.json()["code"] == "run_tenant_mismatch"

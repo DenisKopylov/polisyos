@@ -1341,10 +1341,10 @@
   "per_premise_basis": {
     "actual_selected_member_projection": "recomputed",
     "cold_resume_arithmetic_and_physical_effect_negative": "independently_reconciled",
-    "fixture_scope_artifact_context": "consumer_asserted operational fixture premise; actual CAS bytes/profile/scope independently guarded, no institutional authority",
-    "installed_external_mutable_internals": "not_established explicit finite opaque boundary",
+    "fixture_scope_artifact_context": "consumer_asserted",
+    "installed_external_mutable_internals": "not_established",
     "production_invocation_complete_verdict": "not_established",
-    "baseline_behavior": "not_established source_reported text only"
+    "baseline_behavior": "not_established"
   },
   "capability_state_or_finding_state": "B74 LIMITED: concrete imported selected-member identity class implemented and independently verified in finite supported static Python graph; formal ROOT/G closure/admission remains separate",
   "formal_closure": false,
@@ -1410,5 +1410,14 @@
     "resume_base_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
     "resume_admission_root_locator": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/admission/composition-resume.json",
     "no_new_worktree_helpers_cleanup_numericquota": true
+  },
+  "per_premise_qualifications": {
+    "fixture_scope_artifact_context": "consumer_asserted operational fixture premise; actual CAS bytes/profile/scope independently guarded, no institutional authority",
+    "installed_external_mutable_internals": "not_established explicit finite opaque boundary",
+    "baseline_behavior": "not_established source_reported text only"
+  },
+  "metadata_correction": {
+    "predecessor_receipt_sha": "528f40cf6da8b50d3b96a0d9d76e5f3d015200f1",
+    "reason": "Keep every P37 predicate-basis label one exact registered enum; original descriptive qualifications separately retained. No source/evidence/implementationfootprint/check outcome change."
   }
 }

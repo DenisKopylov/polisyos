@@ -16,3 +16,10 @@
 A34 + B60 + C54 + D45 + E54 + F35 = 282 первичных finding IDs; bundles: 13 + 25 + 33 + 17 + 22 + 17 = 127. Повторные criterion occurrences и supplier links учитываются отдельно. Обновлённые задания важнее прежних continuation captions там, где последние добавляли соседний product requirement к исходной карточке.
 
 Pattern pass: P01/P02 — реальная цепочка; P14/P29 — независимая проверка; P27 — один canonical writer; P35/P36 — полный знаменатель и исходный criterion; P37/P38 — измеряемое свойство вместо declaration/proxy; P40 — исправление класса; P41 — корректная атрибуция красного. Новая таблица или metadata PASS не являются completion signal. Сигнал — законченный mechanism с exact-source consumer/oracle/negative receipt либо честный минимальный unavailable owner packet, при завершённой остальной доступной работе.
+
+## Дополнительные промты после поздних остановок
+
+- [B: PR55 d030, decoder/JIT и scope reconciliation](B-resume-after-d030.md).
+- [F: offline executor, известный 519e и восстановление публикации](F-resume-after-offline-519e.md).
+
+Это supplement к полным A–F заданиям; source acceptance и formal closure остаются за G.

@@ -1,0 +1,24 @@
+{
+  "source": {
+    "sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+    "tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010"
+  },
+  "archive_bytes": 93706240,
+  "archive_sha256": "6295ac689c67a6cfc56662b96e51f7f135ef8ed17ee05b4028c13338f1842e85",
+  "command": [
+    "git",
+    "-C",
+    "/workspace/e02-B-current-coordination",
+    "archive",
+    "--format=tar",
+    "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+    "policy-engine/src",
+    "policy-engine/tests",
+    "policy-engine/pyproject.toml",
+    "policy-engine/pytest.ini",
+    "policy-engine/ruff.toml",
+    "policy-engine/uv.lock"
+  ],
+  "test_sha256": "1c22fd256f2038def925ed5467c5bc842d680bfa0669cee202a75ea881cc71f8",
+  "not_a_git_checkout": true
+}

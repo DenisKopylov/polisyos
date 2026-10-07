@@ -1,0 +1,17 @@
+id = "2026-10-07-e02-producer-model-scope"
+title = "Preserve producer write grants over ordinary model graphs"
+type = "fixed"
+component = "scientist-orchestration"
+owner = "team-scientist"
+summary = "Ordinary mutable model fields, copied descendants and typed references share the producer's original live-path grant and mutation journal."
+evidence = ["tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py"]
+compatibility = "Active producers now refuse undeclared model-field writes and copy updates before changing branch or base state; neutral public consumers retain their existing model API."
+change_class = "python-public-api"
+surface_classification = "public_experimental: branch_state active producer model graph; internal: model tracking views"
+migration = "Declare the exact state_writes needed for model-field mutations. Ordinary nested branches may only attenuate the original grant."
+api = "Existing node and branch signatures are unchanged; ordinary BaseModel and RootModel fields retain their validated fields and frozen configuration."
+limitations = "Custom mutation/copy hooks, private or extra runtime model state, undeclared attribute creation, model-field deletion and cyclic attachments are refused. This does not establish a Python object sandbox or arbitrary model-class reconstruction from cache JSON."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]
+runbook_docs = []

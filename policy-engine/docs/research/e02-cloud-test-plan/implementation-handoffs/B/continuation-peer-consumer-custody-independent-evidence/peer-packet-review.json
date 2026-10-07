@@ -1,0 +1,61 @@
+{
+  "schema": "policyos.e02.foreign_peer_evidence_review.v1",
+  "reviewer": "B cas_probe",
+  "review_scope": "Independent immutable receipt/index/source-input and completed-output reconciliation only; no candidate imports, native replay or source-mechanism acceptance.",
+  "source_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+  "source_tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+  "verdict": "NONBLOCKING bounded peer custody and reported consumer outcomes",
+  "predicate_basis": "independently_reconciled",
+  "peers": [
+    {
+      "head": "3dd221a83dbfa4a9f900b4a2d9338f14ce0a1f29",
+      "tree": "526435eb211b83c6c6f0ff35ef145b199d621008",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth.json",
+      "receipt_bytes": 21310,
+      "receipt_sha256": "c926e0e7ef7de4f9587552f34767f67b57d3bb07903f59359868c89b7785b244",
+      "implementation_paths": 16,
+      "index_payloads": 15,
+      "index_payload_bytes": 508789,
+      "distinct_declared_artifacts": 17,
+      "observed_outcomes": "Current590 four actual PASS/12 passed phases; matched member identity removal one actual call FAIL with wrong resume107 and physical replacement.166 loaded origins per profile match exact Git bytes.",
+      "physical_semantics": "Native refusal prints REPLACEMENT_EFFECTS ['original'] before the separate cold107 positive. The final original+replacement effects file includes that explicit later cold control and is not evidence of a failed refusal. Removal falsely resumes107, leaving real original+replacement work.",
+      "scope": "Finite selected imported-member, unchanged-member, supported builtin and direct dynamic namespace refusal profile. B74 LIMITED and closure_ids=[] remain.",
+      "independence": "Peer DUR newly executed the previously authored CAS oracle. This receipt independently reconciles those completed outputs and does not self-accept the CAS author's test/source mechanism.",
+      "remaining_boundary": "Returned frame namespaces, arbitrary opaque installed callable internals and whole source graph are not proved closed. No historical author128/broad6fa output is transplanted to590."
+    },
+    {
+      "head": "2d0f65266a9b42f56bcc73264c43e0f296e10ac5",
+      "tree": "dd10d17bc2caf9ed5beb3ca25a32db5ec92e558e",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-numeric-custody.json",
+      "receipt_bytes": 69980,
+      "receipt_sha256": "7ba3fcd7c49b24dde88255bdd8ebc8564d595006aa1f1657f6e6f006883bd9fd",
+      "implementation_paths": 86,
+      "index_payloads": 85,
+      "index_payload_bytes": 7797566,
+      "distinct_declared_artifacts": 40,
+      "observed_outcomes": "Current59015 actual PASS/45 passed phases. Ten invalid/unknown/missing/tiny inputs retain positive reservation and completion obligation without ACK and refuse fresh B admission. Five genuine zero/.02 inputs acknowledge exact known amount, release reservation and permit the fresh guarded reader.",
+      "physical_semantics": "All15 raw response bytes, fsynced HTTP request records, physical ledger bytes, current stdout measurements and fresh process snapshot/byte hash agree. Fresh PID differs from provider parent; each case records exactly one HTTP effect/idempotency key.871B plus3 external D distinct loaded source paths match exact refs;14369 observations are hook-time origins, not a universal readset.",
+      "wire_projection": "Canonical FileBudgetLedger._persist_snapshot model_dump_json(exclude_none=True) omits nullable model fields. Comparison requires every actual wire key/value unchanged and permits only observed missing-null model defaults: mutation optional coordinates, soft_limit_usd, completion required_action and receipt provider. Dict payload nulls remain exact. No decoder/default authority is fabricated.",
+      "scope": "The child calls actual B public middleware pre_check and uses its result to pass {} or cumulative_cost_usd to the real three-module D8f CostBudgetStopping.check. This demonstrates the explicit guarded stopping consumer only.",
+      "remaining_boundary": "D default evaluator/controller retry/cache-ledger bridge remains B120 bridge_missing. Six E7/baseline/foreign historical checks retain their original target/outcomes and reexecuted_in_this_slice=false. No current removal or default D acceptance is invented.",
+      "profile": "Actual current15 command uses --noconftest and explicit -o addopts=; this finite consumer profile is preserved rather than relabelled as the canonical whole-B native suite."
+    }
+  ],
+  "instrument_errors": [
+    {
+      "outcome": "ERROR",
+      "output": "peer-packet-audit-initial-stdout.txt",
+      "driver": "peer-packet-audit-initial.source.txt",
+      "reason": "Metadata instrument doubled a complete physical_prefix path. Original CalledProcessError preserved; not a peer/runtime failure."
+    },
+    {
+      "outcome": "ERROR",
+      "output": "peer-packet-audit-second-stdout.txt",
+      "driver": "peer-packet-audit-second.source.txt",
+      "reason": "Metadata instrument asserted serialized wire equals model_dump snapshot despite canonical exclude_none nullable defaults. Original AssertionError preserved; corrected comparison binds all actual fields and explicitly lists nullable omissions."
+    }
+  ],
+  "corrected_metadata_outcome": "PASS",
+  "next_owner": "ROOT integrates exact packets and decides source/criterion closure after independent mechanism review; EXE owns pending generic producer-model fix. No whole-B quality/P41 grade is implied.",
+  "closure_ids": []
+}

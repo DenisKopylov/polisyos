@@ -1,0 +1,866 @@
+{
+  "outcome": "PASS",
+  "errors": [],
+  "peers": {
+    "checkpoint": {
+      "receipt": {
+        "git_sha": "3dd221a83dbfa4a9f900b4a2d9338f14ce0a1f29",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth.json",
+        "bytes": 21310,
+        "sha256": "c926e0e7ef7de4f9587552f34767f67b57d3bb07903f59359868c89b7785b244"
+      },
+      "implementation_commits": [
+        "2fffbf940509d220050694957bfff2b85f930b83"
+      ],
+      "implementation_tree": "7314a8fd32af872fd9d43b166c0d3f165dedf683",
+      "implementation_union_paths": 16,
+      "source_or_test_changed": [],
+      "index": {
+        "git_sha": "2fffbf940509d220050694957bfff2b85f930b83",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-imported-checkpoint-tenth-evidence/index.json",
+        "bytes": 4640,
+        "sha256": "678bfc734982fb6aa88dca37c925439e99e1fc0ec6776bc97080df3a136e3ae6"
+      },
+      "index_payloads": 15,
+      "index_payload_bytes": 508789,
+      "closure_ids": [],
+      "current_checks": [
+        {
+          "id": "native-real-imported-checkpoint-consumer",
+          "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+          "outcome": "PASS",
+          "actual_cases": [
+            {
+              "name": "test_unchanged_imported_member_resumes_real_persisted_prefix",
+              "status": "PASS"
+            },
+            {
+              "name": "test_same_version_imported_member_change_refuses_before_replacement_effect",
+              "status": "PASS"
+            },
+            {
+              "name": "test_unchanged_imported_builtin_has_real_cold_resume_parity",
+              "status": "PASS"
+            },
+            {
+              "name": "test_dynamic_import_is_refused_before_any_checkpoint_consumer_effect",
+              "status": "PASS"
+            }
+          ],
+          "counts": {
+            "PASS": 4
+          },
+          "decoded_stdout": {
+            "bytes": 8362,
+            "sha256": "563c86245407ef3c77d71415af501ccd765709275a0249cb11e6322c1b9f3552"
+          },
+          "wrapper_exit": 0,
+          "wall_s": 4.84515096899122,
+          "max_rss_kib": 175792,
+          "origin_count": 166,
+          "phases": [
+            {
+              "phase": "call",
+              "outcome": "passed",
+              "count": 4
+            },
+            {
+              "phase": "setup",
+              "outcome": "passed",
+              "count": 4
+            },
+            {
+              "phase": "teardown",
+              "outcome": "passed",
+              "count": 4
+            }
+          ],
+          "physical_files_count": 40,
+          "effect_files": [
+            {
+              "path": "test_same_version_imported_mem0/effects.txt",
+              "text": "original\nreplacement\n",
+              "sha256": "76318d4adb08521d96d85bcbe0d46786c331e44f00e478991a6c718d2c74f360"
+            },
+            {
+              "path": "test_unchanged_imported_member0/effects.txt",
+              "text": "original\noriginal\n",
+              "sha256": "ebca852b000d45943876ec22b9223201e963737c0ddf96e7e3249bf3d7b78773"
+            }
+          ],
+          "observable_refusal_before_cold_control": true,
+          "observable_false_resume107": false
+        },
+        {
+          "id": "removal-real-imported-checkpoint-consumer",
+          "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+          "outcome": "FAIL",
+          "actual_cases": [
+            {
+              "name": "test_same_version_imported_member_change_refuses_before_replacement_effect",
+              "status": "FAIL"
+            }
+          ],
+          "counts": {
+            "FAIL": 1
+          },
+          "decoded_stdout": {
+            "bytes": 5205,
+            "sha256": "8e1c3601a7a5c6a82d7aacae5fad1d856afa376bf196fc42e1750c2efea1ed1f"
+          },
+          "wrapper_exit": 1,
+          "wall_s": 3.3194523010170087,
+          "max_rss_kib": 175744,
+          "origin_count": 166,
+          "phases": [
+            {
+              "phase": "call",
+              "outcome": "failed",
+              "count": 1
+            },
+            {
+              "phase": "setup",
+              "outcome": "passed",
+              "count": 1
+            },
+            {
+              "phase": "teardown",
+              "outcome": "passed",
+              "count": 1
+            }
+          ],
+          "physical_files_count": 12,
+          "effect_files": [
+            {
+              "path": "test_same_version_imported_mem0/effects.txt",
+              "text": "original\nreplacement\n",
+              "sha256": "76318d4adb08521d96d85bcbe0d46786c331e44f00e478991a6c718d2c74f360"
+            }
+          ],
+          "observable_refusal_before_cold_control": false,
+          "observable_false_resume107": true
+        }
+      ],
+      "historical_checks": []
+    },
+    "gateway": {
+      "receipt": {
+        "git_sha": "2d0f65266a9b42f56bcc73264c43e0f296e10ac5",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-numeric-custody.json",
+        "bytes": 69980,
+        "sha256": "7ba3fcd7c49b24dde88255bdd8ebc8564d595006aa1f1657f6e6f006883bd9fd"
+      },
+      "implementation_commits": [
+        "ba473500c385142919c3520090acf0fd607f0458",
+        "91651c5e2b8b2f35a7e0cf3294550ad0487504cb"
+      ],
+      "implementation_tree": "47026c744cc1a02aa3a3ee50fc6d38bc3076f897",
+      "implementation_union_paths": 86,
+      "source_or_test_changed": [],
+      "index": {
+        "source_sha": "91651c5e2b8b2f35a7e0cf3294550ad0487504cb",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/index.json",
+        "bytes": 26390,
+        "sha256": "1490118981b334c19305e52c5d8734c8e423e53431677c23decf97d2af1d3d43"
+      },
+      "index_payloads": 85,
+      "index_payload_bytes": 7797566,
+      "closure_ids": [],
+      "current_checks": [
+        {
+          "id": "historical-loaded-source-custody-delta",
+          "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+          "outcome": "PASS"
+        },
+        {
+          "id": "guarded-http-ledger-fresh-reader15",
+          "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+          "outcome": "PASS",
+          "actual_cases": [
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[tiny-positive]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[tiny-negative]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[missing]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[null]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[integer-zero]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[decimal-zero]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[negative-integer-zero]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[negative-decimal-zero]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[ordinary-positive]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[ordinary-negative]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[boolean-true]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[boolean-false]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[nan]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[positive-infinity]",
+              "status": "PASS"
+            },
+            {
+              "name": "test_http_money_does_not_become_zero_in_durable_reader[negative-infinity]",
+              "status": "PASS"
+            }
+          ],
+          "counts": {
+            "PASS": 15
+          },
+          "decoded_stdout": {
+            "bytes": 3614595,
+            "sha256": "91fea34e244bf89d6a0feb8308d99a863062477ab4059af4303f7237034f5956"
+          },
+          "wrapper_exit": 0,
+          "wall_s": 158.67525674402714,
+          "max_rss_kib": 599720
+        },
+        {
+          "id": "deciding-byte-package-reconciliation",
+          "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+          "outcome": "PASS"
+        }
+      ],
+      "historical_checks": [
+        {
+          "id": "before",
+          "target_sha": "81abcf87803270ed1463157d4149722d7b04ab42",
+          "outcome": "FAIL"
+        },
+        {
+          "id": "candidate",
+          "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+          "outcome": "PASS"
+        },
+        {
+          "id": "removal",
+          "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+          "outcome": "FAIL"
+        },
+        {
+          "id": "foreign-exe-3",
+          "target_sha": "595a2595316e3bd2aa791f2769b12f1180beba62",
+          "outcome": "FAIL"
+        },
+        {
+          "id": "foreign-exe-4",
+          "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+          "outcome": "PASS"
+        },
+        {
+          "id": "foreign-exe-5",
+          "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+          "outcome": "FAIL"
+        }
+      ],
+      "numeric_cases": [
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[tiny-positive]",
+          "lexeme": "1e-1000",
+          "cost_status": "invalid",
+          "amount": null,
+          "result_error": "LLMAccountingError",
+          "fresh_admission_error": "BudgetLedgerCompletionRequiredError",
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0.0000225",
+          "receipt_count": 0,
+          "obligation_count": 1,
+          "should_stop": true,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.state.limits.run.soft_limit_usd",
+            "snapshot.completion_obligations.llm-producer:ea63a832bc7b4a95969d7fbf8669b784.required_action"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[tiny-negative]",
+          "lexeme": "-1e-1000",
+          "cost_status": "invalid",
+          "amount": null,
+          "result_error": "LLMAccountingError",
+          "fresh_admission_error": "BudgetLedgerCompletionRequiredError",
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0.0000225",
+          "receipt_count": 0,
+          "obligation_count": 1,
+          "should_stop": true,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.state.limits.run.soft_limit_usd",
+            "snapshot.completion_obligations.llm-producer:813d5383ba2244db98493b8ef055f23a.required_action"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[missing]",
+          "lexeme": null,
+          "cost_status": "missing",
+          "amount": null,
+          "result_error": "LLMAccountingError",
+          "fresh_admission_error": "BudgetLedgerCompletionRequiredError",
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0.0000225",
+          "receipt_count": 0,
+          "obligation_count": 1,
+          "should_stop": true,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.state.limits.run.soft_limit_usd",
+            "snapshot.completion_obligations.llm-producer:57b5ddd4e9e34d26bf80a9b9ea8c2769.required_action"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[null]",
+          "lexeme": "null",
+          "cost_status": "missing",
+          "amount": null,
+          "result_error": "LLMAccountingError",
+          "fresh_admission_error": "BudgetLedgerCompletionRequiredError",
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0.0000225",
+          "receipt_count": 0,
+          "obligation_count": 1,
+          "should_stop": true,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.state.limits.run.soft_limit_usd",
+            "snapshot.completion_obligations.llm-producer:05afe4165e544086b20a8b5684cc09a3.required_action"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[integer-zero]",
+          "lexeme": "0",
+          "cost_status": "known",
+          "amount": "0.0",
+          "result_error": null,
+          "fresh_admission_error": null,
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0",
+          "receipt_count": 1,
+          "obligation_count": 0,
+          "should_stop": false,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.recent_mutations[3].reserved",
+            "snapshot.recent_mutations[4].amount",
+            "snapshot.recent_mutations[4].provider",
+            "snapshot.recent_mutations[4].applied_amount",
+            "snapshot.recent_mutations[4].key",
+            "snapshot.recent_mutations[4].reserved",
+            "snapshot.recent_mutations[5].reserved",
+            "snapshot.recent_mutations[5].provider",
+            "snapshot.recent_mutations[6].amount",
+            "snapshot.recent_mutations[6].provider",
+            "snapshot.recent_mutations[6].applied_amount",
+            "snapshot.recent_mutations[6].key",
+            "snapshot.recent_mutations[6].reserved",
+            "snapshot.state.limits.run.soft_limit_usd"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[decimal-zero]",
+          "lexeme": "0.0",
+          "cost_status": "known",
+          "amount": "0.0",
+          "result_error": null,
+          "fresh_admission_error": null,
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0",
+          "receipt_count": 1,
+          "obligation_count": 0,
+          "should_stop": false,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.recent_mutations[3].reserved",
+            "snapshot.recent_mutations[4].amount",
+            "snapshot.recent_mutations[4].provider",
+            "snapshot.recent_mutations[4].applied_amount",
+            "snapshot.recent_mutations[4].key",
+            "snapshot.recent_mutations[4].reserved",
+            "snapshot.recent_mutations[5].reserved",
+            "snapshot.recent_mutations[5].provider",
+            "snapshot.recent_mutations[6].amount",
+            "snapshot.recent_mutations[6].provider",
+            "snapshot.recent_mutations[6].applied_amount",
+            "snapshot.recent_mutations[6].key",
+            "snapshot.recent_mutations[6].reserved",
+            "snapshot.state.limits.run.soft_limit_usd"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[negative-integer-zero]",
+          "lexeme": "-0",
+          "cost_status": "known",
+          "amount": "0.0",
+          "result_error": null,
+          "fresh_admission_error": null,
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0",
+          "receipt_count": 1,
+          "obligation_count": 0,
+          "should_stop": false,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.recent_mutations[3].reserved",
+            "snapshot.recent_mutations[4].amount",
+            "snapshot.recent_mutations[4].provider",
+            "snapshot.recent_mutations[4].applied_amount",
+            "snapshot.recent_mutations[4].key",
+            "snapshot.recent_mutations[4].reserved",
+            "snapshot.recent_mutations[5].reserved",
+            "snapshot.recent_mutations[5].provider",
+            "snapshot.recent_mutations[6].amount",
+            "snapshot.recent_mutations[6].provider",
+            "snapshot.recent_mutations[6].applied_amount",
+            "snapshot.recent_mutations[6].key",
+            "snapshot.recent_mutations[6].reserved",
+            "snapshot.state.limits.run.soft_limit_usd"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[negative-decimal-zero]",
+          "lexeme": "-0.0",
+          "cost_status": "known",
+          "amount": "-0.0",
+          "result_error": null,
+          "fresh_admission_error": null,
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0",
+          "receipt_count": 1,
+          "obligation_count": 0,
+          "should_stop": false,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.recent_mutations[3].reserved",
+            "snapshot.recent_mutations[4].amount",
+            "snapshot.recent_mutations[4].provider",
+            "snapshot.recent_mutations[4].applied_amount",
+            "snapshot.recent_mutations[4].key",
+            "snapshot.recent_mutations[4].reserved",
+            "snapshot.recent_mutations[5].reserved",
+            "snapshot.recent_mutations[5].provider",
+            "snapshot.recent_mutations[6].amount",
+            "snapshot.recent_mutations[6].provider",
+            "snapshot.recent_mutations[6].applied_amount",
+            "snapshot.recent_mutations[6].key",
+            "snapshot.recent_mutations[6].reserved",
+            "snapshot.state.limits.run.soft_limit_usd"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[ordinary-positive]",
+          "lexeme": "0.02",
+          "cost_status": "known",
+          "amount": "0.02",
+          "result_error": null,
+          "fresh_admission_error": null,
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0",
+          "receipt_count": 1,
+          "obligation_count": 0,
+          "should_stop": false,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.recent_mutations[3].reserved",
+            "snapshot.recent_mutations[4].amount",
+            "snapshot.recent_mutations[4].provider",
+            "snapshot.recent_mutations[4].applied_amount",
+            "snapshot.recent_mutations[4].key",
+            "snapshot.recent_mutations[4].reserved",
+            "snapshot.recent_mutations[5].reserved",
+            "snapshot.recent_mutations[5].provider",
+            "snapshot.recent_mutations[6].amount",
+            "snapshot.recent_mutations[6].provider",
+            "snapshot.recent_mutations[6].applied_amount",
+            "snapshot.recent_mutations[6].key",
+            "snapshot.recent_mutations[6].reserved",
+            "snapshot.state.limits.run.soft_limit_usd"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[ordinary-negative]",
+          "lexeme": "-0.02",
+          "cost_status": "invalid",
+          "amount": null,
+          "result_error": "LLMAccountingError",
+          "fresh_admission_error": "BudgetLedgerCompletionRequiredError",
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0.0000225",
+          "receipt_count": 0,
+          "obligation_count": 1,
+          "should_stop": true,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.state.limits.run.soft_limit_usd",
+            "snapshot.completion_obligations.llm-producer:d972890bfdfa48ba8fd63d0a111c39ea.required_action"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[boolean-true]",
+          "lexeme": "true",
+          "cost_status": "invalid",
+          "amount": null,
+          "result_error": "LLMAccountingError",
+          "fresh_admission_error": "BudgetLedgerCompletionRequiredError",
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0.0000225",
+          "receipt_count": 0,
+          "obligation_count": 1,
+          "should_stop": true,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.state.limits.run.soft_limit_usd",
+            "snapshot.completion_obligations.llm-producer:9bfe35cbf85448f484235bf8cc939e2a.required_action"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[boolean-false]",
+          "lexeme": "false",
+          "cost_status": "invalid",
+          "amount": null,
+          "result_error": "LLMAccountingError",
+          "fresh_admission_error": "BudgetLedgerCompletionRequiredError",
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0.0000225",
+          "receipt_count": 0,
+          "obligation_count": 1,
+          "should_stop": true,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.state.limits.run.soft_limit_usd",
+            "snapshot.completion_obligations.llm-producer:0941688830904fc99390c070a75dda8e.required_action"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[nan]",
+          "lexeme": "NaN",
+          "cost_status": "invalid",
+          "amount": null,
+          "result_error": "LLMAccountingError",
+          "fresh_admission_error": "BudgetLedgerCompletionRequiredError",
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0.0000225",
+          "receipt_count": 0,
+          "obligation_count": 1,
+          "should_stop": true,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.state.limits.run.soft_limit_usd",
+            "snapshot.completion_obligations.llm-producer:892558bb989240e0adb76fb37803da6c.required_action"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[positive-infinity]",
+          "lexeme": "Infinity",
+          "cost_status": "invalid",
+          "amount": null,
+          "result_error": "LLMAccountingError",
+          "fresh_admission_error": "BudgetLedgerCompletionRequiredError",
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0.0000225",
+          "receipt_count": 0,
+          "obligation_count": 1,
+          "should_stop": true,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.state.limits.run.soft_limit_usd",
+            "snapshot.completion_obligations.llm-producer:20a2e6a941124cf298ebc909d9737d72.required_action"
+          ]
+        },
+        {
+          "nodeid": "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py::test_http_money_does_not_become_zero_in_durable_reader[negative-infinity]",
+          "lexeme": "-Infinity",
+          "cost_status": "invalid",
+          "amount": null,
+          "result_error": "LLMAccountingError",
+          "fresh_admission_error": "BudgetLedgerCompletionRequiredError",
+          "fresh_pid_distinct": true,
+          "http_effect_count": 1,
+          "reserved": "0.0000225",
+          "receipt_count": 0,
+          "obligation_count": 1,
+          "should_stop": true,
+          "wire_omitted_nullable_defaults": [
+            "snapshot.recent_mutations[0].amount",
+            "snapshot.recent_mutations[0].provider",
+            "snapshot.recent_mutations[0].applied_amount",
+            "snapshot.recent_mutations[0].key",
+            "snapshot.recent_mutations[0].reserved",
+            "snapshot.recent_mutations[1].amount",
+            "snapshot.recent_mutations[1].provider",
+            "snapshot.recent_mutations[1].applied_amount",
+            "snapshot.recent_mutations[1].key",
+            "snapshot.recent_mutations[1].reserved",
+            "snapshot.recent_mutations[2].amount",
+            "snapshot.recent_mutations[2].provider",
+            "snapshot.recent_mutations[2].applied_amount",
+            "snapshot.recent_mutations[2].key",
+            "snapshot.recent_mutations[2].reserved",
+            "snapshot.state.limits.run.soft_limit_usd",
+            "snapshot.completion_obligations.llm-producer:46819adb4c514736adcdce3c00a52c67.required_action"
+          ]
+        }
+      ],
+      "numeric_valid_cases": 5,
+      "numeric_unknown_invalid_cases": 10,
+      "source_census": {
+        "parent_hook_origins": 46,
+        "per_case_parent_child_origin_observations": 14369,
+        "distinct_B_paths": 871,
+        "distinct_external_D_paths": 3,
+        "mismatches": 0,
+        "boundary": "captured file-backed loaded origins only; not universal reads/calls or post-finalization imports"
+      },
+      "source_rows_distinct": 874,
+      "guarded_D_boundary": "Actual explicit B middleware pre_check result determines {} versus cumulative_cost_usd passed to real three D8f module CostBudgetStopping.check. This is not D evaluator/controller/default factory retry/cache-ledger integration."
+    }
+  },
+  "complete_output": {
+    "path": "/tmp/e02-B-cas-tenth-wave-review-20261007/peer-packet-audit.json",
+    "bytes": 58251,
+    "sha256": "33c1cb27e056ae29c79130d3b9bf9ea46783c3977e7c45aadda9bec830f709ee"
+  }
+}

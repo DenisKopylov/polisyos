@@ -1,0 +1,197 @@
+{
+  "schema": "policyos.e02.tenth_wave_consumer_input_reconciliation.v1",
+  "candidate": {
+    "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+    "tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010"
+  },
+  "G_review_checkpoint": {
+    "git_sha": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+    "tree": "2e228785406834ba128bb7b4dd9c636a6a2a1cb5"
+  },
+  "old_execution_source": {
+    "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+    "tree": "a07dc5b12a14ce004746cb43f7fbe609e8e0ff50"
+  },
+  "closure_ids": [],
+  "formal_closure": false,
+  "new_runtime": "UNRUN_BY_THIS_REVIEWER",
+  "checks": {
+    "candidate_is_exact_d030_production_test_config": true,
+    "A_old_four_case_input_equal": true,
+    "A_full_loaded_source_equality": false,
+    "A_actual_exercised_parse_and_projection_equal": true,
+    "C_complete_243_tracked_inputs_equal": true,
+    "C_retained_249_fixtures_equal": true,
+    "all_owner_packet_declared_inputs_equal": true,
+    "all60_unchanged_technical_proposal_formal_false": true
+  },
+  "A_full_loaded_input_audit": {
+    "source": {
+      "git_sha": "00e12b9a20c6c74dda9051bd016b501e4e7a8de8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-b-a-cost-consumer-20261007/source-context.json",
+      "git_blob": "81695a99132054e3caa4de963761d49b9a203e6f",
+      "bytes": 764468,
+      "sha256": "b37d7363e913aa5fe12b0ab448f6999d6dbec648a50dcfef410404acb90e4649"
+    },
+    "record_count": 1448,
+    "distinct_paths": 1448,
+    "changed": [
+      {
+        "original": {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+          "git_blob": "731c456b7dfc2030a6afaa2ae1b3ec054b730a52",
+          "bytes": 8535,
+          "sha256": "5687fea7a29fb35a6093d2baa3f0a0c12674552dd4c29ee7867e096e19cee35d"
+        },
+        "candidate": {
+          "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+          "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+          "git_blob": "7f0d0323474ee2f8f1fe4adea316c5260159262e",
+          "bytes": 21815,
+          "sha256": "95ed058f5387bc1b9af7db9cdb3a835565cca608c6dba84901add538c9b079be"
+        }
+      },
+      {
+        "original": {
+          "git_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+          "git_blob": "235b7e1b9008bb60323a464b10563d8d76520e78",
+          "bytes": 27826,
+          "sha256": "df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c"
+        },
+        "candidate": {
+          "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+          "git_blob": "0dc65ee8cbe6477c50deb965d4d7cc12b3f6c5a2",
+          "bytes": 28025,
+          "sha256": "4161bc6dfa38838c107228672fab9e1468087c19ae7ddb4f510247577fac29c3"
+        }
+      }
+    ],
+    "full_original_bytes_verified": true,
+    "full_candidate_bytes_compared": true,
+    "native_input": {
+      "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "path": "policy-engine/tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py",
+      "git_blob": "efbc9a3ab6d53ea07acf60edf784e04099907967",
+      "bytes": 7886,
+      "sha256": "ee41bd7df1c2123b8b4748a645646cc6240c4619b77e9305d93a698714389770"
+    },
+    "actual_exercised_boundary": {
+      "GatewayLLMClient._parse_completion_payload": "exact AST equal old and candidate; this is the actual old four-case provider boundary",
+      "response_shapes._sum_call_events": "full module bytes equal old and candidate; unknown remains converted by `or 0.0`",
+      "unexercised_gateway_delta": "Only _post_json raw HTTP number parse changes to parse_float=Decimal; old provider directly invokes _parse_completion_payload, no HTTP request"
+    }
+  },
+  "C_full_input_audit": {
+    "source": {
+      "git_sha": "7275dc9d0e8a2d1c36513925331fe3c2076156d8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-consumer-owner-contracts-20261007/c-input-equality.json",
+      "git_blob": "e985c21d26cbf475145d78b7b1da54900ea2a897",
+      "bytes": 97924,
+      "sha256": "50030e2696a261ddab5e0c13e5492b7bd5144e2c4847a5bb7098561d516276a9"
+    },
+    "record_count": 243,
+    "distinct_paths": 243,
+    "changed": [],
+    "full_original_bytes_verified": true,
+    "full_candidate_bytes_compared": true
+  },
+  "C_full_fixture_audit": {
+    "source": {
+      "git_sha": "85f0f0afd7abd62114074311ec90e7387ac27a38",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-crossunit-final-evidence/fixture-inventory.json",
+      "bytes": 151081,
+      "sha256": "6062c380ee951c55755ad4b9f3c1e54f26d5463b30d373c7783adac49144d608",
+      "git_blob": "37a84bdbaaaf0b3b93addc966839f8d37cb54998"
+    },
+    "record_count": 249,
+    "distinct_paths": 249,
+    "changed": [],
+    "full_original_bytes_verified": true,
+    "full_candidate_bytes_compared": true
+  },
+  "owner_packet_full_declared_input_audit": {
+    "source": {
+      "git_sha": "7275dc9d0e8a2d1c36513925331fe3c2076156d8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-consumer-owner-contracts-20261007/owner-packets.json",
+      "git_blob": "98800afa947ed1e924fbc0b524a702c2be8beb16",
+      "bytes": 26728,
+      "sha256": "958351580782c127584f6c30983d719ef054cb642fa815c557d83d46dd34a8a5"
+    },
+    "contracts": {
+      "B87/B89": {
+        "record_count": 5,
+        "distinct_paths": 5,
+        "changed": [],
+        "full_original_bytes_verified": true,
+        "full_candidate_bytes_compared": true
+      },
+      "B13": {
+        "record_count": 5,
+        "distinct_paths": 5,
+        "changed": [],
+        "full_original_bytes_verified": true,
+        "full_candidate_bytes_compared": true
+      },
+      "B154": {
+        "record_count": 5,
+        "distinct_paths": 5,
+        "changed": [],
+        "full_original_bytes_verified": true,
+        "full_candidate_bytes_compared": true
+      },
+      "B61": {
+        "record_count": 4,
+        "distinct_paths": 4,
+        "changed": [],
+        "full_original_bytes_verified": true,
+        "full_candidate_bytes_compared": true
+      },
+      "B67/B68": {
+        "record_count": 3,
+        "distinct_paths": 3,
+        "changed": [],
+        "full_original_bytes_verified": true,
+        "full_candidate_bytes_compared": true
+      },
+      "B148": {
+        "record_count": 3,
+        "distinct_paths": 3,
+        "changed": [],
+        "full_original_bytes_verified": true,
+        "full_candidate_bytes_compared": true
+      }
+    }
+  },
+  "all60": {
+    "source": {
+      "git_sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-all60-decisions-20261007.json",
+      "git_blob": "644f4811b7a67e767755a41a8afba131fd11ab36",
+      "bytes": 78194,
+      "sha256": "9aaddf14128afba95a4a5993f9effa141a302047420a0660b9280d4a05b25e70"
+    },
+    "count": 60,
+    "bundles": 25,
+    "technical_counts": {
+      "limited": 7,
+      "closed": 48,
+      "held": 4,
+      "open": 1
+    },
+    "role": "preserved B technical recommendations; no source/code acceptance or formal closure"
+  },
+  "result_grade": "bounded source/input custody reconciliation; original native observations retain original execution SHA",
+  "limitations": [
+    "A full imported source table has changed modules; do not claim complete execution-environment equivalence.",
+    "No current served A admission, C production repair, external permission law or D controller bridge was executed.",
+    "A body-boundary AST equality is a source transfer discriminator, not new candidate native PASS.",
+    "Any later changed producer/test/config requires a new delta review; 590 target is not a promised future freeze."
+  ],
+  "interpreter": {
+    "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+  }
+}

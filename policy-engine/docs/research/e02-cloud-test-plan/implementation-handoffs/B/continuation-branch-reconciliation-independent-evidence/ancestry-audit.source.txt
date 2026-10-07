@@ -1,0 +1,218 @@
+import collections
+import hashlib
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+BARE = '/tmp/e02-B-tenth-wave-20261007/transport.git'
+ROOT_OBJECTS = '/workspace/polisyos/.git/objects'
+ENV = {**os.environ, 'GIT_ALTERNATE_OBJECT_DIRECTORIES': ROOT_OBJECTS}
+PINS = {
+    'main': '198076863e143dea9f89f02734b13d50dae3eed5',
+    'slice_base': 'f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1',
+    'implementation': 'af03a9d9693ed73b5dd1fd5b8fe8ad06dcb19cc8',
+    'published_B': 'd030d82baed3b1c9d83c63a0ea26011a8247f47e',
+    'published_G': '855cb26a7a2c9fea60356663cf81e7d01e20c738',
+    'historical_G': '76746fececd1a183a516c48f07ce2835baa8a2d1',
+    'common_base': '9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7',
+    'reconciled_root': '590e5d18e7f56c7c4d2e42070dcc687c79acc58c',
+}
+FORBIDDEN = 'a3daffbe867ddfe9eede5e5990687283b552952a'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'
+RECEIPT_PATH = PREFIX + 'continuation-final-full-B-20261007.json'
+FOOTPRINT_PATH = PREFIX + 'continuation-final-20261007-evidence/full-footprint.json'
+errors = []
+
+def git(*args):
+    return subprocess.check_output(['git', '--git-dir=' + BARE, *args], env=ENV)
+
+def meta(data):
+    return {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+def tree(ref):
+    result = {}
+    for raw in git('ls-tree', '-rz', ref).split(b'\0'):
+        if not raw:
+            continue
+        header, name = raw.split(b'\t', 1)
+        mode, kind, oid = header.decode().split()
+        result[name.decode()] = {'git_blob_sha1': oid, 'mode': mode, 'type': kind}
+    return result
+
+trees = {name: tree(sha) for name, sha in PINS.items()}
+
+def delta(base, candidate):
+    raw = git('diff', '--name-status', '--no-renames', '-z', base, candidate).split(b'\0')
+    return [(raw[i].decode(), raw[i + 1].decode()) for i in range(0, len(raw) - 1, 2)]
+
+def category(path):
+    for start, label in [('policy-engine/docs/research/', 'research'),
+                         ('policy-engine/src/', 'source'),
+                         ('policy-engine/tests/', 'tests'),
+                         ('policy-engine/release-fragments/', 'release')]:
+        if path.startswith(start):
+            return label
+    return 'other'
+
+receipt_bytes = git('show', PINS['published_B'] + ':' + RECEIPT_PATH)
+footprint_bytes = git('show', PINS['published_B'] + ':' + FOOTPRINT_PATH)
+receipt = json.loads(receipt_bytes)
+footprint = json.loads(footprint_bytes)
+slice_rows = footprint['paths']
+whole_rows = footprint['published_main_projection']['complete_paths']
+all_oids = set()
+for rows in (slice_rows, whole_rows):
+    for row in rows:
+        for role in ('base', 'candidate'):
+            if row[role] is not None:
+                all_oids.add(row[role]['git_blob_sha1'])
+for mapping in trees.values():
+    for path, row in mapping.items():
+        if path.startswith(('policy-engine/src/', 'policy-engine/tests/')):
+            all_oids.add(row['git_blob_sha1'])
+for _, path in delta(PINS['published_B'], PINS['reconciled_root']):
+    if path in trees['reconciled_root']:
+        all_oids.add(trees['reconciled_root'][path]['git_blob_sha1'])
+proc = subprocess.Popen(['git', '--git-dir=' + BARE, 'cat-file', '--batch'],
+                        env=ENV, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+blobmeta = {}
+for oid in sorted(all_oids):
+    proc.stdin.write((oid + '\n').encode())
+    proc.stdin.flush()
+    actual, kind, size = proc.stdout.readline().decode().strip().split()
+    data = proc.stdout.read(int(size))
+    assert proc.stdout.read(1) == b'\n'
+    assert actual == oid and kind == 'blob'
+    blobmeta[oid] = meta(data)
+proc.stdin.close()
+assert proc.wait() == 0
+
+def verify_projection(rows, base_name, candidate_name):
+    expected = delta(PINS[base_name], PINS[candidate_name])
+    actual_paths = [row['path'] for row in rows]
+    if len(actual_paths) != len(set(actual_paths)):
+        errors.append('duplicate footprint paths:' + base_name)
+    if sorted(actual_paths) != sorted(path for _, path in expected):
+        errors.append('footprint path set differs from exact Git diff:' + base_name)
+    for row in rows:
+        path = row['path']
+        for role, name in [('base', base_name), ('candidate', candidate_name)]:
+            declared, actual = row[role], trees[name].get(path)
+            if declared is None:
+                if actual is not None:
+                    errors.append('unexpected existing ' + role + ':' + path)
+                continue
+            if actual is None or actual['git_blob_sha1'] != declared['git_blob_sha1']:
+                errors.append('blob mismatch:' + role + ':' + path)
+                continue
+            if any(declared[key] != blobmeta[actual['git_blob_sha1']][key]
+                   for key in ('bytes', 'sha256')):
+                errors.append('byte/hash mismatch:' + role + ':' + path)
+    return summarize(expected, candidate_name)
+
+def summarize(changes, candidate_name):
+    groups = collections.Counter(category(path) for _, path in changes)
+    extensions = collections.Counter(Path(path).suffix or '<none>' for _, path in changes)
+    return {'path_count': len(changes), 'statuses': dict(collections.Counter(s for s, _ in changes)),
+            'categories': dict(sorted(groups.items())), 'extensions': dict(sorted(extensions.items())),
+            'candidate_bytes': sum(blobmeta[trees[candidate_name][path]['git_blob_sha1']]['bytes']
+                                   for _, path in changes if path in trees[candidate_name])}
+
+slice_summary = verify_projection(slice_rows, 'slice_base', 'implementation')
+whole_summary = verify_projection(whole_rows, 'main', 'implementation')
+if sorted(receipt['changed_paths']) != sorted(row['path'] for row in slice_rows):
+    errors.append('canonical receipt changed_paths differ from implementation footprint')
+if receipt['implementation_commits'] != [PINS['implementation']]:
+    errors.append('canonical implementation commit differs')
+if receipt['candidate_tree_sha'] != git('rev-parse', PINS['implementation'] + '^{tree}').decode().strip():
+    errors.append('canonical implementation tree differs')
+if footprint['published_main_projection']['base_sha'] != PINS['main']:
+    errors.append('full projection base differs')
+
+def closure(base_name, candidate_name):
+    changes = delta(PINS[base_name], PINS[candidate_name])
+    rows = []
+    for status, path in changes:
+        if not path.startswith(('policy-engine/src/', 'policy-engine/tests/')):
+            continue
+        item = {'status': status, 'path': path}
+        for role, name in [('base', base_name), ('candidate', candidate_name)]:
+            entry = trees[name].get(path)
+            item[role] = None if entry is None else {**entry, **blobmeta[entry['git_blob_sha1']]}
+        rows.append(item)
+    return rows
+
+reconcile_changes = delta(PINS['published_B'], PINS['reconciled_root'])
+reconcile_summary = summarize(reconcile_changes, 'reconciled_root')
+if any(not p.startswith('policy-engine/docs/') for _, p in reconcile_changes):
+    errors.append('reconciled root has non-doc change compared with d030')
+headers = {name: {'sha': sha,
+                 'tree': git('rev-parse', sha + '^{tree}').decode().strip(),
+                 'parents': git('show', '-s', '--format=%P', sha).decode().strip().split(),
+                 'subject': git('show', '-s', '--format=%s', sha).decode().strip()}
+           for name, sha in PINS.items()}
+if headers['reconciled_root']['parents'] != [PINS['published_B'], PINS['published_G']]:
+    errors.append('reconciled root is not the exact two-parent normal merge')
+common = git('merge-base', PINS['published_B'], PINS['published_G']).decode().strip()
+if common != PINS['common_base']:
+    errors.append('common base mismatch')
+histories = {name: set(git('rev-list', sha).decode().split())
+             for name, sha in PINS.items() if name in ('published_B', 'published_G', 'reconciled_root')}
+ancestry = {'merge_base': common,
+            'B_descends_from_current_G': PINS['published_G'] in histories['published_B'],
+            'G_descends_from_current_B': PINS['published_B'] in histories['published_G'],
+            'root_descends_from_B': PINS['published_B'] in histories['reconciled_root'],
+            'root_descends_from_G': PINS['published_G'] in histories['reconciled_root'],
+            'forbidden_a3_membership': {name: FORBIDDEN in rows for name, rows in histories.items()},
+            'full_history_commit_counts': {name: len(rows) for name, rows in histories.items()}}
+STATE = 'policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py'
+selected = [STATE,
+            'policy-engine/src/polisyos/scientist/orchestration/engine/executor.py',
+            'policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py',
+            'policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py']
+selected_sources = {}
+for path in selected:
+    selected_sources[path] = {name: {**trees[name][path], **blobmeta[trees[name][path]['git_blob_sha1']]}
+                              for name in ('published_B', 'published_G', 'common_base', 'reconciled_root')}
+protected_paths = sorted(path for path in trees['main']
+                         if path.startswith('policy-engine/src/') and
+                         path.endswith(('/generation_cycle.py', '/run_lifecycle.py', '/streaming.py')))
+protected = []
+for path in protected_paths:
+    entry = {'path': path, 'blobs': {name: trees[name].get(path, {}).get('git_blob_sha1')
+                                   for name in ('main', 'published_B', 'published_G', 'reconciled_root')}}
+    entry['root_equal_B'] = entry['blobs']['reconciled_root'] == entry['blobs']['published_B']
+    entry['B_equal_main'] = entry['blobs']['published_B'] == entry['blobs']['main']
+    protected.append(entry)
+result = {'schema': 'policyos.e02.git_source_audit.v1', 'purpose': 'Independent tenth-wave Git ancestry and actual full footprint; not runtime/gate acceptance',
+          'commands': {'git_dir': BARE, 'object_alternate': ROOT_OBJECTS,
+                       'operations': ['show explicit SHA:path', 'ls-tree -rz explicit SHA',
+                                      'cat-file --batch complete footprint blobs', 'diff --name-status --no-renames -z',
+                                      'merge-base explicit B/G', 'rev-list explicit B/G/root']},
+          'headers': headers, 'ancestry': ancestry,
+          'canonical_receipt': {'git_sha': PINS['published_B'], 'path': RECEIPT_PATH,
+                                **meta(receipt_bytes), 'closure_ids': receipt['closure_ids'],
+                                'actual_check_outcomes': dict(collections.Counter(c['outcome'] for c in receipt['checks']))},
+          'original_complete_footprint': {'git_sha': PINS['published_B'], 'path': FOOTPRINT_PATH, **meta(footprint_bytes)},
+          'slice_projection': slice_summary, 'whole_main_projection': whole_summary,
+          'slice_nonresearch_paths': [row for row in slice_rows if category(row['path']) != 'research'],
+          'whole_source_test_footprint': closure('main', 'implementation'),
+          'B_G_source_test_difference': closure('published_B', 'published_G'),
+          'root_reconciliation': {'summary': reconcile_summary,
+                                  'changed_paths': [{'status': s, 'path': p} for s, p in reconcile_changes],
+                                  'source_test_changed_paths': closure('published_B', 'reconciled_root')},
+          'write_scope_selected_source_identity': selected_sources, 'protected_owner_paths': protected,
+          'runtime_by_reviewer': 'UNRUN', 'gate_inheritance_P41': 'not_established',
+          'errors': errors, 'outcome': 'PASS' if not errors else 'FAIL'}
+Path(sys.argv[1]).write_text(json.dumps(result, indent=2, ensure_ascii=False) + '\n')
+print(json.dumps({'outcome': result['outcome'], 'errors': errors, 'headers': headers,
+                  'ancestry': ancestry, 'slice_projection': slice_summary,
+                  'whole_main_projection': whole_summary, 'root_reconciliation': reconcile_summary,
+                  'source_test_B_G_difference_count': len(result['B_G_source_test_difference']),
+                  'source_test_main_B_difference_count': len(result['whole_source_test_footprint']),
+                  'protected_owner_paths': protected,
+                  'complete_output': {'path': sys.argv[1], **meta(Path(sys.argv[1]).read_bytes())}},
+                 indent=2, ensure_ascii=False))
+sys.exit(0 if not errors else 1)

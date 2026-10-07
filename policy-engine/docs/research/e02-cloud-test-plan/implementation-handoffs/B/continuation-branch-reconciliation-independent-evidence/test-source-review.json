@@ -1,0 +1,59 @@
+{
+  "schema": "policyos.e02.test_source_review.v1",
+  "test_ref": {
+    "git_sha": "06efafaba9d909755372cb79b5f8406c4fc595d2",
+    "tree": "71bfa7b34bfa8a2fb49a3ec03b9eb0bce6d5ec5c",
+    "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+    "git_blob_sha1": "9f4ff4eb83eca117a0f3416347864375c0d864c0",
+    "bytes": 11945,
+    "sha256": "93079e7405c04144b651a34ad58c3ec711d84ff20e6476ab5379030f8cdf7ab0",
+    "actual_all_source_different_paths_to_590": [
+      "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+      "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py"
+    ]
+  },
+  "source_profile": "Actual test commit06ef, engine mechanisms matchroot590; four exact Foundry/Gateway source/README paths differ. No full-source equivalence or root590 native transplant.",
+  "source_only_verdict": "NONBLOCKING within explicit dict/list producer-grant/completion/cache/wire quantities; mutable model quantity not established by this file",
+  "actual_test_structure": {
+    "defined_test_functions": 1,
+    "source_parameter_inputs": {
+      "contours": [
+        "sequential",
+        "async",
+        "worker"
+      ],
+      "refusal": [
+        null,
+        "nested_widen",
+        "release_scope",
+        "root_replace",
+        "neighbor_alias"
+      ]
+    },
+    "static_product": 15,
+    "static_product_role": "source input census only, not collection/case execution/PASS"
+  },
+  "independent_observations": [
+    "Positive body uses real declared JSON writes, child attenuation, dynamic list alias, actual CAS put/verify, typed reference acceptance; expected rows+alias values are concrete independent values.",
+    "Each refusal is reached inside genuine producer before real allowed publication; captures before state+operations and asserts both unchanged.",
+    "Sequential/async invoke actual WorkflowExecutor/AsyncWorkflowExecutor and read real NODE_CACHE_STORE ref through fresh FileSystemCAS+NodeResultCache.",
+    "Worker uses genuine serialize_state/run_node_in_worker/deserialize_outcome with registry injection selecting the controlled node; it is not a deployed backend or OS-process claim.",
+    "Reopened cache consumer verifies artifact bytes, replays grouped intents into a different neighbor/list base, asserts literal result and immutable base; this is more than a marker/count proxy.",
+    "Public postcompletion state can extend while producer-held old state cannot; intended completion boundary is directly asserted.",
+    "Corrected hash replay key is source-premise repair; old12ad failure is preserved by author and is not evidence that grant mechanism previously failed. Reviewer has not read its complete runtime outputs yet."
+  ],
+  "remaining_quantity": [
+    "Pre-existing same mutable BaseModel under readonly/allowed aliases is absent.",
+    "Attempted attachment to readonly JSON alias is refused, but ordinary field mutation on pre-existing model is a separate same-class reachable quantity.",
+    "No matching property-removal evidence is accepted by this source reading alone."
+  ],
+  "proposed_removal_discriminators": [
+    "Selectively remove active nested grant attenuation/refusal without changing public markers/schema; same nested request must really mutate forbidden branch or fail original assertion due false admission.",
+    "Selectively bypass canonical live-path preauthorization while leaving actual node/CAS/cache/wire and literal expected data; forbidden branch effect must appear, not merely import/type error.",
+    "For ordinary model correction use identical before/after data/journal+actual effect assertions; retain successful declared field consumer and readonly aliases."
+  ],
+  "runtime_by_reviewer": "UNRUN",
+  "author_report": "Parent message15PASS at06ef is consumer_asserted pending immutable full-output custody; no author result restamped to root590."
+}

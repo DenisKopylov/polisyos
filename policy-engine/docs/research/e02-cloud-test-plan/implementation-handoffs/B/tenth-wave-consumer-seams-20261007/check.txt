@@ -1,0 +1,27 @@
+{
+  "candidate": {
+    "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+    "tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010"
+  },
+  "checks": {
+    "candidate_is_exact_d030_production_test_config": true,
+    "A_old_four_case_input_equal": true,
+    "A_full_loaded_source_equality": false,
+    "A_actual_exercised_parse_and_projection_equal": true,
+    "C_complete_243_tracked_inputs_equal": true,
+    "C_retained_249_fixtures_equal": true,
+    "all_owner_packet_declared_inputs_equal": true,
+    "all60_unchanged_technical_proposal_formal_false": true
+  },
+  "A_changed_paths": [
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py"
+  ],
+  "technical_counts": {
+    "limited": 7,
+    "closed": 48,
+    "held": 4,
+    "open": 1
+  },
+  "new_runtime": "UNRUN_BY_THIS_REVIEWER"
+}

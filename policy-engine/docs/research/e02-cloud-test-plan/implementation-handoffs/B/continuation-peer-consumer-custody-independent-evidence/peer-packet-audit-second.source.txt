@@ -1,0 +1,209 @@
+"""Read complete immutable peer evidence; never import/execute candidate code."""
+import base64
+import collections
+import hashlib
+import json
+import re
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+from decimal import Decimal
+from pathlib import Path
+
+ROOT = '/workspace/e02-B-current-cas-generation'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'
+SOURCE = '590e5d18e7f56c7c4d2e42070dcc687c79acc58c'
+PEERS = [('checkpoint', '3dd221a83dbfa4a9f900b4a2d9338f14ce0a1f29', 'continuation-imported-checkpoint-tenth.json'),
+         ('gateway', '2d0f65266a9b42f56bcc73264c43e0f296e10ac5', 'tenth-wave-gateway-numeric-custody.json')]
+cache = {}
+errors = []
+
+def raw(sha, path):
+    key = (sha, path)
+    if key not in cache:
+        cache[key] = subprocess.check_output(['git', 'show', sha + ':' + path], cwd=ROOT)
+    return cache[key]
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+def record_ref(sha, path):
+    data = raw(sha, path)
+    return {'git_sha': sha, 'path': path, 'bytes': len(data), 'sha256': digest(data)}
+
+def validate_ref(row, default):
+    sha = row.get('git_sha', row.get('source_sha', default))
+    path = row['path']
+    data = raw(sha, path)
+    if 'bytes' in row and len(data) != row['bytes']:
+        errors.append('bytes:' + sha + ':' + path)
+    if digest(data) != row['sha256']:
+        errors.append('sha256:' + sha + ':' + path)
+    return data
+
+def declared_refs(value, default):
+    found = {}
+    def walk(v):
+        if isinstance(v, dict):
+            if isinstance(v.get('path'), str) and v['path'].startswith('policy-engine/') and re.fullmatch('[a-f0-9]{64}', str(v.get('sha256', ''))):
+                sha = v.get('git_sha', v.get('source_sha', default))
+                found[(sha, v['path'])] = v
+            for child in v.values():
+                walk(child)
+        elif isinstance(v, list):
+            for child in v:
+                walk(child)
+    walk(value)
+    for row in found.values():
+        validate_ref(row, default)
+    return [record_ref(*key) for key in sorted(found)]
+
+def decoded(data):
+    if data.lstrip().startswith(b'{'):
+        value = json.loads(data)
+        if isinstance(value, dict) and 'text' in value and 'decoded_sha256' in value:
+            out = value['text'].encode('utf-8')
+            assert len(out) == value['decoded_bytes'] and digest(out) == value['decoded_sha256']
+            return out
+    return data
+
+def xml_partition(data):
+    cases = list(ET.fromstring(decoded(data)).iter('testcase'))
+    rows = []
+    for case in cases:
+        status = 'FAIL' if case.find('failure') is not None else 'ERROR' if case.find('error') is not None else 'SKIP' if case.find('skipped') is not None else 'PASS'
+        rows.append({'name': case.get('name'), 'status': status})
+    return rows, dict(collections.Counter(row['status'] for row in rows))
+
+result = {'reviewer': 'B cas_probe independent immutable output/source custodian',
+          'runtime_by_reviewer': 'UNRUN', 'peers': {}}
+for label, tip, receipt_name in PEERS:
+    receipt_path = PREFIX + receipt_name
+    receipt = json.loads(raw(tip, receipt_path))
+    mandatory = ['schema', 'unit', 'slice', 'closure_ids', 'bundle_ids', 'slice_base_sha', 'implementation_commits',
+                 'candidate_tree_sha', 'branch', 'pull_request', 'changed_paths', 'baseline_cells', 'checks', 'property',
+                 'predicate_basis', 'capability_state_or_finding_state', 'limitations_and_next_owner']
+    assert all(key in receipt for key in mandatory)
+    assert all(all(key in check for key in ['command', 'target_sha', 'environment', 'input_closure', 'outcome', 'output'])
+               and check['outcome'] in ['PASS', 'FAIL', 'ERROR', 'SKIP', 'UNRUN'] for check in receipt['checks'])
+    assert all(key in receipt['property'] for key in ['statement', 'runtime_path', 'proxy_divergence', 'negative_controls'])
+    assert receipt['predicate_basis'] in ['recomputed', 'independently_reconciled', 'consumer_asserted', 'institutionally_supplied', 'not_established']
+    actual_paths = set()
+    for commit in receipt['implementation_commits']:
+        actual_paths.update(subprocess.check_output(['git', 'diff-tree', '--no-commit-id', '--name-only', '-r', commit], cwd=ROOT).decode().splitlines())
+    assert sorted(actual_paths) == sorted(receipt['changed_paths'])
+    assert subprocess.check_output(['git', 'rev-parse', receipt['implementation_commits'][-1] + '^{tree}'], cwd=ROOT).decode().strip() == receipt['candidate_tree_sha']
+    refs = declared_refs(receipt, receipt['implementation_commits'][-1])
+    idxref = receipt.get('evidence_index') or receipt['source_and_evidence']['index']
+    idxsha = idxref.get('git_sha', idxref.get('source_sha'))
+    index = json.loads(validate_ref(idxref, idxsha))
+    files = list(index['files'].values()) if isinstance(index['files'], dict) else index['files']
+    for row in files:
+        validate_ref(row, idxsha)
+    assert len(files) == index['payload_count'] and sum(row['bytes'] for row in files) == index['payload_bytes']
+    item = {'receipt': record_ref(tip, receipt_path), 'implementation_commits': receipt['implementation_commits'],
+            'implementation_tree': receipt['candidate_tree_sha'], 'implementation_union_paths': len(actual_paths),
+            'source_or_test_changed': [path for path in actual_paths if path.startswith(('policy-engine/src/', 'policy-engine/tests/'))],
+            'declared_distinct_artifacts': refs, 'index': idxref,
+            'index_payloads': len(files), 'index_payload_bytes': sum(row['bytes'] for row in files),
+            'closure_ids': receipt['closure_ids'], 'current_checks': [], 'historical_checks': []}
+    for check in receipt['checks']:
+        summary = {'id': check.get('id', check.get('name')), 'target_sha': check['target_sha'], 'outcome': check['outcome']}
+        if check['target_sha'] != SOURCE:
+            assert check.get('reexecuted_in_this_slice') is False
+            item['historical_checks'].append(summary)
+            continue
+        if 'junit' not in check:
+            item['current_checks'].append(summary)
+            continue
+        rows, counts = xml_partition(validate_ref(check['junit'], receipt['implementation_commits'][-1]))
+        stdout = decoded(validate_ref(check['output'], receipt['implementation_commits'][-1]))
+        wrapper = json.loads(validate_ref(check['wrapper'], receipt['implementation_commits'][-1]))
+        summary.update({'actual_cases': rows, 'counts': counts, 'decoded_stdout': {'bytes': len(stdout), 'sha256': digest(stdout)},
+                        'wrapper_exit': wrapper['actual_exit'], 'wall_s': wrapper['wall_s'], 'max_rss_kib': wrapper['max_rss_kib']})
+        if label == 'checkpoint':
+            pref = check['input_closure']['actual_loaded_origins_and_phase_partition']
+            profile = json.loads(validate_ref(pref, idxsha))
+            assert profile['source']['sha'] == SOURCE and profile['source_after'] == profile['source']
+            assert not profile['origin_mismatches'] and profile['origin_count'] == len(profile['actual_source_origins']) == 166
+            for row in profile['actual_source_origins']:
+                validate_ref(row, SOURCE)
+            phase_counts = dict(collections.Counter((row['phase'], row['outcome']) for row in profile['phase_reports']))
+            fixtures = json.loads(validate_ref(check['actual_filesystem_readback'], idxsha))
+            effect_rows = []
+            for row in fixtures['files']:
+                data = row['utf8'].encode() if 'utf8' in row else base64.b64decode(row['base64'])
+                assert len(data) == row['bytes'] and digest(data) == row['sha256']
+                if row['path'].endswith('effects.txt'):
+                    effect_rows.append({'path': row['path'], 'text': data.decode(), 'sha256': row['sha256']})
+            assert len(fixtures['files']) == fixtures['file_count']
+            summary.update({'origin_count': profile['origin_count'], 'phases': [{'phase': k[0], 'outcome': k[1], 'count': v} for k, v in sorted(phase_counts.items())],
+                            'physical_files_count': fixtures['file_count'], 'effect_files': effect_rows,
+                            'observable_refusal_before_cold_control': "REPLACEMENT_EFFECTS ['original']" in stdout.decode(),
+                            'observable_false_resume107': 'WRONGLY_RESUMED_TOTAL 107' in stdout.decode()})
+            if check['outcome'] == 'PASS':
+                assert counts == {'PASS': 4} and wrapper['actual_exit'] == 0
+                assert summary['observable_refusal_before_cold_control'] and not summary['observable_false_resume107']
+            else:
+                assert counts == {'FAIL': 1} and wrapper['actual_exit'] == 1 and summary['observable_false_resume107']
+                assert any(row['text'] == 'original\nreplacement\n' for row in effect_rows)
+        item['current_checks'].append(summary)
+    if label == 'gateway':
+        pre = PREFIX + 'tenth-wave-gateway-custody-evidence/'
+        partition = json.loads(raw(idxsha, pre + 'actual-case-partition.json'))
+        profile = json.loads(raw(idxsha, pre + 'candidate-590/profile.json'))
+        assert profile['target_sha'] == partition['target_sha'] == SOURCE
+        assert len(profile['items']) == len(partition['cases']) == 15
+        assert len(profile['reports']) == len(partition['actual_phase_rows']) == 45
+        assert not profile['collection_nonpass']
+        for row in partition['source_rows']:
+            validate_ref(row, SOURCE)
+        stdout = decoded(raw(idxsha, pre + 'candidate-590/native.txt.lossless.json')).decode()
+        measurements = [json.JSONDecoder().raw_decode(stdout[m.end():])[0]
+                        for m in re.finditer('EXACT_MONEY_ACTUAL ', stdout)]
+        assert len(measurements) == 15
+        numeric_rows = []
+        for case, measured in zip(partition['cases'], measurements, strict=True):
+            for key in ['raw', 'raw_sha256', 'lexeme', 'independent_decimal', 'http_requests', 'port', 'parent_pid', 'result_error', 'cost_status', 'usage_status', 'cost', 'snapshot']:
+                assert case[key] == measured[key]
+            assert digest(case['raw'].encode()) == case['raw_sha256']
+            assert case['fresh']['pid'] != case['parent_pid'] and case['fresh']['snapshot'] == case['snapshot']
+            folder = case['physical_prefix']
+            assert folder.startswith(pre + 'physical-inputs/')
+            assert raw(idxsha, folder + '/response.bin') == case['raw'].encode()
+            ledger = raw(idxsha, folder + '/budget.json')
+            assert digest(ledger) == case['fresh']['ledger_bytes_sha256']
+            assert json.loads(ledger) == case['snapshot']
+            requests = [json.loads(line) for line in raw(idxsha, folder + '/http-work.jsonl').decode().splitlines()]
+            assert len(requests) == len(case['http_requests']) == 1 and requests == case['http_requests'] and requests[0]['idempotency_key']
+            snap, fresh = case['snapshot'], case['fresh']
+            valid = case['result_error'] is None
+            if valid:
+                amount = Decimal(case['lexeme'])
+                assert len(snap['spend_receipts']) == 1 and not snap['completion_obligations']
+                assert Decimal(next(iter(snap['spend_receipts'].values()))['amount']) == amount
+                assert Decimal(snap['state']['spent']['run']) == amount and Decimal(snap['state']['reserved']['run']) == 0
+                assert fresh['admission_error'] is None and not fresh['should_stop'] and fresh['details']['budget_available']
+            else:
+                assert case['result_error'] == 'LLMAccountingError' and not snap['spend_receipts'] and snap['completion_obligations']
+                assert Decimal(snap['state']['reserved']['run']) > 0
+                assert fresh['admission_error'] == 'BudgetLedgerCompletionRequiredError' and fresh['should_stop'] and not fresh['details']['budget_available']
+            numeric_rows.append({'nodeid': case['nodeid'], 'lexeme': case['lexeme'], 'cost_status': case['cost_status'],
+                                 'amount': case['cost'], 'result_error': case['result_error'], 'fresh_admission_error': fresh['admission_error'],
+                                 'fresh_pid_distinct': True, 'http_effect_count': len(requests),
+                                 'reserved': snap['state']['reserved']['run'], 'receipt_count': len(snap['spend_receipts']),
+                                 'obligation_count': len(snap['completion_obligations']), 'should_stop': fresh['should_stop']})
+        item.update({'numeric_cases': numeric_rows, 'numeric_valid_cases': sum(row['result_error'] is None for row in numeric_rows),
+                     'numeric_unknown_invalid_cases': sum(row['result_error'] is not None for row in numeric_rows),
+                     'source_census': partition['source_census'], 'source_rows_distinct': len(partition['source_rows']),
+                     'guarded_D_boundary': 'Actual explicit B middleware pre_check result determines {} versus cumulative_cost_usd passed to real three D8f module CostBudgetStopping.check. This is not D evaluator/controller/default factory retry/cache-ledger integration.'})
+    result['peers'][label] = item
+result['errors'] = errors
+result['outcome'] = 'PASS' if not errors else 'FAIL'
+Path(sys.argv[1]).write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps({'outcome': result['outcome'], 'errors': errors,
+                  'peers': {name: {key: val for key, val in row.items() if key not in ['declared_distinct_artifacts']}
+                            for name, row in result['peers'].items()},
+                  'complete_output': {'path': sys.argv[1], 'bytes': Path(sys.argv[1]).stat().st_size,
+                                      'sha256': digest(Path(sys.argv[1]).read_bytes())}}, indent=2))
+sys.exit(0 if not errors else 1)

@@ -1,0 +1,99 @@
+{
+  "schema": "policyos.e02.source_review.v1",
+  "reviewer": "B cas_probe independent Git/source reviewer, not writer of EXE mechanism/test",
+  "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+  "target_tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+  "source_refs": [
+    {
+      "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+      "git_blob_sha1": "6f5bd398af2b70cae72754a782e224b990638541",
+      "bytes": 38234,
+      "sha256": "70c99ff156d658302be6dfbc04fcaf875cb63bb822641eeec03c9924f25cd03b"
+    },
+    {
+      "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+      "git_blob_sha1": "56ce07b69f2edf6b5a4af477fbbe02c92151e61a",
+      "bytes": 77081,
+      "sha256": "19f04157cd395d404ebfe948f3ba6ae0fd40a9c7c888cb6e56b1cc0905114087"
+    },
+    {
+      "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "git_blob_sha1": "f4793e795874e0c5a000f1c37684e9f6ef727506",
+      "bytes": 105281,
+      "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1"
+    },
+    {
+      "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+      "git_blob_sha1": "c6aeddebf679cd885d3042563a3bd58c7a6841eb",
+      "bytes": 17554,
+      "sha256": "62fb2e57ba2a7fda2cd5832c5d76a586f0642252f15a0488e60602c7177a0814"
+    },
+    {
+      "git_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+      "git_blob_sha1": "a30917ff03a060fe31d9d9503f7a8193b9914b99",
+      "bytes": 32381,
+      "sha256": "32e552ede3c755de0577e934ffb80f8a30dfea79f4b1dd08c1b66124b08d9b05"
+    }
+  ],
+  "verdict": "NONBLOCKING exact normal reconciliation/footprint custody; ordinary mutable model-field scope requires defining behavioral evidence/canonical EXE assessment; no whole-B acceptance",
+  "ancestry_decision": [
+    "Current B and G are divergent from exact common9a. Root590 is a normal two-parent merge d030+G855, preserving both histories and all source/test bytes of d030.",
+    "The complete d030->590 change is79 research paths/738740 candidate bytes, including research witness .py files; docs-only means research location, not literal Markdown-only.",
+    "No a3daffbe867ddfe9eede5e5990687283b552952a ancestry in independently enumerated B/G/root histories. All matching generation_cycle/run_lifecycle/streaming protected paths preserve198 blobs.",
+    "Fresh-G narrow code delivery would require explicit dependency closure: B/G differ148 source/test paths. Blind replacement of B source by G would drop ledger/JIT/transfer dependencies and stronger producer guard; normal reconciliation retains the known mechanism without accepting it by merge success."
+  ],
+  "source_direction": {
+    "state_branching_B_blob": "6f5bd398af2b70cae72754a782e224b990638541",
+    "state_branching_G_and_common_blob": "08760b26aae2a489b54441b20b3a90fcd040888d",
+    "qualification": "G feedback wording about strong G producer scope is not source evidence. G/common blob lacks the B live grant attenuation/authorization/neutral completion additions; no merge conflict is not a runtime verdict.",
+    "retained_B_quantities": [
+      "branch_state: active inherited scope cannot be released by enforce_write_scope=False; nested normalized paths must lie under original declared grant (state_branching.py198-211).",
+      "Live root/parent/list alias census drives _authorize_container_mutation before tracked mutation; all live locations must be covered, with grouped journal intents (984-1057).",
+      "Sequential fresh-node branch1356-1359 and async1665-1668 establish enforce_write_scope=True before node body.",
+      "Sequential1543-1545 and async2071 make a separate completed producer state; old producer-held view remains bound. This is a source trace, not a newly executed completion oracle.",
+      "Shared worker87-91 re-establishes declared scope after deserialize_state; serialize_outcome569-605 emits validated declared model state+typed operations, decode608-649 restores replay journal. This shared activity function does not prove deployed Ray/Temporal or separate process execution."
+    ]
+  },
+  "generic_model_scope_assessment": {
+    "grade": "Material same-class ordinary typed-model/copy-update escape reproduced by EXE actual2be5 whole30 (18PASS12FAIL); reviewer read full test delta/XML/all15 observations but portable author native custody not yet published at this review cut.",
+    "contract_sources": [
+      "ExperimentState state.py29-30: node mutations only on keys declared by NodeSpec.state_writes.",
+      "State inputs/artifacts_index/reports_index49-51 explicitly accept ArtifactRef BaseModel values; ArtifactRef manifest.py249 extra=forbid does not freeze ordinary fields.",
+      "state_branching _get_child/_set_child/_clone_container/_is_branchable_container365-420 explicitly support BaseModel path traversal/isolation.",
+      "Tracking wrap1060-1082 handles dict/list/tuple and returns a nested BaseModel unchanged; _install490-550 does not establish ordinary model field interception."
+    ],
+    "smallest_supported_profile": "Canonical state-supported mutable BaseModel declared fields, recursively carrying only the already supported finite model/dict/list/tuple graph, ordinary field assignment and aliases under actual live ownership paths. No ArtifactRef.kind special case or instance mutation patch.",
+    "required_behavior": [
+      "Undeclared ordinary model field assignment refuses before branch/base data or journal/effects change.",
+      "Every live alias location must be covered; a allowed alias alone cannot grant writes to a shared readonly model field.",
+      "Allowed model-field mutation preserves canonical original model class/typed serialized values and quantitative downstream consumer result.",
+      "Isolation/deepcopy alone is not proof of scope: it may protect base while accepting a forbidden mutation of the returned branch."
+    ],
+    "finite_residual": "Custom methods/descriptors, direct __dict__/object.__setattr__, arbitrary Python reflection and runtime sandbox confinement are not inferred as supported authority from model type/name/hash. Explicit owner admission may conservatively refuse an unsupported ordinary graph before producer work.",
+    "actual_reproduction": {
+      "source_sha": "2be5a49784403c875742588299d78639f5e8b6ef",
+      "source_tree": "99f550431d93e2523aa4dea4451ed7f1053b5855",
+      "native_xml": {
+        "path": "/tmp/e02-B-tenth-producer-model-scope-baseline/native.xml",
+        "bytes": 37981,
+        "sha256": "48a93f33eb6e60e548ff631f62c6854a22bc418079b0f91dec334af971ac8461"
+      },
+      "full_stdout": {
+        "path": "/tmp/e02-B-tenth-producer-model-scope-baseline/native.txt",
+        "bytes": 34262,
+        "sha256": "4fec1e9a70b655e5b01202a8e4034dec05aa7b365718834f8f6d24ce3b35d3e9"
+      },
+      "grade": "Author actual native assertions; exact source/XML/observation values read independently without reviewer native. Until author Git transfers deciding raw/fixtures, independent receiver availability not_established.",
+      "quantity": "12 silent false admissions all with state changes and unchanged journal; local6 typed attributes change base, copy-update3 does not change base yet changes public branch99; detached rebind3 correctly refuses. No per-case data imported as a new-candidate pass."
+    }
+  },
+  "native": "UNRUN by reviewer",
+  "quality_and_P41": "not_established; no full gate command or full gate input replay by reviewer, no inherited waiver",
+  "finding_closure": "none; B74 frame/global namespace remains LIMITED, held cross-unit semantic decisions unchanged",
+  "next_owner": "EXE writes one canonical ordinary tracked-model/copy-update widening and packages current red+successor native/removal; CMP independent generic model oracle. ROOT/G owns current full input/quality/closure decisions. Source review of future immutable cut is separate."
+}

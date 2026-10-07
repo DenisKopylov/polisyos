@@ -15,12 +15,14 @@ This module provides a narrower branching contract:
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Any, Literal
+from inspect import getattr_static
+from operator import index as _index
+from typing import Any, ClassVar, Literal, Self, SupportsIndex, cast
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, RootModel
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
@@ -116,6 +118,28 @@ class _JournaledExperimentState(ExperimentState):
             return
         super().__setattr__(name, value)
 
+    def model_copy(self, *, update: Mapping[str, Any] | None = None, deep: bool = False) -> Self:
+        journal = mutation_journal_for_state(self)
+        if journal is None or not journal.enforce_write_scope:
+            return super().model_copy(update=update, deep=deep)
+        for name in update or ():
+            if name not in journal.isolated_paths:
+                raise ValueError(f"undeclared state_writes at live paths: {[name]}")
+        copied = super().model_copy(deep=deep)
+        for name in type(self).model_fields:
+            _bind_mutation_root(getattr(copied, name), copied, name, (name,))
+        for name, value in (update or {}).items():
+            setattr(copied, name, value)
+        return copied
+
+    def __delattr__(self, name: str) -> None:
+        journal = mutation_journal_for_state(self)
+        if journal is not None and journal.enforce_write_scope:
+            if name not in journal.isolated_paths:
+                raise ValueError(f"undeclared state_writes at live paths: {[name]}")
+            raise TypeError("model field deletion is not replayable")
+        super().__delattr__(name)
+
 
 StateMutationOperation = Literal[
     "set",
@@ -209,6 +233,11 @@ def branch_state(
         enforce_write_scope = True
     if enforce_write_scope is None:
         enforce_write_scope = source_journal.enforce_write_scope if source_journal else False
+    if enforce_write_scope:
+        # Admission precedes every path-isolation copy as well as tracked class
+        # creation. Original model copy/constructor hooks cannot run first.
+        for name in type(base_state).model_fields:
+            _validate_mutation_attachment(None, getattr(base_state, name))
     branched = _promote_to_journaled_state(base_state.model_copy(deep=False))
     object.__setattr__(branched, _MUTATION_JOURNAL_ATTR, None)
     isolated_fields: list[str] = []
@@ -274,10 +303,11 @@ def _completed_producer_state(state: ExperimentState) -> ExperimentState:
         if id(value) in seen:
             return
         seen.add(id(value))
-        if isinstance(value, (_TrackedDict, _TrackedList)):
-            value._mutation_journal = journal
+        if isinstance(value, (_TrackedDict, _TrackedList, _TrackedModelMixin)):
+            object.__setattr__(value, "_mutation_journal", journal)
+        children: Iterable[Any]
         if isinstance(value, BaseModel):
-            children = value.__dict__.values()
+            children = (getattr(value, name) for name in type(value).model_fields)
         elif isinstance(value, dict):
             children = value.values()
         elif isinstance(value, (list, tuple)):
@@ -288,7 +318,7 @@ def _completed_producer_state(state: ExperimentState) -> ExperimentState:
             rebind(child)
 
     rebind(completed)
-    for name in _TOP_LEVEL_MUTABLE_FIELDS:
+    for name in type(completed).model_fields:
         _bind_mutation_root(getattr(completed, name), completed, name, (name,))
     return completed
 
@@ -397,6 +427,7 @@ def _clone_container(value: Any, *, deep: bool = False, memo: dict[int, Any]) ->
         return memo[id(value)]
     if deep:
         return deepcopy(value, memo)
+    clone: Any
     if isinstance(value, dict):
         clone = dict(value)
     elif isinstance(value, list):
@@ -499,9 +530,9 @@ def _install_mutation_tracking(
     out-of-scope alias is checked before either location can change.
     """
     if journal.enforce_write_scope:
-        for field_name in _TOP_LEVEL_MUTABLE_FIELDS:
+        for field_name in type(state).model_fields:
             value = getattr(state, field_name, None)
-            if isinstance(value, dict):
+            if isinstance(value, (dict, list, tuple, BaseModel)):
                 _validate_mutation_attachment(None, value)
                 _set_path(state, (field_name,), _wrap_mutable_value(value, (field_name,), journal))
     for parts in paths:
@@ -563,7 +594,7 @@ def _is_path_prefix(prefix: tuple[str, ...], path: tuple[str, ...]) -> bool:
 
 
 def _is_mutable_container(value: Any) -> bool:
-    return isinstance(value, (dict, list, set))
+    return isinstance(value, (dict, list, set, BaseModel))
 
 
 def _get_path(root: Any, parts: tuple[str, ...]) -> Any:
@@ -606,7 +637,7 @@ def _normalize_artifacts_index_ref(path: tuple[str, ...], value: Any) -> Any:
     return ArtifactRef.model_validate(value.model_dump(mode="python"))
 
 
-class _TrackedDict(dict[str, Any]):
+class _TrackedDict(dict[Any, Any]):
     """Dict view that records concrete writes/deletes against a branch journal."""
 
     def __init__(
@@ -620,8 +651,8 @@ class _TrackedDict(dict[str, Any]):
         dict.__init__(self)
         self._mutation_path = path
         self._mutation_journal = journal
-        self._mutation_owners = []
-        self._mutation_roots = []
+        self._mutation_owners: list[tuple[Any, Any, tuple[str, ...]]] = []
+        self._mutation_roots: list[tuple[BaseModel, str, tuple[str, ...]]] = []
         journal._wrapped_values[id(values)] = (values, self)
         for key, value in values.items():
             dict.__setitem__(
@@ -670,7 +701,8 @@ class _TrackedDict(dict[str, Any]):
         for key, value in values.items():
             self[key] = value
 
-    def __ior__(self, values: Any) -> _TrackedDict:
+    # Like builtins.dict in typeshed, |= accepts update inputs wider than |.
+    def __ior__(self, values: Any) -> Self:  # type: ignore[misc]
         self.update(values)
         return self
 
@@ -722,7 +754,7 @@ class _TrackedDict(dict[str, Any]):
     def __deepcopy__(self, memo: dict[int, Any]) -> _TrackedDict:
         existing = memo.get(id(self))
         if existing is not None:
-            return existing
+            return cast("_TrackedDict", existing)
         clone = _TrackedDict.__new__(_TrackedDict)
         memo[id(self)] = clone
         clone._mutation_path = self._mutation_path
@@ -750,8 +782,8 @@ class _TrackedList(list[Any]):
         list.__init__(self)
         self._mutation_path = path
         self._mutation_journal = journal
-        self._mutation_owners = []
-        self._mutation_roots = []
+        self._mutation_owners: list[tuple[Any, Any, tuple[str, ...]]] = []
+        self._mutation_roots: list[tuple[BaseModel, str, tuple[str, ...]]] = []
         journal._wrapped_values[id(values)] = (values, self)
         for index, value in enumerate(values):
             list.append(
@@ -760,7 +792,7 @@ class _TrackedList(list[Any]):
             )
             _bind_mutation_parent(list.__getitem__(self, index), self)
 
-    def __setitem__(self, index: int | slice, value: Any) -> None:
+    def __setitem__(self, index: SupportsIndex | slice, value: Any) -> None:
         _authorize_container_mutation(self)
         if isinstance(index, slice):
             values = list(value)
@@ -790,6 +822,7 @@ class _TrackedList(list[Any]):
                 target=self,
             )
             return
+        index = _index(index)
         _validate_mutation_attachment(self, value)
         list.__setitem__(
             self,
@@ -809,8 +842,10 @@ class _TrackedList(list[Any]):
             target=self,
         )
 
-    def __delitem__(self, index: int | slice) -> None:
+    def __delitem__(self, index: SupportsIndex | slice) -> None:
         _authorize_container_mutation(self)
+        if not isinstance(index, slice):
+            index = _index(index)
         list.__delitem__(self, index)
         if isinstance(index, slice):
             _record_container_mutation(
@@ -856,7 +891,8 @@ class _TrackedList(list[Any]):
         for value in values_list:
             self.append(value)
 
-    def insert(self, index: int, value: Any) -> None:
+    def insert(self, index: SupportsIndex, value: Any) -> None:
+        index = _index(index)
         _authorize_container_mutation(self)
         _validate_mutation_attachment(self, value)
         list.insert(
@@ -874,7 +910,8 @@ class _TrackedList(list[Any]):
             target=self,
         )
 
-    def pop(self, index: int = -1) -> Any:
+    def pop(self, index: SupportsIndex = -1) -> Any:
+        index = _index(index)
         _authorize_container_mutation(self)
         value = list.pop(self, index)
         _record_container_mutation(
@@ -915,11 +952,13 @@ class _TrackedList(list[Any]):
             target=self,
         )
 
-    def __iadd__(self, values: Iterable[Any]) -> _TrackedList:
+    # Like builtins.list in typeshed, += accepts iterables while + requires lists.
+    def __iadd__(self, values: Iterable[Any]) -> Self:  # type: ignore[misc]
         self.extend(values)
         return self
 
-    def __imul__(self, count: int) -> _TrackedList:
+    def __imul__(self, count: SupportsIndex) -> Self:
+        count = _index(count)
         _authorize_container_mutation(self)
         list.__imul__(self, count)
         _record_container_mutation(
@@ -933,7 +972,7 @@ class _TrackedList(list[Any]):
     def __deepcopy__(self, memo: dict[int, Any]) -> _TrackedList:
         existing = memo.get(id(self))
         if existing is not None:
-            return existing
+            return cast("_TrackedList", existing)
         clone = _TrackedList.__new__(_TrackedList)
         memo[id(self)] = clone
         clone._mutation_path = self._mutation_path
@@ -947,8 +986,183 @@ class _TrackedList(list[Any]):
         return clone
 
 
+class _TrackedModelMixin(BaseModel):
+    """Guard the ordinary model field API over the same live owned graph.
+
+    Concrete fields, validators and frozen config remain the original model's
+    contract. Custom mutation/copy hooks and private runtime state are refused
+    at admission; this finite profile is not a Python object sandbox.
+    """
+
+    __slots__ = (
+        "_mutation_detached",
+        "_mutation_journal",
+        "_mutation_owners",
+        "_mutation_path",
+        "_mutation_roots",
+    )
+
+    _original_model_type: ClassVar[type[BaseModel]]
+    _mutation_path: ClassVar[tuple[str, ...]]
+    _mutation_journal: ClassVar[StateMutationJournal]
+    _mutation_owners: ClassVar[list[Any]]
+    _mutation_roots: ClassVar[list[Any]]
+    _mutation_detached: ClassVar[bool]
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if not self._mutation_journal.enforce_write_scope or type(self).model_config.get("frozen"):
+            super().__setattr__(name, value)
+            return
+        journal = self._mutation_journal
+        if name not in self._original_model_type.model_fields:
+            raise TypeError("state mutation journaling requires a declared model field")
+        _authorize_container_mutation(self, suffixes=((name,),))
+        _validate_mutation_attachment(self, value)
+        previous = getattr(self, name, _MISSING)
+        wrapped = _wrap_mutable_value(value, (*self._mutation_path, name), journal)
+        before_fields = self.__dict__.copy()
+        before_fields_set = self.__pydantic_fields_set__.copy()
+        before_extra = None if self.__pydantic_extra__ is None else self.__pydantic_extra__.copy()
+        try:
+            super().__setattr__(name, wrapped)
+            stored = getattr(self, name)
+            _validate_mutation_attachment(self, stored)
+            reconciled = _wrap_mutable_value(stored, (*self._mutation_path, name), journal)
+            self.__dict__[name] = reconciled
+        except Exception:
+            # Validation can materialize a different field representation.
+            # Refuse unsupported results without retaining a partial field edit.
+            object.__setattr__(self, "__dict__", before_fields)
+            object.__setattr__(self, "__pydantic_fields_set__", before_fields_set)
+            object.__setattr__(self, "__pydantic_extra__", before_extra)
+            raise
+        _bind_mutation_parent(reconciled, self)
+        _record_container_mutation(
+            self, suffix=(name,), operation="set", value=reconciled, target=previous
+        )
+
+    def __delattr__(self, name: str) -> None:
+        if not self._mutation_journal.enforce_write_scope or type(self).model_config.get("frozen"):
+            super().__delattr__(name)
+            return
+        _authorize_container_mutation(self, suffixes=((name,),))
+        raise TypeError("model field deletion is not replayable")
+
+    def model_copy(self, *, update: Mapping[str, Any] | None = None, deep: bool = False) -> Self:
+        if not self._mutation_journal.enforce_write_scope:
+            return super().model_copy(update=update, deep=deep)
+        if any(name not in self._original_model_type.model_fields for name in update or ()):
+            raise TypeError("state mutation journaling requires a declared model field")
+        _authorize_container_mutation(self, suffixes=((name,) for name in update or ()))
+        for value in (update or {}).values():
+            _validate_mutation_attachment(None, value)
+        copied = super().model_copy(deep=deep)
+        # A detached copy is not an alias in the original state. Its setters
+        # retain the original logical scope until an actual parent attaches it.
+        object.__setattr__(copied, "_mutation_owners", [])
+        object.__setattr__(copied, "_mutation_roots", [])
+        object.__setattr__(copied, "_mutation_detached", True)
+        for name in type(copied).model_fields:
+            _bind_mutation_parent(getattr(copied, name), copied)
+        for name, value in (update or {}).items():
+            if type(copied).model_config.get("frozen"):
+                # Frozen models still support their ordinary copy-with-update
+                # API; only the new detached model receives the updated field.
+                previous = getattr(copied, name)
+                wrapped = _wrap_mutable_value(
+                    value, (*copied._mutation_path, name), copied._mutation_journal
+                )
+                copied.__dict__[name] = wrapped
+                copied.__pydantic_fields_set__.add(name)
+                _bind_mutation_parent(wrapped, copied)
+                _record_container_mutation(
+                    copied, suffix=(name,), operation="set", value=value, target=previous
+                )
+            else:
+                setattr(copied, name, value)
+        return copied
+
+    def __copy__(self) -> Self:
+        copied = super().__copy__()
+        _initialize_model_tracking(copied, self._mutation_path, self._mutation_journal)
+        object.__setattr__(copied, "_mutation_detached", True)
+        for name in type(copied).model_fields:
+            _bind_mutation_parent(getattr(copied, name), copied)
+        return copied
+
+    def __deepcopy__(self, memo: dict[int, Any] | None = None) -> Self:
+        memo = {} if memo is None else memo
+        existing = memo.get(id(self))
+        if existing is not None:
+            return cast("Self", existing)
+        clone = super().__deepcopy__(memo)
+        memo[id(self)] = clone
+        _initialize_model_tracking(clone, self._mutation_path, self._mutation_journal)
+        object.__setattr__(clone, "_mutation_detached", True)
+        for name in type(clone).model_fields:
+            _bind_mutation_parent(getattr(clone, name), clone)
+        return clone
+
+
+_TRACKED_MODEL_TYPES: dict[type[BaseModel], type[BaseModel]] = {}
+
+
+def _ordinary_model_type(value: BaseModel) -> type[BaseModel]:
+    original = value._original_model_type if isinstance(value, _TrackedModelMixin) else type(value)
+    if type(original) is not type(BaseModel):
+        raise TypeError("state mutation journaling requires the canonical BaseModel metaclass")
+    hooks = (
+        "__new__",
+        "__init_subclass__",
+        "__pydantic_init_subclass__",
+        "__pydantic_on_complete__",
+        "__get_pydantic_core_schema__",
+        "__get_pydantic_json_schema__",
+        "__setattr__",
+        "__delattr__",
+        "__getattribute__",
+        "__copy__",
+        "__deepcopy__",
+        "model_copy",
+        "model_construct",
+        "model_post_init",
+    )
+
+    def implementation(model: type[BaseModel], name: str) -> Any:
+        # Compare raw MRO descriptors before binding or executing custom class
+        # hooks. Builtin class-bound methods otherwise compare their receiver.
+        hook = getattr_static(model, name)
+        return hook.__func__ if isinstance(hook, (classmethod, staticmethod)) else hook
+
+    if any(
+        not any(
+            implementation(original, name) is implementation(canonical, name)
+            for canonical in (BaseModel, RootModel)
+        )
+        for name in hooks
+    ):
+        raise TypeError("state mutation journaling requires ordinary BaseModel mutation/copy hooks")
+    if value.__pydantic_private__ or value.__pydantic_extra__:
+        raise TypeError("state mutation journaling refuses private or extra model runtime state")
+    return original
+
+
+def _initialize_model_tracking(
+    value: BaseModel, path: tuple[str, ...], journal: StateMutationJournal
+) -> None:
+    object.__setattr__(value, "_mutation_path", path)
+    object.__setattr__(value, "_mutation_journal", journal)
+    object.__setattr__(value, "_mutation_owners", [])
+    object.__setattr__(value, "_mutation_roots", [])
+    object.__setattr__(value, "_mutation_detached", False)
+
+
+def _model_members(value: BaseModel) -> Iterable[tuple[str, Any]]:
+    return ((name, getattr(value, name)) for name in type(value).model_fields)
+
+
 def _bind_mutation_root(value: Any, model: BaseModel, name: str, path: tuple[str, ...]) -> None:
-    if isinstance(value, (_TrackedDict, _TrackedList)) and not any(
+    if isinstance(value, (_TrackedDict, _TrackedList, _TrackedModelMixin)) and not any(
         root is model and field == name for root, field, _ in value._mutation_roots
     ):
         value._mutation_roots.append((model, name, path))
@@ -956,13 +1170,13 @@ def _bind_mutation_root(value: Any, model: BaseModel, name: str, path: tuple[str
 
 def _bind_mutation_parent(
     value: Any,
-    parent: _TrackedDict | _TrackedList,
+    parent: _TrackedDict | _TrackedList | _TrackedModelMixin,
     *,
     owner_value: Any = _MISSING,
     suffix: tuple[str, ...] = (),
 ) -> None:
     """Retain live container ownership rather than an index captured before edits."""
-    if isinstance(value, (_TrackedDict, _TrackedList)):
+    if isinstance(value, (_TrackedDict, _TrackedList, _TrackedModelMixin)):
         if value._mutation_journal is not parent._mutation_journal:
             return
         member = value if owner_value is _MISSING else owner_value
@@ -982,13 +1196,21 @@ def _bind_mutation_parent(
 
 
 def _current_mutation_paths(
-    value: _TrackedDict | _TrackedList,
+    value: _TrackedDict | _TrackedList | _TrackedModelMixin,
     seen: frozenset[int] = frozenset(),
+    *,
+    include_detached: bool = False,
 ) -> list[tuple[str, ...]]:
     """Resolve every live location, or none for a removed descendant view."""
     if id(value) in seen:
         return []
     if not value._mutation_owners and not value._mutation_roots:
+        if (
+            isinstance(value, _TrackedModelMixin)
+            and value._mutation_detached
+            and not include_detached
+        ):
+            return []
         return [value._mutation_path]
     paths = [
         path
@@ -996,15 +1218,23 @@ def _current_mutation_paths(
         if getattr(model, name, _MISSING) is value
     ]
     for parent, owner_value, suffix in value._mutation_owners:
-        parent_paths = _current_mutation_paths(parent, seen | {id(value)})
-        members = parent.items() if isinstance(parent, dict) else enumerate(parent)
+        parent_paths = _current_mutation_paths(
+            parent, seen | {id(value)}, include_detached=include_detached
+        )
+        members = (
+            _model_members(parent)
+            if isinstance(parent, BaseModel)
+            else parent.items()
+            if isinstance(parent, dict)
+            else enumerate(parent)
+        )
         keys = [str(key) for key, child in members if child is owner_value]
         paths.extend((*path, key, *suffix) for path in parent_paths for key in keys)
     return list(dict.fromkeys(paths))
 
 
 def _validate_mutation_attachment(
-    container: _TrackedDict | _TrackedList | None, value: Any
+    container: _TrackedDict | _TrackedList | _TrackedModelMixin | None, value: Any
 ) -> None:
     """Reject a cyclic attachment before changing the finite owned JSON graph."""
 
@@ -1013,11 +1243,19 @@ def _validate_mutation_attachment(
             raise TypeError("state mutation journaling requires a finite JSON container graph")
         if container is not None and child is container:
             raise ValueError("cyclic state mutation attachment")
-        if not isinstance(child, (dict, list, tuple)):
+        if isinstance(child, BaseModel):
+            _ordinary_model_type(child)
+        if not isinstance(child, (dict, list, tuple, BaseModel)):
             return
         if id(child) in ancestors:
             raise ValueError("cyclic state mutation value")
-        nested = child.values() if isinstance(child, dict) else child
+        nested = (
+            (value for _, value in _model_members(child))
+            if isinstance(child, BaseModel)
+            else child.values()
+            if isinstance(child, dict)
+            else child
+        )
         for item in nested:
             visit(item, ancestors | {id(child)})
 
@@ -1025,7 +1263,7 @@ def _validate_mutation_attachment(
 
 
 def _authorize_container_mutation(
-    container: _TrackedDict | _TrackedList,
+    container: _TrackedDict | _TrackedList | _TrackedModelMixin,
     *,
     suffixes: Iterable[tuple[str, ...]] = ((),),
 ) -> None:
@@ -1034,7 +1272,11 @@ def _authorize_container_mutation(
         return
     declared = [tuple(path.split(".")) for path in container._mutation_journal.isolated_paths]
     suffixes = tuple(suffixes)
-    paths = [(*path, *suffix) for path in _current_mutation_paths(container) for suffix in suffixes]
+    paths = [
+        (*path, *suffix)
+        for path in _current_mutation_paths(container, include_detached=True)
+        for suffix in suffixes
+    ]
     unauthorized = [
         path for path in paths if not any(_is_path_prefix(write, path) for write in declared)
     ]
@@ -1045,7 +1287,7 @@ def _authorize_container_mutation(
 
 
 def _record_container_mutation(
-    container: _TrackedDict | _TrackedList,
+    container: _TrackedDict | _TrackedList | _TrackedModelMixin,
     *,
     suffix: tuple[str, ...] = (),
     **kwargs: Any,
@@ -1065,7 +1307,10 @@ def _wrap_mutable_value(
     recursive: bool = True,
 ) -> Any:
     value = journal._isolated_values.get(id(value), value)
-    if isinstance(value, (_TrackedDict, _TrackedList)) and value._mutation_journal is journal:
+    if (
+        isinstance(value, (_TrackedDict, _TrackedList, _TrackedModelMixin))
+        and value._mutation_journal is journal
+    ):
         return value
     existing = journal._wrapped_values.get(id(value))
     if existing is not None and existing[0] is value:
@@ -1079,6 +1324,26 @@ def _wrap_mutable_value(
             _wrap_mutable_value(item, (*path, str(index)), journal)
             for index, item in enumerate(value)
         )
+    if isinstance(value, BaseModel):
+        original = _ordinary_model_type(value)
+        tracked = _TRACKED_MODEL_TYPES.get(original)
+        if tracked is None:
+            tracked = type(
+                f"_Journaled{original.__name__}",
+                (_TrackedModelMixin, original),
+                {"__module__": __name__, "_original_model_type": original},
+            )
+            _TRACKED_MODEL_TYPES[original] = tracked
+        # Preserve already-validated fields without re-running constructors.
+        wrapped = tracked.model_construct(
+            _fields_set=set(value.__pydantic_fields_set__), **dict(_model_members(value))
+        )
+        _initialize_model_tracking(wrapped, path, journal)
+        journal._wrapped_values[id(value)] = (value, wrapped)
+        for name, child in _model_members(value):
+            wrapped.__dict__[name] = _wrap_mutable_value(child, (*path, name), journal)
+            _bind_mutation_parent(getattr(wrapped, name), cast("_TrackedModelMixin", wrapped))
+        return wrapped
     return value
 
 

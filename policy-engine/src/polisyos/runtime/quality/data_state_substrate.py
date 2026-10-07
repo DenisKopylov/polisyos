@@ -286,6 +286,7 @@ def l1_dcat_variable_availability(
     variable_id: str,
     *,
     overlay_path: Path | None = None,
+    baseline_only: bool = False,
 ) -> L1VariableAvailability:
     """Resolve required-vs-available status from the L1 DCAT DuckDB catalog."""
 
@@ -296,8 +297,10 @@ def l1_dcat_variable_availability(
     if not dcat_path.exists():
         raise DataStateSubstrateError("l1_dcat_missing", dcat_path.as_posix())
 
-    selected_overlay = overlay_path or (
-        data_forge_read_api.catalog.default_acquisition_overlay_path(repo_root)
+    selected_overlay = (
+        None
+        if baseline_only
+        else overlay_path or data_forge_read_api.catalog.default_acquisition_overlay_path(repo_root)
     )
     con = data_forge_read_api.catalog.open_catalog_read_session(
         dcat_path,

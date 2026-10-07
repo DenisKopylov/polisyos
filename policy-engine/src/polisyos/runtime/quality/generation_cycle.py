@@ -225,6 +225,7 @@ ENGINE_SIMPLE_OWNER_REF = (
 )
 _N7_ROUTING_FAILURE_CODES = frozenset(
     {
+        "n7_capability_index_unavailable",
         "n7_cycle_substrate_context_invalid",
         "n7_cycle_substrate_context_mismatch",
         "n7_requirement_gap_invalid",
@@ -4517,6 +4518,39 @@ class RealValueOwnerGateway:
             )
         repo_root = (self.repo_root or Path.cwd()).resolve()
         try:
+            from polisyos.runtime.quality.substrate_registry import (
+                default_substrate_catalog_paths,
+            )
+
+            state = data_forge_read_api.catalog.project_catalog_acquisition_state(
+                default_substrate_catalog_paths(repo_root).l1_dcat_path,
+                overlay_path=self.catalog_overlay_path
+                or data_forge_read_api.catalog.default_acquisition_overlay_path(repo_root),
+            )
+            active_owners = {
+                (epoch.epoch_id, epoch.passport_id)
+                for epoch in state.epochs
+                if epoch.epoch_activation_state == "active"
+            }
+            active_outcome_claim = any(
+                passport.variable_id == outcome
+                and (passport.epoch_id, passport.passport_id) in active_owners
+                for passport in state.passports
+            )
+        except Exception as exc:
+            raise ValueOwnerAccessError(
+                "acquire_data:active_observation_state_unavailable",
+                f"C acquisition state cannot establish the active member scope: {exc}",
+                owner_access_ref="substrate_owner://active_observation_state",
+            ) from exc
+        if active_outcome_claim and self.activated_observation_projection is None:
+            raise ValueOwnerAccessError(
+                "acquire_data:active_observation_projection_missing",
+                "An active C outcome claim requires its verified member projection",
+                owner_access_ref="substrate_owner://active_observation_projection",
+            )
+        baseline_only = self.activated_observation_projection is None
+        try:
             from polisyos.runtime.quality.data_state_substrate import (
                 l1_dcat_variable_availability,
             )
@@ -4525,6 +4559,7 @@ class RealValueOwnerGateway:
                 repo_root,
                 outcome,
                 overlay_path=self.catalog_overlay_path,
+                baseline_only=baseline_only,
             )
         except Exception as exc:
             raise ValueOwnerAccessError(
@@ -4558,6 +4593,7 @@ class RealValueOwnerGateway:
             scope_region=scope_region,
             artifact_store=self.artifact_store,
             activated_observation_projection=self.activated_observation_projection,
+            baseline_only=baseline_only,
         )
         if profile is None:
             raise ValueOwnerAccessError(
@@ -5507,6 +5543,9 @@ class _DefaultSimulationBoundFoundryValuePort:
     observation_to_contract_manifest: object = _OBSERVATION_MANIFEST_UNSUPPLIED
     observation_family: str | None = None
     runtime_budget_ms: float | None = None
+    activated_observation_projection: (
+        data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection | None
+    ) = None
 
     def _selection_configuration(self) -> dict[str, Any]:
         """Preserve selection scope while the execution context awaits N5."""
@@ -5516,6 +5555,7 @@ class _DefaultSimulationBoundFoundryValuePort:
             "observation_family": self.observation_family,
             "runtime_budget_ms": self.runtime_budget_ms,
             "cycle_substrate_context": self.cycle_substrate_context,
+            "activated_observation_projection": self.activated_observation_projection,
         }
 
     def __call__(
@@ -5704,6 +5744,9 @@ class GenerationCycleController:
         repo_root: Path | None = None,
         model_id: str | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
+        activated_observation_projection: (
+            data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection | None
+        ) = None,
         promotion_runtime: PromotionRuntime | None = None,
         artifact_store: ArtifactStore | None = None,
         eval_safety_verifier: EvalSafetyVerifierPort | None = None,
@@ -5750,6 +5793,7 @@ class GenerationCycleController:
             eval_safety_verifier=eval_safety_verifier,
             observation_to_contract_manifest=observation_to_contract_manifest,
             observation_family=observation_family,
+            activated_observation_projection=activated_observation_projection,
         )
         if authority_scope == "production" and promotion_port is not None:
             raise ValueError("production_promotion_port_must_be_container_derived")
@@ -6886,11 +6930,9 @@ class GenerationCycleController:
     ) -> core_contracts.CapabilityResolverPort | None:
         """Return the resolver composed for the N7 requirement handoff.
 
-        The normal owner supplies an already-loaded port.  A persisted governed
-        capability index is the bounded runtime fallback for the ordinary
-        production controller; an unavailable index stays ``None`` so the
-        compiler emits no regular capability requirements and N7 cannot mint a
-        receipt from an unestablished resolver.
+        Prefer an already-composed owner port, otherwise load the configured,
+        content-verified release. An unavailable release is a typed routing
+        refusal; it is never replaced with a fixture or an empty resolver.
         """
 
         candidates = (
@@ -6902,16 +6944,22 @@ class GenerationCycleController:
         for candidate in candidates:
             if callable(getattr(candidate, "resolve", None)):
                 return candidate
-        if self._repo_root is None:
-            return None
-        try:
-            from polisyos.runtime.quality.capability_resolver import (
-                RequirementToCapabilityResolver,
-            )
+        from polisyos.runtime.quality.capability_discovery import (
+            CapabilityProviderUnavailableError,
+            load_default_capability_index_release,
+        )
+        from polisyos.runtime.quality.capability_resolver import (
+            RequirementToCapabilityResolver,
+        )
 
-            return RequirementToCapabilityResolver.governed_fixture(self._repo_root)
-        except (OSError, TypeError, ValueError):
-            return None
+        try:
+            index = load_default_capability_index_release()
+            return RequirementToCapabilityResolver.from_capability_index(index)
+        except (CapabilityProviderUnavailableError, OSError, TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_capability_index_unavailable",
+                str(exc),
+            ) from exc
 
     def _n7_scope_profile(
         self,
@@ -10406,6 +10454,7 @@ def _load_value_data_profile_from_l1_dcat(
     outcome: str,
     owner_access_ref: str,
     overlay_path: Path | None = None,
+    baseline_only: bool = False,
     scope_region: str | None = None,
     artifact_store: ArtifactStore | None = None,
     activated_observation_projection: (
@@ -10601,8 +10650,10 @@ def _load_value_data_profile_from_l1_dcat(
             f"L1 DCAT catalog missing at {dcat_path}",
             owner_access_ref="substrate_owner://l1_dcat_missing",
         )
-    selected_overlay = overlay_path or (
-        data_forge_read_api.catalog.default_acquisition_overlay_path(repo_root)
+    selected_overlay = (
+        None
+        if baseline_only
+        else overlay_path or data_forge_read_api.catalog.default_acquisition_overlay_path(repo_root)
     )
     if observation_projection is not None:
         try:

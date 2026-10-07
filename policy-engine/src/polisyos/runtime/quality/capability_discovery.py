@@ -1574,6 +1574,8 @@ def load_default_capability_index_release() -> CapabilityIndex:
 
 def load_capability_index_release(path: str | Path) -> CapabilityIndex:
     """Read and integrity-check a compiler-emitted CapabilityIndex release."""
+    import duckdb
+
     release_path = Path(path).expanduser().resolve()
     manifest_path = release_path.with_name(CAPABILITY_INDEX_MANIFEST)
     if not release_path.is_file() or not manifest_path.is_file():
@@ -1592,8 +1594,6 @@ def load_capability_index_release(path: str | Path) -> CapabilityIndex:
         logical_digest = compute_logical_duckdb_digest(release_path)
         if signature.get("digest") != logical_digest:
             raise ValueError("CapabilityIndex logical digest does not match its manifest")
-
-        import duckdb
 
         with duckdb.connect(str(release_path), read_only=True) as connection:
             capabilities = tuple(
@@ -1652,7 +1652,7 @@ def load_capability_index_release(path: str | Path) -> CapabilityIndex:
         )
     except CapabilityProviderUnavailableError:
         raise
-    except (KeyError, OSError, TypeError, ValueError) as exc:
+    except (KeyError, OSError, TypeError, ValueError, duckdb.Error) as exc:
         raise CapabilityProviderUnavailableError("capability_index_release_invalid") from exc
 
 

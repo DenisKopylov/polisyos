@@ -91,8 +91,11 @@ def _seed_baseline_nonmembers_before_authority_freeze(
     monkeypatch: pytest.MonkeyPatch,
     *,
     row_count: int,
+    years: tuple[int, ...] | None = None,
 ) -> None:
     """Seed visible epoch-zero rows before the fixture hashes its baseline."""
+    if years is not None and len(years) != row_count:
+        raise ValueError("baseline_seed_year_denominator_mismatch")
     builder = catalog_read_api.build_slice0_fixture_catalog_graph
     rows = [
         (
@@ -101,7 +104,7 @@ def _seed_baseline_nonmembers_before_authority_freeze(
             "distress_score",
             "cells.distress_score",
             "UA",
-            2024,
+            years[index] if years is not None else 2024,
             None,
             None,
             0.99,
@@ -165,7 +168,7 @@ def _disable_exact_projection_member_query_filter(monkeypatch: pytest.MonkeyPatc
 
 def _load_through_default_root_gateway(
     scenario: Any,
-    projection: ActivatedAcquisitionObservationProjection,
+    projection: ActivatedAcquisitionObservationProjection | None,
 ) -> Any:
     """Exercise the root's actual default RealValueOwnerGateway and row loader."""
     outcome = scenario.passport.variable_id
@@ -187,6 +190,80 @@ def _load_through_default_root_gateway(
         problem=problem,  # type: ignore[arg-type]
         world_record=object(),  # The profile query does not derive periods from WMR.
     )
+
+
+def _load_through_default_controller_gateway(
+    scenario: Any,
+    projection: ActivatedAcquisitionObservationProjection,
+    monkeypatch: pytest.MonkeyPatch,
+) -> Any:
+    """Exercise the controller-owned default wrapper and its real C-backed gateway."""
+    outcome = scenario.passport.variable_id
+    captured_init: list[dict[str, Any]] = []
+    real_foundry_port = generation_cycle_module.FoundryValuePort
+
+    class CapturingFoundryValuePort:
+        def __init__(self, **kwargs: Any) -> None:
+            captured_init.append(kwargs)
+            self._delegate = real_foundry_port(**kwargs)
+
+        def __call__(self, **kwargs: Any) -> Any:
+            # Keep the controller and default wrapper real. Invoke the real owner
+            # gateway directly so this focused test does not claim an N8 value
+            # result from its synthetic N5 fixture.
+            return self._delegate._owner_gateway.load_value_data_profile(
+                candidate=kwargs["candidate"],
+                problem=kwargs["problem"],
+                world_record=object(),
+            )
+
+    monkeypatch.setattr(
+        generation_cycle_module,
+        "FoundryValuePort",
+        CapturingFoundryValuePort,
+    )
+    monkeypatch.setattr(
+        generation_cycle_module,
+        "simulation_value_execution_context",
+        lambda **_kwargs: object(),
+    )
+    monkeypatch.setattr(
+        catalog_read_api,
+        "default_acquisition_overlay_path",
+        lambda _repo_root: scenario.overlay.overlay_path,
+    )
+    controller = generation_cycle_module.GenerationCycleController(
+        repo_root=scenario.authority.repo_root,
+        artifact_store=scenario.store,
+        activated_observation_projection=projection,
+        authority_scope="contract_testing",
+    )
+    default_value_port = controller._value_port
+    assert isinstance(
+        default_value_port,
+        generation_cycle_module._DefaultSimulationBoundFoundryValuePort,
+    )
+    candidate = SimpleNamespace(
+        candidate_id="candidate_e02_empirical_controller",
+        atom=SimpleNamespace(target_world_slots=(outcome,)),
+    )
+    problem = SimpleNamespace(
+        outcome_of_interest=SimpleNamespace(target_variable=outcome),
+        jurisdiction_time=SimpleNamespace(region="UA"),
+    )
+    simulation = generation_cycle_module.SimulationPortObservation(
+        candidate_id=candidate.candidate_id,
+        status="simulation_pending_n5",
+    )
+    profile = default_value_port(
+        candidate=candidate,
+        simulation=simulation,
+        problem=problem,
+        cycle_index=0,
+    )
+    assert len(captured_init) == 1
+    assert captured_init[0]["activated_observation_projection"] is projection
+    return profile
 
 
 def _expected_profile_source_hashes(
@@ -265,7 +342,7 @@ def test_default_root_gateway_uses_exact_c_members_before_cap_and_grouping(
     assert len(projection.observations) == 4
     assert visible_scoped_rows == 20_005
 
-    profile = _load_through_default_root_gateway(scenario, projection)
+    profile = _load_through_default_controller_gateway(scenario, projection, monkeypatch)
 
     _assert_exact_four_member_profile(profile, scenario, projection)
 
@@ -277,6 +354,128 @@ def test_default_root_gateway_uses_exact_c_members_before_cap_and_grouping(
         with pytest.raises(ValueOwnerAccessError) as raised:
             _load_through_default_root_gateway(scenario, projection)
     assert raised.value.code == "acquire_data:value_owner_rows_truncated"
+
+
+def test_active_c_claim_without_member_projection_refuses_before_availability(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An active target passport cannot enter the unprojected catalog union."""
+    scenario, projection = _activate_four_row_scenario(tmp_path, monkeypatch)
+    assert projection.variable_id == scenario.passport.variable_id
+
+    def availability_must_not_run(*_args: Any, **_kwargs: Any) -> Any:
+        pytest.fail("active target claim was not refused before availability")
+
+    monkeypatch.setattr(
+        data_state_substrate,
+        "l1_dcat_variable_availability",
+        availability_must_not_run,
+    )
+    with pytest.raises(ValueOwnerAccessError) as raised:
+        _load_through_default_root_gateway(scenario, None)
+
+    assert raised.value.code == "acquire_data:active_observation_projection_missing"
+
+
+def test_unavailable_c_state_projection_refuses_before_availability(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Malformed C overlay state cannot be treated as an empty active set."""
+    scenario, _projection = _activate_four_row_scenario(tmp_path, monkeypatch)
+    con = duckdb.connect(str(scenario.overlay.overlay_path))
+    try:
+        con.execute("DROP TABLE acquisition_passports")
+    finally:
+        con.close()
+
+    def availability_must_not_run(*_args: Any, **_kwargs: Any) -> Any:
+        pytest.fail("unavailable C state was not refused before availability")
+
+    monkeypatch.setattr(
+        data_state_substrate,
+        "l1_dcat_variable_availability",
+        availability_must_not_run,
+    )
+    with pytest.raises(ValueOwnerAccessError) as raised:
+        _load_through_default_root_gateway(scenario, None)
+
+    assert raised.value.code == "acquire_data:active_observation_state_unavailable"
+
+
+def test_no_active_c_claim_keeps_epoch_zero_rows_in_baseline_only_mode(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A pending C epoch does not displace four valid baseline observations."""
+    _seed_baseline_nonmembers_before_authority_freeze(
+        monkeypatch,
+        row_count=4,
+        years=(2017, 2018, 2019, 2020),
+    )
+    scenario = _scenario_with_raw_rows(tmp_path, monkeypatch, _four_ratio_rows())
+    state = catalog_read_api.project_catalog_acquisition_state(
+        scenario.authority.baseline_path,
+        overlay_path=scenario.overlay.overlay_path,
+    )
+    assert state.active_epoch_count == 0
+    assert state.pending_epoch_count == 1
+    assert any(
+        row.variable_id == scenario.passport.variable_id
+        for row in state.passports
+    )
+
+    real_project_catalog_acquisition_state = (
+        catalog_read_api.project_catalog_acquisition_state
+    )
+    state_overlay_arguments: list[Path | None] = []
+
+    def record_acquisition_state_projection(
+        baseline_path: Path,
+        *,
+        overlay_path: Path | None = None,
+    ) -> Any:
+        state_overlay_arguments.append(overlay_path)
+        return real_project_catalog_acquisition_state(
+            baseline_path,
+            overlay_path=overlay_path,
+        )
+
+    real_open_catalog_read_session = catalog_read_api.open_catalog_read_session
+    overlay_arguments: list[Path | None] = []
+
+    def record_catalog_read_session(
+        baseline_path: Path,
+        *,
+        overlay_path: Path | None = None,
+    ) -> Any:
+        overlay_arguments.append(overlay_path)
+        return real_open_catalog_read_session(
+            baseline_path,
+            overlay_path=overlay_path,
+        )
+
+    monkeypatch.setattr(
+        catalog_read_api,
+        "project_catalog_acquisition_state",
+        record_acquisition_state_projection,
+    )
+    monkeypatch.setattr(
+        catalog_read_api,
+        "open_catalog_read_session",
+        record_catalog_read_session,
+    )
+    profile = _load_through_default_root_gateway(scenario, None)
+
+    assert profile.owner_row_count == 4
+    assert tuple(row.period_id for row in profile.rows) == (2017, 2018, 2019, 2020)
+    assert tuple(row.unit_id for row in profile.rows) == ("UA",) * 4
+    assert all(row.outcome_value == pytest.approx(0.99) for row in profile.rows)
+    # C sees the pending overlay but availability and row intake explicitly select
+    # its epoch-zero-only read mode because no target claim is active.
+    assert state_overlay_arguments == [scenario.overlay.overlay_path]
+    assert overlay_arguments.count(None) >= 2
 
 
 def test_same_country_nonmember_cannot_replace_a_missing_c_member_in_denominator(

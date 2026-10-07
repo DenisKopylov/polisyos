@@ -135,6 +135,7 @@ class MethodOutputMonitor:
         raw_output: Any,
         expected_keys: set[str] | frozenset[str] | None = None,
         array_keys: set[str] | frozenset[str] = frozenset(),
+        consumed_raw_keys: frozenset[str] = frozenset(),
     ) -> list[AnomalyFlag]:
         """Check canonical slots and retain numeric backend diagnostics.
 
@@ -144,7 +145,8 @@ class MethodOutputMonitor:
         flags, without treating those raw names as missing or extra slots.
         ``array_keys`` identifies declared vector/matrix/tensor slots, so
         even an untyped empty sequence in those slots remains an empty-array
-        anomaly. Identical flags visible in both views are emitted once.
+        anomaly. Raw sources selected for canonical slots are checked through
+        those slots once; independent diagnostic fields remain numeric inputs.
 
         Args:
             slot_outputs: Canonical values produced by backend dematerialization.
@@ -152,6 +154,10 @@ class MethodOutputMonitor:
             expected_keys: Declared slot names to validate against canonical keys.
             array_keys: Declared vector, matrix, and tensor slot names whose empty
                 sequences must retain numeric empty-output diagnostics.
+            consumed_raw_keys: Raw keys whose values the dispatcher traced to
+                canonical slots using the standard normalizer. For a consumed
+                non-mapping payload, the monitor's raw key is ``"output"``.
+                The default preserves checks in both views for other callers.
 
         Returns:
             Existing typed key and numeric anomaly flags, deduplicated when an
@@ -164,7 +170,13 @@ class MethodOutputMonitor:
             for key, value in slot_outputs.items()
         }
         slot_flags = self.check_basic(numeric_slots, expected_keys=expected_keys)
-        raw_flags = self.check_basic(raw_output)
+        if isinstance(raw_output, Mapping):
+            raw_diagnostics = {
+                key: value for key, value in raw_output.items() if key not in consumed_raw_keys
+            }
+        else:
+            raw_diagnostics = {} if "output" in consumed_raw_keys else raw_output
+        raw_flags = self.check_basic(raw_diagnostics)
         return list(dict.fromkeys([*slot_flags, *raw_flags]))
 
     def check_basic(

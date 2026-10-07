@@ -1,0 +1,30 @@
+id = "2026-10-06-foundry-output-anomaly-count"
+title = "Count normalized output anomalies once"
+type = "fixed"
+component = "foundry-methods"
+owner = "team-polisyos"
+summary = "Shared dispatch traces the raw source selected by standard output normalization and counts its numeric anomaly once through the canonical slot. Independent raw diagnostic fields retain their own flags and metrics."
+evidence = ["tests/unit/foundry/methods/backends/test_output_anomaly_count.py", "tests/unit/foundry/methods/backends/test_dispatch_output_contract.py", "src/polisyos/foundry/methods/lifecycle/README.md"]
+compatibility = "Canonical and raw payloads, method signatures, and AnomalyFlag types remain unchanged. NaN/Inf warnings and metrics no longer double-count a selected raw alias or bare single-slot payload. Independent diagnostic fields retain checks, even for the same object."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry.methods lifecycle monitoring"
+migration = "Interpret standard-normalizer warnings and telemetry per canonical slot and independent raw diagnostic field. Custom transforming dematerializers retain conservative checks in both views."
+api = "MethodOutputMonitor.check_output_contract adds an optional consumed_raw_keys keyword; existing callers retain both-view checks."
+limitations = "Source correspondence is established only for the standard reference-preserving normalizer. Custom copied or wrapped projections do not establish source provenance. This monitoring change does not establish scientific validity, production admission, or causal identification."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/foundry/methods/lifecycle/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "output-anomaly-count"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "public_stable: polisyos.foundry.methods lifecycle monitoring"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "A selected raw alias contributes its numeric flags through canonical slots once; independent sidecars retain their own flags and counters."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/foundry/methods/lifecycle/README.md"]
+runbook_docs = []

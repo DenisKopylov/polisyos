@@ -1,0 +1,28 @@
+{
+  "source_root": "/workspace/e02-F-api-20261006",
+  "target_sha": "190f4a98a9fc2e3b1b12af3ab87375abc71f5c81",
+  "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+    "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+    "tests/unit/foundry/methods/catalog/causal/test_causal_engine.py::TestCausalEngineAudit::test_audit_returns_evidence_bundle",
+    "tests/unit/foundry/methods/catalog/causal/test_causal_engine.py::TestCausalEngineAudit::test_audit_run_id_preserved",
+    "tests/unit/foundry/methods/catalog/causal/test_causal_engine.py::TestCausalEngineAudit::test_audit_created_at_is_iso_string",
+    "tests/unit/foundry/methods/catalog/causal/test_causal_engine.py::TestCausalEngineAudit::test_audit_identification_status_in_bundle",
+    "tests/unit/foundry/methods/catalog/causal/test_causal_engine.py::TestCausalEngineAudit::test_audit_schema_report_in_diagnostics",
+    "-q",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/generator-final-frozen"
+}

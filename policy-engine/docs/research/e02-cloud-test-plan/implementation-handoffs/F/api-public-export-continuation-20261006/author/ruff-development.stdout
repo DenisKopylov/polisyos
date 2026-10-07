@@ -1,0 +1,77 @@
+E501 Line too long (108 > 100)
+  --> docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py:88:101
+   |
+86 |         and node.lineno <= call.lineno <= (node.end_lineno or node.lineno)
+87 |     ]
+88 |     scope = min(scopes, key=lambda node: (node.end_lineno or node.lineno) - node.lineno) if scopes else tree
+   |                                                                                                     ^^^^^^^^
+89 |     role = (
+90 |         "runtime_source" if "/src/" in path else
+   |
+
+E501 Line too long (104 > 100)
+   --> docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py:105:101
+    |
+103 |     literal = _literal(argument, constants)
+104 |     if literal is not None:
+105 |         return {**result, "classification": "literal_target_candidate", "declared_addresses": [literal]}
+    |                                                                                                     ^^^^
+106 |     if isinstance(argument, ast.JoinedStr):
+107 |         prefix = ""
+    |
+
+E501 Line too long (101 > 100)
+   --> docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py:109:101
+    |
+107 |         prefix = ""
+108 |         for part in argument.values:
+109 |             value = _literal(part.value if isinstance(part, ast.FormattedValue) else part, constants)
+    |                                                                                                     ^
+110 |             if value is None:
+111 |                 break
+    |
+
+E501 Line too long (110 > 100)
+   --> docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py:113:101
+    |
+111 |                 break
+112 |             prefix += value
+113 |         if prefix and all(not (prefix.startswith(target) or target.startswith(prefix)) for target in TARGETS):
+    |                                                                                                     ^^^^^^^^^^
+114 |             return {**result, "classification": "fixed_other_namespace", "declared_prefix": prefix}
+115 |     if not isinstance(argument, ast.Name):
+    |
+
+E501 Line too long (124 > 100)
+   --> docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py:119:101
+    |
+117 |     maps = {}
+118 |     for node in tree.body:
+119 |         targets = node.targets if isinstance(node, ast.Assign) else [node.target] if isinstance(node, ast.AnnAssign) else []
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^
+120 |         if not targets:
+121 |             continue
+    |
+
+E501 Line too long (130 > 100)
+   --> docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py:155:101
+    |
+153 |         return {**result, "classification": "finite_source_configuration",
+154 |                 "declared_addresses": sorted(set(addresses)),
+155 |                 "unresolved_by_construction": "Runtime mutation and alternate argument assignments are not executed or resolved."}
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+156 |     return result
+    |
+
+E501 Line too long (121 > 100)
+   --> docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py:166:101
+    |
+164 |     constants: dict[str, str] = {}
+165 |     if "/src/" in path:
+166 |         constants["__name__"] = path.split("/src/", 1)[1].removesuffix(".py").replace("/", ".").removesuffix(".__init__")
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^
+167 |         constants["__package__"] = package
+168 |     # Resolve only file-level constants, never overwrite them with function-local aliases.
+    |
+
+Found 9 errors (2 fixed, 7 remaining).

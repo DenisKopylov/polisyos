@@ -1,0 +1,40 @@
+{"code_changed": true, "markers_preserved": {"annotations": "{'slot_outputs': 'Mapping[str, Any]', 'raw_output': 'Any', 'expected_keys': 'set[str] | frozenset[str] | None', 'array_keys': 'set[str] | frozenset[str]', 'consumed_raw_keys': 'frozenset[str]', 'return': 'list[AnomalyFlag]'}", "doc": "Check canonical slots and retain numeric backend diagnostics.\n\nOnly ``slot_outputs`` participates in the declared key contract.\nBackend output may contain supported aliases, envelopes, and other\nsidecars. Its numeric anomalies still produce the existing typed\nflags, without treating those raw names as missing or extra slots.\n``array_keys`` identifies declared vector/matrix/tensor slots, so\neven an untyped empty sequence in those slots remains an empty-array\nanomaly. Raw sources selected for canonical slots are checked through\nthose slots once; independent diagnostic fields remain numeric inputs.\n\nArgs:\n    slot_outputs: Canonical values produced by backend dematerialization.\n    raw_output: Backend payload, including aliases and diagnostic sidecars.\n    expected_keys: Declared slot names to validate against canonical keys.\n    array_keys: Declared vector, matrix, and tensor slot names whose empty\n        sequences must retain numeric empty-output diagnostics.\n    consumed_raw_keys: Raw keys whose values the dispatcher traced to\n        canonical slots using the standard normalizer. For a consumed\n        non-mapping payload, the monitor's raw key is ``\"output\"``.\n        The default preserves checks in both views for other callers.\n\nReturns:\n    Existing typed key and numeric anomaly flags, deduplicated when an\n    identical flag occurs in both views.\n", "id": 140549053127616, "module": "polisyos.foundry.methods.lifecycle.output_monitor", "name": "check_output_contract", "qualname": "MethodOutputMonitor.check_output_contract", "signature": "(self, *, slot_outputs: 'Mapping[str, Any]', raw_output: 'Any', expected_keys: 'set[str] | frozenset[str] | None' = None, array_keys: 'set[str] | frozenset[str]' = frozenset(), consumed_raw_keys: 'frozenset[str]' = frozenset()) -> 'list[AnomalyFlag]'"}, "property_removal": "no_sidecars"}
+2026-10-06 18:05:15 [info     ] method_registered              backend=numpy fqn=tests.monitor.anomaly_count@1.0.0 lazy=False namespace=tests.monitor override=True tags=[] version=1.0.0
+2026-10-06 18:05:15 [debug    ] method_dispatch_start          backend=numpy fqn=tests.monitor.anomaly_count@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 18:05:15 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=14.05 fqn=tests.monitor.anomaly_count@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{"actual_otel_counter": {"inf_detected": 1, "nan_detected": 1}, "flags": [{"key": "result", "reason": "nan_detected", "severity": "error"}, {"key": "result", "reason": "inf_detected", "severity": "error"}], "method_fqn": "tests.monitor.anomaly_count@1.0.0", "warnings": ["[ERROR] result: nan_detected \u2014 1 NaN value(s) in 'result' (shape=(2,))", "[ERROR] result: inf_detected \u2014 1 Inf value(s) in 'result' (shape=(2,))"]}
+F2026-10-06 18:05:15 [info     ] method_registered              backend=numpy fqn=tests.monitor.anomaly_count@1.0.0 lazy=False namespace=tests.monitor override=True tags=[] version=1.0.0
+2026-10-06 18:05:15 [debug    ] method_dispatch_start          backend=numpy fqn=tests.monitor.anomaly_count@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 18:05:15 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=11.53 fqn=tests.monitor.anomaly_count@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{"actual_otel_counter": {"inf_detected": 1, "nan_detected": 1}, "flags": [{"key": "result", "reason": "nan_detected", "severity": "error"}, {"key": "result", "reason": "inf_detected", "severity": "error"}], "method_fqn": "tests.monitor.anomaly_count@1.0.0", "warnings": ["[ERROR] result: nan_detected \u2014 1 NaN value(s) in 'result' (shape=(2,))", "[ERROR] result: inf_detected \u2014 1 Inf value(s) in 'result' (shape=(2,))"]}
+F
+=================================== FAILURES ===================================
+_ test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[nan_inf_vector-False] _
+tests/unit/foundry/methods/backends/test_output_anomaly_count.py:187: in test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object
+    assert {(f.key, f.reason, f.severity) for f in flags} == expected
+E   AssertionError: assert {('result', '...ed', 'error')} == {('diagnostic...ed', 'error')}
+E     
+E     Extra items in the right set:
+E     ('diagnostic_draw', 'nan_detected', 'error')
+E     ('diagnostic_draw', 'inf_detected', 'error')
+E     Use -v to get more diff
+_ test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[nan_inf_vector-True] _
+tests/unit/foundry/methods/backends/test_output_anomaly_count.py:187: in test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object
+    assert {(f.key, f.reason, f.severity) for f in flags} == expected
+E   AssertionError: assert {('result', '...ed', 'error')} == {('diagnostic...ed', 'error')}
+E     
+E     Extra items in the right set:
+E     ('diagnostic_draw', 'nan_detected', 'error')
+E     ('diagnostic_draw', 'inf_detected', 'error')
+E     Use -v to get more diff
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/backends/test_output_anomaly_count.py::test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[nan_inf_vector-False]
+FAILED tests/unit/foundry/methods/backends/test_output_anomaly_count.py::test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[nan_inf_vector-True]
+2 failed, 20 deselected, 1 warning in 0.17s

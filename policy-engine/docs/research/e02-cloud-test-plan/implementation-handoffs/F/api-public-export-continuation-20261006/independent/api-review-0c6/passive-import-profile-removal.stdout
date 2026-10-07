@@ -1,0 +1,51 @@
+{"source_sha": "0c6c7efaab3eba502b44bf6471e7a3c675608f2a", "control": "Memory-only removal of passive import-module admission, original source/helper/profile markers retained; actual CPython hook still executes. No source/environment edits."}
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_local_import_callable_owner_is_unknown_on_actual_cpython_protocol[PASSIVE] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-246/test_local_import_callable_own0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f6a27b083e0>
+requested = 'PASSIVE'
+
+    @pytest.mark.parametrize("requested", ["PASSIVE", "len"])
+    def test_local_import_callable_owner_is_unknown_on_actual_cpython_protocol(
+        tmp_path: Path, monkeypatch, requested: str,
+    ) -> None:
+        facade, _ = _fixture(tmp_path, monkeypatch)
+        (facade.parents[1] / "__init__.py").write_text('__all__ = []\n')
+        owner = facade.with_name("owner.py")
+        owner.write_text(
+            'PASSIVE = 1\n'
+            'def __getattr__(name):\n'
+            '    import builtins\n'
+            '    builtins.sorted = lambda values: ["RuntimeShadow"]\n'
+            '    if name == "__path__":\n'
+            '        raise AttributeError(name)\n'
+            '    return builtins.len\n'
+        )
+        facade.write_text(
+            f'from .owner import {requested}\n'
+            'M = {"StaticName": None}\n__all__ = sorted(M)\n'
+        )
+        observed = subprocess.run(
+            [sys.executable, "-I", "-c", 'import sys,json;sys.path.insert(0,sys.argv[1]);import polisyos.fixture as f;print(json.dumps(f.__all__))', str(guardrails.SRC_ROOT)],
+            cwd=tmp_path, capture_output=True, text=True, check=False,
+        )
+        assert observed.returncode == 0, observed.stdout + observed.stderr
+        assert json.loads(observed.stdout) == ["RuntimeShadow"]
+        result = guardrails._entrypoint_inventory("polisyos.fixture")
+>       assert result.export_count is None and result.known_export_count == 0
+E       AssertionError: assert (1 is None)
+E        +  where 1 = SupportedEntrypointInventory(module='polisyos.fixture', facade_mode_observed='eager_exports', export_count=1, known_ex...ient builtin fallbacks. Plain selected-module function bodies are excluded. No module execution or runtime dispatch.'}).export_count
+
+tests/repo_quality/architecture/test_public_surface_export_resolution.py:472: AssertionError
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/repo_quality/architecture/test_public_surface_export_resolution.py::test_local_import_callable_owner_is_unknown_on_actual_cpython_protocol[PASSIVE]
+1 failed, 1 warning in 0.15s

@@ -1110,9 +1110,7 @@ def build_forecast_intervention_proof_bundle(
         "query_kind": "forecast_intervention",
         "forecast_intervention_certificate": forecast_intervention.model_dump(mode="json"),
         "forecast_intervention_status": proof_status,
-        "forecast_replay_composability_status": (
-            forecast_intervention.replay_composability_status
-        ),
+        "forecast_replay_composability_status": (forecast_intervention.replay_composability_status),
         "forecast_missing_replay_fingerprints": list(
             forecast_intervention.missing_replay_fingerprints
         ),

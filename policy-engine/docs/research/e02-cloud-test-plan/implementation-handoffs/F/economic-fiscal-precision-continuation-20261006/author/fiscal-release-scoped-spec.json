@@ -1,0 +1,24 @@
+{
+  "source_root": "/workspace/e02-F-economics-20261006",
+  "target_sha": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "tools/ops_runners/release/check_compatibility_release_gates.py",
+    "--repo-root",
+    ".",
+    "--json-output",
+    "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-release-scoped.json",
+    "--fail-on-contract-errors",
+    "--fragments-dir",
+    "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/own-release-fragments"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-release-scoped-run",
+  "artifact_paths": [
+    "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-release-scoped.json"
+  ]
+}

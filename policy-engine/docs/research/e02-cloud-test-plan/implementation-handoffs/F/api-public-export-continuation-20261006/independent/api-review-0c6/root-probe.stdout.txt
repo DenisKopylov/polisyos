@@ -1,0 +1,49 @@
+{
+  "source_sha": "0c6c7efaab3eba502b44bf6471e7a3c675608f2a",
+  "source_tree": "17f9025202b5c94ba78f3e2a3cffdb075404eeea",
+  "source_path": "policy-engine/tools/devx/architecture/guardrails.py",
+  "source_sha256": "60904738b6c6353d13a234d2b138acc67612c7277d920186c3cf3a313d4f81a2",
+  "cases": {
+    "unknown_call_receives_mapping": {
+      "state": "UNRESOLVED",
+      "reason": "Unresolved export binding consumer: src/polisyos/__static_exports__.py:M",
+      "actual_controlled_fixture_all": [
+        "x",
+        "y"
+      ]
+    },
+    "mapping_alias_mutation": {
+      "state": "UNRESOLVED",
+      "reason": "Unresolved export binding consumer: src/polisyos/__static_exports__.py:M",
+      "actual_controlled_fixture_all": [
+        "x",
+        "y"
+      ]
+    },
+    "unknown_call_receives_all": {
+      "state": "UNRESOLVED",
+      "reason": "Unresolved export binding consumer: src/polisyos/__static_exports__.py:__all__",
+      "actual_controlled_fixture_all": [
+        "x",
+        "y"
+      ]
+    },
+    "builtin_shadow": {
+      "state": "UNRESOLVED",
+      "reason": "Unresolved shadowed export builtin: src/polisyos/__static_exports__.py:sorted",
+      "actual_controlled_fixture_all": [
+        "wrong"
+      ]
+    },
+    "supported_literal": {
+      "result": [
+        "x"
+      ],
+      "state": "RESOLVED",
+      "actual_controlled_fixture_all": [
+        "x"
+      ]
+    }
+  },
+  "scope": "Finite wholly authored fixture execution only; pinned product static reader via exact Git source. No external input/module execution by reader."
+}

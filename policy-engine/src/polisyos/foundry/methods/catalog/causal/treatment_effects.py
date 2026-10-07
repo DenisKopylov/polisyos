@@ -190,12 +190,8 @@ class TMLEEstimator:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Targeted Maximum Likelihood Estimation for ATE with semiparametric efficiency.",
-        tags=frozenset(
-            {"causal", "treatment-effects", "tmle", "semiparametric", "efficient"}
-        ),
-        citations=(
-            "van der Laan, M.J. & Rose, S. (2011). Targeted Learning. Springer.",
-        ),
+        tags=frozenset({"causal", "treatment-effects", "tmle", "semiparametric", "efficient"}),
+        citations=("van der Laan, M.J. & Rose, S. (2011). Targeted Learning. Springer.",),
         equations={
             "tmle": "Update initial Q via clever covariate H(A,W) = A/g(W) - (1-A)/(1-g(W))"
         },
@@ -230,9 +226,7 @@ class TMLEEstimator:
             execution admission and does not re-estimate the supplied result.
         """
         treatment = np.asarray(
-            data.treatment
-            if isinstance(data, HTEObservationalData)
-            else data["treatment"],
+            data.treatment if isinstance(data, HTEObservationalData) else data["treatment"],
             dtype=float,
         ).reshape(-1)
         outcome = np.asarray(
@@ -243,8 +237,7 @@ class TMLEEstimator:
         contract = ATENuisanceContract.from_params(params)
         try:
             numerical_values = tuple(
-                float(result[name])
-                for name in ("ate", "standard_error", "ci_lower", "ci_upper")
+                float(result[name]) for name in ("ate", "standard_error", "ci_lower", "ci_upper")
             )
             finite_interval = bool(
                 np.all(np.isfinite(numerical_values))
@@ -353,9 +346,7 @@ class TMLEEstimator:
             "n_trimmed": int(np.sum(~nuisance.trim_mask)),
             **payload,
         }
-        report = TMLEEstimator.report_from_result(
-            data=state, params=params, result=result
-        )
+        report = TMLEEstimator.report_from_result(data=state, params=params, result=result)
         return {
             "result": result,
             "report": report,

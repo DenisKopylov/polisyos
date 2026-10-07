@@ -1,0 +1,18 @@
+{
+  "source_root": "/workspace/e02-F-economics-20261006",
+  "target_sha": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "git",
+    "diff",
+    "--check",
+    "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+    "1324d2fcd7b75e448ad0fa1cce128a79101df1aa"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-diff-check-frozen",
+  "artifact_paths": []
+}

@@ -1,0 +1,536 @@
+{
+  "schema": "e02-F-installed-independent-review.v1",
+  "reviewer": "foundry",
+  "decision": "GO_BOUNDED",
+  "check": "PASS",
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "source_root": "/workspace/e02-F-api-20261006",
+  "scope": "One source-wheel and one rebuilt-sdist installed consumer wave; known synthetic/native backend computation only.",
+  "closure_ids": [],
+  "config": {
+    "path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json",
+    "bytes": 4441,
+    "sha256": "dc44ceda3ba0171db71391d1a25560c098fac25de3636e23d28cba398a3fe8ac"
+  },
+  "api_packet": {
+    "path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/final-consumer-packet.json",
+    "bytes": 4146,
+    "sha256": "56ef3b6d2883ea5ca8e553a247642040a859c794c5aea4bac90fb0f1045a6b05"
+  },
+  "complete_source_custody_preflight": {
+    "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/independent-preflight.json",
+    "bytes": 15762,
+    "sha256": "50f4e8899b242b6404da264fc7fd42a43d47a7dfcb9cbff43f58077cfd124b15"
+  },
+  "post_native_and_removal_guard": {
+    "check": "PASS",
+    "both_sites_files_each": 3459,
+    "forced_resources_each": 7,
+    "copied_final_git_carriers": 28,
+    "archives": "all3 exact hashes unchanged",
+    "source_HEAD_tree_and_tracked_clean": true
+  },
+  "historical_complete_warning_extraction": {
+    "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/historical-warning-memberships.stdout.json",
+    "bytes": 45356,
+    "sha256": "977780776f65adfbd7702ae8d0a5d6f8b6b7acaacaf755d788aad34e9c089370"
+  },
+  "source_only_deselection_collection": {
+    "record": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-collection-denominator.json",
+      "bytes": 23047,
+      "sha256": "83af9cfae1dca53da20015502fab8a511cef4e3f2464f43a1ce5437319fa00e3"
+    },
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-collection.stdout.txt",
+      "bytes": 21283,
+      "sha256": "d513013622d45dbed9cfecad3c8a3e3c8a993b08ffebb664a53b0d14d8fb1811"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-collection.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "reexecutes_estimators": false,
+    "command": [
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python",
+      "-I",
+      "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/collect_installed_denominator.py",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json",
+      "wheel"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-consumer",
+    "environment": "PYTHONPATH absent; own installed Python -I; literal readonly thirdparty site only."
+  },
+  "profiles": {
+    "wheel": {
+      "check": "PASS",
+      "native": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-native.json",
+        "bytes": 14939,
+        "sha256": "53bff0869bee5eb73785cd3e6c2223ab3be0a0576f9105e92d66927a0920f4bd"
+      },
+      "complete_stdout": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-native.stdout.txt",
+        "bytes": 1396547,
+        "sha256": "310dd8c9ea444ac804eb874b7c603c25958f9ca84128c3a9af0d5af9a310ca51"
+      },
+      "complete_stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-native.stderr.txt",
+        "bytes": 16576,
+        "sha256": "623320ad7799d36dc4efecf96602b36ae5358d0b943297abb37a5ca7285246f3"
+      },
+      "native_pytest_seconds": 78.31,
+      "native_wall_seconds": 82.7588458340033,
+      "peak_child_rss_kib": 671852,
+      "passed": 199,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "deselected": [
+        "test_installed_facade_contract.py::test_census_walks_immutable_inputs_and_names_computed_import_boundary",
+        "test_facade_consumer_continuation.py::test_computed_import_rows_classify_basis_not_actual_clients",
+        "test_facade_consumer_continuation.py::test_case_insensitive_lexical_mentions_do_not_invent_import_clients[CAUSAL_ENGINE.PY]",
+        "test_facade_consumer_continuation.py::test_case_insensitive_lexical_mentions_do_not_invent_import_clients[INTERFERENCE.PY]",
+        "test_facade_consumer_continuation.py::test_case_insensitive_lexical_mentions_do_not_invent_import_clients[ID_ENGINE.PY]"
+      ],
+      "deselection_scope": "Five source-census/computed-import/static lexical fixtures need checkout inputs; not native acceptance, not skip-as-PASS.",
+      "selected_module_census": {
+        "test_installed_facade_contract.py": 12,
+        "test_facade_consumer_continuation.py": 4,
+        "test_installed_worker_profile.py": 3,
+        "test_dispatch_output_contract.py": 11,
+        "test_output_anomaly_count.py": 22,
+        "test_confidence_issue_accumulation.py": 32,
+        "test_id_engine_extensions.py": 91,
+        "test__causal_engine_contracts.py": 1,
+        "test__interference_contracts.py": 2,
+        "test_installed_native_boundaries.py": 1,
+        "test_tmle_common_report.py": 1,
+        "test_causal_graph_cache_rows.py": 11,
+        "test_performance_primitives.py": 8
+      },
+      "independent_proof": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-independent-consumer-proof.json",
+        "bytes": 123143,
+        "sha256": "85d3385abe16d25dd541065afa8f34b6d8290d02055ebdb9b8b9d26cbc6aa5b9"
+      },
+      "installed_namespace_proof": {
+        "path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-installed-proof.json",
+        "bytes": 190440,
+        "sha256": "25900a789f3760fb21190bc3cf11900bdb3fe3d115b0ea069a7718c5347f7476"
+      },
+      "loaded_product_origins": 947,
+      "namespace_origin_violations": 0,
+      "isolated_fresh_reader_children": 5,
+      "historical_comparison": {
+        "source_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+        "receipt": {
+          "bytes": 209475,
+          "git_blob": "3cdb63e03cebff1667de93028677e7b7a5dee163",
+          "git_sha": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json",
+          "sha256": "1ebacf5377764b5c0958d7e6597e10eab56536c570aacea64d25be3ee7cff908"
+        },
+        "complete_original_output": {
+          "bytes": 597330,
+          "git_blob": "14df639696e2b61e710e9d98422c8f249b46f560",
+          "git_sha": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/author/wheel-native.stdout",
+          "sha256": "cf980dd8304c9393b650e8381b84e02dd8faa3b64e9ef5d90a50f8f7f63950d4"
+        },
+        "original_runtime_warning_memberships": 14,
+        "same_real_consumer_cases_reexecuted": true,
+        "current_memberships": 0,
+        "instrumentation_warning_current": 0,
+        "member_order_comparison": "multiset; old wheel/sdist group order differs"
+      },
+      "warning_classification": {
+        "total": 90,
+        "actual_LGBM_default15_feature_name_messages": {
+          "X does not have valid feature names, but LGBMClassifier was fitted with feature names": 30,
+          "X does not have valid feature names, but LGBMRegressor was fitted with feature names": 60
+        },
+        "runtime_output_anomalies": 0,
+        "instrumentation": 0,
+        "initial_auxiliary_lightgbm_only_field": 0,
+        "classification_correction": "Original auxiliary classifier missed LGBM abbreviations. All90 exact raw messages/locations/nodeIDs were retained; corrected derived90 count, no product/numeric change or rerun."
+      },
+      "native_tmle_candidate_boundary_observation": {
+        "actual_method_jobs": 1,
+        "authority": "synthetic candidate only; production Node/admission/B56 common budget UNRUN",
+        "boundaries": [
+          {
+            "actual_confidence_blocker": "CONFIDENCE_GATE_ELIGIBILITY_LOW",
+            "actual_projection_gate": false,
+            "basis": "missing",
+            "envelope_ref": "sha256:381e67f5b991706cbc1f6d1aa75650fa8bbadde3527cfb867deac892e0ee2942",
+            "numerical_status": "success",
+            "report_ref": "sha256:bb04a55dd20ff9305b0280fa8b206a33e16070644032b884b9919174eba1bd93",
+            "retained_gate_marker": true,
+            "value_guard_312_reached": false,
+            "value_refusal": "method_output_contract_unresolved"
+          },
+          {
+            "actual_confidence_blocker": "CONFIDENCE_GATE_ELIGIBILITY_LOW",
+            "actual_projection_gate": false,
+            "basis": "present_fake",
+            "envelope_ref": "sha256:381e67f5b991706cbc1f6d1aa75650fa8bbadde3527cfb867deac892e0ee2942",
+            "numerical_status": "success",
+            "report_ref": "sha256:498b90f8792e0cda8f76472787b851c95e93a21f5032ac1ae96de2156a66d337",
+            "retained_gate_marker": true,
+            "value_guard_312_reached": false,
+            "value_refusal": "method_output_contract_unresolved"
+          },
+          {
+            "actual_confidence_blocker": "CONFIDENCE_GATE_ELIGIBILITY_LOW",
+            "actual_projection_gate": false,
+            "basis": "swapped_real_cas",
+            "envelope_ref": "sha256:381e67f5b991706cbc1f6d1aa75650fa8bbadde3527cfb867deac892e0ee2942",
+            "numerical_status": "success",
+            "report_ref": "sha256:f29a10d4dc1e819389d09430f01059edb7f77f06d66e518ea99086cd0d9b8095",
+            "retained_gate_marker": true,
+            "value_guard_312_reached": false,
+            "value_refusal": "method_output_contract_unresolved"
+          }
+        ],
+        "maintained_six_fold_consumer": "executed once through real MethodJob, CAS and fresh reader",
+        "native_method": "causal.treatment_effects.tmle@1.0.0"
+      },
+      "retained_marker_negative_controls": [
+        {
+          "mode": "raw_keys",
+          "exit_code": 1,
+          "actual_pytest_census": [
+            "1",
+            "",
+            "",
+            "",
+            "5.74"
+          ],
+          "stdout": {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-raw_keys.stdout.txt",
+            "bytes": 1926,
+            "sha256": "45291d5dca5c2d21dcd3d61b07d88228bb64f65b0eaf6de1f6fa84210f08d9e6"
+          },
+          "stderr": {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-raw_keys.stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "mode": "no_raw_numeric",
+          "exit_code": 1,
+          "actual_pytest_census": [
+            "1",
+            "",
+            "",
+            "",
+            "5.67"
+          ],
+          "stdout": {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-no_raw_numeric.stdout.txt",
+            "bytes": 1587,
+            "sha256": "75d0f3f191ef93a1bcdff3d451e730bafc1997c43397d41e5d8953917aeed3cc"
+          },
+          "stderr": {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-no_raw_numeric.stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "mode": "no_consumption",
+          "exit_code": 1,
+          "actual_pytest_census": [
+            "2",
+            "1",
+            "19",
+            "",
+            "0.25"
+          ],
+          "stdout": {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-no_consumption.stdout.txt",
+            "bytes": 6293,
+            "sha256": "f7d88d0d666d01c31e7ca146ee689c59c15d359fb4575be240489085f979b94a"
+          },
+          "stderr": {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-no_consumption.stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "mode": "broad_identity_skip",
+          "exit_code": 1,
+          "actual_pytest_census": [
+            "1",
+            "",
+            "21",
+            "",
+            "0.19"
+          ],
+          "stdout": {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-broad_identity_skip.stdout.txt",
+            "bytes": 3009,
+            "sha256": "7f963aa43988021a56df9f9744321b974c98f0f122041462f4ccb45a7a6c9e85"
+          },
+          "stderr": {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-broad_identity_skip.stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "all_product_resource_files_unchanged_after_native_and_removal": 3459
+    },
+    "sdist": {
+      "check": "PASS",
+      "native": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-native.json",
+        "bytes": 14940,
+        "sha256": "0af04e93ebe6a5752fae5e85c5363d373d6f76bd165d7376ff23659186d4de84"
+      },
+      "complete_stdout": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-native.stdout.txt",
+        "bytes": 1396548,
+        "sha256": "7ea1f0a2794fa0d171180cb26e66f8345595606a642f9bf3de8bd333f9c2c834"
+      },
+      "complete_stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-native.stderr.txt",
+        "bytes": 16576,
+        "sha256": "1c51a0b35b5eeb658c91c2fe112ca5e548db7913a498789c667b9dd742d614c2"
+      },
+      "native_pytest_seconds": 78.36,
+      "native_wall_seconds": 82.86064171598991,
+      "peak_child_rss_kib": 671536,
+      "passed": 199,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "deselected": [
+        "test_installed_facade_contract.py::test_census_walks_immutable_inputs_and_names_computed_import_boundary",
+        "test_facade_consumer_continuation.py::test_computed_import_rows_classify_basis_not_actual_clients",
+        "test_facade_consumer_continuation.py::test_case_insensitive_lexical_mentions_do_not_invent_import_clients[CAUSAL_ENGINE.PY]",
+        "test_facade_consumer_continuation.py::test_case_insensitive_lexical_mentions_do_not_invent_import_clients[INTERFERENCE.PY]",
+        "test_facade_consumer_continuation.py::test_case_insensitive_lexical_mentions_do_not_invent_import_clients[ID_ENGINE.PY]"
+      ],
+      "deselection_scope": "Five source-census/computed-import/static lexical fixtures need checkout inputs; not native acceptance, not skip-as-PASS.",
+      "selected_module_census": {
+        "test_installed_facade_contract.py": 12,
+        "test_facade_consumer_continuation.py": 4,
+        "test_installed_worker_profile.py": 3,
+        "test_dispatch_output_contract.py": 11,
+        "test_output_anomaly_count.py": 22,
+        "test_confidence_issue_accumulation.py": 32,
+        "test_id_engine_extensions.py": 91,
+        "test__causal_engine_contracts.py": 1,
+        "test__interference_contracts.py": 2,
+        "test_installed_native_boundaries.py": 1,
+        "test_tmle_common_report.py": 1,
+        "test_causal_graph_cache_rows.py": 11,
+        "test_performance_primitives.py": 8
+      },
+      "independent_proof": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-independent-consumer-proof.json",
+        "bytes": 123143,
+        "sha256": "fd0f1352a6755cc2ecbc5aee3fb7616138d8fc22db25770bde016eaa25e36bb0"
+      },
+      "installed_namespace_proof": {
+        "path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-installed-proof.json",
+        "bytes": 190440,
+        "sha256": "f69ea3c3d0b6427080dbaa22039ad443e5663ce29565868bdf442c7261935662"
+      },
+      "loaded_product_origins": 947,
+      "namespace_origin_violations": 0,
+      "isolated_fresh_reader_children": 5,
+      "historical_comparison": {
+        "source_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+        "receipt": {
+          "bytes": 209475,
+          "git_blob": "3cdb63e03cebff1667de93028677e7b7a5dee163",
+          "git_sha": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json",
+          "sha256": "1ebacf5377764b5c0958d7e6597e10eab56536c570aacea64d25be3ee7cff908"
+        },
+        "complete_original_output": {
+          "bytes": 597862,
+          "git_blob": "2080b509aaf7fd8380ec29b7a6f575f211ab1cc1",
+          "git_sha": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/author/sdist-native.stdout",
+          "sha256": "731eaf1d0f1b234cf70b304f279752081963e34cc228d4145af310e3cba4dda3"
+        },
+        "original_runtime_warning_memberships": 14,
+        "same_real_consumer_cases_reexecuted": true,
+        "current_memberships": 0,
+        "instrumentation_warning_current": 0,
+        "member_order_comparison": "multiset; old wheel/sdist group order differs"
+      },
+      "warning_classification": {
+        "total": 90,
+        "actual_LGBM_default15_feature_name_messages": {
+          "X does not have valid feature names, but LGBMClassifier was fitted with feature names": 30,
+          "X does not have valid feature names, but LGBMRegressor was fitted with feature names": 60
+        },
+        "runtime_output_anomalies": 0,
+        "instrumentation": 0,
+        "initial_auxiliary_lightgbm_only_field": 0,
+        "classification_correction": "Original auxiliary classifier missed LGBM abbreviations. All90 exact raw messages/locations/nodeIDs were retained; corrected derived90 count, no product/numeric change or rerun."
+      },
+      "native_tmle_candidate_boundary_observation": {
+        "actual_method_jobs": 1,
+        "authority": "synthetic candidate only; production Node/admission/B56 common budget UNRUN",
+        "boundaries": [
+          {
+            "actual_confidence_blocker": "CONFIDENCE_GATE_ELIGIBILITY_LOW",
+            "actual_projection_gate": false,
+            "basis": "missing",
+            "envelope_ref": "sha256:381e67f5b991706cbc1f6d1aa75650fa8bbadde3527cfb867deac892e0ee2942",
+            "numerical_status": "success",
+            "report_ref": "sha256:bb04a55dd20ff9305b0280fa8b206a33e16070644032b884b9919174eba1bd93",
+            "retained_gate_marker": true,
+            "value_guard_312_reached": false,
+            "value_refusal": "method_output_contract_unresolved"
+          },
+          {
+            "actual_confidence_blocker": "CONFIDENCE_GATE_ELIGIBILITY_LOW",
+            "actual_projection_gate": false,
+            "basis": "present_fake",
+            "envelope_ref": "sha256:381e67f5b991706cbc1f6d1aa75650fa8bbadde3527cfb867deac892e0ee2942",
+            "numerical_status": "success",
+            "report_ref": "sha256:498b90f8792e0cda8f76472787b851c95e93a21f5032ac1ae96de2156a66d337",
+            "retained_gate_marker": true,
+            "value_guard_312_reached": false,
+            "value_refusal": "method_output_contract_unresolved"
+          },
+          {
+            "actual_confidence_blocker": "CONFIDENCE_GATE_ELIGIBILITY_LOW",
+            "actual_projection_gate": false,
+            "basis": "swapped_real_cas",
+            "envelope_ref": "sha256:381e67f5b991706cbc1f6d1aa75650fa8bbadde3527cfb867deac892e0ee2942",
+            "numerical_status": "success",
+            "report_ref": "sha256:f29a10d4dc1e819389d09430f01059edb7f77f06d66e518ea99086cd0d9b8095",
+            "retained_gate_marker": true,
+            "value_guard_312_reached": false,
+            "value_refusal": "method_output_contract_unresolved"
+          }
+        ],
+        "maintained_six_fold_consumer": "executed once through real MethodJob, CAS and fresh reader",
+        "native_method": "causal.treatment_effects.tmle@1.0.0"
+      },
+      "retained_marker_negative_controls": [
+        {
+          "mode": "raw_keys",
+          "exit_code": 1,
+          "actual_pytest_census": [
+            "1",
+            "",
+            "",
+            "",
+            "5.85"
+          ],
+          "stdout": {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-raw_keys.stdout.txt",
+            "bytes": 1926,
+            "sha256": "b25a3c9a2500bffca87b96c2b45567dd55a3c2b534b4386a8058aae22ae59fc5"
+          },
+          "stderr": {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-raw_keys.stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "mode": "no_raw_numeric",
+          "exit_code": 1,
+          "actual_pytest_census": [
+            "1",
+            "",
+            "",
+            "",
+            "5.79"
+          ],
+          "stdout": {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-no_raw_numeric.stdout.txt",
+            "bytes": 1587,
+            "sha256": "eb9a707d56e43bb5400d8287ff87b442b8dd3e67d998289ab5f842227fb67582"
+          },
+          "stderr": {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-no_raw_numeric.stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "mode": "no_consumption",
+          "exit_code": 1,
+          "actual_pytest_census": [
+            "2",
+            "1",
+            "19",
+            "",
+            "0.25"
+          ],
+          "stdout": {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-no_consumption.stdout.txt",
+            "bytes": 6293,
+            "sha256": "40245db223263bc24fd27cc8f6d4e27233b1a76913979f553d1a432a52f91418"
+          },
+          "stderr": {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-no_consumption.stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "mode": "broad_identity_skip",
+          "exit_code": 1,
+          "actual_pytest_census": [
+            "1",
+            "",
+            "21",
+            "",
+            "0.19"
+          ],
+          "stdout": {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-broad_identity_skip.stdout.txt",
+            "bytes": 3009,
+            "sha256": "5135a2467b5703d2dfe6644742e3282d4bc8c222e17ec717561c851d6ce12191"
+          },
+          "stderr": {
+            "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/sdist-removal-broad_identity_skip.stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "all_product_resource_files_unchanged_after_native_and_removal": 3459
+    }
+  },
+  "authority_limits": [
+    "Python3.14 app has no DoWhy/EconML; actual configured external Python3.12 DoWhy0.14 executes. No positive absent-backend witness or parallel shim.",
+    "Worker explicit interpreter configuration only; automatic unconfigured interpreter discovery is not claimed.",
+    "Declared historical fourteen runtime anomalies were compared on same two actual consumer test memberships; all ordinary/negative diagnostics and all raw warnings retained.",
+    "Native configured TMLE sixfold runs once per site; native default compatibility fifteenfold once per site, without claiming regular-IID synthetic property on admitted real data.",
+    "Causal Value intake refuses upstream unresolved output contract; gate_eligible guard312 is not reached and no genuinely admitted causal Value positive witness is supplied.",
+    "Shared output counters are observed through genuine native OTel SDK; production exporter/configuration/name policy remains unmeasured.",
+    "Custom projection copying/class wrappers keep conservative diagnostics; no unsupported normalization-source provenance is invented.",
+    "Whole genuine admitted Runtime Node/identification authority/production-positive/aggregate common study budget B56 remain UNRUN.",
+    "No public export census38 UNKNOWN/FAIL, full schema Core/Feedback drift, broad input scanner/style/globalP41 FAIL is converted to PASS. Root/primary owners retain those exact decisions.",
+    "No G checkout/integration/code acceptance or entire35-finding closure is asserted."
+  ],
+  "auxiliary_review_format_error": {
+    "check": "ERROR",
+    "phase": "nondeciding JSON display after both native runs",
+    "exit_code": 1,
+    "reason": "json.dumps rejected tuple-keyed Counter for call/outcome summary; corrected display uses call:passed string keys. Exact native outputs/proofs unchanged; no test or estimator rerun.",
+    "full_command_and_tool_combined_trace": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/auxiliary-display-error.json",
+      "bytes": 2286,
+      "sha256": "909ca911b7765f8ed20d04a6e91cb2c3e5a15dfe39d56c5ae2c203fbae3ea7ec"
+    },
+    "original_raw_stream_files": "not separately captured; full exact command/combined tool output retained in published companion"
+  }
+}

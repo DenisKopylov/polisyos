@@ -1,0 +1,26 @@
+{"code_changed": true, "markers_preserved": {"annotations": "{'method_class': 'type', 'signature': 'MethodSignature', 'raw_output': 'Any', 'slot_outputs': 'Mapping[str, Any]', 'return': 'frozenset[str]'}", "doc": "Identify raw sources selected by the standard output normalizer.\n\nSelection order comes from the normalizer's alias table; identity confirms\nthat its selected value reached the slot unchanged. Custom projections may\ncopy or transform values, so their provenance is not inferred here.\n", "id": 139875600892496, "module": "polisyos.foundry.methods.backends.dispatch", "name": "_consumed_raw_output_keys", "qualname": "_consumed_raw_output_keys", "signature": "(*, method_class: 'type', signature: 'MethodSignature', raw_output: 'Any', slot_outputs: 'Mapping[str, Any]') -> 'frozenset[str]'"}, "property_removal": "broad_identity_skip"}
+2026-10-06 18:05:15 [info     ] method_registered              backend=numpy fqn=tests.monitor.anomaly_count@1.0.0 lazy=False namespace=tests.monitor override=True tags=[] version=1.0.0
+2026-10-06 18:05:15 [debug    ] method_dispatch_start          backend=numpy fqn=tests.monitor.anomaly_count@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 18:05:15 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=12.18 fqn=tests.monitor.anomaly_count@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{"actual_otel_counter": {"inf_detected": 1, "nan_detected": 1}, "flags": [{"key": "result", "reason": "nan_detected", "severity": "error"}, {"key": "result", "reason": "inf_detected", "severity": "error"}], "method_fqn": "tests.monitor.anomaly_count@1.0.0", "warnings": ["[ERROR] result: nan_detected \u2014 1 NaN value(s) in 'result' (shape=(2,))", "[ERROR] result: inf_detected \u2014 1 Inf value(s) in 'result' (shape=(2,))"]}
+F
+=================================== FAILURES ===================================
+___ test_unused_alias_retains_anomalies_when_identical_to_selected_canonical ___
+tests/unit/foundry/methods/backends/test_output_anomaly_count.py:209: in test_unused_alias_retains_anomalies_when_identical_to_selected_canonical
+    assert {(f.key, f.reason) for f in flags} == {
+E   AssertionError: assert {('result', '...an_detected')} == {('report', '...an_detected')}
+E     
+E     Extra items in the right set:
+E     ('report', 'nan_detected')
+E     ('report', 'inf_detected')
+E     Use -v to get more diff
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/backends/test_output_anomaly_count.py::test_unused_alias_retains_anomalies_when_identical_to_selected_canonical
+1 failed, 21 deselected, 1 warning in 0.13s

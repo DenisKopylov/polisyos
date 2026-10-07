@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/workspace/e02-F-20261006-receipts/api/wheel-env/bin/python",
+    "-I",
+    "/workspace/e02-F-20261006-receipts/api/installed_launch.py",
+    "wheel"
+  ],
+  "cwd": "/workspace/e02-F-20261006-receipts/api/wheel-consumer",
+  "source_sha_start": "729d137279b7d6334230045e420255762fe55f08",
+  "source_sha_end": "729d137279b7d6334230045e420255762fe55f08",
+  "environment": {
+    "PYTHONPATH": "src:."
+  },
+  "exit": 0,
+  "wall_s": 15.149198294995585,
+  "rss_kib": 1203876
+}

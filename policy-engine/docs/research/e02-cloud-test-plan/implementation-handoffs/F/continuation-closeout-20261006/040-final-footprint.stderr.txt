@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261006/graph/final-packet-review/prepare_required_registry.py", line 150, in <module>
+    prepare(args.extra_specs)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-F-continuation-20261006/graph/final-packet-review/prepare_required_registry.py", line 111, in prepare
+    assert receipt.get('closure_ids') == receipt.get('related_finding_ids') == receipt.get('changed_paths') == [], key
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('a2d55a1942e1f56f35cf2b9772ae56b0b46de95d', 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json')

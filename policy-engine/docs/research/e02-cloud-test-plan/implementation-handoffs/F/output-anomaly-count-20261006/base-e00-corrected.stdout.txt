@@ -1,0 +1,64 @@
+2026-10-06 18:00:54 [info     ] method_registered              backend=numpy fqn=tests.monitor.anomaly_count@1.0.0 lazy=False namespace=tests.monitor override=True tags=[] version=1.0.0
+2026-10-06 18:00:54 [debug    ] method_dispatch_start          backend=numpy fqn=tests.monitor.anomaly_count@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 18:00:54 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=13.93 fqn=tests.monitor.anomaly_count@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{"actual_otel_counter": {"inf_detected": 2, "nan_detected": 2}, "flags": [{"key": "result", "reason": "nan_detected", "severity": "error"}, {"key": "result", "reason": "inf_detected", "severity": "error"}, {"key": "report", "reason": "nan_detected", "severity": "error"}, {"key": "report", "reason": "inf_detected", "severity": "error"}], "method_fqn": "tests.monitor.anomaly_count@1.0.0", "warnings": ["[ERROR] result: nan_detected \u2014 1 NaN value(s) in 'result' (shape=(2,))", "[ERROR] result: inf_detected \u2014 1 Inf value(s) in 'result' (shape=(2,))", "[ERROR] report: nan_detected \u2014 1 NaN value(s) in 'report' (shape=(2,))", "[ERROR] report: inf_detected \u2014 1 Inf value(s) in 'report' (shape=(2,))"]}
+F2026-10-06 18:00:54 [info     ] method_registered              backend=numpy fqn=tests.monitor.anomaly_count@1.0.0 lazy=False namespace=tests.monitor override=True tags=[] version=1.0.0
+2026-10-06 18:00:54 [debug    ] method_dispatch_start          backend=numpy fqn=tests.monitor.anomaly_count@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 18:00:54 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=11.47 fqn=tests.monitor.anomaly_count@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{"actual_otel_counter": {"inf_detected": 1, "nan_detected": 1}, "flags": [{"key": "result", "reason": "nan_detected", "severity": "error"}, {"key": "result", "reason": "inf_detected", "severity": "error"}], "method_fqn": "tests.monitor.anomaly_count@1.0.0", "warnings": ["[ERROR] result: nan_detected \u2014 1 NaN value(s) in 'result' (shape=(2,))", "[ERROR] result: inf_detected \u2014 1 Inf value(s) in 'result' (shape=(2,))"]}
+.2026-10-06 18:00:54 [info     ] method_registered              backend=numpy fqn=tests.monitor.anomaly_count@1.0.0 lazy=False namespace=tests.monitor override=True tags=[] version=1.0.0
+2026-10-06 18:00:54 [debug    ] method_dispatch_start          backend=numpy fqn=tests.monitor.anomaly_count@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 18:00:54 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=11.63 fqn=tests.monitor.anomaly_count@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{"actual_otel_counter": {"inf_detected": 2, "nan_detected": 2}, "flags": [{"key": "result", "reason": "nan_detected", "severity": "error"}, {"key": "result", "reason": "inf_detected", "severity": "error"}, {"key": "output", "reason": "nan_detected", "severity": "error"}, {"key": "output", "reason": "inf_detected", "severity": "error"}], "method_fqn": "tests.monitor.anomaly_count@1.0.0", "warnings": ["[ERROR] result: nan_detected \u2014 1 NaN value(s) in 'result' (shape=(2,))", "[ERROR] result: inf_detected \u2014 1 Inf value(s) in 'result' (shape=(2,))", "[ERROR] output: nan_detected \u2014 1 NaN value(s) in 'output' (shape=(2,))", "[ERROR] output: inf_detected \u2014 1 Inf value(s) in 'output' (shape=(2,))"]}
+F2026-10-06 18:00:54 [info     ] method_registered              backend=numpy fqn=tests.monitor.anomaly_count@1.0.0 lazy=False namespace=tests.monitor override=True tags=[] version=1.0.0
+2026-10-06 18:00:54 [debug    ] method_dispatch_start          backend=numpy fqn=tests.monitor.anomaly_count@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 18:00:54 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=12.25 fqn=tests.monitor.anomaly_count@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{"actual_otel_counter": {"inf_detected": 3, "nan_detected": 3}, "flags": [{"key": "result", "reason": "nan_detected", "severity": "error"}, {"key": "result", "reason": "inf_detected", "severity": "error"}, {"key": "report", "reason": "nan_detected", "severity": "error"}, {"key": "report", "reason": "inf_detected", "severity": "error"}, {"key": "diagnostic_draw", "reason": "nan_detected", "severity": "error"}, {"key": "diagnostic_draw", "reason": "inf_detected", "severity": "error"}], "method_fqn": "tests.monitor.anomaly_count@1.0.0", "warnings": ["[ERROR] result: nan_detected \u2014 1 NaN value(s) in 'result' (shape=(2,))", "[ERROR] result: inf_detected \u2014 1 Inf value(s) in 'result' (shape=(2,))", "[ERROR] report: nan_detected \u2014 1 NaN value(s) in 'report' (shape=(2,))", "[ERROR] report: inf_detected \u2014 1 Inf value(s) in 'report' (shape=(2,))", "[ERROR] diagnostic_draw: nan_detected \u2014 1 NaN value(s) in 'diagnostic_draw' (shape=(2,))", "[ERROR] diagnostic_draw: inf_detected \u2014 1 Inf value(s) in 'diagnostic_draw' (shape=(2,))"]}
+F2026-10-06 18:00:54 [info     ] method_registered              backend=numpy fqn=tests.monitor.anomaly_count@1.0.0 lazy=False namespace=tests.monitor override=True tags=[] version=1.0.0
+2026-10-06 18:00:54 [debug    ] method_dispatch_start          backend=numpy fqn=tests.monitor.anomaly_count@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 18:00:54 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=11.62 fqn=tests.monitor.anomaly_count@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{"actual_otel_counter": {"inf_detected": 3, "nan_detected": 3}, "flags": [{"key": "result", "reason": "nan_detected", "severity": "error"}, {"key": "result", "reason": "inf_detected", "severity": "error"}, {"key": "report", "reason": "nan_detected", "severity": "error"}, {"key": "report", "reason": "inf_detected", "severity": "error"}, {"key": "diagnostic_draw", "reason": "nan_detected", "severity": "error"}, {"key": "diagnostic_draw", "reason": "inf_detected", "severity": "error"}], "method_fqn": "tests.monitor.anomaly_count@1.0.0", "warnings": ["[ERROR] result: nan_detected \u2014 1 NaN value(s) in 'result' (shape=(2,))", "[ERROR] result: inf_detected \u2014 1 Inf value(s) in 'result' (shape=(2,))", "[ERROR] report: nan_detected \u2014 1 NaN value(s) in 'report' (shape=(2,))", "[ERROR] report: inf_detected \u2014 1 Inf value(s) in 'report' (shape=(2,))", "[ERROR] diagnostic_draw: nan_detected \u2014 1 NaN value(s) in 'diagnostic_draw' (shape=(2,))", "[ERROR] diagnostic_draw: inf_detected \u2014 1 Inf value(s) in 'diagnostic_draw' (shape=(2,))"]}
+F
+=================================== FAILURES ===================================
+_ test_one_canonical_warning_and_metric_for_consumed_source[nan_inf_vector-report] _
+/tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py:106: in test_one_canonical_warning_and_metric_for_consumed_source
+    assert {(f.key,f.reason,f.severity) for f in flags}=={('result',reason,'error') for reason in reasons}
+E   AssertionError: assert {('report', '...ed', 'error')} == {('result', '...ed', 'error')}
+E     
+E     Extra items in the left set:
+E     ('report', 'nan_detected', 'error')
+E     ('report', 'inf_detected', 'error')
+E     Use -v to get more diff
+_ test_one_canonical_warning_and_metric_for_consumed_source[nan_inf_vector-bare] _
+/tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py:106: in test_one_canonical_warning_and_metric_for_consumed_source
+    assert {(f.key,f.reason,f.severity) for f in flags}=={('result',reason,'error') for reason in reasons}
+E   AssertionError: assert {('output', '...ed', 'error')} == {('result', '...ed', 'error')}
+E     
+E     Extra items in the left set:
+E     ('output', 'inf_detected', 'error')
+E     ('output', 'nan_detected', 'error')
+E     Use -v to get more diff
+_ test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[nan_inf_vector-False] _
+/tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py:121: in test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object
+    assert {(f.key,f.reason,f.severity) for f in flags}==expected
+E   AssertionError: assert {('diagnostic...ed', 'error')} == {('diagnostic...ed', 'error')}
+E     
+E     Extra items in the left set:
+E     ('report', 'nan_detected', 'error')
+E     ('report', 'inf_detected', 'error')
+E     Use -v to get more diff
+_ test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[nan_inf_vector-True] _
+/tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py:121: in test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object
+    assert {(f.key,f.reason,f.severity) for f in flags}==expected
+E   AssertionError: assert {('diagnostic...ed', 'error')} == {('diagnostic...ed', 'error')}
+E     
+E     Extra items in the left set:
+E     ('report', 'nan_detected', 'error')
+E     ('report', 'inf_detected', 'error')
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED ../../../tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[nan_inf_vector-report]
+FAILED ../../../tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py::test_one_canonical_warning_and_metric_for_consumed_source[nan_inf_vector-bare]
+FAILED ../../../tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py::test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[nan_inf_vector-False]
+FAILED ../../../tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py::test_distinct_sidecar_keeps_its_own_anomalies_even_for_same_object[nan_inf_vector-True]
+4 failed, 1 passed, 15 deselected in 1.04s

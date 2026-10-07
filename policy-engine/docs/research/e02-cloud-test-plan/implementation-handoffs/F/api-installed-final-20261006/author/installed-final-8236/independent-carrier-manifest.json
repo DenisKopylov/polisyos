@@ -1,0 +1,16 @@
+[
+  {
+    "kind": "wheel",
+    "path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-consumer/test_installed_native_boundaries.py",
+    "source": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/test_installed_native_boundaries.py",
+    "bytes": 7999,
+    "sha256": "94ab10cf0c664eecde748f42008c76e5d0a13601657606e9c62d947a1c13bbfa"
+  },
+  {
+    "kind": "sdist",
+    "path": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-consumer/test_installed_native_boundaries.py",
+    "source": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/test_installed_native_boundaries.py",
+    "bytes": 7999,
+    "sha256": "94ab10cf0c664eecde748f42008c76e5d0a13601657606e9c62d947a1c13bbfa"
+  }
+]

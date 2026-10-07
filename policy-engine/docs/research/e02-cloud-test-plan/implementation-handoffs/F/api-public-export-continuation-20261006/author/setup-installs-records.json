@@ -1,0 +1,50 @@
+[
+  {
+    "argv": [
+      "uv",
+      "venv",
+      "--python",
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261006/api/wheel-env-5484"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261006/api",
+    "exit_code": 0,
+    "artifact": "/tmp/e02-F-continuation-20261006/api/dist-5484/policy_engine-0.1.0-py3-none-any.whl",
+    "archive_sha256": "4685606bbca4b38e09746e09725c21465e361b85db40d7984906c34c3656b0ca",
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261006/api/wheel-setup-0.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261006/api/wheel-setup-0.stderr",
+      "bytes": 201,
+      "sha256": "d552763a3db613086b94776a066d2a95897d738322168305cd8b41b141cc4d8c"
+    }
+  },
+  {
+    "argv": [
+      "uv",
+      "pip",
+      "install",
+      "--python",
+      "/tmp/e02-F-continuation-20261006/api/wheel-env-5484/bin/python",
+      "--no-deps",
+      "/tmp/e02-F-continuation-20261006/api/dist-5484/policy_engine-0.1.0-py3-none-any.whl"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261006/api",
+    "exit_code": 1,
+    "artifact": "/tmp/e02-F-continuation-20261006/api/dist-5484/policy_engine-0.1.0-py3-none-any.whl",
+    "archive_sha256": "4685606bbca4b38e09746e09725c21465e361b85db40d7984906c34c3656b0ca",
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261006/api/wheel-setup-1.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261006/api/wheel-setup-1.stderr",
+      "bytes": 512,
+      "sha256": "b32a399264645c0f8a6e01e3c0cb4e045d00a16ffb2561d7ce2b56e725e160f2"
+    }
+  }
+]

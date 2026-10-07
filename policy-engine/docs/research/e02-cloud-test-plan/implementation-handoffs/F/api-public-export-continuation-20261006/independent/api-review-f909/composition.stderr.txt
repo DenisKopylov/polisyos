@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261006/graph/api-review-f909/inspect_composition.py", line 57, in <module>
+    assert getattr(ir,name) is getattr(analytics,name) is getattr(ir_api,name) is getattr(leaf,name)
+                                                          ~~~~~~~^^^^^^^^^^^^^
+AttributeError: module 'polisyos.ir.api' has no attribute 'CausalEstimatorInterval'

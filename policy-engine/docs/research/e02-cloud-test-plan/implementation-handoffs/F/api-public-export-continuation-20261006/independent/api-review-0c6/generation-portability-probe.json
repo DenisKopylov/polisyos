@@ -1,0 +1,49 @@
+{
+  "checks": [
+    {
+      "seed": "1",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-c",
+        "from tools.devx.architecture import guardrails as g;print(g.render_public_surface_json(g.build_public_surface_inventory(g._parse_public_surface(g.REPO_ROOT/'architecture/public_surface/contract.toml'))),end='')"
+      ],
+      "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+      "source_sha": "0c6c7efaab3eba502b44bf6471e7a3c675608f2a",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/api-review-0c6/generation-portability-seed1.stdout",
+        "bytes": 292516,
+        "sha256": "62dd50ac51daf02d53d83b3de69bb4a7516f4ea5fd050b40c5b3ef59af878163"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/api-review-0c6/generation-portability-seed1.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "seed": "2",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-c",
+        "from tools.devx.architecture import guardrails as g;print(g.render_public_surface_json(g.build_public_surface_inventory(g._parse_public_surface(g.REPO_ROOT/'architecture/public_surface/contract.toml'))),end='')"
+      ],
+      "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+      "source_sha": "0c6c7efaab3eba502b44bf6471e7a3c675608f2a",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/api-review-0c6/generation-portability-seed2.stdout",
+        "bytes": 292516,
+        "sha256": "62dd50ac51daf02d53d83b3de69bb4a7516f4ea5fd050b40c5b3ef59af878163"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/api-review-0c6/generation-portability-seed2.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "byte_equal": true,
+  "differing_entrypoints": [],
+  "absolute_locator_example": "Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/common/__init__.py:from __future__ import annotations"
+}

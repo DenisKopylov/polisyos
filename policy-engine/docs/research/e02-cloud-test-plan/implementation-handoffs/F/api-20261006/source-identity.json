@@ -1,0 +1,196 @@
+{
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_sha": "729d137279b7d6334230045e420255762fe55f08",
+  "candidate_tree_sha": "7ced77fdbd83e65efbd14d4bd518de2f786b1e9a",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py"
+  ],
+  "runtime_product_delta": "none in this slice",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/README.md",
+      "git_blob": "bbad3db5ed05313b269533e3cbfbc97564e0e0d8",
+      "sha256": "b053d4c1785be2db9990c2fd712bc44a1e2f71c4b407fb64eb6db9faf0c8b361",
+      "bytes": 3220
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+      "git_blob": "1165f7f02f7469154fae23cc37c4b26304aaaa83",
+      "sha256": "b37d0f16ded8f7fe54690ab3d3bd0971a08765af99f6db7666a1ebc700655e88",
+      "bytes": 15455
+    },
+    {
+      "path": "policy-engine/hatch.toml",
+      "git_blob": "badf4506cbc4a33574fcc4ed40817d5476b7a890",
+      "sha256": "065c99c71b69bceac54e7d0083b7f261796f0733a4b721d1e6267fd6e28098a5",
+      "bytes": 655
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/__init__.py",
+      "git_blob": "b4fd2b96ff1a3f1ad6389ba00cf9bd8bbddf21a9",
+      "sha256": "bee3c5d4996e31f9d3808d489a6dbecf26cff686e06c5e42e9ff8a944c6a2feb",
+      "bytes": 1166
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+      "git_blob": "5928f2fa3ad3256be268344975414bb9635d8f9d",
+      "sha256": "a579828a37fcd99bfd0651c41634c20b4426e9aad9c0318aa41a46c9dd2deace",
+      "bytes": 108553
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/__init__.py",
+      "git_blob": "f32a2661656ed6ee8b48b4c36e3d9afbcb3e3397",
+      "sha256": "d64b67cc3ef38feb2df07b1fc6937825da7d716de27dd1d568a081d55a5b5bb3",
+      "bytes": 757
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/interference/__init__.py",
+      "git_blob": "cb28869da6d3695e65c771fc20b8c8bae695484c",
+      "sha256": "2fe2af3d15064c0aeb03b1a8d0f37e82ebf9aeb20b5e77f3dddc1490c1583f85",
+      "bytes": 2004
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/kernel/slots.py",
+      "git_blob": "1d656cc5b6643f6378f8dc54f4cc4272895cb6b8",
+      "sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81",
+      "bytes": 18445
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+      "git_blob": "ecab027e577267ffd680d96b816bee31352f922e",
+      "sha256": "475e5f0d195c9facbfbc56feef13b9cf385ec734de6b5b6a1b0beb8e5c5b1901",
+      "bytes": 4626
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test__causal_engine_contracts.py",
+      "git_blob": "f9286b12f44c1c0b95b23ae377d9b154a3c875d3",
+      "sha256": "799254b4adc1381335d1a808ee332cc6613e3b7eaa27f375431fb7e47a80162e",
+      "bytes": 443
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test__interference_contracts.py",
+      "git_blob": "3a6b34d6662584f4455c0dae68d4d567d841b0f6",
+      "sha256": "c55d7770ae15d21f5f40a3ada6344e9a303a1ca98028d8be3c6e67cdeeb2a1c4",
+      "bytes": 1064
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+      "git_blob": "bb929618e0e344e2b4e2151fbdfeb9a64fc7dcb7",
+      "sha256": "367f8f1cefb385b7cc9f116383c48682f68f3b75ac456c0a61acf6e6c5682dc2",
+      "bytes": 9865
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+      "git_blob": "0c5cb53789dbc5b12d2712af17b541c16b11975e",
+      "sha256": "43ffef1dc0db7445a4eea648fb60c7523b38cf145d09412ef70855b83d11e73b",
+      "bytes": 11559
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+      "git_blob": "a76ec31da00b706e251a43e72d0b4a4ba58b09f3",
+      "sha256": "e8a26613978c76c52c8deeff620f82b81a9b033f5d2661baed7d5d78df4f4092",
+      "bytes": 8646
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+      "git_blob": "115e9f7065bbc2239f13e2a7f98e307bc9c2d2d5",
+      "sha256": "a1e8db9f7aba0c42f8c3af50101f9bc898ae3d70f5c3707f45000d07d18919d8",
+      "bytes": 8116
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "bytes": 779204
+    }
+  ],
+  "seven_native_selectors": [
+    "tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+    "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+    "tests/unit/remediation/test_api_01.py",
+    "tests/unit/foundry/methods/catalog/causal/test__causal_engine_contracts.py",
+    "tests/unit/foundry/methods/catalog/causal/test__interference_contracts.py",
+    "tests/unit/foundry/contracts/test_layout.py",
+    "tests/unit/foundry/methods/catalog/mechanism/test_families.py"
+  ],
+  "installed_copied_test_identity": [
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+      "consumer_path": "/workspace/e02-F-20261006-receipts/api/wheel-consumer/test_installed_facade_contract.py",
+      "sha256": "43ffef1dc0db7445a4eea648fb60c7523b38cf145d09412ef70855b83d11e73b"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+      "consumer_path": "/workspace/e02-F-20261006-receipts/api/wheel-consumer/test_facade_consumers.py",
+      "sha256": "367f8f1cefb385b7cc9f116383c48682f68f3b75ac456c0a61acf6e6c5682dc2"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/remediation/test_api_01.py",
+      "consumer_path": "/workspace/e02-F-20261006-receipts/api/wheel-consumer/test_api_01.py",
+      "sha256": "a1e8db9f7aba0c42f8c3af50101f9bc898ae3d70f5c3707f45000d07d18919d8"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test__causal_engine_contracts.py",
+      "consumer_path": "/workspace/e02-F-20261006-receipts/api/wheel-consumer/test__causal_engine_contracts.py",
+      "sha256": "799254b4adc1381335d1a808ee332cc6613e3b7eaa27f375431fb7e47a80162e"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test__interference_contracts.py",
+      "consumer_path": "/workspace/e02-F-20261006-receipts/api/wheel-consumer/test__interference_contracts.py",
+      "sha256": "c55d7770ae15d21f5f40a3ada6344e9a303a1ca98028d8be3c6e67cdeeb2a1c4"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+      "consumer_path": "/workspace/e02-F-20261006-receipts/api/wheel-consumer/test_layout.py",
+      "sha256": "475e5f0d195c9facbfbc56feef13b9cf385ec734de6b5b6a1b0beb8e5c5b1901"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+      "consumer_path": "/workspace/e02-F-20261006-receipts/api/wheel-consumer/test_families.py",
+      "sha256": "e8a26613978c76c52c8deeff620f82b81a9b033f5d2661baed7d5d78df4f4092"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+      "consumer_path": "/workspace/e02-F-20261006-receipts/api/sdist-consumer/test_installed_facade_contract.py",
+      "sha256": "43ffef1dc0db7445a4eea648fb60c7523b38cf145d09412ef70855b83d11e73b"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+      "consumer_path": "/workspace/e02-F-20261006-receipts/api/sdist-consumer/test_facade_consumers.py",
+      "sha256": "367f8f1cefb385b7cc9f116383c48682f68f3b75ac456c0a61acf6e6c5682dc2"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/remediation/test_api_01.py",
+      "consumer_path": "/workspace/e02-F-20261006-receipts/api/sdist-consumer/test_api_01.py",
+      "sha256": "a1e8db9f7aba0c42f8c3af50101f9bc898ae3d70f5c3707f45000d07d18919d8"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test__causal_engine_contracts.py",
+      "consumer_path": "/workspace/e02-F-20261006-receipts/api/sdist-consumer/test__causal_engine_contracts.py",
+      "sha256": "799254b4adc1381335d1a808ee332cc6613e3b7eaa27f375431fb7e47a80162e"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test__interference_contracts.py",
+      "consumer_path": "/workspace/e02-F-20261006-receipts/api/sdist-consumer/test__interference_contracts.py",
+      "sha256": "c55d7770ae15d21f5f40a3ada6344e9a303a1ca98028d8be3c6e67cdeeb2a1c4"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+      "consumer_path": "/workspace/e02-F-20261006-receipts/api/sdist-consumer/test_layout.py",
+      "sha256": "475e5f0d195c9facbfbc56feef13b9cf385ec734de6b5b6a1b0beb8e5c5b1901"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+      "consumer_path": "/workspace/e02-F-20261006-receipts/api/sdist-consumer/test_families.py",
+      "sha256": "e8a26613978c76c52c8deeff620f82b81a9b033f5d2661baed7d5d78df4f4092"
+    }
+  ]
+}

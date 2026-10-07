@@ -41,6 +41,13 @@ _WRITE_PATHS = ["params.owned", "params.alias", "artifacts_index.bundle"]
 _CONTOURS = ("sequential", "async", "worker")
 _REFUSALS = ("nested_widen", "release_scope", "root_replace", "neighbor_alias")
 _REPLAY_KEY = sha256(b"scope-real-outcome").hexdigest()
+_MODEL_MUTATIONS = (
+    "input_attribute",
+    "report_attribute",
+    "top_level_attribute",
+    "state_copy_update",
+    "detached_ref_rebind",
+)
 
 
 class _ScopeProducer:
@@ -127,11 +134,17 @@ def _initial_state() -> ExperimentState:
 
 
 async def _run_producer(
-    root: Path, contour: str, producer: _ScopeProducer, monkeypatch: pytest.MonkeyPatch
+    root: Path,
+    contour: str,
+    producer: _ScopeProducer,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    initial: ExperimentState | None = None,
+    observe_base_mutation: bool = False,
 ) -> tuple[NodeOutcome, ExperimentState, ExperimentState]:
     store = FileSystemCAS(root)
     bundle = build_default_registry_bundle(store).bundle_ref
-    initial = _initial_state()
+    initial = _initial_state() if initial is None else initial
     before = initial.model_dump(mode="json")
     registry = NodeRegistry()
     registry.register(producer)
@@ -186,7 +199,8 @@ async def _run_producer(
         payload = json.loads(store.get_bytes(cache_ref))
         outcome = actual_reader.get(payload["idempotency_key"])
         assert outcome is not None
-    assert initial.model_dump(mode="json") == before
+    if not observe_base_mutation:
+        assert initial.model_dump(mode="json") == before
     assert outcome.status == "ok"
     assert producer.calls == 1
     return outcome, initial, public_state
@@ -256,3 +270,117 @@ async def test_real_producer_grants_reconcile_with_reopened_cache_intent(
     with pytest.raises(ValueError, match="undeclared state_writes"):
         producer.held_state.params["post_completion"] = {"v": 97}
     assert producer.held_state.model_dump(mode="json") == held_before
+
+
+class _ModelScopeProducer(_ScopeProducer):
+    def __init__(self, mutation: str) -> None:
+        super().__init__()
+        self.mutation = mutation
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        self.calls += 1
+        self.held_state = state
+        journal = mutation_journal_for_state(state)
+        assert journal is not None and journal.enforce_write_scope
+        before = state.model_dump(mode="json")
+        operations_before = list(journal.operations)
+        error = None
+        try:
+            match self.mutation:
+                case "input_attribute":
+                    state.inputs["source"].media_type = "application/octet-stream"
+                case "report_attribute":
+                    state.reports_index["source"].artifact_id = ArtifactRef(
+                        artifact_id="sha256:" + "f" * 64,
+                        kind="test.readonly",
+                        media_type="application/json",
+                    ).artifact_id
+                case "top_level_attribute":
+                    assert state.preflight_report_ref is not None
+                    state.preflight_report_ref.manifest_profile_sha256 = "sha256:" + "e" * 64
+                case "state_copy_update":
+                    state = state.model_copy(
+                        update={
+                            "params": {"owned": before["params"]["owned"], "neighbor": {"v": 99}}
+                        }
+                    )
+                case "detached_ref_rebind":
+                    detached = state.inputs["source"].model_copy(
+                        update={"media_type": "application/octet-stream"}
+                    )
+                    state.inputs["source"] = detached
+                case _:
+                    raise AssertionError("unsupported model mutation")
+        except ValueError as exc:
+            error = {"type": type(exc).__name__, "message": str(exc)}
+        observation = {
+            "mutation": self.mutation,
+            "error": error,
+            "state_before": before,
+            "state_after": state.model_dump(mode="json"),
+            "journal_before": [
+                operation.model_dump(mode="json") for operation in operations_before
+            ],
+            "journal_after": [
+                operation.model_dump(mode="json") for operation in journal.operations
+            ],
+        }
+        effect = ctx.store.put_json(
+            observation, PutOptions(kind="test.scope_observation", media_type="application/json")
+        )
+        state.artifacts_index["bundle"] = effect
+        return NodeOutcome(status="ok", state=state, artifacts=[effect])
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("contour", _CONTOURS)
+@pytest.mark.parametrize("mutation", list(_MODEL_MUTATIONS))
+async def test_existing_typed_model_mutations_refuse_before_state_or_journal_changes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, contour: str, mutation: str
+) -> None:
+    root = tmp_path / "cas"
+    original_store = FileSystemCAS(root)
+    original_ref = original_store.put_json(
+        {"readonly": 7}, PutOptions(kind="test.readonly", media_type="application/json")
+    )
+    expected_ref = original_ref.model_dump(mode="json")
+    initial = _initial_state()
+    # These ordinary model assignments establish genuine typed values after
+    # DTO validation. The oracle uses actual post-construction identities.
+    initial.inputs["source"] = original_ref
+    initial.reports_index["source"] = original_ref
+    initial.preflight_report_ref = original_ref
+    assert initial.inputs["source"] is initial.reports_index["source"]
+    assert initial.inputs["source"] is initial.preflight_report_ref
+    before = initial.model_dump(mode="json")
+    producer = _ModelScopeProducer(mutation)
+    outcome, _, public_state = await _run_producer(
+        root, contour, producer, monkeypatch, initial=initial, observe_base_mutation=True
+    )
+    reopened = FileSystemCAS(root)
+    observation_ref = outcome.artifacts[0]
+    assert reopened.verify(observation_ref).ok
+    observed = json.loads(reopened.get_bytes(observation_ref))
+    (tmp_path / "model-scope-observation.json").write_text(
+        json.dumps(
+            {
+                "contour": contour,
+                "observation": observed,
+                "base_before": before,
+                "base_after": initial.model_dump(mode="json"),
+                "public_state": public_state.model_dump(mode="json"),
+                "observation_ref": observation_ref.model_dump(mode="json"),
+            },
+            indent=2,
+        )
+        + "\n"
+    )
+    assert observed["error"] is not None
+    assert "undeclared state_writes" in observed["error"]["message"]
+    assert observed["state_after"] == observed["state_before"]
+    assert observed["journal_after"] == observed["journal_before"]
+    assert initial.model_dump(mode="json") == before
+    accepted = ArtifactRef.model_validate(expected_ref)
+    assert reopened.verify(accepted).ok
+    assert json.loads(reopened.get_bytes(accepted)) == {"readonly": 7}
+    assert public_state.inputs["source"].model_dump(mode="json") == expected_ref

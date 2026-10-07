@@ -1,0 +1,39 @@
+# Independent C54 C5 source and decision binding review
+
+**Disposition: GO for this bounded, source-bound C5 projection.** This is not a product-runtime GO, a G closure, or a claim of external institutional authority. The C5 artifact keeps those boundaries explicit: it preserves G as `not_adjudicated` for all 54 findings and marks every `new_c5_runtime_property` `not_established`.
+
+## Frozen candidate and deciding evidence
+
+Reviewed source candidate `96cf53a6cfbd8e6b753779d4b56fab456a13c159` (tree `e6fc3a2f573c4e59f3cefe88fa196570cf08f0ff`), parent `847929e3e0cac30fb49ff61a47ecaf46d41ac94d`, from the attached C5 review worktree. Its complete delta is three paths: the new C5 input (`C54-c5-current-inventory-input.json`, SHA-256 `5cc7e77c40237970f801b1d42066686f246097b97af92d4a097d411668c450a9`), `build_c54_final_adjudicated.py` (SHA-256 `748ecf4f8f3b967ba2715377da60108ea83b19d163ceecab888097b24d0dae6a`), and `validate_c54_final_bookkeeping.py` (SHA-256 `aa5a5fc560cbb3e610d42f6afce045c2162f051a1ed0ad72da8727972c642254`).
+
+I regenerated the JSON and Markdown in the ignored `.tmp/e02-C5/raw/c54-review/` directory. Their SHA-256 values exactly match the pinned expected values: JSON `a955000a989ec0d2ae3b4956ab42b4f3304659279e6897c29ea42cdc6876a41c`; Markdown `7566489e46a19e51d6b914986e33cc298bc5b215e004db7941b519f7caae174a`. The actual `c5-final` validator exited 0 with 54 rows, 33 bundles, 59 criterion occurrences, C4 counts 31/9/14, current C5 counts 31/12/11, and G `not_adjudicated` 54. Full argv and stdout/stderr are in `command-results.json`; the regenerated large cut remains in ignored scratch and is referenced by its hash there.
+
+## What I independently reconciled
+
+The C5 root input pins six source documents by Git commit/tree/blob, SHA-256, and size. I resolved those sources from their immutable Git objects and checked the exact root row pointers. The 23 override rows match the 23-row decision-scope source in order; the 31 IDs in the pinned unchanged-scope list are unique and are the exact complement, so the two sets partition all 54 C findings. All 33 nonempty evidence pointers resolve against their cited pinned source. The source set includes the C4 cut, current DFK and Legal handoffs, and their independent review records.
+
+I separately checked all seven G input blobs at snapshot `9806442ddb47d624a2940bac75d9d6248e934c48` and its pinned tree, including the output’s source-reference index. The full validator also checks the seven-source set and the G per-finding joins. Across the 54 C findings, I compared bundle membership across C5, C4, G coverage, G decisions, and the base coverage. I then checked all 59 CD01/CD02 criterion IDs, document identities, inclusive spans, and hashes against the original documents at base `198076863e143dea9f89f02734b13d50dae3eed5` (tree `2b754a92c27959e2e747738d47ed0b419f3b6dd8`). Each selected source span matches its hash; each C5 wording pointer resolves to the same full wording in the pinned C4 JSON. The original source documents are `B_r19_original.md` (1,336,380 bytes, SHA-256 `9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5`) and `LA_r09_original.md` (648,034 bytes, SHA-256 `2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727`).
+
+The current root counts differ from C4 only for LA-005, LA-026, and LA-027, each moving from held to limited. The four DFK rows are all limited and point to the current DFK source plus its independent review. LA-040 remains held: the independent Legal review’s GO is explicitly bounded to query-profile binding; its own disposition keeps `bridge_missing` and does not claim a serving bridge or production closure.
+
+For LA-040’s local-presence statement, I also read the exact `legal-paired-input-presence.json` object referenced by the pinned C5 owner-input file: 2,975 bytes, SHA-256 `20b193a6c45f59b4e27fd02d62073adad4befd94e2462b28faf6bb3ea04c1085`, blob `05cac81158a8e6024bb70b94c1dd65054d2bb2a2`. It records an `lstat` showing the selected DuckDB path exists, while explicitly recording no DB payload/row reads, no DB hash, and no established membership digest. All ten selected embedding-generation/index/manifest paths are absent. This corroborates only bounded path presence; it does not establish a selected generation, profile, corpus membership, or product readiness. The C5 validator does not dereference this embedded presence-receipt locator, so it remains an owner-supplied local fact rather than a recomputed product gate. The held LA-040 status and `not_established` runtime-property field preserve that limit.
+
+## Behavioral falsifiers
+
+I recomputed each mutated cut hash and supplied it as the expected hash, so rejection could not be attributed to a stale output hash. All five altered-output controls were rejected: changing B79’s decision-source pointer, omitting a carry-forward ID, changing an original criterion hash, changing its C4 wording pointer, and changing a G formal status. Three altered-input controls also failed before output: a stale Legal source SHA, a decision-scope pointer resolving to only one row, and a non-root authority label. The full output for every control is retained in `command-results.json`.
+
+These probes test the claimed source-binding and projection properties, not runtime correctness. The builder and validator derive the 54-row decisions from the pinned source values and recompute the actual row/count sets; the 31/12/11 check is an additional frozen-distribution assertion, not the sole gate. The code does not verify the substantive runtime claims carried in owner text. It says so explicitly with `new_c5_runtime_property: not_established`, retains the original C4 recommendation separately, and assigns no G closure or product-level acceptance.
+
+## Boundaries and remaining state
+
+The `authority == "root"` check is a label check backed by an immutable committed root input, not a Git-signature or institutional-signer verification. This review accepts the task-designated committed input as an internal root decision and makes no claim beyond that workflow scope. The C5 source output is a typed decision projection, not a producer/bridge/consumer chain for product runtime behavior.
+
+The additive C5 mode is substantial (2,082 insertions and two deletions across the three-path candidate delta). It uses existing Git-source helpers and invokes the complete C4 validator for the frozen C4 layer, while adding a separate complete C5 projection and source-rechecking validator. I found no P13 blocker within this bounded slice; the repeated full-row checks are the mechanism that prevents a count-only or marker-only admission.
+
+P41 remains `not_established` for the prior C3 default-mode red: this slice changes the same shared C54 generator and validator paths and adds their C5 input, so zero input-denominator overlap was not demonstrated. No inherited-green or unrelated-red attribution is made.
+
+## Reproduction and receipt paths
+
+The deciding commands used observed CPython 3.14.0 at `/opt/homebrew/opt/python@3.14/bin/python3.14`, with `PYTHONPATH`, `PYTHONHOME`, and `VIRTUAL_ENV` unset. The exact builder and validator commands, full outputs, independent audit result, G-source crosscheck, and eight negative-control outputs are recorded in `command-results.json`. The independent check script and full generated cut/Markdown are retained under the ignored `.tmp/e02-C5/raw/c54-review/` scratch path; the review-result receipt includes their hashes.
+
+The checkout-local pre-commit wrapper failed twice because the Lefthook binary is absent; it checks for the binary before invoking Lefthook, so `LEFTHOOK=0` does not bypass the wrapper. The docs-only commit therefore uses a one-command `core.hooksPath=/dev/null` override. Hooks are **UNRUN**, and no hook or test result is claimed.

@@ -18,6 +18,13 @@ from pydantic import PrivateAttr, ValidationError
 import polisyos.runtime.quality.generation_cycle as generation_cycle_module
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.foundry.methods.catalog.causal.protocols import NCMQueryData
+from polisyos.ir.analytics.interventions import (
+    InterventionContext,
+    NodeIntervention,
+    VariableAssignment,
+    identification_plan_for_intervention,
+)
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.generation_cycle import (
     CandidateGroundingObservation,
@@ -29,9 +36,11 @@ from polisyos.runtime.quality.generation_cycle import (
 )
 from polisyos.runtime.quality.intervention_atom_binding import (
     InterventionAtomBinding,
+    build_intervention_atom_binding,
     intervention_atom_content_hash,
 )
 from polisyos.runtime.quality.joint_simulation_horizon import (
+    EngineDecision,
     EnginePlan,
     JointSimulationHorizonController,
     JointSimulationRequest,
@@ -44,7 +53,7 @@ from tests.unit.runtime.quality.test_generation_cycle import (
     _owner_n5_case_with_selected_ncm_ref,
     _runtime_ncm_fixture_store,
 )
-from tests.unit.runtime.quality.test_joint_simulation_horizon import _atom
+from tests.unit.runtime.quality.test_joint_simulation_horizon import _atom, _linked
 
 _FRESH_N8_CHILD = r"""
 from __future__ import annotations
@@ -248,6 +257,63 @@ def _owner_fixture(
     return store, problem, context, high, low
 
 
+def _owner_fixture_with_expression_candidate(
+    tmp_path: Path,
+) -> tuple[Any, Any, Any, _FixtureCandidate, _FixtureCandidate]:
+    """Build a high-ranked atom without the numeric input required by NCM."""
+
+    store, problem, context, _conflicting, numeric = _owner_fixture(tmp_path)
+    source_assignment = numeric.atom.to_node_intervention().assignments[0]
+    expression_intervention = NodeIntervention(
+        assignments=(
+            VariableAssignment(
+                variable=source_assignment.variable,
+                value_expr="benefit_rate * eligible_income",
+            ),
+        )
+    )
+    intervention = numeric.atom.to_trinity_intervention_spec().model_copy(
+        update={"intervention_id": "income_expression_high"}
+    )
+    high_atom = build_intervention_atom_binding(
+        problem_frame_ref=numeric.atom.problem_frame_ref,
+        policy_spec_ref=numeric.atom.policy_spec_ref,
+        intervention=intervention,
+        linked_intervention=_linked(intervention),
+        causal_intervention=expression_intervention,
+        query_target=numeric.atom.to_query_target(),
+        identification_plan=identification_plan_for_intervention(expression_intervention),
+        causal_context=InterventionContext.model_validate(
+            numeric.atom.causal_do_expr.context
+        ),
+        world_model_record_ref=context.world_model_record.world_model_record_id,
+        producer_ref="test.n5_expression_candidate",
+        provenance_refs=numeric.atom.provenance_refs,
+        operator_proof_type_map={intervention.kind: "node"},
+        mechanism_variable_map={
+            intervention.kind: numeric.atom.causal_do_expr.write_variables
+        },
+        estimand_metric_id=numeric.atom.intended_downstream_estimand.metric_id,
+        estimand_unit_id=numeric.atom.intended_downstream_estimand.unit_id,
+        source_population=numeric.atom.intended_downstream_estimand.source_population,
+        target_population=numeric.atom.intended_downstream_estimand.target_population,
+        mechanism_config_overrides=(
+            numeric.atom.direct_effect_bundle.mechanism_config_overrides
+        ),
+        transform_refs=numeric.atom.direct_effect_bundle.transform_refs,
+        coerce_refs=numeric.atom.direct_effect_bundle.coerce_refs,
+        normalized_from=numeric.atom.normalized_from,
+        status=numeric.atom.status,
+    )
+    high = _FixtureCandidate(
+        candidate_id="candidate_high_expression_missing_ncm_value",
+        atom=high_atom,
+        intervention_atoms=(high_atom,),
+        content_hash=_bundle_hash((high_atom,)),
+    )
+    return store, problem, context, high, numeric
+
+
 def _production_controller(
     *,
     store: FileSystemCAS,
@@ -267,6 +333,64 @@ def _production_controller(
         promotion_runtime=runtime,
         authority_scope="production",
     )
+
+
+def _direct_registered_ncm_outcomes(
+    *,
+    port: JointSimulationPort,
+    request: JointSimulationRequest,
+    engine_decisions: tuple[EngineDecision, ...],
+) -> dict[str, float]:
+    """Call the selected NCM method directly, outside the N5 controller path."""
+
+    selected = next(
+        decision
+        for decision in engine_decisions
+        if decision.decision == "selected"
+    )
+    assert selected.engine_kind == "ncm_parallel_worlds"
+    assert selected.method_fqn is not None
+    plan = next(plan for plan in request.engine_plan if plan.engine_kind == "ncm_parallel_worlds")
+    assert plan.ncm_spec is not None
+    method = port._controller._registry.get(selected.method_fqn)
+    assert method.signature.fqn == selected.method_fqn
+
+    evidence_state = request.evidence_state
+    if evidence_state is None:
+        evidence_state = request.baseline_state
+    evidence = {
+        plan.variable_map.get(variable, variable): float(value)
+        for variable, value in evidence_state.items()
+    }
+    intervention: dict[str, float] = {}
+    for atom in request.intervention_atoms:
+        for assignment in atom.causal_do_expr.assignments:
+            assert assignment.value is not None
+            assert assignment.value_expr is None
+            variable = plan.variable_map.get(assignment.variable, assignment.variable)
+            intervention[variable] = float(assignment.value)
+    query_vars = [
+        plan.variable_map.get(outcome, outcome) for outcome in request.selected_outcomes
+    ]
+    direct_output = method.pure_step(
+        {
+            "ncm_query_data": NCMQueryData(
+                ncm_spec=plan.ncm_spec,
+                evidence=evidence,
+                interventions=[intervention],
+                query_vars=query_vars,
+                n_samples=1,
+            )
+        },
+        {"__seed__": int(request.seed)},
+    )
+    world_summary = direct_output["counterfactual_result"]["world_summaries"][0]
+    return {
+        outcome: float(
+            world_summary[plan.variable_map.get(outcome, outcome)]["mean"]
+        )
+        for outcome in request.selected_outcomes
+    }
 
 
 def _fresh_n8(
@@ -364,9 +488,14 @@ async def test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_resu
             assert prepared.applicability.status == "eligible"
             assert prepared.request is not None
             assert prepared.applicability.request_digest is not None
-            direct_result = port._controller.run(
+            controller_replay = port._controller.run(
                 prepared.request,
                 expected_applicability=prepared.applicability,
+            )
+            direct_ncm_outcomes = _direct_registered_ncm_outcomes(
+                port=port,
+                request=prepared.request,
+                engine_decisions=prepared.applicability.engine_decisions,
             )
 
             assert cycle.simulation.status == "joint_simulated"
@@ -411,8 +540,12 @@ async def test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_resu
                 context.world_model_record.content_hash
             )
             assert persisted.atom_ids == (low.atom.intervention_id,)
-            assert persisted.engine_decisions == direct_result.engine_decisions
-            assert persisted.trajectories == direct_result.trajectories
+            assert persisted.engine_decisions == controller_replay.engine_decisions
+            assert persisted.trajectories == controller_replay.trajectories
+            direct_joint = persisted.trajectory_for("joint", (low.atom.intervention_id,))
+            assert direct_joint.points[0].outcomes["firm_survival"] == pytest.approx(
+                direct_ncm_outcomes["firm_survival"]
+            )
 
             child = _fresh_n8(
                 repo_root=repo_root,
@@ -432,6 +565,125 @@ async def test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_resu
                 cycle.simulation.simulation_result_ref.artifact_id
             )
             assert "simulation_only_k_sim_not_world_evidence" in child_value["authority_blockers"]
+    finally:
+        store.close()
+
+
+@pytest.mark.asyncio
+async def test_expression_valued_candidate_falls_back_to_numeric_ncm_candidate(
+    tmp_path: Path,
+) -> None:
+    """B10: missing NCM-ready input on the top-ranked candidate preserves the fallback."""
+
+    repo_root = Path(__file__).resolve().parents[3]
+    store, problem, context, high, low = _owner_fixture_with_expression_candidate(tmp_path)
+    high_assignment = high.atom.to_node_intervention().assignments[0]
+    low_assignment = low.atom.to_node_intervention().assignments[0]
+    assert high_assignment.value is None
+    assert high_assignment.value_expr == "benefit_rate * eligible_income"
+    assert low_assignment.value == 1.0
+    assert low_assignment.value_expr is None
+    assert high.atom.world_model_record_ref == low.atom.world_model_record_ref
+    assert high.atom.world_model_record_ref == context.world_model_record.world_model_record_id
+    assert high.content_hash != low.content_hash
+
+    try:
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            controller = _production_controller(
+                store=store,
+                problem=problem,
+                context=context,
+                candidates=(high, low),
+                repo_root=repo_root,
+            )
+            assert type(controller._simulation_port) is JointSimulationPort
+            port = controller._simulation_port
+            assert port.supports_applicability_preflight(problem)
+            run = await controller.run(
+                problem,
+                budget_state=_budget(),
+                min_cycles=1,
+                max_cycles=1,
+            )
+            cycle = run.cycles[0]
+            assert cycle.selected_candidate_ref == low.candidate_id
+            assert cycle.simulation.status == "joint_simulated"
+            assert cycle.simulation.simulation_result_ref is not None
+            assert cycle.value_port.status == "value_conditional"
+            assert cycle.value_port.value_ref == str(
+                cycle.simulation.simulation_result_ref.artifact_id
+            )
+
+            summary_by_id = {item.candidate_id: item for item in run.candidate_summaries}
+            high_summary = summary_by_id[high.candidate_id]
+            low_summary = summary_by_id[low.candidate_id]
+            assert high_summary.proxy_score > low_summary.proxy_score
+            assert high_summary.voi_estimate > low_summary.voi_estimate
+            assert high_summary.n5_applicability.status == "ineligible"
+            assert high_summary.n5_applicability.blockers == (
+                "value_expr_intervention_not_supported_by_ncm_controller",
+            )
+            assert low_summary.n5_applicability.status == "eligible"
+            assert high_summary.content_hash == high.content_hash
+            assert low_summary.content_hash == low.content_hash
+
+            prepared = port.prepare_candidate(
+                candidate=low,
+                problem=problem,
+                cycle_index=0,
+            )
+            assert prepared.applicability.status == "eligible"
+            assert prepared.request is not None
+            assert prepared.applicability.request_digest is not None
+            direct_ncm_outcomes = _direct_registered_ncm_outcomes(
+                port=port,
+                request=prepared.request,
+                engine_decisions=prepared.applicability.engine_decisions,
+            )
+
+            persisted = load_joint_simulation_result(
+                cycle.simulation.simulation_result_ref,
+                store=store,
+                expected_world_model_record_content_hash=context.world_model_record.content_hash,
+                expected_world_model_record_ref=context.world_model_record.world_model_record_id,
+                expected_atom_ids=(low.atom.intervention_id,),
+                expected_selected_outcomes=("firm_survival",),
+                expected_receipt_payload_hash=cycle.simulation.simulation_ref or "",
+            )
+            assert persisted.receipt.payload_hash == cycle.simulation.simulation_ref
+            assert persisted.atom_ids == (low.atom.intervention_id,)
+            selected_method = next(
+                decision
+                for decision in persisted.engine_decisions
+                if decision.decision == "selected"
+            )
+            assert selected_method.engine_kind == "ncm_parallel_worlds"
+            assert selected_method.method_fqn is not None
+            direct_joint = persisted.trajectory_for("joint", (low.atom.intervention_id,))
+            assert direct_joint.points[0].outcomes["firm_survival"] == pytest.approx(
+                direct_ncm_outcomes["firm_survival"]
+            )
+
+            child = _fresh_n8(
+                repo_root=repo_root,
+                store_root=tmp_path / "runtime-cas",
+                world_model_record=context.world_model_record,
+                problem=problem,
+                candidate=low,
+                simulation=cycle.simulation,
+            )
+            assert child["consumer_pid"] != os.getpid()
+            assert child["runtime_source"] == str(
+                (repo_root / "src/polisyos/runtime/quality/generation_cycle.py").resolve()
+            )
+            child_value = child["observation"]
+            assert child_value["status"] == "value_conditional"
+            assert child_value["value_ref"] == str(
+                cycle.simulation.simulation_result_ref.artifact_id
+            )
+            assert "simulation_only_k_sim_not_world_evidence" in child_value[
+                "authority_blockers"
+            ]
     finally:
         store.close()
 

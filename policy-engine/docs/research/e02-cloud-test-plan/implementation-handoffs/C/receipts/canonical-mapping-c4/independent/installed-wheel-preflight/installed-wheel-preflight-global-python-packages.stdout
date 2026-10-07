@@ -1,0 +1,21 @@
+Name: pydantic
+Version: 2.12.5
+Summary: Data validation using Python type hints
+Home-page: https://github.com/pydantic/pydantic
+Author: 
+Author-email: Samuel Colvin <s@muelcolvin.com>, Eric Jolibois <em.jolibois@gmail.com>, Hasan Ramezani <hasan.r67@gmail.com>, Adrian Garcia Badaracco <1755071+adriangb@users.noreply.github.com>, Terrence Dorsey <terry@pydantic.dev>, David Montague <david@pydantic.dev>, Serge Matveenko <lig@countzero.co>, Marcelo Trylesinski <marcelotryle@gmail.com>, Sydney Runkle <sydneymarierunkle@gmail.com>, David Hewitt <mail@davidhewitt.io>, Alex Hall <alex.mojaki@gmail.com>, Victorien Plot <contact@vctrn.dev>, Douwe Maan <hi@douwe.me>
+License-Expression: MIT
+Location: /opt/homebrew/lib/python3.14/site-packages
+Requires: annotated-types, pydantic-core, typing-extensions, typing-inspection
+Required-by: langchain, langchain-core, langgraph, langsmith, openai, policy-engine, pydantic-settings
+---
+Name: pytest
+Version: 9.0.2
+Summary: pytest: simple powerful testing with Python
+Home-page: https://docs.pytest.org/en/latest/
+Author: Holger Krekel, Bruno Oliveira, Ronny Pfannschmidt, Floris Bruynooghe, Brianna Laugher, Florian Bruhin, Others (See AUTHORS)
+Author-email: 
+License-Expression: MIT
+Location: /opt/homebrew/lib/python3.14/site-packages
+Requires: iniconfig, packaging, pluggy, pygments
+Required-by: mutmut, pytest-asyncio, pytest-benchmark

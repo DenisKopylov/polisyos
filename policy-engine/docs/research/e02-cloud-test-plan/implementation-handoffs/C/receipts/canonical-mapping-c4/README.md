@@ -41,6 +41,19 @@ Receipt groups:
   exit 0, empty stderr, unchanged source/probe hashes, and stdout matching the
   original oracle output SHA-256
   `86d1657265d680b6ad226db794e3d80dd5b9f9f43240563d874b057acac30ba0`.
+- `independent/installed-wheel-preflight/` preserves the independent
+  reviewer's full installed-wheel preflight packet: exact commands, each exit
+  status, and all stdout/stderr files. The installed-package Mapping smoke is
+  **UNRUN** because Hatchling >=1.27 is unavailable offline, no wheel is cached,
+  the previous C3 environment path is absent, and the global install is editable
+  from the primary checkout. No build/install or environment mutation was
+  attempted. The exact pip metadata stdout includes empty fields with trailing
+  blanks; those captured bytes are preserved, so diff-check reports seven such
+  lines in these receipt outputs. The older C3 installed wheel predates the e3
+  Mapping normalizer and does not cover it. The 46-test source selector and
+  independent actual-CAS oracle remain GO for their source-level properties;
+  they do not prove the
+  installed-wheel layer.
 - `diagnostic/default-docs-diff-check.json` preserves the full default
   `git diff --check` result for `519b6739^..519b6739`: exit 2 with 17 captured
   output whitespace warnings across 34 stdout lines. The payload captures remain byte-exact. Root

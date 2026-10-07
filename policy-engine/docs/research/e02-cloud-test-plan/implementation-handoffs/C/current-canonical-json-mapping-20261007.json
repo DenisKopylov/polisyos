@@ -466,6 +466,29 @@
         "bytes": 810
       },
       "capture_note": "This complete Root capture is separate from the earlier author Ruff wrapper record, which did not preserve separate stderr or a numeric exit code."
+    },
+    "independent_installed_wheel_preflight": {
+      "status": "UNRUN",
+      "scope": "Fresh non-editable wheel consumer smoke for the e3 JSON-mode Mapping normalizer was not run; this is a distinct installed-package layer.",
+      "source_candidate_commit": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+      "source_candidate_tree_sha": "2d27c9c182cf550088c5a8c072dc2f36df84e20d",
+      "preflight_head": "992ad5da2928a25aada15db5cfb9c74d011b6bc6",
+      "source_and_test_blobs_unchanged": {
+        "io.py_git_blob_sha1": "00a9b82ae827cae69acc2420ac887ae82802f5c5",
+        "test_ir_adapter.py_git_blob_sha1": "eadf0f52778561418dd77e64945f084d855d4beb",
+        "readback": "git diff --exit-code from e3 against these two files returned 0."
+      },
+      "reason": "The offline build backend hatchling>=1.27.0 is not installed and no Hatchling wheel is cached. The inspected uv cache was 12,288 bytes, the previous C3 environment path is absent, and the global policy-engine installation is editable from the primary checkout rather than this candidate. No wheel build, install, environment creation, network access, alternate backend, or external cache scan was attempted.",
+      "previous_installed_wheel_boundary": "The earlier installed wheel receipt was for source candidate 55b45d9a and predates the seven-line JSON-mode Mapping normalization; it does not establish this e3 behavior.",
+      "prior_results_unchanged": "The 46-test frozen source selector and independent actual-CAS Mapping oracle remain GO for their stated source-level properties. They do not substitute for this unrun installed-wheel layer.",
+      "report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-unrun.md",
+        "sha256": "cf0283dbe1c3bc0376d5b21f28f0c283788ea09eef5aa9ed2a1143e51d477abe",
+        "bytes": 2546
+      },
+      "commands_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-commands.txt",
+      "exit_statuses_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-exit-statuses.txt",
+      "full_preflight_output_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight"
     }
   },
   "production_invocation_diagnostic": {
@@ -514,7 +537,8 @@
       "verification_missing",
       "surface_out_of_scope"
     ],
-    "b_owned_boundary": "No ratified byte-emission/admission contract or profile decision was found in reviewed B-owner inputs. The cross-boundary property is verification_missing, but that label does not imply a contract exists; the supplier contract itself remains unresolved."
+    "b_owned_boundary": "No ratified byte-emission/admission contract or profile decision was found in reviewed B-owner inputs. The cross-boundary property is verification_missing, but that label does not imply a contract exists; the supplier contract itself remains unresolved.",
+    "installed_wheel_probe": "UNRUN: no offline Hatchling >=1.27 build backend or wheel was available; source-level GO results remain separately recorded."
   },
   "related_owner_input": {
     "B_packet_commit": "12d77b34ea845adde0bf27a653fa70fd2ea8ad35",
@@ -526,8 +550,8 @@
   "receipt_files": [
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/README.md",
-      "sha256": "27f2939ce813ed0d9df18874ca6c810cb70413f2694b2b6a4f39dcb5dd241488",
-      "bytes": 4118
+      "sha256": "7530aca1d11809d867bb5ec24efbb1b9fa02c638a8d238091c1bbb59e11676c9",
+      "bytes": 5018
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/author/root-ruff.json",
@@ -638,6 +662,91 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/focused-tests.stdout.txt",
       "sha256": "ec13b07075705e78575f94e56c86cd546af8215e824ae1c5993f7ecd1fa49666",
       "bytes": 114
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-commands.txt",
+      "sha256": "6924965ebedf6f4bbe75d9399ab7a2e9eef34f391a5f9f423b950a5db68f7924",
+      "bytes": 1056
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-exit-statuses.txt",
+      "sha256": "e54c04f61ed2610336f46050bb5c85b5fee183aa5bbaceb4b7f95ac00364c53c",
+      "bytes": 518
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-global-policy-engine.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-global-policy-engine.stdout",
+      "sha256": "ce2d0100ee95bd144a59e73990ec1e699f153d8aa3643ded1c9bd24a1316fe5f",
+      "bytes": 720
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-global-python-packages.stderr",
+      "sha256": "a163da9a430769e5b8e44c520ccc4d1a957e1b02eae5c530e47d68f8955879a1",
+      "bytes": 41
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-global-python-packages.stdout",
+      "sha256": "3bb5a68024b7a48c009f81ea1eb8bbcf6cf07826b7f87351276112f2029aecb8",
+      "bytes": 1382
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-old-c3-python-path.stderr",
+      "sha256": "f86b6c1cadb2eb32ac775dfe60d658ba0ed88b69a13ab965abbd3d4b5bc3e2c0",
+      "bytes": 136
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-old-c3-python-path.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-pip-cache-hatchling.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-pip-cache-hatchling.stdout",
+      "sha256": "4b9b5075db523bb10eb07dfc79bd7e66e279b0c8f197f2a7b65197dc19b85fbb",
+      "bytes": 32
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-source-blob-readback.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-source-blob-readback.stdout",
+      "sha256": "f9ba0282417f8d38456b5b6ebc2a25a59c077c6f11e30b7fb5072ee026f54f11",
+      "bytes": 82
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-uv-cache-dir.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-uv-cache-dir.stdout",
+      "sha256": "0a420d069bb5576406b0d72393639e78866af28110d0d11b7a9bb5de74ec2a65",
+      "bytes": 30
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-uv-cache-size.stderr",
+      "sha256": "3209887440f0ed4eae03f59421495012205f6f03550b9a64ffd2cf705fc40eb1",
+      "bytes": 135
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-uv-cache-size.stdout",
+      "sha256": "7687dd6c1e73ead056867ef14ec245f94b529bd40b6ced56bf6da43d89585518",
+      "bytes": 6
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-unrun.md",
+      "sha256": "cf0283dbe1c3bc0376d5b21f28f0c283788ea09eef5aa9ed2a1143e51d477abe",
+      "bytes": 2546
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/mapping-oracle.command.txt",

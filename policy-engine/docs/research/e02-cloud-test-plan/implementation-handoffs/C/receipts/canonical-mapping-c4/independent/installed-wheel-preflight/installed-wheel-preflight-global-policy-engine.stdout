@@ -1,0 +1,11 @@
+Name: policy-engine
+Version: 0.1.0
+Summary: AI-driven Policy Simulation System using JAX and Unified Data Fabric
+Home-page: 
+Author: 
+Author-email: 
+License: 
+Location: /opt/homebrew/lib/python3.14/site-packages
+Editable project location: /Users/deniskopylov/polisyos/policy-engine
+Requires: aiohttp, chex, cryptography, diffrax, duckdb, equinox, hnswlib, hypothesis, jax, jax-metal, jaxlib, jaxtyping, langchain, langgraph, loguru, odfpy, openai, openpyxl, opentelemetry-api, opentelemetry-exporter-otlp-proto-grpc, opentelemetry-exporter-prometheus, opentelemetry-sdk, optax, orjson, packaging, pandas, plotly, pyarrow, pydantic, pydantic-settings, pymoo, pypdf, python-dotenv, streamlit, tiktoken, xlrd
+Required-by: 

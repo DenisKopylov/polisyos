@@ -1,0 +1,12 @@
+C4 read-only wheel-build input preflight exit statuses
+(global Python commands run from /tmp; source identity command from CAN repo root)
+
+0  global-python-packages
+0  pip-cache-hatchling
+0  uv-cache-dir
+0  uv-cache-size
+0  global-policy-engine
+1  old-c3-python-path (expected path absent; stderr is preserved)
+0  source-blob-readback
+
+The missing-backend state is evidenced by pip show warning (not a failed command), empty pip wheel cache for hatchling, and an empty/tiny uv cache. No build/install command was run.

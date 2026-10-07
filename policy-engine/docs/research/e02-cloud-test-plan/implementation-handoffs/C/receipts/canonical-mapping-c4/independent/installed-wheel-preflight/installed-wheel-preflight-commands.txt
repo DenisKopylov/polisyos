@@ -1,0 +1,17 @@
+C4 current-source identity:
+  cwd=/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos
+  git rev-parse HEAD
+  git rev-parse HEAD^{tree}
+  git status -sb
+  git rev-parse e3cb3fafc847b94a5d4b3adc03b814b4c711920c:policy-engine/src/polisyos/ir/artifacts/io.py HEAD:policy-engine/src/polisyos/ir/artifacts/io.py
+  git rev-parse e3cb3fafc847b94a5d4b3adc03b814b4c711920c:policy-engine/tests/unit/core/artifacts/test_ir_adapter.py HEAD:policy-engine/tests/unit/core/artifacts/test_ir_adapter.py
+
+Offline build inputs (all read-only; cwd=/tmp):
+  /opt/homebrew/opt/python@3.14/bin/python3.14 -I -m pip show hatchling pydantic pytest
+  /opt/homebrew/opt/python@3.14/bin/python3.14 -I -m pip cache list hatchling
+  uv cache dir
+  uv cache size
+  /opt/homebrew/opt/python@3.14/bin/python3.14 -I -m pip show policy-engine
+  ls -l /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python
+
+No wheel build, install, environment creation, package installation, network access, or external cache scan was run.TXT

@@ -48,6 +48,21 @@ Atomic publication is verified here for `InMemoryPromptCache`; a foreign impleme
 requires its own conformance evidence. The owner decision itself remains a deployment
 premise, including any required atomic epoch semantics.
 
+The decoder below is the canonical B-authored intake. Durable unknown-ack and usage/cost status behavior requires the canonical B1.2 accounting composition; the decoder alone does not establish that completion profile.
+
+Successful HTTP completion bodies decode fractional/exponent JSON numbers as exact `Decimal`
+values in `GatewayLLMResponse.raw`; integer and boolean tokens keep their distinct types.
+The existing normalized monetary interface remains `float | None`: a finite nonzero report
+that would underflow to float zero is invalid evidence and retains an unknown completion,
+rather than acquiring a reported-zero receipt. Literal zero and representable valid costs
+remain known. Prompt-cache raw snapshots preserve these exact numbers as numeric strings
+and retain their usage/cost knowledge statuses. Consumers serializing the diagnostic raw payload
+must support `Decimal` or use the existing JSON-safe conversion; it is not a float-only payload.
+Model catalogs, HTTP error-code parsing and embedded tool-argument strings keep their existing
+non-accounting decoder contracts. This boundary does not establish an external invoice amount
+for a cost outside the normalized monetary profile.
+
+
 ## Public API
 
 - `GatewayLLMClient`, `GatewayLLMResponse`, `GatewayUsage`

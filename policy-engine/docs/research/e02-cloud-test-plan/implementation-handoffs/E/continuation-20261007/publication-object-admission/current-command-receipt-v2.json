@@ -1,0 +1,381 @@
+{
+  "author_observation": true,
+  "independent_review": false,
+  "source_head": "8fa11f569ebb2c952948e09d4db5c1f37be84b83",
+  "source_tree": "cf815e7dc87f7fbe7406f211feaf89ec1b71051b",
+  "source_state": "working changes pinned by bytes; implementation commit follows",
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+  },
+  "source_before": [
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/validate.py",
+      "bytes": 7529,
+      "sha256": "a7d215655bc8edf75f6ca86df7901caf550f1d92974cf2ec9afa1d6a9042c06c"
+    },
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/core-route-removal.py",
+      "bytes": 1146,
+      "sha256": "9293f0b5e985489839c21711a47f51aa1dae0537b534d20a1708ec53abae7ee7"
+    },
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/deep-import-collector.py",
+      "bytes": 1309,
+      "sha256": "3906586297575c611f02291ca1b6c9324fde1d08e710f319fac9490d9f1fe1ae"
+    },
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/full-python-delta.py",
+      "bytes": 7046,
+      "sha256": "a1cf574dd3ab885727651c52127924e32676bbb80e4176d71136cba5783697e9"
+    },
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/public-export-probe.py",
+      "bytes": 1639,
+      "sha256": "56fc91ac490f97fc273dae455295ac83867cb217586473d257aab16df493b8ff"
+    },
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py",
+      "bytes": 6227,
+      "sha256": "6edb519a852d99eb9b3aed89b96a8a675c106247742b9c39c8c6081205199db0"
+    },
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+      "bytes": 5532,
+      "sha256": "0c7bda166798cadc7a9769fadae79d8f435cd4572d22b2c59d8c0c3db3427f0c"
+    },
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/tests/_helpers/forecast.py",
+      "bytes": 4547,
+      "sha256": "3cecf5c250f701cbc04f2bc1165eefab275958ddeb8b1c92bf6461cf98ff028c"
+    },
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/tests/unit/calibration/test_core_artifact_routes.py",
+      "bytes": 3803,
+      "sha256": "7810ffa9d5e0ec31e3f9dd8df9dccb169007594a329a66ca69ff7555b6e23cb7"
+    },
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/tests/unit/remediation/test_frc_01.py",
+      "bytes": 16018,
+      "sha256": "26339b905dd7cf1e00e13469644818fe8a25e602bfb30b803d073350bc0bb0a9"
+    },
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/tests/unit/scientist/methods/doe/test_morris_analysis_admission.py",
+      "bytes": 7613,
+      "sha256": "4b87baf6ee95cd0d5d0f075c7838aaddf8692505e3f97999904735a3d9013e8d"
+    }
+  ],
+  "source_after": [
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/validate.py",
+      "bytes": 7529,
+      "sha256": "a7d215655bc8edf75f6ca86df7901caf550f1d92974cf2ec9afa1d6a9042c06c"
+    },
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/core-route-removal.py",
+      "bytes": 1146,
+      "sha256": "9293f0b5e985489839c21711a47f51aa1dae0537b534d20a1708ec53abae7ee7"
+    },
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/deep-import-collector.py",
+      "bytes": 1309,
+      "sha256": "3906586297575c611f02291ca1b6c9324fde1d08e710f319fac9490d9f1fe1ae"
+    },
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/full-python-delta.py",
+      "bytes": 7046,
+      "sha256": "a1cf574dd3ab885727651c52127924e32676bbb80e4176d71136cba5783697e9"
+    },
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/public-export-probe.py",
+      "bytes": 1639,
+      "sha256": "56fc91ac490f97fc273dae455295ac83867cb217586473d257aab16df493b8ff"
+    },
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py",
+      "bytes": 6227,
+      "sha256": "6edb519a852d99eb9b3aed89b96a8a675c106247742b9c39c8c6081205199db0"
+    },
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+      "bytes": 5532,
+      "sha256": "0c7bda166798cadc7a9769fadae79d8f435cd4572d22b2c59d8c0c3db3427f0c"
+    },
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/tests/_helpers/forecast.py",
+      "bytes": 4547,
+      "sha256": "3cecf5c250f701cbc04f2bc1165eefab275958ddeb8b1c92bf6461cf98ff028c"
+    },
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/tests/unit/calibration/test_core_artifact_routes.py",
+      "bytes": 3803,
+      "sha256": "7810ffa9d5e0ec31e3f9dd8df9dccb169007594a329a66ca69ff7555b6e23cb7"
+    },
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/tests/unit/remediation/test_frc_01.py",
+      "bytes": 16018,
+      "sha256": "26339b905dd7cf1e00e13469644818fe8a25e602bfb30b803d073350bc0bb0a9"
+    },
+    {
+      "path": "/workspace/e02-E-cal05-20261006/policy-engine/tests/unit/scientist/methods/doe/test_morris_analysis_admission.py",
+      "bytes": 7613,
+      "sha256": "4b87baf6ee95cd0d5d0f075c7838aaddf8692505e3f97999904735a3d9013e8d"
+    }
+  ],
+  "commands": [
+    {
+      "name": "core-historical-normal",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py",
+        "--repo-root",
+        "/workspace/e02-E-cal05-20261006",
+        "--receipt",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3.json",
+        "--publication-revision",
+        "8fa11f569ebb2c952948e09d4db5c1f37be84b83"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.36518168449401855,
+      "outputs": {
+        "stdout": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/core-historical-normal-v2.stdout",
+          "bytes": 326,
+          "sha256": "ae2d2c12bd8b41ce5d300cdf1629478ea8eb3d4ed2b4e599b573fbcdc9036896"
+        },
+        "stderr": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/core-historical-normal-v2.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "frc-actual-normal",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/validate.py"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.08722805976867676,
+      "outputs": {
+        "stdout": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/frc-actual-normal-v2.stdout",
+          "bytes": 316,
+          "sha256": "e450ff708081a367fabf702f5d330cb79cac7eee08d3c9f19f5b40576f68f4c6"
+        },
+        "stderr": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/frc-actual-normal-v2.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "core-historical-optimized",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-O",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py",
+        "--repo-root",
+        "/workspace/e02-E-cal05-20261006",
+        "--receipt",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3.json",
+        "--publication-revision",
+        "8fa11f569ebb2c952948e09d4db5c1f37be84b83"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.36599063873291016,
+      "outputs": {
+        "stdout": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/core-historical-optimized-v2.stdout",
+          "bytes": 326,
+          "sha256": "ae2d2c12bd8b41ce5d300cdf1629478ea8eb3d4ed2b4e599b573fbcdc9036896"
+        },
+        "stderr": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/core-historical-optimized-v2.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "frc-actual-optimized",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-O",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/validate.py"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.06332802772521973,
+      "outputs": {
+        "stdout": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/frc-actual-optimized-v2.stdout",
+          "bytes": 316,
+          "sha256": "e450ff708081a367fabf702f5d330cb79cac7eee08d3c9f19f5b40576f68f4c6"
+        },
+        "stderr": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/frc-actual-optimized-v2.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "core-current-old-index-refusal",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py",
+        "--repo-root",
+        "/workspace/e02-E-cal05-20261006",
+        "--receipt",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3.json"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "elapsed_seconds": 0.11215972900390625,
+      "outputs": {
+        "stdout": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/core-current-old-index-refusal-v2.stdout",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/core-current-old-index-refusal-v2.stderr",
+          "bytes": 782,
+          "sha256": "7e01f782c26e7c50ab8c49bc180170e1a2e814b22aae829fdf9c5fc1fbf8517c"
+        }
+      }
+    },
+    {
+      "name": "fresh-actual-import-builder",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/full-python-delta.py",
+        "--repo-root",
+        "/workspace/e02-E-cal05-20261006",
+        "--output-root",
+        "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/fresh-actual-builder-v2"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 9.380507707595825,
+      "outputs": {
+        "stdout": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/fresh-actual-import-builder-v2.stdout",
+          "bytes": 1417,
+          "sha256": "ca3f54c90e031978d5d447e057929a1f29f6f0ae8721657325b9482481bd2aee"
+        },
+        "stderr": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/fresh-actual-import-builder-v2.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "current-11-ruff",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--output-format",
+        "json",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/validate.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/core-route-removal.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/deep-import-collector.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/full-python-delta.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/public-export-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py",
+        "src/polisyos/scientist/methods/doe/morris_geometry.py",
+        "tests/_helpers/forecast.py",
+        "tests/unit/calibration/test_core_artifact_routes.py",
+        "tests/unit/remediation/test_frc_01.py",
+        "tests/unit/scientist/methods/doe/test_morris_analysis_admission.py"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006/policy-engine",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.05299878120422363,
+      "outputs": {
+        "stdout": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current-11-ruff-v2.stdout",
+          "bytes": 2,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "stderr": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current-11-ruff-v2.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "current-11-format",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/validate.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/core-route-removal.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/deep-import-collector.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/full-python-delta.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/public-export-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py",
+        "src/polisyos/scientist/methods/doe/morris_geometry.py",
+        "tests/_helpers/forecast.py",
+        "tests/unit/calibration/test_core_artifact_routes.py",
+        "tests/unit/remediation/test_frc_01.py",
+        "tests/unit/scientist/methods/doe/test_morris_analysis_admission.py"
+      ],
+      "cwd": "/workspace/e02-E-cal05-20261006/policy-engine",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.04442405700683594,
+      "outputs": {
+        "stdout": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current-11-format-v2.stdout",
+          "bytes": 27,
+          "sha256": "75b7030be9d7de96bf4e76e79b1f03f14af8899d169fd8d79564d59167d1ab80"
+        },
+        "stderr": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/current-11-format-v2.stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ],
+  "builder_outputs": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/fresh-actual-builder-v2/all-python-fetched-G.json",
+      "bytes": 278716,
+      "sha256": "15ada3499ccb8a664857ef810cfdf1c1cab17b898b01aebde7e1eca6dbb6bb51"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/fresh-actual-builder-v2/all-python-main.json",
+      "bytes": 290493,
+      "sha256": "b2f120d2bf26e8f882354ef1765fdb84925eba5229d91bef11cb01b131d93bc9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/utility-delta-11/fresh-actual-builder-v2/all-python-slice-base.json",
+      "bytes": 6527,
+      "sha256": "08736f26cefe2331a80878b37ab32c42144e25b59a16b937c4a61a72efc0b855"
+    }
+  ],
+  "scope": "Exact eleven only; no common wave or global lint/format"
+}

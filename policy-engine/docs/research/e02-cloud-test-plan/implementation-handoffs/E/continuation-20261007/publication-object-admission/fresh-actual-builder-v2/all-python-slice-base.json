@@ -1,0 +1,246 @@
+{
+  "base_sha": "6c80d1ac520e78a7b79d02402031c5a1673a6161",
+  "candidate_sha": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+  "full_changed_path_count": 8,
+  "changed_python_count": 8,
+  "source_python_count": 7,
+  "test_python_count": 1,
+  "companion_python_count": 0,
+  "added_absolute_polisyos_import_rows": 24,
+  "scope": "Every changed .py blob read and parsed at both Git refs; test/companion import rows are a separate denominator from cross-root product module edges",
+  "records": [
+    {
+      "path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "kind": "production_source",
+      "base_blob": "53008144d8bc4c903392cdd80db14f734496208e",
+      "candidate_blob": "75b9a64da9de395f9a28d52e2926e3f5dee96b2b",
+      "added_absolute_polisyos_import_rows": [
+        {
+          "target": "polisyos.core",
+          "symbols": [
+            "artifacts"
+          ],
+          "line": 23
+        },
+        {
+          "target": "polisyos.core",
+          "symbols": [
+            "artifacts"
+          ],
+          "line": 265
+        },
+        {
+          "target": "polisyos.core",
+          "symbols": [
+            "canon"
+          ],
+          "line": 266
+        },
+        {
+          "target": "polisyos.core",
+          "symbols": [
+            "artifacts"
+          ],
+          "line": 308
+        },
+        {
+          "target": "polisyos.core",
+          "symbols": [
+            "canon"
+          ],
+          "line": 341
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "kind": "production_source",
+      "base_blob": "7ca3d5b6637a7677fc54a4e178262dd0fcf0e081",
+      "candidate_blob": "437aeb254c9dff6c2735f9c914953553ea9f6de3",
+      "added_absolute_polisyos_import_rows": [
+        {
+          "target": "polisyos.core",
+          "symbols": [
+            "artifacts"
+          ],
+          "line": 60
+        },
+        {
+          "target": "polisyos.core",
+          "symbols": [
+            "artifacts"
+          ],
+          "line": 1521
+        },
+        {
+          "target": "polisyos.core",
+          "symbols": [
+            "canon"
+          ],
+          "line": 1522
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "kind": "production_source",
+      "base_blob": "6ec3567995fac9550343013279d4bf12a269817a",
+      "candidate_blob": "f2c3879f995928866f1bfa44c576b7dba994d9db",
+      "added_absolute_polisyos_import_rows": [
+        {
+          "target": "polisyos.core",
+          "symbols": [
+            "artifacts"
+          ],
+          "line": 10
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "kind": "production_source",
+      "base_blob": "c633f081a4ea6b5b242e670aca831bf46213c5bc",
+      "candidate_blob": "5ce80d5d2481ea86f8950fb1da1cbaebf3ebccd5",
+      "added_absolute_polisyos_import_rows": [
+        {
+          "target": "polisyos.core",
+          "symbols": [
+            "artifacts"
+          ],
+          "line": 17
+        },
+        {
+          "target": "polisyos.core",
+          "symbols": [
+            "canon"
+          ],
+          "line": 18
+        },
+        {
+          "target": "polisyos.core",
+          "symbols": [
+            "registry"
+          ],
+          "line": 19
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "kind": "production_source",
+      "base_blob": "ff4d436808dee6e56a79a15abda5c6c6cd49c444",
+      "candidate_blob": "22db2f26c1b72517e11367c6861b92239f00c199",
+      "added_absolute_polisyos_import_rows": [
+        {
+          "target": "polisyos.core",
+          "symbols": [
+            "canon"
+          ],
+          "line": 18
+        },
+        {
+          "target": "polisyos.core",
+          "symbols": [
+            "artifacts"
+          ],
+          "line": 607
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "kind": "production_source",
+      "base_blob": "d8a97a0995175a651edf81d7324ec7fea670a558",
+      "candidate_blob": "421108ae946d2b406638e06efe8e22262ffdb674",
+      "added_absolute_polisyos_import_rows": [
+        {
+          "target": "polisyos.core",
+          "symbols": [
+            "artifacts"
+          ],
+          "line": 14
+        },
+        {
+          "target": "polisyos.core",
+          "symbols": [
+            "artifacts"
+          ],
+          "line": 46
+        },
+        {
+          "target": "polisyos.core",
+          "symbols": [
+            "canon"
+          ],
+          "line": 47
+        },
+        {
+          "target": "polisyos.core",
+          "symbols": [
+            "canon"
+          ],
+          "line": 77
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "kind": "production_source",
+      "base_blob": "c9f06d846f558d7ffb1db1db9013794503e430a1",
+      "candidate_blob": "41b6757483cbf48443b4e0fef7638386770fa96d",
+      "added_absolute_polisyos_import_rows": [
+        {
+          "target": "polisyos.core",
+          "symbols": [
+            "artifacts"
+          ],
+          "line": 8
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_core_artifact_routes.py",
+      "kind": "mirrored_test",
+      "base_blob": null,
+      "candidate_blob": "713794d9de160732e376315ffd715214dd2f4957",
+      "added_absolute_polisyos_import_rows": [
+        {
+          "target": "polisyos.core",
+          "symbols": [],
+          "line": 10
+        },
+        {
+          "target": "polisyos.calibration",
+          "symbols": [
+            "evaluate_continuous",
+            "load_continuous_evaluation",
+            "persist_continuous_evaluation"
+          ],
+          "line": 11
+        },
+        {
+          "target": "polisyos.core",
+          "symbols": [
+            "artifacts",
+            "canon"
+          ],
+          "line": 16
+        },
+        {
+          "target": "polisyos.scientist.methods.autotune.sensitivity_bridge",
+          "symbols": [
+            "SensitivityBridge"
+          ],
+          "line": 17
+        },
+        {
+          "target": "polisyos.scientist.methods.search.sensitivity_adapter",
+          "symbols": [
+            "SensitivityAwareCandidateGenerator"
+          ],
+          "line": 18
+        }
+      ]
+    }
+  ]
+}

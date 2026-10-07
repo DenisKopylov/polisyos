@@ -1,0 +1,31 @@
+from pathlib import Path
+import ast,copy,importlib.util,json
+from unittest.mock import patch
+REPO=Path('/workspace/e02-E-cal05-20261006');OUT=Path('/workspace/e02-E-pr38-r3-receipts/utility-delta-11');PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/'
+source=REPO/PREFIX/'core-import-route-r3/validate.py';spec=importlib.util.spec_from_file_location('actual_core_validator',source);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+receipt=json.loads((REPO/PREFIX/'core-import-route-r3.json').read_text());results=[]
+for name in ['candidate_option','base_option','last_path_None','last_path_dot','last_path_bool']:
+ broken=copy.deepcopy(receipt)
+ if name=='candidate_option':broken['implementation_commits'][-1]='--output=outside'
+ elif name=='base_option':broken['slice_base_sha']='--output=outside'
+ else:broken['footprint'][-1]['path']={'last_path_None':None,'last_path_dot':'.','last_path_bool':True}[name]
+ calls=[]
+ def spy(repo,*args):
+  calls.append(args)
+  return (receipt['candidate_tree_sha']+'\n').encode() if args[0]=='rev-parse' else ('\n'.join(receipt['changed_paths'])+'\n').encode()
+ with patch.object(module,'_git',spy):
+  try:module.validate(REPO,broken)
+  except Exception as exc:error=type(exc).__name__
+  else:error=None
+ results.append({'name':name,'callback_count':len(calls),'error':error,'Git_callbacks':[list(x) for x in calls]})
+helper=REPO/PREFIX/'core-import-route-r3/controls/full-python-delta.py';tree=ast.parse(helper.read_text());nodes=[node for node in tree.body if isinstance(node,(ast.Import,ast.ImportFrom,ast.FunctionDef))];namespace={'repo':REPO};exec(compile(ast.Module(body=nodes,type_ignores=[]),str(helper),'exec'),namespace);calls=[]
+def spy(*args):calls.append(args);raise ValueError('child callback reached')
+namespace['_git']=spy
+for value in ['--output=outside',None,True]:
+ before=len(calls)
+ try:namespace['_imports'](value,'policy-engine/src/polisyos/calibration/continuous.py')
+ except Exception as exc:error=type(exc).__name__
+ else:error=None
+ results.append({'name':'imports_ref_'+str(value),'callback_count':len(calls)-before,'error':error})
+record={'source_sha':'8fa11f569ebb2c952948e09d4db5c1f37be84b83','probe':'Actual core validator and extracted literal actual helper function body; spy callbacks only, no external writes','controls':results,'whole_class_preflight_established':all(row['callback_count']==0 for row in results)}
+(OUT/'preflight-baseline.json').write_text(json.dumps(record,indent=2)+'\n');print(json.dumps(record,indent=2))

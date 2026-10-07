@@ -1,0 +1,135 @@
+import hashlib
+import json
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-B-current-coordination')
+SHA = '6fa9b7142ba590c3173f1cd3be097286db5acc4d'
+TREE = 'f53c67ae337db3f2125bf851ce3ee318356bcd68'
+BASE = 'f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1'
+DOC = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'
+RAW = ROOT / '.polisyos/e02-B-current/raw/continuation-20261007'
+NATIVE = ROOT / '.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native'
+OUT = Path('/tmp/e02-B-runtime-continuation-20261007/selector-final-readback')
+PRIOR = '16563fb438ee1920553bef27ede20d785ae944c5'
+PREFIX = DOC + 'continuation-selector-input-review-20261007/'
+
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT)
+
+
+def raw(sha, path):
+    return git('show', sha + ':' + path)
+
+
+def describe(content):
+    return {'bytes': len(content), 'sha256': hashlib.sha256(content).hexdigest()}
+
+
+def ref(sha, path):
+    content = raw(sha, path)
+    return {'git_sha': sha, 'path': path, 'git_blob': git('rev-parse', sha + ':' + path).decode().strip(), **describe(content)}
+
+
+def stable(path):
+    first = path.read_bytes()
+    second = path.read_bytes()
+    assert first == second, str(path)
+    return first
+
+
+def local_ref(path, content):
+    return {'path': str(path), **describe(content), 'custody': 'Actual ignored root raw; portable root publication not established by this leaf. Complete relevant input projection and Git source refs are retained in this review.'}
+
+
+started = time.time()
+head_before = git('rev-parse', 'HEAD').decode().strip()
+assert head_before == SHA and git('rev-parse', SHA + '^{tree}').decode().strip() == TREE
+final_path = RAW / 'selector-6fa9b7142ba5-final.json'
+derived_path = RAW / 'selector-6fa9b7142ba5-derived.json'
+profile_path = NATIVE / 'profile.json'
+args_path = NATIVE / 'whole-files.args'
+final_bytes, derived_bytes, profile_bytes, args_bytes = [stable(p) for p in (final_path, derived_path, profile_path, args_path)]
+assert describe(final_bytes)['sha256'] == '246f5fadefe0e78e66da4fd49820d4007c3869a376f5c4e5e8cbec93925261bf'
+final, derived, profile = [json.loads(b) for b in (final_bytes, derived_bytes, profile_bytes)]
+prior = json.loads(raw(PRIOR, PREFIX + 'review.json'))
+plan_ref = prior['tracked_253_plan']
+plan = json.loads(raw(plan_ref['git_sha'], plan_ref['path']))
+old = set(plan['canonical250_paths']) | set(plan['additional_actual35_consumer_paths'])
+new = {row['selector_path'] for row in prior['new_mirrored_tests']}
+expected_g = {'tests/unit/lex/legal_evaluation/test_impact_diff.py', 'tests/unit/remediation/test_req_01_installed.py'}
+tracked = {x for x in final['test_paths'] if not x.startswith('/')}
+external_paths = [x for x in final['test_paths'] if x.startswith('/')]
+assert len(old) == 252 and len(new) == 6
+assert old.isdisjoint(new) and (old | new) == set(prior['recommended_tracked_union'])
+assert tracked == (old | new | expected_g) and len(tracked) == 260
+assert len(final['test_paths']) == len(set(final['test_paths'])) == final['candidate_whole_file_count'] == 261
+assert final['tracked_file_count'] == 260 and final['external_file_count'] == len(external_paths) == 1
+assert set(derived['test_paths']) == set(plan['canonical250_paths']) | new | expected_g
+assert len(derived['test_paths']) == derived['candidate_whole_file_count'] == 258
+assert tracked - set(derived['test_paths']) == set(plan['additional_actual35_consumer_paths'])
+assert final['derived_selector_sha256'] == describe(derived_bytes)['sha256']
+assert final['root_snapshot_sha'] == derived['root_snapshot_sha'] == profile['sha'] == SHA
+assert final['root_snapshot_tree'] == derived['root_snapshot_tree'] == profile['tree'] == TREE
+assert profile['inputs']['selector'] == final
+assert profile['inputs']['selector_sha256'] == describe(final_bytes)['sha256']
+assert args_bytes.decode().splitlines() == final['test_paths']
+assert '@' + str(args_path) in profile['command']
+identities = [ref(SHA, 'policy-engine/' + p) for p in sorted(tracked)]
+by_path = {x['path']: x for x in identities}
+assert len(final['candidate_whole_file_identities']) == 258
+for x in final['candidate_whole_file_identities']:
+    actual = by_path[x['path']]
+    assert all(actual[k] == x[k] for k in ('git_blob', 'bytes', 'sha256'))
+missing_inline = sorted(set(by_path) - {x['path'] for x in final['candidate_whole_file_identities']})
+assert missing_inline == sorted('policy-engine/' + x for x in plan['additional_actual35_consumer_paths'])
+card_rows = []
+assert final['canonical_denominator']['bundles'] == len(final['canonical_cards']) == 25
+assert final['canonical_denominator']['findings'] == len(final['finding_criterion_refs']) == 60
+for card in final['canonical_cards']:
+    actual = ref(SHA, card['identity']['path'])
+    assert all(actual[k] == card['identity'][k] for k in ('git_blob', 'bytes', 'sha256'))
+    assert raw(BASE, actual['path']) == raw(SHA, actual['path'])
+    card_rows.append({'bundle_id': card['bundle_id'], 'identity': actual, 'base_full_bytes_equal': True})
+assert final['absent_reference_counts'] == derived['absent_reference_counts']
+assert final['absent_named_selectors'] == derived['absent_named_selectors']
+assert final['absent_reference_counts']['all'] == len(final['absent_named_selectors']) == 21
+assert sum(x['required_by_canonical_plan'] for x in final['absent_named_selectors']) == 14
+assert all(x['state'] == 'UNRUN_named_selector_absent' for x in final['absent_named_selectors'])
+external = final['external_defining_input']
+ext_ref = external['exact_source']
+ext_path = Path(external_paths[0])
+ext_bytes = stable(ext_path)
+assert ext_path == Path(external['raw_loaded_path'])
+assert ext_bytes == raw(ext_ref['commit'], ext_ref['path'])
+assert describe(ext_bytes) == {'bytes': external['bytes'], 'sha256': external['sha256']}
+assert external['ordinary_environment'] == {'E02_REMOVE_PROTECTION': '0'}
+outer = 'tests/unit/common/test_async_tools_installed_wheel.py'
+assert outer in tracked and not any(x.endswith('/installed_wheel_bridge_consumer.py') for x in tracked)
+wheel = profile['inputs']['verification_inputs']['installed_wheel_inputs']
+assert len(wheel) == 7 and wheel['E02_LA057_SOURCE_SHA'] == SHA
+assert wheel['E02_LA057_CONSUMER_SHA256'] == ref(SHA, 'policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py')['sha256']
+assert wheel['E02_LA057_OUTER_TEST_SHA256'] == by_path['policy-engine/' + outer]['sha256']
+assert profile['environment']['E02_DUR_PROCESS_SOURCE_SHA'] == profile['environment']['E02_MONEY_SOURCE_SHA'] == SHA
+observations = []
+for proc in Path('/proc').iterdir():
+    if not proc.name.isdigit():
+        continue
+    try:
+        cmd = (proc / 'cmdline').read_bytes().decode().split('\0')[:-1]
+        if '@' + str(args_path) not in cmd:
+            continue
+        env = dict(x.split('=', 1) for x in (proc / 'environ').read_bytes().decode().split('\0') if '=' in x)
+        observations.append({'pid': int(proc.name), 'argv': cmd, 'cwd': str((proc / 'cwd').readlink()), 'E02_REMOVE_PROTECTION_present': 'E02_REMOVE_PROTECTION' in env, 'E02_REMOVE_PROTECTION': env.get('E02_REMOVE_PROTECTION'), 'grade': 'Read-only actual process input observation; no native case outcome or authority inference. Only the one relevant environment value is retained.'})
+    except (OSError, UnicodeError):
+        continue
+assert observations and all(x['E02_REMOVE_PROTECTION_present'] and x['E02_REMOVE_PROTECTION'] == '0' for x in observations)
+head_after = git('rev-parse', 'HEAD').decode().strip()
+assert head_after == head_before
+assert stable(final_path) == final_bytes and stable(profile_path) == profile_bytes
+result = {'schema': 'policyos.e02.selector_readback_review.v1', 'source_sha': SHA, 'source_tree': TREE, 'head_before': head_before, 'head_after': head_after, 'prior_input_review': ref(PRIOR, PREFIX + 'review.json'), 'tracked_plan': plan_ref, 'actual_raw_input_refs': [local_ref(p, b) for p, b in zip((final_path, derived_path, profile_path, args_path), (final_bytes, derived_bytes, profile_bytes, args_bytes))], 'input_denominators_only': {'old_tracked_plan': 252, 'new_continuation_mirrored': 6, 'additional_G_dependencies': 2, 'derived_tracked': 258, 'explicit_runner_additions': 2, 'final_tracked': 260, 'external_roles': 1, 'whole_file_argv': 261, 'native_collection_case_count_and_outcomes': 'UNRUN_BY_REVIEWER'}, 'full_tracked_input_identities': identities, 'cards_25': card_rows, 'additional_G_dependency_paths': sorted(expected_g), 'inline_identity_table_qualification': {'derived_table_count': 258, 'missing_inline_runner_paths': missing_inline, 'effective_complete_tracked_identity_table': 'This review recomputed all260 tracked source identities at exact6fa, including the two explicit runner additions. Inherited candidate_whole_file_identities258 is the derived subset, not a complete final260 input table.'}, 'absent_reference_accounting': {'literal_counts': final['absent_reference_counts'], 'unchanged_full_records_from_derived': True, 'names_and_grades': [{k: x[k] for k in ('named_selector', 'state', 'required_by_canonical_plan', 'admission_grade', 'equivalence_grade')} for x in final['absent_named_selectors']]}, 'B93': {'source': ref(ext_ref['commit'], ext_ref['path']), 'actual_copy': local_ref(ext_path, ext_bytes), 'selector_declared_mode': external['ordinary_environment'], 'actual_process_input_observations': observations, 'old1862driver': 'Not invoked by this reviewer; caller current profile SHA/tree and actual command bind6fa. No new B93 semantic source review or native replay.'}, 'actual_caller_projection': {'sha': profile['sha'], 'tree': profile['tree'], 'command': profile['command'], 'cwd': profile['cwd'], 'selector_path': profile['inputs']['selector_path'], 'selector_sha256': profile['inputs']['selector_sha256'], 'environment_declared_by_profile': profile['environment'], 'numeric_cap_names_absent_reported_by_caller': profile['numeric_cap_names_absent'], 'B93_mode_profile_gap': 'E02_REMOVE_PROTECTION omitted by the profile environment whitelist; actual procfs observation above confirms explicit0 for native/capture process. Original profile bytes remain unchanged.'}, 'installed_profile_role': {'whole_outer_path': outer, 'child_direct_collection': False, 'declared_seven_input_profile': wheel, 'grade': 'Source/input identities only; build, child/native outcome and package origin runtime acceptance not reviewed here.'}, 'source_refs_for_derivation': {'selector': ref(SHA, DOC + 'final-cohort-selector.py'), 'equivalence_map': ref(SHA, DOC + 'current-adapters-evidence/cohort-selector-equivalents.json'), 'full_native_argv': local_ref(args_path, args_bytes)}, 'verdict': 'NONBLOCKING_INPUT_RETENTION_READBACK_ONLY', 'limits': ['No canonical derivation, test collection, native execution, imports, dependency/backend setup or source edits by reviewer.', 'Full ignored lineage149MB and final raw2.1MB are root custody; this portable packet keeps complete260 Git input refs and bounded projections, not universal lineage acceptance.', 'First caller union/assertion/setup failures are retained by root; current input readback does not relabel those attempts or infer final case outcomes.', 'Profile numeric_cap_names_absent is caller-reported. This review observes only actual E02_REMOVE_PROTECTION; no thread/process resource sufficiency claim.', 'Formal closure_ids remains empty.'], 'formal_closure_ids': [], 'observation_utc_epoch_seconds': started}
+(OUT / 'review.json').write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps({'verdict': result['verdict'], 'source_sha': SHA, **result['input_denominators_only'], 'tracked_source_bytes_verified': len(identities), 'actual_B93_process_mode_rows': len(observations), 'absent_UNRUN': 21, 'root_head_unchanged': head_after == head_before}, indent=2))

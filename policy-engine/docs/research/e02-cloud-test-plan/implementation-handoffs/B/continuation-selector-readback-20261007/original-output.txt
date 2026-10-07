@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-B-runtime-continuation-20261007/selector-final-readback/read.py", line 129, in <module>
+    assert observations and all(x['E02_REMOVE_PROTECTION_present'] and x['E02_REMOVE_PROTECTION'] == '0' for x in observations)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

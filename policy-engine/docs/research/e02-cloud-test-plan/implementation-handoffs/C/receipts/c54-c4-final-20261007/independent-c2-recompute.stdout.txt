@@ -1,0 +1,19 @@
+{
+  "json_path": "policy-engine/.tmp/e02-C4/raw/c54-independent/c2.json",
+  "json_sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc",
+  "json_bytes": 322414,
+  "markdown_path": "policy-engine/.tmp/e02-C4/raw/c54-independent/c2.md",
+  "markdown_sha256": "be86d1688acde9d3589536ab8ea2518fe2c65899bf25254743792dffe5ef4fd8",
+  "markdown_bytes": 176581,
+  "source_draft_sha256": "8636e42db8fda1bb9df617cf718ae7e20d39eb11b40639d5ee6471a28160871a",
+  "late_la039_manifest_sha256": "de65e06eb5b03268d5a4b8b6592660be15fb7fb21d77e0ebec0ab88e6e8f00e2",
+  "rows": 54,
+  "criterion_occurrences": 59,
+  "bundles": 33,
+  "receipt_index_entries": 210,
+  "final_verdict_counts": {
+    "closed": 31,
+    "held": 14,
+    "limited": 9
+  }
+}

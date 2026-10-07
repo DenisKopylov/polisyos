@@ -1,0 +1,33 @@
+{
+  "kind": "receipt_checksum_erratum",
+  "supersedes_reference_in": "policy-engine/.tmp/e02-C4/raw/c54-independent/C54-final-independent-review.md",
+  "supersedes_stale_manifest_sha256": "e0fafe564564df6b65e8f8f5e08ee633a8e8004b4bbfd8a93e4c5c2be8015cc4",
+  "final_review_report": {
+    "path": "policy-engine/.tmp/e02-C4/raw/c54-independent/C54-final-independent-review.md",
+    "sha256": "5529886339a8b252fc0e203a6ae0ec18c326c77a4cf3bee10157b0e383ea7a45",
+    "bytes": 6478
+  },
+  "authoritative_final_command_manifest": {
+    "path": "policy-engine/.tmp/e02-C4/raw/c54-independent/final-c4-v4-final-review/command-results.json",
+    "sha256": "ff4d8df2d3cada9e4f46221c256166e8d05c3969c25d46247b3ac41c902c3960",
+    "bytes": 6417
+  },
+  "final_delta_checks": {
+    "path": "policy-engine/.tmp/e02-C4/raw/c54-independent/final-c4-v4-final-review/data-delta-checks.json",
+    "sha256": "be51676f11b5894bfe866b063e86559c074964e280b6f4f8f66043906721fd52",
+    "bytes": 4662
+  },
+  "reviewed_source": {
+    "commit": "c4e13a8c520d4a2fbf15b088642d0f88f8a1dbc5",
+    "tree": "043007706d1e781b2801d3adc76e03508c68751e"
+  },
+  "reviewed_data": {
+    "commit": "613cfb589df239dc0b62e0ab1a5ed60eab42c17e",
+    "tree": "a21a01c1b87dc1a02b49747414a1018a9ab05fa3",
+    "input_sha256": "2a28e729aeb7ef02740745a3a73c4dbbcf7af4464c567a98547f1b6ca23ac93d",
+    "json_sha256": "4c15e33ea012250934a28d80392fa8483674a5e04b5f3072b4bfc49d087faa84",
+    "markdown_sha256": "21dc4f7d4c579b6e2a8cff1e85e8ad917e77d1ace631cc504fd13bf561167bad"
+  },
+  "correction": "The report’s inline e0fafe… value is stale. The command manifest had that SHA before a review_report path/SHA record was appended. That metadata append changed the manifest to the current ff4d8d… SHA recorded above; the report bytes and SHA remained unchanged. Use the current manifest record in this erratum. Builder/validator outputs, source commit, data commit, findings, and verdicts are unchanged.",
+  "validation": "Read-only hash verification only; no tests, source/data edits, or reruns were made for this erratum."
+}

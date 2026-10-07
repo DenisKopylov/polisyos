@@ -1,0 +1,54 @@
+{
+  "result": "PASS",
+  "cut_sha256": "114393c1688742314d9d7e9c5d9e404a8f2b2282677f7a9416ebe62b4b9b08a4",
+  "markdown_sha256": "22604c15ce17354e3174425592c7e1717605d940cea6d86ffe247598a51bb39d",
+  "input_sha256": "872c41dc370b54b7cf3f591fdfce6fd7a1c8ef61cb1d9d95479b07c8175db630",
+  "C2_source_validator": "PASS",
+  "C2_source_sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc",
+  "C2_pointer_count": 282,
+  "historical_local_only_receipts": 1,
+  "portable_receipt_overrides_used": [
+    "R209"
+  ],
+  "G_snapshot": {
+    "commit": "ebae80eaa25482d84bc6ad2e78721bc318bc0228",
+    "tree": "4bc0ca606eaf5145e23769da3968a673d99a9abf"
+  },
+  "coverage_denominator": {
+    "all_bundles": 127,
+    "all_findings": 282,
+    "canonical_criterion_occurrences": 291,
+    "C_bundles": 33,
+    "C_findings": 54,
+    "C_hash_bound_criteria": 59
+  },
+  "rows": 54,
+  "criterion_occurrences_with_inclusive_source_hash": 59,
+  "bundles": 33,
+  "C2_root_verdict_context_counts": {
+    "closed": 31,
+    "held": 14,
+    "limited": 9
+  },
+  "G_formal_status_counts": {
+    "not_adjudicated": 54
+  },
+  "C3_evaluation_state_counts": {
+    "c2_frozen_evidence_carried_forward": 44,
+    "criterion_binding_corrected": 5,
+    "fresh_criterion_evidence_reviewed": 5
+  },
+  "current_root_verdict_counts": {
+    "closed": 31,
+    "held": 14,
+    "limited": 9
+  },
+  "C3_resolved_source_references": 547,
+  "C3_explicit_receipt_pointers": 31,
+  "supplemental_source_handoff_count": 1,
+  "supplemental_candidate_binding_count": 2,
+  "supplemental_selected_file_reference_occurrences": 32,
+  "tree_path_presence_checks": 2,
+  "markdown_rows": 54,
+  "new_C3_verdicts_assigned": true
+}

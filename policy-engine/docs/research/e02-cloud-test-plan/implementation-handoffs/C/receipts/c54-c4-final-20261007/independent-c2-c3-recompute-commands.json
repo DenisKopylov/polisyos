@@ -1,0 +1,74 @@
+{
+  "frozen_source_commit": "288f833ea7f30d593f4fd647cb838323a4e7575c",
+  "frozen_source_tree": "92ef5cc3a1523e0749b3e0d3aef1ab98f4db4826",
+  "commands": [
+    {
+      "name": "c2",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+        "--mode",
+        "c2",
+        "--json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/.tmp/e02-C4/raw/c54-independent/c2.json",
+        "--markdown",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/.tmp/e02-C4/raw/c54-independent/c2.md"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "stdout_path": "policy-engine/.tmp/e02-C4/raw/c54-independent/c2.stdout.txt",
+      "stdout_sha256": "50affd962574e3c7ddd7d5d5f720f1c66aaab5bb815f2016ea726b525942bd0d",
+      "stderr_path": "policy-engine/.tmp/e02-C4/raw/c54-independent/c2.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "outputs": [
+        {
+          "path": "policy-engine/.tmp/e02-C4/raw/c54-independent/c2.json",
+          "bytes": 322414,
+          "sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc"
+        },
+        {
+          "path": "policy-engine/.tmp/e02-C4/raw/c54-independent/c2.md",
+          "bytes": 176581,
+          "sha256": "be86d1688acde9d3589536ab8ea2518fe2c65899bf25254743792dffe5ef4fd8"
+        }
+      ]
+    },
+    {
+      "name": "c3-final",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+        "--mode",
+        "c3-final",
+        "--input",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c3-final-adjudication-input.json",
+        "--json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final.json",
+        "--markdown",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final.md"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "stdout_path": "policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final.stdout.txt",
+      "stdout_sha256": "52df020bfbdcad83749ae57b69ebc14bc646522efa70d2f742ef01e46ab054e9",
+      "stderr_path": "policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "outputs": [
+        {
+          "path": "policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final.json",
+          "bytes": 308417,
+          "sha256": "114393c1688742314d9d7e9c5d9e404a8f2b2282677f7a9416ebe62b4b9b08a4"
+        },
+        {
+          "path": "policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final.md",
+          "bytes": 117107,
+          "sha256": "22604c15ce17354e3174425592c7e1717605d940cea6d86ffe247598a51bb39d"
+        }
+      ]
+    }
+  ]
+}

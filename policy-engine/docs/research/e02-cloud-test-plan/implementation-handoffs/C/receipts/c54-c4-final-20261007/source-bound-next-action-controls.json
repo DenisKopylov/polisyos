@@ -1,0 +1,132 @@
+{
+  "source_commit": "c4e13a8c520d4a2fbf15b088642d0f88f8a1dbc5",
+  "source_tree": "043007706d1e781b2801d3adc76e03508c68751e",
+  "property": "Next-action semantic authority is the typed decision field and its bound source pointer. It may legitimately equal remaining_verification; an emitted action that differs from the source decision must fail even if Markdown is updated to match it.",
+  "positive_equal_action": {
+    "result": "PASS",
+    "action_equals_remaining_verification": true,
+    "input_sha256": "fb3f250ddd81b632c112200bfd5d8de5ba36094733f8ded5071bf64e18f8b016",
+    "cut_sha256": "9ba4bffdc62cd7f9bd441014aa1372464ab033c7e0a8895a41206f93bd32bd89",
+    "markdown_sha256": "6d9e6c42b15b3fdaeab2777325cab51b8f230f8ba7f6cd76902b0001660ecfdc",
+    "commands": [
+      {
+        "name": "equal-value-positive-build",
+        "argv": [
+          "python3",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py",
+          "--repo-root",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+          "--mode",
+          "c4-final",
+          "--input",
+          "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/equal-input.json",
+          "--json",
+          "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/equal.json",
+          "--markdown",
+          "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/equal.md"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+        "exit_code": 0,
+        "stdout_path": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/equal-build.stdout",
+        "stdout_sha256": "ad6d745132d485116aa94f44592777243ee5077b615ac7ed13f426adfaa22f11",
+        "stderr_path": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/equal-build.stderr",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "equal-value-positive-validator",
+        "argv": [
+          "python3",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py",
+          "--repo-root",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+          "--mode",
+          "c4-final",
+          "--cut",
+          "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/equal.json",
+          "--markdown",
+          "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/equal.md",
+          "--input",
+          "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/equal-input.json",
+          "--expected-cut-sha",
+          "9ba4bffdc62cd7f9bd441014aa1372464ab033c7e0a8895a41206f93bd32bd89",
+          "--expected-markdown-sha",
+          "6d9e6c42b15b3fdaeab2777325cab51b8f230f8ba7f6cd76902b0001660ecfdc"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+        "exit_code": 0,
+        "stdout_path": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/equal-validator.stdout",
+        "stdout_sha256": "67f14f637831b00d5f0be376befec0d81391b290c55c594bff46a1f6a4503f0c",
+        "stderr_path": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/equal-validator.stderr",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  },
+  "negative_source_mismatch": {
+    "result": "REJECTED",
+    "source_decision": "G integration reviewer: record only B17's finite provider/deadline criterion result and its cited evidence; do not add a license-policy prerequisite.",
+    "emitted_action": "The exact 01c source received a passing bounded delta review. Candidate closure does not itself update the historical ledger; G integration admission remains separate.",
+    "validator_exit_code": 1,
+    "validator_diagnostic": "Traceback (most recent call last):\n  File \"/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py\", line 2767, in <module>\n    main()\n    ~~~~^^\n  File \"/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py\", line 2726, in main\n    result = run_c3(\n        cut_path,\n    ...<5 lines>...\n        cycle_label=cycle_label,\n    )\n  File \"/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py\", line 2393, in run_c3\n    raise AssertionError((finding_id, \"C4 next action differs from root decision\"))\nAssertionError: ('B17', 'C4 next action differs from root decision')\n",
+    "input_sha256": "d653f8ea97550c7acd17bfb49c73d4fe6408f66aa685f4d03c7a6b35c904c3ca",
+    "cut_sha256": "689949ade5e68a16cdf830dc03085ea2dfeb3c52095e95008ff631fad7e1c0b3",
+    "markdown_sha256": "b8ada06c2e575b7ac73ebacd2caaa806d2646f364b2590e4bbcb5c9d3ffbd587",
+    "commands": [
+      {
+        "name": "decision-mismatch-negative-baseline-build",
+        "argv": [
+          "python3",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py",
+          "--repo-root",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+          "--mode",
+          "c4-final",
+          "--input",
+          "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/mismatch-input.json",
+          "--json",
+          "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/mismatch-base.json",
+          "--markdown",
+          "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/mismatch-base.md"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+        "exit_code": 0,
+        "expected_exit_code": 0,
+        "stdout_path": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/mismatch-base-build.stdout",
+        "stdout_sha256": "4255a42ccd0d32374428c7b27cbd455105c6238009910c2b07b94edeaaf790f4",
+        "stdout_bytes": 980,
+        "stderr_path": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/mismatch-base-build.stderr",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_bytes": 0
+      },
+      {
+        "name": "decision-mismatch-negative-validator",
+        "argv": [
+          "python3",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py",
+          "--repo-root",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+          "--mode",
+          "c4-final",
+          "--cut",
+          "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/mismatch.json",
+          "--markdown",
+          "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/mismatch.md",
+          "--input",
+          "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/mismatch-input.json",
+          "--expected-cut-sha",
+          "689949ade5e68a16cdf830dc03085ea2dfeb3c52095e95008ff631fad7e1c0b3",
+          "--expected-markdown-sha",
+          "b8ada06c2e575b7ac73ebacd2caaa806d2646f364b2590e4bbcb5c9d3ffbd587"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+        "exit_code": 1,
+        "expected_exit_code": 1,
+        "stdout_path": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/mismatch-validator.stdout",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 0,
+        "stderr_path": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/mismatch-validator.stderr",
+        "stderr_sha256": "8a2b938f146245e64ecfc890f392961515e1fecda61e0482badfab3320defb3a",
+        "stderr_bytes": 947
+      }
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "json_path": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/equal.json",
+  "json_sha256": "9ba4bffdc62cd7f9bd441014aa1372464ab033c7e0a8895a41206f93bd32bd89",
+  "json_bytes": 671132,
+  "markdown_path": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/equal.md",
+  "markdown_sha256": "6d9e6c42b15b3fdaeab2777325cab51b8f230f8ba7f6cd76902b0001660ecfdc",
+  "markdown_bytes": 457937,
+  "rows": 54,
+  "criterion_occurrences": 59,
+  "bundles": 33,
+  "g_formal_status_counts": {
+    "not_adjudicated": 54
+  },
+  "current_evaluation_state_counts": {
+    "c2_frozen_evidence_carried_forward": 44,
+    "criterion_binding_corrected": 5,
+    "fresh_criterion_evidence_reviewed": 5
+  },
+  "c2_root_verdict_counts_context_only": {
+    "closed": 31,
+    "held": 14,
+    "limited": 9
+  },
+  "current_root_verdict_counts": {
+    "closed": 31,
+    "held": 14,
+    "limited": 9
+  },
+  "final_verdicts_assigned": true
+}

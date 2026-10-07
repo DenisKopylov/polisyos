@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 2767, in <module>
+    main()
+    ~~~~^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 2726, in main
+    result = run_c3(
+        cut_path,
+    ...<5 lines>...
+        cycle_label=cycle_label,
+    )
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py", line 2393, in run_c3
+    raise AssertionError((finding_id, "C4 next action differs from root decision"))
+AssertionError: ('B17', 'C4 next action differs from root decision')

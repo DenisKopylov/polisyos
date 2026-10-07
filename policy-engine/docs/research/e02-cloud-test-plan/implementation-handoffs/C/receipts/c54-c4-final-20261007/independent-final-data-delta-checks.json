@@ -1,0 +1,74 @@
+{
+  "final_commit": "613cfb589df239dc0b62e0ab1a5ed60eab42c17e",
+  "final_tree": "a21a01c1b87dc1a02b49747414a1018a9ab05fa3",
+  "parent_data_commit": "2266046db8450b632972363d90ed57ab9c9d6a09",
+  "input": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c4-current-root-adjudication-input.json",
+    "sha256": "2a28e729aeb7ef02740745a3a73c4dbbcf7af4464c567a98547f1b6ca23ac93d",
+    "bytes": 83777,
+    "bound_by_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c4-current-root-adjudication-input.json",
+      "sha256": "2a28e729aeb7ef02740745a3a73c4dbbcf7af4464c567a98547f1b6ca23ac93d",
+      "bytes": 83777,
+      "schema": "policyos.e02.c54.c4.current-root-adjudication-input.v2"
+    }
+  },
+  "output": {
+    "json_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c4-v4.json",
+    "json_sha256": "4c15e33ea012250934a28d80392fa8483674a5e04b5f3072b4bfc49d087faa84",
+    "json_bytes": 671142,
+    "markdown_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c4-v4.md",
+    "markdown_sha256": "21dc4f7d4c579b6e2a8cff1e85e8ad917e77d1ace631cc504fd13bf561167bad",
+    "markdown_bytes": 457947
+  },
+  "one_word_delta_vs_parent": {
+    "input_leaf_paths": [
+      "/root_current_adjudications/B147/next_action"
+    ],
+    "input_only_B147_action": true,
+    "output_leaf_paths": [
+      "/c4_input/bytes",
+      "/c4_input/sha256",
+      "/rows/19/current_evaluation/next_action"
+    ],
+    "output_only_B147_action_and_input_sha_size": true,
+    "markdown_changed_rows": [
+      "B147"
+    ],
+    "markdown_only_B147_action": true,
+    "B147_action_has_admission_not_mask": true
+  },
+  "all54": {
+    "input_output_ids_match": true,
+    "decision_action_value_and_pointer_failures": [],
+    "decision_owner_value_and_pointer_failures": [],
+    "markdown_action_cell_failures": [],
+    "markdown_owner_cell_failures": [],
+    "nonaction_output_differences_vs_parent": []
+  },
+  "denominators": {
+    "rows": 54,
+    "criterion_occurrences": 59,
+    "bundles": 33,
+    "root_verdicts": {
+      "closed": 31,
+      "limited": 9,
+      "held": 14
+    },
+    "current_evidence_states": {
+      "c2_frozen_evidence_carried_forward": 44,
+      "fresh_criterion_evidence_reviewed": 5,
+      "criterion_binding_corrected": 5
+    },
+    "G_formal_statuses": {
+      "not_adjudicated": 54
+    }
+  },
+  "retained_final_actions": {
+    "B79": "B connector/cursor evidence owner: supply source-confirmed evidence binding the exact dataset, ingestion_run_id, cursor, and evidence content; then prove positive promotion, marker-kept refusal for absent/forged/mismatched binding, and restart against the same bound source. Do not require B83 source-owned event/version identity for this criterion; archives and broad G replay are not prerequisites.",
+    "B80": "B connector/cursor evidence owner: supply verified evidence bound to the exact dataset, ingestion_run_id, cursor, and evidence content before promotion; then prove positive promotion, marker-kept refusal for absent/forged/mismatched binding, and restart. Do not import B83 source-owned event/version identity as a prerequisite; archives and broad G replay are not prerequisites.",
+    "B83": "B source-contract owner: supply source-owned event/version identity bound to cursor/replay state. Exercise the a,b,c,a discriminator sequence at cap 2 before and after process restart; verify the persisted 86,400-second UTC expiry, source/partition isolation, independent-map oracle, and durable live-key bound with refusal before eviction. Include marker-kept refusal for missing or substituted identity; do not treat synthesized offset _message_id as authority or make archives/broad G replay a prerequisite.",
+    "B146": "G integration reviewer: record the B146-specific behavior of common._period_to_dates, sources._period_series_to_iso_bounds, and the observation builder: supported calendar formats and leap-year, quarter, and year boundaries; missing/invalid/bad-month quarantine; and inclusive period_end in the versioned projection. Do not invent period rules or infer population-wide prevalence.",
+    "B147": "G integration reviewer: record _iter_observation_metric_frames using a private immutable per-source snapshot before first yield; confirm row_offset plus confirmed metric-frame ordinal resume before/after yield and between metrics; check D2 downstream shards, counters, and no duplicate observation IDs. Ensure admission, schema, and semantic errors do not become format-fallback events."
+  }
+}

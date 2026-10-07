@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py",
+    "--repo-root",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+    "--mode",
+    "c3-final",
+    "--cut",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final.json",
+    "--markdown",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final.md",
+    "--input",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c3-final-adjudication-input.json",
+    "--expected-cut-sha",
+    "114393c1688742314d9d7e9c5d9e404a8f2b2282677f7a9416ebe62b4b9b08a4",
+    "--expected-markdown-sha",
+    "22604c15ce17354e3174425592c7e1717605d940cea6d86ffe247598a51bb39d"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+  "exit_code": 0,
+  "stdout_path": "policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final-validator.stdout.txt",
+  "stdout_sha256": "6fecf2a7f501e77a655956b96f8c8046b028af99ff8c9b0c90f68a1f48c4edae",
+  "stderr_path": "policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final-validator.stderr.txt",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout": "{\n  \"result\": \"PASS\",\n  \"cut_sha256\": \"114393c1688742314d9d7e9c5d9e404a8f2b2282677f7a9416ebe62b4b9b08a4\",\n  \"markdown_sha256\": \"22604c15ce17354e3174425592c7e1717605d940cea6d86ffe247598a51bb39d\",\n  \"input_sha256\": \"872c41dc370b54b7cf3f591fdfce6fd7a1c8ef61cb1d9d95479b07c8175db630\",\n  \"C2_source_validator\": \"PASS\",\n  \"C2_source_sha256\": \"38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc\",\n  \"C2_pointer_count\": 282,\n  \"historical_local_only_receipts\": 1,\n  \"portable_receipt_overrides_used\": [\n    \"R209\"\n  ],\n  \"G_snapshot\": {\n    \"commit\": \"ebae80eaa25482d84bc6ad2e78721bc318bc0228\",\n    \"tree\": \"4bc0ca606eaf5145e23769da3968a673d99a9abf\"\n  },\n  \"coverage_denominator\": {\n    \"all_bundles\": 127,\n    \"all_findings\": 282,\n    \"canonical_criterion_occurrences\": 291,\n    \"C_bundles\": 33,\n    \"C_findings\": 54,\n    \"C_hash_bound_criteria\": 59\n  },\n  \"rows\": 54,\n  \"criterion_occurrences_with_inclusive_source_hash\": 59,\n  \"bundles\": 33,\n  \"C2_root_verdict_context_counts\": {\n    \"closed\": 31,\n    \"held\": 14,\n    \"limited\": 9\n  },\n  \"G_formal_status_counts\": {\n    \"not_adjudicated\": 54\n  },\n  \"C3_evaluation_state_counts\": {\n    \"c2_frozen_evidence_carried_forward\": 44,\n    \"criterion_binding_corrected\": 5,\n    \"fresh_criterion_evidence_reviewed\": 5\n  },\n  \"current_root_verdict_counts\": {\n    \"closed\": 31,\n    \"held\": 14,\n    \"limited\": 9\n  },\n  \"C3_resolved_source_references\": 547,\n  \"C3_explicit_receipt_pointers\": 31,\n  \"supplemental_source_handoff_count\": 1,\n  \"supplemental_candidate_binding_count\": 2,\n  \"supplemental_selected_file_reference_occurrences\": 32,\n  \"tree_path_presence_checks\": 2,\n  \"markdown_rows\": 54,\n  \"new_C3_verdicts_assigned\": true\n}\n",
+  "stderr": ""
+}

@@ -1,0 +1,128 @@
+{
+  "review_kind": "independent_read_only_final_C4_review",
+  "final_data_commit": "613cfb589df239dc0b62e0ab1a5ed60eab42c17e",
+  "final_data_tree": "a21a01c1b87dc1a02b49747414a1018a9ab05fa3",
+  "source_commit": "c4e13a8c520d4a2fbf15b088642d0f88f8a1dbc5",
+  "source_tree": "043007706d1e781b2801d3adc76e03508c68751e",
+  "parent_data_commit": "2266046db8450b632972363d90ed57ab9c9d6a09",
+  "files": {
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c4-current-root-adjudication-input.json": {
+      "sha256": "2a28e729aeb7ef02740745a3a73c4dbbcf7af4464c567a98547f1b6ca23ac93d",
+      "bytes": 83777
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c4-v4.json": {
+      "sha256": "4c15e33ea012250934a28d80392fa8483674a5e04b5f3072b4bfc49d087faa84",
+      "bytes": 671142
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c4-v4.md": {
+      "sha256": "21dc4f7d4c579b6e2a8cff1e85e8ad917e77d1ace631cc504fd13bf561167bad",
+      "bytes": 457947
+    }
+  },
+  "commands": [
+    {
+      "name": "independent_builder_replay",
+      "argv": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/build_c54_final_adjudicated.py",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+        "--mode",
+        "c4-final",
+        "--input",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c4-current-root-adjudication-input.json",
+        "--json",
+        "policy-engine/.tmp/e02-C4/raw/c54-independent/final-c4-v4-final-review/replay.json",
+        "--markdown",
+        "policy-engine/.tmp/e02-C4/raw/c54-independent/final-c4-v4-final-review/replay.md"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "stdout": {
+        "path": "policy-engine/.tmp/e02-C4/raw/c54-independent/final-c4-v4-final-review/build.stdout.json",
+        "sha256": "46128f2b208c0816ba053c98c458c16ca96d935490a4429381e4cf603e64f48e",
+        "bytes": 952
+      },
+      "stderr": {
+        "path": "policy-engine/.tmp/e02-C4/raw/c54-independent/final-c4-v4-final-review/build.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "name": "independent_validator",
+      "argv": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/validate_c54_final_bookkeeping.py",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+        "--mode",
+        "c4-final",
+        "--cut",
+        "policy-engine/.tmp/e02-C4/raw/c54-independent/final-c4-v4-final-review/replay.json",
+        "--markdown",
+        "policy-engine/.tmp/e02-C4/raw/c54-independent/final-c4-v4-final-review/replay.md",
+        "--input",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c4-current-root-adjudication-input.json",
+        "--expected-cut-sha",
+        "4c15e33ea012250934a28d80392fa8483674a5e04b5f3072b4bfc49d087faa84",
+        "--expected-markdown-sha",
+        "21dc4f7d4c579b6e2a8cff1e85e8ad917e77d1ace631cc504fd13bf561167bad"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-bindings-20261007/polisyos",
+      "exit_code": 0,
+      "stdout": {
+        "path": "policy-engine/.tmp/e02-C4/raw/c54-independent/final-c4-v4-final-review/validator.stdout.json",
+        "sha256": "da01748fcc078af95fa98f314e6f28514dc78e79495f679e2437787457cf5337",
+        "bytes": 1680
+      },
+      "stderr": {
+        "path": "policy-engine/.tmp/e02-C4/raw/c54-independent/final-c4-v4-final-review/validator.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    }
+  ],
+  "other_review_receipts": {
+    "policy-engine/.tmp/e02-C4/raw/c54-independent/final-c4-v4-final-review/data-delta-checks.json": {
+      "path": "policy-engine/.tmp/e02-C4/raw/c54-independent/final-c4-v4-final-review/data-delta-checks.json",
+      "sha256": "be51676f11b5894bfe866b063e86559c074964e280b6f4f8f66043906721fd52",
+      "bytes": 4662
+    },
+    "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/control-results.json": {
+      "path": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/control-results.json",
+      "sha256": "5e88f4f035a9f9689dfd7f52953b27ebe02f25c9debdb8cafb0b1c5e7f26e705",
+      "bytes": 8485
+    },
+    "policy-engine/.tmp/e02-C4/raw/c54-independent/source-review-recompute.command-results.json": {
+      "path": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-review-recompute.command-results.json",
+      "sha256": "1a8c37f02820a858a5f5beb577a3c9094b0aeeaaf1c25b3dcd48ebeff0d164e3",
+      "bytes": 3754
+    },
+    "policy-engine/.tmp/e02-C4/raw/c54-independent/c3-denominator-span-readback.json": {
+      "path": "policy-engine/.tmp/e02-C4/raw/c54-independent/c3-denominator-span-readback.json",
+      "sha256": "97e9fb1155ce64fe3019fb43b23d9d7f7b75c69436499a1299cb7e24bb1483a3",
+      "bytes": 26503
+    },
+    "policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final-validator.command-results.json": {
+      "path": "policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final-validator.command-results.json",
+      "sha256": "af2771d2b00a0612b5ca5ec695057324cbd34db10c2cb4524853781d9c9bd3e9",
+      "bytes": 3451
+    },
+    "policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final-validator.stdout.txt": {
+      "path": "policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final-validator.stdout.txt",
+      "sha256": "6fecf2a7f501e77a655956b96f8c8046b028af99ff8c9b0c90f68a1f48c4edae",
+      "bytes": 1680
+    },
+    "policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final-validator.stderr.txt": {
+      "path": "policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final-validator.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "review_report": {
+    "path": "policy-engine/.tmp/e02-C4/raw/c54-independent/C54-final-independent-review.md",
+    "sha256": "5529886339a8b252fc0e203a6ae0ec18c326c77a4cf3bee10157b0e383ea7a45",
+    "bytes": 6478
+  }
+}

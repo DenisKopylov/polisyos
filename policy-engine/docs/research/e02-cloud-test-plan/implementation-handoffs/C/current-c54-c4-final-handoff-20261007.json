@@ -1,0 +1,366 @@
+{
+  "schema": "policyos.e02.c54.c4.final-machine-handoff.v1",
+  "status": "complete",
+  "date": "2026-10-07",
+  "scope": "C54 final disposition handoff; this records the bounded C root review and bookkeeping evidence, not product-wide closure or G admission.",
+  "source_chain": {
+    "c54_base": {
+      "commit": "9b92ce235a6ae85085109b0bec2916a7b3ae732b",
+      "tree": "9347a9443bbda827c408821fe6fa68e85797c86b",
+      "role": "C54 report base; C2-v10 baseline and original C table ancestry"
+    },
+    "original_main_base": {
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "g_frozen_scope_snapshot": {
+      "commit": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+      "tree": "dc1a7697f506b23f2db0f1c80bf929fd2d6a2e0d"
+    },
+    "c4_source_commit": {
+      "commit": "c4e13a8c520d4a2fbf15b088642d0f88f8a1dbc5",
+      "tree": "043007706d1e781b2801d3adc76e03508c68751e",
+      "branch": "codex/e02-C-c54-bindings-20261007",
+      "role": "canonical C4 builder/validator source; generic typed decision/action/owner binding and C4-only source scope fixes",
+      "review_status": "independent final GO"
+    },
+    "final_data_commit": {
+      "commit": "613cfb589df239dc0b62e0ab1a5ed60eab42c17e",
+      "tree": "a21a01c1b87dc1a02b49747414a1018a9ab05fa3",
+      "parent_data_commit": "2266046db8450b632972363d90ed57ab9c9d6a09",
+      "parent_data_tree": "3aa4bee418365fe541380e3421af8cac75b6e4d6",
+      "role": "final canonical C4 input + v4 JSON/Markdown; B147-only word clarification from “mask” to “admission” relative to parent",
+      "review_status": "independent final GO"
+    }
+  },
+  "canonical_artifacts": {
+    "json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c4-v4.json",
+      "sha256": "4c15e33ea012250934a28d80392fa8483674a5e04b5f3072b4bfc49d087faa84",
+      "bytes": 671142
+    },
+    "markdown": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c4-v4.md",
+      "sha256": "21dc4f7d4c579b6e2a8cff1e85e8ad917e77d1ace631cc504fd13bf561167bad",
+      "bytes": 457947
+    },
+    "input": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c4-current-root-adjudication-input.json",
+      "sha256": "2a28e729aeb7ef02740745a3a73c4dbbcf7af4464c567a98547f1b6ca23ac93d",
+      "bytes": 83777
+    }
+  },
+  "source_inventory": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c4-v4.json",
+    "sha256": "4c15e33ea012250934a28d80392fa8483674a5e04b5f3072b4bfc49d087faa84",
+    "pointers": [
+      "/topic_source_refs",
+      "/current_source_family_refs",
+      "/supplemental_source_handoffs",
+      "/criterion_document_index",
+      "/rows"
+    ],
+    "note": "The final report embeds the complete per-topic source/tree/owner, receipt and criterion provenance. This handoff cites that immutable index rather than duplicating it."
+  },
+  "coverage": {
+    "whole_c_denominator": {
+      "all_bundles": 127,
+      "all_findings": 282,
+      "canonical_criterion_occurrences": 291,
+      "C_bundles": 33,
+      "C_findings": 54,
+      "C_hash_bound_criteria": 59
+    },
+    "current_c_root_dispositions": {
+      "closed": 31,
+      "limited": 9,
+      "held": 14
+    },
+    "current_evaluation_states": {
+      "c2_frozen_evidence_carried_forward": 44,
+      "criterion_binding_corrected": 5,
+      "fresh_criterion_evidence_reviewed": 5
+    },
+    "g_formal_statuses": {
+      "not_adjudicated": 54
+    },
+    "all_54_rows_have_explicit_current_c_root_disposition": true,
+    "all_59_original_criterion_occurrences_are_hash_bound": true,
+    "all_33_c_bundles_are_crosswalked": true
+  },
+  "decision_boundary": {
+    "authority": "Root’s criterion-scoped C dispositions, listed per finding in the canonical v4 table.",
+    "not_claimed": [
+      "G formal closure/admission; every G formal status remains not_adjudicated.",
+      "product-wide closure, production completeness, or an end-to-end release decision.",
+      "a fresh runtime pass for findings whose evidence state is carried forward or whose finite criterion was already independently reviewed."
+    ],
+    "ledger_or_g_changes": "None. No C2 ledger mutation, G closure write, or publication/push was performed in this handoff."
+  },
+  "source_and_data_review": {
+    "source_delta": "The c4e source change removes string-inequality refusals that compared a decision action to remaining_verification; the validator still binds the emitted action/owner to the typed root decision and its source pointer.",
+    "resolved_prior_review_issue": "The earlier C4 action/decision proxy gate is resolved. A source-bound action may equal remaining_verification and pass; changing the emitted action away from the root decision while keeping Markdown aligned is rejected by the validator.",
+    "final_data_delta": "Only B147 next_action changed from “mask” to “admission” relative to the prior v4 data commit. The final pair was generated by the canonical builder, then replayed independently byte-for-byte and validated.",
+    "c2_c3_compatibility": {
+      "C2_JSON_SHA256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc",
+      "C2_Markdown_SHA256": "be86d1688acde9d3589536ab8ea2518fe2c65899bf25254743792dffe5ef4fd8",
+      "C3_final_JSON_SHA256": "114393c1688742314d9d7e9c5d9e404a8f2b2282677f7a9416ebe62b4b9b08a4",
+      "C3_final_Markdown_SHA256": "22604c15ce17354e3174425592c7e1717605d940cea6d86ffe247598a51bb39d",
+      "result": "Independent rebuild and validator receipts preserve these earlier artifacts byte-for-byte under their frozen modes."
+    }
+  },
+  "bounded_interpretation": {
+    "historical_empty_capability_labels": {
+      "finding_ids": [
+        "B88",
+        "LA-010",
+        "LA-021",
+        "LA-049"
+      ],
+      "treatment": "The original source labels are empty; the C4 table records this as historical_source_label_empty rather than inventing a capability label."
+    },
+    "B139_pinned_source_label_disagreement": {
+      "coverage_json": "semantic_test_missing",
+      "C_md": "surface_missing",
+      "treatment": "Both source labels are preserved; C4 does not choose between them. The C disposition follows the bounded original criterion and cited composer evidence, not the label discrepancy."
+    },
+    "LA021": "Held. CAN source mapping and bounded source tests passed, but the current non-editable wheel probe is unrun because the offline Hatchling>=1.27 backend was unavailable. Raw Core byte-admission remains unresolved; no package-only claim is made.",
+    "LA050": "Limited to the verified scope: metadata-only inspection of 19 documented manifest-named paths and DuckDB information_schema (129 column rows across 10 tables); four genuine current 1.0 manifests were tested through the installed CLI using private local copies. This does not establish historical 0.9 behavior or absence from an external corpus.",
+    "LA006": "The exact target path was already absent; no C2 deletion is claimed. The row retains the unresolved scope of 317 nonliteral loader destinations and external callers.",
+    "production_data_boundary": "No production row/history, text, vector, weights, or bulk production payload was read/exported or committed. Original production inputs were left unchanged; the LA050 metadata/private-copy work is bounded as above.",
+    "runtime_tests": "No production replay or product-runtime test wave was performed in this read-only disposition closeout."
+  },
+  "deciding_receipts": {
+    "author-c4-v4-build.stdout.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/author-c4-v4-build.stdout.json",
+      "sha256": "7fe0bfcac7973d04778d8bca6fceb995ca6e195e9ad78b14b4dc47e496459465",
+      "bytes": 1008,
+      "copied_from": ".tmp/e02-C4/raw/census/c4-final-v4-final-build.stdout.json"
+    },
+    "author-c4-v4-build.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/author-c4-v4-build.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "copied_from": ".tmp/e02-C4/raw/census/c4-final-v4-final-build.stderr.txt"
+    },
+    "author-c4-v4-validator.stdout.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/author-c4-v4-validator.stdout.json",
+      "sha256": "da01748fcc078af95fa98f314e6f28514dc78e79495f679e2437787457cf5337",
+      "bytes": 1680,
+      "copied_from": ".tmp/e02-C4/raw/census/c4-final-v4-final-validator.stdout.json"
+    },
+    "author-c4-v4-validator.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/author-c4-v4-validator.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "copied_from": ".tmp/e02-C4/raw/census/c4-final-v4-final-validator.stderr.txt"
+    },
+    "author-c2-rebuild.stdout.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/author-c2-rebuild.stdout.json",
+      "sha256": "5a035fb852933e053b4b07c0c9c3312e0b17b8c0658788938dad59319d6ea6ab",
+      "bytes": 744,
+      "copied_from": ".tmp/e02-C4/raw/census/compat-post-sourcefix/C2-build.stdout.json"
+    },
+    "author-c2-rebuild.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/author-c2-rebuild.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "copied_from": ".tmp/e02-C4/raw/census/compat-post-sourcefix/C2-build.stderr.txt"
+    },
+    "author-c3-final-rebuild.stdout.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/author-c3-final-rebuild.stdout.json",
+      "sha256": "5f5749458581b9da7c1c529c30bb8fe63cb03e8c79ec42cafbd0dda94bb78292",
+      "bytes": 904,
+      "copied_from": ".tmp/e02-C4/raw/census/compat-post-sourcefix/C3-final-build.stdout.json"
+    },
+    "author-c3-final-rebuild.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/author-c3-final-rebuild.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "copied_from": ".tmp/e02-C4/raw/census/compat-post-sourcefix/C3-final-build.stderr.txt"
+    },
+    "independent-final-review.md": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-final-review.md",
+      "sha256": "5529886339a8b252fc0e203a6ae0ec18c326c77a4cf3bee10157b0e383ea7a45",
+      "bytes": 6478,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/C54-final-independent-review.md"
+    },
+    "independent-final-command-results.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-final-command-results.json",
+      "sha256": "ff4d8df2d3cada9e4f46221c256166e8d05c3969c25d46247b3ac41c902c3960",
+      "bytes": 6417,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/final-c4-v4-final-review/command-results.json"
+    },
+    "independent-final-data-delta-checks.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-final-data-delta-checks.json",
+      "sha256": "be51676f11b5894bfe866b063e86559c074964e280b6f4f8f66043906721fd52",
+      "bytes": 4662,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/final-c4-v4-final-review/data-delta-checks.json"
+    },
+    "independent-final-build.stdout.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-final-build.stdout.json",
+      "sha256": "46128f2b208c0816ba053c98c458c16ca96d935490a4429381e4cf603e64f48e",
+      "bytes": 952,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/final-c4-v4-final-review/build.stdout.json"
+    },
+    "independent-final-build.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-final-build.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/final-c4-v4-final-review/build.stderr.txt"
+    },
+    "independent-final-validator.stdout.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-final-validator.stdout.json",
+      "sha256": "da01748fcc078af95fa98f314e6f28514dc78e79495f679e2437787457cf5337",
+      "bytes": 1680,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/final-c4-v4-final-review/validator.stdout.json"
+    },
+    "independent-final-validator.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-final-validator.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/final-c4-v4-final-review/validator.stderr.txt"
+    },
+    "source-bound-next-action-controls.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/source-bound-next-action-controls.json",
+      "sha256": "5e88f4f035a9f9689dfd7f52953b27ebe02f25c9debdb8cafb0b1c5e7f26e705",
+      "bytes": 8485,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/control-results.json"
+    },
+    "source-equal-action-build.stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/source-equal-action-build.stdout.txt",
+      "sha256": "ad6d745132d485116aa94f44592777243ee5077b615ac7ed13f426adfaa22f11",
+      "bytes": 964,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/equal-build.stdout"
+    },
+    "source-equal-action-build.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/source-equal-action-build.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/equal-build.stderr"
+    },
+    "source-equal-action-validator.stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/source-equal-action-validator.stdout.txt",
+      "sha256": "67f14f637831b00d5f0be376befec0d81391b290c55c594bff46a1f6a4503f0c",
+      "bytes": 1680,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/equal-validator.stdout"
+    },
+    "source-equal-action-validator.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/source-equal-action-validator.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/equal-validator.stderr"
+    },
+    "source-mismatch-baseline-build.stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/source-mismatch-baseline-build.stdout.txt",
+      "sha256": "4255a42ccd0d32374428c7b27cbd455105c6238009910c2b07b94edeaaf790f4",
+      "bytes": 980,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/mismatch-base-build.stdout"
+    },
+    "source-mismatch-baseline-build.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/source-mismatch-baseline-build.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/mismatch-base-build.stderr"
+    },
+    "source-mismatch-validator.stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/source-mismatch-validator.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/mismatch-validator.stdout"
+    },
+    "source-mismatch-validator.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/source-mismatch-validator.stderr.txt",
+      "sha256": "8a2b938f146245e64ecfc890f392961515e1fecda61e0482badfab3320defb3a",
+      "bytes": 947,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-c4e-next-action-controls/mismatch-validator.stderr"
+    },
+    "independent-c2-c3-recompute-commands.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-c2-c3-recompute-commands.json",
+      "sha256": "1a8c37f02820a858a5f5beb577a3c9094b0aeeaaf1c25b3dcd48ebeff0d164e3",
+      "bytes": 3754,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/source-review-recompute.command-results.json"
+    },
+    "independent-c2-recompute.stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-c2-recompute.stdout.txt",
+      "sha256": "50affd962574e3c7ddd7d5d5f720f1c66aaab5bb815f2016ea726b525942bd0d",
+      "bytes": 746,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/c2.stdout.txt"
+    },
+    "independent-c2-recompute.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-c2-recompute.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/c2.stderr.txt"
+    },
+    "independent-c3-final-recompute.stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-c3-final-recompute.stdout.txt",
+      "sha256": "52df020bfbdcad83749ae57b69ebc14bc646522efa70d2f742ef01e46ab054e9",
+      "bytes": 906,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final.stdout.txt"
+    },
+    "independent-c3-final-recompute.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-c3-final-recompute.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final.stderr.txt"
+    },
+    "independent-c3-final-validator-commands.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-c3-final-validator-commands.json",
+      "sha256": "af2771d2b00a0612b5ca5ec695057324cbd34db10c2cb4524853781d9c9bd3e9",
+      "bytes": 3451,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final-validator.command-results.json"
+    },
+    "independent-c3-final-validator.stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-c3-final-validator.stdout.txt",
+      "sha256": "6fecf2a7f501e77a655956b96f8c8046b028af99ff8c9b0c90f68a1f48c4edae",
+      "bytes": 1680,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final-validator.stdout.txt"
+    },
+    "independent-c3-final-validator.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-c3-final-validator.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/c3-final-validator.stderr.txt"
+    },
+    "independent-final-review-receipt-erratum.md": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-final-review-receipt-erratum.md",
+      "sha256": "db8b6ad97237db6162cd31f0939e6b90ddc7dceab6b963e4df36a831ea976447",
+      "bytes": 1683,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/C54-final-review-receipt-erratum.md"
+    },
+    "independent-final-review-receipt-erratum.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-final-review-receipt-erratum.json",
+      "sha256": "1f997fcf8e1dadf2af2ade2fdc783f0f4bac4e8fe5f64cd0e40fc06527720d69",
+      "bytes": 2072,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/C54-final-review-receipt-erratum.json"
+    }
+  },
+  "review_manifest_digest_note": {
+    "review_report_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-final-review.md",
+    "review_report_sha256": "5529886339a8b252fc0e203a6ae0ec18c326c77a4cf3bee10157b0e383ea7a45",
+    "authoritative_erratum_markdown": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-final-review-receipt-erratum.md",
+      "sha256": "db8b6ad97237db6162cd31f0939e6b90ddc7dceab6b963e4df36a831ea976447",
+      "bytes": 1683,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/C54-final-review-receipt-erratum.md"
+    },
+    "authoritative_erratum_json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-final-review-receipt-erratum.json",
+      "sha256": "1f997fcf8e1dadf2af2ade2fdc783f0f4bac4e8fe5f64cd0e40fc06527720d69",
+      "bytes": 2072,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/C54-final-review-receipt-erratum.json"
+    },
+    "authoritative_final_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c4-final-20261007/independent-final-command-results.json",
+      "sha256": "ff4d8df2d3cada9e4f46221c256166e8d05c3969c25d46247b3ac41c902c3960",
+      "bytes": 6417,
+      "copied_from": "policy-engine/.tmp/e02-C4/raw/c54-independent/final-c4-v4-final-review/command-results.json"
+    },
+    "resolution": "The immutable reviewer report was written before its command-manifest path/SHA record was appended to the manifest. The append changed the manifest from the report’s earlier e0fafe… digest to the current ff4d8d… digest; report bytes remained unchanged. The separate reviewer erratum binds the report SHA, current manifest SHA, final data/source commit/tree, and unchanged output hashes. This is a receipt-reference correction only; no source/data, findings, verdicts, builder/validator output, or test results changed."
+  },
+  "handoff_boundary": {
+    "publication": "Not published or pushed by this commit. Root retains publication/readback ownership.",
+    "next_owner": "Root C report owner: review the committed handoff/tree and perform ordinary publication/readback if accepted."
+  }
+}

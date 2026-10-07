@@ -124,6 +124,58 @@ class _RowsConnection:
         return None
 
 
+def _install_synthetic_baseline_profile(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    *,
+    outcome: str,
+    row_count: int,
+) -> _RowsConnection:
+    """Install a baseline-only source fixture for a bounded owner-profile check."""
+
+    catalog_path = tmp_path / "l1.duckdb"
+    _seed_synthetic_baseline_identity(catalog_path)
+    rows = tuple(
+        (
+            "UA",
+            2020 + index,
+            10.0 + index,
+            "dataset-ratio",
+            f"obs-ua-{2020 + index}",
+            '{"unit":"ratio"}',
+        )
+        for index in range(row_count)
+    )
+    connection = _RowsConnection(rows)
+    monkeypatch.setattr(
+        substrate_registry,
+        "default_substrate_catalog_paths",
+        lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
+    )
+    monkeypatch.setattr(
+        read_api.catalog,
+        "default_acquisition_overlay_path",
+        lambda _repo_root: None,
+    )
+    monkeypatch.setattr(
+        read_api.catalog,
+        "open_catalog_read_session",
+        lambda _path, overlay_path=None: connection,
+    )
+    monkeypatch.setattr(
+        data_state_substrate,
+        "l1_dcat_variable_availability",
+        lambda *_args, **_kwargs: SimpleNamespace(
+            status="available",
+            coverage_ref=f"catalog://emp01/{outcome}",
+            dataset_count=1,
+            metric_binding_count=1,
+            observation_count=row_count,
+        ),
+    )
+    return connection
+
+
 def test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -538,14 +590,12 @@ def test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway(
     assert all(parameters[3] == "UA" for _, parameters in connection.calls)
 
 
-@pytest.mark.parametrize("row_count", [1, 2, 3])
 @pytest.mark.asyncio
-async def test_default_cycle_value_refusal_survives_persisted_run_readback(
+async def test_default_cycle_preserves_simulation_only_result_and_history(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
-    row_count: int,
 ) -> None:
-    """The default N8 owner path persists a sparse-profile refusal after real N5."""
+    """Default N8 keeps real K-sim limitations and does not enter empirical intake."""
 
     from polisyos.core.security.tenant_context import tenant_scope
     from tests.unit.runtime.quality.test_generation_cycle import (
@@ -553,57 +603,21 @@ async def test_default_cycle_value_refusal_survives_persisted_run_readback(
         _problem,
     )
 
-    problem = _problem("emp01_sparse_profile_cycle").model_copy(
+    problem_seed = _problem("emp01_sparse_profile_cycle").model_copy(
         update={"problem_statement": "Synthetic EMP01 fixture; no policy claim."}
     )
     witness = _owner_program_graph_n5_witness(
         tmp_path / "n5",
         income_values=(1000.0, 2000.0),
-        problem_seed=problem,
+        problem_seed=problem_seed,
     )
-    problem = witness.problem
     try:
-        outcome = problem.outcome_of_interest.target_variable
-        catalog_path = tmp_path / "l1.duckdb"
-        _seed_synthetic_baseline_identity(catalog_path)
-        # These baseline-only rows test the four-row floor, not an empirical panel.
-        rows = tuple(
-            (
-                "UA",
-                2020 + index,
-                10.0 + index,
-                "dataset-ratio",
-                f"obs-ua-{2020 + index}",
-                '{"unit":"ratio"}',
-            )
-            for index in range(row_count)
-        )
-        connection = _RowsConnection(rows)
-        monkeypatch.setattr(
-            substrate_registry,
-            "default_substrate_catalog_paths",
-            lambda _repo_root: SimpleNamespace(l1_dcat_path=catalog_path),
-        )
-        monkeypatch.setattr(
-            read_api.catalog,
-            "default_acquisition_overlay_path",
-            lambda _repo_root: None,
-        )
-        monkeypatch.setattr(
-            read_api.catalog,
-            "open_catalog_read_session",
-            lambda _path, overlay_path=None: connection,
-        )
-        monkeypatch.setattr(
-            data_state_substrate,
-            "l1_dcat_variable_availability",
-            lambda *_args, **_kwargs: SimpleNamespace(
-                status="available",
-                coverage_ref=f"catalog://emp01/{outcome}",
-                dataset_count=1,
-                metric_binding_count=1,
-                observation_count=row_count,
-            ),
+        outcome = witness.problem.outcome_of_interest.target_variable
+        connection = _install_synthetic_baseline_profile(
+            monkeypatch,
+            tmp_path,
+            outcome=outcome,
+            row_count=1,
         )
 
         class _FixtureGenerationPort:
@@ -658,7 +672,7 @@ async def test_default_cycle_value_refusal_survives_persisted_run_readback(
         )
         with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
             run = await controller.run(
-                problem,
+                witness.problem,
                 budget_state=BudgetState(
                     limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
                 ),
@@ -671,27 +685,21 @@ async def test_default_cycle_value_refusal_survives_persisted_run_readback(
             assert simulation.simulation_result_ref is not None
             assert witness.store.verify(simulation.simulation_result_ref.artifact_id).ok
 
-        expected_reason = (
-            f"selected owner profile has {row_count} usable rows; at least 4 are required "
-            f"owner_access_ref=catalog://emp01/{outcome}#selected-row-count"
-        )
-        assert run.value_port.status == "value_blocked", run.value_port.model_dump(
+        expected_limitations = {
+            "simulation_only_k_sim_not_world_evidence",
+            "exec_plan_provenance_not_established",
+            "horizon_time_alignment_not_established",
+        }
+        assert expected_limitations.issubset(simulation.authority_blockers)
+        assert connection.calls == []
+        assert run.value_port.status == "value_conditional", run.value_port.model_dump(
             mode="json"
         )
-        assert run.value_port.authority_blockers == (
-            "acquire_data:value_owner_rows_insufficient",
-        ), run.value_port.model_dump(mode="json")
-        assert run.value_port.reason == expected_reason
-        assert run.value_port.acquisition_requirement is None
-        assert run.cycles[-1].value_port.status == "value_blocked"
-        assert run.cycles[-1].value_port.authority_blockers == (
-            "acquire_data:value_owner_rows_insufficient",
-        )
-        assert run.cycles[-1].value_port.reason == expected_reason
-        assert run.cycles[-1].value_port.acquisition_requirement is None
-        assert len(connection.calls) == 1
-        assert "LIMIT ?" in connection.calls[0][0]
-        assert connection.calls[0][1][-1] == 20_001
+        assert run.value_port.evaluation_mode == "simulate_only"
+        assert run.value_port.decision_grade == "low"
+        assert expected_limitations.issubset(run.value_port.authority_blockers)
+        assert run.value_port.value_ref == str(simulation.simulation_result_ref.artifact_id)
+        assert run.cycles[-1].value_port == run.value_port
 
         persisted_path = tmp_path / "generation-cycle-run.json"
         persisted_path.write_text(
@@ -700,21 +708,83 @@ async def test_default_cycle_value_refusal_survives_persisted_run_readback(
         )
         persisted = json.loads(persisted_path.read_text(encoding="utf-8"))
         restored = generation_cycle.GenerationCycleRun.from_persisted_payload(persisted)
-        assert restored.value_port.reason == expected_reason
-        assert restored.value_port.authority_blockers == (
-            "acquire_data:value_owner_rows_insufficient",
-        )
-        assert restored.value_port.acquisition_requirement is None
-        assert restored.cycles[-1].value_port.reason == expected_reason
-        assert restored.cycles[-1].value_port.authority_blockers == (
-            "acquire_data:value_owner_rows_insufficient",
-        )
-        assert restored.cycles[-1].value_port.acquisition_requirement is None
+        assert restored.value_port.status == "value_conditional"
+        assert restored.value_port.evaluation_mode == "simulate_only"
+        assert expected_limitations.issubset(restored.value_port.authority_blockers)
+        assert restored.value_port.value_ref == str(simulation.simulation_result_ref.artifact_id)
         assert generation_cycle.validate_generation_cycle_run_history(persisted) == ()
 
         tampered = json.loads(persisted_path.read_text(encoding="utf-8"))
-        tampered["value_port"]["reason"] = "owner rows are sufficient"
+        tampered["value_port"]["reason"] = "owner profile was evaluated"
         assert generation_cycle.validate_generation_cycle_run_history(tampered)
+    finally:
+        witness.store.close()
+
+
+@pytest.mark.parametrize("row_count", [1, 2, 3])
+def test_direct_foundry_value_port_refuses_sparse_owner_profile(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    row_count: int,
+) -> None:
+    """A direct simulate-only FoundryValuePort call preserves the real owner refusal."""
+
+    from polisyos.core.security.tenant_context import tenant_scope
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _owner_program_graph_n5_witness,
+        _problem,
+    )
+
+    problem_seed = _problem("emp01_direct_sparse_profile").model_copy(
+        update={"problem_statement": "Synthetic EMP01 fixture; no policy claim."}
+    )
+    witness = _owner_program_graph_n5_witness(
+        tmp_path / "n5",
+        income_values=(1000.0, 2000.0),
+        problem_seed=problem_seed,
+    )
+    try:
+        problem = witness.problem
+        outcome = problem.outcome_of_interest.target_variable
+        connection = _install_synthetic_baseline_profile(
+            monkeypatch,
+            tmp_path,
+            outcome=outcome,
+            row_count=row_count,
+        )
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            evaluation_context = generation_cycle.simulation_value_execution_context(
+                candidate=witness.candidate,
+                simulation=witness.simulation,
+                problem=problem,
+                artifact_store=witness.store,
+            )
+            value = generation_cycle.FoundryValuePort(
+                evaluation_context=evaluation_context,
+                repo_root=tmp_path,
+                cycle_substrate_context=witness.context,
+                artifact_store=witness.store,
+            )(
+                candidate=witness.candidate,
+                simulation=witness.simulation,
+                problem=problem,
+                cycle_index=0,
+            )
+
+        expected_reason = (
+            f"selected owner profile has {row_count} usable rows; at least 4 are required "
+            f"owner_access_ref=catalog://emp01/{outcome}#selected-row-count"
+        )
+        assert value.status == "value_blocked", value.model_dump(mode="json")
+        assert value.evaluation_mode == "simulate_only"
+        assert value.authority_blockers == (
+            "acquire_data:value_owner_rows_insufficient",
+        ), value.model_dump(mode="json")
+        assert value.reason == expected_reason
+        assert value.acquisition_requirement is None
+        assert len(connection.calls) == 1
+        assert "LIMIT ?" in connection.calls[0][0]
+        assert connection.calls[0][1][-1] == 20_001
     finally:
         witness.store.close()
 

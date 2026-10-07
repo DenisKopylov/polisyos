@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt", line 218, in <module>
+    main()
+  File "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt", line 181, in main
+    counts = validate(p, manifest)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt", line 153, in validate
+    raise ValueError('typed complete source/header/scope observations')
+ValueError: typed complete source/header/scope observations

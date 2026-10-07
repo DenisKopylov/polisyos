@@ -1,0 +1,41 @@
+import copy,gzip,hashlib,json,pathlib,sys
+R=pathlib.Path('/tmp/e02-E-ROOT31782-umbrella-gates-20261007');S='31782b55f8f35556cfc581449b040c393f00c78f';T='746f50214f70c0fa34cd8bb6d42e72440adc9f96'
+def sha(b):return hashlib.sha256(b).hexdigest()
+def ref(p):b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':sha(b)}
+def load(p):return json.loads(p.read_text())
+def req(x,m):
+ if not x:raise ValueError(m)
+def typed(a,b):
+ if type(a) is not type(b):return False
+ if isinstance(b,dict):return a.keys()==b.keys() and all(typed(a[k],v) for k,v in b.items())
+ if isinstance(b,list):return len(a)==len(b) and all(typed(x,y) for x,y in zip(a,b,strict=True))
+ return a==b
+def source_frame(p):
+ rows=load(p);h=hashlib.sha256()
+ for x in rows:h.update(x['path'].encode()+b'\0'+str(x['bytes']).encode()+b'\0'+x['sha256'].encode()+b'\n')
+ return {'tracked_paths':len(rows),'bytes':sum(x['bytes'] for x in rows),'framed_sha256':h.hexdigest()}
+def derive():
+ rows=[]
+ for n in ['workspace-verify','workspace-verify-retry2','ci-parity']:
+  p=R/n;v=load(p/'receipt.json');stages=load(p/'internal-stages.json');scope=stages['scopes'][0];steps=scope['steps']
+  req(v['source']==S and v['tree']==T and v['exit_code']==1 and v['outcome']=='FAIL','actualnativeparent source/outcome')
+  req(source_frame(p/'complete-source-inputs-before.json')==v['source_before'] and source_frame(p/'complete-source-inputs-after.json')==v['source_after'] and v['source_before']==v['source_after'] and v['source_immutable'] is True,'full trackedsource brackets')
+  req(v['ROOT_environment_metadata_before']==v['ROOT_environment_metadata_after'] and v['ROOT_environment_metadata_unchanged'] is True,'METADATA/protectedcontrolguard')
+  req(typed(v['stdout'],ref(p/'stdout.txt')) and typed(v['stderr'],ref(p/'stderr.txt')),'actualcomplete stdoutstderr')
+  req(stages['exit_code']==1 and stages['required_steps_preserved'] is True and stages['numerical_thread_caps'] is None,'actualcanonicalstage no-caps contract')
+  req(len(steps)==(24 if n=='ci-parity' else 15),'completeplanned stage denominator')
+  statuses={k:sum(x['outcome']==k for x in steps) for k in ['PASS','FAIL','UNRUN']}
+  expected={'PASS':1,'FAIL':1,'UNRUN':13} if n=='workspace-verify-retry2' else {'PASS':0,'FAIL':1,'UNRUN':23 if n=='ci-parity' else 14}
+  req(statuses==expected,'actualfailfast counts')
+  rows.append({'stage':n,'receipt':ref(p/'receipt.json'),'plan_and_outcomes':ref(p/'internal-stages.json'),'outcome':'FAIL','native_exit_code':1,'command':v['command'],'wall_seconds':v['wall_seconds'],'complete_stage_count':len(steps),'counts':statuses,'actual_failing_step':next(x['label'] for x in steps if x['outcome']=='FAIL'),'steps':steps,'source_frame':v['source_before'],'source_immutable':True,'ROOT_METADATA_and_protected_controls_unchanged':True,'ROOT_distribution_rows':len(v['ROOT_environment_metadata_before']['metadata_rows'])-3,'ROOT_protected_controls':3,'stdout':v['stdout'],'stderr':v['stderr']})
+ q=load(R/'launch-preflight.json');req(q['full_underlying_diff']=='','complete b6→31782 underlyingqualification')
+ return {'schema':'policyos.e02.E.final_required_parent_gates.v1','source':S,'tree':T,'current':{'workspace_verify':rows[1],'CI_parity':rows[2]},'historical_first_environment_failure':rows[0],'historical_pre_native_recorder_parse_error':ref(R/'workspace-retry1-parent-runner.stderr.txt'),'environment_repair':ref(R/'environment-correction-v2.json'),'actual_current_recorder':ref(R/'run_root_umbrella_v3.py.txt'),'qualified_b6_three_selector_input_delta':ref(R/'launch-preflight.json'),'qualification':'Complete underlying src/tools/tests/schemas/architecture/project+lock diff b6→31782 empty; b6available3FAIL can qualify this source only. Anylaterchangedtest needs distinctpartialqualification; no newstaticfullgraph verdict claimed','source_fixture_stage_started':False,'full_backend_repeated':False,'no_parentstage_skipped_or_bypassed':True,'available_required_parents_completed':True,'unrun_successors_separate':'13workspace/23CI realfailfast; oldavailable standalone successorreceipts remain originalsource observations, notnewattempts','ROOT_full_binary_guard':'not_established; complete207installedMETADATA+3protectedrefs checked beforeafter; no sync/install directedatROOT207','P41':'not_established','finding_closure':False,'global_CI_PASS':False}
+v=derive();dest=R/('current-parent-packet-optimized.json' if sys.flags.optimize else 'current-parent-packet.json')
+with dest.open('x') as f:json.dump(v,f,indent=2);f.write('\n')
+cases=[]
+for name,mutate in [('workspace_FAIL_as_PASS',lambda z:z['current']['workspace_verify'].__setitem__('outcome','PASS')),('CI_UNRUN_as_PASS',lambda z:z['current']['CI_parity']['steps'][1].__setitem__('outcome','PASS')),('CI_stage_count_bool',lambda z:z['current']['CI_parity'].__setitem__('complete_stage_count',True)),('native_exit_bool',lambda z:z['current']['CI_parity'].__setitem__('native_exit_code',True)),('source_frame_fake',lambda z:z['current']['workspace_verify']['source_frame'].__setitem__('framed_sha256','0'*64)),('claim_backend_repeated_green',lambda z:z.__setitem__('full_backend_repeated',True)),('fullCI_claim',lambda z:z.__setitem__('global_CI_PASS',True))]:
+ bad=copy.deepcopy(v);mutate(bad)
+ req(not typed(bad,v),'corruptparentclaims admitted '+name);cases.append({'case':name,'outcome':'PASS','nativeframes_stdout_refs_unchanged':True,'expected_typed_claim_refusal':True})
+out={'schema':'policyos.e02.E.parent_packet_claim_controls.v1','packet':ref(dest),'optimized':bool(sys.flags.optimize),'healthy':typed(v,derive()),'controls':cases,'control_count':len(cases),'native_stage_or_backend_reexecution':False}
+with (R/('parent-controls-optimized.json' if sys.flags.optimize else 'parent-controls-normal.json')).open('x') as f:json.dump(out,f,indent=2);f.write('\n')
+print(json.dumps({'packet':ref(dest),'current_counts':{k:x['counts'] for k,x in v['current'].items()},'controls':len(cases)},indent=2))

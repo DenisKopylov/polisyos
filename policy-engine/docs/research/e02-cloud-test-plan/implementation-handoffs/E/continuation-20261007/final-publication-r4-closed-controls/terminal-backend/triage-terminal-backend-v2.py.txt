@@ -1,0 +1,638 @@
+"""Route actual terminal fullbackend failures without attributing their cause."""
+
+from __future__ import annotations
+
+import argparse
+import ast
+import copy
+import hashlib
+import json
+import re
+import subprocess
+import sys
+from collections import Counter
+from pathlib import Path
+from typing import Any
+from xml.etree import ElementTree
+
+ROOT = Path("/workspace/e02-E-continuation-20261006")
+SCRATCH = Path("/workspace/e02-E-pr38-r3-receipts/criteria-r4")
+SOURCE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+TREE = "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+READINESS = SCRATCH / "postterminal-backend-writer-triage-readiness.json"
+READINESS_SHA = "bef0fbce6090796f5f25edb4dade8be2a6f202e8a80b6e010db1f9bba96c444e"
+DECODED = SCRATCH / "actual-terminal-backend-decoded-v3.json"
+CASE_INDEX = SCRATCH / "actual-terminal-backend-case-index-v3.json"
+GIT = "/usr/bin/git"
+
+
+def require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def digest(raw: bytes) -> str:
+    return hashlib.sha256(raw).hexdigest()
+
+
+def record(path: Path) -> dict[str, Any]:
+    raw = path.read_bytes()
+    return {"path": str(path), "bytes": len(raw), "sha256": digest(raw)}
+
+
+def read(path: Path) -> dict[str, Any]:
+    value = json.loads(path.read_bytes())
+    require(isinstance(value, dict), "object evidence required")
+    return value
+
+
+def xml_cases(raw: bytes) -> list[dict[str, Any]]:
+    text = raw.decode("utf-8")
+    require(
+        "<!DOCTYPE" not in text.upper() and "<!ENTITY" not in text.upper(),
+        "XML declarations refused",
+    )
+    root = ElementTree.fromstring(text)  # noqa: S314
+    values = []
+    for ordinal, item in enumerate(root.iter("testcase")):
+        outcomes = [(name, item.find(name)) for name in ("failure", "error", "skipped")]
+        present = [(name, child) for name, child in outcomes if child is not None]
+        require(len(present) <= 1, "ambiguous testcase outcomes")
+        tag, child = present[0] if present else (None, None)
+        outcome = {"failure": "FAIL", "error": "ERROR", "skipped": "SKIP", None: "PASS"}[tag]
+        detail = "" if child is None else child.text or ""
+        values.append(
+            {
+                "ordinal": ordinal,
+                "classname": item.get("classname", ""),
+                "name": item.get("name", ""),
+                "outcome": outcome,
+                "native_message": None if child is None else child.get("message"),
+                "native_detail_bytes_utf8": len(detail.encode()),
+                "native_detail_sha256_utf8": digest(detail.encode()),
+                "native_detail": detail,
+                "native_file": item.get("file"),
+                "native_line": item.get("line"),
+            }
+        )
+    return values
+
+
+def admit_case_conservation(actual: list[dict[str, Any]], saved: list[dict[str, Any]]) -> None:
+    require(len(actual) == len(saved), "full case denominator changed")
+    fields = (
+        "ordinal",
+        "classname",
+        "name",
+        "outcome",
+        "native_message",
+        "native_detail_bytes_utf8",
+        "native_detail_sha256_utf8",
+    )
+    for ordinal, (left, right) in enumerate(zip(actual, saved, strict=True)):
+        require(
+            type(right.get("ordinal")) is int and right["ordinal"] == ordinal,
+            "ordinal requires exact integer/order",
+        )
+        require(
+            type(right.get("native_detail_bytes_utf8")) is int,
+            "detail byte size requires exact integer",
+        )
+        require(
+            all(left[field] == right.get(field) for field in fields),
+            "literal native case conservation",
+        )
+
+
+def tracked_paths() -> set[str]:
+    # Exact constant read-only argv; no packet-derived revision or executable.
+    result = subprocess.run(  # noqa: S603
+        [GIT, "ls-tree", "-r", "--name-only", "-z", SOURCE],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+    )
+    return set(result.stdout.decode().rstrip("\0").split("\0"))
+
+
+def git_blob(path: str, admitted: set[str]) -> bytes:
+    require(
+        path in admitted and path.startswith("policy-engine/") and path.endswith(".py"),
+        "tracked Python blob admission",
+    )
+    require(
+        not any(part in ("", ".", "..") for part in path.split("/")), "canonical blob path required"
+    )
+    # Only an ls-tree-admitted canonical path is interpolated into the fixed SHA object.
+    return subprocess.run(  # noqa: S603
+        [GIT, "show", f"{SOURCE}:{path}"], cwd=ROOT, check=True, capture_output=True
+    ).stdout
+
+
+def resolve_test(
+    case: dict[str, Any], tracked: set[str], blobs: dict[str, bytes]
+) -> dict[str, Any]:
+    classname = case["classname"]
+    name = case["name"].split("[", 1)[0]
+    candidates = []
+    parts = classname.split(".") if isinstance(classname, str) and classname else []
+    for end in range(1, len(parts) + 1):
+        path = "policy-engine/" + "/".join(parts[:end]) + ".py"
+        if path in tracked and path.startswith("policy-engine/tests/"):
+            candidates.append((path, parts[end:]))
+    if case.get("native_file"):
+        file = case["native_file"]
+        if file.startswith(str(ROOT) + "/"):
+            file = file[len(str(ROOT)) + 1 :]
+        elif file.startswith("tests/"):
+            file = "policy-engine/" + file
+        if file in tracked and file.startswith("policy-engine/tests/"):
+            candidates.append((file, []))
+    paths = {path for path, _ in candidates}
+    if len(paths) != 1:
+        return {
+            "state": "not_established",
+            "reason": "exact classname/file does not resolve uniquely to a tracked test module",
+        }
+    path = next(iter(paths))
+    raw = blobs[path]
+    module = ast.parse(raw.decode("utf-8"), filename=path)
+    class_names = next(
+        (names for candidate, names in candidates if candidate == path and names), []
+    )
+    nodes = module.body
+    for class_name in class_names:
+        classes = [
+            node for node in nodes if isinstance(node, ast.ClassDef) and node.name == class_name
+        ]
+        if len(classes) != 1:
+            return {
+                "state": "not_established",
+                "path": path,
+                "reason": "literal classname suffix not a unique AST class",
+            }
+        nodes = classes[0].body
+    functions = [
+        node
+        for node in nodes
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == name
+    ]
+    if len(functions) != 1:
+        return {
+            "state": "not_established",
+            "path": path,
+            "reason": "literal test name not a unique AST function",
+        }
+    node = functions[0]
+    return {
+        "state": "bound",
+        "path": path,
+        "function": name,
+        "class_path": class_names,
+        "line": node.lineno,
+        "end_line": node.end_lineno,
+        "source": {"revision": SOURCE, "path": path, "bytes": len(raw), "sha256": digest(raw)},
+        "binding_scope": (
+            "Exact test declaration identity only; neither writer nor failure cause inferred."
+        ),
+    }
+
+
+def frames(detail: str, tracked: set[str]) -> list[dict[str, Any]]:
+    values = []
+    # Pytest rendered frames and Python traceback frames are retained as literal navigation.
+    pattern = r'(?m)(?P<path>(?:/[^\s:"\n]+/)?(?:tests|src)/[^\s:"\n]+\.py):(?P<line>\d+)'
+    python_pattern = r'File "(?P<path>[^"\n]+\.py)", line (?P<line>\d+)'
+    for match in [*re.finditer(pattern, detail), *re.finditer(python_pattern, detail)]:
+        literal = match.group("path")
+        relative = literal
+        if relative.startswith(str(ROOT) + "/"):
+            relative = relative[len(str(ROOT)) + 1 :]
+        elif relative.startswith(("tests/", "src/")):
+            relative = "policy-engine/" + relative
+        bound = relative in tracked
+        value = {
+            "literal_path": literal,
+            "line": int(match.group("line")),
+            "tracked_path": relative if bound else None,
+            "state": "tracked_source_navigation" if bound else "not_established",
+            "cause_attribution": "not_established",
+        }
+        if value not in values:
+            values.append(value)
+    return values
+
+
+def summarize_groups(
+    actual: list[dict[str, Any]],
+    tracked: set[str],
+    blobs: dict[str, bytes],
+    readiness: dict[str, Any],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    families = readiness["E_defining_source_navigation"]["families"]
+    e_paths = {path: family for family, paths in families.items() for path in paths}
+    writers = {
+        item["path"]: item["declared_canonical_writer"]
+        for item in readiness["known_exact_shared_writer_routes"]
+    }
+    cases, groups = [], {}
+    for item in actual:
+        if item["outcome"] not in ("FAIL", "ERROR"):
+            continue
+        binding = resolve_test(item, tracked, blobs)
+        measured_frames = frames(item["native_detail"], tracked)
+        family = e_paths.get(binding.get("path")) if binding["state"] == "bound" else None
+        routes = sorted(
+            {
+                writers[frame["tracked_path"]]
+                for frame in measured_frames
+                if frame["tracked_path"] in writers
+            }
+        )
+        last_lines = [line for line in item["native_detail"].splitlines() if line.strip()]
+        last_line = last_lines[-1] if last_lines else ""
+        row = {key: value for key, value in item.items() if key != "native_detail"}
+        row.update(
+            {
+                "test_binding": binding,
+                "traceback_source_frames": measured_frames,
+                "E_defining_family_navigation": family,
+                "declared_exact_writer_frame_routes": routes,
+                "cause_attribution": "not_established",
+                "P41_base_red_attribution": "not_established",
+                "native_final_detail_line": last_line,
+                "next_owner": "E root defining-family triage"
+                if family
+                else (routes[0] if len(routes) == 1 else "E root/G writer-routing triage"),
+                "next_measurable_result": (
+                    "Replay this exact selector on admitted minimal inputs and determine whether "
+                    "the original runtime property is falsified; preserve full command/environment/"
+                    "denominator before cause or inherited attribution."
+                ),
+            }
+        )
+        cases.append(row)
+        key = json.dumps(
+            [
+                binding.get("path"),
+                binding.get("function"),
+                item["outcome"],
+                item["native_message"],
+                last_line,
+                [
+                    (frame["tracked_path"], frame["literal_path"], frame["line"])
+                    for frame in measured_frames
+                ],
+            ],
+            sort_keys=True,
+        )
+        if key not in groups:
+            groups[key] = {
+                "group_key_sha256": digest(key.encode()),
+                "native_outcome": item["outcome"],
+                "test_binding": binding,
+                "native_message": item["native_message"],
+                "native_final_detail_line": last_line,
+                "traceback_source_frames": measured_frames,
+                "E_defining_family_navigation": family,
+                "declared_exact_writer_frame_routes": routes,
+                "cause_attribution": "not_established",
+                "case_ordinals": [],
+                "case_names": [],
+                "detail_refs": [],
+            }
+        group = groups[key]
+        group["case_ordinals"].append(item["ordinal"])
+        group["case_names"].append({"classname": item["classname"], "name": item["name"]})
+        group["detail_refs"].append(
+            {
+                "ordinal": item["ordinal"],
+                "bytes_utf8": item["native_detail_bytes_utf8"],
+                "sha256_utf8": item["native_detail_sha256_utf8"],
+            }
+        )
+    return cases, list(groups.values())
+
+
+def admit_unmeasured_junit(decoded: dict[str, Any], saved: dict[str, Any]) -> None:
+    require(
+        decoded["native_JUnit"] is None and decoded["native_JUnit_present"] is False,
+        "actual JUnit absence required",
+    )
+    require(
+        decoded["independent_JUnit_counts"] is None and decoded["measured_case_count"] is None,
+        "absent JUnit counts stay null",
+    )
+    require(
+        saved["native_JUnit_present"] is False and saved["measured_case_count"] is None,
+        "unmeasured case index must not claim an empty measured denominator",
+    )
+    require(saved["cases"] == [], "no fabricated case IDs without XML")
+
+
+def triage() -> dict[str, Any]:
+    require(
+        DECODED.is_file() and CASE_INDEX.is_file(),
+        "terminal independently decoded evidence not available",
+    )
+    require(digest(READINESS.read_bytes()) == READINESS_SHA, "readiness source inputs drift")
+    readiness = read(READINESS)
+    decoded, saved = read(DECODED), read(CASE_INDEX)
+    require(
+        decoded["source"] == saved["source"] == SOURCE and decoded["tree"] == saved["tree"] == TREE,
+        "exact frozen source/tree required",
+    )
+    require(
+        decoded["source_input_immutable"] is False
+        and decoded["source_input_admission_outcome"] == "FAIL",
+        "observed source input drift retained separately",
+    )
+    junit = decoded["native_JUnit"]
+    if junit is None:
+        admit_unmeasured_junit(decoded, saved)
+        return {
+            "schema": (
+                "policyos.e02.E.independent_terminal_fullbackend_failure_writer_navigation.v2"
+            ),
+            "source": SOURCE,
+            "tree": TREE,
+            "input_decoded_receipt": record(DECODED),
+            "input_case_index": record(CASE_INDEX),
+            "readiness": record(READINESS),
+            "native_JUnit": None,
+            "check_outcome": "UNRUN",
+            "check_scope": "XML-based failing-case/source/writer navigation could not execute.",
+            "wrapper_check_outcome": decoded["check_outcome"],
+            "native_process_exit_code": decoded["exit_code"],
+            "native_case_counts": None,
+            "actual_failing_error_case_count": None,
+            "group_count": None,
+            "cases": [],
+            "groups": [],
+            "empty_case_arrays_scope": "Unmeasured because XML absent, not zero failures/cases.",
+            "source_input_immutable": False,
+            "source_input_admission_outcome": "FAIL",
+            "failure_test_IDs_and_writers_measured": False,
+            "native_termination_cause": "not_established",
+            "whole_native_scope_completion_established": False,
+            "P41_base_red_or_writer_cause_attribution": "not_established",
+            "original_full_native_scope_weakened": False,
+            "native_tests_repeated": False,
+            "ROOT_source_environment_or_outputs_modified": False,
+        }
+    require(isinstance(junit, dict), "complete actual JUnit required for case triage")
+    xml = Path(junit["path"])
+    require(record(xml) == junit, "actual JUnit byte identity drift")
+    actual = xml_cases(xml.read_bytes())
+    admit_case_conservation(actual, saved["cases"])
+    tracked = tracked_paths()
+    # Read only tracked test blobs which actual failing/error classnames can select.
+    candidate_paths = set()
+    for case in actual:
+        if case["outcome"] not in ("FAIL", "ERROR"):
+            continue
+        parts = case["classname"].split(".")
+        for end in range(1, len(parts) + 1):
+            path = "policy-engine/" + "/".join(parts[:end]) + ".py"
+            if path in tracked and path.startswith("policy-engine/tests/"):
+                candidate_paths.add(path)
+        file = case.get("native_file")
+        if file:
+            if file.startswith(str(ROOT) + "/"):
+                file = file[len(str(ROOT)) + 1 :]
+            elif file.startswith("tests/"):
+                file = "policy-engine/" + file
+            if file in tracked and file.startswith("policy-engine/tests/"):
+                candidate_paths.add(file)
+    blobs = {path: git_blob(path, tracked) for path in sorted(candidate_paths)}
+    cases, groups = summarize_groups(actual, tracked, blobs, readiness)
+    return {
+        "schema": "policyos.e02.E.independent_terminal_fullbackend_failure_writer_navigation.v1",
+        "source": SOURCE,
+        "tree": TREE,
+        "input_decoded_receipt": record(DECODED),
+        "input_case_index": record(CASE_INDEX),
+        "native_JUnit": junit,
+        "readiness": record(READINESS),
+        "wrapper_check_outcome": decoded["check_outcome"],
+        "native_process_exit_code": decoded["exit_code"],
+        "source_input_immutable": False,
+        "source_input_admission_outcome": "FAIL",
+        "native_case_counts": dict(Counter(case["outcome"] for case in actual)),
+        "actual_failing_error_case_count": len(cases),
+        "group_count": len(groups),
+        "bound_test_blob_count": len(blobs),
+        "cases": cases,
+        "groups": groups,
+        "scope": (
+            "Case/source/writer navigation only; no failure cause, original finding closure "
+            "or new3932 regression inferred."
+        ),
+        "complete_original_native_scope_preserved": True,
+        "native_tests_repeated": False,
+        "ROOT_source_environment_or_outputs_modified": False,
+    }
+
+
+def controls() -> dict[str, Any]:
+    raw = (
+        b'<testsuites><testsuite><testcase classname="tests.unit.fixture" name="test_good"/>'
+        b'<testcase classname="tests.unit.fixture" name="test_bad[x]">'
+        b'<failure message="m">tests/unit/fixture.py:2: in test_bad\\n'
+        b"E ValueError: admitted-input refusal</failure></testcase>"
+        b'<testcase classname="tests.unit.fixture.Example" name="test_error">'
+        b'<error>trace</error></testcase><testcase name="opaque"><failure>unknown</failure>'
+        b'</testcase><testcase name="skip"><skipped/></testcase></testsuite></testsuites>'
+    )
+    actual = xml_cases(raw)
+    saved = [
+        {
+            key: value
+            for key, value in item.items()
+            if key not in ("native_detail", "native_file", "native_line")
+        }
+        for item in actual
+    ]
+    admit_case_conservation(actual, saved)
+    path = "policy-engine/tests/unit/fixture.py"
+    blobs = {
+        path: (
+            b"def test_good():\n    pass\ndef test_bad():\n    pass\n"
+            b"class Example:\n    def test_error(self):\n        pass\n"
+        )
+    }
+    tracked = {path}
+    fixture_ready = {
+        "E_defining_source_navigation": {"families": {"UQP": [path]}},
+        "known_exact_shared_writer_routes": [],
+    }
+    selected, groups = summarize_groups(actual, tracked, blobs, fixture_ready)
+    require(len(selected) == len(groups) == 3, "all actual failures/errors included")
+    require(
+        selected[0]["test_binding"]["function"] == "test_bad",
+        "parameterized exact function binding",
+    )
+    require(selected[1]["test_binding"]["class_path"] == ["Example"], "exact AST class binding")
+    require(
+        selected[2]["test_binding"]["state"] == "not_established",
+        "opaque identity must remain unknown",
+    )
+    require(
+        all(case["cause_attribution"] == "not_established" for case in selected),
+        "navigation never cause",
+    )
+    require(
+        Counter(item["outcome"] for item in actual)
+        == {"PASS": 1, "FAIL": 2, "ERROR": 1, "SKIP": 1},
+        "complete independent fixture outcomes",
+    )
+    results = [{"control": "healthy_literal_case_and_group_binding", "outcome": "PASS"}]
+    for name, ordinal, field, value in [
+        ("alter_detail_hash", 1, "native_detail_sha256_utf8", "0" * 64),
+        ("remove_fail", 1, "outcome", "PASS"),
+        ("relabel_case", 1, "name", "test_good[x]"),
+        ("bool_ordinal", 1, "ordinal", True),
+        ("bool_detail_size", 1, "native_detail_bytes_utf8", True),
+    ]:
+        mutated = copy.deepcopy(saved)
+        mutated[ordinal][field] = value
+        try:
+            admit_case_conservation(actual, mutated)
+        except ValueError:
+            results.append({"control": name, "outcome": "PASS", "actual_refusal": True})
+        else:
+            raise ValueError("corrupt case admitted: " + name)
+    for name, malformed in [
+        ("remove_case", saved[:-1]),
+        ("reorder_cases", list(reversed(saved))),
+    ]:
+        try:
+            admit_case_conservation(actual, malformed)
+        except ValueError:
+            results.append({"control": name, "outcome": "PASS", "actual_refusal": True})
+        else:
+            raise ValueError("corrupt denominator admitted: " + name)
+    for name, malformed in [
+        ("DTD", b"<!DOCTYPE x><testsuite/>"),
+        ("entity", b'<!ENTITY x "bad"><testsuite/>'),
+        ("ambiguous_outcome", b"<testsuite><testcase><error/><failure/></testcase></testsuite>"),
+    ]:
+        try:
+            xml_cases(malformed)
+        except ValueError:
+            results.append({"control": name, "outcome": "PASS", "actual_refusal": True})
+        else:
+            raise ValueError("unsafe XML admitted: " + name)
+    unknown = dict(actual[1], classname="tests.unit.fixture.Missing")
+    require(
+        resolve_test(unknown, tracked, blobs)["state"] == "not_established",
+        "no invented class fallback",
+    )
+    results.append({"control": "unknown_class_not_promoted", "outcome": "PASS"})
+    # A real targeted removal retains XML/case identities and bypasses just conservation.
+    module = ast.parse(Path(__file__).read_text())
+    target = next(
+        node
+        for node in module.body
+        if isinstance(node, ast.FunctionDef) and node.name == "admit_case_conservation"
+    )
+    target.body = [ast.Pass()]
+    modified = ast.fix_missing_locations(module)
+    namespace = {"__name__": "triage_removal_fixture", "__file__": __file__}
+    exec(compile(modified, __file__, "exec"), namespace)  # noqa: S102
+    mutant = copy.deepcopy(saved)
+    mutant[1]["outcome"] = "PASS"
+    namespace["admit_case_conservation"](actual, mutant)
+    require(
+        mutant[1]["classname"] == saved[1]["classname"]
+        and mutant[1]["native_detail_sha256_utf8"] == saved[1]["native_detail_sha256_utf8"],
+        "removal preserves native identity/property markers",
+    )
+    results.append(
+        {
+            "control": "actual_case_conservation_removal_readmits_same-marker_fail_to_pass",
+            "outcome": "PASS",
+            "removed_property": "admit_case_conservation body only",
+        }
+    )
+    absent = {
+        "native_JUnit": None,
+        "native_JUnit_present": False,
+        "independent_JUnit_counts": None,
+        "measured_case_count": None,
+    }
+    empty = {"native_JUnit_present": False, "measured_case_count": None, "cases": []}
+    admit_unmeasured_junit(absent, empty)
+    results.append({"control": "absent_XML_retains_null_case_denominator", "outcome": "PASS"})
+    for name, field, value in [
+        ("absent_XML_forged_zero", "measured_case_count", 0),
+        ("absent_XML_forged_case", "cases", [{"name": "invented", "outcome": "FAIL"}]),
+        ("absent_XML_forged_presence", "native_JUnit_present", True),
+    ]:
+        changed = copy.deepcopy(empty)
+        changed[field] = value
+        try:
+            admit_unmeasured_junit(absent, changed)
+        except ValueError:
+            results.append({"control": name, "outcome": "PASS", "actual_refusal": True})
+        else:
+            raise ValueError("unmeasured XML input forged: " + name)
+    absent_module = ast.parse(Path(__file__).read_text())
+    absent_guard = next(
+        node
+        for node in absent_module.body
+        if isinstance(node, ast.FunctionDef) and node.name == "admit_unmeasured_junit"
+    )
+    absent_guard.body = [ast.Pass()]
+    missing_namespace = {"__name__": "absence_removal_control", "__file__": __file__}
+    exec(compile(ast.fix_missing_locations(absent_module), __file__, "exec"), missing_namespace)  # noqa: S102
+    fake_empty = {**empty, "measured_case_count": 0}
+    missing_namespace["admit_unmeasured_junit"](absent, fake_empty)
+    require(
+        absent["native_JUnit"] is None and fake_empty["native_JUnit_present"] is False,
+        "actual absence removal retains XML/source markers",
+    )
+    results.append(
+        {
+            "control": "actual_absence_admission_removal_readmits_zero_count",
+            "outcome": "PASS",
+            "removed_property": "admit_unmeasured_junit body only",
+        }
+    )
+    return {
+        "schema": "policyos.e02.E.terminal_backend_writer_triage_controls.v2",
+        "source": SOURCE,
+        "tree": TREE,
+        "control_count": len(results),
+        "controls": results,
+        "fixture_case_count": len(actual),
+        "fixture_outcome_counts": dict(Counter(item["outcome"] for item in actual)),
+        "optimized": not __debug__,
+        "native_backend_outcome": None,
+        "ROOT_source_environment_or_outputs_modified": False,
+        "native_tests_repeated": False,
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--controls", action="store_true")
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    require(not args.output.exists(), "append-only fresh observer output required")
+    result = controls() if args.controls else triage()
+    args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
+    sys.stdout.write(
+        json.dumps(
+            {
+                "output": record(args.output),
+                "control_count": result.get("control_count"),
+                "native_case_counts": result.get("native_case_counts"),
+            }
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

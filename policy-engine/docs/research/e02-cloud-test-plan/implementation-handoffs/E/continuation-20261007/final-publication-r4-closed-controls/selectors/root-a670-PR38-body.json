@@ -1,0 +1,148 @@
+{
+  "schema": "policyos.e02.structured_PR_body_readback.v1",
+  "pr": 38,
+  "before": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Action completed."
+      }
+    ],
+    "structuredContent": {
+      "url": "https://github.com/DenisKopylov/polisyos/pull/38",
+      "number": 38,
+      "state": "open",
+      "merged": false,
+      "mergeable": false,
+      "draft": true,
+      "body": "## Summary\n\nStrict calibration and uncertainty admission now rejects invalid Gaussian noise before loaders and unsupported joint laws before stochastic callbacks. Native Backtest replay preserves masked source rows, effective run seeds and typed trajectories; PCL, DDM and ETS artifacts use configured CAS persistence and fresh readers. Morris analysis admits actual trajectories against its plan before SALib, with independent interaction and block-order controls.\n\nThe continuation fixes 11 of the 12 E cross-root import edges through existing facades and repairs E-owned publication utilities. It also records the user-appointed B201/B202 semantic decisions and implements a posterior producer, content-bound CAS carrier, fresh sampler and named mean/interval consumers. The independently reviewed finite-law correction from PR44 is now included by ordinary append-only merges (implementation `3932cded22a29254a7dfced99723e147d6fea7cb`). Multi-coordinate law admission requires explicit shared row identity. Canonical weight ratios preserve each positive finite-U bucket or refuse before callbacks; the distinct posterior profile declares the finite-grid approximation rather than promising an arbitrary-real exact law.\n\n## Change Categories / Compatibility\n\n- [x] architecture\n- [x] contract / schema\n- [x] runtime behavior\n- [x] docs\n- [x] breaking\n\nStrict admission intentionally refuses formerly accepted ambiguous laws and invalid noise scalars. DDM retains its strict legacy reader and adds a distinct version with directional reader/migration evidence. B201/B202 now have an explicit scoped E semantic owner and four tracked decisions; legacy uncertainty payloads retain their reader/replay contract. Follow-up finite-ratio semantics use a distinct posterior profile version. Canonical generator and C/F consumer acceptance remain separate.\n\n## Labels and Ownership\n\n- [x] Owned areas and cross-owner boundaries documented.\n- [ ] Formal GitHub owner review and G integration intake remain pending.\n\nE owns Calibration, Foundry uncertainty, Scientist BKT/PCL/DDM/DoE/ETS mechanisms and their evidence. A owns generation/S10/HTTP shared writers; D owns default Search. The remaining edge in the historical 12 is the ForecastBridge private load_forecasting_uncertainty_bundle route; the existing bundle writer/reader need canonical IR facade aliases. A separate current CanonSpec private edge has its own typed owner packet: the public Core sibling adds two typed-call errors, so a canonical facade export or coordinated typed inlet is required. No copied codec, widened exception or type-ignore is used. G owns integration publication and canonical generator coordination; no main publication is authorized.\n\n## Validation\n\nPublished PR checkpoint: `15a5cd7b764f8839bc31b493e7a16cf3d12a114a`, tree `e3b1a18736587a67025aaaa5da87698388a14f5a`. Source freeze and the final affected E defining wave are pending the last E publication-utility companion and its independent review. Earlier a9/e9 observations are preserved as historical receipts and are not current candidate PASS evidence.\n\n- The frozen selected common wave records **1,549 cases: 1,541 PASS / 8 FAIL**. All eight failures are in A-owned FRC consumer assertions; exact typed native-CAS positive/negative and status/reason packets are provided. The separately completed CAL retry records **324 PASS**; its original terminated attempt is retained separately.\n- The historical 360-path lint observation is retained. The fresh complete **366-path** run on immutable MC checkpoint `b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4` records **143 Ruff diagnostics on 7 foreign A/B/G-published C paths**, and **8 format changes**, including one E publication utility being repaired. The complete canonical architecture and runtime API selectors finish with FAIL and no unrun substage; generated OpenAPI has 573 component schemas and 1,494 confidence dependencies. The full static invocation selector is retrying after incomplete attempts and currently has no measured proxy counts. Required red checks are not waived; exact commands and full input denominators are retained.\n- Workspace/CI successor selectors have been run individually, including native HTTP and frontend stages. Failures, skips and any unrun stage remain explicit. Four already-declared backend dependencies were installed without upgrading the protected numerical stack. The full native backend retry on historical source `64d7444a18c55df7b88b71b7699a2f1b25ca24bd` ended with **FAIL / exit 137**, without JUnit; case counts, full-scope completion and the termination cause remain unestablished. Its saved input snapshot recorded 29 modified tracked generated Layer3 JSON files while product/test Python source remained unchanged. Input admission is FAIL. After termination, the exact 29 current bodies and Git baselines were preserved and only those generated files were restored; the unique screenshot and probe data remain preserved. This restoration does not retroactively validate the run or establish an individual failing caller.\n- Importer, affected defining-property controls and independent oracle/removal reviews are recorded per source slice. Browser capability and isolated owner-overlay positives do not imply full CI or default served acceptance.\n\nThe historical ledger remains **49 partial / 4 held / 1 closed**, with B198 closed. Current finding decisions are separate from check outcomes and source acceptance. B194/B197 retain their exact external-input holds. The integrated SOURCE3932 original-row decisions accept the bounded B201/B202 mechanisms and update E's source-qualified dispositions to **43 closed proposals / 9 limited / 2 held**. These dispositions are separate from the unchanged historical ledger and from G's formal finding intake. Previously computed samples and declared joint-law representation do not establish source fit, scientific authority or C/F consumer acceptance. Historical bounded proposals are not automatic G closure.\n\nReceipts and source handoffs are under `implementation-handoffs/E/continuation-20261006/pr38-r3/` and the published E leaf topics. Completed supplemental evidence is being appended with literal history, exact source/input refs and independent custody reviews. Large raw output stays ignored; moderate deciding outputs are committed. Production history/source law remains local read-only, with scoped recipes for criterion-dependent claims; the six existing recipes are an initial queue rather than a blanket gate or maximum.\n\n## Rollout / Rollback\n\nG admits code and findings separately and alone publishes integration. A/D/Core/IR/C/F shared consumers and generator prerequisites retain their canonical owners. Mitigation uses an admitted immutable artifact/source version through those owners; history is not reset, rebased or force-pushed.\n\nCloud cleanup now follows the user's explicit authorization: completed repeatable fixtures/environments may be deleted after deciding receipts and active-user checks. Unique inputs, useful code/docs, production data and Git registrations are preserved. Local cleanup remains Trash-only.\n\n## Release Notes Fragment\n\n- [x] Family release fragments and compatibility/migration docs are included.\n- [ ] Canonical schema/OpenAPI/generated-surface acceptance remains pending; red required checks are not waived.\n",
+      "title": "E02 E: finite-law admission and native CAS consumer continuation",
+      "base": "main",
+      "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "head": "codex/e02-E-continuation-20261006",
+      "head_sha": "a6701835f15944f860033df64fdf06c0350a972d",
+      "head_repo_id": 1127361998,
+      "head_repo_full_name": "DenisKopylov/polisyos",
+      "merge_commit_sha": "c5858df5d3bd370d0663b2579d211a2ac13df1d1",
+      "user": {
+        "login": "DenisKopylov",
+        "name": "DenisKopylov",
+        "email": null,
+        "avatar_url": "https://avatars.githubusercontent.com/u/176158190?v=4",
+        "id": 176158190
+      },
+      "requested_reviewers": null,
+      "requested_team_reviewers": null,
+      "diff": null,
+      "comments": null,
+      "created_at": "2026-10-06T09:35:31Z",
+      "updated_at": "2026-10-07T14:57:33Z",
+      "closed_at": null,
+      "merged_at": null,
+      "commits": 311,
+      "changed_files": 6321,
+      "additions": 2214924,
+      "deletions": 1593,
+      "display_url": "https://github.com/DenisKopylov/polisyos/pull/38",
+      "display_title": "E02 E: finite-law admission and native CAS consumer continuation"
+    },
+    "isError": false
+  },
+  "update": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Action completed."
+      }
+    ],
+    "structuredContent": {
+      "url": "https://github.com/DenisKopylov/polisyos/pull/38",
+      "number": 38,
+      "state": "open",
+      "merged": false,
+      "mergeable": true,
+      "draft": true,
+      "body": "## Summary\n\nCalibration and uncertainty admission reject invalid Gaussian noise before loaders and unsupported joint laws before stochastic callbacks. Native Backtest replay binds masked rows, effective seeds and typed trajectories; PCL, DDM and ETS use configured CAS persistence and fresh readers. Morris admits actual analysis trajectories before SALib.\n\nThe finite-law correction from PR44 is included by append-only merges: source `3932cded22a29254a7dfced99723e147d6fea7cb`. Exact binary weight ratios give one mean/quantile/sampling law; positive finite-U buckets are preserved or refused before callbacks. Profile2 declares finite-mesh approximation and requires supplied shared IDs for multicoordinate draws. Legacy Profile1/Envelope1.1 replay is preserved.\n\nPublished checkpoint: `a6701835f15944f860033df64fdf06c0350a972d`, tree `686e87bb69629fc7d4e3479c6d8304c78bb22389`. Test-only source `d0038a6e52867e820fd96f4706746ec501a80273` corrects an obsolete collapse expectation: three atoms retain the tiny category, while the four-atom collapse refuses. Independent actual test, Fraction oracle, native callback and removal/proxy controls have GO; source implementation and separate handoff commits are published.\n\nG's fresh `c75eb7125` review identifies a separate IR composition/profile-readback and source-owned type-guard residual. Those fixes and the real persisted Bayesian MethodBackend fit-to-adapter inlet are in progress under the tracked scoped E addendum. No final source freeze or new full-wave PASS is claimed.\n\n## Change Categories / Compatibility\n\n- [x] architecture\n- [x] contract / schema\n- [x] runtime behavior\n- [x] docs\n- [x] breaking\n\nStrict admission refuses previously ambiguous laws and invalid noise scalars. DDM has a distinct version and directional reader/migration controls. B201/B202 use the scoped user-appointed E semantic decisions; new ratio meaning has a distinct profile ID. Canonical generated companions and C/F acceptance remain separately owned.\n\n## Labels and Ownership\n\n- [x] Source, consumer and shared-writer boundaries recorded.\n- [ ] Formal G source and finding intake pending.\n\nE owns the bounded calibration/uncertainty/Backtest/PCL/DDM/DoE/ETS paths and their evidence. A owns generation/S10/HTTP; D owns default Search; G owns integration and shared generated outputs. E does not edit those writers.\n\nEleven of the original twelve cross-root imports are repaired. ForecastBridge's bundle writer/reader facade and a separate CanonSpec edge have exact canonical-owner packets; their leases remain pending. No copied codec, expanded exception baseline or type-ignore is used.\n\n## Validation\n\n- Completed source `31782b55f8f35556cfc581449b040c393f00c78f` selected wave: **1,317 cases = 1,308 PASS / 9 FAIL**. Eight are actual A consumer/status-reason failures; one obsolete facade-test expectation is corrected at d003. This complete historical observation is preserved; the isolated d003 test PASS is not a new full-wave result.\n- Unchanged scalar/batch CAL/Hessian source-qualified historical **324 PASS** is retained separately and was not repeated in that selected wave.\n- Complete 366-path Ruff/format run at 31782: **143 diagnostics on seven foreign A/B/G-published C paths; seven foreign format changes; E's 344 paths have zero diagnostics/format changes**.\n- Complete canonical architecture and runtime API selectors on MC `b6b0d415` finish **FAIL**, with no unrun substage. Source-only architecture census is 3,448 edges/2,702 files; 151 reported violations remain. Full static invocation on b6 finishes **FAIL: 20 regressions / 95 new unresolved**. d003 changes the canonical input-map hash; those counts are not a current d003 graph result.\n- Required 31782 parent selectors: workspace verify **1 PASS / 1 FAIL / 13 UNRUN**; CI parity **1 FAIL / 23 UNRUN**. CI's runtime binding differs from b6 despite equal product bytes; the complete binding cause is `not_established`. Browser capability, isolated successors and doctor success are not full CI PASS.\n- The full native backend on old `64d7444a` ended **FAIL / exit 137**, with no JUnit and no measured case counts or completion/cause. Its exact terminal snapshot changed 29 tracked generated Layer3 JSON files. Original bodies and Git baselines were preserved and those files restored after termination; input admission remains FAIL, with no retroactive PASS.\n- Every source slice retains exact commands, environment/input identity, independent oracle, adversarial/removal controls and source-qualified limitations. A's real CAS positive/negative packet still requires its own default/HTTP verifier and status/reason repair.\n\nHistorical ledger: **49 partial / 4 held / 1 closed**, B198 closed. E's individual source-qualified bounded dispositions propose **43 closed / 9 limited / 2 held**; they neither rewrite the historical ledger nor constitute G acceptance. B194/B197 retain exact evaluator/source-fit/noise/join/consumer holds. Scientific authority, production fit quality and C/F adoption remain unclaimed.\n\n## Rollout / Rollback\n\nG accepts code separately from finding closure and alone publishes integration. Shared generator output must be regenerated on accepted frozen G source; the nine-path E projection is a comparison oracle, not a patch to copy into G. No main push, reset, rebase or force-push is authorized.\n\nModerate deciding outputs and source handoffs are committed under `implementation-handoffs/E/continuation-20261007/`; large raw and reconstructible archives stay ignored with exact custody/reopen refs. Production data remains local/read-only, with criterion-specific G recipes. The six initial recipes are not a blanket production gate or limit.\n\nCloud cleanup permits deletion of unused repeatable results/environments after preserving deciding evidence and checking active users. Useful code/docs, unique inputs, production data and Git registrations are preserved; local cleanup remains Trash-only.\n\n## Release Notes Fragment\n\n- [x] Family release/migration companions included.\n- [ ] Shared generated surface and required red gates remain pending at their canonical owners.\n",
+      "title": "E02 E: finite-law admission and native CAS consumer continuation",
+      "base": "main",
+      "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "head": "codex/e02-E-continuation-20261006",
+      "head_sha": "a6701835f15944f860033df64fdf06c0350a972d",
+      "head_repo_id": 1127361998,
+      "head_repo_full_name": "DenisKopylov/polisyos",
+      "merge_commit_sha": "f5fae1aee495f1e8ec44a33d04807984642b049f",
+      "user": {
+        "login": "DenisKopylov",
+        "name": "DenisKopylov",
+        "email": null,
+        "avatar_url": "https://avatars.githubusercontent.com/u/176158190?v=4",
+        "id": 176158190
+      },
+      "requested_reviewers": null,
+      "requested_team_reviewers": null,
+      "diff": null,
+      "comments": null,
+      "created_at": "2026-10-06T09:35:31Z",
+      "updated_at": "2026-10-07T14:58:21Z",
+      "closed_at": null,
+      "merged_at": null,
+      "commits": 311,
+      "changed_files": 6321,
+      "additions": 2214924,
+      "deletions": 1593,
+      "display_url": "https://github.com/DenisKopylov/polisyos/pull/38",
+      "display_title": "E02 E: finite-law admission and native CAS consumer continuation"
+    },
+    "isError": false
+  },
+  "after": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Action completed."
+      }
+    ],
+    "structuredContent": {
+      "url": "https://github.com/DenisKopylov/polisyos/pull/38",
+      "number": 38,
+      "state": "open",
+      "merged": false,
+      "mergeable": true,
+      "draft": true,
+      "body": "## Summary\n\nCalibration and uncertainty admission reject invalid Gaussian noise before loaders and unsupported joint laws before stochastic callbacks. Native Backtest replay binds masked rows, effective seeds and typed trajectories; PCL, DDM and ETS use configured CAS persistence and fresh readers. Morris admits actual analysis trajectories before SALib.\n\nThe finite-law correction from PR44 is included by append-only merges: source `3932cded22a29254a7dfced99723e147d6fea7cb`. Exact binary weight ratios give one mean/quantile/sampling law; positive finite-U buckets are preserved or refused before callbacks. Profile2 declares finite-mesh approximation and requires supplied shared IDs for multicoordinate draws. Legacy Profile1/Envelope1.1 replay is preserved.\n\nPublished checkpoint: `a6701835f15944f860033df64fdf06c0350a972d`, tree `686e87bb69629fc7d4e3479c6d8304c78bb22389`. Test-only source `d0038a6e52867e820fd96f4706746ec501a80273` corrects an obsolete collapse expectation: three atoms retain the tiny category, while the four-atom collapse refuses. Independent actual test, Fraction oracle, native callback and removal/proxy controls have GO; source implementation and separate handoff commits are published.\n\nG's fresh `c75eb7125` review identifies a separate IR composition/profile-readback and source-owned type-guard residual. Those fixes and the real persisted Bayesian MethodBackend fit-to-adapter inlet are in progress under the tracked scoped E addendum. No final source freeze or new full-wave PASS is claimed.\n\n## Change Categories / Compatibility\n\n- [x] architecture\n- [x] contract / schema\n- [x] runtime behavior\n- [x] docs\n- [x] breaking\n\nStrict admission refuses previously ambiguous laws and invalid noise scalars. DDM has a distinct version and directional reader/migration controls. B201/B202 use the scoped user-appointed E semantic decisions; new ratio meaning has a distinct profile ID. Canonical generated companions and C/F acceptance remain separately owned.\n\n## Labels and Ownership\n\n- [x] Source, consumer and shared-writer boundaries recorded.\n- [ ] Formal G source and finding intake pending.\n\nE owns the bounded calibration/uncertainty/Backtest/PCL/DDM/DoE/ETS paths and their evidence. A owns generation/S10/HTTP; D owns default Search; G owns integration and shared generated outputs. E does not edit those writers.\n\nEleven of the original twelve cross-root imports are repaired. ForecastBridge's bundle writer/reader facade and a separate CanonSpec edge have exact canonical-owner packets; their leases remain pending. No copied codec, expanded exception baseline or type-ignore is used.\n\n## Validation\n\n- Completed source `31782b55f8f35556cfc581449b040c393f00c78f` selected wave: **1,317 cases = 1,308 PASS / 9 FAIL**. Eight are actual A consumer/status-reason failures; one obsolete facade-test expectation is corrected at d003. This complete historical observation is preserved; the isolated d003 test PASS is not a new full-wave result.\n- Unchanged scalar/batch CAL/Hessian source-qualified historical **324 PASS** is retained separately and was not repeated in that selected wave.\n- Complete 366-path Ruff/format run at 31782: **143 diagnostics on seven foreign A/B/G-published C paths; seven foreign format changes; E's 344 paths have zero diagnostics/format changes**.\n- Complete canonical architecture and runtime API selectors on MC `b6b0d415` finish **FAIL**, with no unrun substage. Source-only architecture census is 3,448 edges/2,702 files; 151 reported violations remain. Full static invocation on b6 finishes **FAIL: 20 regressions / 95 new unresolved**. d003 changes the canonical input-map hash; those counts are not a current d003 graph result.\n- Required 31782 parent selectors: workspace verify **1 PASS / 1 FAIL / 13 UNRUN**; CI parity **1 FAIL / 23 UNRUN**. CI's runtime binding differs from b6 despite equal product bytes; the complete binding cause is `not_established`. Browser capability, isolated successors and doctor success are not full CI PASS.\n- The full native backend on old `64d7444a` ended **FAIL / exit 137**, with no JUnit and no measured case counts or completion/cause. Its exact terminal snapshot changed 29 tracked generated Layer3 JSON files. Original bodies and Git baselines were preserved and those files restored after termination; input admission remains FAIL, with no retroactive PASS.\n- Every source slice retains exact commands, environment/input identity, independent oracle, adversarial/removal controls and source-qualified limitations. A's real CAS positive/negative packet still requires its own default/HTTP verifier and status/reason repair.\n\nHistorical ledger: **49 partial / 4 held / 1 closed**, B198 closed. E's individual source-qualified bounded dispositions propose **43 closed / 9 limited / 2 held**; they neither rewrite the historical ledger nor constitute G acceptance. B194/B197 retain exact evaluator/source-fit/noise/join/consumer holds. Scientific authority, production fit quality and C/F adoption remain unclaimed.\n\n## Rollout / Rollback\n\nG accepts code separately from finding closure and alone publishes integration. Shared generator output must be regenerated on accepted frozen G source; the nine-path E projection is a comparison oracle, not a patch to copy into G. No main push, reset, rebase or force-push is authorized.\n\nModerate deciding outputs and source handoffs are committed under `implementation-handoffs/E/continuation-20261007/`; large raw and reconstructible archives stay ignored with exact custody/reopen refs. Production data remains local/read-only, with criterion-specific G recipes. The six initial recipes are not a blanket production gate or limit.\n\nCloud cleanup permits deletion of unused repeatable results/environments after preserving deciding evidence and checking active users. Useful code/docs, unique inputs, production data and Git registrations are preserved; local cleanup remains Trash-only.\n\n## Release Notes Fragment\n\n- [x] Family release/migration companions included.\n- [ ] Shared generated surface and required red gates remain pending at their canonical owners.\n",
+      "title": "E02 E: finite-law admission and native CAS consumer continuation",
+      "base": "main",
+      "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "head": "codex/e02-E-continuation-20261006",
+      "head_sha": "a6701835f15944f860033df64fdf06c0350a972d",
+      "head_repo_id": 1127361998,
+      "head_repo_full_name": "DenisKopylov/polisyos",
+      "merge_commit_sha": "f5fae1aee495f1e8ec44a33d04807984642b049f",
+      "user": {
+        "login": "DenisKopylov",
+        "name": "DenisKopylov",
+        "email": null,
+        "avatar_url": "https://avatars.githubusercontent.com/u/176158190?v=4",
+        "id": 176158190
+      },
+      "requested_reviewers": null,
+      "requested_team_reviewers": null,
+      "diff": null,
+      "comments": null,
+      "created_at": "2026-10-06T09:35:31Z",
+      "updated_at": "2026-10-07T14:58:21Z",
+      "closed_at": null,
+      "merged_at": null,
+      "commits": 311,
+      "changed_files": 6321,
+      "additions": 2214924,
+      "deletions": 1593,
+      "display_url": "https://github.com/DenisKopylov/polisyos/pull/38",
+      "display_title": "E02 E: finite-law admission and native CAS consumer continuation"
+    },
+    "isError": false
+  },
+  "exact_body_readback": true,
+  "published_head": "a6701835f15944f860033df64fdf06c0350a972d",
+  "source_wave_not_relabelled": true
+}

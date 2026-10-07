@@ -1,0 +1,51 @@
+{
+  "schema": "policyos.e02.moderate-publication-selection.v1",
+  "checkpoint": "15a5cd7b764f8839bc31b493e7a16cf3d12a114a",
+  "outcome": "GO with additive canonical P37 companion; original missing-field red retained",
+  "file_count": 8,
+  "total_bytes": 27660,
+  "files": [
+    {
+      "path": "/tmp/e02-E-root-checkpoint15a5-independent/review.json",
+      "bytes": 6426,
+      "sha256": "1c61f46e0b83562cf49e6ad589443eb6f3d47213023f96e552a0c6d838371109"
+    },
+    {
+      "path": "/tmp/e02-E-root-checkpoint15a5-independent/predicate-basis-correction-review.json",
+      "bytes": 2691,
+      "sha256": "bce2aa6da2288560336305f25ef9c0c0bcff946d8b46e78755cc8610d2c2f561"
+    },
+    {
+      "path": "/tmp/e02-E-review-root-checkpoint15a5.py.txt",
+      "bytes": 4977,
+      "sha256": "ab9e611cd687476ce0908ce10c549bf529956b48717eaf34eb8edb95d0852f30"
+    },
+    {
+      "path": "/tmp/e02-E-review-root-basis-correction.py.txt",
+      "bytes": 4449,
+      "sha256": "25ed8e4b19c63c2b1e4c49566824842ecfb26fe081fe6fc37ba9b86128e59305"
+    },
+    {
+      "path": "/tmp/e02-E-root-checkpoint15a5.stdout.txt",
+      "bytes": 6426,
+      "sha256": "1c61f46e0b83562cf49e6ad589443eb6f3d47213023f96e552a0c6d838371109"
+    },
+    {
+      "path": "/tmp/e02-E-root-checkpoint15a5.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-root-basis-correction.stdout.txt",
+      "bytes": 2691,
+      "sha256": "bce2aa6da2288560336305f25ef9c0c0bcff946d8b46e78755cc8610d2c2f561"
+    },
+    {
+      "path": "/tmp/e02-E-root-basis-correction.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "source_numeric_global_execution": false,
+  "scope": "Sole new checkpoint metadata, actual2106path names/all12 source3932 Python bodies/sevenrefs; canonical basis correction and fourGitancestries; untouched DOC bodies not repeated."
+}

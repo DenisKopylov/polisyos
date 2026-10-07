@@ -1,0 +1,42 @@
+import gzip,hashlib,json,pathlib,sys
+R=pathlib.Path('/tmp/e02-E-MC-b6-gates-20261007');E=R/'publication-encoded-assets';E.mkdir(exist_ok=True)
+S='b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4';T='0cb448febf461d0bbdf31645712ad774f5425b72'
+def sha(b):return hashlib.sha256(b).hexdigest()
+def ref(p):b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':sha(b)}
+def require(v,m):
+ if not v:raise ValueError(m)
+paths=[]
+for p in sorted(R.iterdir()):
+ if p.is_file() and p.suffix!='nul' and p.name not in ('publication-selection.json',):paths.append(p)
+stages=['runtime-api-contract','static-invocation','architecture','static-invocation-retry1','architecture-retry1','architecture-retry2','static-invocation-retry3','static-invocation-retry4']
+for stage in stages:
+ for p in sorted((R/stage).iterdir()):
+  if p.is_file() and p.name not in ('git-config-private.nul','production-invocation.raw.json'):paths.append(p)
+for folder in ['failed-copy-unique-native-instrumentation','failed-retry1-copy-unique-native-instrumentation','completed-retry2-unique-native-instrumentation']:
+ paths.extend(sorted(p for p in (R/folder).rglob('*') if p.is_file()))
+outputs=json.loads((R/'completed-retry2-environment-custody.json').read_text())['outputs'];paths.extend(pathlib.Path(x['path']) for x in outputs)
+paths.extend([R/'runtime-api-contract/tmp/retained-runtime-openapi.raw.json',pathlib.Path('/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/retained_runtime_api_cli.py')])
+require(len(paths)==len(set(paths)),'selection unique logicalpath')
+logical=[];assets={};gzip_assets=[]
+for p in paths:
+ original=ref(p);key=(original['sha256'],original['bytes']);large=(original['bytes']>1000000 or ('architecture-retained-retry2/outputs/' in str(p) and original['bytes']>500000) or p.name.startswith('complete-source-inputs-') or p.name.endswith('copy-Git-bindings.json'))
+ if key in assets:
+  existing=assets[key];logical.append({'source':original,'portable_path':existing['portable_path'],'storage':existing['storage'],'deduplicated_literal_alias':True});continue
+ if large:
+  encoded=E/(original['sha256']+'.gz');data=p.read_bytes()
+  with encoded.open('xb') as f:
+   with gzip.GzipFile(fileobj=f,mode='wb',filename='',mtime=0) as z:z.write(data)
+  encodedref=ref(encoded);require(gzip.decompress(encoded.read_bytes())==data,'gzip decodedliteral bytes');portable='archives/'+original['sha256']+'.gz';storage={'mode':'gzip_literal_archive','archive':encodedref,'decoded_original':original}
+  asset={'source_path':str(encoded),'portable_path':portable,'bytes':encodedref['bytes'],'sha256':encodedref['sha256'],'storage':storage};gzip_assets.append(storage)
+ else:
+  relative=str(p.relative_to(R)) if p.is_relative_to(R) else 'canonical-observers/'+p.name
+  if p.suffix=='.py':relative+='.txt'
+  asset={'source_path':str(p),'portable_path':'literal/'+relative,'bytes':original['bytes'],'sha256':original['sha256'],'storage':{'mode':'literal','original':original}}
+ assets[key]=asset;logical.append({'source':original,'portable_path':asset['portable_path'],'storage':asset['storage'],'deduplicated_literal_alias':False})
+# All decoding references remain literal; no original raw/source index retired here.
+for asset in assets.values():
+ p=pathlib.Path(asset['source_path']);actual=ref(p);require(type(asset['bytes']) is int and type(asset['sha256']) is str,'typedsize/hash');require(actual['bytes']==asset['bytes'] and actual['sha256']==asset['sha256'],'physicalselectedclosure')
+main=ref(R/'three-selector-packet-v3.json');raw=ref(R/'static-invocation-retry4/production-invocation.raw.json')
+v={'schema':'policyos.e02.E.b6_current_three_gate_publication_selection.v1','source':S,'tree':T,'current_packet':main,'logical_asset_count':len(logical),'unique_asset_count':len(assets),'publication_bytes':sum(x['bytes'] for x in assets.values()),'original_logical_bytes':sum(x['source']['bytes'] for x in logical),'assets':list(assets.values()),'logical_aliases':logical,'current_static_raw_ignored':raw,'raw_not_selected_forGit':True,'all6_generator_outputs_decoded_literal_archived':outputs,'private_Git_config_not_selected':'Native receipts contain SHA/size only; raw private .nul never selected','historical_current_scope':'Original ERROR/UNRUN +V1typeescapes intact. Current nativeFAIL selectors and strictV3controls separate. No source/property/gate waiver or findingclosure','decoded_archive_mode':'gzip deterministically encoded withmtime0; decoded refs keep originalrawSHA/bytes. Existingignoredraws retained; no archivalref silentlysubstituted','selector_source':ref(pathlib.Path(__file__))}
+with (R/'publication-selection.json').open('x') as f:json.dump(v,f,indent=2);f.write('\n')
+print(json.dumps({'selection':ref(R/'publication-selection.json'),'logical':len(logical),'unique':len(assets),'publication_bytes':v['publication_bytes'],'raw_ignored':raw,'archive_count':len(gzip_assets)},indent=2))

@@ -1,0 +1,10 @@
+{
+  "first_observer_source": "review.py.txt",
+  "initial_style_outcome": "FAIL two E501 string literal lines; first normal stdout is preserved non-deciding observation",
+  "current_observer_source": "review-v2.py.txt",
+  "changes": "Two long literal strings split into adjacent string literals; full output values unchanged",
+  "current_normal_optimized_output_byte_equal": true,
+  "historical_native_wave": true,
+  "native_rerun": false,
+  "newsource_d003_or_composition_counts_claimed": false
+}

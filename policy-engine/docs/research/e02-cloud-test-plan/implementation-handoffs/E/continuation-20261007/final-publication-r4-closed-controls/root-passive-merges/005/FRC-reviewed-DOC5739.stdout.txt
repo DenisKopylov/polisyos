@@ -1,0 +1,204 @@
+Merge made by the 'ort' strategy.
+ .../utility-validator-current/README.md            |    7 +
+ .../utility-validator-current/copy-index.json      |  686 +++++++++
+ .../implementation-handoff.json                    |  221 +++
+ .../independent-member-index.json                  |  281 ++++
+ .../observer/build_closed_review_selection.py.txt  |   33 +
+ .../observer/probe_old212_whole_record_path.py.txt |   18 +
+ .../observer/replay_old_git212.py.txt              |   40 +
+ .../observer/review_2350_candidate.py.txt          |   72 +
+ .../outputs/current-2350-normal.stdout.txt         |    1 +
+ .../outputs/final-source-GO.json                   |   67 +
+ .../historical-default-2350-normal.stderr.txt      |   13 +
+ .../outputs/old212-git-replay-normal.stdout.json   | 1413 +++++++++++++++++++
+ .../old212-git-replay-optimized.stdout.json        | 1413 +++++++++++++++++++
+ .../old212-path-admission-probe.stdout.json        |   33 +
+ .../old212-whole-record-path-normal.stdout.json    |   79 ++
+ .../old212-whole-record-path-optimized.stdout.json |   79 ++
+ .../outputs/review-2350-normal.stderr.txt          |    0
+ .../outputs/review-2350-normal.stdout.json         |  338 +++++
+ .../outputs/review-2350-optimized.stdout.json      |  340 +++++
+ .../outputs/source-Ruff-2350.stdout.txt            |    1 +
+ .../outputs/source-Ruff-format-2350.json           |   77 +
+ .../outputs/source-format-2350.stdout.txt          |    1 +
+ .../publication-selection-2350.json                |  269 ++++
+ .../source/current2350-source.py.txt               |  261 ++++
+ .../independent-review/source/old212-source.py.txt |  213 +++
+ .../append-independent-source-review.py.txt        |   34 +
+ .../outputs/baseline-driver.stderr.txt             |    0
+ .../outputs/baseline-driver.stdout.json            |   40 +
+ .../outputs/baseline-input-frame.json              | 1106 +++++++++++++++
+ .../outputs/baseline-normal.stderr.txt             |    0
+ .../outputs/baseline-normal.stdout.json            |    1 +
+ .../outputs/baseline-optimized.stderr.txt          |    0
+ .../outputs/baseline-optimized.stdout.json         |    1 +
+ .../outputs/baseline.json                          |   40 +
+ .../outputs/baseline.py.txt                        |   26 +
+ .../outputs/build-source-handoff.py.txt            |   21 +
+ .../outputs/build-source-handoff.stderr.txt        |    0
+ .../outputs/build-source-handoff.stdout.json       |    6 +
+ .../current-controls-final-driver.stderr.txt       |    0
+ .../current-controls-final-driver.stdout.json      |   96 ++
+ .../outputs/current-controls.json                  |   96 ++
+ .../outputs/current-preflight-validator.py.txt     |  261 ++++
+ .../outputs/environment-before.json                | 1471 ++++++++++++++++++++
+ .../outputs/environment-location.stderr.txt        |    0
+ .../outputs/environment-location.stdout.json       |    1 +
+ .../outputs/environment-selected-variables.json    |   20 +
+ .../outputs/final-remote-readback.stderr.txt       |    0
+ .../outputs/final-remote-readback.stdout.txt       |    1 +
+ .../outputs/final-tracking-readback.stderr.txt     |    0
+ .../outputs/final-tracking-readback.stdout.txt     |    4 +
+ .../outputs/format-proposal.stderr.txt             |    0
+ .../outputs/format-proposal.stdout.py.txt          |  212 +++
+ ...storical-empty-fixed-python312-environment.json |    8 +
+ .../current-controls-driver.stderr.txt             |   11 +
+ .../current-controls-driver.stdout.txt             |    0
+ .../run-current-controls.py.txt                    |   41 +
+ .../outputs/preflight-call-removed.py.txt          |  260 ++++
+ .../outputs/preflight-current-normal.stderr.txt    |    0
+ .../outputs/preflight-current-normal.stdout.txt    |    1 +
+ .../outputs/preflight-current-optimized.stderr.txt |    0
+ .../outputs/preflight-current-optimized.stdout.txt |    1 +
+ .../preflight-historical-default-normal.stderr.txt |   13 +
+ .../preflight-historical-default-normal.stdout.txt |    0
+ ...eflight-historical-default-optimized.stderr.txt |   13 +
+ ...eflight-historical-default-optimized.stdout.txt |    0
+ .../preflight-old-Git212-replay-normal.stderr.txt  |    0
+ .../preflight-old-Git212-replay-normal.stdout.txt  |    1 +
+ ...reflight-old-Git212-replay-optimized.stderr.txt |    0
+ ...reflight-old-Git212-replay-optimized.stdout.txt |    1 +
+ .../outputs/prepare-source-overlay.py.txt          |   45 +
+ .../outputs/run-current-controls.py.txt            |   45 +
+ .../outputs/source-commit.stderr.txt               |   10 +
+ .../outputs/source-commit.stdout.txt               |    4 +
+ .../outputs/source-execution-manifest.json         |   84 ++
+ .../outputs/source-execution-manifest.py.txt       |   23 +
+ .../outputs/source-execution-manifest.stderr.txt   |    0
+ .../outputs/source-execution-manifest.stdout.json  |   84 ++
+ .../source-fetch-explicit-readback.stderr.txt      |    2 +
+ .../source-fetch-explicit-readback.stdout.txt      |    0
+ .../outputs/source-fetch-readback.stderr.txt       |    2 +
+ .../outputs/source-fetch-readback.stdout.txt       |    0
+ .../outputs/source-format-final.stderr.txt         |    0
+ .../outputs/source-format-final.stdout.txt         |    1 +
+ .../outputs/source-overlay-proposal.json           |   19 +
+ ...urce-preflight-controls-normal-final.stderr.txt |    0
+ ...rce-preflight-controls-normal-final.stdout.json |  134 ++
+ .../outputs/source-preflight-controls-normal.json  |  134 ++
+ ...e-preflight-controls-optimized-final.stderr.txt |    0
+ ...-preflight-controls-optimized-final.stdout.json |  137 ++
+ .../source-preflight-controls-optimized.json       |  137 ++
+ .../outputs/source-preflight-controls.py.txt       |   57 +
+ .../outputs/source-publication-receipt.json        |   90 ++
+ .../outputs/source-publication-receipt.py.txt      |   13 +
+ .../outputs/source-publication-receipt.stderr.txt  |    0
+ .../outputs/source-publication-receipt.stdout.json |   90 ++
+ .../outputs/source-push.stderr.txt                 |    2 +
+ .../outputs/source-push.stdout.txt                 |    7 +
+ .../outputs/source-ruff-final.stderr.txt           |    0
+ .../outputs/source-ruff-final.stdout.txt           |    1 +
+ .../outputs/source-ruff.stderr.txt                 |    0
+ .../outputs/source-ruff.stdout.txt                 |   12 +
+ 101 files changed, 10876 insertions(+)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/README.md
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/copy-index.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/implementation-handoff.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-member-index.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/observer/build_closed_review_selection.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/observer/probe_old212_whole_record_path.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/observer/replay_old_git212.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/observer/review_2350_candidate.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/current-2350-normal.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/final-source-GO.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/historical-default-2350-normal.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/old212-git-replay-normal.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/old212-git-replay-optimized.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/old212-path-admission-probe.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/old212-whole-record-path-normal.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/old212-whole-record-path-optimized.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/review-2350-normal.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/review-2350-normal.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/review-2350-optimized.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/source-Ruff-2350.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/source-Ruff-format-2350.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/outputs/source-format-2350.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/publication-selection-2350.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/source/current2350-source.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-review/source/old212-source.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/append-independent-source-review.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/baseline-driver.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/baseline-driver.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/baseline-input-frame.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/baseline-normal.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/baseline-normal.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/baseline-optimized.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/baseline-optimized.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/baseline.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/baseline.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/build-source-handoff.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/build-source-handoff.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/build-source-handoff.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/current-controls-final-driver.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/current-controls-final-driver.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/current-controls.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/current-preflight-validator.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/environment-before.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/environment-location.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/environment-location.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/environment-selected-variables.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/final-remote-readback.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/final-remote-readback.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/final-tracking-readback.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/final-tracking-readback.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/format-proposal.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/format-proposal.stdout.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/historical-empty-fixed-python312-environment.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/historical-first-current-control-attempt/current-controls-driver.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/historical-first-current-control-attempt/current-controls-driver.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/historical-first-current-control-attempt/run-current-controls.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-call-removed.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-current-normal.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-current-normal.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-current-optimized.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-current-optimized.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-historical-default-normal.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-historical-default-normal.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-historical-default-optimized.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-historical-default-optimized.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-old-Git212-replay-normal.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-old-Git212-replay-normal.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-old-Git212-replay-optimized.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/preflight-old-Git212-replay-optimized.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/prepare-source-overlay.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/run-current-controls.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-commit.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-commit.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-execution-manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-execution-manifest.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-execution-manifest.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-execution-manifest.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-fetch-explicit-readback.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-fetch-explicit-readback.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-fetch-readback.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-fetch-readback.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-format-final.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-format-final.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-overlay-proposal.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-preflight-controls-normal-final.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-preflight-controls-normal-final.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-preflight-controls-normal.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-preflight-controls-optimized-final.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-preflight-controls-optimized-final.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-preflight-controls-optimized.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-preflight-controls.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-publication-receipt.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-publication-receipt.py.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-publication-receipt.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-publication-receipt.stdout.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-push.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-push.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-ruff-final.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-ruff-final.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-ruff.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/outputs/source-ruff.stdout.txt

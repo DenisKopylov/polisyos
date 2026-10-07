@@ -1,0 +1,459 @@
+{
+  "DOC_candidate": "62f4ec1ccef014d642d38027c699afc544403d0f",
+  "DOC_tree": "04f311c1d823e07c69b0ce332bb4f84b228c6bb8",
+  "after": {
+    "HEAD": "62f4ec1ccef014d642d38027c699afc544403d0f",
+    "status": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/confidenceLedgerRiskSpendTwin.browser.test.tsx/confidence-ledger-native-Chromium-visibility-proof-admits-the-baseline-through-the-native-finite-paint-grammar-1.png\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-01.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-02.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-03.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-14.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-36.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-41.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-44.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-48.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-53.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-62.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/root.lock\n",
+    "tree": "04f311c1d823e07c69b0ce332bb4f84b228c6bb8"
+  },
+  "before": {
+    "HEAD": "62f4ec1ccef014d642d38027c699afc544403d0f",
+    "status": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/confidenceLedgerRiskSpendTwin.browser.test.tsx/confidence-ledger-native-Chromium-visibility-proof-admits-the-baseline-through-the-native-finite-paint-grammar-1.png\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-01.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-02.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-03.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-14.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-36.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-41.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-44.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-48.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-53.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-62.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/root.lock\n",
+    "tree": "04f311c1d823e07c69b0ce332bb4f84b228c6bb8"
+  },
+  "complete_footprint": {
+    "DOC_paths": 31,
+    "active_python_paths": 0,
+    "literal_deciding_bytes": 70252,
+    "literal_deciding_copies": 30
+  },
+  "disposition": "GO",
+  "environment": {
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "stdlib_only": true
+  },
+  "handoff": {
+    "bytes": 42710,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/implementation-handoff.json",
+    "sha256": "09e64634fb3bb376396668bfa59324f6db61654a0db7c17aec915333d1073783"
+  },
+  "historical_observation_recomputed": {
+    "actual_XML_refs": [
+      {
+        "bytes": 16109,
+        "path": "/tmp/e02-E-final-defining-wave-31782b55-20261007T1424Z/checks/pcl-continuous-persistence/pytest.xml",
+        "sha256": "b4e20214655161f61754d743f82a3d05d7703e0eea69da58f2acda4e95462b77"
+      },
+      {
+        "bytes": 12578,
+        "path": "/tmp/e02-E-final-defining-wave-31782b55-20261007T1424Z/checks/ddm-runtime-and-facade/pytest.xml",
+        "sha256": "f20b6f0a768529f58cb53399ceee21a89b718dea024e1af662f61eb2be2e78ac"
+      },
+      {
+        "bytes": 83064,
+        "path": "/tmp/e02-E-final-defining-wave-31782b55-20261007T1424Z/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+        "sha256": "4225ef4c48aa6902728fdeb7c0e83b238720533b34185684654af99a5543ab98"
+      },
+      {
+        "bytes": 13206,
+        "path": "/tmp/e02-E-final-defining-wave-31782b55-20261007T1424Z/checks/cal-and-welfare-consumer/pytest.xml",
+        "sha256": "015168156d8813a2839df34482a93bfa3392c5f6d2e9c8d8fbe92129da7806ff"
+      },
+      {
+        "bytes": 77342,
+        "path": "/tmp/e02-E-final-defining-wave-31782b55-20261007T1424Z/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+        "sha256": "1d5eb59e499850a7a6f00f645dbf25d74db7d4c56753f178f6637de896c1c2ad"
+      },
+      {
+        "bytes": 36923,
+        "path": "/tmp/e02-E-final-defining-wave-31782b55-20261007T1424Z/checks/doe-salib-and-consumer-factory/pytest.xml",
+        "sha256": "90d62680e5a8561eac7b84a4305b6bc7f1b49b8346c63e57fe15aefa37c97a9b"
+      },
+      {
+        "bytes": 10247,
+        "path": "/tmp/e02-E-final-defining-wave-31782b55-20261007T1424Z/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+        "sha256": "eec6bf246784495c175758ebcdc0f8fac525703643364cac4a35463aa31bccb7"
+      }
+    ],
+    "aggregate_receipt_ref": {
+      "bytes": 521985,
+      "path": "/tmp/e02-E-final-wave-collection-31782b55-20261007/publication-receipt.json",
+      "sha256": "f651a7db8e06e059ae93c04ea949b4a9c9cf364d7fbaeaf2cd1e874ca7cc3457"
+    },
+    "case_counts": {
+      "ERROR": 0,
+      "FAIL": 9,
+      "PASS": 1308,
+      "SKIP": 0,
+      "cases": 1317
+    },
+    "failed_cases": [
+      {
+        "classname": "tests.unit.calibration.test_evidence_facades",
+        "job_name": "pcl-continuous-persistence",
+        "name": "test_public_finite_law_admission_preserves_atoms_and_domain",
+        "outcome": "failed"
+      },
+      {
+        "classname": "tests.unit.remediation.test_frc_01",
+        "job_name": "bkt-frc-s10-and-adjacent-report-consumers",
+        "name": "test_missing_calibration_evidence_refs_stays_typed_blocked",
+        "outcome": "failed"
+      },
+      {
+        "classname": "",
+        "job_name": "bkt-frc-s10-and-adjacent-report-consumers",
+        "name": "test_missing_ref_tier_and_s6_share_named_missing_ref_reason",
+        "outcome": "failed"
+      },
+      {
+        "classname": "",
+        "job_name": "bkt-frc-s10-and-adjacent-report-consumers",
+        "name": "test_resolved_limited_evidence_keeps_floor_failure_reason",
+        "outcome": "failed"
+      },
+      {
+        "classname": "",
+        "job_name": "bkt-frc-s10-and-adjacent-report-consumers",
+        "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[missing_ref-empirical_evidence_ref_missing]",
+        "outcome": "failed"
+      },
+      {
+        "classname": "",
+        "job_name": "bkt-frc-s10-and-adjacent-report-consumers",
+        "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[unresolved_ref-empirical_evidence_ref_unresolved]",
+        "outcome": "failed"
+      },
+      {
+        "classname": "",
+        "job_name": "bkt-frc-s10-and-adjacent-report-consumers",
+        "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_kind-empirical_evidence_ref_kind_mismatch]",
+        "outcome": "failed"
+      },
+      {
+        "classname": "",
+        "job_name": "bkt-frc-s10-and-adjacent-report-consumers",
+        "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_time-empirical_evidence_time_mismatch]",
+        "outcome": "failed"
+      },
+      {
+        "classname": "",
+        "job_name": "bkt-frc-s10-and-adjacent-report-consumers",
+        "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_rule-empirical_evidence_rule_mismatch]",
+        "outcome": "failed"
+      }
+    ],
+    "flat_case_index_ref": {
+      "bytes": 400305,
+      "path": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/current-case-index.json",
+      "sha256": "db2f606a91d9543ea34c14fd4b46ac3e84d7093926610f6ee8d04c4c8cb901ba"
+    },
+    "new_candidate_or_wave_retagging": false,
+    "source": "31782b55f8f35556cfc581449b040c393f00c78f"
+  },
+  "literal_copies": [
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/independent-source/publication-selection.json",
+      "source": {
+        "bytes": 3308,
+        "path": "/tmp/e02-E-facade-test-d003-independent-20261007/publication-selection.json",
+        "sha256": "550a81f79b3e06000cd691c8b69a2b671640b1944b0c5c84d3fd781efca20068"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/independent-source/review.json",
+      "source": {
+        "bytes": 12312,
+        "path": "/tmp/e02-E-facade-test-d003-independent-20261007/review.json",
+        "sha256": "e5f382781ff0c376a1932ac84904cf663e976dff06465bec810a32e6d9211587"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/independent-source/review.py.txt",
+      "source": {
+        "bytes": 10803,
+        "path": "/tmp/e02-E-facade-test-d003-independent-20261007/review.py.txt",
+        "sha256": "f2582337c33e3bd367a82f5ef4b4526612a2499c362375c49ee4279ae7ef28f8"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/independent-source/removed-function.py.txt",
+      "source": {
+        "bytes": 734,
+        "path": "/tmp/e02-E-facade-test-d003-independent-20261007/removed-function.py.txt",
+        "sha256": "bc8a118ac76d2d4df0d1e9a2c4516a334122da6a26214665013707733559f52f"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/independent-source/command.json",
+      "source": {
+        "bytes": 1302,
+        "path": "/tmp/e02-E-facade-test-d003-independent-20261007/command.json",
+        "sha256": "2bfcde5365583eb155a2c1432c27b1c82aa229bee9bfd35994c297c413164820"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/independent-source/pytest.xml",
+      "source": {
+        "bytes": 397,
+        "path": "/tmp/e02-E-facade-test-d003-independent-20261007/pytest.xml",
+        "sha256": "7af41c118fa13e68193cbd2e21563a53dc2905bb4f5cde7f5dc2cbabdceec30d"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/independent-source/pytest.stdout.txt",
+      "source": {
+        "bytes": 80,
+        "path": "/tmp/e02-E-facade-test-d003-independent-20261007/pytest.stdout.txt",
+        "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/independent-source/pytest.stderr.txt",
+      "source": {
+        "bytes": 0,
+        "path": "/tmp/e02-E-facade-test-d003-independent-20261007/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/independent-source/stdout.txt",
+      "source": {
+        "bytes": 3199,
+        "path": "/tmp/e02-E-facade-test-d003-independent-20261007/stdout.txt",
+        "sha256": "e5981e15b7fa993dafa58d47b1423c715081c1e05311ade4d703dd96bf00603d"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/independent-source/stderr.txt",
+      "source": {
+        "bytes": 0,
+        "path": "/tmp/e02-E-facade-test-d003-independent-20261007/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/independent-source/author-output-ref-readback.json",
+      "source": {
+        "bytes": 2111,
+        "path": "/tmp/e02-E-facade-test-d003-independent-20261007/author-output-ref-readback.json",
+        "sha256": "72cf297d98320b24aa627130354f733fc51853492f1148c45179804c9ca53a38"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/independent-old-source/publication-selection.json",
+      "source": {
+        "bytes": 1917,
+        "path": "/tmp/e02-E-facade-finite-bucket-independent-31782-20261007/publication-selection.json",
+        "sha256": "23c31b8ce77a4260e1f4d714959b6f1891f4e9cc843e5ad33ab8d0bdcce1b9c5"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/independent-old-source/review.json",
+      "source": {
+        "bytes": 10724,
+        "path": "/tmp/e02-E-facade-finite-bucket-independent-31782-20261007/review.json",
+        "sha256": "c0200a604c643d69c1fac2b043864d7570621e310a4887d9ceec40f324f2d2f0"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/independent-old-source/probe.py.txt",
+      "source": {
+        "bytes": 11374,
+        "path": "/tmp/e02-E-facade-finite-bucket-independent-31782-20261007/probe.py.txt",
+        "sha256": "b9c6949c549a7401da32457f4b205893cda829f4422d41cb117b7b8ac74ee8e7"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/independent-old-source/removed-function.py.txt",
+      "source": {
+        "bytes": 734,
+        "path": "/tmp/e02-E-facade-finite-bucket-independent-31782-20261007/removed-function.py.txt",
+        "sha256": "bc8a118ac76d2d4df0d1e9a2c4516a334122da6a26214665013707733559f52f"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/independent-old-source/commands.json",
+      "source": {
+        "bytes": 644,
+        "path": "/tmp/e02-E-facade-finite-bucket-independent-31782-20261007/commands.json",
+        "sha256": "ab18ab47aee717eb66c89332a9761150e07a350a095102813de05433661058cc"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/independent-old-source/stdout.txt",
+      "source": {
+        "bytes": 3064,
+        "path": "/tmp/e02-E-facade-finite-bucket-independent-31782-20261007/stdout.txt",
+        "sha256": "abef9ad736bdffc890ad196cc770c4657e4d1b0258c4e724a3b6696b3f7a8d19"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/independent-old-source/stderr.txt",
+      "source": {
+        "bytes": 0,
+        "path": "/tmp/e02-E-facade-finite-bucket-independent-31782-20261007/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/author/receipt.json",
+      "source": {
+        "bytes": 5621,
+        "path": "/tmp/e02-E-facade-test-companion-author-20261007/receipt.json",
+        "sha256": "16ad69b747f3cb1c0ce534594253ecfdf85e3e0608d81d33607a88da4e424724"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/author/implementation-source.json",
+      "source": {
+        "bytes": 341,
+        "path": "/tmp/e02-E-facade-test-companion-author-20261007/implementation-source.json",
+        "sha256": "345de4cca7822ce251d2b0f5b04ea5ce1f0925110a29320e691e0e9b122a98f5"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/author/commit.stdout.txt",
+      "source": {
+        "bytes": 170,
+        "path": "/tmp/e02-E-facade-test-companion-author-20261007/commit.stdout.txt",
+        "sha256": "93649fff7d4b38ac376b47ca98d747d2d896686a4f4a8bb814da585cbb63f153"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/author/commit.stderr.txt",
+      "source": {
+        "bytes": 653,
+        "path": "/tmp/e02-E-facade-test-companion-author-20261007/commit.stderr.txt",
+        "sha256": "8f5c0acbf1ea7f6e0200ce0fe983423fb38d76f278cefef05fc90a396902e359"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/author/format.stderr.txt",
+      "source": {
+        "bytes": 0,
+        "path": "/tmp/e02-E-facade-test-companion-author-20261007/format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/author/format.stdout.txt",
+      "source": {
+        "bytes": 25,
+        "path": "/tmp/e02-E-facade-test-companion-author-20261007/format.stdout.txt",
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/author/property.stderr.txt",
+      "source": {
+        "bytes": 0,
+        "path": "/tmp/e02-E-facade-test-companion-author-20261007/property.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/author/property.stdout.txt",
+      "source": {
+        "bytes": 80,
+        "path": "/tmp/e02-E-facade-test-companion-author-20261007/property.stdout.txt",
+        "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/author/property.xml",
+      "source": {
+        "bytes": 397,
+        "path": "/tmp/e02-E-facade-test-companion-author-20261007/property.xml",
+        "sha256": "2f104f7dbf7080c605188203fed31405080c388a64104eaead9eefa027b7ad1d"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/author/ruff.stderr.txt",
+      "source": {
+        "bytes": 0,
+        "path": "/tmp/e02-E-facade-test-companion-author-20261007/ruff.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/author/ruff.stdout.txt",
+      "source": {
+        "bytes": 19,
+        "path": "/tmp/e02-E-facade-test-companion-author-20261007/ruff.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      }
+    },
+    {
+      "publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/facade-finite-bucket-test/author/status-before.nul",
+      "source": {
+        "bytes": 243,
+        "path": "/tmp/e02-E-facade-test-companion-author-20261007/status-before.nul",
+        "sha256": "57a6636290942d3f941cc3041f658545a1915ca5eeea247cc337ba98d5a1e27f"
+      }
+    }
+  ],
+  "predicate_basis": {
+    "bucket_property": {
+      "basis": "independently_reconciled",
+      "explanation": "Independent Fraction oracle, public transformation and native Sobol rows; immutable d003 test detects bucket predicate removal and old float proxy."
+    },
+    "declared_mesh_convention": {
+      "basis": "consumer_asserted",
+      "explanation": "Already ratified finite-U mesh approximation; no exact arbitrary-real sampling promise."
+    },
+    "finding_closure": {
+      "basis": "not_established",
+      "explanation": "This test-only slice does not accept original findings on behalf of G."
+    },
+    "source_identity": {
+      "basis": "recomputed",
+      "explanation": "Exact base/candidate/tree and one-path Git diff."
+    }
+  },
+  "schema": "e02-independent-thin-DOC-custody-review:1",
+  "scope_limits": {
+    "G_c75_composition_type_source_fix": "pending",
+    "finding_closure": "not_established",
+    "new_source_or_numeric_execution": false,
+    "next_final_wave": "UNRUN",
+    "old_runtime_removal_and_fraction_proofs": "reused exact original bytes"
+  },
+  "sole_Counter_predicate_removal": {
+    "accepted_members": 29,
+    "change": "sole complete member Counter predicate skipped; all source/claims/known remaining bytes retained",
+    "complete_member_property": "FAIL",
+    "control_status": "PASS",
+    "required_members": 30
+  },
+  "source_candidate": "d0038a6e52867e820fd96f4706746ec501a80273",
+  "source_parent": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "typed_negative_controls": [
+    {
+      "error": "typed scoped metadata/source/outcome differs",
+      "name": "source_retagged_docSHA",
+      "status": "REFUSED"
+    },
+    {
+      "error": "typed scoped metadata/source/outcome differs",
+      "name": "historical9FAIL_erased",
+      "status": "REFUSED"
+    },
+    {
+      "error": "typed scoped metadata/source/outcome differs",
+      "name": "next_wave_promoted_PASS",
+      "status": "REFUSED"
+    },
+    {
+      "error": "typed literal source/ref member differs",
+      "name": "literal_source_digest_forged",
+      "status": "REFUSED"
+    },
+    {
+      "error": "typed literal source/ref member differs",
+      "name": "byte_count_bool",
+      "status": "REFUSED"
+    },
+    {
+      "error": "complete required member Counter differs",
+      "name": "complete_peer_asset_omitted",
+      "status": "REFUSED"
+    },
+    {
+      "error": "typed scoped metadata/source/outcome differs",
+      "name": "finding_authority_promoted",
+      "status": "REFUSED"
+    }
+  ]
+}

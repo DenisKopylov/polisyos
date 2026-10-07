@@ -1,0 +1,111 @@
+"""Read closed native receipts; qualify runtime binding without rerunning a gate."""
+import copy
+import hashlib
+import json
+import re
+import subprocess
+from pathlib import Path
+
+HERE = Path(__file__).parent
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+SOURCE = '31782b55f8f35556cfc581449b040c393f00c78f'
+BASE = 'b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4'
+PRIOR = Path('/tmp/e02-E-MC-b6-gates-20261007')
+SHA = re.compile(r'^sha256:[0-9a-f]{64}$')
+
+def ref(path):
+    raw = path.read_bytes()
+    return {'path': str(path), 'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest()}
+
+def plus_values(text, key):
+    pattern = rf'^\+\s+"{re.escape(key)}":\s+("[^"\n]+"|[0-9]+),?$'
+    values = [json.loads(value) for value in re.findall(pattern, text, re.M)]
+    if not values or len(set(values)) != 1:
+        raise ValueError('absent_or_ambiguous_native_' + key)
+    return values[0]
+
+def derive():
+    receipt_path = HERE / 'ci-parity/receipt.json'
+    receipt = json.loads(receipt_path.read_text())
+    text_path = HERE / 'ci-parity/stdout.txt'
+    text = text_path.read_text()
+    if receipt['stdout'] != ref(text_path):
+        raise ValueError('native_stdout_custody')
+    if receipt['source'] != SOURCE or receipt['exit_code'] != 1 or receipt['outcome'] != 'FAIL':
+        raise ValueError('native_source_or_outcome')
+    if receipt['source_immutable'] is not True or receipt['ROOT_environment_metadata_unchanged'] is not True:
+        raise ValueError('native_source_environment_changed')
+    current = {k: plus_values(text, k) for k in ['bound_dependency_count', 'bound_dependency_aggregate_identity', 'projection_hash', 'worker_validation_receipt_hash']}
+    previous = json.loads((PRIOR / 'ABI-emitter-source-qualification-v3.json').read_text())
+    unchanged_paths = ['policy-engine/src', 'policy-engine/tools', 'policy-engine/tests', 'policy-engine/schemas', 'policy-engine/architecture', 'policy-engine/pyproject.toml', 'policy-engine/uv.lock', 'policy-engine/package.json', 'policy-engine/pnpm-lock.yaml']
+    cmd = ['git', 'diff', '--name-status', '--find-renames', BASE, SOURCE, '--', *unchanged_paths]
+    delta = subprocess.run(cmd, cwd=ROOT, check=True, capture_output=True).stdout.decode()
+    if delta:
+        raise ValueError('underlying_source_delta')
+    sources = []
+    for p in ['policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py', 'policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py', 'policy-engine/src/polisyos/runtime/http/services/governed_projections.py']:
+        raw = subprocess.run(['git', 'show', SOURCE + ':' + p], cwd=ROOT, check=True, capture_output=True).stdout
+        prior = subprocess.run(['git', 'show', BASE + ':' + p], cwd=ROOT, check=True, capture_output=True).stdout
+        sources.append({'path': p, 'source': SOURCE, 'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest(), 'same_bytes_at_b6': raw == prior})
+    return {
+        'schema': 'policyos.e02.root_confidence_binding_qualification.v1',
+        'source': SOURCE, 'tree': receipt['tree'], 'prior_source': BASE,
+        'closed_native_receipt': ref(receipt_path), 'closed_native_stdout': ref(text_path),
+        'current_native_diff_values': current,
+        'prior_b6_complete_output': previous['current_native_render'],
+        'prior_b6_confidence_aggregate': previous['current_confidence_aggregate'],
+        'dependency_count_changed': False,
+        'aggregate_changed': current['bound_dependency_aggregate_identity'] != previous['current_confidence_aggregate'],
+        'underlying_source_comparison': {'command': cmd, 'stdout': delta, 'all_comparison_paths': unchanged_paths},
+        'binding_implementation_source': sources,
+        'binding_implementation_observation': 'DependencyTracker binds file byte hashes, directory entry name/kind maps and missing-path observations under the actual repository root, plus loaded module paths; equal product bytes do not establish equal dependency manifests.',
+        'dependency_manifest_delta_cause': 'not_established',
+        'current_complete_runtime_json_retained': False,
+        'current_complete_dependency_bindings_retained': False,
+        'qualification': 'Reuse prior model schemas/ABI/emitter source facts under actual byte equality; the b6 rendered JSON and confidence aggregate are historical and are not the fresh ROOT317 rendered output. Current doctor native FAIL/source/environment receipts and stdout diff are the deciding current facts. No parent or global gate PASS, fresh served consumer or P41 inheritance is established.',
+        'native_gate_rerun': False, 'finding_closure': False, 'P41': 'not_established',
+        'immutable_parent_packet': ref(HERE / 'current-parent-packet.json'),
+        'immutable_parent_selection': ref(HERE / 'publication-selection.json'),
+    }
+
+def admit(value):
+    expected = derive()
+    if value != expected:
+        raise ValueError('qualification_does_not_match_closed_native_inputs')
+    current = value['current_native_diff_values']
+    if type(current['bound_dependency_count']) is not int or current['bound_dependency_count'] != 1494:
+        raise ValueError('typed_native_count')
+    for key in ['bound_dependency_aggregate_identity', 'projection_hash', 'worker_validation_receipt_hash']:
+        if not isinstance(current[key], str) or not SHA.fullmatch(current[key]):
+            raise ValueError('typed_native_digest')
+    return True
+
+if __name__ == '__main__':
+    packet = derive()
+    admit(packet)
+    controls = [{'case': 'healthy_closed_native_qualification', 'outcome': 'PASS'}]
+    mutants = [
+        ('native_count_bool', lambda x: x['current_native_diff_values'].__setitem__('bound_dependency_count', True)),
+        ('raw_equality_claim', lambda x: x.__setitem__('aggregate_changed', False)),
+        ('invented_doc_cause', lambda x: x.__setitem__('dependency_manifest_delta_cause', 'new_DOC_utility')),
+        ('digest_old_value', lambda x: x['current_native_diff_values'].__setitem__('bound_dependency_aggregate_identity', x['prior_b6_confidence_aggregate'])),
+        ('invented_full_raw_capture', lambda x: x.__setitem__('current_complete_runtime_json_retained', True)),
+        ('native_outcome_rebrand', lambda x: x.__setitem__('finding_closure', True)),
+    ]
+    for name, mutate in mutants:
+        item = copy.deepcopy(packet); mutate(item)
+        try:
+            admit(item)
+        except ValueError as exc:
+            controls.append({'case': name, 'outcome': 'PASS', 'refusal': str(exc)})
+        else:
+            raise RuntimeError('false qualification admitted: ' + name)
+    for filename, data in [('runtime-binding-qualification-v1.json', packet), ('runtime-binding-qualification-controls-' + ('optimized' if not __debug__ else 'normal') + '.json', {'controls': controls, 'native_gate_rerun': False})]:
+        path = HERE / filename
+        if path.exists():
+            if json.loads(path.read_text()) != data:
+                raise FileExistsError(path)
+        else:
+            with path.open('x') as stream:
+                json.dump(data, stream, indent=2); stream.write('\n')
+    print(json.dumps({'controls': len(controls), 'outcome': 'PASS', 'native_gate_rerun': False}))

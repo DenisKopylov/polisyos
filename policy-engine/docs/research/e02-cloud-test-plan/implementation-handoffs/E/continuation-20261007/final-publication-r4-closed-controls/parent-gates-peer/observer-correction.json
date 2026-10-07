@@ -1,0 +1,11 @@
+{
+  "original_observer": "review.py.txt",
+  "original_normal_optimized": "ERROR; closed stdout diff contains both removed and added dependency counts. V1 extractor did not restrict to added lines. Native receipts unchanged.",
+  "corrective_observer": "review-v2.py.txt",
+  "added_native_diff_lines_only": true,
+  "source_native_marker_bytes_unchanged": true,
+  "source_scope": "read-only closed source31782 observer, parent source may now advance by authorized append",
+  "scientific_source_closure": false,
+  "native_rerun": false,
+  "live_ROOT_write": false
+}

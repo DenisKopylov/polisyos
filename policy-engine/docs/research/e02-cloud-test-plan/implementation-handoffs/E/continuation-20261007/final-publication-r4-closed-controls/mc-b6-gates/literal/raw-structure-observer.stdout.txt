@@ -1,0 +1,3 @@
+['mechanisms', 'regressions', 'unresolved_by_construction', 'new_unresolved_by_construction', 'indirect_boundaries', 'unresolved_receiver_calls', 'coverage', 'measured', 'unmeasured', 'summary', 'uninvoked_meaning', 'root_count', 'predicate_provenance', 'runtime_invocation_established', 'limitations', 'base', 'denominator']
+{'mechanisms': 13140, 'regressions': 20, 'unresolved_by_construction': 9243, 'new_unresolved_by_construction': 95, 'indirect_boundaries': 34683, 'unresolved_receiver_calls': 140192, 'unmeasured': 7, 'limitations': 4, 'denominator': 6}
+native regression first ['polisyos.ddm.integration.model_registry.build_model_registry_record']

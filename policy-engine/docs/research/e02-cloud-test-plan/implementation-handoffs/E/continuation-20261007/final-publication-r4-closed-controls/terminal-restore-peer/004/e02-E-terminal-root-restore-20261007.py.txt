@@ -1,0 +1,54 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import json,hashlib,subprocess,os,stat
+R=Path('/workspace/e02-E-continuation-20261006')
+O=Path('/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/observations/tracked-generated-input-drift-20261007T1259Z')
+D=Path('/tmp/e02-E-terminal-root-restore-20261007')
+HEAD='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+def now():return datetime.now(timezone.utc).isoformat()
+def git(*a):return subprocess.check_output(['git',*a],cwd=R)
+def ref(p):b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def demand(q,m):
+ if not q:raise ValueError(m)
+def pid_state(pid):
+ p=Path('/proc')/str(pid)
+ if not p.exists():return {'pid':pid,'exists':False}
+ return {'pid':pid,'exists':True,'stat':(p/'stat').read_text(),'cmdline':(p/'cmdline').read_bytes().replace(b'\0',b' ').decode(errors='replace')}
+demand(not D.exists(),'fresh receipt directory required');D.mkdir()
+start=now();ob=json.loads((O/'observation.json').read_text());rows=ob['rows'];expected={r['path'] for r in rows}
+demand(git('rev-parse','HEAD').decode().strip()==HEAD,'unexpected HEAD')
+demand(git('diff','--cached','--name-only')==b'','index changes unexpected')
+demand(set(git('diff','--name-only','-z').decode().split('\0')[:-1])==expected,'only exact observed29 paths may restore')
+pids=[pid_state(n) for n in [536903,536937,536940]]
+demand(all(not p['exists'] for p in pids),'native writer still exists')
+(D/'status-before.nul').write_bytes(git('status','--porcelain=v1','-z'))
+(D/'process-before.txt').write_bytes(subprocess.check_output(['ps','-eo','pid,ppid,etime,rss,args']))
+records=[]
+for row in rows:
+ p=R/row['path'];s=p.stat();b=p.read_bytes();old=git('show',f"{HEAD}:{row['path']}")
+ demand(p.is_file() and not p.is_symlink(),'unsupported root file type')
+ demand(hashlib.sha256(b).hexdigest()==row['current']['sha256'],'terminal bytes differ from observed current')
+ demand(hashlib.sha256(old).hexdigest()==row['head']['sha256'],'Git bytes differ from observed head')
+ key=hashlib.sha256(row['path'].encode()).hexdigest();c=D/(key+'.terminal.json');h=D/(key+'.git64d.json');c.write_bytes(b);h.write_bytes(old)
+ records.append({'path':row['path'],'terminal':ref(c),'git64d':ref(h),'mode':stat.S_IMODE(s.st_mode),'mtime_ns':s.st_mtime_ns,'terminal_matches_midrun':True})
+unique=[]
+for root in ['policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__','policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership']:
+ for p in sorted((R/root).rglob('*')):
+  if p.is_file():
+   rel=p.relative_to(R).as_posix();b=p.read_bytes();c=D/'unique'/rel;c.parent.mkdir(parents=True,exist_ok=True);c.write_bytes(b)
+   unique.append({'path':rel,'saved':ref(c),'original_preserved':True})
+# Recheck all bytes and actor absence before any root write.
+demand(all(not pid_state(n)['exists'] for n in [536903,536937,536940]),'native writer resumed')
+demand(git('rev-parse','HEAD').decode().strip()==HEAD,'HEAD changed')
+for row in records:demand(ref(R/row['path'])['sha256']==row['terminal']['sha256'],'changed after custody')
+for row in records:
+ p=R/row['path'];tmp=p.with_name(p.name+'.e02-restore-tmp');demand(not tmp.exists(),'unexpected restore temp');b=Path(row['git64d']['path']).read_bytes()
+ with tmp.open('xb') as f:f.write(b);f.flush();os.fsync(f.fileno())
+ os.chmod(tmp,row['mode']);os.replace(tmp,p)
+ row['restored']=ref(p);demand(row['restored']['sha256']==row['git64d']['sha256'],'restore verification failed')
+demand(git('diff','--name-only')==b'','tracked files remain modified')
+demand(git('rev-parse','HEAD').decode().strip()==HEAD,'HEAD moved during restore')
+(D/'status-after.nul').write_bytes(git('status','--porcelain=v1','-z'));(D/'process-after.txt').write_bytes(subprocess.check_output(['ps','-eo','pid,ppid,etime,rss,args']))
+for u in unique:demand(ref(R/u['path'])['sha256']==u['saved']['sha256'],'untracked useful data changed')
+j={'schema':'policyos.e02.terminal_generated_input_custody_and_byte_restore.v1','started_at':start,'completed_at':now(),'root':str(R),'branch':git('branch','--show-current').decode().strip(),'source':HEAD,'tree':git('rev-parse','HEAD^{tree}').decode().strip(),'source_git_HEAD_tree_changed':False,'tracked_root_clean_after':True,'exact29_terminal_equals_midrun':True,'observed_midrun':ref(O/'observation.json'),'native_writer_PID_states':pids,'restored_count':len(records),'rows':records,'unique_untracked_preserved':unique,'status_before':ref(D/'status-before.nul'),'status_after':ref(D/'status-after.nul'),'process_before':ref(D/'process-before.txt'),'process_after':ref(D/'process-after.txt'),'method':'Save original terminal/Git bodies; write only admitted29 generated JSON paths to exact immutable Git64d bytes via atomic file replacement. No Git reset/checkout/rebase/history rewrite.','historical_full_input_immutability':False,'native_outcome':'FAIL','native_exit_code':137,'native_JUnit_counts':None,'native_full_scope_completion_established':False,'native_caller_attribution':'not_established','global_quiescence_claimed':False,'restoration_does_not_retroactively_validate_native_run':True}
+p=D/'receipt.json';p.write_text(json.dumps(j,indent=2)+'\n');print(json.dumps({'receipt':ref(p),'restored':len(records),'unique_preserved':len(unique),'tracked_clean':True},indent=2))

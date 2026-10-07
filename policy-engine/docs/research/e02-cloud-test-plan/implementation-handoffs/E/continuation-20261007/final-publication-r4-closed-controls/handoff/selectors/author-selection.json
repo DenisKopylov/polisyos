@@ -1,0 +1,3190 @@
+{
+  "schema": "policyos.e02.closed_control_author_deciding_selection.v1",
+  "source_candidate": "c229fe8c0cc31c910de2bd2dc0e84e30be87da2c",
+  "source_tree": "7f2589243b91633d10903ea9818c93f0757b3344",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/implementation-footprint-c229.json",
+      "portable_path": "author/implementation-footprint-c229.json",
+      "bytes": 202347,
+      "sha256": "4dfe1ac8c8e3bf9a641771d479254ab227af2d9c590087a839a5366ac5555044",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/implementation-footprint-c229.json",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/implementation-footprint-final.json",
+      "portable_path": "author/implementation-footprint-final.json",
+      "bytes": 202212,
+      "sha256": "07b266b65c536372dd9948e4f93044419e0a25e458c36ca55778f83b02a52c9a",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/implementation-footprint-final.json",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/implementation-footprint.json",
+      "portable_path": "author/implementation-footprint.json",
+      "bytes": 199286,
+      "sha256": "6354c6e3f659121dce588dfbff123f230366ec2816ca56645e9f72701171ae7c",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/implementation-footprint.json",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/ignored-selected-originals-correction.json",
+      "portable_path": "author/ignored-selected-originals-correction.json",
+      "bytes": 2082,
+      "sha256": "7aa20317b5a5c355f6342de1082040d64952f8dea34bc0dfdbebc6fbeb487ad8",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/ignored-selected-originals-correction.json",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/implementation-copy.stdout.json",
+      "portable_path": "author/implementation-copy.stdout.json",
+      "bytes": 535,
+      "sha256": "c89bf2c4646f6c9aecb832ee4f5b505c677cdd3e86911c763b741e9ef6a8912a",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/implementation-copy.stdout.json",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/implementation-copy.stderr.txt",
+      "portable_path": "author/implementation-copy.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/implementation-commit.stdout.txt",
+      "portable_path": "author/implementation-commit.stdout.txt",
+      "bytes": 110110,
+      "sha256": "1a74dcf961ba89fd83fb61b95eeed387763a99210bdd540f36449fafaf8a0fcc",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/implementation-commit.stdout.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/implementation-commit.stderr.txt",
+      "portable_path": "author/implementation-commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "9c479493f065198f47c3ef4ba93765c90d5615c050e84dbaa736b2bf10f1588c",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/implementation-commit.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/implementation-correction-commit.stdout.txt",
+      "portable_path": "author/implementation-correction-commit.stdout.txt",
+      "bytes": 1752,
+      "sha256": "7a55879a18e560f5d98a9ed77f42ad2fd380dda53ba448118621e33b84ea8e81",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/implementation-correction-commit.stdout.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/implementation-correction-commit.stderr.txt",
+      "portable_path": "author/implementation-correction-commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "e8a9b5a4192be897cd5050d592717e238ab08b2b7c66416905c2616f3401515b",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/implementation-correction-commit.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/layout-implementation-commit.stdout.txt",
+      "portable_path": "author/layout-implementation-commit.stdout.txt",
+      "bytes": 155,
+      "sha256": "585a7ad5c1d5a542f645d88a921e0c11e3398901d5cfeb6900ccb28be2208fab",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/layout-implementation-commit.stdout.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/layout-implementation-commit.stderr.txt",
+      "portable_path": "author/layout-implementation-commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "02dca7419390816174ef6e4cd4eecbc814543064fa16040f2c13b982c89de200",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/layout-implementation-commit.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/build-execution.stdout.json",
+      "portable_path": "author/build-execution.stdout.json",
+      "bytes": 1096,
+      "sha256": "bcab6bb88b15130aa59f75853f6e8304b0f858e5f75daba90ec759b6ead70565",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/build-execution.stdout.json",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/build-execution.stderr.txt",
+      "portable_path": "author/build-execution.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/build-first-source-role-error.stderr.txt",
+      "portable_path": "author/build-first-source-role-error.stderr.txt",
+      "bytes": 662,
+      "sha256": "8de3840a7b8c424bdbe49c54933a1b0f470e5457e1f540ffb1c77df1a4864ec6",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/build-first-source-role-error.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/build-second-alias-role-error.stderr.txt",
+      "portable_path": "author/build-second-alias-role-error.stderr.txt",
+      "bytes": 481,
+      "sha256": "d23c294e5d292e67475e9828a90d36dcbe46dfdb7169bbe3538c7d5c8aaee073",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/build-second-alias-role-error.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/controls-first-readback-shape-normal.stderr.txt",
+      "portable_path": "author/controls-first-readback-shape-normal.stderr.txt",
+      "bytes": 313,
+      "sha256": "f3132c4d8e15c41ac65b024cd6c8f9db5ebce3c66e6635e08756eac9f7eee031",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/controls-first-readback-shape-normal.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/controls-first-readback-shape-optimized.stderr.txt",
+      "portable_path": "author/controls-first-readback-shape-optimized.stderr.txt",
+      "bytes": 313,
+      "sha256": "f3132c4d8e15c41ac65b024cd6c8f9db5ebce3c66e6635e08756eac9f7eee031",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/controls-first-readback-shape-normal.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/controls-second-nameerror-normal.stderr.txt",
+      "portable_path": "author/controls-second-nameerror-normal.stderr.txt",
+      "bytes": 251,
+      "sha256": "422ec2b3a18dc9b547f7c9d5eea654bd47991adef99881c48ebea90d2f56fdca",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/controls-second-nameerror-normal.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/controls-second-nameerror-optimized.stderr.txt",
+      "portable_path": "author/controls-second-nameerror-optimized.stderr.txt",
+      "bytes": 251,
+      "sha256": "422ec2b3a18dc9b547f7c9d5eea654bd47991adef99881c48ebea90d2f56fdca",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/controls-second-nameerror-normal.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/run-custody-controls-first-nameerror.py.txt",
+      "portable_path": "author/run-custody-controls-first-nameerror.py.txt",
+      "bytes": 8085,
+      "sha256": "816c44b68d619a29cacec98bb6cf138d4629a574d29f92bdf9fc6c2d60b78494",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/run-custody-controls-first-nameerror.py.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/run-custody-controls-pre-layout.py.txt",
+      "portable_path": "author/run-custody-controls-pre-layout.py.txt",
+      "bytes": 8084,
+      "sha256": "30fdd198477e26004ddf00ea0432736ebb46256843226e446e4abffb25848440",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/run-custody-controls-pre-layout.py.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/run-custody-controls.py.txt",
+      "portable_path": "author/run-custody-controls.py.txt",
+      "bytes": 8103,
+      "sha256": "b7dc15fdfc6248594e3dd5d8cf14b9736ce9e93ce1458c8d128b6e130c2f63b9",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/run-custody-controls.py.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/run-Git-layout-controls.py.txt",
+      "portable_path": "author/run-Git-layout-controls.py.txt",
+      "bytes": 4149,
+      "sha256": "db768a94bb013aeed1797beaa4dd2264d06ac106c470ccb7f256fb453296945d",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/run-Git-layout-controls.py.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/layout-controls-normal.stdout.json",
+      "portable_path": "author/layout-controls-normal.stdout.json",
+      "bytes": 144,
+      "sha256": "98d95576c2e62715b154e735bc555168d7b799bbd56c1ed6f933885d70ef3936",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/layout-controls-normal.stdout.json",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/layout-controls-normal.stderr.txt",
+      "portable_path": "author/layout-controls-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/layout-controls-optimized.stdout.json",
+      "portable_path": "author/layout-controls-optimized.stdout.json",
+      "bytes": 147,
+      "sha256": "73b9f325d5f4149fdb944ec4527ef4839536348da01a92918da3bd5cb2efd7c8",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/layout-controls-optimized.stdout.json",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/layout-controls-optimized.stderr.txt",
+      "portable_path": "author/layout-controls-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/Git-layout-normal.stdout.json",
+      "portable_path": "author/Git-layout-normal.stdout.json",
+      "bytes": 133,
+      "sha256": "ace45dc243bb3e7f96871f55da2101f909931c85bbaba48c69cc5a52053179a9",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/Git-layout-normal.stdout.json",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/Git-layout-normal.stderr.txt",
+      "portable_path": "author/Git-layout-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/Git-layout-optimized.stdout.json",
+      "portable_path": "author/Git-layout-optimized.stdout.json",
+      "bytes": 136,
+      "sha256": "edb6908488bed03a09a96eb50ffd640fa0075f6175d8cd12211c7f5f1583cff3",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/Git-layout-optimized.stdout.json",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/Git-layout-optimized.stderr.txt",
+      "portable_path": "author/Git-layout-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal author deciding output or explicitly historical observer/correction; no scientific rerun",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/Counter-removal.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/Counter-removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/Counter-removal.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/Counter-removal.stdout.txt",
+      "bytes": 579,
+      "sha256": "70f0d5636618184b84bd667a06cabbea5e93596166ace97e03e7002c05987a25",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/Counter-removal.stdout.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/alias-count.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/alias-count.stderr.txt",
+      "bytes": 547,
+      "sha256": "e9527dd27a680bb60e049ed32c06cf52463efcd01c38295bbcb99cac01dde228",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/alias-count.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/alias-count.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/alias-count.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/carrier-count.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/carrier-count.stderr.txt",
+      "bytes": 547,
+      "sha256": "e9527dd27a680bb60e049ed32c06cf52463efcd01c38295bbcb99cac01dde228",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/carrier-count.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/carrier-count.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/carrier-path.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/carrier-path.stderr.txt",
+      "bytes": 734,
+      "sha256": "a5fbca9aef3df4d1c10cd55546a9a56147b9e743f6967840ee79f7c9b0f2e835",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/carrier-path.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/carrier-path.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/carrier-path.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/fake-build-stage-py-txt.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/fake-build-stage-py-txt.stderr.txt",
+      "bytes": 400,
+      "sha256": "afcc25096ce6ac4ccad96fec82687a2e820807dc92487bbbdcdcd127b33a578e",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/fake-build-stage-py-txt.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/fake-build-stage-py-txt.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/fake-build-stage-py-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/fake-compressed-carrier.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/fake-compressed-carrier.stderr.txt",
+      "bytes": 750,
+      "sha256": "f18d7fc6442d027cec5f77a5b9db061dcdba17c860625e835bd8e7238873d04f",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/fake-compressed-carrier.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/fake-compressed-carrier.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/fake-compressed-carrier.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/fake-copy-closed-controls-py-txt.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/fake-copy-closed-controls-py-txt.stderr.txt",
+      "bytes": 382,
+      "sha256": "c7dee2214079fbb3950c1458859064df798bcb71ae1cbdbc7d2dce85be432ae4",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/fake-copy-closed-controls-py-txt.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/fake-copy-closed-controls-py-txt.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/fake-copy-closed-controls-py-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/fake-qualification-json.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/fake-qualification-json.stderr.txt",
+      "bytes": 400,
+      "sha256": "afcc25096ce6ac4ccad96fec82687a2e820807dc92487bbbdcdcd127b33a578e",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/fake-build-stage-py-txt.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/fake-qualification-json.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/fake-qualification-json.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/fake-resume-admission-json.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/fake-resume-admission-json.stderr.txt",
+      "bytes": 400,
+      "sha256": "afcc25096ce6ac4ccad96fec82687a2e820807dc92487bbbdcdcd127b33a578e",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/fake-build-stage-py-txt.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/fake-resume-admission-json.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/fake-resume-admission-json.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/header-int-bool.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/header-int-bool.stderr.txt",
+      "bytes": 565,
+      "sha256": "dd0c69f21fd40b302472608b3c47a31a422d3c2f02f2d16a12ff54fbfdaf1aa7",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/header-int-bool.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/header-int-bool.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/header-int-bool.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/healthy.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/healthy.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/healthy.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/healthy.stdout.txt",
+      "bytes": 571,
+      "sha256": "c28fdeb574e707931941643a98088efe6b171ff9699b699025dacce409a099d6",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/healthy.stdout.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/logical-bytes.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/logical-bytes.stderr.txt",
+      "bytes": 547,
+      "sha256": "e9527dd27a680bb60e049ed32c06cf52463efcd01c38295bbcb99cac01dde228",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/logical-bytes.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/logical-bytes.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/logical-count-bool.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/logical-count-bool.stderr.txt",
+      "bytes": 547,
+      "sha256": "e9527dd27a680bb60e049ed32c06cf52463efcd01c38295bbcb99cac01dde228",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/logical-count-bool.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/logical-count-bool.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/logical-count.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/logical-count.stderr.txt",
+      "bytes": 547,
+      "sha256": "e9527dd27a680bb60e049ed32c06cf52463efcd01c38295bbcb99cac01dde228",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/logical-count.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/logical-count.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/member-missing.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/member-missing.stderr.txt",
+      "bytes": 547,
+      "sha256": "e23b6e256421afe0c37065c088e3dde866088b435adb276fbc57e70e202c860c",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/member-missing.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/member-missing.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/member-missing.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/member-role.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/member-role.stderr.txt",
+      "bytes": 547,
+      "sha256": "e23b6e256421afe0c37065c088e3dde866088b435adb276fbc57e70e202c860c",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/member-missing.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/member-role.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/member-role.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/member-source.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/member-source.stderr.txt",
+      "bytes": 547,
+      "sha256": "e23b6e256421afe0c37065c088e3dde866088b435adb276fbc57e70e202c860c",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/member-missing.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/member-source.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/member-source.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/missing-README-md.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/missing-README-md.stderr.txt",
+      "bytes": 947,
+      "sha256": "ff24f1c4ecbc8e5d1675793b9c54bc92976b344f06c9fb2bfc33c2fc27a4a6bb",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/missing-README-md.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/missing-README-md.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/missing-README-md.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/missing-copy-closed-controls-py-txt.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/missing-copy-closed-controls-py-txt.stderr.txt",
+      "bytes": 965,
+      "sha256": "5fe3cd42530caffad1f36e41590085cb8aea6a28b9883e2c699eba67ae647dd0",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/missing-copy-closed-controls-py-txt.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/missing-copy-closed-controls-py-txt.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/missing-copy-closed-controls-py-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/omitted-mandatory-reconciled-counts.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/omitted-mandatory-reconciled-counts.stderr.txt",
+      "bytes": 547,
+      "sha256": "e23b6e256421afe0c37065c088e3dde866088b435adb276fbc57e70e202c860c",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/member-missing.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/omitted-mandatory-reconciled-counts.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/omitted-mandatory-reconciled-counts.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/qualification-JUnit.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/qualification-JUnit.stderr.txt",
+      "bytes": 563,
+      "sha256": "39cc0beb640d5f2ef0d9cc79dc0dc033ea9ffdc8bf4db16d7b1b821e8d2cee39",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/qualification-JUnit.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/qualification-JUnit.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/qualification-JUnit.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/qualification-ROOT.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/qualification-ROOT.stderr.txt",
+      "bytes": 563,
+      "sha256": "39cc0beb640d5f2ef0d9cc79dc0dc033ea9ffdc8bf4db16d7b1b821e8d2cee39",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/qualification-JUnit.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/qualification-ROOT.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/qualification-ROOT.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/qualification-gate.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/qualification-gate.stderr.txt",
+      "bytes": 563,
+      "sha256": "39cc0beb640d5f2ef0d9cc79dc0dc033ea9ffdc8bf4db16d7b1b821e8d2cee39",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/qualification-JUnit.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/qualification-gate.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/qualification-gate.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/removed-Counter.py.txt",
+      "portable_path": "final-moderate-controls-v3/normal/removed-Counter.py.txt",
+      "bytes": 26275,
+      "sha256": "710548af47c0cf388901575536b7bf676eb9b5785686bdf245f4bd60e66cceb8",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/removed-Counter.py.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/review.json",
+      "portable_path": "final-moderate-controls-v3/normal/review.json",
+      "bytes": 23740,
+      "sha256": "6c44d6a0e7c1c17de48fb37e0d7a61ed92bdf64e22fb1dd2590b6d7a0600f982",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/review.json",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/selector-digest.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/selector-digest.stderr.txt",
+      "bytes": 541,
+      "sha256": "d038e3a4ae085dfe042778a3b8ed1516e31e106ed887e05bce514946da36f9d2",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/selector-digest.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/selector-digest.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/selector-digest.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/selector-vector.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/selector-vector.stderr.txt",
+      "bytes": 541,
+      "sha256": "d038e3a4ae085dfe042778a3b8ed1516e31e106ed887e05bce514946da36f9d2",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/selector-digest.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/selector-vector.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/selector-vector.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/source-head.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/source-head.stderr.txt",
+      "bytes": 565,
+      "sha256": "dd0c69f21fd40b302472608b3c47a31a422d3c2f02f2d16a12ff54fbfdaf1aa7",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/header-int-bool.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/source-head.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/source-head.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/source-native-flag.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/source-native-flag.stderr.txt",
+      "bytes": 565,
+      "sha256": "dd0c69f21fd40b302472608b3c47a31a422d3c2f02f2d16a12ff54fbfdaf1aa7",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/header-int-bool.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/source-native-flag.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/source-native-flag.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/stored-bytes.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/stored-bytes.stderr.txt",
+      "bytes": 547,
+      "sha256": "e9527dd27a680bb60e049ed32c06cf52463efcd01c38295bbcb99cac01dde228",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/stored-bytes.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/stored-bytes.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/Counter-removal.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/Counter-removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/Counter-removal.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/Counter-removal.stdout.txt",
+      "bytes": 582,
+      "sha256": "a1d7b30694387303bc99b9a1c69dbbf75ab5089762632626a562c3d9c2775cfc",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/optimized/Counter-removal.stdout.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/alias-count.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/alias-count.stderr.txt",
+      "bytes": 547,
+      "sha256": "e9527dd27a680bb60e049ed32c06cf52463efcd01c38295bbcb99cac01dde228",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/alias-count.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/alias-count.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/carrier-count.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/carrier-count.stderr.txt",
+      "bytes": 547,
+      "sha256": "e9527dd27a680bb60e049ed32c06cf52463efcd01c38295bbcb99cac01dde228",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/carrier-count.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/carrier-count.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/carrier-path.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/carrier-path.stderr.txt",
+      "bytes": 734,
+      "sha256": "a5fbca9aef3df4d1c10cd55546a9a56147b9e743f6967840ee79f7c9b0f2e835",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/carrier-path.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/carrier-path.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/carrier-path.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/fake-build-stage-py-txt.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/fake-build-stage-py-txt.stderr.txt",
+      "bytes": 400,
+      "sha256": "afcc25096ce6ac4ccad96fec82687a2e820807dc92487bbbdcdcd127b33a578e",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/fake-build-stage-py-txt.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/fake-build-stage-py-txt.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/fake-build-stage-py-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/fake-compressed-carrier.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/fake-compressed-carrier.stderr.txt",
+      "bytes": 750,
+      "sha256": "f18d7fc6442d027cec5f77a5b9db061dcdba17c860625e835bd8e7238873d04f",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/fake-compressed-carrier.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/fake-compressed-carrier.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/fake-compressed-carrier.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/fake-copy-closed-controls-py-txt.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/fake-copy-closed-controls-py-txt.stderr.txt",
+      "bytes": 382,
+      "sha256": "c7dee2214079fbb3950c1458859064df798bcb71ae1cbdbc7d2dce85be432ae4",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/fake-copy-closed-controls-py-txt.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/fake-copy-closed-controls-py-txt.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/fake-copy-closed-controls-py-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/fake-qualification-json.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/fake-qualification-json.stderr.txt",
+      "bytes": 400,
+      "sha256": "afcc25096ce6ac4ccad96fec82687a2e820807dc92487bbbdcdcd127b33a578e",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/fake-build-stage-py-txt.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/fake-qualification-json.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/fake-qualification-json.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/fake-resume-admission-json.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/fake-resume-admission-json.stderr.txt",
+      "bytes": 400,
+      "sha256": "afcc25096ce6ac4ccad96fec82687a2e820807dc92487bbbdcdcd127b33a578e",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/fake-build-stage-py-txt.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/fake-resume-admission-json.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/fake-resume-admission-json.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/header-int-bool.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/header-int-bool.stderr.txt",
+      "bytes": 565,
+      "sha256": "dd0c69f21fd40b302472608b3c47a31a422d3c2f02f2d16a12ff54fbfdaf1aa7",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/header-int-bool.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/header-int-bool.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/header-int-bool.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/healthy.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/healthy.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/healthy.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/healthy.stdout.txt",
+      "bytes": 574,
+      "sha256": "ef5dca7e817c87d809e20b6202fef8fbf68dfd177ab340ba3fa293026ca51888",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/optimized/healthy.stdout.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/logical-bytes.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/logical-bytes.stderr.txt",
+      "bytes": 547,
+      "sha256": "e9527dd27a680bb60e049ed32c06cf52463efcd01c38295bbcb99cac01dde228",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/logical-bytes.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/logical-bytes.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/logical-count-bool.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/logical-count-bool.stderr.txt",
+      "bytes": 547,
+      "sha256": "e9527dd27a680bb60e049ed32c06cf52463efcd01c38295bbcb99cac01dde228",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/logical-count-bool.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/logical-count-bool.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/logical-count.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/logical-count.stderr.txt",
+      "bytes": 547,
+      "sha256": "e9527dd27a680bb60e049ed32c06cf52463efcd01c38295bbcb99cac01dde228",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/logical-count.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/logical-count.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/member-missing.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/member-missing.stderr.txt",
+      "bytes": 547,
+      "sha256": "e23b6e256421afe0c37065c088e3dde866088b435adb276fbc57e70e202c860c",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/member-missing.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/member-missing.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/member-missing.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/member-role.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/member-role.stderr.txt",
+      "bytes": 547,
+      "sha256": "e23b6e256421afe0c37065c088e3dde866088b435adb276fbc57e70e202c860c",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/member-missing.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/member-role.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/member-role.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/member-source.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/member-source.stderr.txt",
+      "bytes": 547,
+      "sha256": "e23b6e256421afe0c37065c088e3dde866088b435adb276fbc57e70e202c860c",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/member-missing.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/member-source.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/member-source.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/missing-README-md.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/missing-README-md.stderr.txt",
+      "bytes": 950,
+      "sha256": "ae8e3354084f2e6400ecc64cf464edb184ae3fb491d804e565a3eb942bb738b6",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/optimized/missing-README-md.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/missing-README-md.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/missing-README-md.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/missing-copy-closed-controls-py-txt.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/missing-copy-closed-controls-py-txt.stderr.txt",
+      "bytes": 968,
+      "sha256": "577bf43efe49c83ef4bb2b8e7ed1b794d1a7b568e3d9a03c828fb90ce7dff56b",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/optimized/missing-copy-closed-controls-py-txt.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/missing-copy-closed-controls-py-txt.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/missing-copy-closed-controls-py-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/omitted-mandatory-reconciled-counts.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/omitted-mandatory-reconciled-counts.stderr.txt",
+      "bytes": 547,
+      "sha256": "e23b6e256421afe0c37065c088e3dde866088b435adb276fbc57e70e202c860c",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/member-missing.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/omitted-mandatory-reconciled-counts.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/omitted-mandatory-reconciled-counts.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/qualification-JUnit.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/qualification-JUnit.stderr.txt",
+      "bytes": 563,
+      "sha256": "39cc0beb640d5f2ef0d9cc79dc0dc033ea9ffdc8bf4db16d7b1b821e8d2cee39",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/qualification-JUnit.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/qualification-JUnit.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/qualification-JUnit.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/qualification-ROOT.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/qualification-ROOT.stderr.txt",
+      "bytes": 563,
+      "sha256": "39cc0beb640d5f2ef0d9cc79dc0dc033ea9ffdc8bf4db16d7b1b821e8d2cee39",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/qualification-JUnit.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/qualification-ROOT.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/qualification-ROOT.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/qualification-gate.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/qualification-gate.stderr.txt",
+      "bytes": 563,
+      "sha256": "39cc0beb640d5f2ef0d9cc79dc0dc033ea9ffdc8bf4db16d7b1b821e8d2cee39",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/qualification-JUnit.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/qualification-gate.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/qualification-gate.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/removed-Counter.py.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/removed-Counter.py.txt",
+      "bytes": 26275,
+      "sha256": "710548af47c0cf388901575536b7bf676eb9b5785686bdf245f4bd60e66cceb8",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/removed-Counter.py.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/review.json",
+      "portable_path": "final-moderate-controls-v3/optimized/review.json",
+      "bytes": 24306,
+      "sha256": "97a957a177043f6e6bc40b03e9912154d181ef49c59592ff2ef4dd30f6595bcc",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/optimized/review.json",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/selector-digest.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/selector-digest.stderr.txt",
+      "bytes": 541,
+      "sha256": "d038e3a4ae085dfe042778a3b8ed1516e31e106ed887e05bce514946da36f9d2",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/selector-digest.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/selector-digest.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/selector-digest.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/selector-vector.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/selector-vector.stderr.txt",
+      "bytes": 541,
+      "sha256": "d038e3a4ae085dfe042778a3b8ed1516e31e106ed887e05bce514946da36f9d2",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/selector-digest.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/selector-vector.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/selector-vector.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/source-head.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/source-head.stderr.txt",
+      "bytes": 565,
+      "sha256": "dd0c69f21fd40b302472608b3c47a31a422d3c2f02f2d16a12ff54fbfdaf1aa7",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/header-int-bool.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/source-head.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/source-head.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/source-native-flag.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/source-native-flag.stderr.txt",
+      "bytes": 565,
+      "sha256": "dd0c69f21fd40b302472608b3c47a31a422d3c2f02f2d16a12ff54fbfdaf1aa7",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/header-int-bool.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/source-native-flag.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/source-native-flag.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/stored-bytes.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/stored-bytes.stderr.txt",
+      "bytes": 547,
+      "sha256": "e9527dd27a680bb60e049ed32c06cf52463efcd01c38295bbcb99cac01dde228",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "final-moderate-controls-v3/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/stored-bytes.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/stored-bytes.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "historical pre-layout current byte controls",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/Counter-removal.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/Counter-removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/Counter-removal.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/Counter-removal.stdout.txt",
+      "bytes": 617,
+      "sha256": "103f091a64afe5b919fbabce437ed7c804f05947036901328c66a4aea437cd63",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/Counter-removal.stdout.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/alias-count.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/alias-count.stderr.txt",
+      "bytes": 573,
+      "sha256": "2c2df8db6d9f137acdb6d6d7815e89ac1fed0cd37dec4418be35568a4dc63b1c",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/alias-count.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/alias-count.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/alias-count.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/carrier-count.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/carrier-count.stderr.txt",
+      "bytes": 573,
+      "sha256": "2c2df8db6d9f137acdb6d6d7815e89ac1fed0cd37dec4418be35568a4dc63b1c",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/carrier-count.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/carrier-count.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/carrier-path.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/carrier-path.stderr.txt",
+      "bytes": 780,
+      "sha256": "a26559a84c51e448f63291c0ecd3cb92559e84e9e90ede4426849e2f60b11f07",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/carrier-path.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/carrier-path.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/carrier-path.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/fake-build-stage-py-txt.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/fake-build-stage-py-txt.stderr.txt",
+      "bytes": 400,
+      "sha256": "cd824969cedcafcb8a918eb65861630e12bc4436ef48e2f0a0b5b5811c24edc5",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/fake-build-stage-py-txt.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/fake-build-stage-py-txt.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/fake-build-stage-py-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/fake-compressed-carrier.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/fake-compressed-carrier.stderr.txt",
+      "bytes": 804,
+      "sha256": "5d6e2249c069a967edbd6bceed87a99adccaf00fe267e448a70c980e7106d341",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/fake-compressed-carrier.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/fake-compressed-carrier.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/fake-compressed-carrier.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/fake-copy-closed-controls-py-txt.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/fake-copy-closed-controls-py-txt.stderr.txt",
+      "bytes": 382,
+      "sha256": "aefc8a442c4207f20664dda01f42cb301cea1d1ad67c96fdaf57d12b1b6ee3ec",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/fake-copy-closed-controls-py-txt.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/fake-copy-closed-controls-py-txt.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/fake-copy-closed-controls-py-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/fake-qualification-json.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/fake-qualification-json.stderr.txt",
+      "bytes": 400,
+      "sha256": "cd824969cedcafcb8a918eb65861630e12bc4436ef48e2f0a0b5b5811c24edc5",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/fake-build-stage-py-txt.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/fake-qualification-json.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/fake-qualification-json.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/fake-resume-admission-json.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/fake-resume-admission-json.stderr.txt",
+      "bytes": 400,
+      "sha256": "cd824969cedcafcb8a918eb65861630e12bc4436ef48e2f0a0b5b5811c24edc5",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/fake-build-stage-py-txt.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/fake-resume-admission-json.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/fake-resume-admission-json.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/header-int-bool.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/header-int-bool.stderr.txt",
+      "bytes": 591,
+      "sha256": "5653e0fe9871ea6c972ae81324bda13ec07049b69688dd248356f07cf5d0a304",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/header-int-bool.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/header-int-bool.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/header-int-bool.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/healthy.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/healthy.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/healthy.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/healthy.stdout.txt",
+      "bytes": 609,
+      "sha256": "4fbdc4d7a0183827335ae61dfe85fa3b5f6b4a914eff4e0f0a03c6730ddc24b2",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/healthy.stdout.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/logical-bytes.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/logical-bytes.stderr.txt",
+      "bytes": 573,
+      "sha256": "2c2df8db6d9f137acdb6d6d7815e89ac1fed0cd37dec4418be35568a4dc63b1c",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/logical-bytes.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/logical-bytes.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/logical-count-bool.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/logical-count-bool.stderr.txt",
+      "bytes": 573,
+      "sha256": "2c2df8db6d9f137acdb6d6d7815e89ac1fed0cd37dec4418be35568a4dc63b1c",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/logical-count-bool.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/logical-count-bool.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/logical-count.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/logical-count.stderr.txt",
+      "bytes": 573,
+      "sha256": "2c2df8db6d9f137acdb6d6d7815e89ac1fed0cd37dec4418be35568a4dc63b1c",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/logical-count.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/logical-count.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/member-missing.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/member-missing.stderr.txt",
+      "bytes": 573,
+      "sha256": "b026480a82aba0a7af140611c27c7f07e850ddfe7f9e1fc22ed6b49791cf8c0f",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/member-missing.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/member-missing.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/member-missing.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/member-role.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/member-role.stderr.txt",
+      "bytes": 573,
+      "sha256": "b026480a82aba0a7af140611c27c7f07e850ddfe7f9e1fc22ed6b49791cf8c0f",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/member-missing.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/member-role.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/member-role.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/member-source.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/member-source.stderr.txt",
+      "bytes": 573,
+      "sha256": "b026480a82aba0a7af140611c27c7f07e850ddfe7f9e1fc22ed6b49791cf8c0f",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/member-missing.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/member-source.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/member-source.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/missing-README-md.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/missing-README-md.stderr.txt",
+      "bytes": 947,
+      "sha256": "271c55ed4411cf4c797e2fecf3e1d4ff527b25784d49260a2883f9fb4f6a18ac",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/missing-README-md.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/missing-README-md.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/missing-README-md.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/missing-copy-closed-controls-py-txt.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/missing-copy-closed-controls-py-txt.stderr.txt",
+      "bytes": 965,
+      "sha256": "74452eb5b3ffb15fb5d5a0ad564e4fd480cc71353491986d6731712108f84362",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/missing-copy-closed-controls-py-txt.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/missing-copy-closed-controls-py-txt.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/missing-copy-closed-controls-py-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/omitted-mandatory-reconciled-counts.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/omitted-mandatory-reconciled-counts.stderr.txt",
+      "bytes": 573,
+      "sha256": "b026480a82aba0a7af140611c27c7f07e850ddfe7f9e1fc22ed6b49791cf8c0f",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/member-missing.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/omitted-mandatory-reconciled-counts.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/omitted-mandatory-reconciled-counts.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/qualification-JUnit.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/qualification-JUnit.stderr.txt",
+      "bytes": 589,
+      "sha256": "bdd0ed16e237412497a3bb59eae66187bc4fb2843ffb718db13246c87a546418",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/qualification-JUnit.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/qualification-JUnit.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/qualification-JUnit.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/qualification-ROOT.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/qualification-ROOT.stderr.txt",
+      "bytes": 589,
+      "sha256": "bdd0ed16e237412497a3bb59eae66187bc4fb2843ffb718db13246c87a546418",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/qualification-JUnit.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/qualification-ROOT.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/qualification-ROOT.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/qualification-gate.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/qualification-gate.stderr.txt",
+      "bytes": 589,
+      "sha256": "bdd0ed16e237412497a3bb59eae66187bc4fb2843ffb718db13246c87a546418",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/qualification-JUnit.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/qualification-gate.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/qualification-gate.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/removed-Counter.py.txt",
+      "portable_path": "final-moderate-controls-v4/normal/removed-Counter.py.txt",
+      "bytes": 27471,
+      "sha256": "7d854cdc29417e51ae072fc447607f0b6a726d891da2253dca44047bfc4bc622",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/removed-Counter.py.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/review.json",
+      "portable_path": "final-moderate-controls-v4/normal/review.json",
+      "bytes": 24776,
+      "sha256": "2cdddd0eeb3dc1c5304bb4f516d15a392fa92e1193cca22f0879e6436ae0fc8c",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/review.json",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/selector-digest.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/selector-digest.stderr.txt",
+      "bytes": 567,
+      "sha256": "a0d168cb57f74d0db2a1ddfd353e70e69a352551947f92c2956b1dfdcd7a0d50",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/selector-digest.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/selector-digest.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/selector-digest.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/selector-vector.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/selector-vector.stderr.txt",
+      "bytes": 567,
+      "sha256": "a0d168cb57f74d0db2a1ddfd353e70e69a352551947f92c2956b1dfdcd7a0d50",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/selector-digest.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/selector-vector.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/selector-vector.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/source-head.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/source-head.stderr.txt",
+      "bytes": 591,
+      "sha256": "5653e0fe9871ea6c972ae81324bda13ec07049b69688dd248356f07cf5d0a304",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/header-int-bool.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/source-head.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/source-head.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/source-native-flag.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/source-native-flag.stderr.txt",
+      "bytes": 591,
+      "sha256": "5653e0fe9871ea6c972ae81324bda13ec07049b69688dd248356f07cf5d0a304",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/header-int-bool.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/source-native-flag.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/source-native-flag.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/stored-bytes.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/stored-bytes.stderr.txt",
+      "bytes": 573,
+      "sha256": "2c2df8db6d9f137acdb6d6d7815e89ac1fed0cd37dec4418be35568a4dc63b1c",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/stored-bytes.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/stored-bytes.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/Counter-removal.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/Counter-removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/Counter-removal.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/Counter-removal.stdout.txt",
+      "bytes": 620,
+      "sha256": "7a0f72e3b1e71f5d9f57b311b41429689bfcf11b881b633dd79cfd2e17dea5f8",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/optimized/Counter-removal.stdout.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/alias-count.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/alias-count.stderr.txt",
+      "bytes": 573,
+      "sha256": "2c2df8db6d9f137acdb6d6d7815e89ac1fed0cd37dec4418be35568a4dc63b1c",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/alias-count.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/alias-count.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/carrier-count.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/carrier-count.stderr.txt",
+      "bytes": 573,
+      "sha256": "2c2df8db6d9f137acdb6d6d7815e89ac1fed0cd37dec4418be35568a4dc63b1c",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/carrier-count.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/carrier-count.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/carrier-path.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/carrier-path.stderr.txt",
+      "bytes": 780,
+      "sha256": "a26559a84c51e448f63291c0ecd3cb92559e84e9e90ede4426849e2f60b11f07",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/carrier-path.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/carrier-path.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/carrier-path.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/fake-build-stage-py-txt.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/fake-build-stage-py-txt.stderr.txt",
+      "bytes": 400,
+      "sha256": "cd824969cedcafcb8a918eb65861630e12bc4436ef48e2f0a0b5b5811c24edc5",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/fake-build-stage-py-txt.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/fake-build-stage-py-txt.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/fake-build-stage-py-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/fake-compressed-carrier.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/fake-compressed-carrier.stderr.txt",
+      "bytes": 804,
+      "sha256": "5d6e2249c069a967edbd6bceed87a99adccaf00fe267e448a70c980e7106d341",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/fake-compressed-carrier.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/fake-compressed-carrier.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/fake-compressed-carrier.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/fake-copy-closed-controls-py-txt.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/fake-copy-closed-controls-py-txt.stderr.txt",
+      "bytes": 382,
+      "sha256": "aefc8a442c4207f20664dda01f42cb301cea1d1ad67c96fdaf57d12b1b6ee3ec",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/fake-copy-closed-controls-py-txt.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/fake-copy-closed-controls-py-txt.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/fake-copy-closed-controls-py-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/fake-qualification-json.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/fake-qualification-json.stderr.txt",
+      "bytes": 400,
+      "sha256": "cd824969cedcafcb8a918eb65861630e12bc4436ef48e2f0a0b5b5811c24edc5",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/fake-build-stage-py-txt.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/fake-qualification-json.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/fake-qualification-json.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/fake-resume-admission-json.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/fake-resume-admission-json.stderr.txt",
+      "bytes": 400,
+      "sha256": "cd824969cedcafcb8a918eb65861630e12bc4436ef48e2f0a0b5b5811c24edc5",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/fake-build-stage-py-txt.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/fake-resume-admission-json.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/fake-resume-admission-json.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/header-int-bool.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/header-int-bool.stderr.txt",
+      "bytes": 591,
+      "sha256": "5653e0fe9871ea6c972ae81324bda13ec07049b69688dd248356f07cf5d0a304",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/header-int-bool.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/header-int-bool.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/header-int-bool.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/healthy.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/healthy.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/healthy.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/healthy.stdout.txt",
+      "bytes": 612,
+      "sha256": "dd75b6e107444852ed7f46d44fcd4a586618aa2a3375ffb166339b8eab00d4d0",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/optimized/healthy.stdout.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/logical-bytes.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/logical-bytes.stderr.txt",
+      "bytes": 573,
+      "sha256": "2c2df8db6d9f137acdb6d6d7815e89ac1fed0cd37dec4418be35568a4dc63b1c",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/logical-bytes.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/logical-bytes.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/logical-count-bool.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/logical-count-bool.stderr.txt",
+      "bytes": 573,
+      "sha256": "2c2df8db6d9f137acdb6d6d7815e89ac1fed0cd37dec4418be35568a4dc63b1c",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/logical-count-bool.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/logical-count-bool.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/logical-count.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/logical-count.stderr.txt",
+      "bytes": 573,
+      "sha256": "2c2df8db6d9f137acdb6d6d7815e89ac1fed0cd37dec4418be35568a4dc63b1c",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/logical-count.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/logical-count.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/member-missing.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/member-missing.stderr.txt",
+      "bytes": 573,
+      "sha256": "b026480a82aba0a7af140611c27c7f07e850ddfe7f9e1fc22ed6b49791cf8c0f",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/member-missing.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/member-missing.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/member-missing.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/member-role.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/member-role.stderr.txt",
+      "bytes": 573,
+      "sha256": "b026480a82aba0a7af140611c27c7f07e850ddfe7f9e1fc22ed6b49791cf8c0f",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/member-missing.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/member-role.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/member-role.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/member-source.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/member-source.stderr.txt",
+      "bytes": 573,
+      "sha256": "b026480a82aba0a7af140611c27c7f07e850ddfe7f9e1fc22ed6b49791cf8c0f",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/member-missing.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/member-source.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/member-source.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/missing-README-md.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/missing-README-md.stderr.txt",
+      "bytes": 950,
+      "sha256": "91d4641978260038c6a5dbd24272860cb4c602c2589d67f3ca714d44e62aed02",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/optimized/missing-README-md.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/missing-README-md.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/missing-README-md.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/missing-copy-closed-controls-py-txt.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/missing-copy-closed-controls-py-txt.stderr.txt",
+      "bytes": 968,
+      "sha256": "1494c3f6a787b1fb832c0fb9d19ea89f00788a2166fdad5658a7f8b0622ee868",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/optimized/missing-copy-closed-controls-py-txt.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/missing-copy-closed-controls-py-txt.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/missing-copy-closed-controls-py-txt.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/omitted-mandatory-reconciled-counts.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/omitted-mandatory-reconciled-counts.stderr.txt",
+      "bytes": 573,
+      "sha256": "b026480a82aba0a7af140611c27c7f07e850ddfe7f9e1fc22ed6b49791cf8c0f",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/member-missing.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/omitted-mandatory-reconciled-counts.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/omitted-mandatory-reconciled-counts.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/qualification-JUnit.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/qualification-JUnit.stderr.txt",
+      "bytes": 589,
+      "sha256": "bdd0ed16e237412497a3bb59eae66187bc4fb2843ffb718db13246c87a546418",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/qualification-JUnit.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/qualification-JUnit.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/qualification-JUnit.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/qualification-ROOT.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/qualification-ROOT.stderr.txt",
+      "bytes": 589,
+      "sha256": "bdd0ed16e237412497a3bb59eae66187bc4fb2843ffb718db13246c87a546418",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/qualification-JUnit.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/qualification-ROOT.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/qualification-ROOT.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/qualification-gate.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/qualification-gate.stderr.txt",
+      "bytes": 589,
+      "sha256": "bdd0ed16e237412497a3bb59eae66187bc4fb2843ffb718db13246c87a546418",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/qualification-JUnit.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/qualification-gate.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/qualification-gate.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/removed-Counter.py.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/removed-Counter.py.txt",
+      "bytes": 27471,
+      "sha256": "7d854cdc29417e51ae072fc447607f0b6a726d891da2253dca44047bfc4bc622",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/removed-Counter.py.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/review.json",
+      "portable_path": "final-moderate-controls-v4/optimized/review.json",
+      "bytes": 25342,
+      "sha256": "13b4f43ba3d9d33b6884a1464e5963d7e961a414157e5da330238058c23f4f99",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/optimized/review.json",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/selector-digest.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/selector-digest.stderr.txt",
+      "bytes": 567,
+      "sha256": "a0d168cb57f74d0db2a1ddfd353e70e69a352551947f92c2956b1dfdcd7a0d50",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/selector-digest.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/selector-digest.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/selector-digest.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/selector-vector.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/selector-vector.stderr.txt",
+      "bytes": 567,
+      "sha256": "a0d168cb57f74d0db2a1ddfd353e70e69a352551947f92c2956b1dfdcd7a0d50",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/selector-digest.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/selector-vector.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/selector-vector.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/source-head.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/source-head.stderr.txt",
+      "bytes": 591,
+      "sha256": "5653e0fe9871ea6c972ae81324bda13ec07049b69688dd248356f07cf5d0a304",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/header-int-bool.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/source-head.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/source-head.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/source-native-flag.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/source-native-flag.stderr.txt",
+      "bytes": 591,
+      "sha256": "5653e0fe9871ea6c972ae81324bda13ec07049b69688dd248356f07cf5d0a304",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/header-int-bool.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/source-native-flag.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/source-native-flag.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/stored-bytes.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/stored-bytes.stderr.txt",
+      "bytes": 573,
+      "sha256": "2c2df8db6d9f137acdb6d6d7815e89ac1fed0cd37dec4418be35568a4dc63b1c",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "final-moderate-controls-v4/normal/alias-count.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/stored-bytes.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/stored-bytes.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/actual-published-healthy.stderr.txt",
+      "portable_path": "Git-layout-controls/normal/actual-published-healthy.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/actual-published-healthy.stdout.txt",
+      "portable_path": "Git-layout-controls/normal/actual-published-healthy.stdout.txt",
+      "bytes": 623,
+      "sha256": "4818cfc32e062d94d40015fb7069706dea42aa445dc6ac54bdbf5f3f4faba3e6",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "Git-layout-controls/normal/actual-published-healthy.stdout.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/ambiguous-layout.stderr.txt",
+      "portable_path": "Git-layout-controls/normal/ambiguous-layout.stderr.txt",
+      "bytes": 838,
+      "sha256": "036dff4a4c38dce598dc9e05ea023f0fed73dcfe982b8b39006a5a302bd41aee",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "Git-layout-controls/normal/ambiguous-layout.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/ambiguous-layout.stdout.txt",
+      "portable_path": "Git-layout-controls/normal/ambiguous-layout.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/missing-explicit-layout.stderr.txt",
+      "portable_path": "Git-layout-controls/normal/missing-explicit-layout.stderr.txt",
+      "bytes": 241,
+      "sha256": "98a2538dd26457ae25dc4d818899336d6bf4b88ee0dda71edcd4215b909b559d",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "Git-layout-controls/normal/missing-explicit-layout.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/missing-explicit-layout.stdout.txt",
+      "portable_path": "Git-layout-controls/normal/missing-explicit-layout.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/removed-ambiguity.py.txt",
+      "portable_path": "Git-layout-controls/normal/removed-ambiguity.py.txt",
+      "bytes": 27487,
+      "sha256": "7473bb46a6b3e0c5c3a553e22e3daaade8568b74aa37833dfdb174f9a91654ed",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "Git-layout-controls/normal/removed-ambiguity.py.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/review.json",
+      "portable_path": "Git-layout-controls/normal/review.json",
+      "bytes": 6971,
+      "sha256": "56365878c277fb5629cd18b47c3ba7691456546cdab97d5dc2fc3e09e9480667",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "Git-layout-controls/normal/review.json",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/sole-layout-guard-removal.stderr.txt",
+      "portable_path": "Git-layout-controls/normal/sole-layout-guard-removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/sole-layout-guard-removal.stdout.txt",
+      "portable_path": "Git-layout-controls/normal/sole-layout-guard-removal.stdout.txt",
+      "bytes": 624,
+      "sha256": "f0267b288156518409e96255dbfa976317394e5b49a779f76aea5b5da2dd63b3",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "Git-layout-controls/normal/sole-layout-guard-removal.stdout.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/unknown-layout.stderr.txt",
+      "portable_path": "Git-layout-controls/normal/unknown-layout.stderr.txt",
+      "bytes": 272,
+      "sha256": "4f5a28b09970a09b63d5db7ccb1b5ef7e6f6a67b16ada2098dd513ab7de0aa9d",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "Git-layout-controls/normal/unknown-layout.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/unknown-layout.stdout.txt",
+      "portable_path": "Git-layout-controls/normal/unknown-layout.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/wrong-published-for-stage.stderr.txt",
+      "portable_path": "Git-layout-controls/normal/wrong-published-for-stage.stderr.txt",
+      "bytes": 794,
+      "sha256": "f3bd6a12e3a12e50ed65c1ef76b33e9da6b02f70452936d9bc814bcca3551391",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "Git-layout-controls/normal/wrong-published-for-stage.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/wrong-published-for-stage.stdout.txt",
+      "portable_path": "Git-layout-controls/normal/wrong-published-for-stage.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/wrong-stage-for-Git.stderr.txt",
+      "portable_path": "Git-layout-controls/normal/wrong-stage-for-Git.stderr.txt",
+      "bytes": 1258,
+      "sha256": "d8a9ae3b5ef478cc5dc17762f3216cc7ca0d4b85b71ab6be4b851910c8c71feb",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "Git-layout-controls/normal/wrong-stage-for-Git.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/wrong-stage-for-Git.stdout.txt",
+      "portable_path": "Git-layout-controls/normal/wrong-stage-for-Git.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-optimized/actual-published-healthy.stderr.txt",
+      "portable_path": "Git-layout-controls/optimized/actual-published-healthy.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-optimized/actual-published-healthy.stdout.txt",
+      "portable_path": "Git-layout-controls/optimized/actual-published-healthy.stdout.txt",
+      "bytes": 626,
+      "sha256": "827915b251ff4d58985170a1da608f715f1eb04572f77b1f13d614f8ecf7d3b3",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "Git-layout-controls/optimized/actual-published-healthy.stdout.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-optimized/ambiguous-layout.stderr.txt",
+      "portable_path": "Git-layout-controls/optimized/ambiguous-layout.stderr.txt",
+      "bytes": 850,
+      "sha256": "fae5f0bbf63a35f1862a98c598b7027be258c813903f9aa267d7cb9b6ca4bfbe",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "Git-layout-controls/optimized/ambiguous-layout.stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-optimized/ambiguous-layout.stdout.txt",
+      "portable_path": "Git-layout-controls/optimized/ambiguous-layout.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-optimized/missing-explicit-layout.stderr.txt",
+      "portable_path": "Git-layout-controls/optimized/missing-explicit-layout.stderr.txt",
+      "bytes": 241,
+      "sha256": "98a2538dd26457ae25dc4d818899336d6bf4b88ee0dda71edcd4215b909b559d",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "Git-layout-controls/normal/missing-explicit-layout.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-optimized/missing-explicit-layout.stdout.txt",
+      "portable_path": "Git-layout-controls/optimized/missing-explicit-layout.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-optimized/removed-ambiguity.py.txt",
+      "portable_path": "Git-layout-controls/optimized/removed-ambiguity.py.txt",
+      "bytes": 27487,
+      "sha256": "7473bb46a6b3e0c5c3a553e22e3daaade8568b74aa37833dfdb174f9a91654ed",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "Git-layout-controls/normal/removed-ambiguity.py.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-optimized/review.json",
+      "portable_path": "Git-layout-controls/optimized/review.json",
+      "bytes": 7105,
+      "sha256": "cef28153e2efae5f6686b4ac2fb10d070b4c4671956e2b51132f76b82ce9ec2d",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "Git-layout-controls/optimized/review.json",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-optimized/sole-layout-guard-removal.stderr.txt",
+      "portable_path": "Git-layout-controls/optimized/sole-layout-guard-removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-optimized/sole-layout-guard-removal.stdout.txt",
+      "portable_path": "Git-layout-controls/optimized/sole-layout-guard-removal.stdout.txt",
+      "bytes": 627,
+      "sha256": "a4f41d516f63fdab2829feebf171e9ebe0f4e04f718a85e380baaed2a9df70a7",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "Git-layout-controls/optimized/sole-layout-guard-removal.stdout.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-optimized/unknown-layout.stderr.txt",
+      "portable_path": "Git-layout-controls/optimized/unknown-layout.stderr.txt",
+      "bytes": 272,
+      "sha256": "4f5a28b09970a09b63d5db7ccb1b5ef7e6f6a67b16ada2098dd513ab7de0aa9d",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "Git-layout-controls/normal/unknown-layout.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-optimized/unknown-layout.stdout.txt",
+      "portable_path": "Git-layout-controls/optimized/unknown-layout.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-optimized/wrong-published-for-stage.stderr.txt",
+      "portable_path": "Git-layout-controls/optimized/wrong-published-for-stage.stderr.txt",
+      "bytes": 794,
+      "sha256": "f3bd6a12e3a12e50ed65c1ef76b33e9da6b02f70452936d9bc814bcca3551391",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "Git-layout-controls/normal/wrong-published-for-stage.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-optimized/wrong-published-for-stage.stdout.txt",
+      "portable_path": "Git-layout-controls/optimized/wrong-published-for-stage.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-optimized/wrong-stage-for-Git.stderr.txt",
+      "portable_path": "Git-layout-controls/optimized/wrong-stage-for-Git.stderr.txt",
+      "bytes": 1258,
+      "sha256": "d8a9ae3b5ef478cc5dc17762f3216cc7ca0d4b85b71ab6be4b851910c8c71feb",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "Git-layout-controls/normal/wrong-stage-for-Git.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-optimized/wrong-stage-for-Git.stdout.txt",
+      "portable_path": "Git-layout-controls/optimized/wrong-stage-for-Git.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "actual final source controls; complete CLI argv/output/exit/refusal/removal",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-control-Git-replay-independent-20261007/receipt.json",
+      "portable_path": "independent-historical-Git-replay/receipt.json",
+      "bytes": 3710,
+      "sha256": "7e787b053cccbaff417fb0d3e78954e3109e6069a5d1657ec59523c1c8f16956",
+      "role": "independent historical84153GitlayoutFAIL / priorconcurrentappend observer limitation",
+      "canonical_destination": "independent-historical-Git-replay/receipt.json",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-control-Git-replay-independent-20261007/stderr.txt",
+      "portable_path": "independent-historical-Git-replay/stderr.txt",
+      "bytes": 1938,
+      "sha256": "00aa2f2c9575a7ed2f8fda40ef92e3ec218454868375aad32cbf24cd71af8033",
+      "role": "independent historical84153GitlayoutFAIL / priorconcurrentappend observer limitation",
+      "canonical_destination": "independent-historical-Git-replay/stderr.txt",
+      "content_alias": false
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-control-Git-replay-independent-20261007/stdout.txt",
+      "portable_path": "independent-historical-Git-replay/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent historical84153GitlayoutFAIL / priorconcurrentappend observer limitation",
+      "canonical_destination": "author/implementation-copy.stderr.txt",
+      "content_alias": true
+    }
+  ],
+  "logical_count": 299,
+  "content_unique_count": 80,
+  "content_unique_bytes": 980808,
+  "complete_actual_stdout_stderr_exit_commands": true,
+  "source_native_numeric_gate_execution": false,
+  "historical_first_source_role_and_readback_observer_draft_source": {
+    "exact_full_draft_scripts": "not_established for first role/readback error; original stdout/stack observation retained only",
+    "first_NameError_script": "exact archived script retained",
+    "immutable_reds": "complete ba5/84153Git refs retained"
+  },
+  "copies": [
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/implementation-footprint-c229.json",
+      "portable_path": "author/implementation-footprint-c229.json",
+      "bytes": 202347,
+      "sha256": "4dfe1ac8c8e3bf9a641771d479254ab227af2d9c590087a839a5366ac5555044"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/implementation-footprint-final.json",
+      "portable_path": "author/implementation-footprint-final.json",
+      "bytes": 202212,
+      "sha256": "07b266b65c536372dd9948e4f93044419e0a25e458c36ca55778f83b02a52c9a"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/implementation-footprint.json",
+      "portable_path": "author/implementation-footprint.json",
+      "bytes": 199286,
+      "sha256": "6354c6e3f659121dce588dfbff123f230366ec2816ca56645e9f72701171ae7c"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/ignored-selected-originals-correction.json",
+      "portable_path": "author/ignored-selected-originals-correction.json",
+      "bytes": 2082,
+      "sha256": "7aa20317b5a5c355f6342de1082040d64952f8dea34bc0dfdbebc6fbeb487ad8"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/implementation-copy.stdout.json",
+      "portable_path": "author/implementation-copy.stdout.json",
+      "bytes": 535,
+      "sha256": "c89bf2c4646f6c9aecb832ee4f5b505c677cdd3e86911c763b741e9ef6a8912a"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/implementation-copy.stderr.txt",
+      "portable_path": "author/implementation-copy.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/implementation-commit.stdout.txt",
+      "portable_path": "author/implementation-commit.stdout.txt",
+      "bytes": 110110,
+      "sha256": "1a74dcf961ba89fd83fb61b95eeed387763a99210bdd540f36449fafaf8a0fcc"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/implementation-commit.stderr.txt",
+      "portable_path": "author/implementation-commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "9c479493f065198f47c3ef4ba93765c90d5615c050e84dbaa736b2bf10f1588c"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/implementation-correction-commit.stdout.txt",
+      "portable_path": "author/implementation-correction-commit.stdout.txt",
+      "bytes": 1752,
+      "sha256": "7a55879a18e560f5d98a9ed77f42ad2fd380dda53ba448118621e33b84ea8e81"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/implementation-correction-commit.stderr.txt",
+      "portable_path": "author/implementation-correction-commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "e8a9b5a4192be897cd5050d592717e238ab08b2b7c66416905c2616f3401515b"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/layout-implementation-commit.stdout.txt",
+      "portable_path": "author/layout-implementation-commit.stdout.txt",
+      "bytes": 155,
+      "sha256": "585a7ad5c1d5a542f645d88a921e0c11e3398901d5cfeb6900ccb28be2208fab"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/layout-implementation-commit.stderr.txt",
+      "portable_path": "author/layout-implementation-commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "02dca7419390816174ef6e4cd4eecbc814543064fa16040f2c13b982c89de200"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/build-execution.stdout.json",
+      "portable_path": "author/build-execution.stdout.json",
+      "bytes": 1096,
+      "sha256": "bcab6bb88b15130aa59f75853f6e8304b0f858e5f75daba90ec759b6ead70565"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/build-first-source-role-error.stderr.txt",
+      "portable_path": "author/build-first-source-role-error.stderr.txt",
+      "bytes": 662,
+      "sha256": "8de3840a7b8c424bdbe49c54933a1b0f470e5457e1f540ffb1c77df1a4864ec6"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/build-second-alias-role-error.stderr.txt",
+      "portable_path": "author/build-second-alias-role-error.stderr.txt",
+      "bytes": 481,
+      "sha256": "d23c294e5d292e67475e9828a90d36dcbe46dfdb7169bbe3538c7d5c8aaee073"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/controls-first-readback-shape-normal.stderr.txt",
+      "portable_path": "author/controls-first-readback-shape-normal.stderr.txt",
+      "bytes": 313,
+      "sha256": "f3132c4d8e15c41ac65b024cd6c8f9db5ebce3c66e6635e08756eac9f7eee031"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/controls-second-nameerror-normal.stderr.txt",
+      "portable_path": "author/controls-second-nameerror-normal.stderr.txt",
+      "bytes": 251,
+      "sha256": "422ec2b3a18dc9b547f7c9d5eea654bd47991adef99881c48ebea90d2f56fdca"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/run-custody-controls-first-nameerror.py.txt",
+      "portable_path": "author/run-custody-controls-first-nameerror.py.txt",
+      "bytes": 8085,
+      "sha256": "816c44b68d619a29cacec98bb6cf138d4629a574d29f92bdf9fc6c2d60b78494"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/run-custody-controls-pre-layout.py.txt",
+      "portable_path": "author/run-custody-controls-pre-layout.py.txt",
+      "bytes": 8084,
+      "sha256": "30fdd198477e26004ddf00ea0432736ebb46256843226e446e4abffb25848440"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/run-custody-controls.py.txt",
+      "portable_path": "author/run-custody-controls.py.txt",
+      "bytes": 8103,
+      "sha256": "b7dc15fdfc6248594e3dd5d8cf14b9736ce9e93ce1458c8d128b6e130c2f63b9"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/run-Git-layout-controls.py.txt",
+      "portable_path": "author/run-Git-layout-controls.py.txt",
+      "bytes": 4149,
+      "sha256": "db768a94bb013aeed1797beaa4dd2264d06ac106c470ccb7f256fb453296945d"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/layout-controls-normal.stdout.json",
+      "portable_path": "author/layout-controls-normal.stdout.json",
+      "bytes": 144,
+      "sha256": "98d95576c2e62715b154e735bc555168d7b799bbd56c1ed6f933885d70ef3936"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/layout-controls-optimized.stdout.json",
+      "portable_path": "author/layout-controls-optimized.stdout.json",
+      "bytes": 147,
+      "sha256": "73b9f325d5f4149fdb944ec4527ef4839536348da01a92918da3bd5cb2efd7c8"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/Git-layout-normal.stdout.json",
+      "portable_path": "author/Git-layout-normal.stdout.json",
+      "bytes": 133,
+      "sha256": "ace45dc243bb3e7f96871f55da2101f909931c85bbaba48c69cc5a52053179a9"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-publication-r4-stage/Git-layout-optimized.stdout.json",
+      "portable_path": "author/Git-layout-optimized.stdout.json",
+      "bytes": 136,
+      "sha256": "edb6908488bed03a09a96eb50ffd640fa0075f6175d8cd12211c7f5f1583cff3"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/Counter-removal.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/Counter-removal.stdout.txt",
+      "bytes": 579,
+      "sha256": "70f0d5636618184b84bd667a06cabbea5e93596166ace97e03e7002c05987a25"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/alias-count.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/alias-count.stderr.txt",
+      "bytes": 547,
+      "sha256": "e9527dd27a680bb60e049ed32c06cf52463efcd01c38295bbcb99cac01dde228"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/carrier-path.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/carrier-path.stderr.txt",
+      "bytes": 734,
+      "sha256": "a5fbca9aef3df4d1c10cd55546a9a56147b9e743f6967840ee79f7c9b0f2e835"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/fake-build-stage-py-txt.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/fake-build-stage-py-txt.stderr.txt",
+      "bytes": 400,
+      "sha256": "afcc25096ce6ac4ccad96fec82687a2e820807dc92487bbbdcdcd127b33a578e"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/fake-compressed-carrier.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/fake-compressed-carrier.stderr.txt",
+      "bytes": 750,
+      "sha256": "f18d7fc6442d027cec5f77a5b9db061dcdba17c860625e835bd8e7238873d04f"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/fake-copy-closed-controls-py-txt.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/fake-copy-closed-controls-py-txt.stderr.txt",
+      "bytes": 382,
+      "sha256": "c7dee2214079fbb3950c1458859064df798bcb71ae1cbdbc7d2dce85be432ae4"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/header-int-bool.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/header-int-bool.stderr.txt",
+      "bytes": 565,
+      "sha256": "dd0c69f21fd40b302472608b3c47a31a422d3c2f02f2d16a12ff54fbfdaf1aa7"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/healthy.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/normal/healthy.stdout.txt",
+      "bytes": 571,
+      "sha256": "c28fdeb574e707931941643a98088efe6b171ff9699b699025dacce409a099d6"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/member-missing.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/member-missing.stderr.txt",
+      "bytes": 547,
+      "sha256": "e23b6e256421afe0c37065c088e3dde866088b435adb276fbc57e70e202c860c"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/missing-README-md.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/missing-README-md.stderr.txt",
+      "bytes": 947,
+      "sha256": "ff24f1c4ecbc8e5d1675793b9c54bc92976b344f06c9fb2bfc33c2fc27a4a6bb"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/missing-copy-closed-controls-py-txt.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/missing-copy-closed-controls-py-txt.stderr.txt",
+      "bytes": 965,
+      "sha256": "5fe3cd42530caffad1f36e41590085cb8aea6a28b9883e2c699eba67ae647dd0"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/qualification-JUnit.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/qualification-JUnit.stderr.txt",
+      "bytes": 563,
+      "sha256": "39cc0beb640d5f2ef0d9cc79dc0dc033ea9ffdc8bf4db16d7b1b821e8d2cee39"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/removed-Counter.py.txt",
+      "portable_path": "final-moderate-controls-v3/normal/removed-Counter.py.txt",
+      "bytes": 26275,
+      "sha256": "710548af47c0cf388901575536b7bf676eb9b5785686bdf245f4bd60e66cceb8"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/review.json",
+      "portable_path": "final-moderate-controls-v3/normal/review.json",
+      "bytes": 23740,
+      "sha256": "6c44d6a0e7c1c17de48fb37e0d7a61ed92bdf64e22fb1dd2590b6d7a0600f982"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-normal/selector-digest.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/normal/selector-digest.stderr.txt",
+      "bytes": 541,
+      "sha256": "d038e3a4ae085dfe042778a3b8ed1516e31e106ed887e05bce514946da36f9d2"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/Counter-removal.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/Counter-removal.stdout.txt",
+      "bytes": 582,
+      "sha256": "a1d7b30694387303bc99b9a1c69dbbf75ab5089762632626a562c3d9c2775cfc"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/healthy.stdout.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/healthy.stdout.txt",
+      "bytes": 574,
+      "sha256": "ef5dca7e817c87d809e20b6202fef8fbf68dfd177ab340ba3fa293026ca51888"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/missing-README-md.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/missing-README-md.stderr.txt",
+      "bytes": 950,
+      "sha256": "ae8e3354084f2e6400ecc64cf464edb184ae3fb491d804e565a3eb942bb738b6"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/missing-copy-closed-controls-py-txt.stderr.txt",
+      "portable_path": "final-moderate-controls-v3/optimized/missing-copy-closed-controls-py-txt.stderr.txt",
+      "bytes": 968,
+      "sha256": "577bf43efe49c83ef4bb2b8e7ed1b794d1a7b568e3d9a03c828fb90ce7dff56b"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v3-optimized/review.json",
+      "portable_path": "final-moderate-controls-v3/optimized/review.json",
+      "bytes": 24306,
+      "sha256": "97a957a177043f6e6bc40b03e9912154d181ef49c59592ff2ef4dd30f6595bcc"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/Counter-removal.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/Counter-removal.stdout.txt",
+      "bytes": 617,
+      "sha256": "103f091a64afe5b919fbabce437ed7c804f05947036901328c66a4aea437cd63"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/alias-count.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/alias-count.stderr.txt",
+      "bytes": 573,
+      "sha256": "2c2df8db6d9f137acdb6d6d7815e89ac1fed0cd37dec4418be35568a4dc63b1c"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/carrier-path.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/carrier-path.stderr.txt",
+      "bytes": 780,
+      "sha256": "a26559a84c51e448f63291c0ecd3cb92559e84e9e90ede4426849e2f60b11f07"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/fake-build-stage-py-txt.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/fake-build-stage-py-txt.stderr.txt",
+      "bytes": 400,
+      "sha256": "cd824969cedcafcb8a918eb65861630e12bc4436ef48e2f0a0b5b5811c24edc5"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/fake-compressed-carrier.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/fake-compressed-carrier.stderr.txt",
+      "bytes": 804,
+      "sha256": "5d6e2249c069a967edbd6bceed87a99adccaf00fe267e448a70c980e7106d341"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/fake-copy-closed-controls-py-txt.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/fake-copy-closed-controls-py-txt.stderr.txt",
+      "bytes": 382,
+      "sha256": "aefc8a442c4207f20664dda01f42cb301cea1d1ad67c96fdaf57d12b1b6ee3ec"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/header-int-bool.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/header-int-bool.stderr.txt",
+      "bytes": 591,
+      "sha256": "5653e0fe9871ea6c972ae81324bda13ec07049b69688dd248356f07cf5d0a304"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/healthy.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/normal/healthy.stdout.txt",
+      "bytes": 609,
+      "sha256": "4fbdc4d7a0183827335ae61dfe85fa3b5f6b4a914eff4e0f0a03c6730ddc24b2"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/member-missing.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/member-missing.stderr.txt",
+      "bytes": 573,
+      "sha256": "b026480a82aba0a7af140611c27c7f07e850ddfe7f9e1fc22ed6b49791cf8c0f"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/missing-README-md.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/missing-README-md.stderr.txt",
+      "bytes": 947,
+      "sha256": "271c55ed4411cf4c797e2fecf3e1d4ff527b25784d49260a2883f9fb4f6a18ac"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/missing-copy-closed-controls-py-txt.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/missing-copy-closed-controls-py-txt.stderr.txt",
+      "bytes": 965,
+      "sha256": "74452eb5b3ffb15fb5d5a0ad564e4fd480cc71353491986d6731712108f84362"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/qualification-JUnit.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/qualification-JUnit.stderr.txt",
+      "bytes": 589,
+      "sha256": "bdd0ed16e237412497a3bb59eae66187bc4fb2843ffb718db13246c87a546418"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/removed-Counter.py.txt",
+      "portable_path": "final-moderate-controls-v4/normal/removed-Counter.py.txt",
+      "bytes": 27471,
+      "sha256": "7d854cdc29417e51ae072fc447607f0b6a726d891da2253dca44047bfc4bc622"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/review.json",
+      "portable_path": "final-moderate-controls-v4/normal/review.json",
+      "bytes": 24776,
+      "sha256": "2cdddd0eeb3dc1c5304bb4f516d15a392fa92e1193cca22f0879e6436ae0fc8c"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-normal/selector-digest.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/normal/selector-digest.stderr.txt",
+      "bytes": 567,
+      "sha256": "a0d168cb57f74d0db2a1ddfd353e70e69a352551947f92c2956b1dfdcd7a0d50"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/Counter-removal.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/Counter-removal.stdout.txt",
+      "bytes": 620,
+      "sha256": "7a0f72e3b1e71f5d9f57b311b41429689bfcf11b881b633dd79cfd2e17dea5f8"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/healthy.stdout.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/healthy.stdout.txt",
+      "bytes": 612,
+      "sha256": "dd75b6e107444852ed7f46d44fcd4a586618aa2a3375ffb166339b8eab00d4d0"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/missing-README-md.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/missing-README-md.stderr.txt",
+      "bytes": 950,
+      "sha256": "91d4641978260038c6a5dbd24272860cb4c602c2589d67f3ca714d44e62aed02"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/missing-copy-closed-controls-py-txt.stderr.txt",
+      "portable_path": "final-moderate-controls-v4/optimized/missing-copy-closed-controls-py-txt.stderr.txt",
+      "bytes": 968,
+      "sha256": "1494c3f6a787b1fb832c0fb9d19ea89f00788a2166fdad5658a7f8b0622ee868"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-moderate-controls-v4-optimized/review.json",
+      "portable_path": "final-moderate-controls-v4/optimized/review.json",
+      "bytes": 25342,
+      "sha256": "13b4f43ba3d9d33b6884a1464e5963d7e961a414157e5da330238058c23f4f99"
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/actual-published-healthy.stdout.txt",
+      "portable_path": "Git-layout-controls/normal/actual-published-healthy.stdout.txt",
+      "bytes": 623,
+      "sha256": "4818cfc32e062d94d40015fb7069706dea42aa445dc6ac54bdbf5f3f4faba3e6"
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/ambiguous-layout.stderr.txt",
+      "portable_path": "Git-layout-controls/normal/ambiguous-layout.stderr.txt",
+      "bytes": 838,
+      "sha256": "036dff4a4c38dce598dc9e05ea023f0fed73dcfe982b8b39006a5a302bd41aee"
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/missing-explicit-layout.stderr.txt",
+      "portable_path": "Git-layout-controls/normal/missing-explicit-layout.stderr.txt",
+      "bytes": 241,
+      "sha256": "98a2538dd26457ae25dc4d818899336d6bf4b88ee0dda71edcd4215b909b559d"
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/removed-ambiguity.py.txt",
+      "portable_path": "Git-layout-controls/normal/removed-ambiguity.py.txt",
+      "bytes": 27487,
+      "sha256": "7473bb46a6b3e0c5c3a553e22e3daaade8568b74aa37833dfdb174f9a91654ed"
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/review.json",
+      "portable_path": "Git-layout-controls/normal/review.json",
+      "bytes": 6971,
+      "sha256": "56365878c277fb5629cd18b47c3ba7691456546cdab97d5dc2fc3e09e9480667"
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/sole-layout-guard-removal.stdout.txt",
+      "portable_path": "Git-layout-controls/normal/sole-layout-guard-removal.stdout.txt",
+      "bytes": 624,
+      "sha256": "f0267b288156518409e96255dbfa976317394e5b49a779f76aea5b5da2dd63b3"
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/unknown-layout.stderr.txt",
+      "portable_path": "Git-layout-controls/normal/unknown-layout.stderr.txt",
+      "bytes": 272,
+      "sha256": "4f5a28b09970a09b63d5db7ccb1b5ef7e6f6a67b16ada2098dd513ab7de0aa9d"
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/wrong-published-for-stage.stderr.txt",
+      "portable_path": "Git-layout-controls/normal/wrong-published-for-stage.stderr.txt",
+      "bytes": 794,
+      "sha256": "f3bd6a12e3a12e50ed65c1ef76b33e9da6b02f70452936d9bc814bcca3551391"
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-normal/wrong-stage-for-Git.stderr.txt",
+      "portable_path": "Git-layout-controls/normal/wrong-stage-for-Git.stderr.txt",
+      "bytes": 1258,
+      "sha256": "d8a9ae3b5ef478cc5dc17762f3216cc7ca0d4b85b71ab6be4b851910c8c71feb"
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-optimized/actual-published-healthy.stdout.txt",
+      "portable_path": "Git-layout-controls/optimized/actual-published-healthy.stdout.txt",
+      "bytes": 626,
+      "sha256": "827915b251ff4d58985170a1da608f715f1eb04572f77b1f13d614f8ecf7d3b3"
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-optimized/ambiguous-layout.stderr.txt",
+      "portable_path": "Git-layout-controls/optimized/ambiguous-layout.stderr.txt",
+      "bytes": 850,
+      "sha256": "fae5f0bbf63a35f1862a98c598b7027be258c813903f9aa267d7cb9b6ca4bfbe"
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-optimized/review.json",
+      "portable_path": "Git-layout-controls/optimized/review.json",
+      "bytes": 7105,
+      "sha256": "cef28153e2efae5f6686b4ac2fb10d070b4c4671956e2b51132f76b82ce9ec2d"
+    },
+    {
+      "source_path": "/tmp/e02-E-Git-layout-controls-optimized/sole-layout-guard-removal.stdout.txt",
+      "portable_path": "Git-layout-controls/optimized/sole-layout-guard-removal.stdout.txt",
+      "bytes": 627,
+      "sha256": "a4f41d516f63fdab2829feebf171e9ebe0f4e04f718a85e380baaed2a9df70a7"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-control-Git-replay-independent-20261007/receipt.json",
+      "portable_path": "independent-historical-Git-replay/receipt.json",
+      "bytes": 3710,
+      "sha256": "7e787b053cccbaff417fb0d3e78954e3109e6069a5d1657ec59523c1c8f16956"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-control-Git-replay-independent-20261007/stderr.txt",
+      "portable_path": "independent-historical-Git-replay/stderr.txt",
+      "bytes": 1938,
+      "sha256": "00aa2f2c9575a7ed2f8fda40ef92e3ec218454868375aad32cbf24cd71af8033"
+    }
+  ]
+}

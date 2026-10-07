@@ -1,0 +1,155 @@
+{
+  "outcome": "PASS explicit published-layout custody controls",
+  "mode": "optimized",
+  "published_full512_byte_readback": true,
+  "healthy_bytes": 21807963,
+  "refusals": 5,
+  "property_removal": {
+    "predicate": "ambiguous primary/opposite layout only",
+    "markers_and_full688member_Counter_preserved": true,
+    "actual_exit_code": 0,
+    "required_layout_admission_property": "FAIL"
+  },
+  "commands": [
+    {
+      "case": "actual-published-healthy",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/copy-closed-controls.py.txt",
+        "--manifest",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-Git-layout-controls-optimized/destinations/actual-published-healthy",
+        "--layout",
+        "published"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "stdout_bytes": 626,
+      "stdout_sha256": "827915b251ff4d58985170a1da608f715f1eb04572f77b1f13d614f8ecf7d3b3",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "wrong-stage-for-Git",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/copy-closed-controls.py.txt",
+        "--manifest",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-Git-layout-controls-optimized/destinations/wrong-stage-for-Git",
+        "--layout",
+        "stage"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout_bytes": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_bytes": 1258,
+      "stderr_sha256": "d8a9ae3b5ef478cc5dc17762f3216cc7ca0d4b85b71ab6be4b851910c8c71feb"
+    },
+    {
+      "case": "wrong-published-for-stage",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-final-moderate-publication-r4-stage/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-Git-layout-controls-optimized/destinations/wrong-published-for-stage",
+        "--layout",
+        "published"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout_bytes": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_bytes": 794,
+      "stderr_sha256": "f3bd6a12e3a12e50ed65c1ef76b33e9da6b02f70452936d9bc814bcca3551391"
+    },
+    {
+      "case": "missing-explicit-layout",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/copy-closed-controls.py.txt",
+        "--manifest",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-Git-layout-controls-optimized/destinations/missing-explicit-layout"
+      ],
+      "exit_code": 2,
+      "destination_created": false,
+      "stdout_bytes": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_bytes": 241,
+      "stderr_sha256": "98a2538dd26457ae25dc4d818899336d6bf4b88ee0dda71edcd4215b909b559d"
+    },
+    {
+      "case": "unknown-layout",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/copy-closed-controls.py.txt",
+        "--manifest",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-Git-layout-controls-optimized/destinations/unknown-layout",
+        "--layout",
+        "automatic"
+      ],
+      "exit_code": 2,
+      "destination_created": false,
+      "stdout_bytes": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_bytes": 272,
+      "stderr_sha256": "4f5a28b09970a09b63d5db7ccb1b5ef7e6f6a67b16ada2098dd513ab7de0aa9d"
+    },
+    {
+      "case": "ambiguous-layout",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-Git-layout-controls-optimized/ambiguous-published/copy-closed-controls.py.txt",
+        "--manifest",
+        "/tmp/e02-E-Git-layout-controls-optimized/ambiguous-published/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-Git-layout-controls-optimized/destinations/ambiguous-layout",
+        "--layout",
+        "published"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout_bytes": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_bytes": 850,
+      "stderr_sha256": "fae5f0bbf63a35f1862a98c598b7027be258c813903f9aa267d7cb9b6ca4bfbe"
+    },
+    {
+      "case": "sole-layout-guard-removal",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-Git-layout-controls-optimized/removed-ambiguity.py.txt",
+        "--manifest",
+        "/tmp/e02-E-Git-layout-controls-optimized/ambiguous-published/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-Git-layout-controls-optimized/destinations/sole-layout-guard-removal",
+        "--layout",
+        "published"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "stdout_bytes": 627,
+      "stdout_sha256": "a4f41d516f63fdab2829feebf171e9ebe0f4e04f718a85e380baaed2a9df70a7",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "source_program_sha256": "3c3b7cc6f8b2afa2c0d66ea22ce40f806de11c80a7643dae041e75bd5a4369dd",
+  "source_native_numeric_gate_execution": false
+}

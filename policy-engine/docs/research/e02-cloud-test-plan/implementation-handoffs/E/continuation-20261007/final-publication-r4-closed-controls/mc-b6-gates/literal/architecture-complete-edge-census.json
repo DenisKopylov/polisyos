@@ -1,0 +1,1548 @@
+{
+  "schema": "policyos.e02.E.current_architecture_complete_edge_census.v1",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "tree": "0cb448febf461d0bbdf31645712ad774f5425b72",
+  "native_selector": "architecture guardrails check full scope retry2",
+  "edge_count": 151,
+  "source_paths": 79,
+  "complete_rows": [
+    {
+      "source_module": "polisyos.calibration.forecast_bridge",
+      "target_module": "polisyos.ir.analytics.backtest",
+      "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "source_sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "source_git_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.calibration.forecast_bridge",
+      "target_module": "polisyos.ir.analytics.forecasting_uncertainty",
+      "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "source_sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "source_git_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.calibration.forecast_bridge",
+      "target_module": "polisyos.ir.artifacts",
+      "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "source_sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "source_git_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.calibration.forecast_bridge",
+      "target_module": "polisyos.ir.model_layer.canon",
+      "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "source_sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "source_git_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.calibration.forecast_bridge",
+      "target_module": "polisyos.ir.registry.refs",
+      "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "source_sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "source_git_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.core.canon.canon_json",
+      "target_module": "polisyos.common.canonical",
+      "source_path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "source_sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95",
+      "source_git_blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.core.canon.hashing",
+      "target_module": "polisyos.common.hashing",
+      "source_path": "policy-engine/src/polisyos/core/canon/hashing.py",
+      "source_sha256": "a32caf919317c5667ac02bde68fa6a1d0fa064e1edeb44c89bc066a14a9272c0",
+      "source_git_blob": "0007ba9acac60ad77c58f85355eacece9150df56",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "source_path": "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
+      "source_sha256": "5e936af06ac9aba1c8fd2db835cb1c4947056da1d0d18d95c0090c2c9c762653",
+      "source_git_blob": "88c9553da1377e28418bcb06b00449010409a011",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.bindings_validation",
+      "target_module": "polisyos.ir.observation.contracts",
+      "source_path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/bindings_validation.py",
+      "source_sha256": "1c2430ae97f82e8e63aa1336fcd3b0639e1938a7ef1b08153929742e1022eedb",
+      "source_git_blob": "37b2bfccd3d9988b3e2a0a57f0f03b3250d4dc20",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.common",
+      "target_module": "polisyos.ir.model_layer",
+      "source_path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/common.py",
+      "source_sha256": "15f3d4ebf20f709eb30b27b45bbccd6cbb89a9ed06341c20e6a83fcb35325f50",
+      "source_git_blob": "97c1f1dca8db13dc6409919ca2cf81feea43d997",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.demography",
+      "target_module": "polisyos.ir.model_layer.types",
+      "source_path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography.py",
+      "source_sha256": "99a21ee2576adc669a32788fe84876fe2bcbea961864595ba75f5fb42b3a42bb",
+      "source_git_blob": "e22295965423ce472babfe2171b6bd883c1dd537",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.io",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "source_path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/io.py",
+      "source_sha256": "82c39eca03b9f784ea5cd5282143824113c956b15ed023a186e67378bd345c7c",
+      "source_git_blob": "6dbc205c9eba195b16edb3d6a00451b66cc92b0e",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.io",
+      "target_module": "polisyos.core.artifacts.store",
+      "source_path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/io.py",
+      "source_sha256": "82c39eca03b9f784ea5cd5282143824113c956b15ed023a186e67378bd345c7c",
+      "source_git_blob": "6dbc205c9eba195b16edb3d6a00451b66cc92b0e",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.io",
+      "target_module": "polisyos.core.canon",
+      "source_path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/io.py",
+      "source_sha256": "82c39eca03b9f784ea5cd5282143824113c956b15ed023a186e67378bd345c7c",
+      "source_git_blob": "6dbc205c9eba195b16edb3d6a00451b66cc92b0e",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.observation",
+      "target_module": "polisyos.ir.model_layer.types",
+      "source_path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/observation.py",
+      "source_sha256": "3e0ef6d9350ef84dc8b507cceee6ae9a5106facacfb48a5b305c1b828c94aa5e",
+      "source_git_blob": "7425995fd94ee138fb35de944988590ccbc51678",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
+      "target_module": "polisyos.core.artifacts.store",
+      "source_path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+      "source_sha256": "d67a292c7e5d21a5355cbad451c3d24c08a2aa6436349dca9bf15867654108fd",
+      "source_git_blob": "3ac47ec47646ea2c84440a9fa0209f2f4f571ac3",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
+      "target_module": "polisyos.ir.model_layer.types",
+      "source_path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+      "source_sha256": "d67a292c7e5d21a5355cbad451c3d24c08a2aa6436349dca9bf15867654108fd",
+      "source_git_blob": "3ac47ec47646ea2c84440a9fa0209f2f4f571ac3",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.fabric.connectors.cache._store_core",
+      "target_module": "polisyos.core.artifacts.protocol",
+      "source_path": "policy-engine/src/polisyos/fabric/connectors/cache/_store_core.py",
+      "source_sha256": "5ddc7e55ac0fc2f112ae509df30d29acaa82df09b48aa2ba52ff61b4c4c2098d",
+      "source_git_blob": "6e348e54be118e971e996666ef419d4b0f316d94",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.fabric.data_plane.modes",
+      "target_module": "polisyos.core.artifacts",
+      "source_path": "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+      "source_sha256": "9acbfc239fc656fb6e608858924643951e3d73192d363ffe8e8668ea44a29a53",
+      "source_git_blob": "198ca13aac6a3edf29120f530b155cb9139d38da",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.fabric.data_plane.modes",
+      "target_module": "polisyos.core.artifacts.protocol",
+      "source_path": "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+      "source_sha256": "9acbfc239fc656fb6e608858924643951e3d73192d363ffe8e8668ea44a29a53",
+      "source_git_blob": "198ca13aac6a3edf29120f530b155cb9139d38da",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.fabric.identity.migrations",
+      "target_module": "polisyos.common.migrations.base",
+      "source_path": "policy-engine/src/polisyos/fabric/identity/migrations.py",
+      "source_sha256": "3c6811899e8b76b15b32671293a8d054449ccd2ec89facf8b90f0fa7138abb9a",
+      "source_git_blob": "1c168c4df2c2a37be019c6102f825c5b285019c5",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.fabric.ingestion.ingestion_providers",
+      "target_module": "polisyos.core.artifacts.protocol",
+      "source_path": "policy-engine/src/polisyos/fabric/ingestion/ingestion_providers.py",
+      "source_sha256": "c5502691cabd093874fa64659279d328acfb3884ed493532327ec19302535eb9",
+      "source_git_blob": "33efa73aadf50ecfdbb6a1f021ef54bb69e689bc",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.fabric.retrieval.custody",
+      "target_module": "polisyos.core.artifacts.protocol",
+      "source_path": "policy-engine/src/polisyos/fabric/retrieval/custody.py",
+      "source_sha256": "e53c3b029e55cc214e65e556af7bec686d5776349d93a73a16e92782c17822a6",
+      "source_git_blob": "67982b0c996d5e149c0f30fe1a93b40c7e778e41",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.fabric.retrieval.executor",
+      "target_module": "polisyos.core.artifacts.backends.config",
+      "source_path": "policy-engine/src/polisyos/fabric/retrieval/executor.py",
+      "source_sha256": "324188eac98f013b886c79c44527e78ce2a42c2ac2a6452ffac40b60b7d66565",
+      "source_git_blob": "e4751843b5459fe726ef1de1613437bd3bea867f",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.fabric.retrieval.executor",
+      "target_module": "polisyos.core.artifacts.protocol",
+      "source_path": "policy-engine/src/polisyos/fabric/retrieval/executor.py",
+      "source_sha256": "324188eac98f013b886c79c44527e78ce2a42c2ac2a6452ffac40b60b7d66565",
+      "source_git_blob": "e4751843b5459fe726ef1de1613437bd3bea867f",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.fabric.retrieval.service",
+      "target_module": "polisyos.core.artifacts.backends.config",
+      "source_path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "source_sha256": "95f64bdbd3294850356035827c5289356ad5e8d4990c35e548a4744fb98eaebb",
+      "source_git_blob": "115db3f1239630ef609e2bc69f9f0922a0c198cd",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.fabric.retrieval.service",
+      "target_module": "polisyos.core.artifacts.protocol",
+      "source_path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "source_sha256": "95f64bdbd3294850356035827c5289356ad5e8d4990c35e548a4744fb98eaebb",
+      "source_git_blob": "115db3f1239630ef609e2bc69f9f0922a0c198cd",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.foundry.agent_sim.artifact",
+      "target_module": "polisyos.core.artifacts.protocol",
+      "source_path": "policy-engine/src/polisyos/foundry/agent_sim/artifact.py",
+      "source_sha256": "56efd31a050ee5f2185713ac09957a48b1fa6ff97aec110064a6809cb705910c",
+      "source_git_blob": "06367847f3e2f488c3999a4c401a0f31772829fd",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.foundry.compile.randomization",
+      "target_module": "polisyos.core.canon",
+      "source_path": "policy-engine/src/polisyos/foundry/compile/randomization.py",
+      "source_sha256": "bf403f4fb67ca45085b9792cc0942e084cf4fdf5892cf3d45b93b732260d311a",
+      "source_git_blob": "a4f68938a7e585c9a0aa7e6ba1c62222ecd2bd94",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.foundry.compile.randomization",
+      "target_module": "polisyos.core.contracts.foundry",
+      "source_path": "policy-engine/src/polisyos/foundry/compile/randomization.py",
+      "source_sha256": "bf403f4fb67ca45085b9792cc0942e084cf4fdf5892cf3d45b93b732260d311a",
+      "source_git_blob": "a4f68938a7e585c9a0aa7e6ba1c62222ecd2bd94",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.foundry.compile.trinity_compiler",
+      "target_module": "polisyos.ir.kernel.slots",
+      "source_path": "policy-engine/src/polisyos/foundry/compile/trinity_compiler.py",
+      "source_sha256": "0e981b7a3322720123538cac21f723d22a3fe3c6e8672cc6a6139ce051cf286b",
+      "source_git_blob": "a434ec4bc4de47450b97ad53096610a0446dc18e",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.foundry.methods.catalog.causal.literature_prior",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/literature_prior.py",
+      "source_sha256": "4a98c95ef331bccd53303275ecb432acb4fc6904e693499aaf29932c594520f0",
+      "source_git_blob": "d2a55b90b1cce33bdf9251fd604fdfad6748fe22",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.foundry.methods.catalog.mechanism.families",
+      "target_module": "polisyos.ir.analytics.mechanism_design",
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/families.py",
+      "source_sha256": "f2d93bcbf6af0623f2d3b7290cb6dddcf3b776ef235ee37072fb26e3686cd019",
+      "source_git_blob": "82b0dfa3b8b1bc34e038f37e567562f8bed2c6d0",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.foundry.methods.layout",
+      "target_module": "polisyos.ir.kernel.slots",
+      "source_path": "policy-engine/src/polisyos/foundry/methods/layout.py",
+      "source_sha256": "fb528428135bf40ddf36336bbdac7043b049d4ef9bf7e954ada1c9727100a69b",
+      "source_git_blob": "a48ecff22baec80ddaf8d2939417f48086a00555",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.foundry.plugins.api",
+      "target_module": "polisyos.core.artifacts.backends.config",
+      "source_path": "policy-engine/src/polisyos/foundry/plugins/api.py",
+      "source_sha256": "b24b892b9f3ba7fde2ae278c940cc6b521605201c5ef107ac7b845297189d477",
+      "source_git_blob": "fa4ba94a7eb5dcad50d24cdaa0a089958e8d5d9c",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.foundry.plugins.api",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "source_path": "policy-engine/src/polisyos/foundry/plugins/api.py",
+      "source_sha256": "b24b892b9f3ba7fde2ae278c940cc6b521605201c5ef107ac7b845297189d477",
+      "source_git_blob": "fa4ba94a7eb5dcad50d24cdaa0a089958e8d5d9c",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.foundry.plugins.api",
+      "target_module": "polisyos.core.artifacts.protocol",
+      "source_path": "policy-engine/src/polisyos/foundry/plugins/api.py",
+      "source_sha256": "b24b892b9f3ba7fde2ae278c940cc6b521605201c5ef107ac7b845297189d477",
+      "source_git_blob": "fa4ba94a7eb5dcad50d24cdaa0a089958e8d5d9c",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.foundry.plugins.training_adapter",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "source_path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+      "source_sha256": "aaaa6e65f0cd6f845a0b9b8b989e5d19b2e5e35f497d2c4704e29dd7c5594715",
+      "source_git_blob": "5e5b6de213899c164e639eb5b67a76ca0af9e248",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.foundry.plugins.training_adapter",
+      "target_module": "polisyos.core.artifacts.protocol",
+      "source_path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+      "source_sha256": "aaaa6e65f0cd6f845a0b9b8b989e5d19b2e5e35f497d2c4704e29dd7c5594715",
+      "source_git_blob": "5e5b6de213899c164e639eb5b67a76ca0af9e248",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.ir.migrations.base",
+      "target_module": "polisyos.common.migrations._engine",
+      "source_path": "policy-engine/src/polisyos/ir/migrations/base.py",
+      "source_sha256": "caaf77cc32528eae1140e23d0fee9375273efa9472a1bf6181ccbba05fde9744",
+      "source_git_blob": "71132cea4f788e3701ed6d1215fefe4ef31a8ecd",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.ir.model_layer.canon",
+      "target_module": "polisyos.common.canonical",
+      "source_path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "source_sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b",
+      "source_git_blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.ir.model_layer.canon",
+      "target_module": "polisyos.common.hashing",
+      "source_path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "source_sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b",
+      "source_git_blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "source_path": "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+      "source_sha256": "144030072b61170d93ba387cb9f8977ff73e867f7ba2bb5b873a979a3c3e8230",
+      "source_git_blob": "a3c786090191d80c2a066b59804f7fe4c22a271b",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "target_module": "polisyos.core.artifacts.store",
+      "source_path": "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+      "source_sha256": "144030072b61170d93ba387cb9f8977ff73e867f7ba2bb5b873a979a3c3e8230",
+      "source_git_blob": "a3c786090191d80c2a066b59804f7fe4c22a271b",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "target_module": "polisyos.core.contracts.lex",
+      "source_path": "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+      "source_sha256": "144030072b61170d93ba387cb9f8977ff73e867f7ba2bb5b873a979a3c3e8230",
+      "source_git_blob": "a3c786090191d80c2a066b59804f7fe4c22a271b",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "target_module": "polisyos.core.governance.passes.base",
+      "source_path": "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+      "source_sha256": "144030072b61170d93ba387cb9f8977ff73e867f7ba2bb5b873a979a3c3e8230",
+      "source_git_blob": "a3c786090191d80c2a066b59804f7fe4c22a271b",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "target_module": "polisyos.core.governance.passes.legal_pass",
+      "source_path": "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+      "source_sha256": "144030072b61170d93ba387cb9f8977ff73e867f7ba2bb5b873a979a3c3e8230",
+      "source_git_blob": "a3c786090191d80c2a066b59804f7fe4c22a271b",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "target_module": "polisyos.core.governance.passes.safety_pass",
+      "source_path": "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+      "source_sha256": "144030072b61170d93ba387cb9f8977ff73e867f7ba2bb5b873a979a3c3e8230",
+      "source_git_blob": "a3c786090191d80c2a066b59804f7fe4c22a271b",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "target_module": "polisyos.core.governance.profiles",
+      "source_path": "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+      "source_sha256": "144030072b61170d93ba387cb9f8977ff73e867f7ba2bb5b873a979a3c3e8230",
+      "source_git_blob": "a3c786090191d80c2a066b59804f7fe4c22a271b",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "target_module": "polisyos.ir.loading.norm_pack",
+      "source_path": "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+      "source_sha256": "144030072b61170d93ba387cb9f8977ff73e867f7ba2bb5b873a979a3c3e8230",
+      "source_git_blob": "a3c786090191d80c2a066b59804f7fe4c22a271b",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.lex.legal_evaluation.impact_diff",
+      "target_module": "polisyos.ir.world.ids",
+      "source_path": "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+      "source_sha256": "144030072b61170d93ba387cb9f8977ff73e867f7ba2bb5b873a979a3c3e8230",
+      "source_git_blob": "a3c786090191d80c2a066b59804f7fe4c22a271b",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.lex.normpack.diff",
+      "target_module": "polisyos.ir.loading.norm_pack",
+      "source_path": "policy-engine/src/polisyos/lex/normpack/diff.py",
+      "source_sha256": "864d418736a31aee4657649b2a38932c912886fe46903fb2ed120143a797e86d",
+      "source_git_blob": "d39916a6956cf2e9e63e74cf18bb6ff0283f74b2",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.pdc._impl.world_model_record",
+      "target_module": "polisyos.core.artifacts",
+      "source_path": "policy-engine/src/polisyos/pdc/_impl/world_model_record.py",
+      "source_sha256": "ad1f1a0034aac25a10e240eeb859f993c675fcefb7b5d4055cadd090942f5d41",
+      "source_git_blob": "2fe8a11eaa8deff6bf763fd82b19b72e0983bfc9",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime",
+      "target_module": "polisyos.scientist.replay.deterministic",
+      "source_path": "policy-engine/src/polisyos/runtime/__init__.py",
+      "source_sha256": "9a186c21390e1c1282659a4afea846e49a1d53f6602789fa5004def977142287",
+      "source_git_blob": "967b92442bf6c49e0db07c2ae2a157b5248650dd",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.http.resilience",
+      "target_module": "polisyos.core.artifacts.ids",
+      "source_path": "policy-engine/src/polisyos/runtime/http/resilience.py",
+      "source_sha256": "aa060253ec9474db1446b7b048730be2284300a1378b87d9cd3dc9969d3b34a0",
+      "source_git_blob": "37b7c0af230751f902d22e14a5dce3f53b782435",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.http.resilience",
+      "target_module": "polisyos.core.artifacts.protocol",
+      "source_path": "policy-engine/src/polisyos/runtime/http/resilience.py",
+      "source_sha256": "aa060253ec9474db1446b7b048730be2284300a1378b87d9cd3dc9969d3b34a0",
+      "source_git_blob": "37b7c0af230751f902d22e14a5dce3f53b782435",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.http.resilience",
+      "target_module": "polisyos.core.artifacts.signing",
+      "source_path": "policy-engine/src/polisyos/runtime/http/resilience.py",
+      "source_sha256": "aa060253ec9474db1446b7b048730be2284300a1378b87d9cd3dc9969d3b34a0",
+      "source_git_blob": "37b7c0af230751f902d22e14a5dce3f53b782435",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.acquisition_surface_execution",
+      "target_module": "polisyos.core.artifacts",
+      "source_path": "policy-engine/src/polisyos/runtime/http/services/acquisition_surface_execution.py",
+      "source_sha256": "8423f88932aa3192ff5dd47d90b593a8396ca6acb2934aa575d1bbe93c849e6f",
+      "source_git_blob": "e24b50c96dee37f9a10e9a5d982ad8ad1ba935e0",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.evaluation_safety",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "source_path": "policy-engine/src/polisyos/runtime/http/services/control/evaluation_safety.py",
+      "source_sha256": "bc12bb95f5381d4f2b0235ce3cdb8705a27051a8bb33cf628ca10ab402af36cd",
+      "source_git_blob": "efa454a8eaf663b2d393bbc0b51c4920fc345a27",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.generation_cycle",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "source_path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "source_sha256": "cf6522b5c8b3d02c2b334468cb42edf99c5a3575bcc09c41b985c0ce43bfa9f6",
+      "source_git_blob": "29459ff167cad1e011a2de626a627b30d0336a01",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.run_lifecycle",
+      "target_module": "polisyos.core.artifacts",
+      "source_path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "source_sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "source_git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.run_lifecycle",
+      "target_module": "polisyos.fabric.ingestion.ingestion_providers",
+      "source_path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "source_sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "source_git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.control.run_lifecycle",
+      "target_module": "polisyos.fabric.storage.tenant_cas",
+      "source_path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "source_sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "source_git_blob": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.debug",
+      "target_module": "polisyos.core.contracts.foundry",
+      "source_path": "policy-engine/src/polisyos/runtime/http/services/debug.py",
+      "source_sha256": "22a4b2a4b560e4134b8ba7d1a028b90cafb8893670a5bdd512dff75a8a4cde82",
+      "source_git_blob": "fb62ad33a7ef5aedeb20f2c45c211c0d27ed22a2",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.http.services.human_decisions",
+      "target_module": "polisyos.core.artifacts.ownership",
+      "source_path": "policy-engine/src/polisyos/runtime/http/services/human_decisions.py",
+      "source_sha256": "e4268af75a8012f1dbcd7f5c5f1f85d3c9e9c6005f7050b986c8807ebb75d251",
+      "source_git_blob": "90a1ebe6b5f50996e447c385fca6b2145aca4a35",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.acquisition_planner",
+      "target_module": "polisyos.core.artifacts.protocol",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py",
+      "source_sha256": "d335ed8e0874c2a1cd89035b937f1dc1e461fb9e32b799e3d63614e541a9d60c",
+      "source_git_blob": "da680b58a7d4bde1ddba87944f82912c52e9faa9",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.acquisition_planner",
+      "target_module": "polisyos.fabric.connectors.sources.file_tabular",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py",
+      "source_sha256": "d335ed8e0874c2a1cd89035b937f1dc1e461fb9e32b799e3d63614e541a9d60c",
+      "source_git_blob": "da680b58a7d4bde1ddba87944f82912c52e9faa9",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.acquisition_planner",
+      "target_module": "polisyos.fabric.retrieval.custody",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py",
+      "source_sha256": "d335ed8e0874c2a1cd89035b937f1dc1e461fb9e32b799e3d63614e541a9d60c",
+      "source_git_blob": "da680b58a7d4bde1ddba87944f82912c52e9faa9",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.acquisition_route_loop",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/acquisition_route_loop.py",
+      "source_sha256": "d7beab61333e15f5688dbf49d29f06499c593fec441be4568457a7b64c2b683c",
+      "source_git_blob": "3d9dd1656aaa3bc7ca9d66bc4171a0f3a59f8011",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.candidate_simulation",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/candidate_simulation.py",
+      "source_sha256": "993866948d5cd9aac4fe89edf51d2365e647ae6d17df4316ccddd0cef31e8c24",
+      "source_git_blob": "9435d465d5035e658e66d6cbd0aa78452a2ecac6",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.chronology_proof",
+      "target_module": "polisyos.core.artifacts._manifest_lifecycle",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/chronology_proof.py",
+      "source_sha256": "55f119bb81f2a67bdee0e8e8db960b3539e5d34cac35ba236e1677d2963afb8a",
+      "source_git_blob": "12d6a4e1bb5cccf2d8fbe578b5a3478b3ee457ac",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.cycle_substrate",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/cycle_substrate.py",
+      "source_sha256": "d16440eff59fb66d98a9eabeb9437e120085fe46bbc015538c399d650ce19e74",
+      "source_git_blob": "932fd33fef285dbb87c7a9a670a78d741829df09",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.cycle_substrate",
+      "target_module": "polisyos.foundry.data_plane.bindings",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/cycle_substrate.py",
+      "source_sha256": "d16440eff59fb66d98a9eabeb9437e120085fe46bbc015538c399d650ce19e74",
+      "source_git_blob": "932fd33fef285dbb87c7a9a670a78d741829df09",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.cycle_substrate",
+      "target_module": "polisyos.foundry.execute.executor",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/cycle_substrate.py",
+      "source_sha256": "d16440eff59fb66d98a9eabeb9437e120085fe46bbc015538c399d650ce19e74",
+      "source_git_blob": "932fd33fef285dbb87c7a9a670a78d741829df09",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.cycle_substrate",
+      "target_module": "polisyos.ir.analytics.ncm",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/cycle_substrate.py",
+      "source_sha256": "d16440eff59fb66d98a9eabeb9437e120085fe46bbc015538c399d650ce19e74",
+      "source_git_blob": "932fd33fef285dbb87c7a9a670a78d741829df09",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_forge_binding",
+      "target_module": "polisyos.core.contracts.fabric",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py",
+      "source_sha256": "a6091cdb0cd9490dd5f86d046afc122663390223290dfc8f162af6cdcef742ac",
+      "source_git_blob": "3c5635a52efc4660a2dcd27f5c2fad96b70bf810",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "target_module": "polisyos.core.contracts.foundry",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py",
+      "source_sha256": "b0e6bd37b948136b8a4a6b2a52faab0f7ffdb341e58792b39089b027883147cd",
+      "source_git_blob": "5f920c8ffa3ac0bb200d24b947df7f5228d86a87",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "target_module": "polisyos.data_forge.domains.catalog.knowledge.overlay",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py",
+      "source_sha256": "b0e6bd37b948136b8a4a6b2a52faab0f7ffdb341e58792b39089b027883147cd",
+      "source_git_blob": "5f920c8ffa3ac0bb200d24b947df7f5228d86a87",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "target_module": "polisyos.foundry.data_plane.bindings",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py",
+      "source_sha256": "b0e6bd37b948136b8a4a6b2a52faab0f7ffdb341e58792b39089b027883147cd",
+      "source_git_blob": "5f920c8ffa3ac0bb200d24b947df7f5228d86a87",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.design_generation",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_versioning",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+      "source_sha256": "e290ec767a95d032fb55603449a64fb515f95af844e6285650d063f895499ddc",
+      "source_git_blob": "a12f1aade3ef5368bdd1571df52a2ef32538f7c1",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.design_generation",
+      "target_module": "polisyos.scientist.agent.protocols",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+      "source_sha256": "e290ec767a95d032fb55603449a64fb515f95af844e6285650d063f895499ddc",
+      "source_git_blob": "a12f1aade3ef5368bdd1571df52a2ef32538f7c1",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.design_problem",
+      "target_module": "polisyos.ir.kernel.base",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/design_problem.py",
+      "source_sha256": "9c5ee4e2a31c3311d14aa414ab7322ac53f98bed59f8dd8cbe14d82beae347d9",
+      "source_git_blob": "1fe470467f7c008c1e3c0eb4a6b8b98b4bf585e2",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.epoch_validity_cascade",
+      "target_module": "polisyos.core.contracts.c4_persisted_profiles",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py",
+      "source_sha256": "b3a6f6b64fd452d936c4c4918320e80ff82c74e613074d1f5116ec548e9e3175",
+      "source_git_blob": "f460d1ae6afc3371f9fa21b90eff3f16f2887a48",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.core.artifacts",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "source_sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+      "source_git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "source_sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+      "source_git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.core.canon",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "source_sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+      "source_git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.core.contracts.foundry",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "source_sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+      "source_git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.core.registry",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "source_sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+      "source_git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.data_forge.domains.catalog.knowledge.country_codes",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "source_sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+      "source_git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.fabric.data_plane",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "source_sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+      "source_git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.foundry.data_plane",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "source_sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+      "source_git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.foundry.execute.executor",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "source_sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+      "source_git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.ir.analytics.ncm",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "source_sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+      "source_git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_cycle",
+      "target_module": "polisyos.ir.registry.refs",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "source_sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+      "source_git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_source",
+      "target_module": "polisyos.core.artifacts._manifest_lifecycle",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/generation_source.py",
+      "source_sha256": "0040206edb401a0fd50033a92626d08549ee635b9019bac9b1f5aba2cb6c6056",
+      "source_git_blob": "727237e063321fa07ec14fd4c4ca4d724427f776",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_source",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/generation_source.py",
+      "source_sha256": "0040206edb401a0fd50033a92626d08549ee635b9019bac9b1f5aba2cb6c6056",
+      "source_git_blob": "727237e063321fa07ec14fd4c4ca4d724427f776",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_source",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_versioning",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/generation_source.py",
+      "source_sha256": "0040206edb401a0fd50033a92626d08549ee635b9019bac9b1f5aba2cb6c6056",
+      "source_git_blob": "727237e063321fa07ec14fd4c4ca4d724427f776",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.generation_source",
+      "target_module": "polisyos.ir.analytics.ncm",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/generation_source.py",
+      "source_sha256": "0040206edb401a0fd50033a92626d08549ee635b9019bac9b1f5aba2cb6c6056",
+      "source_git_blob": "727237e063321fa07ec14fd4c4ca4d724427f776",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.non_data_acquisition",
+      "target_module": "polisyos.core.artifacts.store",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/non_data_acquisition.py",
+      "source_sha256": "228259962bdaba0a331360da21544065a5104d17a0f7826e5ec3d4651975251b",
+      "source_git_blob": "6c0115a65ff9c100f0233cee087737364d28a098",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.proving_ground.causal_forecast_search",
+      "target_module": "polisyos.data_forge.kernel.embeddings",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py",
+      "source_sha256": "8b9444f5c4662bb2b518c2bf9491c68bef786d555ed1634c2bf2bea374f02602",
+      "source_git_blob": "4b5df12808066acd89c9d4610836a66fbe122ec9",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.proving_ground.substrate_grounding_search",
+      "target_module": "polisyos.data_forge.kernel.embeddings",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py",
+      "source_sha256": "076b0be55356e34e556765f3d2daba3ec8d60e6e2dcdd6811a6c793b301ce831",
+      "source_git_blob": "2600d2a4943a1baf5aec9cb60be3b6828e7d34ab",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.recursive_generation_cycle",
+      "target_module": "polisyos.core.artifacts",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "source_sha256": "411e9d796c7e36ac12a3d08115ccfde93b007b92375f8f320604dfab00e85469",
+      "source_git_blob": "71aa5c2956ba7033924f90be715ce3b8afb9f798",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.world_model_record",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "source_path": "policy-engine/src/polisyos/runtime/quality/world_model_record.py",
+      "source_sha256": "84bbec4b46114d5fb1872c969c0dd374e9de28c183c567c888cca54fefc2f495",
+      "source_git_blob": "27c54eb017475c4d7b8054508ae0b88c45be6e2e",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scholar.api",
+      "target_module": "polisyos.core.artifacts.ids",
+      "source_path": "policy-engine/src/polisyos/scholar/api.py",
+      "source_sha256": "d001df0ab42c8723b19a76985f32ad4d57dca4f9e299adb2b44daff64de6f036",
+      "source_git_blob": "6844a8b491f3b8580dba52dc446d7dbcf7d411cc",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scholar.api",
+      "target_module": "polisyos.core.canon",
+      "source_path": "policy-engine/src/polisyos/scholar/api.py",
+      "source_sha256": "d001df0ab42c8723b19a76985f32ad4d57dca4f9e299adb2b44daff64de6f036",
+      "source_git_blob": "6844a8b491f3b8580dba52dc446d7dbcf7d411cc",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scholar.orchestrator.enrich",
+      "target_module": "polisyos.core.artifacts.ids",
+      "source_path": "policy-engine/src/polisyos/scholar/orchestrator/enrich.py",
+      "source_sha256": "2f64c63883a5f2a9a50582e57a2abab4d9d33bc2fee8674f1deb493e819611e5",
+      "source_git_blob": "53d3309c145fc2b0eb4a34389008418b02da22cb",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scholar.orchestrator.enrich",
+      "target_module": "polisyos.core.canon",
+      "source_path": "policy-engine/src/polisyos/scholar/orchestrator/enrich.py",
+      "source_sha256": "2f64c63883a5f2a9a50582e57a2abab4d9d33bc2fee8674f1deb493e819611e5",
+      "source_git_blob": "53d3309c145fc2b0eb4a34389008418b02da22cb",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.agent.feasibility",
+      "target_module": "polisyos.foundry.execute._internal.snapshots",
+      "source_path": "policy-engine/src/polisyos/scientist/agent/feasibility.py",
+      "source_sha256": "d0b0a325b44a40f4e46c1bd8682664e1db60de02b525fb74e04302027a4456e4",
+      "source_git_blob": "d1495443b03177722c0c234ed45a9d057e87b339",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.cross_graph.compiler",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "source_path": "policy-engine/src/polisyos/scientist/cross_graph/compiler.py",
+      "source_sha256": "7d1373607aba08c966d3bd3900915851c3ab96b3415fb2c277874d5b91ce1208",
+      "source_git_blob": "8feadbb233341f9989e44cc2b425cce2960b3148",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.autotune.bayesian_generator",
+      "target_module": "polisyos.core.artifacts.ids",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "source_sha256": "864ceb96cd161c76f3df5d5ce014e99277ddce23f35dfd6b214242dde81936b5",
+      "source_git_blob": "afce091094e0ee268a9fa0119526fbda940a6bfe",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.core.artifacts.store",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "source_sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "source_git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.core.contracts.fabric",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "source_sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "source_git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.foundry.methods.artifacts",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "source_sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "source_git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.foundry.methods.backends.dispatch",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "source_sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "source_git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.foundry.methods.base",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "source_sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "source_git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.foundry.methods.catalog.forecasting",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "source_sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "source_git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.foundry.methods.compiler.specialization",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "source_sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "source_git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.foundry.methods.selection.registry",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "source_sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "source_git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.ir.analytics.backtest",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "source_sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "source_git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.ir.analytics.calibration_diagnostics",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "source_sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "source_git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.ir.analytics.forecasting_uncertainty",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "source_sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "source_git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.ir.artifacts",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "source_sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "source_git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.ir.model_layer.canon",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "source_sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "source_git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "target_module": "polisyos.ir.registry.refs",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "source_sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "source_git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+      "target_module": "polisyos.foundry.execute.executor",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "source_sha256": "808fc6a04d7bd74addfd7a77d6607c480b8b61a7e4a637e72177058f412dbce0",
+      "source_git_blob": "5ce80d5d2481ea86f8950fb1da1cbaebf3ebccd5",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+      "target_module": "polisyos.core.contracts.fabric",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "source_sha256": "d8bf760e45ab697556d39a78219edbf8c91b2b8a7c083b68595cca95d973662a",
+      "source_git_blob": "22db2f26c1b72517e11367c6861b92239f00c199",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+      "target_module": "polisyos.ir.analytics.uncertainty",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "source_sha256": "d8bf760e45ab697556d39a78219edbf8c91b2b8a7c083b68595cca95d973662a",
+      "source_git_blob": "22db2f26c1b72517e11367c6861b92239f00c199",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+      "target_module": "polisyos.ir.model_layer.canon",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "source_sha256": "d8bf760e45ab697556d39a78219edbf8c91b2b8a7c083b68595cca95d973662a",
+      "source_git_blob": "22db2f26c1b72517e11367c6861b92239f00c199",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.discovery.prior_miner",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/discovery/prior_miner.py",
+      "source_sha256": "eafd9603a8eadafe1a4f2d6bd1dc9d61247b476ba496693f70100fcd515a7923",
+      "source_git_blob": "a587b82fccf9ffa38847257bb0427b782a22ef17",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.search.service",
+      "target_module": "polisyos.common.logger",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "source_sha256": "0b9e880e3c6e03a34ce6b250a0c1b6b66a3d138a2f128ca446d12bf8689aba51",
+      "source_git_blob": "d38e888bf06a7b1bad29381c480448ea6b039065",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.causal.build_literature_prior",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py",
+      "source_sha256": "d4bba45a4f3445d7e98f732418c6562d4288331db73ca62b9eb40274c4966ea5",
+      "source_git_blob": "0bac332b835a58c4d5a5be5403065b58541ccc7e",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.causal.build_literature_prior",
+      "target_module": "polisyos.data_forge.read_api.academic",
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py",
+      "source_sha256": "d4bba45a4f3445d7e98f732418c6562d4288331db73ca62b9eb40274c4966ea5",
+      "source_git_blob": "0bac332b835a58c4d5a5be5403065b58541ccc7e",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.causal.resolve_parameters",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+      "source_sha256": "eb550486eebae50a0a0262c1909bc495354ba560c017ad2f1dc4448c028963d7",
+      "source_git_blob": "c5a522a2154994684d8f03a7924fbb0dfc3626c5",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.causal.resolve_transport",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py",
+      "source_sha256": "6997519aa5aa17c8273786955c67d53dc3941eec9e1e999203f866736a72a647",
+      "source_git_blob": "60eb9a98c0891bcb33dd9d0bd0e9ede1fae5b1af",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py",
+      "source_sha256": "1c5f70d0dc68f00b1ac7327589bff10b9ac446d041771dfd4550eb9ead2ffc71",
+      "source_git_blob": "416052e03066f75425d4dd94d4dd601366558112",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py",
+      "source_sha256": "fbac3868981a017bfd8f8ed3e2a99a08d05b0c302f7ef2573b5ed22a244db549",
+      "source_git_blob": "b7171cf0a1169c6f31d4f793958540efbc911deb",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime",
+      "target_module": "polisyos.data_forge.read_api.academic",
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py",
+      "source_sha256": "fbac3868981a017bfd8f8ed3e2a99a08d05b0c302f7ef2573b5ed22a244db549",
+      "source_git_blob": "b7171cf0a1169c6f31d4f793958540efbc911deb",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+      "source_sha256": "d300849e7f631d864358162150678d5f1f8872c152e72404ca54bb005fe91567",
+      "source_git_blob": "6f48872f02bbd54fd70bb257856a0eeb789f516c",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search",
+      "target_module": "polisyos.data_forge.read_api.academic",
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+      "source_sha256": "d300849e7f631d864358162150678d5f1f8872c152e72404ca54bb005fe91567",
+      "source_git_blob": "6f48872f02bbd54fd70bb257856a0eeb789f516c",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.context",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/context.py",
+      "source_sha256": "af6ed089cbc85b13730b640dfe089504f61dfa2a21d296744ede3f18920c7375",
+      "source_git_blob": "938e25daf571f2b95e50f40b421fe16f3f21892e",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.executor",
+      "target_module": "polisyos.core.artifacts.write_contract",
+      "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+      "source_sha256": "de6b1a89663b8284bd0cbae8eaade6e936ce5c5bce05844c100fd288e0d80c82",
+      "source_git_blob": "fe0aadf975873aa54d35008d5020b66c6c6778fa",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.executor",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+      "source_sha256": "de6b1a89663b8284bd0cbae8eaade6e936ce5c5bce05844c100fd288e0d80c82",
+      "source_git_blob": "fe0aadf975873aa54d35008d5020b66c6c6778fa",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.protocol",
+      "target_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py",
+      "source_sha256": "b38481eec549e4bb999937c52f9fedc4269a78709f850adaa23b64f0032fba76",
+      "source_git_blob": "260f34e3a52fcf3b82aec43023f45a392b5bdf6f",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.runner.fallback_runner",
+      "target_module": "polisyos.core.errors",
+      "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/fallback_runner.py",
+      "source_sha256": "08a6a33767eb69c875f8ba4391c7ab8e53858f830f9e1467c073148319683668",
+      "source_git_blob": "3b7f928615a99c3114362561cc8b6c7d69eb1431",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.runner.serialization",
+      "target_module": "polisyos.core.artifacts.ids",
+      "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+      "source_sha256": "93c5f4b5577e00dd18e83ff4b4b4423d99706da90300d0ea44d74c2a06d96bb7",
+      "source_git_blob": "cccc5bc78e255a6e5025eb81293a658b6817953b",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.runner.serialization",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+      "source_sha256": "93c5f4b5577e00dd18e83ff4b4b4423d99706da90300d0ea44d74c2a06d96bb7",
+      "source_git_blob": "cccc5bc78e255a6e5025eb81293a658b6817953b",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.runner.serialization",
+      "target_module": "polisyos.core.contracts.skip_blockers",
+      "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+      "source_sha256": "93c5f4b5577e00dd18e83ff4b4b4423d99706da90300d0ea44d74c2a06d96bb7",
+      "source_git_blob": "cccc5bc78e255a6e5025eb81293a658b6817953b",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.state_branching",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+      "source_sha256": "68f3d342ccb9a565e51999609171d2cc501c02328d5c1b48523f30d07ee81cfb",
+      "source_git_blob": "08760b26aae2a489b54441b20b3a90fcd040888d",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.state_branching",
+      "target_module": "polisyos.ir.registry.refs",
+      "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+      "source_sha256": "68f3d342ccb9a565e51999609171d2cc501c02328d5c1b48523f30d07ee81cfb",
+      "source_git_blob": "08760b26aae2a489b54441b20b3a90fcd040888d",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.state_merge",
+      "target_module": "polisyos.core.artifacts.manifest",
+      "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py",
+      "source_sha256": "6eb8cd4bcb7f3e67c82f24903357591e44e38fe6aa96f4467f09ee3e36846d83",
+      "source_git_blob": "638cfce7e4c0e35bac651975c8839f31b8cc574f",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    },
+    {
+      "source_module": "polisyos.scientist.validation.verification.ic.service",
+      "target_module": "polisyos.foundry.methods.catalog.mechanism.families",
+      "source_path": "policy-engine/src/polisyos/scientist/validation/verification/ic/service.py",
+      "source_sha256": "8c29a0639c5ccadefd69cda575e690bbb846bc3a770dcd0f2345ef9df049497d",
+      "source_git_blob": "c248f5e1c7fa1ec91aafbf3fef960a335d85580d",
+      "source_unchanged_3932_to_current": true,
+      "P41": "not_established",
+      "canonical_writer_attribution": "Use actual owner receipt and canonical package policy; no unit inferred solely from module root"
+    }
+  ],
+  "owner_sources": [
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "bytes": 12413,
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "bytes": 9504,
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722"
+    }
+  ],
+  "original12_E_debt": {
+    "resolved": 11,
+    "remaining_original_edge": "polisyos.calibration.forecast_bridge -> polisyos.ir.analytics.forecasting_uncertainty.load_forecasting_uncertainty_bundle",
+    "CanonSpec": "Separate old/general IR admission question, not remaining original12 item"
+  },
+  "remaining_owner_questions": "Unapplied IR CanonSpec root identity export and forecasting bundle loader/writer curated analytics exports; no general foreign facade lease",
+  "generated_families_owner": "Declared team-polisyos/team-architecture generator owners; G alone integration publisher",
+  "new_E_source_from3932": "7 product/5test Python paths already independently reviewed; no self review of old539 Core bodies here",
+  "global_outcome": "FAIL",
+  "finding_outcome": "not adjudicated by this selector",
+  "P41": "not_established absent full exact slice-base198 replay"
+}

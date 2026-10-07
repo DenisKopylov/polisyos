@@ -1,0 +1,52 @@
+{
+  "schema": "e02-moderate-publication-selection:1",
+  "candidate": "62f4ec1ccef014d642d38027c699afc544403d0f",
+  "candidate_tree": "04f311c1d823e07c69b0ce332bb4f84b228c6bb8",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-facade-handoff62f-independent-20261007/review.json",
+      "path": "review.json",
+      "bytes": 24290,
+      "sha256": "f729fcaa1503a1bcc344649bb4072c048cb7fc31b930b43b325c8ccba4744715"
+    },
+    {
+      "source_path": "/tmp/e02-E-facade-handoff62f-independent-20261007/review.py.txt",
+      "path": "review.py.txt",
+      "bytes": 10687,
+      "sha256": "abe049ff1f4cd1c286e1280e43120bb501452f8c3293b1392411ecacdbacacf2"
+    },
+    {
+      "source_path": "/tmp/e02-E-facade-handoff62f-independent-20261007/stdout.txt",
+      "path": "stdout.txt",
+      "bytes": 24290,
+      "sha256": "f729fcaa1503a1bcc344649bb4072c048cb7fc31b930b43b325c8ccba4744715"
+    },
+    {
+      "source_path": "/tmp/e02-E-facade-handoff62f-independent-20261007/stderr.txt",
+      "path": "stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-facade-handoff62f-independent-20261007/optimized.stdout.txt",
+      "path": "optimized.stdout.txt",
+      "bytes": 24290,
+      "sha256": "f729fcaa1503a1bcc344649bb4072c048cb7fc31b930b43b325c8ccba4744715"
+    },
+    {
+      "source_path": "/tmp/e02-E-facade-handoff62f-independent-20261007/optimized.stderr.txt",
+      "path": "optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-facade-handoff62f-independent-20261007/commands.json",
+      "path": "commands.json",
+      "bytes": 816,
+      "sha256": "8a083085c37fbc81ff959a034e665ee473436052b4eca94844a1f5f7f4224ed5"
+    }
+  ],
+  "asset_count": 7,
+  "asset_bytes": 84373,
+  "scope": "Thin exact31DOC/30copy custody; old317 history preserved; d003 source GO reused; no numeric/test execution."
+}

@@ -1,0 +1,14 @@
+{
+  "retained_workspace": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry1",
+  "existing_uv_cache": "/workspace/.polisyos-environment/cache/uv",
+  "required_private_env_authorized": true,
+  "memory_events_before_retry": "low 0\nhigh 0\nmax 3586889\noom 84\noom_kill 9\noom_group_kill 0\n",
+  "memory_current": 17077846016,
+  "memory_max": 17179869184,
+  "inactive_file": 560078848,
+  "slab_reclaimable": 1524128384,
+  "tmp_free": 5003292672,
+  "workspace_free": 1419403264,
+  "repair": "Root/oracle closed historical raw relocation restored shared cache volume bytes; previous failed repeatable source copy deleted after exact Git binding and unique timing log preservation.",
+  "retained_root_reuse_support": "Canonical guard rejects existing root, so one fresh external retained root is required; no bypass."
+}

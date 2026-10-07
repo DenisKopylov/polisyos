@@ -1,0 +1,77 @@
+{
+  "controls": [
+    {
+      "name": "healthy_actual_closed_inventory_and_claims",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "bool_count",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "float_count",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "wrong_count",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "fake_retirement",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "foreign_write",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "file_digest",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "file_mode",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "external_link_target",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "actual_one_member_omission",
+      "outcome": "PASS"
+    },
+    {
+      "name": "actual_exact_member_guard_removal_readmits_same_omission",
+      "outcome": "PASS",
+      "removed_property": "admit_membership body only"
+    }
+  ],
+  "new_cleanup_or_native_operations": 0,
+  "observer": {
+    "bytes": 12098,
+    "path": "/tmp/e02-E-one-native-archive-custody-independent-20261007/review.py.txt",
+    "sha256": "7ab3f1af918fd76264215bc884e8ed223bd592e88165072d9df8b3bc04cdb8e9"
+  },
+  "optimized": true,
+  "receipt": {
+    "bytes": 10789,
+    "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/receipt.json",
+    "sha256": "1ec5b9463914cdc30a6a29078961f8824315d174029f9fe69ca401850bcb984d"
+  },
+  "reviewed_shared_helper": {
+    "bytes": 31259,
+    "path": "/tmp/e02-E-cleanup-custody-independent-20261007/review-cleanup-custody-v3.py.txt",
+    "sha256": "3c579582b2f4089b3c9fc0c82132588edce02a446eb1dbd10feae0da0f447787"
+  },
+  "schema": "policyos.e02.E.one_closed_native_archive_independent_review.v1",
+  "scope": "Custody only; no source/finding/P41 acceptance."
+}

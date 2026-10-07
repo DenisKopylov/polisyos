@@ -1,0 +1,6 @@
+{
+  "scope": "Stop only owned stateless custody observer, retaining its literal script/stdout/stderr; no selector/source/env/process belonging to another task touched.",
+  "pids_interrupted": [],
+  "reason": "Replace per-file two Git subprocess calls with one persistent exact Git cat-file batch; same each-file byte comparison premise.",
+  "time_unix": 1791380297.2431498
+}

@@ -1,0 +1,68 @@
+{
+  "ROOT_source_environment_or_outputs_modified": false,
+  "control_count": 12,
+  "controls": [
+    {
+      "name": "healthy_typed_full_inventory_and_exact21_counter",
+      "outcome": "PASS"
+    },
+    {
+      "name": "allocation_only_difference_admitted_separately",
+      "outcome": "PASS"
+    },
+    {
+      "name": "copied_content_hash_difference_refused",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "bool_file_count",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "float_bytes",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "wrong_count",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "fake_verified_flag",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "missing_preserved_member",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "extra_preserved_member",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "unjustified_raw_retirement",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": true,
+      "name": "whole21_source_omission_with_other_markers_preserved",
+      "outcome": "PASS"
+    },
+    {
+      "name": "actual_exact21_counter_removal_readmits20_with_same_markers",
+      "outcome": "PASS",
+      "removed_property": "admit_expected_actions body only"
+    }
+  ],
+  "optimized": true,
+  "schema": "policyos.e02.E.completed_cleanup_custody_controls.v1",
+  "scope": "Custody admission controls only; no transfer/archive/deletion/native operations",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+}

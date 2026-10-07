@@ -1,0 +1,39 @@
+{
+  "controls": [
+    {
+      "case": "healthy_actual_complete_denominators",
+      "outcome": "PASS"
+    },
+    {
+      "case": "current_files_bool",
+      "outcome": "PASS",
+      "refusal": "claims_changed_from_closed_observer"
+    },
+    {
+      "case": "old_full_graph_rebranded_current",
+      "outcome": "PASS",
+      "refusal": "claims_changed_from_closed_observer"
+    },
+    {
+      "case": "old_mapping_substitution",
+      "outcome": "PASS",
+      "refusal": "claims_changed_from_closed_observer"
+    },
+    {
+      "case": "reported151_as_all_collector",
+      "outcome": "PASS",
+      "refusal": "claims_changed_from_closed_observer"
+    },
+    {
+      "case": "invented_inheritance",
+      "outcome": "PASS",
+      "refusal": "claims_changed_from_closed_observer"
+    },
+    {
+      "case": "actual_admit_body_removal_false151_complete_readmitted",
+      "outcome": "PASS",
+      "all_source_native_markers_unchanged": true
+    }
+  ],
+  "gate_repeated": false
+}

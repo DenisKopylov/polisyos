@@ -1,0 +1,59 @@
+import hashlib
+import json
+import os
+import pathlib
+import shutil
+import subprocess
+import time
+
+r=pathlib.Path('/tmp/e02-E-MC-b6-gates-20261007');p=r/'architecture-retained/source'
+proof=json.loads((r/'failed-source-copy-preflight.json').read_text())
+if not proof['tracked_files_exact_Git_blob_binding'] or proof['mismatch_paths'] or proof['active_users'] or proof['private_env_exists'] or proof['outputs_regular_files']:
+ raise RuntimeError('failed copy custody prerequisite is incomplete')
+# Preserve both ignored native timing/log artifacts before touching the duplicate copy.
+saved=[];unique=r/'failed-copy-unique-native-instrumentation';unique.mkdir()
+for row in proof['untracked_regular_files']:
+ src=p/row['relative'];data=src.read_bytes()
+ if hashlib.sha256(data).hexdigest()!=row['sha256'] or len(data)!=row['bytes']:
+  raise RuntimeError('untracked timing bytes changed')
+ dest=unique/pathlib.Path(row['relative']).name
+ with dest.open('xb') as f:f.write(data)
+ saved.append({'source_path':str(src),'preserved_path':str(dest),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+# Fresh task/actor scope: live agent processes and their children; host engine services
+# do not execute this copied checkout. Zombies have no live artifact readers.
+users=[];scanned=0;outside=[];unknown=[]
+for proc in pathlib.Path('/proc').iterdir():
+ if not proc.name.isdigit():continue
+ try:
+  fields={line.split(':',1)[0]:line.split(':',1)[1].strip() for line in (proc/'status').read_text().splitlines() if ':' in line}
+  if fields.get('State','').startswith('Z'):continue
+  uid=int(fields['Uid'].split()[0]);name=fields.get('Name','')
+  if uid!=os.getuid():
+   outside.append({'pid':int(proc.name),'uid':uid,'name':name,'scope':'host service outside copied-checkout task actor scope'})
+   continue
+  if int(proc.name)==os.getpid():continue
+  scanned+=1;matches=[]
+  cmd=(proc/'cmdline').read_bytes().replace(b'\0',b' ').decode(errors='replace')
+  if str(p) in cmd:matches.append('command')
+  for key in ['cwd','exe']:
+   try:
+    if os.readlink(proc/key).startswith(str(p)):matches.append(key)
+   except FileNotFoundError:pass
+  for fd in (proc/'fd').iterdir():
+   try:
+    if os.readlink(fd).startswith(str(p)):matches.append('fd/'+fd.name)
+   except FileNotFoundError:pass
+  if matches:users.append({'pid':int(proc.name),'matches':matches})
+ except FileNotFoundError:pass
+ except PermissionError as exc:unknown.append({'pid':proc.name,'error':str(exc)})
+if users or unknown:raise RuntimeError('scoped active-user proof unavailable')
+head=subprocess.check_output(['git','--no-optional-locks','rev-parse','HEAD'],cwd='/workspace/e02-E-mc-20261006',text=True).strip()
+if head!='b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4':raise RuntimeError('current source head changed')
+before={'tmp_free':os.statvfs('/tmp').f_bavail*os.statvfs('/tmp').f_frsize,'memory_current':int(pathlib.Path('/sys/fs/cgroup/memory.current').read_text())}
+pre={'schema':'policyos.e02.E.scoped_failed_copy_deletion_preflight.v1','copy':str(p),'candidate':head,'tracked_Git_duplicate_files':proof['tracked_regular_file_count'],'tracked_Git_duplicate_bytes':proof['tracked_regular_bytes'],'proof_sha256':hashlib.sha256((r/'failed-source-copy-preflight.json').read_bytes()).hexdigest(),'preserved_unique_ignored_timing_artifacts':saved,'active_users':users,'unknown_task_actor_permissions':unknown,'task_actor_live_processes_scanned':scanned,'outside_host_services':outside,'private_env_created':False,'unique_generator_outputs':False,'deciding_output_refs':proof['deciding_files_outside_copy'],'authorization':'Explicit parent/user cloud-only unused repeatable source-copy deletion; original MC code/docs/Git/input identities preserved.'}
+with (r/'failed-copy-scoped-delete-preflight.json').open('x') as f:json.dump(pre,f,indent=2);f.write('\n')
+shutil.rmtree(p)
+after={'tmp_free':os.statvfs('/tmp').f_bavail*os.statvfs('/tmp').f_frsize,'memory_current':int(pathlib.Path('/sys/fs/cgroup/memory.current').read_text())}
+receipt={'schema':'policyos.e02.E.failed_repeatable_source_copy_deleted.v1','copy':str(p),'deleted':not p.exists(),'preflight_sha256':hashlib.sha256((r/'failed-copy-scoped-delete-preflight.json').read_bytes()).hexdigest(),'before':before,'after':after,'preserved_artifacts':saved,'source_code_useful_docs_unique_data_active_env_Git_deleted':False,'actual_actions':'Only shutil.rmtree on the certified isolated failed duplicate source copy; no other directory/cache/environment removed.'}
+with (r/'failed-copy-delete-receipt.json').open('x') as f:json.dump(receipt,f,indent=2);f.write('\n')
+print(json.dumps(receipt,indent=2))

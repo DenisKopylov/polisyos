@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final-moderate-publication-r4-stage/build-stage.py.txt", line 20, in <module>
+    expected.append(spec);rows.extend(m.expand(spec,d));rows.append(m.selector_row(spec))
+                                      ^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt", line 101, in expand
+    original = stored = identity(raw)
+                        ^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-moderate-publication-r4-stage/copy-closed-controls.py.txt", line 42, in identity
+    raise ValueError('complete typed source identity')
+ValueError: complete typed source identity

@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-cleanup-custody-independent-20261007/review-cleanup-custody-v2.py.txt", line 660, in <module>
+    main()
+  File "/tmp/e02-E-cleanup-custody-independent-20261007/review-cleanup-custody-v2.py.txt", line 645, in main
+    result = controls() if args.controls else review()
+                                              ^^^^^^^^
+  File "/tmp/e02-E-cleanup-custody-independent-20261007/review-cleanup-custody-v2.py.txt", line 420, in review
+    require(
+  File "/tmp/e02-E-cleanup-custody-independent-20261007/review-cleanup-custody-v2.py.txt", line 53, in require
+    raise ValueError(reason)
+ValueError: all recorded full inventories byte-identical

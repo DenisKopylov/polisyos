@@ -1,0 +1,403 @@
+"""Read-only independent custody and native-field conservation observer."""
+
+import ast
+import copy
+import gzip
+import hashlib
+import json
+import pathlib
+import re
+import subprocess
+import sys
+import tempfile
+from collections import Counter
+
+BASE = pathlib.Path(tempfile.gettempdir()) / "e02-E-ROOT31782-umbrella-gates-20261007"
+REPO = pathlib.Path("/workspace/e02-E-continuation-20261006")
+SOURCE = "31782b55f8f35556cfc581449b040c393f00c78f"
+TREE = "746f50214f70c0fa34cd8bb6d42e72440adc9f96"
+PINS = {
+    "current-parent-packet.json": (
+        35737,
+        "f7689f0cd708721e32e02eeba79f84d95bd4b523e280207b14052ede0a2530e5",
+    ),
+    "publication-selection.json": (
+        48232,
+        "5e3ad90315847c13b6b4b2ead6b447a455a454ebae435eaeecbc3d4c92ea93b8",
+    ),
+    "runtime-binding-correction-publication-selection.json": (
+        1786,
+        "3786a29b745ab68d19a13ca46dc6f42bd9ec85fd3f7331f7f579fe397823ed45",
+    ),
+}
+
+
+def require(value: object, reason: str) -> None:
+    if not value:
+        raise ValueError(reason)
+
+
+def token(value: object) -> str:
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
+
+
+def equal(actual: object, expected: object, reason: str) -> None:
+    require(token(actual) == token(expected), reason)
+
+
+def ref_bytes(ref: dict[str, object]) -> bytes:
+    require(type(ref.get("bytes")) is int and ref["bytes"] >= 0, "reference_size_type")
+    require(type(ref.get("path")) is str, "reference_path_type")
+    path = pathlib.Path(ref["path"])
+    require(path.is_absolute(), "reference_absolute_path")
+    require(type(ref.get("sha256")) is str, "reference_digest_type")
+    require(re.fullmatch("[0-9a-f]{64}", ref["sha256"]) is not None, "reference_digest_shape")
+    raw = path.read_bytes()
+    equal(len(raw), ref["bytes"], "reference_size")
+    equal(hashlib.sha256(raw).hexdigest(), ref["sha256"], "reference_digest")
+    return raw
+
+
+def ref_json(ref: dict[str, object]) -> object:
+    return json.loads(ref_bytes(ref))
+
+
+def pin(name: str) -> object:
+    size, digest = PINS[name]
+    return ref_json({"path": str(BASE / name), "bytes": size, "sha256": digest})
+
+
+def membership(selection: dict[str, object], expected: dict[str, object]) -> None:
+    equal(selection["logical_count"], 43, "logical_count")
+    equal(selection["unique_count"], 32, "unique_count")
+    equal(selection["stored_bytes"], 1576919, "stored_bytes")
+    equal(
+        Counter(map(token, selection["assets"])),
+        Counter(map(token, expected["assets"])),
+        "mandatory_storage_members",
+    )
+    equal(
+        Counter(map(token, selection["logical_aliases"])),
+        Counter(map(token, expected["logical_aliases"])),
+        "mandatory_logical_members",
+    )
+
+
+def storage(selection: dict[str, object]) -> dict[str, object]:
+    require(len(selection["assets"]) == selection["unique_count"], "storage_count")
+    require(len(selection["logical_aliases"]) == selection["logical_count"], "alias_count")
+    stored_total = 0
+    gzip_decoded = 0
+    for asset in selection["assets"]:
+        raw = ref_bytes(
+            {"path": asset["source_path"], "bytes": asset["bytes"], "sha256": asset["sha256"]}
+        )
+        stored_total += len(raw)
+        mode = asset["storage"]["mode"]
+        require(mode in {"literal", "gzip_literal_archive"}, "storage_mode")
+        if mode == "literal":
+            ref_bytes(asset["storage"]["original"])
+        else:
+            original = asset["storage"]["decoded_original"]
+            digest = hashlib.sha256()
+            count = 0
+            with gzip.open(asset["source_path"], "rb") as stream:
+                for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                    digest.update(chunk)
+                    count += len(chunk)
+            equal(count, original["bytes"], "gzip_decoded_size")
+            equal(digest.hexdigest(), original["sha256"], "gzip_decoded_digest")
+            gzip_decoded += count
+    for alias in selection["logical_aliases"]:
+        ref_bytes(alias["source"])
+        require(
+            any(token(a["storage"]) == token(alias["storage"]) for a in selection["assets"]),
+            "logical_storage_carrier",
+        )
+    equal(stored_total, selection["stored_bytes"], "storage_total")
+    return {
+        "logical_rows": len(selection["logical_aliases"]),
+        "storage_rows": len(selection["assets"]),
+        "stored_bytes": stored_total,
+        "gzip_stream_decoded_bytes": gzip_decoded,
+        "logical_physical_refs_checked_including_deduplicated_aliases": True,
+    }
+
+
+def admit_parent(packet: dict[str, object], originals: dict[str, object]) -> None:
+    equal(packet["source"], SOURCE, "parent_source")
+    equal(packet["tree"], TREE, "parent_tree")
+    for name, expected in originals.items():
+        actual = packet["current"][name]
+        for field, value in expected.items():
+            equal(actual[field], value, f"parent_summary:{name}:{field}")
+    equal(packet["finding_closure"], False, "finding_closure")
+    equal(packet["global_CI_PASS"], False, "global_CI_PASS")
+    equal(packet["P41"], "not_established", "P41")
+
+
+def native_expectations(packet: dict[str, object]) -> dict[str, object]:
+    result = {}
+    for name, projected in packet["current"].items():
+        receipt = ref_json(projected["receipt"])
+        stages = ref_json(projected["plan_and_outcomes"])
+        require(len(stages["scopes"]) == 1, "one_actual_parent_scope")
+        steps = stages["scopes"][0]["steps"]
+        counts = dict(Counter(step["outcome"] for step in steps))
+        equal(receipt["source"], SOURCE, "native_source")
+        equal(receipt["tree"], TREE, "native_tree")
+        equal(receipt["source_before"], receipt["source_after"], "native_source_frame")
+        equal(
+            receipt["ROOT_environment_metadata_before"],
+            receipt["ROOT_environment_metadata_after"],
+            "environment_metadata_bracket",
+        )
+        rows = receipt["ROOT_environment_metadata_before"]["metadata_rows"]
+        distributions = [row for row in rows if row["path"].endswith(".dist-info/METADATA")]
+        controls = [row for row in rows if not row["path"].endswith(".dist-info/METADATA")]
+        equal(len(distributions), 207, "complete_metadata_distributions")
+        equal(len(controls), 3, "protected_control_rows")
+        ref_bytes(receipt["stdout"])
+        ref_bytes(receipt["stderr"])
+        equal(receipt["canonical_selector_outcome"], "FAIL", "canonical_outcome")
+        equal(stages["exit_code"], receipt["exit_code"], "native_exit")
+        equal(stages["numerical_thread_caps"], None, "no_numeric_caps")
+        equal(stages["required_steps_preserved"], True, "required_steps_preserved")
+        expected_counts = (
+            {"PASS": 1, "FAIL": 1, "UNRUN": 13}
+            if name == "workspace_verify"
+            else {"FAIL": 1, "UNRUN": 23}
+        )
+        equal(counts, expected_counts, "actual_stage_counts")
+        failures = [step for step in steps if step["outcome"] == "FAIL"]
+        require(len(failures) == 1, "one_actual_failfast_step")
+        failed_index = steps.index(failures[0])
+        require(
+            all(step["outcome"] == "UNRUN" for step in steps[failed_index + 1 :]),
+            "actual_successors_unrun",
+        )
+        projected_counts = {
+            outcome: counts.get(outcome, 0) for outcome in ("PASS", "FAIL", "UNRUN")
+        }
+        result[name] = {
+            "outcome": receipt["canonical_selector_outcome"],
+            "native_exit_code": receipt["exit_code"],
+            "command": receipt["command"],
+            "wall_seconds": receipt["wall_seconds"],
+            "complete_stage_count": len(steps),
+            "counts": projected_counts,
+            "actual_failing_step": failures[0]["label"],
+            "steps": steps,
+            "source_frame": receipt["source_before"],
+            "source_immutable": receipt["source_immutable"],
+            "ROOT_METADATA_and_protected_controls_unchanged": receipt[
+                "ROOT_environment_metadata_unchanged"
+            ],
+            "ROOT_distribution_rows": len(distributions),
+            "ROOT_protected_controls": len(controls),
+            "stdout": receipt["stdout"],
+            "stderr": receipt["stderr"],
+        }
+    return result
+
+
+def admit_binding(qualification: dict[str, object], expected: dict[str, object]) -> None:
+    for field, value in expected.items():
+        equal(qualification[field], value, f"binding:{field}")
+
+
+def git_blob(revision: str, path: str) -> bytes:
+    require(
+        revision in {SOURCE, "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4"},
+        "admitted_exact_git_revision",
+    )
+    require(
+        path
+        in {
+            "policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py",
+            "policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py",
+            "policy-engine/src/polisyos/runtime/http/services/governed_projections.py",
+        },
+        "admitted_exact_git_source_role",
+    )
+    # Constant executable, two admitted immutable revisions and three source paths; no shell.
+    return subprocess.check_output(  # noqa: S603
+        ["/usr/bin/git", "show", revision + ":" + path], cwd=REPO, shell=False
+    )
+
+
+def binding_expectations(qualification: dict[str, object]) -> dict[str, object]:
+    raw = ref_bytes(qualification["closed_native_stdout"]).decode()
+    values = {}
+    for key in (
+        "bound_dependency_count",
+        "bound_dependency_aggregate_identity",
+        "projection_hash",
+        "worker_validation_receipt_hash",
+    ):
+        pattern = (
+            '"' + key + r'":\s*([0-9]+)'
+            if key == "bound_dependency_count"
+            else '"' + key + r'":\s*"(sha256:[0-9a-f]{64})"'
+        )
+        matches = set(re.findall(pattern, raw))
+        require(len(matches) == 1, f"unique_native_diff:{key}")
+        value = next(iter(matches))
+        values[key] = int(value) if key == "bound_dependency_count" else value
+    prior = ref_json(qualification["prior_b6_complete_output"])
+    prior_text = token(prior)
+    old_aggregate = qualification["prior_b6_confidence_aggregate"]
+    require(old_aggregate in prior_text, "prior_complete_raw_contains_old_aggregate")
+    equal(values["bound_dependency_count"], 1494, "current_native_count")
+    require(
+        values["bound_dependency_aggregate_identity"] != old_aggregate, "aggregate_actually_changed"
+    )
+    for role in qualification["binding_implementation_source"]:
+        source_raw = git_blob(SOURCE, role["path"])
+        prior_raw = git_blob(qualification["prior_source"], role["path"])
+        equal(source_raw.hex(), prior_raw.hex(), "immutable_source_blob_equality")
+        equal(len(source_raw), role["bytes"], "source_role_size")
+        equal(hashlib.sha256(source_raw).hexdigest(), role["sha256"], "source_role_digest")
+    return {
+        "source": SOURCE,
+        "tree": TREE,
+        "current_native_diff_values": values,
+        "dependency_count_changed": False,
+        "aggregate_changed": True,
+        "dependency_manifest_delta_cause": "not_established",
+        "current_complete_runtime_json_retained": False,
+        "current_complete_dependency_bindings_retained": False,
+        "native_gate_rerun": False,
+        "finding_closure": False,
+        "P41": "not_established",
+    }
+
+
+def refused(call: object, label: str) -> dict[str, object]:
+    try:
+        call()
+    except ValueError as error:
+        return {"case": label, "outcome": "PASS", "actual_refusal": str(error)}
+    raise ValueError("negative_readmitted:" + label)
+
+
+def removed_body(function: str) -> object:
+    source = pathlib.Path(__file__).read_text()
+    tree = ast.parse(source)
+    tree.body = [
+        node
+        for node in tree.body
+        if not (
+            isinstance(node, ast.If)
+            and isinstance(node.test, ast.Compare)
+            and isinstance(node.test.left, ast.Name)
+            and node.test.left.id == "__name__"
+        )
+    ]
+    matches = [
+        node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == function
+    ]
+    require(len(matches) == 1, "one_actual_admission_body")
+    matches[0].body = [ast.Pass()]
+    namespace = {"__file__": __file__}
+    # Own immutable observer AST; remove one named guard for its defining negative.
+    exec(compile(ast.fix_missing_locations(tree), __file__, "exec"), namespace)  # noqa: S102
+    return namespace[function]
+
+
+def main() -> None:
+    packet = pin("current-parent-packet.json")
+    selection = pin("publication-selection.json")
+    correction_selection = pin("runtime-binding-correction-publication-selection.json")
+    membership(selection, copy.deepcopy(selection))
+    storage_result = storage(selection)
+    require(
+        len(correction_selection["assets"]) == correction_selection["files"] == 5,
+        "correction_assets_count",
+    )
+    equal(
+        sum(len(ref_bytes(asset)) for asset in correction_selection["assets"]),
+        correction_selection["stored_bytes"],
+        "correction_stored_total",
+    )
+    qualification = json.loads((BASE / "runtime-binding-qualification-v1.json").read_bytes())
+    expected_parent = native_expectations(packet)
+    expected_binding = binding_expectations(qualification)
+    admit_parent(packet, expected_parent)
+    admit_binding(qualification, expected_binding)
+    controls = [{"case": "healthy_literal_native_summary_and_selection", "outcome": "PASS"}]
+    for label, role, field, value in (
+        ("native_fail_to_pass", "workspace_verify", "outcome", "PASS"),
+        ("stage_count_bool", "workspace_verify", "complete_stage_count", True),
+        ("metadata_count_float", "CI_parity", "ROOT_distribution_rows", 207.0),
+        ("unrun_successors_to_pass", "CI_parity", "counts", {"PASS": 23, "FAIL": 1, "UNRUN": 0}),
+    ):
+        mutant = copy.deepcopy(packet)
+        mutant["current"][role][field] = value
+        controls.append(refused(lambda m=mutant: admit_parent(m, expected_parent), label))
+    for label, field, value in (
+        ("invented_complete_raw", "current_complete_runtime_json_retained", True),
+        ("source_equality_promoted_to_binding_equality", "aggregate_changed", False),
+        ("invented_runtime_binding_cause", "dependency_manifest_delta_cause", "docs_only"),
+    ):
+        mutant = copy.deepcopy(qualification)
+        mutant[field] = value
+        controls.append(refused(lambda m=mutant: admit_binding(m, expected_binding), label))
+    omission = copy.deepcopy(selection)
+    omission["assets"].pop()
+    omission["unique_count"] -= 1
+    omission["stored_bytes"] = sum(item["bytes"] for item in omission["assets"])
+    controls.append(refused(lambda: membership(omission, selection), "mandatory_asset_omission"))
+    altered = copy.deepcopy(packet)
+    altered["current"]["workspace_verify"]["outcome"] = "PASS"
+    removed_body("admit_parent")(altered, expected_parent)
+    controls.append(
+        {
+            "case": "actual_parent_admission_body_removed_re_admits_false_PASS",
+            "outcome": "PASS",
+            "retained_source_native_refs": True,
+        }
+    )
+    altered_binding = copy.deepcopy(qualification)
+    altered_binding["aggregate_changed"] = False
+    removed_body("admit_binding")(altered_binding, expected_binding)
+    controls.append(
+        {
+            "case": "actual_binding_admission_body_removed_re_admits_false_equality",
+            "outcome": "PASS",
+            "retained_source_native_refs": True,
+        }
+    )
+    report = {
+        "schema": "policyos.e02.independent_parent_gate_custody.v1",
+        "source": SOURCE,
+        "tree": TREE,
+        "disposition": "GO",
+        "scope": "literal custody/native field conservation plus separate binding qualification",
+        "selection": storage_result,
+        "correction_assets": 5,
+        "current_parent_native_counts": {
+            key: {
+                "stages": value["complete_stage_count"],
+                "counts": value["counts"],
+                "outcome": value["outcome"],
+            }
+            for key, value in expected_parent.items()
+        },
+        "runtime_binding": expected_binding,
+        "controls": controls,
+        "claims": {
+            "native_gate_rerun": False,
+            "finding_closure": False,
+            "current_ROOT_global_source_guard": "not_established_by_this_read_only_review",
+            "ROOT_full_binary_environment_guard": "not_established",
+            "metadata_scope": "closed207distributionMETADATA+3protectedrefs brackets",
+            "raw_binding_delta_cause": "not_established",
+        },
+        "input_pins": PINS,
+    }
+    sys.stdout.write(json.dumps(report, indent=2, sort_keys=True) + "\n")
+
+
+if __name__ == "__main__":
+    main()

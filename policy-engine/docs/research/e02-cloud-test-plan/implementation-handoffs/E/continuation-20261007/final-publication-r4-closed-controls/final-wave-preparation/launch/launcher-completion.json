@@ -1,0 +1,9 @@
+{
+  "candidate": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96",
+  "exit_code": 1,
+  "ended_unix": 1791383659.0165699,
+  "finding_closure": false,
+  "global_gate_outcome": "UNRUN; separate parent queue",
+  "native_outcomes": "complete per-stage native receipts/JUnit, never inferred from launcher exit"
+}

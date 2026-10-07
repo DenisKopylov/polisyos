@@ -1,0 +1,56 @@
+import ast,collections,copy,hashlib,json,pathlib,sys
+R=pathlib.Path('/tmp/e02-E-MC-b6-gates-20261007');oldpath=R/'validate_publication_selection_v2.py.txt';nodes=[]
+for node in ast.parse(oldpath.read_text()).body:
+ if isinstance(node,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='v' for t in node.targets):break
+ nodes.append(node)
+exec(compile(ast.Module(body=nodes,type_ignores=[]),str(oldpath),'exec'),globals())
+old_validate=validate
+TRUSTED_PATH=R/'publication-selection-v2.json';TRUSTED_SHA='57df05d909ff9838aaaf1e54170518d6259ac1323e2748987e7a41b209054b72';TRUSTED_BYTES=217218
+def verified_denominator():
+ b=TRUSTED_PATH.read_bytes();req(len(b)==TRUSTED_BYTES and sha(b)==TRUSTED_SHA,'trusted closed selection source custody')
+ return json.loads(b)
+def token(x):return json.dumps(x,sort_keys=True,separators=(',',':'))
+def member_counter(v,key):return collections.Counter(token(x) for x in v[key])
+def admit_mandatory_members(v):
+ trusted=verified_denominator()
+ for key in ('assets','logical_aliases'):
+  req(member_counter(v,key)==member_counter(trusted,key),'mandatory closed full member Counter '+key)
+ excluded={'assets','logical_aliases','logical_asset_count','unique_asset_count','publication_bytes','original_logical_bytes'}
+ actual_header={k:x for k,x in v.items() if k not in excluded};trusted_header={k:x for k,x in trusted.items() if k not in excluded}
+ req(typed_equal(actual_header,trusted_header),'trusted selection semantic/source/native headers')
+ for k in ('logical_asset_count','unique_asset_count','publication_bytes','original_logical_bytes'):
+  req(type(v[k]) is int and v[k]==trusted[k],'trusted complete member denominator '+k)
+ return True
+def validate(v):
+ admit_mandatory_members(v)
+ return old_validate(v)
+def omitted(v,needle):
+ bad=copy.deepcopy(v);alias=next(x for x in bad['logical_aliases'] if needle in x['source']['path']);portable=alias['portable_path']
+ bad['logical_aliases']=[x for x in bad['logical_aliases'] if x['portable_path']!=portable]
+ bad['assets']=[x for x in bad['assets'] if x['portable_path']!=portable]
+ bad['logical_asset_count']=len(bad['logical_aliases']);bad['unique_asset_count']=len(bad['assets']);bad['publication_bytes']=sum(x['bytes'] for x in bad['assets']);bad['original_logical_bytes']=sum(x['source']['bytes'] for x in bad['logical_aliases'])
+ return bad
+healthy=verified_denominator();validate(healthy);old_false=[];controls=[]
+cases=[('native_receipt_retotalled_omission','runtime-api-contract/receipt.json'),('current_selector_packet_retotalled_omission','three-selector-packet-v3.json'),('full_source_gzip_retotalled_omission','complete-source-inputs-before.json')]
+for name,needle in cases:
+ bad=omitted(healthy,needle);old_admit=old_validate(bad);req(old_admit is True,'old actualV2 falsifier absent')
+ old_false.append({'case':name,'old_V2_false_admission':True,'retotalled_logical_count':bad['logical_asset_count'],'retotalled_unique_count':bad['unique_asset_count'],'source_tree_native_current_markers_unchanged':True})
+ try:validate(bad)
+ except ValueError as e:controls.append({'case':name,'outcome':'PASS','actual_refusal':str(e),'native_source_stdout_files_unchanged':True})
+ else:raise RuntimeError('new mandatory member counter escape '+name)
+negative=[]
+for name,mutate in [('source_header_wrong',lambda v:v.__setitem__('source','0'*40)),('current_packet_digest_fake',lambda v:v['current_packet'].__setitem__('sha256','0'*64)),('retotal_original_logical_bytes_false',lambda v:v.__setitem__('original_logical_bytes',1)),('logical_member_replacement',lambda v:v['logical_aliases'][0]['source'].__setitem__('sha256','0'*64)),('native_count_bool',lambda v:v.__setitem__('unique_asset_count',True))]:
+ bad=copy.deepcopy(healthy);mutate(bad)
+ try:validate(bad)
+ except ValueError as e:negative.append({'case':name,'outcome':'PASS','actual_refusal':str(e)})
+ else:raise RuntimeError('new header/type corruption admitted '+name)
+# Remove the actual new admission function only, preserving original physical/types/gzip validator.
+def admit_mandatory_members(v):return True
+removal=[]
+for name,needle in cases:
+ bad=omitted(healthy,needle);req(validate(bad) is True,'removal did not reproduce exact false admission')
+ removal.append({'case':name,'outcome':'PASS','actual_new_guard_removed_false_admission':True,'expected_independent_membership_assertion':'FAIL','old_physical_types_gzip_validation_remains_active':True})
+result={'schema':'policyos.e02.E.mandatory_selection_membership_controls.v1','source':healthy['source'],'tree':healthy['tree'],'trusted_closed_selection':ref(TRUSTED_PATH),'trusted_source_sha_pinned':TRUSTED_SHA,'trusted_source_bytes_pinned':TRUSTED_BYTES,'optimized':bool(sys.flags.optimize),'healthy':True,'complete_member_counts':{'logical':len(healthy['logical_aliases']),'storage':len(healthy['assets'])},'old_V2_actual_false_admissions':old_false,'omission_controls':controls,'other_type_header_controls':negative,'effective_actual_admission_removal':removal,'original_helpers_selectors_native_bytes_unchanged':True,'new_native_or_math_reexecution':False,'scope':'Typed mandatorylogical/storage Counters against hash-pinned originalclosed denominator, plus all priorphysical/gzip/alias controls. Independentpeerreview separate.'}
+dest=R/('selection-membership-v3-optimized.json' if sys.flags.optimize else 'selection-membership-v3-normal.json')
+with dest.open('x') as f:json.dump(result,f,indent=2);f.write('\n')
+print(json.dumps(result,indent=2))

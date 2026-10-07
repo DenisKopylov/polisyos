@@ -1,0 +1,37 @@
+{
+  "schema": "policyos.e02.E.failed_retry1_copy_proof.v1",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "copy": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry1/source",
+  "tracked_files_exact_Git_blob_binding": true,
+  "tracked_regular_file_count": 18961,
+  "tracked_regular_bytes": 562220662,
+  "mismatch_paths": [],
+  "binding_index": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/failed-retry1-copy-Git-bindings.json",
+    "bytes": 6934743,
+    "sha256": "0ff0bbbdb11ae539c3b2176fb35920a87b655d81a29a96422f1bb93e0ca013e5"
+  },
+  "untracked_regular_files": [
+    {
+      "relative": ".polisyos-tools/.timing.jsonl.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "symlink": false
+    },
+    {
+      "relative": ".polisyos-tools/timing.jsonl",
+      "bytes": 768,
+      "sha256": "eb398a72dcd728964811422bb43ae303f46b2d3c58303df707fd850ad2593c41",
+      "git_blob": "c3aa2fc9d696359d94018126e35d09d2a64f0b9a",
+      "symlink": false
+    }
+  ],
+  "private_env_exists": true,
+  "private_env_preserved": true,
+  "private_env_installed_metadata_count": 0,
+  "outputs_regular_files": [],
+  "active_users": [],
+  "active_user_admission": "Fresh scoped check happens immediately in deletion runner before any action",
+  "time_unix": 1791380828.674728
+}

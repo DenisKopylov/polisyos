@@ -1,0 +1,20 @@
+{
+  "packet": {
+    "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/current-parent-packet.json",
+    "bytes": 35737,
+    "sha256": "f7689f0cd708721e32e02eeba79f84d95bd4b523e280207b14052ede0a2530e5"
+  },
+  "current_counts": {
+    "workspace_verify": {
+      "PASS": 1,
+      "FAIL": 1,
+      "UNRUN": 13
+    },
+    "CI_parity": {
+      "PASS": 0,
+      "FAIL": 1,
+      "UNRUN": 23
+    }
+  },
+  "controls": 7
+}

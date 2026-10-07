@@ -1,0 +1,10 @@
+{
+  "observer_source": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/qualify-root-confidence-binding.py.txt",
+  "observer_source_sha256": "e5d1457c36cdcb91095a7431be741392ed82c52dc60726078879305e2bd98645",
+  "source_and_native_receipt_markers_unchanged": true,
+  "actual_function": "admit",
+  "healthy_guard_refuses_false_raw_equality": true,
+  "actual_guard_body_removed_false_raw_equality_readmitted": true,
+  "outcome": "PASS",
+  "native_gate_rerun": false
+}

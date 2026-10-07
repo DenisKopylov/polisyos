@@ -1,0 +1,30 @@
+from __future__ import annotations
+import hashlib,json,pathlib
+D=pathlib.Path('/tmp/e02-E-validator-current-DOC-independent-5739-20261007');P=pathlib.Path('/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current')
+def need(ok,message):
+ if not ok:raise ValueError(message)
+def ref(p):
+ b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+normal=json.loads((D/'review-normal-v2.stdout.json').read_text());optimized=json.loads((D/'review-optimized-v2.stdout.json').read_text());need({k:v for k,v in normal.items() if k!='mode'}=={k:v for k,v in optimized.items() if k!='mode'},'normal/O review body delta');need(normal['outcome']=='GO bounded literal DOC custody only','actual full DOC custody GO')
+receipt={'schema':'policyos.e02.closed_independent_utility_DOC_publication_GO.v1','candidate':normal['candidate'],'tree':normal['tree'],'parent_source':normal['parent_source'],'parent_source_tree':normal['parent_source_tree'],'outcome':'GO bounded DOC custody only','full_added_passive_DOC_path_count':normal['full_added_passive_DOC_path_count'],'active_python_path_count':normal['active_python_path_count'],'literal_copies':normal['literal_copy_count'],'literal_bytes':normal['literal_copy_bytes'],'metadata_files':normal['metadata_files'],'independent_logical_members':normal['independent_logical_members'],'independent_physical_carriers':normal['independent_physical_carriers'],'independent_physical_bytes':normal['independent_physical_bytes'],'structured_claims_modes_equal':True,'false_summary_and_preflight_controls_per_mode':len(normal['controls']),'actual_source3path_byte_unchanged':normal['actual_source3path_unchanged'],'original_author_pending_byte_custody_preserved':normal['original_author_pending_byte_custody_basis_preserved'],'separate_current_literal_byte_custody':'independently_reconciled against all97 source/candidate/physical inputs and34 logical member aliases','current_source_GO_separate':normal['admitted_current_claims']['independent_source_review'],'saved_environment_frame':{'METADATA_count':normal['saved_installed_environment_frame_count'],'claim':'Closed saved207 frame; no current environment mutation or quiescence measurement.'},'normal':ref(D/'review-normal-v2.stdout.json'),'optimized':ref(D/'review-optimized-v2.stdout.json'),'source_or_CLI_or_numerical_or_native_gate_repeats':False,'source_root_environment_writes':False,'finding_or_global_gate_acceptance':None,'P41':'not_established','prior_review_v1':'Original preliminary literal custody source/stdout/stderr preserved; current observer additionally reconciles structured deciding counts/versions/types. No raw native or original publication byte rewrite.'}
+(D/'final-DOC-GO.json').write_text(json.dumps(receipt,indent=2)+'\n')
+assets=[]
+def add(p,portable,role):
+ row=ref(p)
+ if portable.endswith('.json'):json.loads(p.read_bytes())
+ need(not portable.endswith('.py'),'passive observer publication')
+ assets.append({**row,'portable_path':portable,'role':role})
+for p in sorted(D.iterdir()):
+ if not p.is_file() or p.name in {'publication-selection.json','selection-build.stdout.json','selection-build.stderr.txt'}:continue
+ add(p,'literal/'+p.name+('.txt' if p.suffix=='.py' else ''),'Exact closed independent observer/output; v1 and v2 scope distinctions preserved')
+for name in normal['metadata_files']:add(P/name,'inputs/'+name,'Exact immutable5739 DOC metadata input')
+unique={}
+for row in assets:
+ key=(row['bytes'],row['sha256'])
+ if key in unique:
+  need(pathlib.Path(row['path']).read_bytes()==pathlib.Path(unique[key]['path']).read_bytes(),'content collision');row['content_alias_of']=unique[key]['portable_path']
+ else:unique[key]=row
+selection={'schema':'policyos.e02.closed_independent_utility_DOC_custody_selection.v1','candidate':normal['candidate'],'tree':normal['tree'],'parent_source':normal['parent_source'],'outcome':'GO bounded DOC custody only','asset_count':len(assets),'logical_bytes':sum(r['bytes'] for r in assets),'content_unique_count':len(unique),'content_unique_bytes':sum(r['bytes'] for r in unique.values()),'assets':assets,'empty_JSON_count':sum(r['bytes']==0 and r['portable_path'].endswith('.json') for r in assets),'pending_builder_captures_excluded':True,'native_CLI_source_numeric_repeats':False,'author_source_and_historical_inputs_unchanged':True,'input97literal_copies_not_duplicated':'They are fully listed and rebound by the review at immutable5739 Git paths; this selection carries moderate review/metadata rather than another copy of all original controlled scientific inputs.'}
+(D/'publication-selection.json').write_text(json.dumps(selection,indent=2)+'\n')
+for row in assets:need(ref(pathlib.Path(row['path']))['sha256']==row['sha256'],'selected source bytes changed')
+print(json.dumps({'selection':ref(D/'publication-selection.json'),'receipt':ref(D/'final-DOC-GO.json'),'logical':len(assets),'unique':len(unique),'unique_bytes':selection['content_unique_bytes']},indent=2))

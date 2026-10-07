@@ -1,0 +1,133 @@
+{
+  "schema": "policyos.e02.closed_independent_utility_DOC_custody_selection.v1",
+  "candidate": "5739c0fa4037ddf91fbca425e3fd3190dc7aa969",
+  "tree": "835e7f612368f3c1d7b67a9e2caf918ce7cd0038",
+  "parent_source": "2350edfba4e71909fbc615fe3101793b1b13945a",
+  "outcome": "GO bounded DOC custody only",
+  "asset_count": 16,
+  "logical_bytes": 429275,
+  "content_unique_count": 13,
+  "content_unique_bytes": 429275,
+  "assets": [
+    {
+      "path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/build_selection.py",
+      "bytes": 5054,
+      "sha256": "4e6c867e25c7a2f0780ea7bcbc301af26781f796f1c7d74e014010d0029af149",
+      "portable_path": "literal/build_selection.py.txt",
+      "role": "Exact closed independent observer/output; v1 and v2 scope distinctions preserved"
+    },
+    {
+      "path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/final-DOC-GO.json",
+      "bytes": 2618,
+      "sha256": "93fbe2d2ab8576041a55075f58a9e48c02e2d1a4d1b254cabea35b9745092364",
+      "portable_path": "literal/final-DOC-GO.json",
+      "role": "Exact closed independent observer/output; v1 and v2 scope distinctions preserved"
+    },
+    {
+      "path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review-normal-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "literal/review-normal-v2.stderr.txt",
+      "role": "Exact closed independent observer/output; v1 and v2 scope distinctions preserved"
+    },
+    {
+      "path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review-normal-v2.stdout.json",
+      "bytes": 80070,
+      "sha256": "3a69fcf98857d82fb37012b67834ff4df9a6d538fe127c7268300a6926d9fd2e",
+      "portable_path": "literal/review-normal-v2.stdout.json",
+      "role": "Exact closed independent observer/output; v1 and v2 scope distinctions preserved"
+    },
+    {
+      "path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "literal/review-normal.stderr.txt",
+      "role": "Exact closed independent observer/output; v1 and v2 scope distinctions preserved",
+      "content_alias_of": "literal/review-normal-v2.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review-normal.stdout.json",
+      "bytes": 78136,
+      "sha256": "53a83961480f1161b95ee6f85a0c757c67e26d12af6beacd1a15c29bf742746c",
+      "portable_path": "literal/review-normal.stdout.json",
+      "role": "Exact closed independent observer/output; v1 and v2 scope distinctions preserved"
+    },
+    {
+      "path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review-optimized-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "literal/review-optimized-v2.stderr.txt",
+      "role": "Exact closed independent observer/output; v1 and v2 scope distinctions preserved",
+      "content_alias_of": "literal/review-normal-v2.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review-optimized-v2.stdout.json",
+      "bytes": 80073,
+      "sha256": "6c8e7efb9ea602c6f4306eeb4b25b6caaad1aabc5885bc8e73f3d2b5f48817e9",
+      "portable_path": "literal/review-optimized-v2.stdout.json",
+      "role": "Exact closed independent observer/output; v1 and v2 scope distinctions preserved"
+    },
+    {
+      "path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "literal/review-optimized.stderr.txt",
+      "role": "Exact closed independent observer/output; v1 and v2 scope distinctions preserved",
+      "content_alias_of": "literal/review-normal-v2.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review-optimized.stdout.json",
+      "bytes": 78139,
+      "sha256": "aea2c9af3fd22df94ea31e45ea05fc4eefc899bc50fb9ae328e55887868fc474",
+      "portable_path": "literal/review-optimized.stdout.json",
+      "role": "Exact closed independent observer/output; v1 and v2 scope distinctions preserved"
+    },
+    {
+      "path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review_thin_5739.py",
+      "bytes": 16390,
+      "sha256": "a11d36cd93514da8dd099ac051d7d83fa8408c751659cd55aa1a7e2f77c46665",
+      "portable_path": "literal/review_thin_5739.py.txt",
+      "role": "Exact closed independent observer/output; v1 and v2 scope distinctions preserved"
+    },
+    {
+      "path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review_thin_5739_v2.py",
+      "bytes": 19858,
+      "sha256": "f9ba925c6e7b216a1a3457a9db5f72aee681408a52a191d68d1823098dee2fc8",
+      "portable_path": "literal/review_thin_5739_v2.py.txt",
+      "role": "Exact closed independent observer/output; v1 and v2 scope distinctions preserved"
+    },
+    {
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/README.md",
+      "bytes": 1309,
+      "sha256": "95ba366fe01850f98f9b3fc50b5f7a6bc3870f0eee2fae6126291b7e4fac6045",
+      "portable_path": "inputs/README.md",
+      "role": "Exact immutable5739 DOC metadata input"
+    },
+    {
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/copy-index.json",
+      "bytes": 39860,
+      "sha256": "95a0966c8024c6f1805d7f49a64502e37904f78edce3b77557246de41fd30b52",
+      "portable_path": "inputs/copy-index.json",
+      "role": "Exact immutable5739 DOC metadata input"
+    },
+    {
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/implementation-handoff.json",
+      "bytes": 10682,
+      "sha256": "d74a5844d316279a621f1fdbc8f667a69489e7452c45a66290efbecace9521f2",
+      "portable_path": "inputs/implementation-handoff.json",
+      "role": "Exact immutable5739 DOC metadata input"
+    },
+    {
+      "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-member-index.json",
+      "bytes": 17086,
+      "sha256": "6c5b10a2e0309d728e4a2da3eb948e6ff84bca0e5e50934ff4249740a811a7f3",
+      "portable_path": "inputs/independent-member-index.json",
+      "role": "Exact immutable5739 DOC metadata input"
+    }
+  ],
+  "empty_JSON_count": 0,
+  "pending_builder_captures_excluded": true,
+  "native_CLI_source_numeric_repeats": false,
+  "author_source_and_historical_inputs_unchanged": true,
+  "input97literal_copies_not_duplicated": "They are fully listed and rebound by the review at immutable5739 Git paths; this selection carries moderate review/metadata rather than another copy of all original controlled scientific inputs."
+}

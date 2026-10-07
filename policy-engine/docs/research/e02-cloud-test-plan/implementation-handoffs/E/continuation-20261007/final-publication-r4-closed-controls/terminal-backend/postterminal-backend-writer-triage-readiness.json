@@ -1,0 +1,235 @@
+{
+  "schema": "policyos.e02.E.postterminal_fullbackend_writer_triage_readiness.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "scope": "Only actual native failing/error case groups after terminal; no54re-review or native test repeat.",
+  "execution_pending": true,
+  "check_outcome": null,
+  "required_input": "backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/workspace14-declared-deps-retry.json",
+  "decoder": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/decode-terminal-backend-v2.py.txt",
+    "bytes": 21677,
+    "sha256": "062c3d78b41fbb4692f4aa82fd5952fbf50227acaf216ef6c02f9dce3f5fbb29"
+  },
+  "current_source_input_observation": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/observations/tracked-generated-input-drift-20261007T1259Z/observation.json",
+    "bytes": 24848,
+    "sha256": "617baab627ee4280808a27ccc5cdc7d4b82cb7acd85575e1d14c6960cd367ce0"
+  },
+  "source_input_admission_outcome": "FAIL",
+  "native_process_outcome": "Unmeasured until terminal; never rewritten from source input FAIL",
+  "owner_sources": [
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "bytes": 12413,
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "bytes": 9504,
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722"
+    },
+    {
+      "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md",
+      "bytes": 52438,
+      "sha256": "4d09c54010b46a6e9b59a37e82dce9b9d75b853bea3e799078382afb16ee8db0"
+    }
+  ],
+  "known_exact_shared_writer_routes": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "declared_canonical_writer": "A",
+      "scope": "Source writer routing only; not cause attribution, finding verdict or blanketpathownership",
+      "source": {
+        "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "bytes": 578822,
+        "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "declared_canonical_writer": "A",
+      "scope": "Source writer routing only; not cause attribution, finding verdict or blanketpathownership",
+      "source": {
+        "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "bytes": 347497,
+        "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "declared_canonical_writer": "C",
+      "scope": "Source writer routing only; not cause attribution, finding verdict or blanketpathownership",
+      "source": {
+        "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "bytes": 108192,
+        "sha256": "aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "declared_canonical_writer": "C",
+      "scope": "Source writer routing only; not cause attribution, finding verdict or blanketpathownership",
+      "source": {
+        "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+        "bytes": 5181,
+        "sha256": "7b4b5a674282165e7d6ec89bf345d47fd02c6682cf60c7ce8e4cc1b90f60dcc4"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "declared_canonical_writer": "B",
+      "scope": "Source writer routing only; not cause attribution, finding verdict or blanketpathownership",
+      "source": {
+        "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "bytes": 173575,
+        "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "declared_canonical_writer": "F",
+      "scope": "Source writer routing only; not cause attribution, finding verdict or blanketpathownership",
+      "source": {
+        "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+        "bytes": 20114,
+        "sha256": "121f33acc4b5bbc0541b3bb5cc331c3e77d9a3f2e684359af58211e56f44e1a1"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "declared_canonical_writer": "E",
+      "scope": "Source writer routing only; not cause attribution, finding verdict or blanketpathownership",
+      "source": {
+        "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+        "bytes": 59611,
+        "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "declared_canonical_writer": "E",
+      "scope": "Source writer routing only; not cause attribution, finding verdict or blanketpathownership",
+      "source": {
+        "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+        "bytes": 81721,
+        "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "declared_canonical_writer": "E scoped B201/B202",
+      "scope": "Source writer routing only; not cause attribution, finding verdict or blanketpathownership",
+      "source": {
+        "revision": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "bytes": 19970,
+        "sha256": "0e6b8f25eab56fc0f5f782effc9960f2fe449da559009422adfe5737525bb43e"
+      }
+    }
+  ],
+  "E_defining_source_navigation": {
+    "input": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/final-64d/defining-current-case-index.json",
+      "bytes": 654655,
+      "sha256": "6d68193c3ff1650e5d3e32718470548b9ff1d8115110a56dfba80ef8534121b1"
+    },
+    "30_source_paths": 30,
+    "families": {
+      "CAL": [
+        "policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py",
+        "policy-engine/tests/unit/foundry/calibration/test_hessian.py",
+        "policy-engine/tests/unit/foundry/calibration/test_preflight.py"
+      ],
+      "DDM": [
+        "policy-engine/tests/unit/ddm/test_facade.py",
+        "policy-engine/tests/unit/ddm/test_registry_schema_compatibility.py",
+        "policy-engine/tests/unit/remediation/test_ddm_02.py"
+      ],
+      "BKT": [
+        "policy-engine/tests/unit/remediation/test_bkt_03.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_native_replay.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_replay_admission.py"
+      ],
+      "FRC": [
+        "policy-engine/tests/unit/remediation/test_frc_01.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_bridge.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py"
+      ],
+      "PCL": [
+        "policy-engine/tests/unit/calibration/test_continuous_persistence.py",
+        "policy-engine/tests/unit/calibration/test_core_artifact_routes.py"
+      ],
+      "DOE": [
+        "policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_morris_analysis_admission.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_morris_geometry.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_sensitivity_benchmark.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_sensitivity_plan.py"
+      ],
+      "UQP": [
+        "policy-engine/tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_quasi_mc.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py"
+      ],
+      "UQS": [
+        "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "policy-engine/tests/unit/ir/test_posterior_summary.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+        "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py"
+      ]
+    },
+    "purpose": "An actual failed test matching fullmodule+function can be E defining-test navigation; no criterion closure/causal attribution from regexp orfamilyname."
+  },
+  "next_commands": [
+    [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-S",
+      "/workspace/e02-E-pr38-r3-receipts/criteria-r4/decode-terminal-backend-v2.py.txt",
+      "--output",
+      "/workspace/e02-E-pr38-r3-receipts/criteria-r4/actual-terminal-backend-decoded-v2.json",
+      "--case-index",
+      "/workspace/e02-E-pr38-r3-receipts/criteria-r4/actual-terminal-backend-case-index-v2.json"
+    ]
+  ],
+  "triage_steps": [
+    "Read complete terminalJSON/stdout/JUnit. Independently recompute caseoutcomes and identities; keep nativeFAIL/error/skip counts separate from wrapper sourceinputFAIL. No null/partial counts becomePASS.",
+    "For actualFAIL/ERROR only, bind fullclassname/testfunction/parameterization to exact tracked64d testblob+ASTlocation. Empty/nonresolvable classname remainsnot_established; do not substitute a similarlynamed test. Preserve literalmessage/full traceback bytes/hash.",
+    "Resolve traceback Python source frames only against64d tracked tree or explicitlybound externalpackagepaths. Group by exact testsource and exception/frame tuple, with all ordinal case IDs retained. Dynamic generatedinput/testdata provenance remains separate.",
+    "Apply declared exact writer route/crossunitcontract. E defining-source navigation routes Eroot to the relevantfamily; shared/foreignpath goes to its canonicalwriter; unresolved ownership remainsnot_established. Do not assigncause from a tracebackpath alone.",
+    "Before changing a finding proposal, root checks whether failure actually falsifies thatoriginalrowproperty on admittedinputs; held externallaw/semantic inputs never become a codeverdict just fromexception. Keep old64d G855technicalopen and new3932topicacceptance separate.",
+    "For each actual group, nextowner gets minimal failingselector/source+env+input+exacttrace and next concrete replay/fix result. Any inherited/base attribution requires exactslice-base command/full input denominator; P41 otherwise remainsnot_established."
+  ],
+  "output_fields": [
+    "case ordinal/classname/name/outcome and full native detailhash",
+    "exact trackedtestmodule/function/ASTline +Gitblob hash ornot_established",
+    "actual traceback sourceframes and variable/datarefs only whenmeasured",
+    "declared writer route/source citation and separate attribution status",
+    "matched E definingfamily/originalrow links navigation only",
+    "exact minimal nextowner result/input; no blanket productiondataset demand"
+  ],
+  "forbidden_inferences": [
+    "No cases/causes from live .F/E progressmarkers.",
+    "No frozen-sourcePASS merely from HEAD64d if generatedinput byteschanged.",
+    "No current3932 regression from a64d native receipt.",
+    "No sourceinputFAIL inflated into failingJUnitcases.",
+    "No inherited/sourcecause attribution solely from reportedpaths or temporalresourcecorrelation."
+  ],
+  "ROOT_source_environment_or_outputs_modified": false,
+  "broad_math_or_source_review_repeated": false
+}

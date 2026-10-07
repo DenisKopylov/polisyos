@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/criteria-r4/decode-terminal-backend-v2.py.txt", line 483, in <module>
+    result, cases = decode()
+                    ^^^^^^^^
+  File "/workspace/e02-E-pr38-r3-receipts/criteria-r4/decode-terminal-backend-v2.py.txt", line 276, in decode
+    outcome = validate_fields(receipt, launch, counts)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r3-receipts/criteria-r4/decode-terminal-backend-v2.py.txt", line 126, in validate_fields
+    config["before_sha256"] == config["after_sha256"]
+    ~~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'before_sha256'

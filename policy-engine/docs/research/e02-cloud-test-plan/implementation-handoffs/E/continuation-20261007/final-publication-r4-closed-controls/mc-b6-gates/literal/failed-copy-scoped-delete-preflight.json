@@ -1,0 +1,74 @@
+{
+  "schema": "policyos.e02.E.scoped_failed_copy_deletion_preflight.v1",
+  "copy": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained/source",
+  "candidate": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "tracked_Git_duplicate_files": 18961,
+  "tracked_Git_duplicate_bytes": 562220662,
+  "proof_sha256": "2ee53f3b1555b8f80b3407b19e949c83778b44b3f2eebe51b07b1c3ba57a45fb",
+  "preserved_unique_ignored_timing_artifacts": [
+    {
+      "source_path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained/source/.polisyos-tools/.timing.jsonl.lock",
+      "preserved_path": "/tmp/e02-E-MC-b6-gates-20261007/failed-copy-unique-native-instrumentation/.timing.jsonl.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained/source/.polisyos-tools/timing.jsonl",
+      "preserved_path": "/tmp/e02-E-MC-b6-gates-20261007/failed-copy-unique-native-instrumentation/timing.jsonl",
+      "bytes": 502,
+      "sha256": "ebf12eea072bfa8d4d74e2ca74fd9aa658b2b6e8d031ed98c96227ade9735262"
+    }
+  ],
+  "active_users": [],
+  "unknown_task_actor_permissions": [],
+  "task_actor_live_processes_scanned": 13,
+  "outside_host_services": [
+    {
+      "pid": 199,
+      "uid": 0,
+      "name": "dockerd",
+      "scope": "host service outside copied-checkout task actor scope"
+    },
+    {
+      "pid": 250,
+      "uid": 0,
+      "name": "containerd",
+      "scope": "host service outside copied-checkout task actor scope"
+    }
+  ],
+  "private_env_created": false,
+  "unique_generator_outputs": false,
+  "deciding_output_refs": [
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture/receipt.json",
+      "bytes": 91819,
+      "sha256": "c6b7c9ef624cf295f36fe9f1489b26f181373cc7c07e16061b28339bbbf783fc"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture/stdout.txt",
+      "bytes": 124511,
+      "sha256": "12d11758f7acd53f4ca1fbeaf8661f3da3732ec62127910238b7cf9db40fa200"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture/complete-source-inputs-before.json",
+      "bytes": 4683405,
+      "sha256": "d5ade1c8fe7437fbc9136f3802b551f7965e5946bfd89895e5587c49051c9b4a"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture/complete-source-inputs-after.json",
+      "bytes": 4683405,
+      "sha256": "d5ade1c8fe7437fbc9136f3802b551f7965e5946bfd89895e5587c49051c9b4a"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/run_gate.py.txt",
+      "bytes": 6770,
+      "sha256": "e96299e509da11702010268a1604dbdda36a98fc024b9ccbf93d7718ec6c187f"
+    }
+  ],
+  "authorization": "Explicit parent/user cloud-only unused repeatable source-copy deletion; original MC code/docs/Git/input identities preserved."
+}

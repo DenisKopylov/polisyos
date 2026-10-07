@@ -1,0 +1,104 @@
+{
+  "schema": "policyos.e02.E.public_source_schema_reuse_qualification.v2",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "prior_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "actual_complete_ABI_registry": "policy-engine/src/polisyos/schemas/abi_models.py",
+  "rows": [
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "old_git_blob": "3830f8f65cc4ea4428b1ca7b145f2867b5bc7d92",
+      "current_git_blob": "3830f8f65cc4ea4428b1ca7b145f2867b5bc7d92",
+      "bytes": 30919,
+      "sha256": "737af1672db198c1465da8fcf009cd470f479ac342327e4699fb831b91dd0b24",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+      "old_git_blob": "f5a321bb6cffa61d0bf854f1a531b090a974bca6",
+      "current_git_blob": "f5a321bb6cffa61d0bf854f1a531b090a974bca6",
+      "bytes": 1152,
+      "sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "old_git_blob": "fdde5e22d0827595f2a48284cdd9167e9e5e2490",
+      "current_git_blob": "fdde5e22d0827595f2a48284cdd9167e9e5e2490",
+      "bytes": 39467,
+      "sha256": "f7ae4be784059917c8602267231896d0d53755636f04851f149f614faf68c0bc",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+      "old_git_blob": "04416db33c86bd5610fd33893ad6867db7a9f22f",
+      "current_git_blob": "04416db33c86bd5610fd33893ad6867db7a9f22f",
+      "bytes": 1793,
+      "sha256": "daeff9a91f19662a9f21788f73bd002659059f2ca3804ac03a258294185255da",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "old_git_blob": "37ceb13937e36ab6c237595a74e7be70ca987c8d",
+      "current_git_blob": "37ceb13937e36ab6c237595a74e7be70ca987c8d",
+      "bytes": 7528,
+      "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "old_git_blob": "b1131c15a8fb98fe16b1f15fdfdfc709f922da49",
+      "current_git_blob": "b1131c15a8fb98fe16b1f15fdfdfc709f922da49",
+      "bytes": 27715,
+      "sha256": "5d4366804bc9fa2b0e9c1193d1b9412fb5a1408064ffc35c3d72f4025d82de84",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+      "old_git_blob": "b4c79ac48ca420425b91cbf4c47ac794a37eaba8",
+      "current_git_blob": "b4c79ac48ca420425b91cbf4c47ac794a37eaba8",
+      "bytes": 23635,
+      "sha256": "6d1b8f48e20853415dbd9109d0b0662f3d9ca199e2d15c36292823b2e7c1d72e",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/tools/quality/diagnostics/generate_ir_schema.py",
+      "old_git_blob": "945074d31c6158d68c6dd49b2e67f0383850316b",
+      "current_git_blob": "945074d31c6158d68c6dd49b2e67f0383850316b",
+      "bytes": 667,
+      "sha256": "11e7b4cdcf98723190994b3289b5e813d61e284eb4030eb759df2d52b6b34d2c",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "old_git_blob": "6a2784631e836a35dc09e0034e02d86bf21ed14e",
+      "current_git_blob": "6a2784631e836a35dc09e0034e02d86bf21ed14e",
+      "bytes": 103077,
+      "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "old_git_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "current_git_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+      "byte_equal": true
+    }
+  ],
+  "complete_product_tools_arch_schema_path_delta": "",
+  "all_model_and_emitter_source_bytes_unchanged": true,
+  "historical_observer_correction": {
+    "v1_ref": {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/ABI-emitter-source-qualification.json",
+      "bytes": 2643,
+      "sha256": "43d3d134339ef9abb2e32bb676794937766938cf457754bb255ab927d3d457c4"
+    },
+    "wrong_path": "policy-engine/src/polisyos/ir/abi/registry.py",
+    "actual_observation": "Absent Git object in v1; never interpreted as healthy ABI registry equality",
+    "current_correction": "Actual canonical103-model registry and both schema emitters bound explicitly; full src/tools/architecture/schemas diff empty"
+  },
+  "qualification": "Prior103 schemas/model20package13family owner packet reused under exact unchanged ABI+all model/emitter source. Actual fresh current native runtime render573components/1494dependencies retained; no generator apply, hosted/fullCI or endpoint behavior claimed",
+  "current_runtime_render_sha256": "701b5d6fe04afc283518f96ec5461db0fb3f7beb9fe33b82813a63b20e614ca0",
+  "current_confidence_aggregate": "sha256:2924a8116e1d1dbd7c9116ab43deedcd13a8266a0bd2382c9d46e2d7aedd5ffa",
+  "P41": "not_established"
+}

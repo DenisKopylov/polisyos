@@ -1,0 +1,45 @@
+{
+  "schema": "policyos.e02.E.failed_retry1_copy_proof.v1",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "copy": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/source",
+  "tracked_files_exact_Git_blob_binding": true,
+  "tracked_regular_file_count": 18961,
+  "tracked_regular_bytes": 562220662,
+  "mismatch_paths": [],
+  "binding_index": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/completed-retry2-copy-Git-bindings.json",
+    "bytes": 6934743,
+    "sha256": "0ff0bbbdb11ae539c3b2176fb35920a87b655d81a29a96422f1bb93e0ca013e5"
+  },
+  "untracked_regular_files": [
+    {
+      "relative": ".polisyos-tools/.timing.jsonl.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "symlink": false
+    },
+    {
+      "relative": ".polisyos-tools/timing.jsonl",
+      "bytes": 1035,
+      "sha256": "b72887616bf2517dff0e86cda08b8913b4de558bad1f51687fa62e926a6decb0",
+      "git_blob": "7c0f0a312ecbf2d6e0cb1f92b29a695bac8885f4",
+      "symlink": false
+    }
+  ],
+  "private_env_exists": true,
+  "private_env_preserved": true,
+  "required_generator_outputs_preserved": true,
+  "private_env_installed_metadata_count": 159,
+  "outputs_regular_files": [
+    "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/outputs/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+    "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/outputs/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+    "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+    "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+    "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/outputs/runtime-api-client/packages/runtime-api-client/types.ts",
+    "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json"
+  ],
+  "active_users": [],
+  "active_user_admission": "Fresh scoped check happens immediately in deletion runner before any action",
+  "time_unix": 1791381074.194009
+}

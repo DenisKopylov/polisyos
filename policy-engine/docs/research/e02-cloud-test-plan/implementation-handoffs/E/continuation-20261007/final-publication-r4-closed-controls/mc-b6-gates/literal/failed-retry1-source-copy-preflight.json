@@ -1,0 +1,103 @@
+{
+  "schema": "policyos.e02.E.failed_retry1_copy_proof.v1",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "copy": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry1/source",
+  "tracked_files_exact_Git_blob_binding": true,
+  "tracked_regular_file_count": 18961,
+  "tracked_regular_bytes": 562220662,
+  "mismatch_paths": [],
+  "binding_index": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/failed-retry1-copy-Git-bindings.json",
+    "bytes": 6934743,
+    "sha256": "0ff0bbbdb11ae539c3b2176fb35920a87b655d81a29a96422f1bb93e0ca013e5"
+  },
+  "untracked_regular_files": [
+    {
+      "relative": ".polisyos-tools/.timing.jsonl.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "symlink": false
+    },
+    {
+      "relative": ".polisyos-tools/timing.jsonl",
+      "bytes": 768,
+      "sha256": "eb398a72dcd728964811422bb43ae303f46b2d3c58303df707fd850ad2593c41",
+      "git_blob": "c3aa2fc9d696359d94018126e35d09d2a64f0b9a",
+      "symlink": false
+    }
+  ],
+  "untracked_symlinks": [
+    {
+      "relative": ".venv",
+      "bytes": 72,
+      "sha256": "d56ad63458762c23737d43f1a8ef74a4b1c8d47ceb8c40b3f9eeee56c11ac35f",
+      "git_blob": "7b95c09298c93f17497a348552a48ac9a1a0338e",
+      "symlink": true,
+      "target": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry1/environment"
+    },
+    {
+      "relative": "node_modules",
+      "bytes": 55,
+      "sha256": "34ac33f215e5817c7e1bec6d3f41c40396e8f3ce71f7fc10fcf1c46530442831",
+      "git_blob": "ff1cf2cdd6e1504b7ad8a485d08fc68edc022077",
+      "symlink": true,
+      "target": "/workspace/e02-E-mc-20261006/policy-engine/node_modules"
+    },
+    {
+      "relative": "packages/runtime-api-client/node_modules",
+      "bytes": 83,
+      "sha256": "336e4c0b7811743a307c07a39952d99b72eaf35e3c9d8bd71f24a821cc019bce",
+      "git_blob": "5047559f98d52cc740b934e3eccc2a38832970b8",
+      "symlink": true,
+      "target": "/workspace/e02-E-mc-20261006/policy-engine/packages/runtime-api-client/node_modules"
+    },
+    {
+      "relative": "apps/runtime-dashboard/node_modules",
+      "bytes": 78,
+      "sha256": "2c780b9d3453b3bb43f65677c09206688265281292758d511953689e129570cf",
+      "git_blob": "3d47dd6df841fb8e3177d1fa3d3ab98a842d5ee0",
+      "symlink": true,
+      "target": "/workspace/e02-E-mc-20261006/policy-engine/apps/runtime-dashboard/node_modules"
+    }
+  ],
+  "private_env_exists": true,
+  "private_env_preserved": true,
+  "private_env_installed_metadata_count": 0,
+  "outputs_regular_files": [],
+  "deciding_files_outside_copy": [
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry1/receipt.json",
+      "bytes": 95066,
+      "sha256": "3ca6de3453a549e9476ff584871db2ea6401ae4580ad0c2582faba8e88a541e7"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry1/started.json",
+      "bytes": 48277,
+      "sha256": "8b5a8a326d204b98d628d19a2037085575dc879552f15c39fff3b4f8bde72a1e"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry1/stdout.txt",
+      "bytes": 124938,
+      "sha256": "083783b424b11d34606ab741e9be193e7653e61d62723164bedb6ff7c3453be7"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry1/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry1/complete-source-inputs-before.json",
+      "bytes": 4683405,
+      "sha256": "d5ade1c8fe7437fbc9136f3802b551f7965e5946bfd89895e5587c49051c9b4a"
+    },
+    {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry1/complete-source-inputs-after.json",
+      "bytes": 4683405,
+      "sha256": "d5ade1c8fe7437fbc9136f3802b551f7965e5946bfd89895e5587c49051c9b4a"
+    }
+  ],
+  "active_users": [],
+  "active_user_admission": "Fresh scoped check happens immediately in deletion runner before any action",
+  "time_unix": 1791380828.674728
+}

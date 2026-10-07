@@ -1,0 +1,131 @@
+{
+  "claims": {
+    "ROOT_full_binary_environment_guard": "not_established",
+    "current_ROOT_global_source_guard": "not_established_by_this_read_only_review",
+    "finding_closure": false,
+    "metadata_scope": "closed207distributionMETADATA+3protectedrefs brackets",
+    "native_gate_rerun": false,
+    "raw_binding_delta_cause": "not_established"
+  },
+  "controls": [
+    {
+      "case": "healthy_literal_native_summary_and_selection",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "parent_summary:workspace_verify:outcome",
+      "case": "native_fail_to_pass",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "parent_summary:workspace_verify:complete_stage_count",
+      "case": "stage_count_bool",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "parent_summary:CI_parity:ROOT_distribution_rows",
+      "case": "metadata_count_float",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "parent_summary:CI_parity:counts",
+      "case": "unrun_successors_to_pass",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "binding:current_complete_runtime_json_retained",
+      "case": "invented_complete_raw",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "binding:aggregate_changed",
+      "case": "source_equality_promoted_to_binding_equality",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "binding:dependency_manifest_delta_cause",
+      "case": "invented_runtime_binding_cause",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "unique_count",
+      "case": "mandatory_asset_omission",
+      "outcome": "PASS"
+    },
+    {
+      "case": "actual_parent_admission_body_removed_re_admits_false_PASS",
+      "outcome": "PASS",
+      "retained_source_native_refs": true
+    },
+    {
+      "case": "actual_binding_admission_body_removed_re_admits_false_equality",
+      "outcome": "PASS",
+      "retained_source_native_refs": true
+    }
+  ],
+  "correction_assets": 5,
+  "current_parent_native_counts": {
+    "CI_parity": {
+      "counts": {
+        "FAIL": 1,
+        "PASS": 0,
+        "UNRUN": 23
+      },
+      "outcome": "FAIL",
+      "stages": 24
+    },
+    "workspace_verify": {
+      "counts": {
+        "FAIL": 1,
+        "PASS": 1,
+        "UNRUN": 13
+      },
+      "outcome": "FAIL",
+      "stages": 15
+    }
+  },
+  "disposition": "GO",
+  "input_pins": {
+    "current-parent-packet.json": [
+      35737,
+      "f7689f0cd708721e32e02eeba79f84d95bd4b523e280207b14052ede0a2530e5"
+    ],
+    "publication-selection.json": [
+      48232,
+      "5e3ad90315847c13b6b4b2ead6b447a455a454ebae435eaeecbc3d4c92ea93b8"
+    ],
+    "runtime-binding-correction-publication-selection.json": [
+      1786,
+      "3786a29b745ab68d19a13ca46dc6f42bd9ec85fd3f7331f7f579fe397823ed45"
+    ]
+  },
+  "runtime_binding": {
+    "P41": "not_established",
+    "aggregate_changed": true,
+    "current_complete_dependency_bindings_retained": false,
+    "current_complete_runtime_json_retained": false,
+    "current_native_diff_values": {
+      "bound_dependency_aggregate_identity": "sha256:ac34b1d112d9dee2b2a9eb9e26fe7d0f1df8af7da2301898b550e3c611a9dede",
+      "bound_dependency_count": 1494,
+      "projection_hash": "sha256:c0db0c6b66c019b68d5a9f08c4087fab69764762c8e99353fb1211e77217efed",
+      "worker_validation_receipt_hash": "sha256:fc266d56bbaf5ccc6fa61018f67b6e3abf106f9cd8eda716b002f0ca6ffe5567"
+    },
+    "dependency_count_changed": false,
+    "dependency_manifest_delta_cause": "not_established",
+    "finding_closure": false,
+    "native_gate_rerun": false,
+    "source": "31782b55f8f35556cfc581449b040c393f00c78f",
+    "tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96"
+  },
+  "schema": "policyos.e02.independent_parent_gate_custody.v1",
+  "scope": "literal custody/native field conservation plus separate binding qualification",
+  "selection": {
+    "gzip_stream_decoded_bytes": 4993013,
+    "logical_physical_refs_checked_including_deduplicated_aliases": true,
+    "logical_rows": 43,
+    "storage_rows": 32,
+    "stored_bytes": 1576919
+  },
+  "source": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96"
+}

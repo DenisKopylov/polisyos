@@ -1,0 +1,1 @@
+{"source": "d0038a6e52867e820fd96f4706746ec501a80273", "current_files": 5939, "base_files": 5904, "current_mapping_sha256": "852fc465ed16a338f8aca3fd1b737b485835da221be7677a88425812bceb2f95", "complete_deep_edges": 3448, "reported_deep_edges": 151, "deep_paths": 1056, "full_static_graph_current": "UNMEASURED", "source_immutable": true}

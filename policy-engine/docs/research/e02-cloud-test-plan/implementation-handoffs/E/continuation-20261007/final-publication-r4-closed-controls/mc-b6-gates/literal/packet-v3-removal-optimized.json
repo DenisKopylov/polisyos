@@ -1,0 +1,33 @@
+{
+  "schema": "policyos.e02.E.summary_typedguard_removal.v2",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "optimized": true,
+  "healthy_before_removal": true,
+  "only_actual_typed_equal_body_removed": true,
+  "production_or_architecture_source_changed": false,
+  "controls": [
+    {
+      "case": "native_exit_bool",
+      "outcome": "PASS",
+      "actual_removed_guard_validator_false_admission": true,
+      "expected_independent_admission_assertion": "FAIL: strict bool/int claim corruption was accepted",
+      "native_source_stdout_and_refs_preserved": true
+    },
+    {
+      "case": "source_guard_integer",
+      "outcome": "PASS",
+      "actual_removed_guard_validator_false_admission": true,
+      "expected_independent_admission_assertion": "FAIL: strict bool/int claim corruption was accepted",
+      "native_source_stdout_and_refs_preserved": true
+    },
+    {
+      "case": "zero_stderr_size_bool",
+      "outcome": "PASS",
+      "actual_removed_guard_validator_false_admission": true,
+      "expected_independent_admission_assertion": "FAIL: strict bool/int claim corruption was accepted",
+      "native_source_stdout_and_refs_preserved": true
+    }
+  ],
+  "control_count": 3,
+  "no_new_native_gate": true
+}

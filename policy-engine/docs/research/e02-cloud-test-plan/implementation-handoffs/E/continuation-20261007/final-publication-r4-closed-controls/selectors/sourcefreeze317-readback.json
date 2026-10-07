@@ -1,0 +1,73 @@
+{
+  "schema": "policyos.e02.source_freeze_topic_publication.v1",
+  "branch": "codex/e02-E-continuation-20261006",
+  "source": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96",
+  "remote_source": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "remote_tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96",
+  "commands": [
+    {
+      "command": [
+        "git",
+        "push",
+        "origin",
+        "codex/e02-E-continuation-20261006"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "fetch",
+        "origin",
+        "codex/e02-E-continuation-20261006:refs/remotes/origin/codex/e02-E-continuation-20261006"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "ls-remote",
+        "origin",
+        "refs/heads/codex/e02-E-continuation-20261006"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "normal_hooks": true,
+  "rewritten_history": false,
+  "main_integration_published": false,
+  "completed_at": "2026-10-07T14:25:30.770530+00:00",
+  "files": [
+    {
+      "path": "/tmp/e02-E-root-sourcefreeze317-publication-20261007/fetch.stderr.txt",
+      "bytes": 149,
+      "sha256": "7e9ebe802106e2aa23566b4c94a50ffd124a0d9220acd7bb43168aea09249468"
+    },
+    {
+      "path": "/tmp/e02-E-root-sourcefreeze317-publication-20261007/fetch.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-root-sourcefreeze317-publication-20261007/lsremote.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-root-sourcefreeze317-publication-20261007/lsremote.stdout.txt",
+      "bytes": 86,
+      "sha256": "425645cc5abe15a810400b57f20cc3c6de8b96e03fcd29daa4bda814aea0747e"
+    },
+    {
+      "path": "/tmp/e02-E-root-sourcefreeze317-publication-20261007/push.stderr.txt",
+      "bytes": 144,
+      "sha256": "ae585157bae51345d4441a7c624616986a74114132314e566056e063818b9b7f"
+    },
+    {
+      "path": "/tmp/e02-E-root-sourcefreeze317-publication-20261007/push.stdout.txt",
+      "bytes": 486,
+      "sha256": "5b3d3e8aaaec0694f74f31f58aa13a72dc96eed10baa92cc353d84c8f02a2ff1"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"disposition": "GO_FOR_LITERAL_DOC_REPLAY_AND_CUSTODY_ONLY", "candidate": "c229fe8c0cc31c910de2bd2dc0e84e30be87da2c", "files": 512, "members": 688, "controls": 10, "out": "/tmp/e02-E-closed-control-c229-independent-normal-v2-20261007"}

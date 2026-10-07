@@ -1,0 +1,40 @@
+{
+  "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "source_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/retry-completion.json",
+    "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+    "git_blob": "42faa3920fa9863ec6abf46fd84acbce10e5b956",
+    "bytes": 7025,
+    "sha256": "6e1caf4596a213d169dde9b8925eb196e451e693134a0a2e9fc4d053cd87b109"
+  },
+  "JUnit": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/checks/cal-and-welfare-consumer-retry/pytest.xml",
+    "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+    "git_blob": "c3ad31291cbb04cd374643549355e7f307628275",
+    "bytes": 52854,
+    "sha256": "e1990adf7d224852294334881d0a06f5a86b44a75c70f3018f7b6061013cde8b"
+  },
+  "native_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry/checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.json",
+    "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+    "git_blob": "6d177778c76649bc889e4e49a89c63773fe57808",
+    "bytes": 10726,
+    "sha256": "2a026082c9ae0f332147d8b121ca6841dcea20d2451ba712753b5160a5b49d35"
+  },
+  "original": {
+    "exit_code": -9,
+    "JUnit": false,
+    "OOM_cause": "not_established"
+  },
+  "retry": {
+    "cases": 324,
+    "passed": 324,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "outcome": "PASS"
+  },
+  "current_candidate_PASS": false,
+  "retained_reason": "No defining standalone scalar/batch/gradient/Hessian source or locked numeric backend change; current consumer and posterior law dependencies are separately selected."
+}

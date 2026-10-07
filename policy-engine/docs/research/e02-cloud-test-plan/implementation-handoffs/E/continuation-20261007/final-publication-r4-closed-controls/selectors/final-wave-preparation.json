@@ -1,0 +1,476 @@
+{
+  "schema": "policyos.e02.moderate_publication_selection.v1",
+  "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "source_tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96",
+  "file_count": 64,
+  "total_bytes": 3244283,
+  "files": [
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+      "at": "canonical-collection/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+      "role": "closed canonical collector custody/output",
+      "bytes": 10725,
+      "sha256": "4d0db046be5f12048bb054df7b696cf4c8ab55e972d85fdf1c3fe70d17d6c48c"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+      "at": "canonical-collection/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+      "role": "closed canonical collector custody/output",
+      "bytes": 27467,
+      "sha256": "c7f26e555546bd6df47bb38ee17230e3e15b328be1f0e1138027347f7cac6475"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "at": "canonical-collection/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "role": "closed canonical collector custody/output",
+      "bytes": 83064,
+      "sha256": "4225ef4c48aa6902728fdeb7c0e83b238720533b34185684654af99a5543ab98"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+      "at": "canonical-collection/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+      "role": "closed canonical collector custody/output",
+      "bytes": 9231,
+      "sha256": "7ba5c0832875663bcb976fdd8a5fbd98d44e9477f35fa7eafc7139128e38ba23"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+      "at": "canonical-collection/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+      "role": "closed canonical collector custody/output",
+      "bytes": 80,
+      "sha256": "b156e9922f76d25723911762a7fc411b0a8aeb840a9069496bef64f6b3877445"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/cal-and-welfare-consumer/pytest.xml",
+      "at": "canonical-collection/checks/cal-and-welfare-consumer/pytest.xml",
+      "role": "closed canonical collector custody/output",
+      "bytes": 13206,
+      "sha256": "015168156d8813a2839df34482a93bfa3392c5f6d2e9c8d8fbe92129da7806ff"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+      "at": "canonical-collection/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+      "role": "closed canonical collector custody/output",
+      "bytes": 9748,
+      "sha256": "6055929e7cd97e657d4f27038d7d058770507a5297fefbaf1e22e62a829df91d"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+      "at": "canonical-collection/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+      "role": "closed canonical collector custody/output",
+      "bytes": 160,
+      "sha256": "4bed8cc624113743771e380f4fea7f09ec8586d03d46684c5c3a9889a2038305"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/ddm-runtime-and-facade/pytest.xml",
+      "at": "canonical-collection/checks/ddm-runtime-and-facade/pytest.xml",
+      "role": "closed canonical collector custody/output",
+      "bytes": 12578,
+      "sha256": "f20b6f0a768529f58cb53399ceee21a89b718dea024e1af662f61eb2be2e78ac"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+      "at": "canonical-collection/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+      "role": "closed canonical collector custody/output",
+      "bytes": 9908,
+      "sha256": "2740d9c559ec052996a66949a8a1f9165393174f55a3c9856b725b21c5fc75b0"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+      "at": "canonical-collection/checks/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+      "role": "closed canonical collector custody/output",
+      "bytes": 2280,
+      "sha256": "c1d3a2f4cd10aa217734d3855947b1ce82b395ce79df040da3a5a9ba0089d16b"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/doe-salib-and-consumer-factory/pytest.xml",
+      "at": "canonical-collection/checks/doe-salib-and-consumer-factory/pytest.xml",
+      "role": "closed canonical collector custody/output",
+      "bytes": 36923,
+      "sha256": "90d62680e5a8561eac7b84a4305b6bc7f1b49b8346c63e57fe15aefa37c97a9b"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+      "at": "canonical-collection/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+      "role": "closed canonical collector custody/output",
+      "bytes": 9105,
+      "sha256": "a7dbffd6fda375e031501f75c60e5a0d5884c4d2956fb275e26639cb174801f1"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+      "at": "canonical-collection/checks/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+      "role": "closed canonical collector custody/output",
+      "bytes": 80,
+      "sha256": "028dd49c08f9ca3151612e7dd2db85e156b2c618b6b2899f2dfec4d2027564ae"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+      "at": "canonical-collection/checks/g-checkpoint10-controlplanestore-companion/pytest.xml",
+      "role": "closed canonical collector custody/output",
+      "bytes": 10247,
+      "sha256": "eec6bf246784495c175758ebcdc0f8fac525703643364cac4a35463aa31bccb7"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+      "at": "canonical-collection/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+      "role": "closed canonical collector custody/output",
+      "bytes": 10736,
+      "sha256": "54907a421f1465ed436966cbee443aa9833e959afb5463562eb46d4cd3da751e"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+      "at": "canonical-collection/checks/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+      "role": "closed canonical collector custody/output",
+      "bytes": 1211,
+      "sha256": "e30590be9bb410eedcca770b51880771edbedba8f304958a6106555b88480bc9"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "at": "canonical-collection/checks/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "role": "closed canonical collector custody/output",
+      "bytes": 77342,
+      "sha256": "1d5eb59e499850a7a6f00f645dbf25d74db7d4c56753f178f6637de896c1c2ad"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+      "at": "canonical-collection/checks/pcl-continuous-persistence/pcl-continuous-persistence.json",
+      "role": "closed canonical collector custody/output",
+      "bytes": 9512,
+      "sha256": "7f4cff0752a61f5876a9909523de0bccce18168fd112f3d3bf426b1a80a308b0"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+      "at": "canonical-collection/checks/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+      "role": "closed canonical collector custody/output",
+      "bytes": 1476,
+      "sha256": "e22364128cba3f0cb7e70513baa654112d5e58b38fc0621c2acd09d347eabf8b"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/pcl-continuous-persistence/pytest.xml",
+      "at": "canonical-collection/checks/pcl-continuous-persistence/pytest.xml",
+      "role": "closed canonical collector custody/output",
+      "bytes": 16109,
+      "sha256": "b4e20214655161f61754d743f82a3d05d7703e0eea69da58f2acda4e95462b77"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/results-importer/results-importer.json",
+      "at": "canonical-collection/checks/results-importer/results-importer.json",
+      "role": "closed canonical collector custody/output",
+      "bytes": 8190,
+      "sha256": "c06c52558e1a763fdcea1475df8e2f26fc1b2d080e62a773b9adb8d30924470d"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/checks/results-importer/results-importer.stdout.txt",
+      "at": "canonical-collection/checks/results-importer/results-importer.stdout.txt",
+      "role": "closed canonical collector custody/output",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/cleanup-candidates.json",
+      "at": "canonical-collection/cleanup-candidates.json",
+      "role": "closed canonical collector custody/output",
+      "bytes": 4901,
+      "sha256": "577aeb29f9c068c717ae649d9995e5bf0df41f6356d6179ef00cab4f8ba6c481"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/copy-index.json",
+      "at": "canonical-collection/copy-index.json",
+      "role": "closed canonical collector custody/output",
+      "bytes": 11269,
+      "sha256": "c83c1099d5cc43f86b6bc7db19209725d579a4373d6f24c37ec2a7e2131132fd"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/execution-complete.json",
+      "at": "canonical-collection/execution-complete.json",
+      "role": "closed canonical collector custody/output",
+      "bytes": 229,
+      "sha256": "14b9df672cbd133e37fe38f9b175dd66c87c017deebdff7296f31b5362583305"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/owner-packets/test_a_frc_native_cas_status_reason.py",
+      "at": "canonical-collection/owner-packets/test_a_frc_native_cas_status_reason.py.txt",
+      "role": "closed canonical collector custody/output",
+      "bytes": 5982,
+      "sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/plan.json",
+      "at": "canonical-collection/plan.json",
+      "role": "closed canonical collector custody/output",
+      "bytes": 222241,
+      "sha256": "bd26afab49c458e24d30d00da4d7d90fa4a0325c3a68134be423662c0569146e"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/publication-receipt.json",
+      "at": "canonical-collection/publication-receipt.json",
+      "role": "closed canonical collector custody/output",
+      "bytes": 521985,
+      "sha256": "f651a7db8e06e059ae93c04ea949b4a9c9cf364d7fbaeaf2cd1e874ca7cc3457"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/raw-custody.json",
+      "at": "canonical-collection/raw-custody.json",
+      "role": "closed canonical collector custody/output",
+      "bytes": 1895,
+      "sha256": "17a1fb1f9df1d430d578433e5db855fa14423736ab82da43a49a733340e237bb"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-collection-31782b55-20261007/wave-started.json",
+      "at": "canonical-collection/wave-started.json",
+      "role": "closed canonical collector custody/output",
+      "bytes": 198,
+      "sha256": "ab798620abff8a9fac8b1330b40ed97acb8ce3d9f49ce43ac8b39dea5cfc80ee"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/CAL-transitive-dependency-bracket.json",
+      "at": "preparation/CAL-transitive-dependency-bracket.json",
+      "role": "exact prepare/launcher/collector/case-index companion; executed original bytes preserved",
+      "bytes": 79432,
+      "sha256": "63a98b15ce6977faf3e43b150a37c07c548931fc0041729334422d9bb20f5c74"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/build_final_wave_plan.py",
+      "at": "preparation/build_final_wave_plan.py.txt",
+      "role": "exact prepare/launcher/collector/case-index companion; executed original bytes preserved",
+      "bytes": 19366,
+      "sha256": "1faaff7e45a602a85d3496d4e322dcfc1e96d8b8f6aeae47311d9faf147986e3"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/canonical-base-plan.json",
+      "at": "preparation/canonical-base-plan.json",
+      "role": "exact prepare/launcher/collector/case-index companion; executed original bytes preserved",
+      "bytes": 203912,
+      "sha256": "da933999551c36b96d0b0b91cf4f456679befcef83905a47f5c226cbb1ff6d1f"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/collector.stderr.txt",
+      "at": "preparation/collector.stderr.txt",
+      "role": "exact prepare/launcher/collector/case-index companion; executed original bytes preserved",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/collector.stdout.txt",
+      "at": "preparation/collector.stdout.txt",
+      "role": "exact prepare/launcher/collector/case-index companion; executed original bytes preserved",
+      "bytes": 352,
+      "sha256": "307eb2413f5c952a5e5981e189b9dd9b8a0fb896c13d9179b8811ffc2cdcb36f"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/criterion-selector-map.json",
+      "at": "preparation/criterion-selector-map.json",
+      "role": "exact prepare/launcher/collector/case-index companion; executed original bytes preserved",
+      "bytes": 75168,
+      "sha256": "bb064b54bd90276e941e887856222ed5d70b25c7fb9ac18eb575db05ffa2faa6"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/current-case-index.json",
+      "at": "preparation/current-case-index.json",
+      "role": "exact prepare/launcher/collector/case-index companion; executed original bytes preserved",
+      "bytes": 400305,
+      "sha256": "db2f606a91d9543ea34c14fd4b46ac3e84d7093926610f6ee8d04c4c8cb901ba"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/final-numeric-selector-plan.json",
+      "at": "preparation/final-numeric-selector-plan.json",
+      "role": "exact prepare/launcher/collector/case-index companion; executed original bytes preserved",
+      "bytes": 221891,
+      "sha256": "3c541b3864c34365fbd54128bf6cd1079b351fe75222e754591100900413fc87"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/full-source-input-git-tree.txt",
+      "at": "preparation/full-source-input-git-tree.txt",
+      "role": "exact prepare/launcher/collector/case-index companion; executed original bytes preserved",
+      "bytes": 951669,
+      "sha256": "698d5fb2a2dc140be698a91c697842d74a46bd79ac7207a21d1c23619c5c0251"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/harness-source-inputs.json",
+      "at": "preparation/harness-source-inputs.json",
+      "role": "exact prepare/launcher/collector/case-index companion; executed original bytes preserved",
+      "bytes": 4216,
+      "sha256": "920dfd2feb136ff77230f798dd7d7a37deb1d34839bf2269d9b1442e695fcb84"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/launch_frozen_plan.py",
+      "at": "preparation/launch_frozen_plan.py.txt",
+      "role": "exact prepare/launcher/collector/case-index companion; executed original bytes preserved",
+      "bytes": 8401,
+      "sha256": "7d34ef3e3b860ee2ab06e66edb676cf86d8cd08c9871f7e5eea1d455d65f403c"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/launcher.stderr.txt",
+      "at": "preparation/launcher.stderr.txt",
+      "role": "exact prepare/launcher/collector/case-index companion; executed original bytes preserved",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/launcher.stdout.txt",
+      "at": "preparation/launcher.stdout.txt",
+      "role": "exact prepare/launcher/collector/case-index companion; executed original bytes preserved",
+      "bytes": 12779,
+      "sha256": "48f62ad17f4a8925814860ec0a1d8124253e1f3ab5b1cd653e62554043316e06"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/preparation-admission.json",
+      "at": "preparation/preparation-admission.json",
+      "role": "exact prepare/launcher/collector/case-index companion; executed original bytes preserved",
+      "bytes": 2273,
+      "sha256": "c354ff88253a9faedde225d1c375d62658443860754b301cbf2eb7d57dd50529"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/prepare.stderr.txt",
+      "at": "preparation/prepare.stderr.txt",
+      "role": "exact prepare/launcher/collector/case-index companion; executed original bytes preserved",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/prepare.stdout.json",
+      "at": "preparation/prepare.stdout.json",
+      "role": "exact prepare/launcher/collector/case-index companion; executed original bytes preserved",
+      "bytes": 449,
+      "sha256": "b3283df1ee3b2bd453dcee70ce44d0f4850e9dee5300ab69b3dd65f2ccbde8ac"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/retained-CAL-observation.json",
+      "at": "preparation/retained-CAL-observation.json",
+      "role": "exact prepare/launcher/collector/case-index companion; executed original bytes preserved",
+      "bytes": 1856,
+      "sha256": "c87dcabef4b7e323509d50c2f2b58acd0cc5a029cb65bf586dfd3904eb61779d"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/root-readonly-environment-metadata.json",
+      "at": "preparation/root-readonly-environment-metadata.json",
+      "role": "exact prepare/launcher/collector/case-index companion; executed original bytes preserved",
+      "bytes": 53767,
+      "sha256": "d5f699885100729358b19389bd3902aead250d2f50e24f99712734f5d5f4bb00"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/exact-reviewed-harness/prepare_current_owner_wave.py",
+      "at": "reviewed-harness/prepare_current_owner_wave.py.txt",
+      "role": "byte-equal reviewed operational wrapper; no new executor",
+      "bytes": 11136,
+      "sha256": "b225fb80d578a55d5a268a124315521fe390c5c023b1ca391abd0e613cb6c641"
+    },
+    {
+      "source": "/tmp/e02-E-final-wave-preparation-31782b55-20261007/exact-reviewed-harness/retained_runtime_api_cli.py",
+      "at": "reviewed-harness/retained_runtime_api_cli.py.txt",
+      "role": "byte-equal reviewed operational wrapper; no new executor",
+      "bytes": 5478,
+      "sha256": "514257634b01416c608ba2a65723f3cd51fecaba6dd082e86350f75275f9a288"
+    },
+    {
+      "source": "/tmp/e02-E-final-defining-wave-31782b55-20261007T1424Z/launches/bkt-frc-s10-and-adjacent-report-consumers.json",
+      "at": "launches/bkt-frc-s10-and-adjacent-report-consumers.json",
+      "role": "actual native inherited safe environment/argv/PID; private raw excluded",
+      "bytes": 8708,
+      "sha256": "4d1bde60c863f92f5edca45acf6b5b5e46236b0ec0acab8ffa04a4fc1ebe2da3"
+    },
+    {
+      "source": "/tmp/e02-E-final-defining-wave-31782b55-20261007T1424Z/launches/cal-and-welfare-consumer.json",
+      "at": "launches/cal-and-welfare-consumer.json",
+      "role": "actual native inherited safe environment/argv/PID; private raw excluded",
+      "bytes": 5768,
+      "sha256": "13eaf9b71ca79af9849cbb7ed95bf701845023dbc1a6bf681434e20c5544bc62"
+    },
+    {
+      "source": "/tmp/e02-E-final-defining-wave-31782b55-20261007T1424Z/launches/ddm-runtime-and-facade.json",
+      "at": "launches/ddm-runtime-and-facade.json",
+      "role": "actual native inherited safe environment/argv/PID; private raw excluded",
+      "bytes": 6808,
+      "sha256": "81410af0167ee38a21dd20235e94229efd3a70774b64b443d5dbe282197f7255"
+    },
+    {
+      "source": "/tmp/e02-E-final-defining-wave-31782b55-20261007T1424Z/launches/doe-salib-and-consumer-factory.json",
+      "at": "launches/doe-salib-and-consumer-factory.json",
+      "role": "actual native inherited safe environment/argv/PID; private raw excluded",
+      "bytes": 7104,
+      "sha256": "9f2197911d2f2a9a6e46f8892137ddcae9338a0017d6980f08585065816b31c0"
+    },
+    {
+      "source": "/tmp/e02-E-final-defining-wave-31782b55-20261007T1424Z/launches/g-checkpoint10-controlplanestore-companion.json",
+      "at": "launches/g-checkpoint10-controlplanestore-companion.json",
+      "role": "actual native inherited safe environment/argv/PID; private raw excluded",
+      "bytes": 5488,
+      "sha256": "39cacc172be1275f6b01ed739299ad9fb4aa4eec575b60a2d2ca28410dcdedf0"
+    },
+    {
+      "source": "/tmp/e02-E-final-defining-wave-31782b55-20261007T1424Z/launches/mc-joint-law-support-and-scientist-consumer.json",
+      "at": "launches/mc-joint-law-support-and-scientist-consumer.json",
+      "role": "actual native inherited safe environment/argv/PID; private raw excluded",
+      "bytes": 8734,
+      "sha256": "e3d74638e2ddadc3906d0d014033e9f182f130ab16032ad2566f557623bb8def"
+    },
+    {
+      "source": "/tmp/e02-E-final-defining-wave-31782b55-20261007T1424Z/launches/pcl-continuous-persistence.json",
+      "at": "launches/pcl-continuous-persistence.json",
+      "role": "actual native inherited safe environment/argv/PID; private raw excluded",
+      "bytes": 6321,
+      "sha256": "3056f2a190573a1649968c24fc9bd95b67117c84a665c41e2044316055f2f387"
+    },
+    {
+      "source": "/tmp/e02-E-final-defining-wave-31782b55-20261007T1424Z/launches/results-importer.json",
+      "at": "launches/results-importer.json",
+      "role": "actual native inherited safe environment/argv/PID; private raw excluded",
+      "bytes": 3525,
+      "sha256": "599627279c8c16a4cf6c761310d3e5bf4cadd82430016e0e5a82200f5a91f014"
+    },
+    {
+      "source": "/tmp/e02-E-final-defining-wave-31782b55-20261007T1424Z/launch-admission.json",
+      "at": "launch/launch-admission.json",
+      "role": "actual freeze/environment/capacity/source observation",
+      "bytes": 1302,
+      "sha256": "0f38411c4d29af3a1a8ab093e631d020acd6a98e7ea625f45ccdea47f1f06779"
+    },
+    {
+      "source": "/tmp/e02-E-final-defining-wave-31782b55-20261007T1424Z/launcher-source.json",
+      "at": "launch/launcher-source.json",
+      "role": "actual freeze/environment/capacity/source observation",
+      "bytes": 508,
+      "sha256": "ee62bed506e81917bd79294660627c75c015725ad33dbd1fae5d7b2f148e2270"
+    },
+    {
+      "source": "/tmp/e02-E-final-defining-wave-31782b55-20261007T1424Z/launcher-completion.json",
+      "at": "launch/launcher-completion.json",
+      "role": "actual freeze/environment/capacity/source observation",
+      "bytes": 355,
+      "sha256": "55de927900c981ae5a1e813ab0387e3c2247f4ab1c98f044c9a10a8101aa4de7"
+    },
+    {
+      "source": "/tmp/e02-E-final-defining-wave-31782b55-20261007T1424Z/post-wave-source-environment.json",
+      "at": "launch/post-wave-source-environment.json",
+      "role": "actual freeze/environment/capacity/source observation",
+      "bytes": 4823,
+      "sha256": "4bb77d525da30d784a6ec8582ab69b5096ebfb59b395bff17da8f7fadc998db7"
+    },
+    {
+      "source": "/tmp/e02-E-root-reviewed-source-freeze-20261007/freeze.json",
+      "at": "launch/parent-reviewed-source-freeze.json",
+      "role": "literal parent freeze; no fabricated optional canonical collector remote fields",
+      "bytes": 4199,
+      "sha256": "fce72ed50a0fccf418f033f787fba625608253d315ce288e56cf4e90fd9475ba"
+    }
+  ],
+  "native_case_outcomes": {
+    "cases": 1317,
+    "passed": 1308,
+    "failed": 9,
+    "errors": 0,
+    "skipped": 0
+  },
+  "numeric_stage_outcomes": {
+    "PASS": 5,
+    "FAIL": 2
+  },
+  "importer": "PASS",
+  "global_gates": "UNRUN within this scoped plan; parent queue separate",
+  "excluded": "Entire raw private environment/Git-config and fixture/CAS/cache directories; preserve exact raw refs in original launch/native receipts, not public bytes",
+  "original_indexes": "Canonical collector copy-index stays byte-identical; preparation/launch additions are separately selected companions, no historical index rewrite",
+  "publication_code_role": "All executed .py scripts/packet copied as passive .py.txt with unchanged source paths in original receipts",
+  "cleanup": "No cleanup by this packet. Latest cloud authorization separate from local nativeTrash policy. Canonical historical cleanup prose preserved as original observation.",
+  "check_outcome_vs_finding": "Finding/owner authority and fullCI acceptance not conferred by case totals",
+  "self_index_excluded": true
+}

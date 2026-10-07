@@ -1,0 +1,2419 @@
+{
+  "schema": "policyos.e02.CAL_source_dependency_bracket.v1",
+  "historical_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "current_source": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "production_py_delta": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "old": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "e28d91f65219311ec666f112d70e650f26855f90",
+        "bytes": 17116,
+        "sha256": "a585cf69fd9b6492bf20e1ab835bd9a3678958db95358231919a0e05c7f13779"
+      },
+      "new": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "aebd421615d935b1c6711b75ae1ae9b6ed991709",
+        "bytes": 17155,
+        "sha256": "0ca1f285756508e86ccfadd1ceba011a777dafd91ac2defdc843172985bf3e05"
+      },
+      "changed_named_ast": [
+        "summarize_bayesian_calibration_posterior"
+      ],
+      "added_named_ast": [],
+      "removed_named_ast": [],
+      "current_internal_imports": [
+        {
+          "line": 14,
+          "module": "polisyos.foundry.calibration.report",
+          "names": [
+            "CalibrationReport"
+          ]
+        },
+        {
+          "line": 15,
+          "module": "polisyos.foundry.uncertainty.protocol",
+          "names": [
+            "UncertaintyDecomposition"
+          ]
+        },
+        {
+          "line": 16,
+          "module": "polisyos.foundry.uncertainty.sampling_admission",
+          "names": [
+            "admit_empirical_weights",
+            "joint_carrier_digest"
+          ]
+        },
+        {
+          "line": 20,
+          "module": "polisyos.ir.analytics",
+          "names": [
+            "PosteriorSamplesCarrier",
+            "PosteriorSummaryContext",
+            "PosteriorSummaryProfileV2",
+            "posterior_carrier_content_hash",
+            "posterior_population_std_v2",
+            "posterior_summary_functionals_v2"
+          ]
+        },
+        {
+          "line": 28,
+          "module": "polisyos.ir.analytics.uncertainty",
+          "names": [
+            "DistributionFamily",
+            "IntervalSemantics",
+            "ParametricFitCarrier",
+            "PropagationMethod",
+            "UncertaintyEnvelope",
+            "UncertaintySource"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "old": {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "7531a2ab9fd824e05f74e33f49a3d9f9386c57c9",
+        "bytes": 70840,
+        "sha256": "bb84f24451cd90a51d59f1593f7798ad46caf1cbddb5c7b3bacd47edffd893c7"
+      },
+      "new": {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "d638aa6ed9a591a9c685cbd318a45c36e202bf9a",
+        "bytes": 71486,
+        "sha256": "4860382fe26db3ad6a29c206aada4b94123b7cd4d941ee79c58beae342f5c47f"
+      },
+      "changed_named_ast": [
+        "MonteCarloPropagator",
+        "MonteCarloPropagator._build_results",
+        "_EmpiricalJointSpec",
+        "_empirical_indices_from_uniform"
+      ],
+      "added_named_ast": [],
+      "removed_named_ast": [],
+      "current_internal_imports": [
+        {
+          "line": 21,
+          "module": "polisyos.common.logger",
+          "names": [
+            "get_logger"
+          ]
+        },
+        {
+          "line": 22,
+          "module": "polisyos.ir.analytics.uncertainty",
+          "names": [
+            "CertificateKind",
+            "ComposedFlavour",
+            "DistributionFamily",
+            "ExactnessKind",
+            "IntervalSemantics",
+            "ParametricFitCarrier",
+            "PosteriorSamplesCarrier",
+            "PropagationMethod",
+            "UncertaintyEnvelope",
+            "UncertaintySource",
+            "build_composition_provenance"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "old": {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "357fdf1a28902fe718181a6528034cc4c093c739",
+        "bytes": 23932,
+        "sha256": "692481d93c0c95471897a5b8fd8a3b955bff25e0409dd3088abaeb09a920bd44"
+      },
+      "new": {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "7de7727e16cc6dcc25340ef583ff05764bc3882b",
+        "bytes": 22618,
+        "sha256": "a29fff79a9d9d7cf47f66809f2fcfcc6188722af6f5f1617eb5a78ce5c5a0f4a"
+      },
+      "changed_named_ast": [
+        "admit_empirical_weights",
+        "admit_sampling_support",
+        "empirical_cdf"
+      ],
+      "added_named_ast": [],
+      "removed_named_ast": [],
+      "current_internal_imports": [
+        {
+          "line": 20,
+          "module": "polisyos.ir.analytics",
+          "names": [
+            "DistributionFamily",
+            "IntervalSemantics",
+            "PosteriorSamplesCarrier",
+            "PropagationMethod",
+            "UncertaintyEnvelope",
+            "UncertaintySource",
+            "admit_posterior_summary_profiles",
+            "canonicalize_posterior_weights",
+            "posterior_joint_carrier_digest",
+            "posterior_sampling_cdf"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "old": {
+        "path": "policy-engine/src/polisyos/ir/__init__.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "5557f1ec06a594e99ec1d00c2178c50f0fff68b9",
+        "bytes": 39304,
+        "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c"
+      },
+      "new": {
+        "path": "policy-engine/src/polisyos/ir/__init__.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "fdde5e22d0827595f2a48284cdd9167e9e5e2490",
+        "bytes": 39467,
+        "sha256": "f7ae4be784059917c8602267231896d0d53755636f04851f149f614faf68c0bc"
+      },
+      "changed_named_ast": [],
+      "added_named_ast": [],
+      "removed_named_ast": [],
+      "current_internal_imports": [
+        {
+          "line": 18,
+          "module": "polisyos.ir.api",
+          "names": [
+            "install_ir_legacy_module_aliases"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "old": {
+        "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "2c510c47321dd2e85d8a83f9822e8525eadf90ac",
+        "bytes": 19970,
+        "sha256": "0e6b8f25eab56fc0f5f782effc9960f2fe449da559009422adfe5737525bb43e"
+      },
+      "new": {
+        "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "3830f8f65cc4ea4428b1ca7b145f2867b5bc7d92",
+        "bytes": 30919,
+        "sha256": "737af1672db198c1465da8fcf009cd470f479ac342327e4699fb831b91dd0b24"
+      },
+      "changed_named_ast": [
+        "admit_posterior_summary_profiles",
+        "read_posterior_summary_profile",
+        "validate_raw_posterior_summary_envelope"
+      ],
+      "added_named_ast": [
+        "PosteriorSummaryProfileV2",
+        "PosteriorSummaryProfileV2._validate_profile",
+        "_decode_profile",
+        "_finite_weights",
+        "_ratio_cdf",
+        "_weight_ratios",
+        "canonicalize_posterior_weights",
+        "posterior_population_std_v2",
+        "posterior_sampling_cdf",
+        "posterior_summary_functionals_v2"
+      ],
+      "removed_named_ast": [],
+      "current_internal_imports": [
+        {
+          "line": 19,
+          "module": "polisyos.ir.artifacts",
+          "names": [
+            "ArtifactStore"
+          ]
+        },
+        {
+          "line": 20,
+          "module": "polisyos.ir.model_layer.canon",
+          "names": [
+            "CanonSpec",
+            "content_hash",
+            "from_canonical_bytes",
+            "to_canonical_bytes"
+          ]
+        },
+        {
+          "line": 26,
+          "module": "polisyos.ir.registry.refs",
+          "names": [
+            "ArtifactRefModel",
+            "UncertaintyEnvelopeRef"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "old": {
+        "path": "policy-engine/src/polisyos/ir/api.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "cac5101dabadb09a07a7c00c7688fa1dc2f3b105",
+        "bytes": 49444,
+        "sha256": "01a443f8e51294137cdf3a70c2eed90de570f69bd6d822742099069afd8bab8a"
+      },
+      "new": {
+        "path": "policy-engine/src/polisyos/ir/api.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "59074cc5a7cebbbd45a610853d78e2a1bee403ee",
+        "bytes": 50093,
+        "sha256": "44200deaa78c8abc9707ebd67f730d10287c07c51d2d3b7246c080e82d11e486"
+      },
+      "changed_named_ast": [],
+      "added_named_ast": [],
+      "removed_named_ast": [],
+      "current_internal_imports": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "old": {
+        "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "74ffbcabe1452878ff1c74fa9d0a660922603819",
+        "bytes": 27404,
+        "sha256": "ef435c7f9665279057dda175451f7f8ccabba8948fd7d6b7cd7452c31ee1d6f3"
+      },
+      "new": {
+        "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "b1131c15a8fb98fe16b1f15fdfdfc709f922da49",
+        "bytes": 27715,
+        "sha256": "5d4366804bc9fa2b0e9c1193d1b9412fb5a1408064ffc35c3d72f4025d82de84"
+      },
+      "changed_named_ast": [],
+      "added_named_ast": [],
+      "removed_named_ast": [],
+      "current_internal_imports": []
+    }
+  ],
+  "calibration_and_consumers": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/__init__.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/__init__.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "f29b8927e613941051031e894b89674b6d857fda",
+        "bytes": 6352,
+        "sha256": "86393eb0df0ea9373f9e493a23be04935abfe1d7ca853b8b9ddf657c65dd0cbc"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/__init__.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "f29b8927e613941051031e894b89674b6d857fda",
+        "bytes": 6352,
+        "sha256": "86393eb0df0ea9373f9e493a23be04935abfe1d7ca853b8b9ddf657c65dd0cbc"
+      },
+      "file_bytes_unchanged": true,
+      "named_ast": {
+        "unchanged": [],
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/auxiliary.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/auxiliary.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "33a0fe0186ca9455adf10365b00dd16a1e4d071a",
+        "bytes": 5342,
+        "sha256": "a41a8b6daad9f7d6404b2906559ca5baf2e4d0ef54f0b5e022902558b4960298"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/auxiliary.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "33a0fe0186ca9455adf10365b00dd16a1e4d071a",
+        "bytes": 5342,
+        "sha256": "a41a8b6daad9f7d6404b2906559ca5baf2e4d0ef54f0b5e022902558b4960298"
+      },
+      "file_bytes_unchanged": true,
+      "named_ast": {
+        "unchanged": [
+          "AuxLossComponent",
+          "AuxLossComponent.compute",
+          "InterferenceLossComponent",
+          "InterferenceLossComponent.__init__",
+          "InterferenceLossComponent._weights_for",
+          "InterferenceLossComponent.compute",
+          "_aggregate_trace",
+          "_normalized_adjacency",
+          "_pointwise_loss"
+        ],
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": [
+        {
+          "line": 16,
+          "module": "polisyos.foundry.calibration.loss",
+          "names": [
+            "reduce_weighted_loss"
+          ]
+        },
+        {
+          "line": 17,
+          "module": "polisyos.foundry.calibration.measurement",
+          "names": [
+            "MeasurementAwareLossConfig",
+            "compute_effective_weight"
+          ]
+        },
+        {
+          "line": 21,
+          "module": "polisyos.ir.observation.bundles",
+          "names": [
+            "InterferenceLossSpecBundle",
+            "InterferenceLossTargetSpec"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/bijectors.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/bijectors.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "c2445e0319f85a2343bb8a0ce1bc9202b2ddeec7",
+        "bytes": 6993,
+        "sha256": "8dec3b0586cec709db88a9754ad51a00483c02035b52200d43ffb5b94a741a94"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/bijectors.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "c2445e0319f85a2343bb8a0ce1bc9202b2ddeec7",
+        "bytes": 6993,
+        "sha256": "8dec3b0586cec709db88a9754ad51a00483c02035b52200d43ffb5b94a741a94"
+      },
+      "file_bytes_unchanged": true,
+      "named_ast": {
+        "unchanged": [
+          "Bijector",
+          "_identity",
+          "affine_bijector",
+          "chain_bijector",
+          "from_unconstrained",
+          "inverse_bijector",
+          "log_bijector",
+          "logit_bijector",
+          "make_bijector",
+          "softplus_bijector",
+          "to_unconstrained"
+        ],
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": [
+        {
+          "line": 16,
+          "module": "polisyos.foundry.runtime.numeric",
+          "names": [
+            "NumericDomain",
+            "clip_probability",
+            "epsilon_for",
+            "softplus_inverse",
+            "stable_logit"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "c0811821f814a05eaa001450beee9aba3e73bb7e",
+        "bytes": 92721,
+        "sha256": "6ca715f13ca9ee0cd825ebea359d4cdaca0cbe67090e930d56fb224f7dbb8aca"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "c0811821f814a05eaa001450beee9aba3e73bb7e",
+        "bytes": 92721,
+        "sha256": "6ca715f13ca9ee0cd825ebea359d4cdaca0cbe67090e930d56fb224f7dbb8aca"
+      },
+      "file_bytes_unchanged": true,
+      "named_ast": {
+        "unchanged": [
+          "CalibrationBatchInputs",
+          "CalibrationBatchInputs.__post_init__",
+          "CalibrationMetricsCollector",
+          "CalibrationMetricsCollector._flush",
+          "CalibrationMetricsCollector._get_metrics",
+          "CalibrationMetricsCollector.finalize",
+          "CalibrationMetricsCollector.record_step",
+          "Calibrator",
+          "Calibrator.__init__",
+          "Calibrator._build_bundle",
+          "Calibrator._resolve_constraints",
+          "Calibrator._resolve_trainable_groups",
+          "Calibrator._target_meta",
+          "Calibrator.run",
+          "CalibratorInputs",
+          "ConstraintHandle",
+          "TrainableGroup",
+          "_HessianReuseKey",
+          "_apply_aggregation",
+          "_as_float_list",
+          "_as_float_matrix",
+          "_bind_objective_operand",
+          "_calibration_span_context",
+          "_compute_scale_local",
+          "_hessian_reuse_key_matches",
+          "_inspect_bundle_fidelity",
+          "_jax_platform",
+          "_make_hessian_reuse_key",
+          "_match_trainable",
+          "_measurement_time_axis",
+          "_resolve_metric_path",
+          "_select_lower_loss_state",
+          "_selector_key"
+        ],
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": [
+        {
+          "line": 28,
+          "module": "polisyos.core.contracts.foundry",
+          "names": [
+            "ExecPlan",
+            "ProgramGraph"
+          ]
+        },
+        {
+          "line": 29,
+          "module": "polisyos.core.observability",
+          "names": [
+            "get_metrics",
+            "get_tracer",
+            "is_hpc_observability_enabled"
+          ]
+        },
+        {
+          "line": 30,
+          "module": "polisyos.foundry.calibration.auxiliary",
+          "names": [
+            "AuxLossComponent"
+          ]
+        },
+        {
+          "line": 31,
+          "module": "polisyos.foundry.calibration.bijectors",
+          "names": [
+            "from_unconstrained",
+            "make_bijector",
+            "to_unconstrained"
+          ]
+        },
+        {
+          "line": 36,
+          "module": "polisyos.foundry.calibration.hessian",
+          "names": [
+            "HessianResult",
+            "compute_hessian"
+          ]
+        },
+        {
+          "line": 37,
+          "module": "polisyos.foundry.calibration.identifiability",
+          "names": [
+            "diagnose_identifiability"
+          ]
+        },
+        {
+          "line": 38,
+          "module": "polisyos.foundry.calibration.loss",
+          "names": [
+            "compute_base_loss",
+            "pointwise_base_loss",
+            "reduce_weighted_loss"
+          ]
+        },
+        {
+          "line": 43,
+          "module": "polisyos.foundry.calibration.measurement",
+          "names": [
+            "CalibrationTargetBundle",
+            "DefaultMeasurementAwareLossAdapter",
+            "MeasurementAwareLossAdapter",
+            "MeasurementAwareLossConfig"
+          ]
+        },
+        {
+          "line": 49,
+          "module": "polisyos.foundry.calibration.preflight",
+          "names": [
+            "fetch_targets",
+            "prepare_targets",
+            "resolve_steps",
+            "validate_gaussian_observation_std"
+          ]
+        },
+        {
+          "line": 55,
+          "module": "polisyos.foundry.calibration.pure_executor",
+          "names": [
+            "StaticBundle",
+            "apply_trainable_values",
+            "compile_program",
+            "extract_trainable_values",
+            "run_pure_scan"
+          ]
+        },
+        {
+          "line": 62,
+          "module": "polisyos.foundry.calibration.report",
+          "names": [
+            "CalibrationCoordinateProjection",
+            "CalibrationFitMetrics",
+            "CalibrationFitQuality",
+            "CalibrationReport",
+            "CalibrationSeriesComparison",
+            "CalibrationUncertainty"
+          ]
+        },
+        {
+          "line": 70,
+          "module": "polisyos.foundry.calibration.uncertainty_adapter",
+          "names": [
+            "envelopes_from_calibration"
+          ]
+        },
+        {
+          "line": 71,
+          "module": "polisyos.foundry.contracts.state",
+          "names": [
+            "GlobalState"
+          ]
+        },
+        {
+          "line": 72,
+          "module": "polisyos.ir.analytics.calibration",
+          "names": [
+            "CalibrationConfig",
+            "CalibrationTarget",
+            "TrainableParamRef"
+          ]
+        },
+        {
+          "line": 77,
+          "module": "polisyos.ir.kernel",
+          "names": [
+            "ConstraintRegistry",
+            "MechanismTypeRegistry",
+            "MergeRuleRegistry",
+            "SelectorFieldRegistry",
+            "SlotRegistry"
+          ]
+        },
+        {
+          "line": 1729,
+          "module": "polisyos.foundry.calibration.multi_start",
+          "names": [
+            "SingleRunResult"
+          ]
+        },
+        {
+          "line": 1732,
+          "module": "polisyos.foundry.calibration.multi_start",
+          "names": [
+            "select_best"
+          ]
+        },
+        {
+          "line": 1125,
+          "module": "polisyos.foundry.calibration.pure_executor",
+          "names": [
+            "run_pure_batch"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/dp_ci.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/dp_ci.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "619aaaa657ee02394f28a8dd6d5cf728abf880d2",
+        "bytes": 27074,
+        "sha256": "3cefa4fe6b901443ef05a34c95162d3011567d2a606c45b19d229456d7b496b7"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/dp_ci.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "619aaaa657ee02394f28a8dd6d5cf728abf880d2",
+        "bytes": 27074,
+        "sha256": "3cefa4fe6b901443ef05a34c95162d3011567d2a606c45b19d229456d7b496b7"
+      },
+      "file_bytes_unchanged": true,
+      "named_ast": {
+        "unchanged": [
+          "CIFPRInflationBound",
+          "CISampleSizeRequirement",
+          "CITestCalibration",
+          "CITestThresholdPolicy",
+          "CITestThresholdPolicySet",
+          "CITestThresholdPolicySet.policy_for",
+          "DPContext",
+          "DPContext.is_private",
+          "DPContext.mechanism_family",
+          "_aggregate_discrete_statistic",
+          "_analytic_gaussian_discrete_threshold",
+          "_apply_private_count_noise",
+          "_chi_square_fpr_inflation_bound",
+          "_chi_square_reference",
+          "_coerce_optional_float",
+          "_discrete_table_statistic",
+          "_dp_context_summary",
+          "_empirical_fpr_inflation_bound",
+          "_expected_independence_table",
+          "_mc_private_discrete_null",
+          "_null_joint_probabilities",
+          "bucket_dp_delta",
+          "bucket_dp_epsilon",
+          "calibrate_discrete_ci",
+          "calibrate_kernel_ci",
+          "ci_threshold_scope",
+          "coerce_dp_context",
+          "effective_privacy_xi",
+          "normalize_ci_scope_value",
+          "required_n_chi2",
+          "required_n_kernel",
+          "resolve_ci_threshold_policy"
+        ],
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": [
+        {
+          "line": 17,
+          "module": "polisyos.ir.analytics.dp_robustness",
+          "names": [
+            "classical_gaussian_sigma"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/fabric_quality.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/fabric_quality.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "679aeecbc7ddfda93a59684dc7243a021e15d73a",
+        "bytes": 2854,
+        "sha256": "b097be5352aceecdb3ac507fe36028a93e5bec66df723c130c1bb76eaa6a721b"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/fabric_quality.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "679aeecbc7ddfda93a59684dc7243a021e15d73a",
+        "bytes": 2854,
+        "sha256": "b097be5352aceecdb3ac507fe36028a93e5bec66df723c130c1bb76eaa6a721b"
+      },
+      "file_bytes_unchanged": true,
+      "named_ast": {
+        "unchanged": [
+          "FabricCalibrationContext",
+          "fabric_calibration_context_from_decision_data",
+          "fabric_calibration_context_from_evidence_paths"
+        ],
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": [
+        {
+          "line": 10,
+          "module": "polisyos.fabric.product_integration",
+          "names": [
+            "FabricProductEvidencePath",
+            "evidence_path_from_fabric_decision_data"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/hessian.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/hessian.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "1267c9d0c2a4301a231ab17840b82979b79f94ef",
+        "bytes": 9904,
+        "sha256": "516fb0a8d02d76494f1990bf36ddc6e074f1a5891e8607f25254e689495ba00a"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/hessian.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "1267c9d0c2a4301a231ab17840b82979b79f94ef",
+        "bytes": 9904,
+        "sha256": "516fb0a8d02d76494f1990bf36ddc6e074f1a5891e8607f25254e689495ba00a"
+      },
+      "file_bytes_unchanged": true,
+      "named_ast": {
+        "unchanged": [
+          "HessianResult",
+          "_finite_difference_hessian",
+          "_repair_eigenvalues",
+          "compute_hessian"
+        ],
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "712bb1a7c8e0e72f418163a912eb6134bbf07b29",
+        "bytes": 48902,
+        "sha256": "22c94e028427c7239d93ebb30e8f080f3c31682749fabe8b9ac833c6bf1a9e8f"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "712bb1a7c8e0e72f418163a912eb6134bbf07b29",
+        "bytes": 48902,
+        "sha256": "22c94e028427c7239d93ebb30e8f080f3c31682749fabe8b9ac833c6bf1a9e8f"
+      },
+      "file_bytes_unchanged": true,
+      "named_ast": {
+        "unchanged": [
+          "IdentifiabilityDiagnosticConfig",
+          "IdentifiabilityDiagnosticConfig._validate_quantiles",
+          "IdentifiabilityDiagnosticResult",
+          "IdentifiabilityDiagnosticStatus",
+          "IdentifiabilityMomentClass",
+          "IdentifiabilityReport",
+          "IdentifiabilityStatus",
+          "ParamIdentifiability",
+          "_base_metadata",
+          "_bootstrap_fisher_stability",
+          "_build_execute_summary_evaluator",
+          "_chi_square_one_threshold",
+          "_compute_identifiability_diagnostic",
+          "_evaluate_samples",
+          "_find_input",
+          "_finite_difference_jacobian",
+          "_flatten_parameter_overrides",
+          "_infer_moment_classes",
+          "_load_model",
+          "_local_profile_bounds",
+          "_persist_diagnostic_result",
+          "_persist_flat_parameter_overrides",
+          "_persist_profile_trace",
+          "_persist_sensitivity_matrix",
+          "_profile_distance",
+          "_profile_grid",
+          "_profile_loss_at_value",
+          "_profile_traces",
+          "_replicate_seeds",
+          "_resolve_float_mapping",
+          "_resolve_parameter_center",
+          "_sloppy_directions",
+          "_summary_vector",
+          "_vector_to_mapping",
+          "_weighting_matrix",
+          "aggregate_moment_summary",
+          "attach_abm_identifiability_certificate_ref",
+          "attach_identifiability_diagnostic_ref",
+          "diagnose_identifiability",
+          "identifiability_diagnostic",
+          "load_identifiability_diagnostic_result"
+        ],
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": [
+        {
+          "line": 14,
+          "module": "polisyos.core.artifacts.manifest",
+          "names": [
+            "ArtifactRef",
+            "InputRef",
+            "SchemaInfo"
+          ]
+        },
+        {
+          "line": 15,
+          "module": "polisyos.core.artifacts.store",
+          "names": [
+            "FileSystemCAS",
+            "PutOptions"
+          ]
+        },
+        {
+          "line": 16,
+          "module": "polisyos.core.canon",
+          "names": [
+            "CanonSpec",
+            "from_canonical_bytes"
+          ]
+        },
+        {
+          "line": 17,
+          "module": "polisyos.core.contracts.foundry",
+          "names": [
+            "ExecuteRequest",
+            "FeedbackConfigRef",
+            "FoundryExecConfig",
+            "FoundryInputBindings",
+            "FoundryInputBindingsRef",
+            "IdentifiabilityDiagnosticRef",
+            "Metrics",
+            "ParameterOverrideBundle",
+            "ParameterOverrideBundleRef",
+            "SimulationResult",
+            "SimulationResultRef"
+          ]
+        },
+        {
+          "line": 30,
+          "module": "polisyos.foundry.methods.catalog.simulation.dynamics",
+          "names": [
+            "build_abm_result_from_simulation"
+          ]
+        },
+        {
+          "line": 33,
+          "module": "polisyos.ir.registry.refs",
+          "names": [
+            "ABMResultRef"
+          ]
+        },
+        {
+          "line": 36,
+          "module": "polisyos.foundry.calibration.hessian",
+          "names": [
+            "HessianResult"
+          ]
+        },
+        {
+          "line": 1214,
+          "module": "polisyos.foundry.execute.api",
+          "names": [
+            "execute"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/loss.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/loss.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "6bc8e542a8ed4a3cf9f85b218397ee0d7e601dde",
+        "bytes": 5881,
+        "sha256": "a3c7dcf6b118d88b7b3f1b0bc60f8ec390cd2229232f75e8f7ff0b6c022f9e58"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/loss.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "6bc8e542a8ed4a3cf9f85b218397ee0d7e601dde",
+        "bytes": 5881,
+        "sha256": "a3c7dcf6b118d88b7b3f1b0bc60f8ec390cd2229232f75e8f7ff0b6c022f9e58"
+      },
+      "file_bytes_unchanged": true,
+      "named_ast": {
+        "unchanged": [
+          "_huber",
+          "compute_base_loss",
+          "loss_components",
+          "pointwise_base_loss",
+          "reduce_weighted_loss",
+          "unified_loss"
+        ],
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": [
+        {
+          "line": 15,
+          "module": "polisyos.foundry.runtime.numeric",
+          "names": [
+            "NumericDomain",
+            "epsilon_for",
+            "finite_loss_or_inf"
+          ]
+        },
+        {
+          "line": 16,
+          "module": "polisyos.ir.analytics.calibration",
+          "names": [
+            "TargetLossConfig"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/measurement.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/measurement.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "7241facca538950cc8494318850870ffcf54ddee",
+        "bytes": 29939,
+        "sha256": "901a32daa068ebbb4ac02246ad404e61dd3d6e885287fed418afede34278158f"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/measurement.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "7241facca538950cc8494318850870ffcf54ddee",
+        "bytes": 29939,
+        "sha256": "901a32daa068ebbb4ac02246ad404e61dd3d6e885287fed418afede34278158f"
+      },
+      "file_bytes_unchanged": true,
+      "named_ast": {
+        "unchanged": [
+          "CalibrationTargetBundle",
+          "CalibrationTargetBundle.target_ids",
+          "CalibrationTargetBundleCompiler",
+          "CalibrationTargetBundleCompiler.__init__",
+          "CalibrationTargetBundleCompiler.compile",
+          "DefaultMeasurementAwareLossAdapter",
+          "DefaultMeasurementAwareLossAdapter.adapt",
+          "MeasurementAwareLossAdapter",
+          "MeasurementAwareLossAdapter.adapt",
+          "MeasurementAwareLossConfig",
+          "MeasurementAwareTarget",
+          "NegativeControlGenerator",
+          "NegativeControlGenerator.__init__",
+          "NegativeControlGenerator.generate",
+          "_as_1d_array",
+          "_broadcast_to",
+          "_month_add",
+          "_observation_selection_key",
+          "_schema_regime_boundary_mask",
+          "_scope_locator",
+          "_select_observation_for_period",
+          "_shift_period",
+          "_target_id",
+          "compute_effective_weight"
+        ],
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": [
+        {
+          "line": 24,
+          "module": "polisyos.ir.kernel.base",
+          "names": [
+            "KernelModel"
+          ]
+        },
+        {
+          "line": 25,
+          "module": "polisyos.ir.model_layer.types",
+          "names": [
+            "TimeFrequency"
+          ]
+        },
+        {
+          "line": 26,
+          "module": "polisyos.ir.observation.bundles",
+          "names": [
+            "BundleAxisSemantic",
+            "BundleLineageRef",
+            "CalibrationTargetBundleManifest",
+            "ContractCompatibilityTarget",
+            "RequiredArraySpec"
+          ]
+        },
+        {
+          "line": 33,
+          "module": "polisyos.ir.observation.compiler",
+          "names": [
+            "CalibrationSplitLabel",
+            "CalibrationSplitPlan",
+            "CalibrationSplitter",
+            "NegativeControlSpec"
+          ]
+        },
+        {
+          "line": 39,
+          "module": "polisyos.ir.observation.contracts",
+          "names": [
+            "EntityScope",
+            "IdentificationMode",
+            "ObservationFamily",
+            "ObservationPanel",
+            "ObservationRecord"
+          ]
+        },
+        {
+          "line": 46,
+          "module": "polisyos.ir.observation.measurement",
+          "names": [
+            "IdentificationModeRouter",
+            "MeasurementRegistry",
+            "SchemaRegimeRegistry"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/multi_start.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/multi_start.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "71a87837a2c8b57b8226bb61838737803b8d2acd",
+        "bytes": 6241,
+        "sha256": "99f33bcd4ab4376cf39347b42ccead9d94f7ed52ecf7b246da598404492ad4c6"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/multi_start.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "71a87837a2c8b57b8226bb61838737803b8d2acd",
+        "bytes": 6241,
+        "sha256": "99f33bcd4ab4376cf39347b42ccead9d94f7ed52ecf7b246da598404492ad4c6"
+      },
+      "file_bytes_unchanged": true,
+      "named_ast": {
+        "unchanged": [
+          "MultiStartResult",
+          "SingleRunResult",
+          "_condition_status",
+          "_finite_condition",
+          "_finite_loss",
+          "_select_best_identifiability",
+          "_select_best_loss",
+          "select_best"
+        ],
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": [
+        {
+          "line": 9,
+          "module": "polisyos.foundry.calibration.hessian",
+          "names": [
+            "HessianResult"
+          ]
+        },
+        {
+          "line": 10,
+          "module": "polisyos.foundry.calibration.identifiability",
+          "names": [
+            "IdentifiabilityReport"
+          ]
+        },
+        {
+          "line": 11,
+          "module": "polisyos.ir.analytics.calibration",
+          "names": [
+            "MultiStartConfig"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/preflight.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/preflight.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "458f6f508e11a5e297abd3cefcd255ceb91aa2c7",
+        "bytes": 14265,
+        "sha256": "d6644d1c49efc82a7aaa4436b7c413251f54196867d80405a100dfa0c0203c28"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/preflight.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "458f6f508e11a5e297abd3cefcd255ceb91aa2c7",
+        "bytes": 14265,
+        "sha256": "d6644d1c49efc82a7aaa4436b7c413251f54196867d80405a100dfa0c0203c28"
+      },
+      "file_bytes_unchanged": true,
+      "named_ast": {
+        "unchanged": [
+          "_align_by_length",
+          "_compute_scale",
+          "_normalize_raw_target",
+          "_resample_series",
+          "extract_fabric_series",
+          "fetch_targets",
+          "prepare_targets",
+          "resolve_steps",
+          "validate_gaussian_observation_std"
+        ],
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": [
+        {
+          "line": 19,
+          "module": "polisyos.ir.analytics.calibration",
+          "names": [
+            "CalibrationConfig",
+            "CalibrationTarget"
+          ]
+        },
+        {
+          "line": 20,
+          "module": "polisyos.ir.analytics.data_views",
+          "names": [
+            "DataViewRequest"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "c7fd780c632b41649c9acee5c49b8cecda733280",
+        "bytes": 36741,
+        "sha256": "2f47d93c96a3f7ce5f78f6c785246429d86a484ae96cecac069235e0e9e51431"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "c7fd780c632b41649c9acee5c49b8cecda733280",
+        "bytes": 36741,
+        "sha256": "2f47d93c96a3f7ce5f78f6c785246429d86a484ae96cecac069235e0e9e51431"
+      },
+      "file_bytes_unchanged": true,
+      "named_ast": {
+        "unchanged": [
+          "PreparedNode",
+          "StaticBundle",
+          "TrainableHandle",
+          "_admit_schedule_predicate",
+          "_apply_operator",
+          "_batch_schedule_predicate",
+          "_coerce_selector_scalar",
+          "_concrete_bool",
+          "_depends_on_executed_mutation",
+          "_emit_node_patches",
+          "_evaluate_selector",
+          "_flush_pending_records",
+          "_get_state_path",
+          "_group_pending_patch_records",
+          "_incoming_dependencies",
+          "_merge_patch_records_into_state",
+          "_neutral_patch_map",
+          "_patch_map_to_pending_records",
+          "_selector_field_values",
+          "_set_state_path",
+          "apply_nodes",
+          "apply_trainable_values",
+          "compile_program",
+          "extract_trainable_values",
+          "run_pure_batch",
+          "run_pure_scan"
+        ],
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": [
+        {
+          "line": 23,
+          "module": "polisyos.core.contracts.foundry",
+          "names": [
+            "ExecPlan",
+            "ProgramGraph"
+          ]
+        },
+        {
+          "line": 24,
+          "module": "polisyos.foundry._registry",
+          "names": [
+            "create_mechanism_from_spec"
+          ]
+        },
+        {
+          "line": 25,
+          "module": "polisyos.foundry.contracts.state",
+          "names": [
+            "GlobalState"
+          ]
+        },
+        {
+          "line": 26,
+          "module": "polisyos.foundry.execute._internal.numeric",
+          "names": [
+            "is_jax_tracer"
+          ]
+        },
+        {
+          "line": 27,
+          "module": "polisyos.foundry.methods.components.merge_engine",
+          "names": [
+            "JAXMergeEngine"
+          ]
+        },
+        {
+          "line": 28,
+          "module": "polisyos.ir.governance.schedule",
+          "names": [
+            "ScheduleSpec",
+            "schedule_range"
+          ]
+        },
+        {
+          "line": 29,
+          "module": "polisyos.ir.governance.selector_expr",
+          "names": [
+            "SelectorAll",
+            "SelectorAny",
+            "SelectorExpr",
+            "SelectorNot",
+            "SelectorPredicate"
+          ]
+        },
+        {
+          "line": 36,
+          "module": "polisyos.ir.kernel",
+          "names": [
+            "MechanismTypeRegistry",
+            "MergeRuleKind",
+            "MergeRuleRegistry",
+            "SelectorFieldRegistry",
+            "SlotRegistry",
+            "SlotScope"
+          ]
+        },
+        {
+          "line": 44,
+          "module": "polisyos.ir.model_layer.types",
+          "names": [
+            "SelectorOperator"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "c3f7eebffcc214235e01804ebafd4aeadf7f83ad",
+        "bytes": 16300,
+        "sha256": "a8eac8e97b9c1fc9ca5b4d32daea0f174bd0afd95605faf67acbefd6675972f3"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "c3f7eebffcc214235e01804ebafd4aeadf7f83ad",
+        "bytes": 16300,
+        "sha256": "a8eac8e97b9c1fc9ca5b4d32daea0f174bd0afd95605faf67acbefd6675972f3"
+      },
+      "file_bytes_unchanged": true,
+      "named_ast": {
+        "unchanged": [
+          "CalibrationCoordinateProjection",
+          "CalibrationCoordinateProjection.validate_projection",
+          "CalibrationFitMetrics",
+          "CalibrationFitQuality",
+          "CalibrationReport",
+          "CalibrationReport.validate_coordinate_projection_contract",
+          "CalibrationSeriesComparison",
+          "CalibrationUncertainty",
+          "load_calibration_report",
+          "put_calibration_config",
+          "put_calibration_report",
+          "serialize_calibration_report_v1"
+        ],
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": [
+        {
+          "line": 17,
+          "module": "polisyos.core",
+          "names": [
+            "artifacts"
+          ]
+        },
+        {
+          "line": 18,
+          "module": "polisyos.core.artifacts.manifest",
+          "names": [
+            "ArtifactRef",
+            "CanonInfo",
+            "InputRef",
+            "SchemaInfo"
+          ]
+        },
+        {
+          "line": 19,
+          "module": "polisyos.core.artifacts.store",
+          "names": [
+            "PutOptions"
+          ]
+        },
+        {
+          "line": 20,
+          "module": "polisyos.core.canon",
+          "names": [
+            "CanonSpec",
+            "from_canonical_bytes",
+            "to_canonical_bytes"
+          ]
+        },
+        {
+          "line": 21,
+          "module": "polisyos.core.contracts.uncertainty",
+          "names": [
+            "UncertaintyEnvelopeRef"
+          ]
+        },
+        {
+          "line": 22,
+          "module": "polisyos.foundry.calibration.identifiability",
+          "names": [
+            "IdentifiabilityReport"
+          ]
+        },
+        {
+          "line": 23,
+          "module": "polisyos.ir.analytics",
+          "names": [
+            "validate_raw_posterior_summary_envelope"
+          ]
+        },
+        {
+          "line": 24,
+          "module": "polisyos.ir.analytics.calibration",
+          "names": [
+            "CalibrationConfig"
+          ]
+        },
+        {
+          "line": 25,
+          "module": "polisyos.ir.analytics.uncertainty",
+          "names": [
+            "UncertaintyEnvelope"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/robust_set_selector.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/robust_set_selector.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "9423540857fff724e563856c5333488336b3b56e",
+        "bytes": 22222,
+        "sha256": "59f1dbf20b68f732815ef7bead87e106e1f3ab0706b820d54d8d69366315c839"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/robust_set_selector.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "9423540857fff724e563856c5333488336b3b56e",
+        "bytes": 22222,
+        "sha256": "59f1dbf20b68f732815ef7bead87e106e1f3ab0706b820d54d8d69366315c839"
+      },
+      "file_bytes_unchanged": true,
+      "named_ast": {
+        "unchanged": [
+          "RobustSetCalibrator",
+          "RobustSetCalibrator.build_spec",
+          "SetSizeSelector",
+          "SetSizeSelector.select",
+          "_as_sample_matrix",
+          "_bootstrap_mean_ucb",
+          "_box_scores",
+          "_build_set_spec",
+          "_coerce_calibration_method",
+          "_coerce_family",
+          "_conformal_quantile",
+          "_ellipsoid_scores",
+          "_empirical_cvar",
+          "_estimate_center",
+          "_estimate_frontier_knee",
+          "_estimate_scale_diag",
+          "_estimate_shrinkage_covariance",
+          "_local_rho_grid",
+          "_repair_covariance",
+          "_split_samples",
+          "_wilson_lcb",
+          "build_robust_set_spec_from_samples",
+          "gaussian_parametric_radius",
+          "select_robust_set_size"
+        ],
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": [
+        {
+          "line": 12,
+          "module": "polisyos.ir.analytics.uncertainty",
+          "names": [
+            "RobustSetAdequacyStatus",
+            "RobustSetCalibrationMethod",
+            "RobustSetCalibrationReport",
+            "RobustSetCalibrationStatus",
+            "RobustSetFamily",
+            "RobustSetFrontierPoint",
+            "RobustSetSpec"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "e28d91f65219311ec666f112d70e650f26855f90",
+        "bytes": 17116,
+        "sha256": "a585cf69fd9b6492bf20e1ab835bd9a3678958db95358231919a0e05c7f13779"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "aebd421615d935b1c6711b75ae1ae9b6ed991709",
+        "bytes": 17155,
+        "sha256": "0ca1f285756508e86ccfadd1ceba011a777dafd91ac2defdc843172985bf3e05"
+      },
+      "file_bytes_unchanged": false,
+      "named_ast": {
+        "unchanged": [
+          "BayesianCalibrationPosteriorSummary",
+          "_credible_interval",
+          "_projected_field_covariance",
+          "_z_score",
+          "envelope_from_calibration_param",
+          "envelopes_from_calibration"
+        ],
+        "changed": [
+          "summarize_bayesian_calibration_posterior"
+        ],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": [
+        {
+          "line": 14,
+          "module": "polisyos.foundry.calibration.report",
+          "names": [
+            "CalibrationReport"
+          ]
+        },
+        {
+          "line": 15,
+          "module": "polisyos.foundry.uncertainty.protocol",
+          "names": [
+            "UncertaintyDecomposition"
+          ]
+        },
+        {
+          "line": 16,
+          "module": "polisyos.foundry.uncertainty.sampling_admission",
+          "names": [
+            "admit_empirical_weights",
+            "joint_carrier_digest"
+          ]
+        },
+        {
+          "line": 20,
+          "module": "polisyos.ir.analytics",
+          "names": [
+            "PosteriorSamplesCarrier",
+            "PosteriorSummaryContext",
+            "PosteriorSummaryProfileV2",
+            "posterior_carrier_content_hash",
+            "posterior_population_std_v2",
+            "posterior_summary_functionals_v2"
+          ]
+        },
+        {
+          "line": 28,
+          "module": "polisyos.ir.analytics.uncertainty",
+          "names": [
+            "DistributionFamily",
+            "IntervalSemantics",
+            "ParametricFitCarrier",
+            "PropagationMethod",
+            "UncertaintyEnvelope",
+            "UncertaintySource"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/runtime/numeric.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/foundry/runtime/numeric.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "6acaa921a23f6dc57f5eeb314a92b3c456d6d791",
+        "bytes": 1015,
+        "sha256": "08306248559ab1a622d20b00dbb8aeec9b4d1f0c279022ec35575ddef35cd220"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/foundry/runtime/numeric.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "6acaa921a23f6dc57f5eeb314a92b3c456d6d791",
+        "bytes": 1015,
+        "sha256": "08306248559ab1a622d20b00dbb8aeec9b4d1f0c279022ec35575ddef35cd220"
+      },
+      "file_bytes_unchanged": true,
+      "named_ast": {
+        "unchanged": [],
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": [
+        {
+          "line": 5,
+          "module": "polisyos.foundry.execute._internal.numeric",
+          "names": [
+            "ACTOR_LOG_STD_MAX",
+            "ACTOR_LOG_STD_MIN",
+            "NumericDomain",
+            "clip_probability",
+            "decimal_from_numeric",
+            "economic_percent_delta",
+            "epsilon_for",
+            "finite_loss_or_inf",
+            "is_jax_tracer",
+            "require_finite_numpy",
+            "safe_exp_from_log_std",
+            "softplus_inverse",
+            "stable_logit",
+            "stable_normal_entropy",
+            "stable_normal_log_prob",
+            "symmetric_percent_delta",
+            "validate_quantile"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "3c8d7b1c1c7ae4aeffba622b6fb452388afa8687",
+        "bytes": 193138,
+        "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "3c8d7b1c1c7ae4aeffba622b6fb452388afa8687",
+        "bytes": 193138,
+        "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23"
+      },
+      "file_bytes_unchanged": true,
+      "named_ast": {
+        "unchanged": [
+          "PropagateWelfareNode",
+          "PropagateWelfareNode.execute",
+          "PropagateWelfareNode.spec",
+          "_CalibrationCoordinateLaw",
+          "_CalibrationCoordinateSampler",
+          "_CalibrationCovarianceSource",
+          "_CovarianceResolution",
+          "_EnvelopeCollection",
+          "_EnvelopeOrigin",
+          "_FiniteEmpiricalLaw",
+          "_PropagationOutcome",
+          "_ResolvedDependenceContext",
+          "_ResolvedGEContext",
+          "_ResolvedWelfareContext",
+          "_WelfareNodeFailure",
+          "_WelfareNodeFailure.__init__",
+          "_admit_welfare_sampling_laws",
+          "_build_dependence_sampler",
+          "_build_parameter_covariance",
+          "_build_report_covariance",
+          "_build_robust_interval",
+          "_build_simulation_fn",
+          "_bundle_inputs",
+          "_calibration_dependence_sampler",
+          "_calibration_lineage_inputs",
+          "_calibration_projection_report_metadata",
+          "_coerce_artifact_ref",
+          "_coerce_bool",
+          "_coerce_dependence_matrix",
+          "_coerce_entry_map",
+          "_coerce_ge_uncertainty_ref",
+          "_coerce_matrix",
+          "_coerce_numeric_sequence",
+          "_coerce_str_list",
+          "_collect_input_envelopes",
+          "_correlation_from_covariance",
+          "_derive_multiplier_interval_from_coefficients",
+          "_dot_interval",
+          "_draw_finite_empirical_law",
+          "_envelope_origin",
+          "_equilibrium_multiplicity_annotation",
+          "_extract_numeric_metrics",
+          "_extract_std",
+          "_fail_error",
+          "_finite_difference_gradient",
+          "_finite_difference_step",
+          "_has_explicit_welfare_request",
+          "_invert_linear_operator",
+          "_limited_covariance_outcome",
+          "_load_ge_model_from_ref",
+          "_load_matrix_artifact",
+          "_load_model",
+          "_load_propagation_config",
+          "_load_verified_welfare_samples",
+          "_load_welfare_draw_outcomes",
+          "_load_welfare_params",
+          "_matvec_interval",
+          "_maybe_build_channel_decomposition_ref",
+          "_mul_interval",
+          "_persist_json_payload",
+          "_persist_sensitivity_diagnostics",
+          "_persist_welfare_draw_outcomes",
+          "_point_total_vector",
+          "_propagate_credible_interval",
+          "_propagate_delta_interval",
+          "_quantile_from_envelope",
+          "_reconcile_welfare_empirical_rows",
+          "_resolve_base_response",
+          "_resolve_bundle_method",
+          "_resolve_bundle_status",
+          "_resolve_calibration_covariance",
+          "_resolve_channel_artifact_ref",
+          "_resolve_channel_decomposition_config",
+          "_resolve_dependence_context",
+          "_resolve_ge_context",
+          "_resolve_ge_multiplier_semantics",
+          "_resolve_interval_semantics",
+          "_resolve_pe_sensitivity",
+          "_resolve_requested_welfare_method",
+          "_resolve_subgroup_welfare",
+          "_resolve_weights",
+          "_resolve_welfare_context",
+          "_sample_from_envelope",
+          "_sample_param_draw",
+          "_source_social_weight_handle",
+          "_stabilize_correlation_matrix",
+          "_unsupported_welfare_law",
+          "_validate_entry_map",
+          "_validate_matrix_interval",
+          "_validate_model_class",
+          "_validate_square_matrix",
+          "_welfare_parametric_coordinates"
+        ],
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": [
+        {
+          "line": 15,
+          "module": "polisyos.common.logger",
+          "names": [
+            "get_logger"
+          ]
+        },
+        {
+          "line": 16,
+          "module": "polisyos.core.artifacts.manifest",
+          "names": [
+            "ArtifactRef",
+            "InputRef",
+            "SchemaInfo"
+          ]
+        },
+        {
+          "line": 17,
+          "module": "polisyos.core.artifacts.store",
+          "names": [
+            "PutOptions"
+          ]
+        },
+        {
+          "line": 18,
+          "module": "polisyos.core.canon",
+          "names": [
+            "CanonSpec",
+            "from_canonical_bytes"
+          ]
+        },
+        {
+          "line": 19,
+          "module": "polisyos.core.components",
+          "names": [
+            "Capability",
+            "ComponentId",
+            "ComponentKind",
+            "ComponentMetadata"
+          ]
+        },
+        {
+          "line": 20,
+          "module": "polisyos.core.contracts.fabric",
+          "names": [
+            "DataSnapshot"
+          ]
+        },
+        {
+          "line": 21,
+          "module": "polisyos.core.contracts.foundry",
+          "names": [
+            "EquilibriumMultiplicityReport",
+            "FeedbackSolveResult",
+            "Metrics",
+            "SimulationResult",
+            "SimulationResultRef"
+          ]
+        },
+        {
+          "line": 28,
+          "module": "polisyos.foundry.calibration.report",
+          "names": [
+            "CalibrationCoordinateProjection",
+            "CalibrationReport",
+            "load_calibration_report"
+          ]
+        },
+        {
+          "line": 33,
+          "module": "polisyos.foundry.uncertainty",
+          "names": [
+            "CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1",
+            "CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1",
+            "admit_empirical_weights",
+            "admit_unit_uniform",
+            "build_covariance_matrix",
+            "calibration_covariance_blocks_agree_v1",
+            "empirical_cdf",
+            "preserve_singular_covariance",
+            "reconcile_draw_outcomes",
+            "sampling_content_digest"
+          ]
+        },
+        {
+          "line": 45,
+          "module": "polisyos.foundry.uncertainty",
+          "names": [
+            "extract_std"
+          ]
+        },
+        {
+          "line": 46,
+          "module": "polisyos.foundry.uncertainty.config",
+          "names": [
+            "PropagationConfig"
+          ]
+        },
+        {
+          "line": 47,
+          "module": "polisyos.ir.analytics",
+          "names": [
+            "admit_posterior_summary_profiles",
+            "posterior_nominal_mean",
+            "validate_raw_posterior_summary_envelope"
+          ]
+        },
+        {
+          "line": 52,
+          "module": "polisyos.ir.analytics",
+          "names": [
+            "load_posterior_summary_envelope"
+          ]
+        },
+        {
+          "line": 53,
+          "module": "polisyos.ir.analytics.dependence_structure",
+          "names": [
+            "DependenceStructure",
+            "load_dependence_structure"
+          ]
+        },
+        {
+          "line": 57,
+          "module": "polisyos.ir.analytics.phase4_dynamics",
+          "names": [
+            "EquilibriumMultiplicityWelfareAnnotation"
+          ]
+        },
+        {
+          "line": 58,
+          "module": "polisyos.ir.analytics.uncertainty",
+          "names": [
+            "DistributionFamily",
+            "ParametricFitCarrier",
+            "PosteriorSamplesCarrier",
+            "UncertaintyEnvelope",
+            "persist_uncertainty_envelope"
+          ]
+        },
+        {
+          "line": 65,
+          "module": "polisyos.ir.analytics.welfare",
+          "names": [
+            "ChannelDecompositionTargetKind",
+            "GEUncertaintyBundle",
+            "GEUncertaintyRepresentation",
+            "WelfareBundle",
+            "WelfareIntervalSemantics",
+            "WelfareMethod",
+            "WelfareSampleBundle",
+            "WelfareStatus",
+            "build_channel_decomposition_ref",
+            "load_ge_uncertainty_bundle",
+            "persist_ge_uncertainty_bundle",
+            "persist_welfare_bundle"
+          ]
+        },
+        {
+          "line": 79,
+          "module": "polisyos.ir.observation.bundles",
+          "names": [
+            "LeontiefIOBundle"
+          ]
+        },
+        {
+          "line": 80,
+          "module": "polisyos.ir.registry.refs",
+          "names": [
+            "ArtifactRefModel",
+            "DependenceStructureRef",
+            "GEUncertaintyBundleRef",
+            "UncertaintyEnvelopeRef",
+            "WelfareSampleBundleRef"
+          ]
+        },
+        {
+          "line": 87,
+          "module": "polisyos.scientist.nodes.builtins.state_keys",
+          "names": [
+            "ARTIFACT_SIMULATION_RESULT_REF",
+            "ARTIFACT_WELFARE_BUNDLE_REF",
+            "INPUT_CALIBRATION_REPORT_REF",
+            "INPUT_DATA_SNAPSHOT_REF"
+          ]
+        },
+        {
+          "line": 93,
+          "module": "polisyos.scientist.orchestration.engine.context",
+          "names": [
+            "ExecutionContext"
+          ]
+        },
+        {
+          "line": 94,
+          "module": "polisyos.scientist.orchestration.engine.protocol",
+          "names": [
+            "NodeError",
+            "NodeEvent",
+            "NodeOutcome",
+            "NodeSpec"
+          ]
+        },
+        {
+          "line": 100,
+          "module": "polisyos.scientist.orchestration.engine.state",
+          "names": [
+            "ExperimentState"
+          ]
+        },
+        {
+          "line": 101,
+          "module": "polisyos.scientist.orchestration.engine.state_branching",
+          "names": [
+            "branch_state"
+          ]
+        },
+        {
+          "line": 102,
+          "module": "polisyos.scientist.policy_design.phase3",
+          "names": [
+            "ensure_social_weight_manifest_artifact"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "0e09fe4517a02a5e5780ad6c5cd59c53ca7e428d",
+        "bytes": 20893,
+        "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "0e09fe4517a02a5e5780ad6c5cd59c53ca7e428d",
+        "bytes": 20893,
+        "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41"
+      },
+      "file_bytes_unchanged": true,
+      "named_ast": {
+        "unchanged": [
+          "PropagateUncertaintyNode",
+          "PropagateUncertaintyNode.execute",
+          "PropagateUncertaintyNode.spec",
+          "_PropagationFunction",
+          "_PropagationFunction.__call__",
+          "_build_propagation_fn",
+          "_collect_input_envelopes",
+          "_extract_numeric_metrics",
+          "_has_missing_output",
+          "_load_config",
+          "_load_model",
+          "_mark_unresolved_sensitivity",
+          "_persist_config",
+          "_persist_report",
+          "_resolve_sensitivity_map"
+        ],
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": [
+        {
+          "line": 12,
+          "module": "polisyos.common.logger",
+          "names": [
+            "get_logger"
+          ]
+        },
+        {
+          "line": 13,
+          "module": "polisyos.core.artifacts.manifest",
+          "names": [
+            "ArtifactRef",
+            "InputRef",
+            "SchemaInfo"
+          ]
+        },
+        {
+          "line": 14,
+          "module": "polisyos.core.artifacts.store",
+          "names": [
+            "PutOptions"
+          ]
+        },
+        {
+          "line": 15,
+          "module": "polisyos.core.canon",
+          "names": [
+            "CanonSpec",
+            "from_canonical_bytes"
+          ]
+        },
+        {
+          "line": 16,
+          "module": "polisyos.core.components",
+          "names": [
+            "Capability",
+            "ComponentId",
+            "ComponentKind",
+            "ComponentMetadata"
+          ]
+        },
+        {
+          "line": 17,
+          "module": "polisyos.core.contracts.fabric",
+          "names": [
+            "DataSnapshot"
+          ]
+        },
+        {
+          "line": 18,
+          "module": "polisyos.core.contracts.foundry",
+          "names": [
+            "Metrics",
+            "SimulationResult",
+            "SimulationResultRef"
+          ]
+        },
+        {
+          "line": 19,
+          "module": "polisyos.foundry.uncertainty",
+          "names": [
+            "BoundedIndicatorResponse",
+            "load_foundry_calibration_report",
+            "reconcile_draw_outcomes",
+            "verify_mean_certificate"
+          ]
+        },
+        {
+          "line": 25,
+          "module": "polisyos.foundry.uncertainty.config",
+          "names": [
+            "PropagationConfig"
+          ]
+        },
+        {
+          "line": 26,
+          "module": "polisyos.foundry.uncertainty.dispatcher",
+          "names": [
+            "PropagationDispatcher"
+          ]
+        },
+        {
+          "line": 27,
+          "module": "polisyos.foundry.uncertainty.protocol",
+          "names": [
+            "PropagationResult"
+          ]
+        },
+        {
+          "line": 28,
+          "module": "polisyos.ir.analytics",
+          "names": [
+            "admit_posterior_summary_profiles",
+            "posterior_nominal_mean"
+          ]
+        },
+        {
+          "line": 29,
+          "module": "polisyos.ir.analytics",
+          "names": [
+            "load_posterior_summary_envelope"
+          ]
+        },
+        {
+          "line": 30,
+          "module": "polisyos.ir.analytics.uncertainty",
+          "names": [
+            "UncertaintyEnvelope",
+            "persist_uncertainty_envelope"
+          ]
+        },
+        {
+          "line": 34,
+          "module": "polisyos.scientist.nodes.builtins.state_keys",
+          "names": [
+            "ARTIFACT_PROPAGATION_REPORT_REF",
+            "ARTIFACT_SIMULATION_RESULT_REF",
+            "INPUT_CALIBRATION_REPORT_REF",
+            "INPUT_DATA_SNAPSHOT_REF"
+          ]
+        },
+        {
+          "line": 40,
+          "module": "polisyos.scientist.orchestration.engine.context",
+          "names": [
+            "ExecutionContext"
+          ]
+        },
+        {
+          "line": 41,
+          "module": "polisyos.scientist.orchestration.engine.protocol",
+          "names": [
+            "NodeEvent",
+            "NodeOutcome",
+            "NodeSpec"
+          ]
+        },
+        {
+          "line": 42,
+          "module": "polisyos.scientist.orchestration.engine.state",
+          "names": [
+            "ExperimentState"
+          ]
+        },
+        {
+          "line": 43,
+          "module": "polisyos.scientist.orchestration.engine.state_branching",
+          "names": [
+            "branch_state"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+        "bytes": 84428,
+        "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+        "bytes": 84428,
+        "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7"
+      },
+      "file_bytes_unchanged": true,
+      "named_ast": {
+        "unchanged": [
+          "CertificateKind",
+          "ComposedFlavour",
+          "CompositionProvenance",
+          "CompositionStep",
+          "DistributionFamily",
+          "EnvelopeCombinationMethod",
+          "ExactnessKind",
+          "FailureSeverity",
+          "IntervalSemantics",
+          "MixtureComponent",
+          "MixtureComponent._validate_payload",
+          "MixtureDistributionCarrier",
+          "MixtureDistributionCarrier._validate_payload",
+          "NativeValueEstimandBinding",
+          "NativeValueEstimandBinding._verify_content_hash",
+          "NativeValueEstimandBinding.from_estimand",
+          "NativeValueEstimandBinding.matches",
+          "NumericPolicySpec",
+          "NumericPolicySpec.canonicalize",
+          "NumericToleranceMode",
+          "OutputContractCapability",
+          "OutputContractDeclaration",
+          "OutputContractDeclaration.__post_init__",
+          "ParametricFitCarrier",
+          "ParametricFitCarrier._validate_payload",
+          "PosteriorSamplesCarrier",
+          "PosteriorSamplesCarrier._validate_payload",
+          "PropagationMethod",
+          "PullBackNotRepresentableError",
+          "QuantileSummaryCarrier",
+          "QuantileSummaryCarrier._validate_payload",
+          "RobustSetAdequacyStatus",
+          "RobustSetCalibrationMethod",
+          "RobustSetCalibrationReport",
+          "RobustSetCalibrationReport._validate_report",
+          "RobustSetCalibrationStatus",
+          "RobustSetFamily",
+          "RobustSetFrontierPoint",
+          "RobustSetFrontierPoint._validate_frontier_point",
+          "RobustSetSpec",
+          "RobustSetSpec._validate_spec",
+          "RobustSetSpec.dimension",
+          "TypedFailureCard",
+          "TypedFailureCard.is_blocker",
+          "UncertaintyCompatibilityError",
+          "UncertaintyEnvelope",
+          "UncertaintyEnvelope._canonicalize_numeric_payload",
+          "UncertaintyEnvelope._validate_fields",
+          "UncertaintyEnvelope.ci_lower",
+          "UncertaintyEnvelope.ci_upper",
+          "UncertaintyEnvelope.ci_width",
+          "UncertaintyEnvelope.relative_uncertainty",
+          "UncertaintySource",
+          "UncertaintyType",
+          "ValueUncertaintyProjectionKind",
+          "_base_provenance",
+          "_build_composition_provenance",
+          "_canonicalize_composition_provenance",
+          "_canonicalize_distribution_payload",
+          "_canonicalize_nested_numbers",
+          "_compose_flavour_for_operation",
+          "_dkw_radius",
+          "_infer_certificate_kind",
+          "_infer_certificate_radius",
+          "_infer_exactness",
+          "_infer_native_flavour",
+          "_join_distribution_payloads",
+          "_merge_certificate_kind",
+          "_merge_certificate_radii",
+          "_native_value_estimand_binding_hash",
+          "_normal_quantile_grid",
+          "_optional_estimand_text",
+          "_optional_estimand_tuple",
+          "_origin_id_for_envelope",
+          "_particles_from_distribution_payload",
+          "_particles_from_parametric_fit",
+          "_propagate_certificate_radius",
+          "_require_compatible_envelopes",
+          "_resolve_join_semantics",
+          "_samples_from_payload",
+          "_scope_for_envelope",
+          "_scope_from_shape",
+          "_split_component_sizes",
+          "_std_from_envelope",
+          "_triangular_quantile_grid",
+          "_weighted_mean",
+          "_weighted_quantile",
+          "_worst_exactness",
+          "build_composition_provenance",
+          "combine_envelopes",
+          "compress_envelope",
+          "envelope_meets_trust_policy",
+          "join_envelopes",
+          "load_uncertainty_envelope",
+          "persist_uncertainty_envelope",
+          "pull_back_envelope",
+          "push_forward_envelope",
+          "supports_value_uncertainty_projection_contract",
+          "value_uncertainty_output_contract"
+        ],
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": [
+        {
+          "line": 15,
+          "module": "polisyos.common",
+          "names": [
+            "serialization"
+          ]
+        },
+        {
+          "line": 16,
+          "module": "polisyos.ir.artifacts",
+          "names": [
+            "ArtifactStore",
+            "InputRef",
+            "get_json_artifact",
+            "put_json_artifact"
+          ]
+        },
+        {
+          "line": 17,
+          "module": "polisyos.ir.model_layer.canon",
+          "names": [
+            "CanonSpec",
+            "content_hash",
+            "to_canonical_bytes"
+          ]
+        },
+        {
+          "line": 18,
+          "module": "polisyos.ir.registry.refs",
+          "names": [
+            "ArtifactRefModel",
+            "UncertaintyEnvelopeRef"
+          ]
+        },
+        {
+          "line": 23,
+          "module": "polisyos.ir.kernel.trust",
+          "names": [
+            "TrustPolicySpec"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+      "old_source": {
+        "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+        "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "git_blob": "f5a321bb6cffa61d0bf854f1a531b090a974bca6",
+        "bytes": 1152,
+        "sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174"
+      },
+      "current_source": {
+        "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+        "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+        "git_blob": "f5a321bb6cffa61d0bf854f1a531b090a974bca6",
+        "bytes": 1152,
+        "sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174"
+      },
+      "file_bytes_unchanged": true,
+      "named_ast": {
+        "unchanged": [
+          "__dir__",
+          "__getattr__"
+        ],
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "current_internal_imports": [
+        {
+          "line": 15,
+          "module": "polisyos.ir.api",
+          "names": [
+            "ANALYTICS_FACADE_EXPORTS",
+            "lazy_dir",
+            "resolve_lazy_export"
+          ]
+        }
+      ]
+    }
+  ],
+  "current_CAL_native_paths": [
+    "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+    "policy-engine/tests/unit/foundry/calibration/test_report.py",
+    "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py"
+  ],
+  "unchanged_CAL_paths_not_repeated": [
+    "policy-engine/tests/unit/foundry/calibration/test_auxiliary.py",
+    "policy-engine/tests/unit/foundry/calibration/test_bijectors.py",
+    "policy-engine/tests/unit/foundry/calibration/test_calibration_robust_set_selector.py",
+    "policy-engine/tests/unit/foundry/calibration/test_calibrator.py",
+    "policy-engine/tests/unit/foundry/calibration/test_calibrator_batch.py",
+    "policy-engine/tests/unit/foundry/calibration/test_calibrator_fidelity.py",
+    "policy-engine/tests/unit/foundry/calibration/test_calibrator_mvp.py",
+    "policy-engine/tests/unit/foundry/calibration/test_dp_ci.py",
+    "policy-engine/tests/unit/foundry/calibration/test_fabric_quality.py",
+    "policy-engine/tests/unit/foundry/calibration/test_hessian.py",
+    "policy-engine/tests/unit/foundry/calibration/test_identifiability.py",
+    "policy-engine/tests/unit/foundry/calibration/test_loss.py",
+    "policy-engine/tests/unit/foundry/calibration/test_measurement.py",
+    "policy-engine/tests/unit/foundry/calibration/test_multi_start.py",
+    "policy-engine/tests/unit/foundry/calibration/test_preflight.py",
+    "policy-engine/tests/unit/foundry/calibration/test_pure_executor.py",
+    "policy-engine/tests/unit/foundry/calibration/test_pure_executor_batch.py",
+    "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+    "policy-engine/tests/unit/remediation/test_cal_01.py",
+    "policy-engine/tests/unit/remediation/test_cal_02.py",
+    "policy-engine/tests/unit/remediation/test_cal_03.py",
+    "policy-engine/tests/unit/remediation/test_cal_04.py",
+    "policy-engine/tests/unit/remediation/test_cal_06.py",
+    "policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py"
+  ],
+  "runtime_edges": [
+    {
+      "producer": "calibrator.py::Calibrator.run",
+      "call": "envelopes_from_calibration",
+      "adapter_named_body_unchanged": true,
+      "changed_module_load_surface": true,
+      "current_positive": "test_propagate_welfare.py::test_calibrator_tied_report_reaches_delta_and_monte_carlo_welfare",
+      "scope": "Real Calibrator producer\u2192persisted report\u2192delta/MC welfare consumer runs because downstream joint/profile and validator dependencies changed; unchanged standalone fit/gradient/Hessian arrays are not a second independent wave."
+    },
+    {
+      "producer": "uncertainty_adapter.py::summarize_bayesian_calibration_posterior",
+      "changed_definition": true,
+      "reads": "sampling_admission finite ratio semantics + IRposterior v2 functionals/std",
+      "current_positive": "test_calibration_uncertainty_adapter.py current full module incl posterior diagnostics and spread diagnostic controls"
+    },
+    {
+      "reader": "report.py::load_calibration_report",
+      "direct_dependency": "polisyos.ir.analytics.validate_raw_posterior_summary_envelope",
+      "changed_definition_source": "ir/analytics/posterior_summary.py",
+      "current_positive": "test_report.py + test_calibration_report_consumer.py fresh CAS/kind/schema/payload controls"
+    },
+    {
+      "consumer": "propagate_welfare.py",
+      "file_bytes_unchanged": true,
+      "changed_runtime_dependency": "MC/sampling_admission/IRlaw functionals",
+      "current_positive": "test_welfare_empirical_law.py + actual native covariance/joint admission tests in test_propagate_welfare.py"
+    }
+  ],
+  "not_dependency": "Package initialization imports can change an import surface, but are not by themselves a numerical Hessian/optimizer-method change; record both and run actual affected caller boundaries.",
+  "required_retention": "Old324 is source64d observation only. No current324PASS/current fullCALPASS; unaffected gradient/Hessian/scalar/batch tests remain historical source/definition-bound observations."
+}

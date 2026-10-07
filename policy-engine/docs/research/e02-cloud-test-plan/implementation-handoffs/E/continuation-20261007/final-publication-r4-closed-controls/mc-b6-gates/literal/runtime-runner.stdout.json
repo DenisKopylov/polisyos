@@ -1,0 +1,9 @@
+{
+  "stage": "runtime-api-contract",
+  "outcome": "FAIL",
+  "canonical": "FAIL",
+  "exit_code": 1,
+  "source_immutable": true,
+  "root_env_metadata_unchanged": true,
+  "wall_seconds": 102.43061423301697
+}

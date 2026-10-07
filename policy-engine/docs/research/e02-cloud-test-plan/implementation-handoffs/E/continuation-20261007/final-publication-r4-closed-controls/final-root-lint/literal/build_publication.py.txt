@@ -1,0 +1,67 @@
+from __future__ import annotations
+import hashlib,json,pathlib
+D=pathlib.Path('/tmp/e02-E-final-root-lint-31782b55-20261007');R=pathlib.Path('/workspace/e02-E-continuation-20261006')
+def need(ok,message):
+ if not ok:raise ValueError(message)
+def ref(p):
+ b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def equal_ref(p,row):
+ b=p.read_bytes();need(type(row['bytes']) is int and len(b)==row['bytes'] and hashlib.sha256(b).hexdigest()==row['sha256'],'closed selected identity '+str(p));return b
+normal=json.loads((D/'classification-normal.stdout.json').read_text());optimized=json.loads((D/'classification-optimized.stdout.json').read_text())
+need({k:v for k,v in normal.items() if k!='mode'}=={k:v for k,v in optimized.items() if k!='mode'},'classification mode delta')
+s=normal['summary'];raw=json.loads((D/'ruff.stdout.txt').read_text());need(s['actual_Ruff_diagnostic_count']==len(raw) and s['actual_Ruff_diagnostic_path_count']==len({x['filename'] for x in raw})==7,'closed raw native Ruff count')
+inputs=json.loads((D/'inputs.json').read_text());native=json.loads((D/'capture-receipt.json').read_text());need(s['candidate']=='31782b55f8f35556cfc581449b040c393f00c78f' and s['tree']=='746f50214f70c0fa34cd8bb6d42e72440adc9f96','frozen source identity')
+# Read-only post-capture code-origin rebind. Prior actual module origin is historical;
+# unchanged current bytes are measured, not claimed as a new native command.
+prior_origin_path=pathlib.Path('/tmp/e02-E-actual-lint-b6b0d415-20261007/tool-origins.json');prior_origin=json.loads(prior_origin_path.read_text());origins=[]
+for row in prior_origin['actual_module_interpreter_and_native_launcher']:
+ p=pathlib.Path(row['path']);b=equal_ref(p,row);origins.append({**row,'post_close_current_bytes_equal_historical_origin':True,'binary_copy_excluded':row['bytes']>1000000})
+origin_rebind={'schema':'policyos.e02.post_closed_native_code_origin_rebind.v1','actual_source':s['candidate'],'prior_actual_module_origin_observation':ref(prior_origin_path),'actual_files':origins,'native_version_capture':ref(D/'ruff-version.json'),'current_tool_version':'ruff 0.14.10','claim':'All actual launcher/interpreter/module-origin file bytes are freshly rebound to the unchanged prior measured DOE184 origin; this derivative does not claim a repeated native gate or an independently observed pre-command module-origin snapshot.','environment_created_or_mutated':False,'native_commands_rerun':False}
+(D/'tool-origin-rebinding.json').write_text(json.dumps(origin_rebind,indent=2)+'\n')
+receipt={'schema':'policyos.e02.final_frozen_complete_lint_closeout.v1','source':s['candidate'],'tree':s['tree'],'base':s['base'],'check_outcome':'FAIL','finding_outcome':None,'summary':s,'independent_native_capture':ref(D/'capture-receipt.json'),'complete_actual_inputs':ref(D/'inputs.json'),'closed_classification_normal':ref(D/'classification-normal.stdout.json'),'closed_classification_optimized':ref(D/'classification-optimized.stdout.json'),'normal_optimized_claims_equal':True,'author_summary_controls_per_mode':len(normal['controls']),'source_qualification':ref(pathlib.Path('/tmp/e02-E-validator-format-independent-r4/final-source-GO.json')),'root_or_candidate_code_environment_mutated':False,'non_E_code_changes':False,'E_scoped_current_style_result':'All344 factual E input paths have zero Ruff diagnostics and zero format-required paths after independently reviewed source2350. This is a scoped style observation, not global or finding closure.','foreign_next_owners':'A compiler utility1 diagnostic/1 format; B settlement utilities35 diagnostics/2 formats; G-published canonical C utilities107 diagnostics/4 formats. Canonical C mechanism ownership is separate from G factual publication writer.','P41':'not_established; no exact historical full-command/input replay and no inherited waiver','historical_observations':'Frozen64d360; prior prospective366 PLAN_ONLY; actualb6 before the format/source-preflight fix. Historical classifier argv/defaultdict observer errors remain in the old b6 selection. No historical outputs were rewritten or supplied as current PASS.','current_actual_denominator':'Native Git main198→ROOT31782 full6289 changed-path delta; all366 existing Python paths, no absent/deleted Python input; all physical/candidate/config/environment metadata hashes before/after equal.','current_configuration':'Actual policy-engine cwd native nearest ruff.toml plus recursive generated.toml extends; no explicit --config, fix, exclusions or baseline changes.','native_gate_commands_executed_once':True,'cleanup_candidates':['cache-version','cache-python','cache-settings','cache-ruff','cache-format'],'cleanup_performed':False}
+(D/'final-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+assets=[]
+def add(path,portable,role,source_path=None):
+ row=ref(path)
+ if portable.endswith('.json'):json.loads(path.read_bytes())
+ need(not portable.endswith('.py'),'passive publication source only')
+ row.update({'portable_path':portable,'role':role})
+ if source_path:row['source_path']=source_path
+ assets.append(row)
+# Capture only CLOSED files. The builder's redirected stdout/stderr are pending
+# and deliberately excluded from its own input denominator.
+for p in sorted(D.iterdir()):
+ if not p.is_file() or p.name in {'publication-selection.json','publication-build.stdout.json','publication-build.stderr.txt'}:continue
+ portable='literal/'+p.name+('.txt' if p.suffix=='.py' else '')
+ add(p,portable,'closed final native input, complete deciding output or literal read-only observer')
+snap=D/'source-snapshots';snap.mkdir(exist_ok=True)
+for packet in normal['complete_owner_packets']:
+ row=packet['source_input'];source=R/row['path'];data=equal_ref(source,row);target=snap/(row['object_id']+'.py.txt');target.write_bytes(data);add(target,'exact-source/'+row['object_id']+'.py.txt','actual foreign failing source archived passively',row['path'])
+# Current E validator and canonical config/owner sources are exact companions.
+current_E_path='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py'
+for row in [r for r in inputs['python_rows'] if r['path']==current_E_path]+inputs['effective_recursive_configuration_inputs']+inputs['owner_inputs']:
+ source=R/row['path'];data=equal_ref(source,row);suffix=pathlib.Path(row['path']).suffix;portable_suffix=suffix+'.txt' if suffix=='.py' else suffix;target=snap/(row['object_id']+portable_suffix);target.write_bytes(data);add(target,'exact-source/'+row['object_id']+portable_suffix,'exact independently qualified E source, canonical config or writer admission source',row['path'])
+for row in inputs['effective_recursive_configuration_inputs']:need((R/row['path']).read_bytes()==equal_ref(R/row['path'],row),'configuration still bound')
+# Exact moderate external dependencies, rather than full previous publications.
+for path,portable,role in [
+(pathlib.Path(inputs['writer_attribution_prior']['path']),'inputs/historical-prospective-plan-v3.json','Historical PLAN_ONLY writer/lease attribution source, reused only after actual current Git set and byte qualifications'),
+(pathlib.Path(inputs['actual_root_reviewed_freeze']['path']),'inputs/root-reviewed-source-freeze.json','Current actual ROOT source freeze receipt'),
+(pathlib.Path('/tmp/e02-E-validator-format-independent-r4/final-source-GO.json'),'inputs/utility2350-independent-source-GO.json','Independent source qualification for the sole current Python body delta'),
+(prior_origin_path,'inputs/historical-native-tool-origins.json','Prior actually measured module/interpreter/launcher origin, explicitly historical'),
+(pathlib.Path(prior_origin['stdout']['path']),'inputs/historical-native-tool-origins.stdout.json','Closed prior actual origin stdout'),
+(pathlib.Path(prior_origin['stderr']['path']),'inputs/historical-native-tool-origins.stderr.txt','Closed prior actual origin stderr'),
+(pathlib.Path('/tmp/e02-E-actual-lint-b6b0d415-20261007/final-receipt.json'),'inputs/historical-b6-final-receipt.json','Historical actualb6 gate observation; E format debt there is fixed in current source2350')]:add(path,portable,role)
+for row in origins:
+ if row['bytes']<=1000000:
+  p=pathlib.Path(row['path']);target=snap/('tool-'+p.name+'.txt');target.write_bytes(equal_ref(p,row));add(target,'exact-source/tool-'+p.name+'.txt','Exact native Python launcher module source, passively archived')
+need(len({r['portable_path'] for r in assets})==len(assets),'duplicate portable paths')
+unique={}
+for row in assets:
+ key=(row['bytes'],row['sha256'])
+ if key in unique:
+  need(pathlib.Path(row['path']).read_bytes()==pathlib.Path(unique[key]['path']).read_bytes(),'digest collision');row['content_alias_of']=unique[key]['portable_path']
+ else:unique[key]=row
+selection={'schema':'policyos.e02.closed_final_frozen_lint_publication_selection.v1','source':s['candidate'],'tree':s['tree'],'base':s['base'],'check_outcome':'FAIL','finding_outcome':None,'asset_count':len(assets),'logical_bytes':sum(r['bytes'] for r in assets),'content_unique_count':len(unique),'content_unique_bytes':sum(r['bytes'] for r in unique.values()),'assets':assets,'native_commands_executed_once':True,'all_inputs_complete_and_exact':True,'no_full_numeric_repeat':True,'root_code_environment_writes':False,'empty_JSON_count':sum(r['bytes']==0 and r['portable_path'].endswith('.json') for r in assets),'Ruff_cache_and_large_interpreter_binaries_excluded':'Only repeatable external caches and32MB/35MB interpreter/Ruff binaries; their exact file hashes/origins are bound in tool-origin-rebinding.json.','pending_builder_stdout_excluded':True,'historical_qualification':'Earlier360/prospective366/b6 outputs are observations with explicit source identities; no current PASS or inherited P41 waiver.'}
+(D/'publication-selection.json').write_text(json.dumps(selection,indent=2)+'\n')
+for row in assets:equal_ref(pathlib.Path(row['path']),row)
+print(json.dumps({'selection':ref(D/'publication-selection.json'),'receipt':ref(D/'final-receipt.json'),'summary':s,'logical_assets':len(assets),'unique_assets':len(unique),'unique_bytes':selection['content_unique_bytes']},indent=2))

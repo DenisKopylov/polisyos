@@ -1,0 +1,62 @@
+{
+  "schema": "policyos.e02.E.three_gate_peer_initial_review_selection.v1",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "tree": "0cb448febf461d0bbdf31645712ad774f5425b72",
+  "assets": [
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/review-v2.py.txt",
+      "bytes": 16538,
+      "sha256": "90c55078cc69cff7d285d4376695e1c7e81b25e2750b49b268e89628e20c8c09"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/review-normal-v2.json",
+      "bytes": 13535,
+      "sha256": "572aa4f4bc82f8bafc92656b2c65d3d848522f619aaf62a4ae368ff092072cc7"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/review-normal-v2.stdout.json",
+      "bytes": 179,
+      "sha256": "9687050db6d0cab869b2e40e6de11f252b00a313f0739e7a357ffb6d3fdf74c5"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/review-normal-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/controls-optimized-v2.json",
+      "bytes": 1687,
+      "sha256": "b0b9c6afd57b07a98258d58014e1358cef7a97b89bb30dcf941bcff9b02f1d06"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/controls-optimized-v2.stdout.json",
+      "bytes": 183,
+      "sha256": "696949f68bdcf3b10cbbeb278e8ab3f4141f1ad66914cf1891e1ee1432b40a05"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/controls-optimized-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/style-final-v2.json",
+      "bytes": 634,
+      "sha256": "c3a0a5e5fdfe1607b47088071cbe1a8189e9276282d2e7cae51e1fdc75638bad"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/review.py.txt",
+      "bytes": 16061,
+      "sha256": "224c5bdc1aaf433e4cd33ec68719fabf71078ce6f29e6948deaca93bdd309d89"
+    },
+    {
+      "path": "/tmp/e02-E-three-gate-custody-independent-20261007/review-normal.stderr.txt",
+      "bytes": 757,
+      "sha256": "d615d992b26a7cd89903fca7a1d4914de7a2f655ba857b6498fc4f8c4de352ed"
+    }
+  ],
+  "asset_count": 10,
+  "total_bytes": 49574,
+  "literal_full_custody": "GO for literal full source/receipt/decoded archive custody only",
+  "validator_admission": "CHANGE_REQUIRED: original V2 permits mandatorynative-receipt omission with valid re-totals. Original closed literal/raw/native bytes valid and unchanged.",
+  "scope": "No native/math/gate rerun; actual3FAIL1 and8attempts separate; full197logical/127storage+9decodedarchives verified; original observer denominator assumption210==207 corrected to207METADATA+3control inputs."
+}

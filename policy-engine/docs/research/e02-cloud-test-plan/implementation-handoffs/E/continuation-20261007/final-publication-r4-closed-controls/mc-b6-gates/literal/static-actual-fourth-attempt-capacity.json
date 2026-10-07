@@ -1,0 +1,16 @@
+{
+  "schema": "policyos.e02.E.fourth_full_static_prerequisites.v1",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "status_clean": true,
+  "time_unix": 1791381823.5322366,
+  "previous_scanner_processes": [],
+  "memory": {
+    "memory.current": "7394185216\n",
+    "memory.max": "17179869184\n",
+    "memory.events": "low 0\nhigh 0\nmax 3935153\noom 94\noom_kill 12\noom_group_kill 0\n",
+    "memory.stat": "anon 46075904\nfile 6254776320\nkernel 1092317184\nkernel_stack 557056\npagetables 1413120\nsec_pagetables 0\npercpu 13776\nsock 0\nvmalloc 0\nshmem 4142227456\nfile_mapped 24576\nfile_dirty 1949696\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 0\nshmem_thp 0\ninactive_anon 464973824\nactive_anon 3723186176\ninactive_file 1106862080\nactive_file 1005686784\nunevictable 0\nslab_reclaimable 922479896\nslab_unreclaimable 167836624\nslab 1090316520\nworkingset_refault_anon 0\nworkingset_refault_file 167178980\nworkingset_activate_anon 0\nworkingset_activate_file 26815122\nworkingset_restore_anon 0\nworkingset_restore_file 13342065\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 6890169057\npgsteal 174999972\npswpin 0\npswpout 0\npgscan_kswapd 8718590\npgscan_direct 6881444835\npgscan_khugepaged 5632\npgscan_proactive 0\npgsteal_kswapd 8299014\npgsteal_direct 166695510\npgsteal_khugepaged 5448\npgsteal_proactive 0\npgfault 713698465\npgmajfault 241749\npgrefill 54546537\npgactivate 27428572\npgdeactivate 50095821\npglazyfree 1293596\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 1221\nthp_collapse_alloc 82\nthp_swpout 0\nthp_swpout_fallback 0\n"
+  },
+  "tmp_free": 5299122176,
+  "authorization": "Parent exact same full static attempt4 after protected ROOT backend terminal; no caps/source edits/narrowing",
+  "PID_cause_from_global_oom_counters": "not_established"
+}

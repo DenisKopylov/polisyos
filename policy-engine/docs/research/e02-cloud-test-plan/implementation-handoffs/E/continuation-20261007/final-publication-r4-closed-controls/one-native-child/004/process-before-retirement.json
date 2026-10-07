@@ -1,0 +1,17 @@
+{
+  "unix": 1791382652.9487884,
+  "exact_source": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/pytest-base/test_generated_family_probe_an0",
+  "users": [],
+  "readable_non_zombie": 5,
+  "unreadable_infrastructure": [
+    {
+      "pid": 199,
+      "error": "[Errno 13] Permission denied: '/proc/199/cwd'"
+    },
+    {
+      "pid": 250,
+      "error": "[Errno 13] Permission denied: '/proc/250/cwd'"
+    }
+  ],
+  "unreadable_other": []
+}

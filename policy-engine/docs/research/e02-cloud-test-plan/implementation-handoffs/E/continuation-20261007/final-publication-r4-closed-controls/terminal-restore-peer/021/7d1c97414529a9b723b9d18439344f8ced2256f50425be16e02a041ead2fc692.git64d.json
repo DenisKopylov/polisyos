@@ -1,0 +1,163 @@
+{
+  "accountable_principal_refs": [
+    "principal://ua-msme/region-owner",
+    "principal://deniskopylov"
+  ],
+  "certified_envelope_delta_refs": [
+    "envelope-delta://ua-msme/first"
+  ],
+  "demand_pull_refs": [
+    "s12-growth://ua-msme-adjacent/current",
+    "demand-act://layer3-gx/ua-msme-affordable-loans-2022"
+  ],
+  "g5_demand_pull_attempt_ref": "architecture/policy_design_case/layer3_g5_demand_pull_attempt_record.json",
+  "g5_dependency_health_snapshot_ref": "architecture/policy_design_case/layer3_g5_dependency_health_metric_snapshot.json",
+  "g5_envelope_expansion_delta_ref": "architecture/policy_design_case/layer3_g5_envelope_expansion_delta.json",
+  "growth_counting_disposition": "counted_mechanism_growth",
+  "growth_without_envelope_delta_count": 0,
+  "held_out_battery_ref": null,
+  "held_out_status": "pending_s14",
+  "issue_codes": [],
+  "may_not_use_for": [
+    "production_authority",
+    "production_recommendation",
+    "rollout_authority",
+    "publication_authority",
+    "claim_authority",
+    "closeout_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "preference_learning_authority",
+    "mdp_bandit_optimizer_authority",
+    "budget_interchangeability",
+    "mission_or_value_self_authorization",
+    "floor_relaxation",
+    "s13_envelope_shrink",
+    "s13_accountability_closure",
+    "s14_universality"
+  ],
+  "one_off_growth_refs": [],
+  "reuse_rate": 0.0,
+  "reused_primitive_refs": [
+    "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
+  ],
+  "rule_version": "policyos.layer3.g7.region_widening.v1",
+  "s12_projection_contract_issue_codes": [],
+  "s12_projection_contract_status": "pass",
+  "s12_projection_contract_verification": {
+    "consumer_contract_ref": "policyos.runtime.policy_design_case.s12_resource_projection_verification.v1",
+    "consumer_contracts": [
+      {
+        "audience": "PUBLIC",
+        "consumer": "PUBLIC",
+        "issue_codes": [],
+        "status": "pass",
+        "verified_fields": [
+          "resource_allocation_policy_ref",
+          "explore_exploit_posture",
+          "explore_exploit_dial_ref",
+          "voi_allocation_refs",
+          "typed_budget_refs",
+          "pareto_archive_ref",
+          "envelope_growth_ledger_ref",
+          "growth_thermometer_ref",
+          "override_rate_trend",
+          "reuse_rate_trend",
+          "residual_limitation_refs",
+          "authority_boundary"
+        ]
+      }
+    ],
+    "issue_codes": [],
+    "issues": [],
+    "public_projection": {
+      "authority_role": "projection_only",
+      "explore_exploit_posture": "explore",
+      "may_not_be_used_for": [
+        "production_authority",
+        "production_recommendation",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "closeout_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "preference_learning_authority",
+        "mdp_bandit_optimizer_authority",
+        "budget_interchangeability",
+        "mission_or_value_self_authorization",
+        "floor_relaxation",
+        "s13_envelope_shrink",
+        "s13_accountability_closure",
+        "s14_universality"
+      ],
+      "override_rate_trend": "",
+      "reuse_rate_trend": "",
+      "s12_public_growth_limitation": "G7 region growth readings are projection-only marginal-cost signals; they do not recommend allocation or relax useful-design floors."
+    },
+    "s12_resource_projection": {
+      "authority_boundary": {
+        "may_not_use_for": [
+          "production_authority",
+          "production_recommendation",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "closeout_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "preference_learning_authority",
+          "mdp_bandit_optimizer_authority",
+          "budget_interchangeability",
+          "mission_or_value_self_authorization",
+          "floor_relaxation",
+          "s13_envelope_shrink",
+          "s13_accountability_closure",
+          "s14_universality"
+        ]
+      },
+      "authority_role": "projection_only",
+      "delegation_contract_ref": "s7://layer3-g7/delegation-dial",
+      "envelope_growth_ledger_ref": "",
+      "explore_exploit_dial_ref": "s7://layer3-g7/delegation-dial",
+      "explore_exploit_posture": "explore",
+      "growth_thermometer_ref": "s12-growth-thermometer://layer3-g7/ua-msme-adjacent",
+      "held_out_status": "pending_s14",
+      "may_not_be_used_for": [
+        "production_authority",
+        "production_recommendation",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "closeout_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "preference_learning_authority",
+        "mdp_bandit_optimizer_authority",
+        "budget_interchangeability",
+        "mission_or_value_self_authorization",
+        "floor_relaxation",
+        "s13_envelope_shrink",
+        "s13_accountability_closure",
+        "s14_universality"
+      ],
+      "override_rate_trend": "",
+      "pareto_archive_ref": "",
+      "residual_limitation_refs": [],
+      "resource_allocation_disposition": "",
+      "resource_allocation_policy_ref": "s12://layer3-g7/resource-economics",
+      "reuse_rate_trend": "",
+      "rule_version_ref": "",
+      "s12_public_growth_limitation": "G7 region growth readings are projection-only marginal-cost signals; they do not recommend allocation or relax useful-design floors.",
+      "s12_resource_posture_ref": "s12://layer3-g7/resource-economics",
+      "typed_budget_refs": [],
+      "voi_allocation_refs": [],
+      "voi_site_count": 0
+    },
+    "schema_version": "policyos.runtime.policy_design_case.s12_resource_projection_verification.v1",
+    "status": "pass"
+  },
+  "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
+  "status": "pass",
+  "thermometer_ref": "s12-growth-thermometer://layer3-g7/ua-msme-adjacent"
+}

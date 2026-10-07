@@ -1,0 +1,103 @@
+"""Operational capture around the existing reviewed frozen E planner.execute."""
+from __future__ import annotations
+import argparse, asyncio, hashlib, importlib.util, json, os, subprocess, time
+from pathlib import Path
+
+PREP = Path('/tmp/e02-E-final-wave-preparation-31782b55-20261007')
+REPO = Path('/workspace/e02-E-continuation-20261006')
+CANDIDATE = '31782b55f8f35556cfc581449b040c393f00c78f'
+TREE = '746f50214f70c0fa34cd8bb6d42e72440adc9f96'
+FREEZE = Path('/tmp/e02-E-root-reviewed-source-freeze-20261007/freeze.json')
+FREEZE_SHA = 'fce72ed50a0fccf418f033f787fba625608253d315ce288e56cf4e90fd9475ba'
+WRAPPER_SHA = 'b225fb80d578a55d5a268a124315521fe390c5c023b1ca391abd0e613cb6c641'
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+def write_json(path, value):
+    path.write_text(json.dumps(value, indent=2, ensure_ascii=False) + '\n')
+
+def git(*args):
+    return subprocess.run(['git','-C',str(REPO),*args], capture_output=True, check=True).stdout.decode().strip()
+
+async def main():
+    freeze_bytes = FREEZE.read_bytes()
+    if len(freeze_bytes) != 4199 or digest(freeze_bytes) != FREEZE_SHA:
+        raise RuntimeError('Frozen independent-review receipt identity mismatch')
+    freeze = json.loads(freeze_bytes)
+    if freeze['candidate'] != CANDIDATE or freeze['candidate_tree'] != TREE or not freeze['tracked_clean'] or not freeze['source_frozen_for_final_affected_E_defining_wave']:
+        raise RuntimeError('Explicit frozen candidate/source review admission missing')
+    if git('rev-parse','HEAD') != CANDIDATE or git('rev-parse','HEAD^{tree}') != TREE or git('status','--porcelain','--untracked-files=no'):
+        raise RuntimeError('Live source identity is not exact clean frozen candidate')
+    wrapper_path = PREP/'exact-reviewed-harness/prepare_current_owner_wave.py'
+    if digest(wrapper_path.read_bytes()) != WRAPPER_SHA:
+        raise RuntimeError('Reviewed wrapper bytes differ before loading')
+    spec = importlib.util.spec_from_file_location('reviewed_current_owner_wave', wrapper_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError('Cannot load exact reviewed wrapper')
+    wrapper = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(wrapper)
+    plan = json.loads((PREP/'final-numeric-selector-plan.json').read_bytes())
+    args = argparse.Namespace(repo=REPO, candidate=CANDIDATE, comparison_base=plan['comparison_base'])
+    planner = wrapper.load_planner(args)  # exact Git/physical six-companion comparison before planner code
+    output = Path(plan['output_root'])
+    planner.require_absent(output, purpose='one final explicitly authorized numeric wave')
+    if plan['candidate_sha'] != CANDIDATE or plan['candidate_tree_sha'] != TREE or plan['native_test_path_count'] != 102:
+        raise RuntimeError('Prepared current source/102-selector denominator mismatch')
+    numeric = [j for j in plan['jobs'] if j['kind'] == 'numerical']
+    if len(numeric) != 7 or len(plan['jobs']) != 8 or len(plan['owner_packet_extra_inputs']) != 1:
+        raise RuntimeError('Importer-first seven-family scoped job/packet denominator mismatch')
+    if len(set(path for paths in plan['groups'].values() for path in paths)) != 102:
+        raise RuntimeError('Duplicate or omitted native current test input')
+    for relative, row in plan['source_test_assets'].items():
+        data = (REPO/relative).read_bytes()
+        if len(data) != row['bytes'] or digest(data) != row['sha256']:
+            raise RuntimeError('Actual physical native/companion input drift: '+relative)
+    env_metadata = json.loads((PREP/'root-readonly-environment-metadata.json').read_bytes())
+    prefix = Path(env_metadata['prefix'])
+    metadata_paths = sorted(prefix.glob('lib/python*/site-packages/*.dist-info/METADATA'))
+    if len(metadata_paths) != 207 or env_metadata['metadata_count'] != 207:
+        raise RuntimeError('Read-only ROOT207 installed metadata denominator changed')
+    for row in env_metadata['packages']:
+        data = (prefix/row['relative']).read_bytes()
+        if len(data) != row['bytes'] or digest(data) != row['sha256']:
+            raise RuntimeError('Read-only runtime package metadata drift: '+row['relative'])
+    for job in plan['jobs']:
+        planner.admit_numeric_scratch(job)
+    resources = {n: (Path('/sys/fs/cgroup')/n).read_text() for n in ('memory.current','memory.max','memory.events')}
+    storage = {}
+    for p in ('/tmp','/workspace'):
+        s = os.statvfs(p); storage[p] = {'available_bytes':s.f_bavail*s.f_frsize,'total_bytes':s.f_blocks*s.f_frsize}
+    plan['execution_state'] = 'AUTHORIZED_ON_EXACT_FROZEN_SOURCE; importer-first actual execution begins once'
+    plan['source_freeze_binding'] = {'path':str(FREEZE),'bytes':len(freeze_bytes),'sha256':FREEZE_SHA,'candidate':CANDIDATE,'tree':TREE,'review_requirement':'parent explicit freeze after all immutable source reviews'}
+    plan['preconditions_for_execute'] = [x for x in plan['preconditions_for_execute'] if 'b6 is prospective' not in x]
+    plan['preconditions_for_execute'].append('Actual ROOT31782 source/tree/reviews and ROOT207 metadata independently bound at launch; no future-source observation')
+    output.mkdir(parents=True, exist_ok=False)
+    (output/'raw').mkdir()
+    (output/'launches').mkdir()
+    write_json(output/'plan.json',plan)
+    write_json(output/'launch-admission.json',{'candidate':CANDIDATE,'tree':TREE,'tracked_dirty':'','native_paths':102,'owner_packets':1,'numerical_families':7,'runtime_metadata_count':207,'resources':resources,'storage':storage,'tmpfs_memory_boundary':'/tmp tmpfs is charged to same cgroup, no extra RAM inference','source_freeze':plan['source_freeze_binding'],'parent_explicit_authorization':True,'launched_unix':time.time(),'global_gates_executed':False,'unchanged24CAL_numerical_selectors_executed':False})
+    write_json(output/'launcher-source.json',{'path':str(Path(__file__)),'bytes':Path(__file__).stat().st_size,'sha256':digest(Path(__file__).read_bytes()),'original_executor':'exact reviewed planner.execute(plan)','operational_change':'Observe subprocess argv/PID/literal inherited environment; no algorithm/selector/error/status/cap change','canonical_stdout_stderr':'run_check retains complete merged native stdout+stderr; outer launcher stdout/stderr separate'})
+    original_spawn = planner.asyncio.create_subprocess_exec
+    async def observed_spawn(*argv, **kwargs):
+        name = str(argv[argv.index('--name')+1])
+        actual_env = kwargs['env']
+        raw = output/'raw'/('literal-child-environment-'+name+'.json')
+        write_json(raw, actual_env); raw.chmod(0o600)
+        safe_names = set(plan['environment']) | set(next(j['environment'] for j in plan['jobs'] if j['name']==name)) | set(planner.CAP_VARIABLES)
+        record = {'name':name,'candidate':CANDIDATE,'tree':TREE,'argv':list(argv),'cwd_of_runner':os.getcwd(),'native_cwd':next(j['cwd'] for j in plan['jobs'] if j['name']==name),'native_argv':next(j['argv'] for j in plan['jobs'] if j['name']==name),'selected_environment':{key:actual_env.get(key) for key in sorted(safe_names)},'full_private_literal_environment':{'path':str(raw),'bytes':raw.stat().st_size,'sha256':digest(raw.read_bytes()),'publication':'ignored private raw only; publish safe selected values and exact hash/size'},'native_inheritance':'run_check.Popen has no env argument; inherits captured literal environment without mutation','started_unix':time.time(),'callback_pid':None,'caps_removed':{key:actual_env.get(key) for key in planner.CAP_VARIABLES}}
+        process = await original_spawn(*argv,**kwargs)
+        record['callback_pid']=process.pid
+        write_json(output/'launches'/(name+'.json'),record)
+        print(json.dumps({'state':'LAUNCHED','name':name,'pid':process.pid,'candidate':CANDIDATE}), flush=True)
+        return process
+    planner.asyncio.create_subprocess_exec = observed_spawn
+    try:
+        result = await planner.execute(plan)
+    finally:
+        planner.asyncio.create_subprocess_exec = original_spawn
+    write_json(output/'launcher-completion.json',{'candidate':CANDIDATE,'tree':TREE,'exit_code':result,'ended_unix':time.time(),'finding_closure':False,'global_gate_outcome':'UNRUN; separate parent queue','native_outcomes':'complete per-stage native receipts/JUnit, never inferred from launcher exit'})
+    return result
+
+if __name__ == '__main__':
+    raise SystemExit(asyncio.run(main()))

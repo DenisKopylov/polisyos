@@ -1,0 +1,1 @@
+{"controls": 7, "outcome": "PASS", "gate_repeated": false}

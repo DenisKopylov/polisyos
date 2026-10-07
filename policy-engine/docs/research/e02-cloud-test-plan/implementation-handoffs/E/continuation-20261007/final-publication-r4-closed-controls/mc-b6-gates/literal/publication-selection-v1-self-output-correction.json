@@ -1,0 +1,12 @@
+{
+  "schema": "policyos.e02.E.publication_selection_correction.v1",
+  "historical_selector": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/publication-selection.json",
+    "bytes": 212566,
+    "sha256": "3258af2239902206efe418a708fe52da1c91212dc2508a2d6c5fa4fcf539ca81"
+  },
+  "actual_false_custody_claims": [],
+  "cause": "SelectorV1 read its still-open redirected builderstdout before finalprint, then stdoutgrew. Nativegate/stdout/source/summarybytes unaffected; originalselector preserved. V2 excludes its active observeroutputs and binds V1completedstdout separately.",
+  "historical_V1_current_custody_GO": false,
+  "required_V2_control": "Fresh physicalfullselection closure withactivewriter-path refusal, includingcount/hash stricttypes; no regeneration ofnative outputs"
+}

@@ -1,0 +1,79 @@
+{
+  "schema": "policyos.e02.closed_fixture_archive_publication_scope.v1",
+  "operation": "Exactly one parent-authorized CLOSED fixture child full tar.gz with complete per-file/mode/target body readback before plain retirement.",
+  "source_path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/pytest-base/test_generated_family_probe_an0",
+  "archive": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/closed-native-fixture-archives-20261007/test_generated_family_probe_an0.tar.gz",
+    "bytes": 116892698,
+    "sha256": "59fe87ef275be44536403f38eb739b2f91dba64cd88f79eb6dc35481d9f71441"
+  },
+  "counts": {
+    "regular_source_files": 18575,
+    "regular_source_bytes_path_sum": 527866253,
+    "source_directories": 2024,
+    "symlinks": 3,
+    "full_tar_members": 20602,
+    "tar_regular_payload_members": 18575,
+    "tar_hardlink_members": 0,
+    "tar_stored_regular_payload_bytes": 527866253
+  },
+  "large_ignored_complete_deciding_references": [
+    {
+      "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/inventory-before.json",
+      "bytes": 8081306,
+      "sha256": "8d4ad4c2662bd1a1d60e909066913f27b73db31a622179dac74eb86abdb266ce"
+    },
+    {
+      "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/inventory-before-retirement.json",
+      "bytes": 8081306,
+      "sha256": "8d4ad4c2662bd1a1d60e909066913f27b73db31a622179dac74eb86abdb266ce"
+    },
+    {
+      "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/archive-complete-member-readback.json",
+      "bytes": 6139101,
+      "sha256": "fbd510b6574a183b80ff45a5a2ba603edf0a3cf741417e046ac7175cfc9f435a"
+    }
+  ],
+  "source_plain_path_retired": true,
+  "no_compressed_fixture_symlink": true,
+  "data_reconstruction": "Complete bytes, modes, literal links and original nanosecond metadata are retained in full archive plus inventory. Tar mtime may be float-rounded; inventory exact mtime_ns can be reapplied explicitly after fresh-path reconstruction. No guarantee fresh extraction rebinds original absolute external links.",
+  "ROOT_identity_before_after": {
+    "before": {
+      "HEAD": "c3a0057059b258c30224aac06709523cab2dc9cc",
+      "tree": "e5d743266cf965680019f39509061207df234080",
+      "status": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/\n"
+    },
+    "after": {
+      "HEAD": "c3a0057059b258c30224aac06709523cab2dc9cc",
+      "tree": "e5d743266cf965680019f39509061207df234080",
+      "status": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/\n"
+    }
+  },
+  "ROOT_protected": "No real ROOTcode/Git/env207/DOE184/registered checkout/other fixture/receipt/raw/observations touched by operation. Three external node_modules links stored literally, targets not dereferenced or modified.",
+  "historical_check_boundary": "Native full backend FAIL137/noJUnit/countsnull and historical full input mutation remain; no new check or owner finding outcome by archival.",
+  "visibility": "Fresh readable non-zombie proc cwd/cmdline/fd snapshots before inventory and immediately before exact plain retirement. Infrastructure199/250 unreadable scoped; no hostwide/continuous quiescence claimed.",
+  "capacity": "Fresh writable f_bavail admission813578637B conservative archive/tar/manifest/128MiBguard. Overlay before/after capacity recorded under concurrent writers; no allocated recovery or cause implied by logical byte totals.",
+  "P37_predicates": [
+    {
+      "predicate": "actual per-file original/archive complete member/mode/link/bytes/hash equality",
+      "basis": "recomputed"
+    },
+    {
+      "predicate": "original second inventory equality before retirement and explicit one-child scope",
+      "basis": "recomputed"
+    },
+    {
+      "predicate": "readable process observations/actual resources",
+      "basis": "recomputed"
+    },
+    {
+      "predicate": "independent archive custody",
+      "basis": "not_established"
+    },
+    {
+      "predicate": "native completion/P41/scientific authority/finding closure",
+      "basis": "not_established"
+    }
+  ],
+  "independent_review": "pending; performed operation and own deciding recomputation not self-independent GO."
+}

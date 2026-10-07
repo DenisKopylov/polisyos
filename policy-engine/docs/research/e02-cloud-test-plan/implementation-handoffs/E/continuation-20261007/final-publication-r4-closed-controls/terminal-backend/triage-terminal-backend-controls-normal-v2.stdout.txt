@@ -1,0 +1,1 @@
+{"output": {"path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/triage-terminal-backend-controls-normal-v2.json", "bytes": 2466, "sha256": "2c04632f6f60b736b955ac3b0fe6c660a481feccd38ee651906bc96fce6a7267"}, "control_count": 18, "native_case_counts": null}

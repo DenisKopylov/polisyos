@@ -1,0 +1,2 @@
+[codex/e02-E-frc-20261006 c229fe8c0] docs(e02-E): admit explicit staging and published receipt layouts
+ 3 files changed, 31 insertions(+), 10 deletions(-)

@@ -1,0 +1,157 @@
+"""Review the append-only mandatory publication membership admission."""
+
+import argparse
+import ast
+import copy
+import hashlib
+import json
+import sys
+from pathlib import Path
+from typing import Any
+
+VALIDATOR_SHA = "62513b73dfa872ea78338e7010af1c44c247bbee29ad75028d5925405d28d39d"
+SELECTION_SHA = "57df05d909ff9838aaaf1e54170518d6259ac1323e2748987e7a41b209054b72"
+
+
+def require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def reference(path: Path) -> dict[str, Any]:
+    data = path.read_bytes()
+    return {"path": str(path), "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+
+
+def prefix(path: Path, remove_guard: bool = False) -> dict[str, Any]:
+    nodes = []
+    for node in ast.parse(path.read_text()).body:
+        if isinstance(node, ast.Assign) and any(
+            isinstance(t, ast.Name) and t.id == "healthy" for t in node.targets
+        ):
+            break
+        if (
+            remove_guard
+            and isinstance(node, ast.FunctionDef)
+            and node.name == "admit_mandatory_members"
+        ):
+            node = copy.deepcopy(node)
+            node.body = [ast.Return(value=ast.Constant(value=True))]
+        nodes.append(node)
+    namespace = {"__name__": "independent_existing_admission_probe", "__file__": str(path)}
+    exec(  # noqa: S102 -- exact hash-pinned observer definitions, never product/native code
+        compile(
+            ast.fix_missing_locations(ast.Module(body=nodes, type_ignores=[])), str(path), "exec"
+        ),
+        namespace,
+    )
+    return namespace
+
+
+def omitted(value: dict[str, Any], needle: str) -> dict[str, Any]:
+    mutant = copy.deepcopy(value)
+    selected = [r for r in mutant["logical_aliases"] if needle in r["source"]["path"]]
+    require(len(selected) > 0, "omitted class absent from closed denominator")
+    portable = selected[0]["portable_path"]
+    mutant["logical_aliases"] = [
+        r for r in mutant["logical_aliases"] if r["portable_path"] != portable
+    ]
+    mutant["assets"] = [r for r in mutant["assets"] if r["portable_path"] != portable]
+    mutant["logical_asset_count"] = len(mutant["logical_aliases"])
+    mutant["unique_asset_count"] = len(mutant["assets"])
+    mutant["publication_bytes"] = sum(r["bytes"] for r in mutant["assets"])
+    mutant["original_logical_bytes"] = sum(r["source"]["bytes"] for r in mutant["logical_aliases"])
+    return mutant
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--base", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    source = args.base / "validate_publication_selection_v3.py.txt"
+    selection_path = args.base / "publication-selection-v2.json"
+    require(reference(source)["sha256"] == VALIDATOR_SHA, "append validator changed")
+    require(reference(selection_path)["sha256"] == SELECTION_SHA, "closed denominator changed")
+    value = json.loads(selection_path.read_bytes())
+    admitted = prefix(source)
+    removed = prefix(source, remove_guard=True)
+    require(admitted["validate"](value) is True, "healthy original physical validator failed")
+    controls = [
+        {
+            "name": "healthy_full197logical127storage_native_physical_gzip_validation",
+            "outcome": "PASS",
+        }
+    ]
+    omissions = []
+    for name, needle in [
+        ("native_receipt", "runtime-api-contract/receipt.json"),
+        ("current_selector_packet", "three-selector-packet-v3.json"),
+        ("complete_source_gzip", "complete-source-inputs-before.json"),
+    ]:
+        mutant = omitted(value, needle)
+        omissions.append((name, mutant))
+        try:
+            admitted["validate"](mutant)
+        except ValueError as exc:
+            controls.append(
+                {
+                    "name": name + "_retotalled_omission",
+                    "outcome": "PASS",
+                    "actual_refusal": str(exc),
+                    "native_marker_refs_preserved": True,
+                }
+            )
+        else:
+            raise ValueError("mandatory member omission admitted")
+    for name, key, new_value in [
+        ("source_header", "source", "0" * 40),
+        ("logical_count_float", "logical_asset_count", 197.0),
+        ("storage_count_float", "unique_asset_count", 127.0),
+    ]:
+        mutant = copy.deepcopy(value)
+        mutant[key] = new_value
+        try:
+            admitted["validate"](mutant)
+        except ValueError as exc:
+            controls.append({"name": name, "outcome": "PASS", "actual_refusal": str(exc)})
+        else:
+            raise ValueError("header/type mutation admitted")
+    for name, mutant in omissions:
+        require(
+            removed["validate"](mutant) is True,
+            "effective sole admission removal did not admit omission",
+        )
+        controls.append(
+            {
+                "name": name + "_actual_new_guard_removal",
+                "outcome": "PASS",
+                "actual_false_admission": True,
+                "removed_property": "admit_mandatory_members body only",
+                "original_physical_logical_types_and_gzip_validator_active": True,
+            }
+        )
+    result = {
+        "schema": "policyos.e02.E.three_gate_mandatory_membership_independent_review.v1",
+        "source": value["source"],
+        "tree": value["tree"],
+        "optimized": not __debug__,
+        "validator": reference(source),
+        "trusted_closed_selection": reference(selection_path),
+        "controls": controls,
+        "control_count": len(controls),
+        "disposition": "GO for corrected mandatory membership and retained literal custody only",
+        "original_V2_false_admission_preserved": True,
+        "native_or_math_or_gate_reexecution": False,
+        "original_closed_selectors_helpers_or_ROOT_source_modified": False,
+        "scope": (
+            "Previous full8attempt/127storage/197logical/9gzip byte review retained unchanged; "
+            "current3FAIL remain separate from custody GO."
+        ),
+    }
+    args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True) + "\n")
+    sys.stdout.write(json.dumps(reference(args.output), sort_keys=True) + "\n")
+
+
+if __name__ == "__main__":
+    main()

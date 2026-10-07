@@ -1,0 +1,13 @@
+{
+  "logical_count": 687,
+  "original_logical_bytes": 149268072,
+  "stored_logical_bytes": 42415027,
+  "unique_payload_files": 502,
+  "unique_payload_bytes": 20491584,
+  "deduplicated_occurrences": 185,
+  "metadata_files": 10,
+  "expected_git_paths": 512,
+  "outcome": "PASS literal DOC custody only",
+  "destination": "/tmp/e02-E-final-moderate-controls-v3-optimized/destinations/Counter-removal/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls",
+  "source_native_numeric_gate_execution": false
+}

@@ -1,0 +1,27 @@
+import hashlib,json
+from pathlib import Path
+S=Path('/tmp/e02-E-final-moderate-publication-r4-stage');out=[]
+def add(path,portable,role):
+ p=Path(path);b=p.read_bytes()
+ if portable.endswith('.py'):portable+='.txt'
+ if portable.endswith('.json'):
+  try:json.loads(b)
+  except (ValueError,UnicodeError):portable=portable[:-5]+'.txt'
+ out.append({'source_path':str(p),'portable_path':portable,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'role':role})
+for name in ['implementation-footprint-c229.json','implementation-footprint-final.json','implementation-footprint.json','ignored-selected-originals-correction.json','implementation-copy.stdout.json','implementation-copy.stderr.txt','implementation-commit.stdout.txt','implementation-commit.stderr.txt','implementation-correction-commit.stdout.txt','implementation-correction-commit.stderr.txt','layout-implementation-commit.stdout.txt','layout-implementation-commit.stderr.txt','build-execution.stdout.json','build-execution.stderr.txt','build-first-source-role-error.stderr.txt','build-second-alias-role-error.stderr.txt','controls-first-readback-shape-normal.stderr.txt','controls-first-readback-shape-optimized.stderr.txt','controls-second-nameerror-normal.stderr.txt','controls-second-nameerror-optimized.stderr.txt','run-custody-controls-first-nameerror.py.txt','run-custody-controls-pre-layout.py.txt','run-custody-controls.py.txt','run-Git-layout-controls.py.txt','layout-controls-normal.stdout.json','layout-controls-normal.stderr.txt','layout-controls-optimized.stdout.json','layout-controls-optimized.stderr.txt','Git-layout-normal.stdout.json','Git-layout-normal.stderr.txt','Git-layout-optimized.stdout.json','Git-layout-optimized.stderr.txt']:
+ add(S/name,'author/'+name,'literal author deciding output or explicitly historical observer/correction; no scientific rerun')
+for epoch in ['final-moderate-controls-v3','final-moderate-controls-v4','Git-layout-controls']:
+ for mode in ['normal','optimized']:
+  root=Path('/tmp/e02-E-'+epoch+'-'+mode)
+  for p in sorted(root.iterdir()):
+   if p.is_file():add(p,epoch+'/'+mode+'/'+p.name,('historical pre-layout current byte controls'if epoch.endswith('v3')else'actual final source controls; complete CLI argv/output/exit/refusal/removal'))
+# Preserve independent historical actual84153Git-replay FAIL separately, not as a current outcome.
+R=Path('/tmp/e02-E-closed-control-Git-replay-independent-20261007')
+for p in sorted(R.iterdir()):
+ if p.is_file() and p.suffix in('.json','.txt','.py'):add(p,'independent-historical-Git-replay/'+p.name,'independent historical84153GitlayoutFAIL / priorconcurrentappend observer limitation')
+seen={};copies=[]
+for r in out:
+ pair=(r['sha256'],r['bytes']);r['canonical_destination']=seen.setdefault(pair,r['portable_path']);r['content_alias']=r['canonical_destination']!=r['portable_path']
+ if not any(x['portable_path']==r['canonical_destination']for x in copies):copies.append({'source_path':r['source_path'],'portable_path':r['canonical_destination'],'bytes':r['bytes'],'sha256':r['sha256']})
+d={'schema':'policyos.e02.closed_control_author_deciding_selection.v1','source_candidate':'c229fe8c0cc31c910de2bd2dc0e84e30be87da2c','source_tree':'7f2589243b91633d10903ea9818c93f0757b3344','assets':out,'logical_count':len(out),'content_unique_count':len(copies),'content_unique_bytes':sum(r['bytes']for r in copies),'complete_actual_stdout_stderr_exit_commands':True,'source_native_numeric_gate_execution':False,'historical_first_source_role_and_readback_observer_draft_source':{'exact_full_draft_scripts':'not_established for first role/readback error; original stdout/stack observation retained only','first_NameError_script':'exact archived script retained','immutable_reds':'complete ba5/84153Git refs retained'},'copies':copies}
+(S/'author-publication-selection.json').write_text(json.dumps(d,indent=2,ensure_ascii=False)+'\n');print(json.dumps({k:d[k]for k in('logical_count','content_unique_count','content_unique_bytes')},indent=2))

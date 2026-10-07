@@ -1,0 +1,273 @@
+"""Bind the current A CAS packet while reusing the canonical E wave planner."""
+
+from __future__ import annotations
+
+import argparse
+import asyncio
+import hashlib
+import importlib.util
+import json
+import re
+import subprocess
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    import types
+
+PLANNER_PATH = (
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/"
+    "continuation-20261006/pr38-r2/wave-controls/plan_wave.py"
+)
+OWNER_PACKET_PATH = (
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/"
+    "continuation-20261007/frc-native-cas/a-status-reason-tests.py.txt"
+)
+FRC_GROUP = "BKT_FRC_S10_and_adjacent_report_consumers"
+
+
+def read_candidate_asset(repo: Path, candidate: str, relative: str) -> bytes:
+    """Read a fixed candidate path after admitting source refs at the pure inlet."""
+    return subprocess.run(
+        ["git", "-C", str(repo), "show", candidate + ":" + relative],
+        check=True,
+        capture_output=True,
+    ).stdout
+
+
+def load_planner(args: argparse.Namespace) -> types.ModuleType:
+    """Compare all candidate bytes before executing any physical planner source."""
+    for reference in (args.candidate, args.comparison_base):
+        if (
+            not isinstance(reference, str)
+            or re.fullmatch(r"[0-9a-f]{40}", reference) is None
+        ):
+            raise ValueError(
+                "Wave source references require exact immutable commit SHAs"
+            )
+    if not args.repo.is_absolute():
+        raise ValueError("supply an actual absolute repository root")
+    repo = args.repo.resolve()
+    physical = repo / PLANNER_PATH
+    for name in (
+        "plan_wave.py",
+        "run_check.py",
+        "collect_wave.py",
+        "uncapped_umbrella.py",
+        "proposal.json",
+        "original-wave-groups.json",
+    ):
+        companion = physical.with_name(name)
+        relative = companion.relative_to(repo).as_posix()
+        expected = read_candidate_asset(repo, args.candidate, relative)
+        if companion.read_bytes() != expected:
+            raise RuntimeError(
+                "physical wave source differs from the exact candidate: " + name
+            )
+    spec = importlib.util.spec_from_file_location(
+        "e02_current_canonical_wave_planner", physical
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("canonical wave planner cannot be loaded")
+    planner = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(planner)
+    planner.admit_plan_refs(args)
+    return planner
+
+
+def prepare_current(
+    args: argparse.Namespace, planner: types.ModuleType
+) -> dict[str, Any]:
+    """Replace retired extra packets; keep native selectors and canonical execution."""
+    requested = argparse.Namespace(**vars(args))
+    requested.no_owner_packets = True
+    planner.admit_plan_refs(requested)
+    output = requested.output_root
+    if output is None or not output.is_absolute():
+        raise ValueError("supply an actual absolute wave output root")
+    planner.require_absent(output, purpose="current owner wave output root")
+    plan = planner.prepare(requested)
+    if plan["owner_packet_extra_inputs"]:
+        raise RuntimeError(
+            "canonical no-owner-packets preparation included retired packets"
+        )
+    candidate = plan["candidate_sha"]
+    repo = Path(plan["repo"])
+    data = planner.git_bytes(repo, "show", candidate + ":" + OWNER_PACKET_PATH)
+    destination = (
+        Path(plan["output_root"])
+        / "owner-packets/test_a_frc_native_cas_status_reason.py"
+    )
+    planner.require_absent(destination, purpose="current A owner packet destination")
+    matches = [job for job in plan["jobs"] if job.get("group") == FRC_GROUP]
+    if len(matches) != 1 or matches[0]["kind"] != "numerical":
+        raise RuntimeError(
+            "current owner packet requires exactly one native BKT/FRC job"
+        )
+    target = matches[0]
+    if str(destination) in target["argv"]:
+        raise RuntimeError("current owner packet is already selected")
+    packet = {
+        "source": OWNER_PACKET_PATH,
+        "destination": str(destination),
+        "sha256": hashlib.sha256(data).hexdigest(),
+        "bytes": len(data),
+    }
+    plan["owner_packet_extra_inputs"] = [packet]
+    target["argv"].append(str(destination))
+    plan["test_input_path_count_including_owner_packets"] = plan[
+        "native_test_path_count"
+    ] + len(plan["owner_packet_extra_inputs"])
+    plan["current_A_owner_packet_binding"] = {
+        "source": OWNER_PACKET_PATH,
+        "candidate_sha": candidate,
+        "candidate_tree_sha": plan["candidate_tree_sha"],
+        "source_git_blob": planner.git(
+            repo, "rev-parse", candidate + ":" + OWNER_PACKET_PATH
+        ),
+        "bytes": len(data),
+        "sha256": packet["sha256"],
+        "admitted_job_name": target["name"],
+        "expected_case_count_from_owner_packet": 7,
+        "actual_case_outcome": "UNRUN; actual JUnit only after frozen execution",
+        "scope": (
+            "Native ETS/CAS producer and fresh A status/reason consumer; "
+            "no HTTP or verifier authority inferred."
+        ),
+        "retired_packets_selected": False,
+        "owner": "A",
+        "finding_closure": False,
+    }
+    checker_source = (
+        "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py"
+    )
+    checker_data = planner.git_bytes(repo, "show", candidate + ":" + checker_source)
+    runtime_jobs = [
+        job for job in plan["jobs"] if job["name"] == "runtime-api-contract"
+    ]
+    if len(runtime_jobs) != 1:
+        raise RuntimeError(
+            "current runtime retention requires exactly one canonical API job"
+        )
+    runtime_job = runtime_jobs[0]
+    original_argv = list(runtime_job["argv"])
+    original_cwd = runtime_job["cwd"]
+    original_selector = ["polisyos-tools", "runtime", "check-runtime-api-contract"]
+    try:
+        position = original_argv.index(original_selector[0])
+    except ValueError as exc:
+        raise RuntimeError("canonical runtime API tool selector changed") from exc
+    if original_argv[position : position + len(original_selector)] != original_selector:
+        raise RuntimeError("canonical runtime API tool selector changed")
+    checker_arguments = original_argv[position + len(original_selector) :]
+    hook = Path(__file__).resolve().with_name("retained_runtime_api_cli.py")
+    hook_data = hook.read_bytes()
+    catalog = Path(runtime_job["output"]) / "retained-runtime-catalog.json"
+    planner.require_absent(catalog, purpose="retained runtime catalog")
+    effective_argv = [
+        *original_argv[:position],
+        "python",
+        str(hook),
+        "--checker",
+        str(repo / checker_source),
+        "--expected-checker-sha256",
+        hashlib.sha256(checker_data).hexdigest(),
+        "--catalog",
+        str(catalog),
+        "--",
+        *checker_arguments,
+    ]
+    if len(effective_argv) < 2 or effective_argv[1] != "run":
+        raise RuntimeError("canonical runtime API job no longer uses uv run")
+    effective_argv[2:2] = ["--project", str(repo / "policy-engine")]
+    runtime_job["argv"] = effective_argv
+    # Existing executor creates this unique TMPDIR before launching run_check.
+    runtime_job["cwd"] = runtime_job["environment"]["TMPDIR"]
+    plan["operational_runtime_capture"] = {
+        "original_argv": original_argv,
+        "original_cwd": original_cwd,
+        "canonical_checker_main_arguments": checker_arguments,
+        "effective_argv": effective_argv,
+        "effective_cwd": runtime_job["cwd"],
+        "source": checker_source,
+        "source_sha256": hashlib.sha256(checker_data).hexdigest(),
+        "source_git_blob": planner.git(
+            repo, "rev-parse", candidate + ":" + checker_source
+        ),
+        "retention_hook": {
+            "path": str(hook),
+            "bytes": len(hook_data),
+            "sha256": hashlib.sha256(hook_data).hexdigest(),
+        },
+        "catalog": str(catalog),
+        "openapi_raw": str(
+            Path(runtime_job["environment"]["TMPDIR"])
+            / "retained-runtime-openapi.raw.json"
+        ),
+        "actual_check_outcome": "UNRUN; no CLI checker executed during preparation",
+        "comparisons": (
+            "Original canonical main/functions and returned canonical bytes; "
+            "capture once, no second emit; dispatch invokes the registered checker main "
+            "directly, so CLI wrapper preflight is not separately remeasured"
+        ),
+        "CAS": (
+            "Default .polisyos/cas is relative to the fresh stage TMPDIR cwd; "
+            "no unsupported CAS or repo-root option"
+        ),
+        "cleanup": (
+            "Original TemporaryDirectory(delete=False) retains all generated client bytes; "
+            "raw inputs stay ignored"
+        ),
+    }
+    plan["portable_wrapper"] = {
+        "path": str(Path(__file__).resolve()),
+        "bytes": Path(__file__).stat().st_size,
+        "sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        "execution": (
+            "Existing planner.execute performs importer-first admission/copy/scheduling; "
+            "no executor/store clone."
+        ),
+    }
+    return plan
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--candidate", required=True)
+    parser.add_argument(
+        "--comparison-base", default="198076863e143dea9f89f02734b13d50dae3eed5"
+    )
+    parser.add_argument("--output-root", type=Path, required=True)
+    parser.add_argument("--plan-output", type=Path, required=True)
+    parser.add_argument("--execute", action="store_true")
+    args = parser.parse_args()
+    planner = load_planner(args)
+    plan = prepare_current(args, planner)
+    planner.require_absent(args.plan_output, purpose="preparation plan receipt")
+    if not args.plan_output.is_absolute():
+        raise ValueError("supply an actual absolute plan receipt path")
+    if args.plan_output.resolve().is_relative_to(args.output_root.resolve()):
+        raise ValueError(
+            "preparation receipt must stay outside the never-created wave root"
+        )
+    args.plan_output.parent.mkdir(parents=True, exist_ok=True)
+    args.plan_output.write_text(json.dumps(plan, indent=2) + "\n")
+    if args.execute:
+        hook = plan["operational_runtime_capture"]["retention_hook"]
+        hook_data = Path(hook["path"]).read_bytes()
+        if (
+            len(hook_data) != hook["bytes"]
+            or hashlib.sha256(hook_data).hexdigest() != hook["sha256"]
+        ):
+            raise RuntimeError("reviewed retention hook bytes changed before execution")
+        output = Path(plan["output_root"])
+        planner.require_absent(output, purpose="frozen wave execution root")
+        output.mkdir(parents=True, exist_ok=False)
+        (output / "plan.json").write_text(json.dumps(plan, indent=2) + "\n")
+        return asyncio.run(planner.execute(plan))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -5020,7 +5020,9 @@ class FoundryValuePort:
             actual_n5_is_simulation = bool(
                 simulation.status == "joint_simulated"
                 and simulation.simulation_ref
-                and not simulation.authority_blockers
+                and set(simulation.authority_blockers).issubset(
+                    _SIMULATION_AUTHORITY_LIMITATIONS
+                )
                 and simulation.candidate_id == candidate_id
                 and simulation.k_world_update_mode == "read_only_no_k_world_narrowing"
                 and simulation.k_world_ref_before is not None

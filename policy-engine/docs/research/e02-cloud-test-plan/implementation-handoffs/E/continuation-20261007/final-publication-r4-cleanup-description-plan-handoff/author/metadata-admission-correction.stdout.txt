@@ -1,0 +1,1 @@
+mandatory metadata and cached payload admission before destination writes; original nine-file builder summary preserved

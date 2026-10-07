@@ -1,0 +1,32 @@
+[
+  {
+    "name": "missing-build-stdout",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+      "--manifest",
+      "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/historical-late-metadata/missing-build-stdout/manifest.json",
+      "--destination-root",
+      "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/historical-late-metadata/missing-build-stdout/destination"
+    ],
+    "exit_code": 1,
+    "destination_created": true,
+    "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/historical-late-metadata/missing-build-stdout/stdout.txt",
+    "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/historical-late-metadata/missing-build-stdout/stderr.txt"
+  },
+  {
+    "name": "forged-build-count",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+      "--manifest",
+      "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/historical-late-metadata/forged-build-count/manifest.json",
+      "--destination-root",
+      "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/historical-late-metadata/forged-build-count/destination"
+    ],
+    "exit_code": 0,
+    "destination_created": true,
+    "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/historical-late-metadata/forged-build-count/stdout.txt",
+    "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/historical-late-metadata/forged-build-count/stderr.txt"
+  }
+]

@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-cleanup-description-plan-custody-independent/final-3d/immutable-copier.py", line 117, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/tmp/e02-E-cleanup-description-plan-custody-independent/final-3d/immutable-copier.py", line 91, in main
+    p=Path(args.manifest);raw_manifest=p.read_bytes();m=strict_json(raw_manifest);validate(p,m)
+                                                                                  ^^^^^^^^^^^^^
+  File "/tmp/e02-E-cleanup-description-plan-custody-independent/final-3d/immutable-copier.py", line 75, in validate
+    if got!=want:raise ValueError('exact selected member Counter')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: exact selected member Counter

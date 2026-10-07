@@ -1,0 +1,73 @@
+import argparse,hashlib,json,platform,subprocess,sys
+from pathlib import Path
+S=Path('/tmp/e02-E-cleanup-description-plan-publication-r4-stage');L=Path('/workspace/e02-E-frc-20261006')
+D=Path('/tmp/e02-E-cleanup-description-plan-handoff-stage')
+P='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan-handoff'
+BASE='66a4f8fc1398ed72b3ee9d38b07d88a4d2d5c3cd';C='3d0029873afc25b998a3deaf5f05ea25e6f5285e';T='2e9734dfa44b2cd3687d680d1cb7b4145566cf3d'
+def sha(b):return hashlib.sha256(b).hexdigest()
+def canonical(v):return json.dumps(v,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False)
+def copy_one(src,rel,copies):
+ body=Path(src).read_bytes();p=D/rel;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(body)
+ copies.append({'source_path':str(src),'portable_path':rel,'bytes':len(body),'sha256':sha(body)})
+a=argparse.ArgumentParser();a.add_argument('--independent-selection',required=True);args=a.parse_args()
+D.mkdir(exist_ok=False)
+copies=[]
+for family,path in [('author',S/'author-publication-selection.json'),('independent',Path(args.independent_selection))]:
+ selection=json.loads(path.read_bytes());rows=selection.get('assets',selection.get('files'))
+ if type(rows) is not list:raise ValueError('closed moderator selector rows')
+ for i,r in enumerate(rows):
+  src=r.get('source_path',r.get('path'));rel=r.get('portable_path',str(i).zfill(3)+'/'+Path(src).name)
+  if family=='author' and rel.startswith('author/'):rel=rel[len('author/'):]
+  b=Path(src).read_bytes()
+  if len(b)!=r['bytes'] or sha(b)!=r['sha256']:raise ValueError('fixed moderate deciding original')
+  if rel.endswith('.py'):rel+='.txt'
+  if rel.endswith('.json'):
+   try:json.loads(b)
+   except (ValueError,UnicodeError):rel=rel[:-5]+'.txt'
+  copy_one(src,family+'/'+rel,copies)
+ copy_one(path,'selectors/'+family+'-selection.json',copies)
+copy_one(S/'prepare-author-selection.py.txt','author/prepare-author-selection.py.txt',copies)
+copy_one(S/'prepare-handoff.py.txt','author/prepare-handoff.py.txt',copies)
+if len({r['portable_path'] for r in copies})!=len(copies):raise ValueError('unique exact deciding routes')
+index={'schema':'policyos.e02.cleanup_description_plan_handoff_index.v1','copied_files':len(copies),'copied_bytes':sum(r['bytes'] for r in copies),'copies':copies}
+(D/'copy-index.json').write_text(json.dumps(index,indent=2)+'\n')
+source=json.loads((S/'implementation-source-footprint.json').read_bytes());m=json.loads((S/'manifest.json').read_bytes())
+conditions={
+ 'scope':'DOC carrier only; source/tests/native/backend/globalgate not changed/executed; no cleanup action or remote PR body edit by carrier',
+ 'ROOT_HEAD':'64d7444a18c55df7b88b71b7699a2f1b25ca24bd','ROOT_tree':'aef23574d3162abb19bf5a1c67d02624ff9d4d1d',
+ 'ROOT_whole_tracked_clean':False,'ROOT_broad_source_input_immutable':False,'ROOT_generated_JSON_modified':29,'ROOT_sourcefreeze_waiver':False,'ROOT_observation_atomic':False,
+ 'ROOT_individual_native_mutating_caller_P41':'not_established',
+ 'ROOT_tracked_input_drift_observation_sha256':'617baab627ee4280808a27ccc5cdc7d4b82cb7acd85575e1d14c6960cd367ce0',
+ 'lint_plan':'PLAN_ONLY prospective366; actualmergedROOT/Ruff/formatUNRUN; future actualdenominator refresh required',
+ 'PR_body_temporal_scope':'original920581→470d05 frozen closed chain only; newer1cce→707 correction separate future packet',
+ 'cleanup_payload_records':73758,'cleanup_full_tar_members':73768,'cleanup_tar_root_directories':10,'cleanup_archive_payloads_copied':False,
+ 'new_G_fixture_packet_copied_or_accepted':False,'current_MC_source_and_finding_closure':'source3932/da079/docs573 separate bounded observations; no formalG finding closure here',
+ 'source_tests_native_numeric_globalgate_executed':False,'ROOT_source_env_locks_written':False,'active_Python_added':0,
+}
+basis={
+ 'original_selectors':{'basis':'recomputed','explanation':'six frozen original selector hash/size pins, exact typed selector vector and allselected rawrecords'},
+ 'member_Counter':{'basis':'recomputed','explanation':'237 exact original occurrences,including231 selected rows+six selectors; preserves all aliases/roles/typed raw records'},
+ 'carrier_content':{'basis':'recomputed','explanation':'196 complete first-content carriers3554254B,41 aliases; allhashes/sizes before writes'},
+ 'summary_denominators':{'basis':'recomputed','explanation':'manifest logical/content/alias and eleven-file completebuilder summary derived from actual members'},
+ 'mandatory_metadata':{'basis':'recomputed','explanation':'all11required companions cached/parsed/identity admitted beforetarget; trustedprogram byteequality; oldlate-write/205replay/fake-self actualescapes preserved'},
+ 'typed_raw_claims':{'basis':'recomputed','explanation':'canonical typedcomplete header/qualification; bool/int distinction, duplicate/nonfiniteJSON refusal'},
+ 'raw_stream_route':{'basis':'recomputed','explanation':'invalid/empty originalJSON-named rawstreams become passiveTXT; byte/source/selector identity preserved; prior100B RESTerror divergence captured'},
+ 'literal_original_custody':{'basis':'independently_reconciled','explanation':'independent immutable207Gitbytes/original selectedcontent proof; exact reviewreceipt copied'},
+ 'source_footprint':{'basis':'recomputed','explanation':'actualbase66a4→candidate7f207DOC footprint pinsbytes/hashes from Gitobjects'},
+ 'author_controls':{'basis':'recomputed','explanation':'normal/-O25negatives/mode;3isolated effectiveCounter/header/qualification removals; rawstream old-present divergence'},
+ 'independent_controls':{'basis':'independently_reconciled','explanation':'immutablecandidate reviewactualcontrols/source and commandcopies; exactimmutable receipt boundaries'},
+ 'underlying_cleanup_PR_lint_meaning':{'basis':'consumer_asserted','explanation':'closedoriginal producer/reviewer receipts copied literally; thiscarrier independentlyprovescustody only'},
+ 'ROOT_current_whole_input_identity':{'basis':'not_established','explanation':'HEAD/tree codeidentity preserved;29generatedJSON changed/broadimmutableFalse, non-atomic observations'},
+ 'ROOT_native_caller_P41':{'basis':'not_established','explanation':'no measured individualnative mutatingcaller trace by thiscarrier'},
+ 'finding_authority_and_global_CI':{'basis':'not_established','explanation':'no finding semantic/owner acceptance or globalPASS inferred from bytecustody/isolatedcontrols'},
+}
+h={'schema':'policyos.e02.cleanup_description_plan_implementation_handoff.v1','base_sha':BASE,'candidate_sha':C,'candidate_tree_sha':T,'verification_source':conditions['ROOT_HEAD'],'verification_tree':conditions['ROOT_tree'],'canonical_writer':'E evidence carrier only; underlyingsourceowners remain canonical','capability_state_or_finding_state':'limited','finding_outcomes_changed':False,'original_findings_affected':[],'complete_original_selector_inputs':m['selection_inputs'],'implementation_footprint':source['source_footprint'],'implementation_path_count':207,'implementation_bytes':4093123,'implementation_active_Python':0,'deciding_copy_count':index['copied_files'],'deciding_copy_bytes':index['copied_bytes'],'publication_counter':{k:m[k] for k in ('logical_count','logical_bytes','unique_payload_files','unique_payload_bytes','deduplicated_aliases')},'core_metadata_files':11,'mandatory_passive_correction_recipes_included_in_metadata':2,'conditions':conditions,'predicate_basis':basis,'runtime_property':'exact original selector/member/carrier/typedmetadata custody before writes, current100B rawstream passiveextension, no falsecurrentROOT/CI/findingauthority','proxy_divergent_cases':['mandatorymetadata late-write escapes before correction','same-byte Counteralias substitution withallnumericcounts preserved','typedROOT/source/lint claims boolean/rawVALUE mutant','oldpresent normalizer minted100B invalidJSON-namedRESTstdout'],'independent_oracle':'full exact originalmember expansion +byte/Gitcustody independentauthor separated; underlyingcleanup/PR/lint scientificsemantics notreratified','negative_removal_controls':'author2healthy+50refusals+3effectiveisolated removals; exactmoderate commands/stdout/stderr preserved; independent reviewselector literal','environment':{'python_version':sys.version,'platform':platform.platform(),'source_env_mutation':False,'thread_process_CPU_caps':None},'history':['Gitactual treeENOSPC initialcommit with noHEADadvance; boundedcapacityguardrefusal before retry; actualcommitretry0 once485MBavailable','historical savedstdout/XML/patch/hooks whitespace remains literal; diffcheckreportedoriginals retained','originalrawstream100B extension corrected onlyinportablecarrier; oldselector/path/bytes/hash unaffected','historical7f immutable207Gitpaths/copier205 gap retained; current343f admits/copiesall11metadata+196payload207 beforewrites','historical343 stagedfakecopiermetadata accepted by separate trustedprogram; current3d002 cachesactualexecutingprogrambytes atmoduleload and refusesfake/missingself beforewrites','no171MBraw graph/fulltar/source/CAS/env copied'],'limitations':['DOCcustodyGO separate fromsource/library/findingauthority/globalcheck outcomes','prospectivelint366 PLAN_ONLY; actualmerge/Ruff/formatUNRUN inthisfrozen chain','newerPRdescription707, capacityrelocation54assets and unratifiedGfixturepacketexcluded','ROOT29generatedJSONdirty meanswholeclean/broadinputimmutableFalse; nocaller/P41provenanceinvented'],'next_owner':'G receives exactEtopicSHA, canonicalfixture/lint/body/source owners independently apply their packets; currentROOTnative/backend result remains outside thiscarrier'}
+metadata=['implementation-handoff.json','copy-index.json','README.md','validate-handoff.py.txt']
+h['handoff_footprint']=sorted(P+'/'+p for p in [r['portable_path'] for r in copies]+metadata)
+h['handoff_path_count']=len(h['handoff_footprint']);h['complete_publication_union_count']=207+h['handoff_path_count']
+(D/'implementation-handoff.json').write_text(json.dumps(h,indent=2)+'\n')
+(D/'README.md').write_text('# Closed cleanup, frozen PR-description and lint-plan custody handoff\n\nSource implementation3d002987/tree2e9734df contains207 passiveDOC paths. Thisseparate receipt pins thatimmutablecandidate, fullfootprint and selectedcomplete decidingoutputs. Six originalselectors bind237 logicaloccurrences/196contentcarriers/41aliases. Elevenmetadata files include both passivecorrectionrecipes, with complete207-path replay beforewrites.\n\nCurrentROOT64d/aef has29modifiedgeneratedJSON; wholetrackedclean/fullinputimmutable are false. Thiscarrier changes no source/tests/env/backend, offers no caller/P41 attribution or finding/globalPASS. Lint is frozenPLAN_ONLY366, actualmergedROOT/Ruff/formatUNRUN. PRbody920581→470d05 is historicalclosedchain; newer707 correction remains separate. Fullarchives/inventories/source/numeric/CAS copies remain ignored refs.\n\nOriginalGitENOSPC, late-metadata escape and invalidJSON-named100B RESTstream errors remain literal; currentclassguards/negative/property-removal evidence is separate. Allload-bearing predicates use canonicalP37labels. Independentreviewauthorseparated; copy-index bindsliteral originals.\n')
+# Typed complete immutable handoff claims and actual original custody validator.
+code='''import argparse,collections,hashlib,json,subprocess\nfrom pathlib import Path\nFIXED='''+repr(h)+'''\nINDEX='''+repr(index)+'''\ndef canonical(v):return json.dumps(v,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False)\ndef validate(root,lane,h,index):\n if canonical(h)!=canonical(FIXED):raise ValueError('complete typed handoff/source/ROOT/predicate/authority claims')\n if canonical(index)!=canonical(INDEX):raise ValueError('complete exact decidingoriginal index')\n if type(index['copied_files']) is not int or type(index['copied_bytes']) is not int or index['copied_files']!=len(index['copies']) or index['copied_bytes']!=sum(r['bytes'] for r in index['copies']):raise ValueError('recomputed copiedsummary')\n expected=set(h['handoff_footprint']);actual={str(p.relative_to(lane)) for p in root.rglob('*') if p.is_file()}\n if actual!=expected or len(actual)!=h['handoff_path_count'] or h['complete_publication_union_count']!=207+len(actual):raise ValueError('fullhandoff footprint')\n for r in index['copies']:\n  rel=Path(r['portable_path'])\n  if rel.is_absolute() or '..' in rel.parts or str(rel).endswith('.py'):raise ValueError('safe passive route')\n  b=(root/rel).read_bytes();original=Path(r['source_path']).read_bytes()\n  if b!=original or type(r['bytes']) is not int or len(b)!=r['bytes'] or hashlib.sha256(b).hexdigest()!=r['sha256']:raise ValueError('literal decidingcopy content')\n for p in root.rglob('*.json'):json.loads(p.read_bytes())\n tree=subprocess.check_output(['git','rev-parse',h['candidate_sha']+'^{tree}'],cwd=lane,text=True).strip()\n if tree!=h['candidate_tree_sha']:raise ValueError('actual candidate tree')\n paths=subprocess.check_output(['git','diff','--name-only',h['base_sha'],h['candidate_sha']],cwd=lane,text=True).splitlines()\n if set(paths)!={r['path'] for r in h['implementation_footprint']} or len(paths)!=207:raise ValueError('actual wholeimplementation footprint')\n for r in h['implementation_footprint']:\n  b=subprocess.check_output(['git','show',h['candidate_sha']+':'+r['path']],cwd=lane)\n  if len(b)!=r['bytes'] or hashlib.sha256(b).hexdigest()!=r['sha256']:raise ValueError('actual immutable source bytes')\n return {'outcome':'PASS exact DOC handoff custody','copies':index['copied_files'],'copied_bytes':index['copied_bytes'],'handoff_paths':len(actual),'source_paths':207,'ROOT_whole_input_immutable':False,'source_native_numeric_gate_execution':False}\ndef main():\n a=argparse.ArgumentParser();a.add_argument('--root',required=True);a.add_argument('--lane',required=True);args=a.parse_args();root=Path(args.root);lane=Path(args.lane)\n print(json.dumps(validate(root,lane,json.loads((root/'implementation-handoff.json').read_bytes()),json.loads((root/'copy-index.json').read_bytes())),indent=2))\nif __name__=='__main__':main()\n'''
+(D/'validate-handoff.py.txt').write_text(code)
+print(json.dumps({'handoff_path_count':h['handoff_path_count'],'copied_files':index['copied_files'],'copied_bytes':index['copied_bytes'],'complete_publication_union_count':h['complete_publication_union_count'],'source_candidate':C,'source_tree':T},indent=2))

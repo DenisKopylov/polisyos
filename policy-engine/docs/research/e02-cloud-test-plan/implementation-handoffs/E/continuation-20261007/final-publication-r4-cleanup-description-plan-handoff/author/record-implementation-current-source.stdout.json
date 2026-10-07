@@ -1,0 +1,13 @@
+{
+  "schema": "policyos.e02.cleanup_description_plan_implementation.v1",
+  "base_sha": "66a4f8fc1398ed72b3ee9d38b07d88a4d2d5c3cd",
+  "candidate_sha": "343f6d1f74aab12d1fd592dec36ace932ac2ba11",
+  "candidate_tree_sha": "2c52587c5dd58e8a759fdec2bc7f4e6e393da44a",
+  "canonical_writer": "E DOC evidence carrier; underlying cleanup/PR body/lint owners remain source authors",
+  "path_count": 207,
+  "bytes": 4092916,
+  "Python_paths": 0,
+  "commit_capacity_history": "historical actual Git treeENOSPC retained; subsequent capacity guard refused before attempt; measured485101568available /2219864064free then actualretry exit0",
+  "publication_source": "ROOT64d/aef; source/tests/native/backend notchanged/rerun; broad inputimmutatibilityFalse after29generatedJSON",
+  "temporal_note": "resource availability source-reported actual toolheader; full resource CLI stdout was not separately captured as an original asset"
+}

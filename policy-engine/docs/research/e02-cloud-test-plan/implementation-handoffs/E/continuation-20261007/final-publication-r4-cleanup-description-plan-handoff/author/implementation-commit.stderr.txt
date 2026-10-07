@@ -1,0 +1,12 @@
+╭───────────────────────────────────╮
+│ lefthook v2.1.6  hook: pre-commit │
+╰───────────────────────────────────╯
+│  check-reduced-motion (skip) no matching staged files
+│  check-contrast (skip) no matching staged files
+│  prettier (skip) no files for inspection
+│  eslint (skip) no files for inspection
+                                      
+  ────────────────────────────────────
+summary: (done in 0.36 seconds)       
+error: unable to create temporary file: No space left on device
+error: Error building trees

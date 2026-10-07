@@ -11,7 +11,7 @@ from typing import Any
 from polisyos.common.serialization import stable_json_dumps
 from polisyos.scientist.methods.search.controller import SearchIteration
 from polisyos.scientist.methods.search.objective import ObjectiveValue
-from polisyos.scientist.methods.search.run_state import checkpoint_json
+from polisyos.scientist.methods.search.run_state import _canonical_checkpoint_owner, checkpoint_json
 from polisyos.scientist.methods.search.strategies.base import BaseSearchStrategy, SearchStrategy
 from polisyos.scientist.methods.search.strategies.codec import ParameterCodec, ScalarParameterCodec
 from polisyos.scientist.methods.search.strategies.space import SearchSpace
@@ -112,7 +112,8 @@ class StrategyAdapter:
     def get_state(self) -> dict[str, Any] | None:
         """Return supported state; live-only profiles retain unavailable discovery."""
         if (
-            type(self._space) is not SearchSpace
+            not _canonical_checkpoint_owner(self, StrategyAdapter)
+            or type(self._space) is not SearchSpace
             or type(self._codec) is not ScalarParameterCodec
             or not self._default_objective_extractor
             or not callable(getattr(self._strategy, "get_state", None))
@@ -183,6 +184,8 @@ class StrategyAdapter:
     def _admit_checkpoint(
         self, state: dict[str, Any]
     ) -> tuple[StrategyState, list[str], list[dict[str, Any]]]:
+        if not _canonical_checkpoint_owner(self, StrategyAdapter):
+            raise ValueError("strategy_adapter_checkpoint_owner_profile_unsupported")
         if not isinstance(state, dict) or set(state) != {
             "version",
             "configuration",
@@ -235,6 +238,8 @@ class StrategyAdapter:
             history: Complete original history read from the service checkpoint.
             state: The paired adapter checkpoint from that same artifact.
         """
+        if not _canonical_checkpoint_owner(self, StrategyAdapter):
+            raise ValueError("strategy_adapter_checkpoint_owner_profile_unsupported")
         _, digests, rows = self._admit_checkpoint(state)
         actual = [self._to_evaluation(row) for row in history]
         if (
@@ -250,6 +255,8 @@ class StrategyAdapter:
         Args:
             state: Supported adapter checkpoint with the original strategy artifact.
         """
+        if not _canonical_checkpoint_owner(self, StrategyAdapter):
+            raise ValueError("strategy_adapter_checkpoint_owner_profile_unsupported")
         strategy_state, digests, rows = self._admit_checkpoint(state)
         self._strategy.set_state(strategy_state)
         self._evaluations = []

@@ -229,12 +229,24 @@ warm-corpus `get_state`/`set_state` profiles are unchanged by this classificatio
 No new posterior, strategy or persistence registry is introduced.
 
 The service requires an explicit complete history-admission port for persisted
-resume; absent ports refuse before live mutation. Canonical Sequence provides
-its real history-independent corpus/cursor admission, because its admitted actual
-bound generate/get_state/set_state methods do not consume history. Inherited
-validation cannot admit a subclass or instance that replaces those methods or
-adds a batch generator; changed profiles stay live-only unless their owner
-implements an explicit complete checkpoint contract. Sensitivity delegates its base's admission.
+resume; absent ports refuse before live mutation. The built-in Adapter,
+Bayesian, Sensitivity and Sequence wrapper checkpoint profiles require the exact
+canonical wrapper type and its actual bound callable implementations. One
+nonvirtual owner check in `run_state` compares all callable descriptors declared
+by that owner, including private, static and class helpers. Even a pure subclass
+cannot borrow this profile; a subclass or instance with changed generation or a
+claimed helper returning `True` cannot establish replay. Discovery returns
+`None` for these unsupported borrowed profiles, preserving live operation;
+validation and restore refuse before live effects. A custom owner must implement
+and demonstrate its own complete checkpoint contract rather than inherit a
+canonical validator. This is a bounded implementation profile, not a Python
+security boundary against arbitrary runtime code replacement.
+
+Exact canonical Sequence provides its real history-independent corpus/cursor
+admission and refuses an added batch generator. Canonical Sensitivity delegates
+its base's complete admission and propagates unavailable state discovery.
+The same canonical callable-owner rule applies to the RL consumption port,
+while its direct legacy state codec retains its existing contract.
 A custom port is a trusted implementation contract whose own state/corpus
 validation must be demonstrated; the existence of a callback or a boolean does
 not establish scientific evaluator authority or generic replay equivalence.

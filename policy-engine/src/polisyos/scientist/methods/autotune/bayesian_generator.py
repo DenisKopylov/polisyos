@@ -13,6 +13,7 @@ from typing import Any
 
 from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.scientist.methods.search.run_state import _canonical_checkpoint_owner
 from polisyos.scientist.methods.search.strategies.space import (
     SearchSpace as NativeSearchSpace,
 )
@@ -467,8 +468,10 @@ class BayesianCandidateGenerator:
         }
         return hashlib.sha256(cls._json_bytes(record)).hexdigest()
 
-    def get_state(self) -> dict[str, Any]:
-        """Return a versioned wrapper plus the actual native strategy artifact."""
+    def get_state(self) -> dict[str, Any] | None:
+        """Return native state, or expose a borrowed wrapper profile as live-only."""
+        if not _canonical_checkpoint_owner(self, BayesianCandidateGenerator):
+            return None
         self._admit_sensitivity_order()
         if self._optimizer is None:
             raise ValueError("Generator checkpoint requires a native strategy receiver")
@@ -490,6 +493,8 @@ class BayesianCandidateGenerator:
         self, history: list[Any], state: dict[str, Any]
     ) -> None:
         """Bind every saved consumed row to the actual complete service history."""
+        if not _canonical_checkpoint_owner(self, BayesianCandidateGenerator):
+            raise ValueError("generator_checkpoint_owner_profile_unsupported")
         rows = state.get("history_rows")
         digests = state.get("history_digests")
         count = state.get("consumed_history_count")
@@ -531,6 +536,8 @@ class BayesianCandidateGenerator:
 
     def set_state(self, state: dict[str, Any]) -> None:
         """Validate wrapper identity before the native atomic model/RNG restore."""
+        if not _canonical_checkpoint_owner(self, BayesianCandidateGenerator):
+            raise ValueError("generator_checkpoint_owner_profile_unsupported")
         self._admit_sensitivity_order()
         fields = {
             "schema_version",

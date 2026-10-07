@@ -7,12 +7,36 @@ from copy import deepcopy
 from dataclasses import dataclass, field, fields, is_dataclass
 from datetime import datetime
 from enum import Enum
-from types import UnionType
+from types import FunctionType, UnionType
 from typing import Any, get_args, get_origin, get_type_hints
 
+from polisyos.scientist.methods.search.contracts import ParetoViewProjection
 from pydantic import BaseModel
 
-from polisyos.scientist.methods.search.contracts import ParetoViewProjection
+
+def _canonical_checkpoint_owner(
+    value: Any, owner: type[Any], *, absent_methods: tuple[str, ...] = ()
+) -> bool:
+    """Admit a closed built-in checkpoint profile by its actual callable owner.
+
+    This bounded source profile compares all callable descriptors declared by
+    the exact owner, including private/static/class helpers. Custom owners need
+    their own complete checkpoint contract; borrowing a wrapper's validator is
+    not evidence that hidden history effects are persisted. This is not a
+    security boundary against arbitrary runtime replacement of Python code.
+    """
+    if type(value) is not owner:
+        return False
+    for name, descriptor in vars(owner).items():
+        if not isinstance(descriptor, (FunctionType, staticmethod, classmethod)):
+            continue
+        expected = descriptor.__get__(value, owner)
+        actual = getattr(value, name, None)
+        if getattr(actual, "__self__", None) is not getattr(expected, "__self__", None) or getattr(
+            actual, "__func__", actual
+        ) is not getattr(expected, "__func__", expected):
+            return False
+    return all(not callable(getattr(value, name, None)) for name in absent_methods)
 
 
 class GenerationTransition(str, Enum):

@@ -8,6 +8,7 @@ from collections.abc import Mapping
 from dataclasses import asdict, dataclass
 from typing import Any, Protocol
 
+from polisyos.scientist.methods.search.run_state import _canonical_checkpoint_owner
 from polisyos.scientist.methods.search.strategies.base import (
     BaseSearchStrategy,
     SearchStrategy,
@@ -129,10 +130,8 @@ class RLStrategyWrapper:
 
     def validate_consumed_history(self, rows: list[dict[str, Any]], state: StrategyState) -> None:
         """Preserve the actual nested base's update-history admission."""
-        update = self.update
         if (
-            getattr(update, "__self__", None) is not self
-            or getattr(update, "__func__", None) is not RLStrategyWrapper.update
+            not _canonical_checkpoint_owner(self, RLStrategyWrapper)
             or state.iteration != len(rows)
         ):
             raise ValueError("strategy_adapter_checkpoint_consumption_profile_unsupported")

@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 from polisyos.common.serialization import finite_real_scalar
 from polisyos.scientist.methods.doe.designs import SensitivityPlan, SensitivityResult
 from polisyos.scientist.methods.search.controller import SearchIteration
+from polisyos.scientist.methods.search.run_state import _canonical_checkpoint_owner
 
 
 class SensitivityAwareCandidateGenerator:
@@ -143,22 +144,28 @@ class SensitivityAwareCandidateGenerator:
     def order_profile(self) -> str | None:
         return self._order_profile
 
-    def get_state(self) -> dict[str, Any]:
+    def get_state(self) -> dict[str, Any] | None:
+        if not _canonical_checkpoint_owner(self, SensitivityAwareCandidateGenerator):
+            return None
         checkpoint = getattr(self._base, "get_state", None)
         if not callable(checkpoint):
-            raise ValueError("Sensitivity base generator does not support checkpoints")
+            return None
         return checkpoint()
 
     def validate_checkpoint_history(
         self, history: list[SearchIteration], state: dict[str, Any]
     ) -> None:
         """Retain the base generator's complete consumed-history admission."""
+        if not _canonical_checkpoint_owner(self, SensitivityAwareCandidateGenerator):
+            raise ValueError("sensitivity_checkpoint_owner_profile_unsupported")
         validate = getattr(self._base, "validate_checkpoint_history", None)
         if not callable(validate):
             raise ValueError("Sensitivity base generator lacks checkpoint history admission")
         validate(history, state)
 
     def set_state(self, state: dict[str, Any]) -> None:
+        if not _canonical_checkpoint_owner(self, SensitivityAwareCandidateGenerator):
+            raise ValueError("sensitivity_checkpoint_owner_profile_unsupported")
         restore = getattr(self._base, "set_state", None)
         if not callable(restore):
             raise ValueError("Sensitivity base generator does not support checkpoints")

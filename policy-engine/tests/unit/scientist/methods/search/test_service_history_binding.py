@@ -7,13 +7,15 @@ from copy import deepcopy
 from dataclasses import replace
 
 import pytest
-
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.manifest_profile import artifact_manifest_profile_sha256
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon.canon_json import CanonSpec
+from polisyos.scientist.methods.autotune.bayesian_generator import BayesianCandidateGenerator
 from polisyos.scientist.methods.autotune.runtime import SequenceCandidateGenerator
+from polisyos.scientist.methods.doe.designs import SensitivityMethod, SensitivityResult
 from polisyos.scientist.methods.search.run_state import checkpoint_json
+from polisyos.scientist.methods.search.sensitivity_adapter import SensitivityAwareCandidateGenerator
 from polisyos.scientist.methods.search.service import _decode_checkpoint
 from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
 from polisyos.scientist.methods.search.strategies.base import BaseSearchStrategy
@@ -403,13 +405,23 @@ class _HistorySequenceSubclass(SequenceCandidateGenerator):
         return candidate
 
 
-@pytest.mark.parametrize("history_override", [False, True])
-def test_sequence_inherited_validator_requires_actual_history_independent_body(
-    tmp_path, history_override
-):
+class _ClaimedHistoryIndependentSubclass(_HistorySequenceSubclass):
+    def _history_independent_checkpoint_profile(self):
+        return True
+
+
+@pytest.mark.parametrize(
+    "profile", ["canonical", "pure_subclass", "history_override", "claimed_helper"]
+)
+def test_sequence_checkpoint_profile_requires_canonical_callable_owner(tmp_path, profile):
     def configured():
         runner, store, registry, suite, evaluator, spec = _runner(tmp_path)
-        cls = _HistorySequenceSubclass if history_override else _CanonicalSequenceSubclass
+        cls = {
+            "canonical": SequenceCandidateGenerator,
+            "pure_subclass": _CanonicalSequenceSubclass,
+            "history_override": _HistorySequenceSubclass,
+            "claimed_helper": _ClaimedHistoryIndependentSubclass,
+        }[profile]
         generator = cls(spec.candidate_generator._candidates)
         return runner, store, suite, evaluator, replace(spec, candidate_generator=generator)
 
@@ -422,15 +434,119 @@ def test_sequence_inherited_validator_requires_actual_history_independent_body(
     runner, _, _, evaluator, spec = configured()
     fresh = runner.create_service(spec, suite_ref=suite, max_iterations=3)
     before = _live_view(fresh)
-    if history_override:
+    if profile != "canonical":
         assert _decode_checkpoint(store.get_bytes(ref))["generator_state"] is None
-        assert source.ask(None, None, {})[0].payload["value"] == 3
+        assert source.ask(None, None, {})[0].payload["value"] == (
+            2 if profile == "pure_subclass" else 3
+        )
         with pytest.raises(ValueError, match="unsupported_generator_profile"):
             fresh.restore(ref)
         assert _live_view(fresh) == before
-        assert fresh.controller._generator.total == 0
+        if profile != "pure_subclass":
+            assert fresh.controller._generator.total == 0
     else:
         expected = source.ask(None, None, {})[0].payload["value"]
         fresh.restore(ref)
         assert fresh.ask(None, None, {})[0].payload["value"] == expected == 2
     assert evaluator.calls == []
+
+
+@pytest.mark.parametrize("profile", ["adapter", "native_bayesian", "sensitivity", "sequence"])
+@pytest.mark.parametrize("alteration", ["borrowed_generate_and_helper", "instance_generate"])
+def test_builtin_borrowed_checkpoint_profiles_refuse_before_state_or_backend(profile, alteration):
+    """Profile admission only: native backend availability is not numerical evidence."""
+    owner = {
+        "adapter": StrategyAdapter,
+        "native_bayesian": BayesianCandidateGenerator,
+        "sensitivity": SensitivityAwareCandidateGenerator,
+        "sequence": SequenceCandidateGenerator,
+    }[profile]
+    cls = owner
+    if alteration == "borrowed_generate_and_helper":
+
+        def generate(self, *args, **kwargs):
+            self.hidden_calls = getattr(self, "hidden_calls", 0) + 1
+            return owner.generate(self, *args, **kwargs)
+
+        cls = type(
+            "BorrowedCheckpointProfile",
+            (owner,),
+            {
+                "generate": generate,
+                "_history_independent_checkpoint_profile": lambda self: True,
+                "_checkpoint_owner_profile": lambda self: True,
+            },
+        )
+    space = SearchSpace([ParameterBounds("value", 1, 5, ParameterType.INTEGER)])
+    if profile == "adapter":
+        wrapper = cls(GridSearchStrategy(space, points_per_dim=5), space)
+    elif profile == "native_bayesian":
+        # No fitted receiver is needed to reject an unsupported borrowed owner.
+        wrapper = cls(search_space=None)
+    elif profile == "sensitivity":
+        result = SensitivityResult(
+            method=SensitivityMethod.MORRIS, parameter_names=["value"], ranking=["value"]
+        )
+        wrapper = cls(SequenceCandidateGenerator([{"value": 1}]), result)
+    else:
+        wrapper = cls([{"value": 1}])
+    if alteration == "instance_generate":
+        wrapper.generate = lambda *args, **kwargs: {"value": 999}
+    before = dict(vars(wrapper))
+    assert wrapper.get_state() is None
+    with pytest.raises(ValueError, match="profile_unsupported"):
+        wrapper.validate_checkpoint_history([], {})
+    with pytest.raises(ValueError, match="profile_unsupported"):
+        wrapper.set_state({})
+    assert vars(wrapper) == before
+
+
+def test_borrowed_rl_consumption_profile_keeps_live_but_refuses_service_resume(tmp_path):
+    class BorrowedRL(RLStrategyWrapper):
+        pass
+
+    def configured():
+        runner, store, _, suite, evaluator, spec = _runner(tmp_path)
+        space = SearchSpace([ParameterBounds("value", 1, 5, ParameterType.INTEGER)])
+        strategy = BorrowedRL(
+            GridSearchStrategy(space, points_per_dim=5),
+            space,
+            RLConfig(exploration_schedule=LinearDecay(0.0, 0.0)),
+        )
+        adapter = StrategyAdapter(strategy, space, ScalarParameterCodec({"value": "value"}))
+        return runner, store, suite, evaluator, replace(spec, candidate_generator=adapter)
+
+    runner, store, suite, _, spec = configured()
+    source = runner.create_service(spec, suite_ref=suite, max_iterations=5)
+    first = source.ask(None, None, {})[0]
+    assert first.payload["value"] == 1
+    ref = source.checkpoint_ref
+    assert _decode_checkpoint(store.get_bytes(ref))["generator_state"] is None
+    fresh_runner, _, _, evaluator, fresh_spec = configured()
+    fresh = fresh_runner.create_service(fresh_spec, suite_ref=suite, max_iterations=5)
+    before = _live_view(fresh)
+    with pytest.raises(ValueError, match="unsupported_generator_profile"):
+        fresh.restore(ref)
+    assert _live_view(fresh) == before
+    assert evaluator.calls == []
+
+
+def test_canonical_adapter_replaced_private_admission_refuses_before_native_restore():
+    space = SearchSpace([ParameterBounds("value", 1, 5, ParameterType.INTEGER)])
+    strategy = GridSearchStrategy(space, points_per_dim=5)
+    adapter = StrategyAdapter(strategy, space)
+    saved = adapter.get_state()
+    assert saved is not None
+    native = strategy.get_state()
+    before = native.to_artifact()
+    # The opaque replacement returns a valid native state and complete empty
+    # triple; public profile admission must precede this private virtual call.
+    adapter._admit_checkpoint = lambda state: (native, [], [])
+    assert adapter.get_state() is None
+    with pytest.raises(ValueError, match="owner_profile_unsupported"):
+        adapter.validate_checkpoint_history([], saved)
+    with pytest.raises(ValueError, match="owner_profile_unsupported"):
+        adapter.set_state(saved)
+    assert strategy.get_state().to_artifact() == before
+    assert adapter._synced_len == 0
+    assert adapter._evaluations == []

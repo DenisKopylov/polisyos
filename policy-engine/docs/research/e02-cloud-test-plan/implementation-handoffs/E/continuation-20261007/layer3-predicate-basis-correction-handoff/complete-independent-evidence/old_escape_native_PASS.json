@@ -1,0 +1,178 @@
+{
+  "schema": "policyos.e02.predicate_basis_metadata_correction.v1",
+  "unit": "E",
+  "passive_metadata_only": true,
+  "prior_publication_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+  "prior_publication_tree_sha": "33ec3a2ecdc2a36211f220d78dd6dc925734c15f",
+  "prior_handoff": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/implementation-handoff.json",
+    "bytes": 48070,
+    "sha256": "553dad27a2494eac70200b1036a11f7d8fcd741492ae72d4d2e0228fb4de3da6"
+  },
+  "runtime_source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "runtime_source_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "predicate_basis": [
+    {
+      "predicate": "immutable_candidate_and_tree",
+      "basis": "recomputed",
+      "admission_measurement": "Git rev-parse and exact committed DOC footprint; source ref validation requires full immutable SHA before callbacks.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/publication-custody.normal.json",
+      "evidence_ref": {
+        "source_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/publication-custody.normal.json",
+        "bytes": 1606,
+        "sha256": "bc74d95048475771197e0b209075df2a4549472e0f87cda7f8fca335c3d1e4a7",
+        "git_blob": "84c0a4b051600e9ee891eed679ec03d1d45b94b4"
+      }
+    },
+    {
+      "predicate": "literal_copy_hash_size_and_git_blob",
+      "basis": "recomputed",
+      "admission_measurement": "Actual copied bytes and Git blobs recomputed against copy-index; booleans are refused as sizes.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/publication-custody.normal.json",
+      "evidence_ref": {
+        "source_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/publication-custody.normal.json",
+        "bytes": 1606,
+        "sha256": "bc74d95048475771197e0b209075df2a4549472e0f87cda7f8fca335c3d1e4a7",
+        "git_blob": "84c0a4b051600e9ee891eed679ec03d1d45b94b4"
+      }
+    },
+    {
+      "predicate": "selected_member_multiset",
+      "basis": "recomputed",
+      "admission_measurement": "Four original frozen selectors derive exact87-member Counter; selector carrier rows separately conserved.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/publication-custody.normal.json",
+      "evidence_ref": {
+        "source_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/author/publication-custody.normal.json",
+        "bytes": 1606,
+        "sha256": "bc74d95048475771197e0b209075df2a4549472e0f87cda7f8fca335c3d1e4a7",
+        "git_blob": "84c0a4b051600e9ee891eed679ec03d1d45b94b4"
+      }
+    },
+    {
+      "predicate": "source_helper_output_reconciliation",
+      "basis": "independently_reconciled",
+      "admission_measurement": "Independent writer-boundary test reconstructs28/29/24 actual output paths; observed parent29-path snapshot reconciled, without current native caller attribution.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/independent/independent-final-owner-review-v3.json",
+      "evidence_ref": {
+        "source_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/independent/independent-final-owner-review-v3.json",
+        "bytes": 15456,
+        "sha256": "1a82fdfbc58158f8569181015fb9d08d5a501ad5d3810597699eeb40ad9bfd2f",
+        "git_blob": "df467e94bed5c8a047f8a062a0e87302127a7709"
+      }
+    },
+    {
+      "predicate": "original_to_published_copy_reconciliation",
+      "basis": "independently_reconciled",
+      "admission_measurement": "Independent peers read source originals, immutable Git copies and complete95+11 literal custody separately.",
+      "evidence": "peer criteria thin DOC normal/-O review; separate final owner review",
+      "evidence_ref": {
+        "source_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/layer3-doc-custody-independent-normal-v3.json",
+        "bytes": 44341,
+        "sha256": "57ed0d39536905c5a5852b4ef05b77813db0063ed931ab43ecd9150d6f50bbc2",
+        "scope": "External closed independent custody receipt; exact9d6/73e documents, no native/gate acceptance"
+      }
+    },
+    {
+      "predicate": "fixture_containment_admission_before_archive",
+      "basis": "independently_reconciled",
+      "admission_measurement": "Peer tiny archive actual callbacks0 on malformedbase/returnedroot; effective guard removal writes two files inside source stand-in. Full product archive not run.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/independent/independent-final-owner-review-v3.json",
+      "evidence_ref": {
+        "source_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/independent/independent-final-owner-review-v3.json",
+        "bytes": 15456,
+        "sha256": "1a82fdfbc58158f8569181015fb9d08d5a501ad5d3810597699eeb40ad9bfd2f",
+        "git_blob": "df467e94bed5c8a047f8a062a0e87302127a7709"
+      }
+    },
+    {
+      "predicate": "full_native_fixture_outcome",
+      "basis": "not_established",
+      "admission_measurement": "Proposed full module fixture selectors remain UNRUN; no actual full product archive or native whole-suite proof.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/observer-v3/owner-packet-v3.json",
+      "evidence_ref": {
+        "source_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/observer-v3/owner-packet-v3.json",
+        "bytes": 8486,
+        "sha256": "7e8469dd9053c14997e3a2042be6fb5496c7bedf3a9bf4b0faf039a139a57c91",
+        "git_blob": "9a594e7e386e549bcff2d194f55603f3c280d20b"
+      }
+    },
+    {
+      "predicate": "complete_input_isolation",
+      "basis": "not_established",
+      "admission_measurement": "Known G6/G8 explicit and implicit DEFAULT_ROOT read aliases remain owner companions; supplied write root does not establish all reads isolated.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/observer-v3/fixture-read-alias-companion-v2.json",
+      "evidence_ref": {
+        "source_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/observer-v3/fixture-read-alias-companion-v2.json",
+        "bytes": 17904,
+        "sha256": "fb9c791f576a106560c890f000181db1eda59ae391eb5a4fff421932953fc85e",
+        "git_blob": "5808846a8f7dc5ce55beb623a4f46123a4debda9"
+      }
+    },
+    {
+      "predicate": "current_native_caller_P41",
+      "basis": "not_established",
+      "admission_measurement": "Source call graph establishes write class; active ROOT backend individual native selector attribution not observed. Parent29 snapshot is non-atomic aggregate.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/author-v1/parent-observation.json",
+      "evidence_ref": {
+        "source_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet/author-v1/parent-observation.json",
+        "bytes": 24848,
+        "sha256": "617baab627ee4280808a27ccc5cdc7d4b82cb7acd85575e1d14c6960cd367ce0",
+        "git_blob": "cb4c23a33ee04b26f0d7a31fe0a084f72966844c"
+      }
+    },
+    {
+      "predicate": "finding_closure_or_institutional_authority",
+      "basis": "not_established",
+      "admission_measurement": "DOC custody and bounded tiny-fixture GO confer neither original finding closure nor runtime/code acceptance. Canonical G/test owner must apply/review.",
+      "evidence": "implementation-handoff.json limitations and next-owner",
+      "evidence_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet-handoff/implementation-handoff.json",
+        "bytes": 48070,
+        "sha256": "553dad27a2494eac70200b1036a11f7d8fcd741492ae72d4d2e0228fb4de3da6",
+        "source_sha": "9d6c9fa14e082d067fd13f6e02d6b10b00547d89"
+      }
+    }
+  ],
+  "decisive_unknown_behavior": "No positive full-input-isolation/native-caller/finding-authority claim is admitted; preserve UNRUN/not_established and canonical next owner.",
+  "preserve": "Existing95+11 literal originals and prior committed handoff bytes/history remain unchanged; prospective new additive metadata file only.",
+  "native_execution": false,
+  "publication_state": "ADDITIVE_DOC_CORRECTION; pins prior9d6 publication, no self-future-SHA",
+  "predicate_basis_frozen_at": "Exact admitted existing DoE branch/path and9d6 Git source; this additive metadata receipt",
+  "authority_bounds": {
+    "full_native_fixture_outcome": {
+      "basis": "not_established",
+      "positive_claim": false,
+      "check_status": "PASS"
+    },
+    "complete_input_isolation": {
+      "basis": "not_established",
+      "positive_claim": false,
+      "check_status": "UNRUN"
+    },
+    "current_native_caller_P41": {
+      "basis": "not_established",
+      "positive_claim": false,
+      "check_status": "not_established"
+    },
+    "finding_closure_or_institutional_authority": {
+      "basis": "not_established",
+      "positive_claim": false,
+      "check_status": "not_established"
+    }
+  },
+  "classification": {
+    "surface": "internal research DOC metadata",
+    "product_source_changed": false,
+    "public_api_or_schema_changed": false,
+    "release_fragment_required": false
+  }
+}

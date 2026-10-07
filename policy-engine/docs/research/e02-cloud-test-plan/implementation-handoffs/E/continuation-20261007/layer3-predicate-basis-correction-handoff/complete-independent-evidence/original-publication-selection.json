@@ -1,0 +1,92 @@
+{
+  "schema": "policyos.e02.moderate-publication-selection.v1",
+  "candidate": "2824114d97d804b1894075ed8f78cb1c6a8a4076",
+  "tree": "a067361f310259449bea5dd90b86c4d96796e5b0",
+  "outcome": "GO bounded metadata-only unknown record claim guard",
+  "file_count": 16,
+  "total_bytes": 73444,
+  "files": [
+    {
+      "path": "/tmp/e02-E-DoE-basis2824-independent/review.json",
+      "bytes": 8221,
+      "sha256": "4b105aeeeec2634409a455e9db9225c10e606020f60bde6b758d78341da6ac02"
+    },
+    {
+      "path": "/tmp/e02-E-DoE-basis2824-independent/immutable-validator.py.txt",
+      "bytes": 9427,
+      "sha256": "8a71c65cfdab881b3efe3dad7ecc4c0e845ff66af745f9065a0143f369f66c6e"
+    },
+    {
+      "path": "/tmp/e02-E-DoE-basis2824-independent/healthy.json",
+      "bytes": 11169,
+      "sha256": "0bd5c3049abf201886ba6dce3a8541e3e7390856f71af906d7531975eed4e9f3"
+    },
+    {
+      "path": "/tmp/e02-E-DoE-basis2824-independent/old_escape_native_PASS.json",
+      "bytes": 11168,
+      "sha256": "ee7991145b90029fda45e31355f0d3ebc9fa237f08caf5dc5686579172ac3e46"
+    },
+    {
+      "path": "/tmp/e02-E-DoE-basis2824-independent/effective-unknown-record-removal.py.txt",
+      "bytes": 9411,
+      "sha256": "54c3a55b289210f9e1265603a52e2cd481f3835126727a49545c6df848432755"
+    },
+    {
+      "path": "/tmp/e02-E-review-DoE-basis2824.py.txt",
+      "bytes": 5429,
+      "sha256": "1b37d4256e006f0bc4a4a19dea09558f14caa765a2a0395ff38e244de57f83c4"
+    },
+    {
+      "path": "/tmp/e02-E-DoE-basis2824-independent.stdout.txt",
+      "bytes": 8221,
+      "sha256": "4b105aeeeec2634409a455e9db9225c10e606020f60bde6b758d78341da6ac02"
+    },
+    {
+      "path": "/tmp/e02-E-DoE-basis2824-independent.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-DoE-basis2824-independent/normal-healthy.stdout.txt",
+      "bytes": 4111,
+      "sha256": "3f95ac5cf2e08615686fc669bda55ca0341ff5f95ea78a72d4a0494a98ad62df"
+    },
+    {
+      "path": "/tmp/e02-E-DoE-basis2824-independent/normal-healthy.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-DoE-basis2824-independent/normal-old_escape_native_PASS.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-DoE-basis2824-independent/normal-old_escape_native_PASS.stderr.txt",
+      "bytes": 1088,
+      "sha256": "bdd7f6c19c09a42aaa4245a27a3b337bcf4753b3397f377fe90ee901c5454d0f"
+    },
+    {
+      "path": "/tmp/e02-E-DoE-basis2824-independent/optimized-healthy.stdout.txt",
+      "bytes": 4111,
+      "sha256": "3f95ac5cf2e08615686fc669bda55ca0341ff5f95ea78a72d4a0494a98ad62df"
+    },
+    {
+      "path": "/tmp/e02-E-DoE-basis2824-independent/optimized-healthy.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-DoE-basis2824-independent/optimized-old_escape_native_PASS.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-DoE-basis2824-independent/optimized-old_escape_native_PASS.stderr.txt",
+      "bytes": 1088,
+      "sha256": "bdd7f6c19c09a42aaa4245a27a3b337bcf4753b3397f377fe90ee901c5454d0f"
+    }
+  ],
+  "prior_literal111DOC_custody_reused": true,
+  "source_native_numeric_global_checks": false
+}

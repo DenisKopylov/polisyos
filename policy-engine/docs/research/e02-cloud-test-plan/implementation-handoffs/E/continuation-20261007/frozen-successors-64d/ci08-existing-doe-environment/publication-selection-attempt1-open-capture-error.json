@@ -1,0 +1,20 @@
+{
+  "observer_outcome": "ERROR",
+  "selection": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/publication-selection.json",
+    "bytes": 15057,
+    "sha256": "bbc14f7e57813e91ee303bdccabaea74e7cba6ef3c0747480af68ef05f2621f9"
+  },
+  "mismatches": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/publication-builder.stdout.txt",
+      "recorded_bytes": 0,
+      "recorded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "closed_bytes": 648,
+      "closed_sha256": "1aee6cefe3ec9effc0d1a654d2e59a50bb975d45541f2ca8ac5a67afdb3b75d3"
+    }
+  ],
+  "source_product_changed": false,
+  "native_receipt_unchanged": true,
+  "next": "Recompute original explicit asset membership after builder streams closed; never substitute initial selection silently."
+}

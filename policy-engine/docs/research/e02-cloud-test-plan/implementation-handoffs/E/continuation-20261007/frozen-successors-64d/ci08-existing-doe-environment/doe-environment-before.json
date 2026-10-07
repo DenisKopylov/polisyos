@@ -1,0 +1,2557 @@
+{
+  "schema": "policyos.e02.existing_environment_distribution_snapshot.v1",
+  "observed_unix": 1791368712.611082,
+  "executable": "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+  "prefix": "/workspace/e02-E-doe-20261006/policy-engine/.venv",
+  "base_prefix": "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "distribution_count": 177,
+  "protected_names": [
+    "numpy",
+    "scipy",
+    "jax",
+    "jaxlib",
+    "SALib",
+    "pytest",
+    "pydantic",
+    "policy-engine"
+  ],
+  "distributions": [
+    {
+      "name": "about-time",
+      "version": "4.2.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/about_time-4.2.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "absl-py",
+      "version": "2.3.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/absl_py-2.3.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "aiohappyeyeballs",
+      "version": "2.6.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/aiohappyeyeballs-2.6.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "aiohttp",
+      "version": "3.13.3",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/aiohttp-3.13.3.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "aiosignal",
+      "version": "1.4.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/aiosignal-1.4.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "alive-progress",
+      "version": "3.3.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/alive_progress-3.3.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "annotated-doc",
+      "version": "0.0.4",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/annotated_doc-0.0.4.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "annotated-types",
+      "version": "0.7.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/annotated_types-0.7.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "anyio",
+      "version": "4.12.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/anyio-4.12.0.dist-info",
+      "entry_points": [
+        {
+          "group": "pytest11",
+          "name": "anyio",
+          "value": "anyio.pytest_plugin"
+        }
+      ]
+    },
+    {
+      "name": "arch",
+      "version": "8.0.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/arch-8.0.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "arrow",
+      "version": "1.4.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/arrow-1.4.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "attrs",
+      "version": "25.4.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/attrs-25.4.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "autograd",
+      "version": "1.8.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/autograd-1.8.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "basedpyright",
+      "version": "1.39.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/basedpyright-1.39.0.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "basedpyright",
+          "value": "basedpyright.pyright:main"
+        },
+        {
+          "group": "console_scripts",
+          "name": "basedpyright-langserver",
+          "value": "basedpyright.langserver:main"
+        }
+      ]
+    },
+    {
+      "name": "certifi",
+      "version": "2025.11.12",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/certifi-2025.11.12.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "cffi",
+      "version": "2.0.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/cffi-2.0.0.dist-info",
+      "entry_points": [
+        {
+          "group": "distutils.setup_keywords",
+          "name": "cffi_modules",
+          "value": "cffi.setuptools_ext:cffi_modules"
+        }
+      ]
+    },
+    {
+      "name": "cfgv",
+      "version": "3.5.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/cfgv-3.5.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "charset-normalizer",
+      "version": "3.4.4",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/charset_normalizer-3.4.4.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "normalizer",
+          "value": "charset_normalizer.cli:cli_detect"
+        }
+      ]
+    },
+    {
+      "name": "chex",
+      "version": "0.1.91",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/chex-0.1.91.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "click",
+      "version": "8.3.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/click-8.3.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "cma",
+      "version": "4.4.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/cma-4.4.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "contourpy",
+      "version": "1.3.3",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/contourpy-1.3.3.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "cryptography",
+      "version": "46.0.4",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/cryptography-46.0.4.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "cycler",
+      "version": "0.12.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/cycler-0.12.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "defusedxml",
+      "version": "0.7.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/defusedxml-0.7.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "Deprecated",
+      "version": "1.3.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/deprecated-1.3.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "diffrax",
+      "version": "0.7.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/diffrax-0.7.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "dill",
+      "version": "0.4.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/dill-0.4.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "distlib",
+      "version": "0.4.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/distlib-0.4.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "distro",
+      "version": "1.9.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/distro-1.9.0.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "distro",
+          "value": "distro.distro:main"
+        }
+      ]
+    },
+    {
+      "name": "duckdb",
+      "version": "1.4.3",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/duckdb-1.4.3.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "equinox",
+      "version": "0.13.2",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/equinox-0.13.2.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "et_xmlfile",
+      "version": "2.0.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/et_xmlfile-2.0.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "execnet",
+      "version": "2.1.2",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/execnet-2.1.2.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "fastapi",
+      "version": "0.128.6",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/fastapi-0.128.6.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "fastapi",
+          "value": "fastapi.cli:main"
+        }
+      ]
+    },
+    {
+      "name": "filelock",
+      "version": "3.20.2",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/filelock-3.20.2.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "fonttools",
+      "version": "4.61.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/fonttools-4.61.1.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "fonttools",
+          "value": "fontTools.__main__:main"
+        },
+        {
+          "group": "console_scripts",
+          "name": "pyftmerge",
+          "value": "fontTools.merge:main"
+        },
+        {
+          "group": "console_scripts",
+          "name": "pyftsubset",
+          "value": "fontTools.subset:main"
+        },
+        {
+          "group": "console_scripts",
+          "name": "ttx",
+          "value": "fontTools.ttx:main"
+        }
+      ]
+    },
+    {
+      "name": "formulaic",
+      "version": "1.2.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/formulaic-1.2.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "fqdn",
+      "version": "1.5.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/fqdn-1.5.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "frozenlist",
+      "version": "1.8.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/frozenlist-1.8.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "googleapis-common-protos",
+      "version": "1.72.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/googleapis_common_protos-1.72.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "graphemeu",
+      "version": "0.7.2",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/graphemeu-0.7.2.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "grpcio",
+      "version": "1.78.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/grpcio-1.78.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "h11",
+      "version": "0.16.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/h11-0.16.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "httpcore",
+      "version": "1.0.9",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/httpcore-1.0.9.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "httptools",
+      "version": "0.7.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/httptools-0.7.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "httpx",
+      "version": "0.28.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/httpx-0.28.1.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "httpx",
+          "value": "httpx:main"
+        }
+      ]
+    },
+    {
+      "name": "hypothesis",
+      "version": "6.151.2",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/hypothesis-6.151.2.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "hypothesis",
+          "value": "hypothesis.extra.cli:main"
+        },
+        {
+          "group": "pytest11",
+          "name": "hypothesispytest",
+          "value": "_hypothesis_pytestplugin"
+        }
+      ]
+    },
+    {
+      "name": "identify",
+      "version": "2.6.15",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/identify-2.6.15.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "identify-cli",
+          "value": "identify.cli:main"
+        }
+      ]
+    },
+    {
+      "name": "idna",
+      "version": "3.11",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/idna-3.11.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "importlib_metadata",
+      "version": "8.7.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/importlib_metadata-8.7.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "iniconfig",
+      "version": "2.3.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/iniconfig-2.3.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "interface-meta",
+      "version": "1.3.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/interface_meta-1.3.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "isoduration",
+      "version": "20.11.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/isoduration-20.11.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "jax",
+      "version": "0.8.2",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax-0.8.2.dist-info",
+      "entry_points": [],
+      "metadata_files": [
+        {
+          "relative_path": "INSTALLER",
+          "bytes": 2,
+          "sha256": "e6184ce10e266134fdcfa401e8f1a95005bcd4f18d16b62b757323e2833fe9a9"
+        },
+        {
+          "relative_path": "METADATA",
+          "bytes": 13409,
+          "sha256": "814bff75113dc832e236125fd9ec53390fec2d6e4494c17cb92d69c1b9509f8c"
+        },
+        {
+          "relative_path": "RECORD",
+          "bytes": 55420,
+          "sha256": "c1249187da7f0bd3e839e22b4d41396841375ea424bc9087d64286cf46c6931d"
+        },
+        {
+          "relative_path": "REQUESTED",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "relative_path": "WHEEL",
+          "bytes": 91,
+          "sha256": "ff309ddcdd65ebd02bc724dbf2bcc4a0ff53a5b61792a44548d383e4ebb19d3b"
+        },
+        {
+          "relative_path": "licenses/AUTHORS",
+          "bytes": 313,
+          "sha256": "38e050ca0ac8d5973de00609c9c1f5aff0520b03f7f07cafdec96e765b49ee16"
+        },
+        {
+          "relative_path": "licenses/LICENSE",
+          "bytes": 11358,
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "relative_path": "top_level.txt",
+          "bytes": 4,
+          "sha256": "0da6c087c31743e1ccd04b63283f96c7f0fab53216fbf75eef7a5d1bf7ff2931"
+        }
+      ],
+      "declared_requires": [
+        "jaxlib<=0.8.2,>=0.8.2",
+        "ml_dtypes>=0.5.0",
+        "numpy>=2.0",
+        "opt_einsum",
+        "scipy>=1.13",
+        "jaxlib==0.8.2; extra == \"minimum-jaxlib\"",
+        "jaxlib==0.8.1; extra == \"ci\"",
+        "jaxlib<=0.8.2,>=0.8.2; extra == \"tpu\"",
+        "libtpu==0.0.32.*; extra == \"tpu\"",
+        "requests; extra == \"tpu\"",
+        "jaxlib<=0.8.2,>=0.8.2; extra == \"cuda\"",
+        "jax-cuda12-plugin[with-cuda]<=0.8.2,>=0.8.2; extra == \"cuda\"",
+        "jaxlib<=0.8.2,>=0.8.2; extra == \"cuda12\"",
+        "jax-cuda12-plugin[with-cuda]<=0.8.2,>=0.8.2; extra == \"cuda12\"",
+        "jaxlib<=0.8.2,>=0.8.2; extra == \"cuda13\"",
+        "jax-cuda13-plugin[with-cuda]<=0.8.2,>=0.8.2; extra == \"cuda13\"",
+        "jaxlib<=0.8.2,>=0.8.2; extra == \"cuda12-local\"",
+        "jax-cuda12-plugin<=0.8.2,>=0.8.2; extra == \"cuda12-local\"",
+        "jaxlib<=0.8.2,>=0.8.2; extra == \"cuda13-local\"",
+        "jax-cuda13-plugin<=0.8.2,>=0.8.2; extra == \"cuda13-local\"",
+        "jaxlib<=0.8.2,>=0.8.2; extra == \"rocm\"",
+        "jax-rocm7-plugin<=0.8.2,>=0.8.2; extra == \"rocm\"",
+        "kubernetes; extra == \"k8s\"",
+        "xprof; extra == \"xprof\""
+      ]
+    },
+    {
+      "name": "jaxlib",
+      "version": "0.8.2",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/jaxlib-0.8.2.dist-info",
+      "entry_points": [],
+      "metadata_files": [
+        {
+          "relative_path": "INSTALLER",
+          "bytes": 2,
+          "sha256": "e6184ce10e266134fdcfa401e8f1a95005bcd4f18d16b62b757323e2833fe9a9"
+        },
+        {
+          "relative_path": "METADATA",
+          "bytes": 1339,
+          "sha256": "83b52e6b98bb35a5dfb4a760174382eb7946bf67ec782f392d238aa034384960"
+        },
+        {
+          "relative_path": "RECORD",
+          "bytes": 10217,
+          "sha256": "344e13c7388670576152b4caf5f429d9c540a5fc9fe0bfdd8ed46158b45dfbab"
+        },
+        {
+          "relative_path": "REQUESTED",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "relative_path": "WHEEL",
+          "bytes": 113,
+          "sha256": "f39e2f0cc5ce402748bc4d6df02ec06f94a02550120a024e356c0cdd429bc2c1"
+        },
+        {
+          "relative_path": "licenses/LICENSE.txt",
+          "bytes": 229029,
+          "sha256": "e3d8688a2c75d4e33641cc88046a8a1593ee79822411fa45a7bd32e37f847d29"
+        },
+        {
+          "relative_path": "top_level.txt",
+          "bytes": 7,
+          "sha256": "088db3268d342a14bb2bdb01fa20505e409be0758ee3843ec6d7bc097521283d"
+        }
+      ],
+      "declared_requires": [
+        "scipy>=1.13",
+        "numpy>=2.0",
+        "ml_dtypes>=0.5.0"
+      ]
+    },
+    {
+      "name": "jaxtyping",
+      "version": "0.3.4",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/jaxtyping-0.3.4.dist-info",
+      "entry_points": [
+        {
+          "group": "pytest11",
+          "name": "jaxtyping",
+          "value": "jaxtyping._pytest_plugin"
+        }
+      ]
+    },
+    {
+      "name": "jiter",
+      "version": "0.13.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/jiter-0.13.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "jsonpatch",
+      "version": "1.33",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/jsonpatch-1.33.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "jsonpointer",
+      "version": "3.0.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/jsonpointer-3.0.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "jsonschema",
+      "version": "4.25.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/jsonschema-4.25.1.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "jsonschema",
+          "value": "jsonschema.cli:main"
+        }
+      ]
+    },
+    {
+      "name": "jsonschema-specifications",
+      "version": "2025.9.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/jsonschema_specifications-2025.9.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "kiwisolver",
+      "version": "1.4.9",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/kiwisolver-1.4.9.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "langchain",
+      "version": "1.2.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/langchain-1.2.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "langchain-core",
+      "version": "1.2.6",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/langchain_core-1.2.6.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "langgraph",
+      "version": "1.0.5",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/langgraph-1.0.5.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "langgraph-checkpoint",
+      "version": "3.0.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/langgraph_checkpoint-3.0.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "langgraph-prebuilt",
+      "version": "1.0.5",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/langgraph_prebuilt-1.0.5.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "langgraph-sdk",
+      "version": "0.3.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/langgraph_sdk-0.3.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "langsmith",
+      "version": "0.6.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/langsmith-0.6.0.dist-info",
+      "entry_points": [
+        {
+          "group": "pytest11",
+          "name": "langsmith_plugin",
+          "value": "langsmith.pytest_plugin"
+        }
+      ]
+    },
+    {
+      "name": "lark",
+      "version": "1.3.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/lark-1.3.1.dist-info",
+      "entry_points": [
+        {
+          "group": "pyinstaller40",
+          "name": "hook-dirs",
+          "value": "lark.__pyinstaller:get_hook_dirs"
+        }
+      ]
+    },
+    {
+      "name": "libcst",
+      "version": "1.8.6",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/libcst-1.8.6.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "librt",
+      "version": "0.7.7",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/librt-0.7.7.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "linearmodels",
+      "version": "7.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/linearmodels-7.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "lineax",
+      "version": "0.0.8",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/lineax-0.0.8.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "loguru",
+      "version": "0.7.3",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/loguru-0.7.3.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "matplotlib",
+      "version": "3.10.8",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/matplotlib-3.10.8.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "ml_dtypes",
+      "version": "0.5.4",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/ml_dtypes-0.5.4.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "moocore",
+      "version": "0.1.10",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/moocore-0.1.10.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "multidict",
+      "version": "6.7.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/multidict-6.7.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "multiprocess",
+      "version": "0.70.19",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/multiprocess-0.70.19.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "mypy",
+      "version": "1.19.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/mypy-1.19.1.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "dmypy",
+          "value": "mypy.dmypy.client:console_entry"
+        },
+        {
+          "group": "console_scripts",
+          "name": "mypy",
+          "value": "mypy.__main__:console_entry"
+        },
+        {
+          "group": "console_scripts",
+          "name": "mypyc",
+          "value": "mypyc.__main__:main"
+        },
+        {
+          "group": "console_scripts",
+          "name": "stubgen",
+          "value": "mypy.stubgen:main"
+        },
+        {
+          "group": "console_scripts",
+          "name": "stubtest",
+          "value": "mypy.stubtest:main"
+        }
+      ]
+    },
+    {
+      "name": "mypy_extensions",
+      "version": "1.1.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/mypy_extensions-1.1.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "narwhals",
+      "version": "2.14.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/narwhals-2.14.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "nodeenv",
+      "version": "1.10.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/nodeenv-1.10.0.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "nodeenv",
+          "value": "nodeenv:main"
+        }
+      ]
+    },
+    {
+      "name": "nodejs-wheel-binaries",
+      "version": "24.14.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/nodejs_wheel_binaries-24.14.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "numpy",
+      "version": "2.3.5",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/numpy-2.3.5.dist-info",
+      "entry_points": [
+        {
+          "group": "array_api",
+          "name": "numpy",
+          "value": "numpy"
+        },
+        {
+          "group": "console_scripts",
+          "name": "f2py",
+          "value": "numpy.f2py.f2py2e:main"
+        },
+        {
+          "group": "console_scripts",
+          "name": "numpy-config",
+          "value": "numpy._configtool:main"
+        },
+        {
+          "group": "pkg_config",
+          "name": "numpy",
+          "value": "numpy._core.lib.pkgconfig"
+        },
+        {
+          "group": "pyinstaller40",
+          "name": "hook-dirs",
+          "value": "numpy:_pyinstaller_hooks_dir"
+        }
+      ],
+      "metadata_files": [
+        {
+          "relative_path": "INSTALLER",
+          "bytes": 2,
+          "sha256": "e6184ce10e266134fdcfa401e8f1a95005bcd4f18d16b62b757323e2833fe9a9"
+        },
+        {
+          "relative_path": "LICENSE.txt",
+          "bytes": 47768,
+          "sha256": "2046a3130e50b11c01659b3a0d963e6ae0b7436ff8e89cbcfd9e87bc6112d595"
+        },
+        {
+          "relative_path": "METADATA",
+          "bytes": 62117,
+          "sha256": "6002f29765e5bc1a3be4a1b92ed56b64968a0fecba73e7f81cd536d0c40f4fa3"
+        },
+        {
+          "relative_path": "RECORD",
+          "bytes": 83202,
+          "sha256": "15f21ea8e4e211303cb26bc79c8156e86a9e888f514ef91b1c6e3a22102244a3"
+        },
+        {
+          "relative_path": "REQUESTED",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "relative_path": "WHEEL",
+          "bytes": 138,
+          "sha256": "8275f82e0b32533a2bbaa0240b869def60116df230bc2425658cc7cc9a63a4af"
+        },
+        {
+          "relative_path": "entry_points.txt",
+          "bytes": 220,
+          "sha256": "ec26fade0c8bdac211a6c1dd003a65eb16885b925395423e93fcaa115af4052c"
+        }
+      ],
+      "declared_requires": null
+    },
+    {
+      "name": "odfpy",
+      "version": "1.4.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/odfpy-1.4.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "openai",
+      "version": "1.109.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/openai-1.109.1.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "openai",
+          "value": "openai.cli:main"
+        }
+      ]
+    },
+    {
+      "name": "openpyxl",
+      "version": "3.1.5",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/openpyxl-3.1.5.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "opentelemetry-api",
+      "version": "1.39.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/opentelemetry_api-1.39.1.dist-info",
+      "entry_points": [
+        {
+          "group": "opentelemetry_context",
+          "name": "contextvars_context",
+          "value": "opentelemetry.context.contextvars_context:ContextVarsRuntimeContext"
+        },
+        {
+          "group": "opentelemetry_environment_variables",
+          "name": "api",
+          "value": "opentelemetry.environment_variables"
+        },
+        {
+          "group": "opentelemetry_meter_provider",
+          "name": "default_meter_provider",
+          "value": "opentelemetry.metrics:NoOpMeterProvider"
+        },
+        {
+          "group": "opentelemetry_propagator",
+          "name": "baggage",
+          "value": "opentelemetry.baggage.propagation:W3CBaggagePropagator"
+        },
+        {
+          "group": "opentelemetry_propagator",
+          "name": "tracecontext",
+          "value": "opentelemetry.trace.propagation.tracecontext:TraceContextTextMapPropagator"
+        },
+        {
+          "group": "opentelemetry_tracer_provider",
+          "name": "default_tracer_provider",
+          "value": "opentelemetry.trace:NoOpTracerProvider"
+        }
+      ]
+    },
+    {
+      "name": "opentelemetry-exporter-otlp-proto-common",
+      "version": "1.39.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/opentelemetry_exporter_otlp_proto_common-1.39.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "opentelemetry-exporter-otlp-proto-grpc",
+      "version": "1.39.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/opentelemetry_exporter_otlp_proto_grpc-1.39.1.dist-info",
+      "entry_points": [
+        {
+          "group": "opentelemetry_logs_exporter",
+          "name": "otlp_proto_grpc",
+          "value": "opentelemetry.exporter.otlp.proto.grpc._log_exporter:OTLPLogExporter"
+        },
+        {
+          "group": "opentelemetry_metrics_exporter",
+          "name": "otlp_proto_grpc",
+          "value": "opentelemetry.exporter.otlp.proto.grpc.metric_exporter:OTLPMetricExporter"
+        },
+        {
+          "group": "opentelemetry_traces_exporter",
+          "name": "otlp_proto_grpc",
+          "value": "opentelemetry.exporter.otlp.proto.grpc.trace_exporter:OTLPSpanExporter"
+        }
+      ]
+    },
+    {
+      "name": "opentelemetry-exporter-prometheus",
+      "version": "0.60b1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/opentelemetry_exporter_prometheus-0.60b1.dist-info",
+      "entry_points": [
+        {
+          "group": "opentelemetry_metrics_exporter",
+          "name": "prometheus",
+          "value": "opentelemetry.exporter.prometheus:_AutoPrometheusMetricReader"
+        }
+      ]
+    },
+    {
+      "name": "opentelemetry-proto",
+      "version": "1.39.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/opentelemetry_proto-1.39.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "opentelemetry-sdk",
+      "version": "1.39.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/opentelemetry_sdk-1.39.1.dist-info",
+      "entry_points": [
+        {
+          "group": "opentelemetry_environment_variables",
+          "name": "sdk",
+          "value": "opentelemetry.sdk.environment_variables"
+        },
+        {
+          "group": "opentelemetry_id_generator",
+          "name": "random",
+          "value": "opentelemetry.sdk.trace.id_generator:RandomIdGenerator"
+        },
+        {
+          "group": "opentelemetry_logger_provider",
+          "name": "sdk_logger_provider",
+          "value": "opentelemetry.sdk._logs:LoggerProvider"
+        },
+        {
+          "group": "opentelemetry_logs_exporter",
+          "name": "console",
+          "value": "opentelemetry.sdk._logs.export:ConsoleLogRecordExporter"
+        },
+        {
+          "group": "opentelemetry_meter_provider",
+          "name": "sdk_meter_provider",
+          "value": "opentelemetry.sdk.metrics:MeterProvider"
+        },
+        {
+          "group": "opentelemetry_metrics_exporter",
+          "name": "console",
+          "value": "opentelemetry.sdk.metrics.export:ConsoleMetricExporter"
+        },
+        {
+          "group": "opentelemetry_resource_detector",
+          "name": "host",
+          "value": "opentelemetry.sdk.resources:_HostResourceDetector"
+        },
+        {
+          "group": "opentelemetry_resource_detector",
+          "name": "os",
+          "value": "opentelemetry.sdk.resources:OsResourceDetector"
+        },
+        {
+          "group": "opentelemetry_resource_detector",
+          "name": "otel",
+          "value": "opentelemetry.sdk.resources:OTELResourceDetector"
+        },
+        {
+          "group": "opentelemetry_resource_detector",
+          "name": "process",
+          "value": "opentelemetry.sdk.resources:ProcessResourceDetector"
+        },
+        {
+          "group": "opentelemetry_tracer_provider",
+          "name": "sdk_tracer_provider",
+          "value": "opentelemetry.sdk.trace:TracerProvider"
+        },
+        {
+          "group": "opentelemetry_traces_exporter",
+          "name": "console",
+          "value": "opentelemetry.sdk.trace.export:ConsoleSpanExporter"
+        },
+        {
+          "group": "opentelemetry_traces_sampler",
+          "name": "always_off",
+          "value": "opentelemetry.sdk.trace.sampling:_AlwaysOff"
+        },
+        {
+          "group": "opentelemetry_traces_sampler",
+          "name": "always_on",
+          "value": "opentelemetry.sdk.trace.sampling:_AlwaysOn"
+        },
+        {
+          "group": "opentelemetry_traces_sampler",
+          "name": "parentbased_always_off",
+          "value": "opentelemetry.sdk.trace.sampling:_ParentBasedAlwaysOff"
+        },
+        {
+          "group": "opentelemetry_traces_sampler",
+          "name": "parentbased_always_on",
+          "value": "opentelemetry.sdk.trace.sampling:_ParentBasedAlwaysOn"
+        },
+        {
+          "group": "opentelemetry_traces_sampler",
+          "name": "parentbased_traceidratio",
+          "value": "opentelemetry.sdk.trace.sampling:ParentBasedTraceIdRatio"
+        },
+        {
+          "group": "opentelemetry_traces_sampler",
+          "name": "traceidratio",
+          "value": "opentelemetry.sdk.trace.sampling:TraceIdRatioBased"
+        }
+      ]
+    },
+    {
+      "name": "opentelemetry-semantic-conventions",
+      "version": "0.60b1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/opentelemetry_semantic_conventions-0.60b1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "opt_einsum",
+      "version": "3.4.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/opt_einsum-3.4.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "optax",
+      "version": "0.2.6",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/optax-0.2.6.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "optimistix",
+      "version": "0.0.11",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/optimistix-0.0.11.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "orjson",
+      "version": "3.11.5",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/orjson-3.11.5.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "ormsgpack",
+      "version": "1.12.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/ormsgpack-1.12.1.dist-info",
+      "entry_points": [
+        {
+          "group": "pyinstaller40",
+          "name": "hook-dirs",
+          "value": "ormsgpack._pyinstaller:get_hook_dirs"
+        }
+      ]
+    },
+    {
+      "name": "packaging",
+      "version": "25.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/packaging-25.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "pandas",
+      "version": "2.3.3",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pandas-2.3.3.dist-info",
+      "entry_points": [
+        {
+          "group": "pandas_plotting_backends",
+          "name": "matplotlib",
+          "value": "pandas:plotting._matplotlib"
+        }
+      ]
+    },
+    {
+      "name": "pathspec",
+      "version": "0.12.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pathspec-0.12.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "patsy",
+      "version": "1.0.2",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/patsy-1.0.2.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "pillow",
+      "version": "12.3.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pillow-12.3.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "platformdirs",
+      "version": "4.5.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/platformdirs-4.5.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "pluggy",
+      "version": "1.6.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pluggy-1.6.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "policy-engine",
+      "version": "0.1.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/policy_engine-0.1.0.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "polisy",
+          "value": "polisyos.foundry.plugins.cli:main"
+        },
+        {
+          "group": "console_scripts",
+          "name": "polisyos",
+          "value": "tools.ops_runners.runtime_cli:main"
+        },
+        {
+          "group": "console_scripts",
+          "name": "polisyos-causal-capabilities",
+          "value": "polisyos.foundry.methods.catalog.causal.capabilities:main"
+        },
+        {
+          "group": "console_scripts",
+          "name": "polisyos-foundry",
+          "value": "tools.ops_runners.runtime_cli:foundry_main"
+        },
+        {
+          "group": "console_scripts",
+          "name": "polisyos-tools",
+          "value": "tools.cli:main"
+        },
+        {
+          "group": "console_scripts",
+          "name": "ukraine-data",
+          "value": "polisyos.data_forge.domains.ukraine.cli:main"
+        },
+        {
+          "group": "polisyos.fabric_connectors",
+          "name": "ckan.catalog",
+          "value": "polisyos.fabric.connectors.components:ckan_catalog_connector_component"
+        },
+        {
+          "group": "polisyos.fabric_connectors",
+          "name": "ckan.resource",
+          "value": "polisyos.fabric.connectors.components:ckan_resource_connector_component"
+        },
+        {
+          "group": "polisyos.fabric_connectors",
+          "name": "eurostat.data",
+          "value": "polisyos.fabric.connectors.components:eurostat_connector_component"
+        },
+        {
+          "group": "polisyos.fabric_connectors",
+          "name": "opendatasoft.ods",
+          "value": "polisyos.fabric.connectors.components:opendatasoft_connector_component"
+        },
+        {
+          "group": "polisyos.fabric_connectors",
+          "name": "rest.json",
+          "value": "polisyos.fabric.connectors.components:rest_json_connector_component"
+        },
+        {
+          "group": "polisyos.fabric_connectors",
+          "name": "sdmx.source",
+          "value": "polisyos.fabric.connectors.components:sdmx_connector_component"
+        },
+        {
+          "group": "polisyos.fabric_connectors",
+          "name": "socrata.soda",
+          "value": "polisyos.fabric.connectors.components:socrata_connector_component"
+        },
+        {
+          "group": "polisyos.fabric_connectors",
+          "name": "sparql.endpoint",
+          "value": "polisyos.fabric.connectors.components:sparql_connector_component"
+        },
+        {
+          "group": "polisyos.fabric_connectors",
+          "name": "ukons.datasets",
+          "value": "polisyos.fabric.connectors.components:ukons_connector_component"
+        },
+        {
+          "group": "polisyos.fabric_connectors",
+          "name": "worldbank.wdi",
+          "value": "polisyos.fabric.connectors.components:world_bank_connector_component"
+        },
+        {
+          "group": "polisyos.fabric_connectors",
+          "name": "wvs.wave7",
+          "value": "polisyos.fabric.connectors.components:wvs_connector_component"
+        },
+        {
+          "group": "polisyos.foundry_methods",
+          "name": "polisyos.foundry.builtin_catalog",
+          "value": "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "budget",
+          "value": "polisyos.scientist.governance.pass_entrypoints:budget_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "causal_frontier_leakage",
+          "value": "polisyos.scientist.governance.pass_entrypoints:causal_frontier_leakage_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "checkpoint",
+          "value": "polisyos.scientist.governance.pass_entrypoints:checkpoint_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "confidence",
+          "value": "polisyos.scientist.governance.pass_entrypoints:confidence_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "cross_graph_evidence",
+          "value": "polisyos.scientist.governance.pass_entrypoints:cross_graph_evidence_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "equity",
+          "value": "polisyos.scientist.governance.pass_entrypoints:equity_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "fabric_trust",
+          "value": "polisyos.scientist.governance.pass_entrypoints:fabric_trust_gate_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "freshness",
+          "value": "polisyos.scientist.governance.pass_entrypoints:freshness_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "human_review_required",
+          "value": "polisyos.scientist.governance.pass_entrypoints:human_review_required_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "incentive_compatibility",
+          "value": "polisyos.scientist.governance.pass_entrypoints:incentive_compatibility_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "legal",
+          "value": "polisyos.scientist.governance.pass_entrypoints:legal_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "literature_gate",
+          "value": "polisyos.scientist.governance.pass_entrypoints:literature_gate_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "normative_arbitration",
+          "value": "polisyos.scientist.governance.pass_entrypoints:normative_arbitration_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "pii_check",
+          "value": "polisyos.scientist.governance.pass_entrypoints:pii_check_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "privacy",
+          "value": "polisyos.scientist.governance.pass_entrypoints:privacy_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "quality",
+          "value": "polisyos.scientist.governance.pass_entrypoints:quality_gate_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "refutation",
+          "value": "polisyos.scientist.governance.pass_entrypoints:refutation_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "safety",
+          "value": "polisyos.scientist.governance.pass_entrypoints:safety_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "schema",
+          "value": "polisyos.scientist.governance.pass_entrypoints:schema_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "strategic_response",
+          "value": "polisyos.scientist.governance.pass_entrypoints:strategic_response_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "sutva_check",
+          "value": "polisyos.scientist.governance.pass_entrypoints:sutva_check_pass_factory"
+        },
+        {
+          "group": "polisyos.scientist_governance_passes",
+          "name": "transportability_required",
+          "value": "polisyos.scientist.governance.pass_entrypoints:transportability_required_pass_factory"
+        }
+      ],
+      "metadata_files": [
+        {
+          "relative_path": "INSTALLER",
+          "bytes": 2,
+          "sha256": "e6184ce10e266134fdcfa401e8f1a95005bcd4f18d16b62b757323e2833fe9a9"
+        },
+        {
+          "relative_path": "METADATA",
+          "bytes": 16142,
+          "sha256": "9c60525985478039e536eb224db24baf07b777496ede5b8bcfe260ea87346ae3"
+        },
+        {
+          "relative_path": "RECORD",
+          "bytes": 1645,
+          "sha256": "bb0c0cafae13d8bc87d18869df088584d7b9583d3e10161b937d7b0cfdffc54a"
+        },
+        {
+          "relative_path": "REQUESTED",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "relative_path": "WHEEL",
+          "bytes": 87,
+          "sha256": "5b77e4a649bbfb07fdbc123967eeecd1e5a478cfaca6eefc23c35e6fdf037848"
+        },
+        {
+          "relative_path": "direct_url.json",
+          "bytes": 89,
+          "sha256": "584f6b3be3607e7b795299e26d9654b072dea796348f3f413ff260c57a8148b1"
+        },
+        {
+          "relative_path": "entry_points.txt",
+          "bytes": 3447,
+          "sha256": "610a7cc1b8a6cc73fdb45edc2b79ffa96af538735411fbcf7952c3656ffda835"
+        },
+        {
+          "relative_path": "licenses/LICENSE",
+          "bytes": 7909,
+          "sha256": "c27179a1aec698f3f8cc3236fe3dc39378440271bdbfef4af9c2a637d7ccba53"
+        },
+        {
+          "relative_path": "uv_build.json",
+          "bytes": 2,
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+        },
+        {
+          "relative_path": "uv_cache.json",
+          "bytes": 194,
+          "sha256": "5e8caaa237d7b1ec7fede59c49b14fb3745a955915f9b7e393b19d00ef4e6530"
+        }
+      ],
+      "declared_requires": [
+        "aiohttp>=3.9.0",
+        "chex>=0.1.91",
+        "click>=8.1.7",
+        "cryptography>=42.0.0",
+        "diffrax>=0.5.0",
+        "duckdb>=0.9.2",
+        "equinox>=0.11.0",
+        "jax>=0.4.20",
+        "jaxlib>=0.4.20",
+        "jaxtyping>=0.2.25",
+        "langchain>=0.1.0",
+        "langgraph>=0.0.10",
+        "loguru>=0.7.2",
+        "odfpy>=1.4.1",
+        "openai",
+        "openpyxl>=3.1.0",
+        "opentelemetry-api>=1.20.0",
+        "opentelemetry-exporter-otlp-proto-grpc>=1.20.0",
+        "opentelemetry-exporter-prometheus>=0.41b0",
+        "opentelemetry-sdk>=1.20.0",
+        "opt-einsum>=3.4.0",
+        "optax>=0.1.9",
+        "orjson>=3.10.0",
+        "packaging>=23.0",
+        "pandas>=2.1.0",
+        "pyarrow>=14.0.0",
+        "pydantic-settings>=2.0.0",
+        "pydantic>=2.12.0",
+        "pymoo>=0.6.0",
+        "pypdf>=5.5.0",
+        "python-dotenv>=1.0.0",
+        "tiktoken",
+        "xlrd>=2.0.1",
+        "zstandard>=0.23.0",
+        "pypdf>=5.5.0; extra == 'academic-skg'",
+        "faiss-cpu<2.0,>=1.7.4; extra == 'agent-quality'",
+        "restrictedpython<8.0,>=7.0; extra == 'agent-quality'",
+        "plotly>=6.5.0; extra == 'agent-sim'",
+        "streamlit>=1.52.2; extra == 'agent-sim'",
+        "arch>=8.0.0; extra == 'all'",
+        "arviz>=1.0.0; extra == 'all'",
+        "beartype>=0.18.0; extra == 'all'",
+        "boto3>=1.34.0; extra == 'all'",
+        "causal-learn>=0.1.3.8; extra == 'all'",
+        "cvxpy<1.5; (python_version < '3.13') and extra == 'all'",
+        "cvxpy>=1.8.1; extra == 'all'",
+        "dagma>=1.1.1; extra == 'all'",
+        "dowhy<0.14,>=0.13; (python_version < '3.13') and extra == 'all'",
+        "econml>=0.16; (python_version < '3.14') and extra == 'all'",
+        "faiss-cpu<2.0,>=1.7.4; extra == 'all'",
+        "fastapi>=0.109.0; extra == 'all'",
+        "hnswlib==0.8.0; extra == 'all'",
+        "httpx>=0.27.0; extra == 'all'",
+        "lifelines>=0.30.0; extra == 'all'",
+        "lightgbm>=4.0; extra == 'all'",
+        "linearmodels>=5.0; extra == 'all'",
+        "mapie>=1.0.0; extra == 'all'",
+        "numpyro>=0.20.0; extra == 'all'",
+        "ortools>=9.8; extra == 'all'",
+        "pandas>=2.0.0; extra == 'all'",
+        "presidio-analyzer>=2.2.0; extra == 'all'",
+        "presidio-anonymizer>=2.2.0; extra == 'all'",
+        "prometheus-client>=0.17.0; extra == 'all'",
+        "pulp>=2.8; extra == 'all'",
+        "pyjwt>=2.8.0; extra == 'all'",
+        "pypdf>=5.5.0; extra == 'all'",
+        "ruptures>=1.1.10; extra == 'all'",
+        "salib<2.0,>=1.5; extra == 'all'",
+        "scikit-learn>=1.6.0; extra == 'all'",
+        "scipy>=1.11.0; extra == 'all'",
+        "sigstore>=3.0.0; extra == 'all'",
+        "spacy>=3.7.0; extra == 'all'",
+        "statsmodels>=0.14.0; extra == 'all'",
+        "structlog>=24.0.0; extra == 'all'",
+        "tigramite>=5.2; extra == 'all'",
+        "uvicorn[standard]>=0.27.0; extra == 'all'",
+        "watchfiles>=0.21.0; extra == 'all'",
+        "y0<0.3,>=0.2; extra == 'all'",
+        "zepid>=0.9; extra == 'all'",
+        "arch>=8.0.0; extra == 'analytics'",
+        "linearmodels>=5.0; extra == 'analytics'",
+        "pandas>=2.0.0; extra == 'analytics'",
+        "ruptures>=1.1.10; extra == 'analytics'",
+        "scipy>=1.11.0; extra == 'analytics'",
+        "statsmodels>=0.14.0; extra == 'analytics'",
+        "jax-metal>=0.1.1; (sys_platform == 'darwin') and extra == 'apple-metal'",
+        "arviz>=1.0.0; extra == 'bayesian'",
+        "numpyro>=0.20.0; extra == 'bayesian'",
+        "cvxpy<1.5; (python_version < '3.13') and extra == 'causal'",
+        "dowhy<0.14,>=0.13; (python_version < '3.13') and extra == 'causal'",
+        "econml>=0.16; (python_version < '3.14') and extra == 'causal'",
+        "stochtree>=0.1.0; extra == 'causal-bcf'",
+        "econml>=0.16; (python_version < '3.14') and extra == 'causal-core'",
+        "causal-learn>=0.1.3.8; extra == 'causal-discovery'",
+        "tigramite>=5.2; extra == 'causal-discovery'",
+        "dagma>=1.1.1; extra == 'causal-discovery-scale'",
+        "cvxpy<1.5; (python_version < '3.13') and extra == 'causal-dowhy'",
+        "dowhy<0.14,>=0.13; (python_version < '3.13') and extra == 'causal-dowhy'",
+        "cvxpy<1.5; (python_version < '3.13') and extra == 'causal-full'",
+        "dowhy<0.14,>=0.13; (python_version < '3.13') and extra == 'causal-full'",
+        "econml>=0.16; (python_version < '3.14') and extra == 'causal-full'",
+        "lightgbm>=4.0; extra == 'causal-full'",
+        "y0<0.3,>=0.2; extra == 'causal-full'",
+        "zepid>=0.9; extra == 'causal-full'",
+        "lightgbm>=4.0; extra == 'causal-nuisance'",
+        "zepid>=0.9; extra == 'causal-nuisance'",
+        "y0<0.3,>=0.2; extra == 'causal-symbolic'",
+        "rpy2<4.0,>=3.5; extra == 'causal-symbolic-r'",
+        "y0<0.3,>=0.2; extra == 'causal-symbolic-y0'",
+        "basedpyright>=1.34.0; extra == 'dev'",
+        "jupyterlab>=4.0.0; extra == 'dev'",
+        "matplotlib>=3.8.0; extra == 'dev'",
+        "mkdocs-material>=9.6.0; extra == 'dev'",
+        "mkdocs>=1.6.0; extra == 'dev'",
+        "mkdocstrings[python]>=0.30.0; extra == 'dev'",
+        "mutmut>=2.0; extra == 'dev'",
+        "mypy>=1.19.1; extra == 'dev'",
+        "pre-commit>=4.5.1; extra == 'dev'",
+        "ruff>=0.14.10; extra == 'dev'",
+        "seaborn>=0.13.0; extra == 'dev'",
+        "structlog>=24.0.0; extra == 'dev'",
+        "types-requests>=2.32.4.20250913; extra == 'dev'",
+        "mkdocs-material>=9.6.0; extra == 'docs'",
+        "mkdocs>=1.6.0; extra == 'docs'",
+        "mkdocstrings[python]>=0.30.0; extra == 'docs'",
+        "watchfiles>=0.21.0; extra == 'hotreload'",
+        "kuzu>=0.1.0; extra == 'kuzu'",
+        "basedpyright>=1.34.0; extra == 'lint'",
+        "mypy>=1.19.1; extra == 'lint'",
+        "pre-commit>=4.5.1; extra == 'lint'",
+        "ruff>=0.14.10; extra == 'lint'",
+        "types-requests>=2.32.4.20250913; extra == 'lint'",
+        "arch>=8.0.0; extra == 'methods-full'",
+        "arviz>=1.0.0; extra == 'methods-full'",
+        "cvxpy>=1.8.1; extra == 'methods-full'",
+        "econml>=0.16; (python_version < '3.14') and extra == 'methods-full'",
+        "lifelines>=0.30.0; extra == 'methods-full'",
+        "linearmodels>=5.0; extra == 'methods-full'",
+        "mapie>=1.0.0; extra == 'methods-full'",
+        "numpyro>=0.20.0; extra == 'methods-full'",
+        "ortools>=9.8; extra == 'methods-full'",
+        "pandas>=2.0.0; extra == 'methods-full'",
+        "pulp>=2.8; extra == 'methods-full'",
+        "ruptures>=1.1.10; extra == 'methods-full'",
+        "scikit-learn>=1.6.0; extra == 'methods-full'",
+        "scipy>=1.11.0; extra == 'methods-full'",
+        "statsmodels>=0.14.0; extra == 'methods-full'",
+        "arch>=8.0.0; extra == 'methods-milestone2'",
+        "cvxpy>=1.8.1; extra == 'methods-milestone2'",
+        "lifelines>=0.30.0; extra == 'methods-milestone2'",
+        "linearmodels>=5.0; extra == 'methods-milestone2'",
+        "mapie>=1.0.0; extra == 'methods-milestone2'",
+        "ortools>=9.8; extra == 'methods-milestone2'",
+        "pandas>=2.0.0; extra == 'methods-milestone2'",
+        "pulp>=2.8; extra == 'methods-milestone2'",
+        "ruptures>=1.1.10; extra == 'methods-milestone2'",
+        "scikit-learn>=1.6.0; extra == 'methods-milestone2'",
+        "scipy>=1.11.0; extra == 'methods-milestone2'",
+        "statsmodels>=0.14.0; extra == 'methods-milestone2'",
+        "arch>=8.0.0; extra == 'methods-milestone3'",
+        "cvxpy>=1.8.1; extra == 'methods-milestone3'",
+        "lifelines>=0.30.0; extra == 'methods-milestone3'",
+        "linearmodels>=5.0; extra == 'methods-milestone3'",
+        "mapie>=1.0.0; extra == 'methods-milestone3'",
+        "ortools>=9.8; extra == 'methods-milestone3'",
+        "pandas>=2.0.0; extra == 'methods-milestone3'",
+        "pulp>=2.8; extra == 'methods-milestone3'",
+        "ruptures>=1.1.10; extra == 'methods-milestone3'",
+        "scikit-learn>=1.6.0; extra == 'methods-milestone3'",
+        "scipy>=1.11.0; extra == 'methods-milestone3'",
+        "statsmodels>=0.14.0; extra == 'methods-milestone3'",
+        "arch>=8.0.0; extra == 'methods-milestone4'",
+        "arviz>=1.0.0; extra == 'methods-milestone4'",
+        "cvxpy>=1.8.1; extra == 'methods-milestone4'",
+        "lifelines>=0.30.0; extra == 'methods-milestone4'",
+        "linearmodels>=5.0; extra == 'methods-milestone4'",
+        "mapie>=1.0.0; extra == 'methods-milestone4'",
+        "numpyro>=0.20.0; extra == 'methods-milestone4'",
+        "ortools>=9.8; extra == 'methods-milestone4'",
+        "pandas>=2.0.0; extra == 'methods-milestone4'",
+        "pulp>=2.8; extra == 'methods-milestone4'",
+        "ruptures>=1.1.10; extra == 'methods-milestone4'",
+        "scikit-learn>=1.6.0; extra == 'methods-milestone4'",
+        "scipy>=1.11.0; extra == 'methods-milestone4'",
+        "statsmodels>=0.14.0; extra == 'methods-milestone4'",
+        "lifelines>=0.30.0; extra == 'ml'",
+        "mapie>=1.0.0; extra == 'ml'",
+        "scikit-learn>=1.6.0; extra == 'ml'",
+        "asyncpg>=0.29.0; extra == 'multi-tenant'",
+        "fastapi>=0.109.0; extra == 'multi-tenant'",
+        "httpx>=0.27.0; extra == 'multi-tenant'",
+        "psycopg[binary]>=3.1.0; extra == 'multi-tenant'",
+        "pyjwt>=2.8.0; extra == 'multi-tenant'",
+        "uvicorn[standard]>=0.27.0; extra == 'multi-tenant'",
+        "mutmut>=2.0; extra == 'mutation'",
+        "jupyterlab>=4.0.0; extra == 'notebooks'",
+        "matplotlib>=3.8.0; extra == 'notebooks'",
+        "seaborn>=0.13.0; extra == 'notebooks'",
+        "prometheus-client>=0.17.0; extra == 'observability'",
+        "cvxpy>=1.8.1; extra == 'optimization-advanced'",
+        "faiss-cpu<2.0,>=1.7.4; extra == 'rag'",
+        "onnxruntime<2.0,>=1.18.0; extra == 'rag-local'",
+        "sentence-transformers<3.0,>=2.2.0; extra == 'rag-local'",
+        "arch>=8.0.0; extra == 'research'",
+        "arviz>=1.0.0; extra == 'research'",
+        "causal-learn>=0.1.3.8; extra == 'research'",
+        "cvxpy<1.5; (python_version < '3.13') and extra == 'research'",
+        "cvxpy>=1.8.1; extra == 'research'",
+        "dagma>=1.1.1; extra == 'research'",
+        "dowhy<0.14,>=0.13; (python_version < '3.13') and extra == 'research'",
+        "econml>=0.16; (python_version < '3.14') and extra == 'research'",
+        "hnswlib==0.8.0; extra == 'research'",
+        "lifelines>=0.30.0; extra == 'research'",
+        "lightgbm>=4.0; extra == 'research'",
+        "linearmodels>=5.0; extra == 'research'",
+        "mapie>=1.0.0; extra == 'research'",
+        "numpyro>=0.20.0; extra == 'research'",
+        "ortools>=9.8; extra == 'research'",
+        "pandas>=2.0.0; extra == 'research'",
+        "pulp>=2.8; extra == 'research'",
+        "pypdf>=5.5.0; extra == 'research'",
+        "ruptures>=1.1.10; extra == 'research'",
+        "salib<2.0,>=1.5; extra == 'research'",
+        "scikit-learn>=1.6.0; extra == 'research'",
+        "scipy>=1.11.0; extra == 'research'",
+        "statsmodels>=0.14.0; extra == 'research'",
+        "tigramite>=5.2; extra == 'research'",
+        "y0<0.3,>=0.2; extra == 'research'",
+        "zepid>=0.9; extra == 'research'",
+        "fastapi>=0.109.0; extra == 'runtime'",
+        "httpx>=0.27.0; extra == 'runtime'",
+        "prometheus-client>=0.17.0; extra == 'runtime'",
+        "pyjwt>=2.8.0; extra == 'runtime'",
+        "structlog>=24.0.0; extra == 'runtime'",
+        "uvicorn[standard]>=0.27.0; extra == 'runtime'",
+        "fastapi>=0.109.0; extra == 'runtime-http'",
+        "httpx>=0.27.0; extra == 'runtime-http'",
+        "pyjwt>=2.8.0; extra == 'runtime-http'",
+        "uvicorn[standard]>=0.27.0; extra == 'runtime-http'",
+        "restrictedpython<8.0,>=7.0; extra == 'sandbox'",
+        "botorch>=0.9.0; extra == 'search-bo'",
+        "gpytorch>=1.11; extra == 'search-bo'",
+        "linear-operator>=0.5.0; extra == 'search-bo'",
+        "scipy>=1.10.0; extra == 'search-bo'",
+        "torch>=2.0.0; extra == 'search-bo'",
+        "botorch>=0.9.0; extra == 'search-mo'",
+        "gpytorch>=1.11; extra == 'search-mo'",
+        "linear-operator>=0.5.0; extra == 'search-mo'",
+        "scipy>=1.10.0; extra == 'search-mo'",
+        "torch>=2.0.0; extra == 'search-mo'",
+        "boto3>=1.34.0; extra == 'security'",
+        "httpx>=0.27.0; extra == 'security'",
+        "presidio-analyzer>=2.2.0; extra == 'security'",
+        "presidio-anonymizer>=2.2.0; extra == 'security'",
+        "sigstore>=3.0.0; extra == 'security'",
+        "spacy>=3.7.0; extra == 'security'",
+        "salib<2.0,>=1.5; extra == 'sensitivity'",
+        "scipy>=1.11.0; extra == 'sensitivity'",
+        "beartype>=0.18.0; extra == 'shapesafe'",
+        "ortools>=9.8; extra == 'solvers'",
+        "pulp>=2.8; extra == 'solvers'",
+        "structlog>=24.0.0; extra == 'structured-logging'",
+        "marker-pdf>=0.3.0; extra == 'table-extraction'",
+        "fastapi>=0.109.0; extra == 'test'",
+        "httpx>=0.27.0; extra == 'test'",
+        "hypothesis>=6.0.0; extra == 'test'",
+        "jsonschema[format-nongpl]>=4.25.1; extra == 'test'",
+        "pyjwt>=2.8.0; extra == 'test'",
+        "pytest-asyncio>=0.23.0; extra == 'test'",
+        "pytest-benchmark>=4.0.0; extra == 'test'",
+        "pytest-xdist>=3.6.1; extra == 'test'",
+        "pytest>=7.4.0; extra == 'test'",
+        "rdflib>=7.0.0; extra == 'test'",
+        "uvicorn[standard]>=0.27.0; extra == 'test'",
+        "hnswlib==0.8.0; extra == 'vector-search'"
+      ]
+    },
+    {
+      "name": "pre_commit",
+      "version": "4.5.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pre_commit-4.5.1.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "pre-commit",
+          "value": "pre_commit.main:main"
+        }
+      ]
+    },
+    {
+      "name": "prometheus_client",
+      "version": "0.23.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/prometheus_client-0.23.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "propcache",
+      "version": "0.4.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/propcache-0.4.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "protobuf",
+      "version": "6.33.2",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/protobuf-6.33.2.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "py-cpuinfo",
+      "version": "9.0.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/py_cpuinfo-9.0.0.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "cpuinfo",
+          "value": "cpuinfo:main"
+        }
+      ]
+    },
+    {
+      "name": "pyarrow",
+      "version": "22.0.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pyarrow-22.0.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "pycparser",
+      "version": "2.23",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pycparser-2.23.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "pydantic",
+      "version": "2.12.5",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic-2.12.5.dist-info",
+      "entry_points": [],
+      "metadata_files": [
+        {
+          "relative_path": "INSTALLER",
+          "bytes": 2,
+          "sha256": "e6184ce10e266134fdcfa401e8f1a95005bcd4f18d16b62b757323e2833fe9a9"
+        },
+        {
+          "relative_path": "METADATA",
+          "bytes": 90587,
+          "sha256": "a3ba23e895191fed69b8323cbcbcdc82984ca0b6a3cdc62c48a2341886a9c08d"
+        },
+        {
+          "relative_path": "RECORD",
+          "bytes": 9516,
+          "sha256": "2ab80676388a6e636b16d377f7754d674e3418ce28dca0416ab80c34fa7d7ace"
+        },
+        {
+          "relative_path": "REQUESTED",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "relative_path": "WHEEL",
+          "bytes": 87,
+          "sha256": "aad0b0a12256807936d52d4a6f88a1773236ae527564a688bab4e3fe780e8724"
+        },
+        {
+          "relative_path": "licenses/LICENSE",
+          "bytes": 1129,
+          "sha256": "a9e186f3ca16b5eef84318e7a701721351a00cb7b8ae3a4394b67b49e3529ef3"
+        }
+      ],
+      "declared_requires": [
+        "annotated-types>=0.6.0",
+        "pydantic-core==2.41.5",
+        "typing-extensions>=4.14.1",
+        "typing-inspection>=0.4.2",
+        "email-validator>=2.0.0; extra == 'email'",
+        "tzdata; (python_version >= '3.9' and platform_system == 'Windows') and extra == 'timezone'"
+      ]
+    },
+    {
+      "name": "pydantic-settings",
+      "version": "2.12.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic_settings-2.12.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "pydantic_core",
+      "version": "2.41.5",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic_core-2.41.5.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "Pygments",
+      "version": "2.19.2",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pygments-2.19.2.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "pygmentize",
+          "value": "pygments.cmdline:main"
+        }
+      ]
+    },
+    {
+      "name": "pyhdfe",
+      "version": "0.2.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pyhdfe-0.2.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "PyJWT",
+      "version": "2.11.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pyjwt-2.11.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "pymoo",
+      "version": "0.6.1.6",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pymoo-0.6.1.6.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "pyparsing",
+      "version": "3.3.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pyparsing-3.3.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "pypdf",
+      "version": "6.7.4",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pypdf-6.7.4.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "pytest",
+      "version": "9.0.2",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pytest-9.0.2.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "py.test",
+          "value": "pytest:console_main"
+        },
+        {
+          "group": "console_scripts",
+          "name": "pytest",
+          "value": "pytest:console_main"
+        }
+      ],
+      "metadata_files": [
+        {
+          "relative_path": "INSTALLER",
+          "bytes": 2,
+          "sha256": "e6184ce10e266134fdcfa401e8f1a95005bcd4f18d16b62b757323e2833fe9a9"
+        },
+        {
+          "relative_path": "METADATA",
+          "bytes": 7558,
+          "sha256": "14131718cc1f40cfecb5eac338037029a519b6392876100afec1e949f023d1ed"
+        },
+        {
+          "relative_path": "RECORD",
+          "bytes": 6760,
+          "sha256": "51518a05f9da1a8a1914d1f9aa343c548eca5a801dbc14ccede2b12173fc910a"
+        },
+        {
+          "relative_path": "REQUESTED",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "relative_path": "WHEEL",
+          "bytes": 91,
+          "sha256": "ff309ddcdd65ebd02bc724dbf2bcc4a0ff53a5b61792a44548d383e4ebb19d3b"
+        },
+        {
+          "relative_path": "entry_points.txt",
+          "bytes": 77,
+          "sha256": "f083eb1cf1f72cd650eefe6d34439c35365893f4a178d83ae23b1333d7aba8be"
+        },
+        {
+          "relative_path": "licenses/LICENSE",
+          "bytes": 1091,
+          "sha256": "ca836a5f9ecca3b2f350230faa20a48fb8b145653b5568d784862df864706b9b"
+        },
+        {
+          "relative_path": "top_level.txt",
+          "bytes": 18,
+          "sha256": "cb2863be65c7efe24e6a84087663501cfba8042c4ec974b78c8b61b3fe82f00e"
+        }
+      ],
+      "declared_requires": [
+        "colorama>=0.4; sys_platform == \"win32\"",
+        "exceptiongroup>=1; python_version < \"3.11\"",
+        "iniconfig>=1.0.1",
+        "packaging>=22",
+        "pluggy<2,>=1.5",
+        "pygments>=2.7.2",
+        "tomli>=1; python_version < \"3.11\"",
+        "argcomplete; extra == \"dev\"",
+        "attrs>=19.2; extra == \"dev\"",
+        "hypothesis>=3.56; extra == \"dev\"",
+        "mock; extra == \"dev\"",
+        "requests; extra == \"dev\"",
+        "setuptools; extra == \"dev\"",
+        "xmlschema; extra == \"dev\""
+      ]
+    },
+    {
+      "name": "pytest-asyncio",
+      "version": "1.3.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pytest_asyncio-1.3.0.dist-info",
+      "entry_points": [
+        {
+          "group": "pytest11",
+          "name": "asyncio",
+          "value": "pytest_asyncio.plugin"
+        }
+      ]
+    },
+    {
+      "name": "pytest-benchmark",
+      "version": "5.2.3",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pytest_benchmark-5.2.3.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "py.test-benchmark",
+          "value": "pytest_benchmark.cli:main"
+        },
+        {
+          "group": "console_scripts",
+          "name": "pytest-benchmark",
+          "value": "pytest_benchmark.cli:main"
+        },
+        {
+          "group": "pytest11",
+          "name": "benchmark",
+          "value": "pytest_benchmark.plugin"
+        }
+      ]
+    },
+    {
+      "name": "pytest-xdist",
+      "version": "3.8.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pytest_xdist-3.8.0.dist-info",
+      "entry_points": [
+        {
+          "group": "pytest11",
+          "name": "xdist",
+          "value": "xdist.plugin"
+        },
+        {
+          "group": "pytest11",
+          "name": "xdist.looponfail",
+          "value": "xdist.looponfail"
+        }
+      ]
+    },
+    {
+      "name": "python-dateutil",
+      "version": "2.9.0.post0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/python_dateutil-2.9.0.post0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "python-dotenv",
+      "version": "1.2.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/python_dotenv-1.2.1.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "dotenv",
+          "value": "dotenv.__main__:cli"
+        }
+      ]
+    },
+    {
+      "name": "pytz",
+      "version": "2025.2",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pytz-2025.2.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "PyYAML",
+      "version": "6.0.3",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pyyaml-6.0.3.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "rdflib",
+      "version": "7.6.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/rdflib-7.6.0.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "csv2rdf",
+          "value": "rdflib.tools.csv2rdf:main"
+        },
+        {
+          "group": "console_scripts",
+          "name": "rdf2dot",
+          "value": "rdflib.tools.rdf2dot:main"
+        },
+        {
+          "group": "console_scripts",
+          "name": "rdfgraphisomorphism",
+          "value": "rdflib.tools.graphisomorphism:main"
+        },
+        {
+          "group": "console_scripts",
+          "name": "rdfpipe",
+          "value": "rdflib.tools.rdfpipe:main"
+        },
+        {
+          "group": "console_scripts",
+          "name": "rdfs2dot",
+          "value": "rdflib.tools.rdfs2dot:main"
+        },
+        {
+          "group": "console_scripts",
+          "name": "sparqlquery",
+          "value": "rdflib.tools.sparqlquery:main"
+        }
+      ]
+    },
+    {
+      "name": "referencing",
+      "version": "0.37.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/referencing-0.37.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "regex",
+      "version": "2026.9.3",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/regex-2026.9.3.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "requests",
+      "version": "2.32.5",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/requests-2.32.5.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "requests-toolbelt",
+      "version": "1.0.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/requests_toolbelt-1.0.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "rfc3339-validator",
+      "version": "0.1.4",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/rfc3339_validator-0.1.4.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "rfc3986-validator",
+      "version": "0.1.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/rfc3986_validator-0.1.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "rfc3987-syntax",
+      "version": "1.1.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/rfc3987_syntax-1.1.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "rpds-py",
+      "version": "0.30.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/rpds_py-0.30.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "ruff",
+      "version": "0.14.10",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/ruff-0.14.10.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "ruptures",
+      "version": "1.1.10",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/ruptures-1.1.10.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "SALib",
+      "version": "1.5.2",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/salib-1.5.2.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "salib",
+          "value": "SALib.scripts.salib:main"
+        }
+      ],
+      "metadata_files": [
+        {
+          "relative_path": "INSTALLER",
+          "bytes": 2,
+          "sha256": "e6184ce10e266134fdcfa401e8f1a95005bcd4f18d16b62b757323e2833fe9a9"
+        },
+        {
+          "relative_path": "METADATA",
+          "bytes": 11832,
+          "sha256": "fe5e530e9552269f51db14bcd0f0bd3b7123002d171ef06ec1ecfde3dac11dfc"
+        },
+        {
+          "relative_path": "RECORD",
+          "bytes": 5062,
+          "sha256": "fc8e2572a271fc20f9a6a8112c26787d01c85ebd9d3b7a3baef08de1ffd292c7"
+        },
+        {
+          "relative_path": "REQUESTED",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "relative_path": "WHEEL",
+          "bytes": 87,
+          "sha256": "aad0b0a12256807936d52d4a6f88a1773236ae527564a688bab4e3fe780e8724"
+        },
+        {
+          "relative_path": "entry_points.txt",
+          "bytes": 51,
+          "sha256": "9522c4ec9e5e5662b48ac45ce5d496af491ddf390c8c059024a7b95945a605fe"
+        },
+        {
+          "relative_path": "licenses/AUTHORS.rst",
+          "bytes": 231,
+          "sha256": "20def62f577206c8229525336333670afa56bdc498d77f06395e7c37268748b1"
+        },
+        {
+          "relative_path": "licenses/LICENSE.md",
+          "bytes": 1107,
+          "sha256": "954fea77d90439a34c285a0989b31350c6f9c3e32bd44ad373fbe235995e56d1"
+        }
+      ],
+      "declared_requires": [
+        "matplotlib>=3.5",
+        "multiprocess",
+        "numpy>=2.0",
+        "pandas>=2.0",
+        "scipy>=1.9.3",
+        "hatch; extra == 'dev'",
+        "myst-parser; extra == 'dev'",
+        "numpydoc; extra == 'dev'",
+        "pathos>=0.3.2; extra == 'dev'",
+        "pre-commit; extra == 'dev'",
+        "pydata-sphinx-theme>=0.15.2; extra == 'dev'",
+        "pytest; extra == 'dev'",
+        "pytest-cov; extra == 'dev'",
+        "sphinx; extra == 'dev'",
+        "pathos>=0.3.2; extra == 'distributed'",
+        "myst-parser; extra == 'doc'",
+        "numpydoc; extra == 'doc'",
+        "pydata-sphinx-theme>=0.15.2; extra == 'doc'",
+        "sphinx; extra == 'doc'",
+        "pathos>=0.3.2; extra == 'test'",
+        "pytest; extra == 'test'",
+        "pytest-cov; extra == 'test'"
+      ]
+    },
+    {
+      "name": "scipy",
+      "version": "1.16.3",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/scipy-1.16.3.dist-info",
+      "entry_points": [],
+      "metadata_files": [
+        {
+          "relative_path": "INSTALLER",
+          "bytes": 2,
+          "sha256": "e6184ce10e266134fdcfa401e8f1a95005bcd4f18d16b62b757323e2833fe9a9"
+        },
+        {
+          "relative_path": "LICENSE.txt",
+          "bytes": 46838,
+          "sha256": "4daf14e37432e7026165979ecb7a39930707a3e89bef4876cfaf9dad36ed364a"
+        },
+        {
+          "relative_path": "METADATA",
+          "bytes": 62003,
+          "sha256": "a54602d0aa61fb25ac030b1d7b0faf0c8cfec508290d4d824198d6b43647ec1b"
+        },
+        {
+          "relative_path": "RECORD",
+          "bytes": 135531,
+          "sha256": "1a660626a755ca8fe673e9cff1408db5114e94d4571dbe6e23231660f2cd9bb5"
+        },
+        {
+          "relative_path": "REQUESTED",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "relative_path": "WHEEL",
+          "bytes": 137,
+          "sha256": "dfc3bfad011dc4dec41a71f6e52580539abc7ee646905d9950468f8cc555dd1c"
+        }
+      ],
+      "declared_requires": [
+        "numpy<2.6,>=1.25.2",
+        "pytest>=8.0.0; extra == \"test\"",
+        "pytest-cov; extra == \"test\"",
+        "pytest-timeout; extra == \"test\"",
+        "pytest-xdist; extra == \"test\"",
+        "asv; extra == \"test\"",
+        "mpmath; extra == \"test\"",
+        "gmpy2; extra == \"test\"",
+        "threadpoolctl; extra == \"test\"",
+        "scikit-umfpack; extra == \"test\"",
+        "pooch; extra == \"test\"",
+        "hypothesis>=6.30; extra == \"test\"",
+        "array-api-strict>=2.3.1; extra == \"test\"",
+        "Cython; extra == \"test\"",
+        "meson; extra == \"test\"",
+        "ninja; sys_platform != \"emscripten\" and extra == \"test\"",
+        "sphinx<8.2.0,>=5.0.0; extra == \"doc\"",
+        "intersphinx_registry; extra == \"doc\"",
+        "pydata-sphinx-theme>=0.15.2; extra == \"doc\"",
+        "sphinx-copybutton; extra == \"doc\"",
+        "sphinx-design>=0.4.0; extra == \"doc\"",
+        "matplotlib>=3.5; extra == \"doc\"",
+        "numpydoc; extra == \"doc\"",
+        "jupytext; extra == \"doc\"",
+        "myst-nb>=1.2.0; extra == \"doc\"",
+        "pooch; extra == \"doc\"",
+        "jupyterlite-sphinx>=0.19.1; extra == \"doc\"",
+        "jupyterlite-pyodide-kernel; extra == \"doc\"",
+        "linkify-it-py; extra == \"doc\"",
+        "mypy==1.10.0; extra == \"dev\"",
+        "typing_extensions; extra == \"dev\"",
+        "types-psutil; extra == \"dev\"",
+        "pycodestyle; extra == \"dev\"",
+        "ruff>=0.0.292; extra == \"dev\"",
+        "cython-lint>=0.12.2; extra == \"dev\"",
+        "rich-click; extra == \"dev\"",
+        "doit>=0.36.0; extra == \"dev\"",
+        "pydevtool; extra == \"dev\""
+      ]
+    },
+    {
+      "name": "six",
+      "version": "1.17.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/six-1.17.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "sniffio",
+      "version": "1.3.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/sniffio-1.3.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "sortedcontainers",
+      "version": "2.4.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/sortedcontainers-2.4.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "starlette",
+      "version": "0.52.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/starlette-0.52.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "statsmodels",
+      "version": "0.14.6",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/statsmodels-0.14.6.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "structlog",
+      "version": "25.5.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/structlog-25.5.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "tenacity",
+      "version": "9.1.2",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/tenacity-9.1.2.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "tiktoken",
+      "version": "0.12.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/tiktoken-0.12.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "toolz",
+      "version": "1.1.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/toolz-1.1.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "tqdm",
+      "version": "4.67.3",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/tqdm-4.67.3.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "tqdm",
+          "value": "tqdm.cli:main"
+        }
+      ]
+    },
+    {
+      "name": "types-requests",
+      "version": "2.32.4.20250913",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/types_requests-2.32.4.20250913.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "typing-inspection",
+      "version": "0.4.2",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/typing_inspection-0.4.2.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "typing_extensions",
+      "version": "4.15.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/typing_extensions-4.15.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "tzdata",
+      "version": "2025.3",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/tzdata-2025.3.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "uri-template",
+      "version": "1.3.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/uri_template-1.3.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "urllib3",
+      "version": "2.6.2",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/urllib3-2.6.2.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "uuid_utils",
+      "version": "0.12.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/uuid_utils-0.12.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "uvicorn",
+      "version": "0.40.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/uvicorn-0.40.0.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "uvicorn",
+          "value": "uvicorn.main:main"
+        }
+      ]
+    },
+    {
+      "name": "uvloop",
+      "version": "0.22.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/uvloop-0.22.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "virtualenv",
+      "version": "20.35.4",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/virtualenv-20.35.4.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "virtualenv",
+          "value": "virtualenv.__main__:run_with_catch"
+        },
+        {
+          "group": "virtualenv.activate",
+          "name": "bash",
+          "value": "virtualenv.activation.bash:BashActivator"
+        },
+        {
+          "group": "virtualenv.activate",
+          "name": "batch",
+          "value": "virtualenv.activation.batch:BatchActivator"
+        },
+        {
+          "group": "virtualenv.activate",
+          "name": "cshell",
+          "value": "virtualenv.activation.cshell:CShellActivator"
+        },
+        {
+          "group": "virtualenv.activate",
+          "name": "fish",
+          "value": "virtualenv.activation.fish:FishActivator"
+        },
+        {
+          "group": "virtualenv.activate",
+          "name": "nushell",
+          "value": "virtualenv.activation.nushell:NushellActivator"
+        },
+        {
+          "group": "virtualenv.activate",
+          "name": "powershell",
+          "value": "virtualenv.activation.powershell:PowerShellActivator"
+        },
+        {
+          "group": "virtualenv.activate",
+          "name": "python",
+          "value": "virtualenv.activation.python:PythonActivator"
+        },
+        {
+          "group": "virtualenv.create",
+          "name": "cpython3-mac-brew",
+          "value": "virtualenv.create.via_global_ref.builtin.cpython.mac_os:CPython3macOsBrew"
+        },
+        {
+          "group": "virtualenv.create",
+          "name": "cpython3-mac-framework",
+          "value": "virtualenv.create.via_global_ref.builtin.cpython.mac_os:CPython3macOsFramework"
+        },
+        {
+          "group": "virtualenv.create",
+          "name": "cpython3-posix",
+          "value": "virtualenv.create.via_global_ref.builtin.cpython.cpython3:CPython3Posix"
+        },
+        {
+          "group": "virtualenv.create",
+          "name": "cpython3-win",
+          "value": "virtualenv.create.via_global_ref.builtin.cpython.cpython3:CPython3Windows"
+        },
+        {
+          "group": "virtualenv.create",
+          "name": "graalpy-posix",
+          "value": "virtualenv.create.via_global_ref.builtin.graalpy:GraalPyPosix"
+        },
+        {
+          "group": "virtualenv.create",
+          "name": "graalpy-win",
+          "value": "virtualenv.create.via_global_ref.builtin.graalpy:GraalPyWindows"
+        },
+        {
+          "group": "virtualenv.create",
+          "name": "pypy3-posix",
+          "value": "virtualenv.create.via_global_ref.builtin.pypy.pypy3:PyPy3Posix"
+        },
+        {
+          "group": "virtualenv.create",
+          "name": "pypy3-win",
+          "value": "virtualenv.create.via_global_ref.builtin.pypy.pypy3:Pypy3Windows"
+        },
+        {
+          "group": "virtualenv.create",
+          "name": "venv",
+          "value": "virtualenv.create.via_global_ref.venv:Venv"
+        },
+        {
+          "group": "virtualenv.discovery",
+          "name": "builtin",
+          "value": "virtualenv.discovery.builtin:Builtin"
+        },
+        {
+          "group": "virtualenv.seed",
+          "name": "app-data",
+          "value": "virtualenv.seed.embed.via_app_data.via_app_data:FromAppData"
+        },
+        {
+          "group": "virtualenv.seed",
+          "name": "pip",
+          "value": "virtualenv.seed.embed.pip_invoke:PipInvoke"
+        }
+      ]
+    },
+    {
+      "name": "wadler_lindig",
+      "version": "0.1.7",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/wadler_lindig-0.1.7.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "watchfiles",
+      "version": "1.1.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/watchfiles-1.1.1.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "watchfiles",
+          "value": "watchfiles.cli:cli"
+        }
+      ]
+    },
+    {
+      "name": "webcolors",
+      "version": "25.10.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/webcolors-25.10.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "websockets",
+      "version": "16.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/websockets-16.0.dist-info",
+      "entry_points": [
+        {
+          "group": "console_scripts",
+          "name": "websockets",
+          "value": "websockets.cli:main"
+        }
+      ]
+    },
+    {
+      "name": "wrapt",
+      "version": "2.0.1",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/wrapt-2.0.1.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "xlrd",
+      "version": "2.0.2",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/xlrd-2.0.2.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "xxhash",
+      "version": "3.6.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/xxhash-3.6.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "yarl",
+      "version": "1.22.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/yarl-1.22.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "zipp",
+      "version": "3.23.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/zipp-3.23.0.dist-info",
+      "entry_points": []
+    },
+    {
+      "name": "zstandard",
+      "version": "0.25.0",
+      "metadata_path": "/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/zstandard-0.25.0.dist-info",
+      "entry_points": []
+    }
+  ],
+  "measurement": "Complete importlib.metadata distributions and declared entry points visible to this existing interpreter. Protected dist-info metadata files include RECORD/METADATA/WHEEL hashes. This snapshot does not claim independent hashing of every numerical binary."
+}

@@ -1,0 +1,163 @@
+quality.validation.check-substrate-drift: fail
+strict_xfail=0 non_strict_xfail=0 skips=15 allow_fallback=0 fixture_serious=0 warn_closeout=0 adr_softening=0 non_goals=0 ci_tiers=146 temporary_exceptions=0
+[fail] tests/unit/runtime/quality/test_acquisition_planner.py:2704 hds_permanent_skip: HDS substrate tests must not use skip or broad module skips.
+[fail] tests/unit/runtime/quality/test_acquisition_planner.py:1761 hds_permanent_skip: HDS substrate tests must not use skip or broad module skips.
+[fail] tests/unit/runtime/quality/test_chronology_proof.py:1441 hds_permanent_skip: HDS substrate tests must not use skip or broad module skips.
+[fail] tests/unit/runtime/quality/test_chronology_proof.py:1497 hds_permanent_skip: HDS substrate tests must not use skip or broad module skips.
+[fail] tests/unit/runtime/quality/test_chronology_proof.py:1549 hds_permanent_skip: HDS substrate tests must not use skip or broad module skips.
+[fail] tests/unit/runtime/quality/test_chronology_proof.py:1611 hds_permanent_skip: HDS substrate tests must not use skip or broad module skips.
+[fail] tests/unit/runtime/quality/test_confidence_ledger.py:357 hds_permanent_skip: HDS substrate tests must not use skip or broad module skips.
+[fail] tests/unit/runtime/quality/test_confidence_ledger.py:1935 hds_permanent_skip: HDS substrate tests must not use skip or broad module skips.
+[fail] tests/unit/runtime/quality/test_confidence_ledger.py:1969 hds_permanent_skip: HDS substrate tests must not use skip or broad module skips.
+[fail] tests/unit/runtime/quality/test_confidence_ledger.py:2144 hds_permanent_skip: HDS substrate tests must not use skip or broad module skips.
+[fail] tests/unit/runtime/quality/test_confidence_ledger.py:2200 hds_permanent_skip: HDS substrate tests must not use skip or broad module skips.
+[fail] tests/unit/runtime/quality/test_confidence_ledger.py:2284 hds_permanent_skip: HDS substrate tests must not use skip or broad module skips.
+[fail] tests/unit/runtime/quality/test_generation_cycle.py:176 hds_permanent_skip: HDS substrate tests must not use skip or broad module skips.
+[fail] tests/unit/runtime/quality/test_promotion_sequence.py:155 hds_permanent_skip: HDS substrate tests must not use skip or broad module skips.
+[fail] tests/unit/runtime/quality/test_value_gate.py:4548 hds_permanent_skip: HDS substrate tests must not use skip or broad module skips.
+[fail] tests/unit/runtime/quality/test_legacy_migration_sandbox.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_policy_design_case_pass1b_hardening.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_wave2_walking_skeleton.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer2_graded_outcomes.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer2_s3_substrate_acquisition.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer2_s4_epistemic_regime.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer2_s5_coupling_composition.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer2_s6_blind_spot_firewalls.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer2_s7_delegation.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer2_s9_projection_lowering.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer2_s10_outcome_prediction.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer2_s11_predictive_knowledge.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer2_s12_resource_economics.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer2_s13_post_deploy_accountability.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer2_s14_universality_assurance.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer3_g0_grounding_inventory.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_gy_workspace_loop.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer3_g2_causal_forecast.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer3_g3_analytics_search.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer3_g4_promotion_gate.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer3_g6_bounded_agent.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer3_g7_region_widening.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer3_gl_legal_mandate_search.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer3_gx_data_home.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/test_layer3_status_reducers.py:1 hds_test_tier_path_missing: HDS CI tier registry references a missing test path.
+[fail] tests/unit/runtime/quality/adapter_registry_test_support.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/historical_artifacts.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_acquisition_activation_readback.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_acquisition_epoch_admission.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_acquisition_executor.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_acquisition_movement.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_acquisition_movement_positive.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_acquisition_overlay_visibility.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_acquisition_owner_store_requirement.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_acquisition_route_basis.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_acquisition_route_loop.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_acquisition_source_replay.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_acquisition_world_growth.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_adaptation_transition.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_adapter_registry_capability_discovery.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_adapter_registry_free_growth.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_agent_action_authority_replay.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_capability_discovery.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_chronology_custody.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_chronology_projection_custody.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_chronology_proof.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_chronology_qualification.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_confidence_ledger_packaged.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_confidence_ledger_surface.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_constrained_response.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_credal_reference.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_cycle_substrate.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_depth_n_universality.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_derived_observations.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_design_axes_blind_spot_firewalls.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_design_axes_coupling_composition.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_design_axes_epistemic_regime.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_design_axes_graded_outcomes.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_design_axes_mandate_bounded_delegation.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_design_axes_outcome_prediction.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_design_axes_post_deploy_accountability.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_design_axes_predictive_knowledge.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_design_axes_projection_lowering.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_design_axes_resource_economics.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_design_axes_substrate_acquisition.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_design_axes_universality_assurance.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_design_generation.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_design_problem.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_epoch_custody_audit.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_epoch_deployment.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_epoch_staleness_projection.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_epoch_transition_inputs.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_epoch_transition_origin.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_epoch_transition_verification.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_epoch_transition_verification_properties.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_epoch_validity_cascade.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_evaluation_safety.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_generation_cycle.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_generation_cycle_history.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_generation_cycle_outer_artifact_replay.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_generation_source.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_global_case_index.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_grounding_active_controller.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_grounding_admission.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_grounding_benchmark.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_grounding_bind.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_grounding_calibration.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_grounding_phrasing_defense.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_grounding_relation.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_grounding_risk.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_intervention_atom_binding.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_intervention_substrate.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_joint_simulation_horizon.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_legacy_payload_migration_audit.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_live_acquisition_executor.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_non_data_acquisition.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_obligation_coverage.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_open_world_risk.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_openalex_web_l2_firewall.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_operator_comprehension.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_policy_design_case_integration_skeleton.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_production_grounding_calibration.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_production_invocation.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_promotion_epoch_deployment.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_promotion_evidence_epoch.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_promotion_safety.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_promotion_scope_guards.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_promotion_sequence.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_proving_ground_bounded_request_agent.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_proving_ground_causal_forecast_search.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_proving_ground_conversion.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_proving_ground_governed_promotion_gate.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_proving_ground_health_metric_governance.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_proving_ground_legal_mandate_search.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_proving_ground_pinned_route_demand_home.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_proving_ground_pre_adapter_grounding_inventory.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_proving_ground_proof_carrying_analytics_search.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_proving_ground_region_widening.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_proving_ground_status_decision_reducers.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_proving_ground_substrate_grounding_search.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_response_corpus_evaluator.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_s8_blocked_generation_owner.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_second_domain_pack.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_semantic_epoch.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_semantic_epoch_store.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_substrate_registry.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_tenant_cas_approval_governance.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_value_gate.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_vocabulary_crosswalk.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_workspace_agent_proposal_bridge.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_workspace_composition.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_workspace_foundry_consumption.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_workspace_loop.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_workspace_scientist_node_adapters.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_workspace_spine_repair_gates.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/test_world_model_record.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/workspace/test_production_case_admission.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/workspace/test_production_case_proof_custody.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.
+[fail] tests/unit/runtime/quality/workspace/test_production_case_public_contracts.py:1 hds_test_tier_missing: HDS scanned test file must have a CI tier declaration.

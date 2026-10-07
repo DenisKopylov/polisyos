@@ -1,0 +1,84 @@
+"""Preserve actual canonical umbrella UNRUN separately from native successors."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import sys
+from collections import Counter
+from pathlib import Path
+
+BASE = Path("/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks")
+SOURCE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+TREE = "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+OUT = Path(
+    "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/canonical-umbrella-separation.json"
+)
+
+
+def require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def record(path: Path) -> dict[str, object]:
+    data = path.read_bytes()
+    return {
+        "path": str(path),
+        "bytes": len(data),
+        "sha256": hashlib.sha256(data).hexdigest(),
+    }
+
+
+require(not OUT.exists(), "append-only output")
+rows = []
+for name, expected in (
+    ("workspace-verify", Counter({"PASS": 1, "FAIL": 1, "UNRUN": 13})),
+    ("ci-parity", Counter({"FAIL": 1, "UNRUN": 23})),
+):
+    receipt_path = BASE / name / (name + ".json")
+    native = json.loads(receipt_path.read_bytes())
+    require(
+        native["candidate_sha"] == SOURCE and native["candidate_tree_sha"] == TREE,
+        "source",
+    )
+    require(native["source_immutable"] is True, "immutable source")
+    require(
+        native["outcome"] == "FAIL" and native["exit_code"] == 1,
+        "native failed umbrella",
+    )
+    stdout_path = receipt_path.with_suffix(".stdout.txt")
+    raw = stdout_path.read_bytes()
+    require(native["stdout_bytes"] == len(raw), "stdout size")
+    require(native["stdout_sha256"] == hashlib.sha256(raw).hexdigest(), "stdout digest")
+    stage_path = BASE / name / "internal-stages.json"
+    stage = json.loads(stage_path.read_bytes())
+    steps = [step for scope in stage["scopes"] for step in scope["steps"]]
+    actual = Counter(step["outcome"] for step in steps)
+    require(actual == expected, "canonical step denominator")
+    require(stage["required_steps_preserved"] is True, "required stages")
+    require(
+        stage["doctor_is_full_ci"] is False and stage["finding_closure"] is False,
+        "authority",
+    )
+    rows.append(
+        {
+            "name": name,
+            "receipt": record(receipt_path),
+            "stdout": record(stdout_path),
+            "stages": record(stage_path),
+            "step_outcomes": dict(actual),
+            "UNRUN_labels": [s["label"] for s in steps if s["outcome"] == "UNRUN"],
+        }
+    )
+result = {
+    "schema": "policyos.e02.E.independent_canonical_umbrella_separation.v1",
+    "source": SOURCE,
+    "tree": TREE,
+    "check_outcome": "PASS",
+    "rows": rows,
+    "reviewer_source": record(Path(__file__)),
+    "rule": "Native standalone outcomes and alternate existing-environment CI08 do not rewrite these canonical fail-fast UNRUN observations; no full CI or finding closure inferred.",
+}
+OUT.write_text(json.dumps(result, indent=2) + "\n")
+sys.stdout.write(json.dumps(record(OUT), indent=2) + "\n")

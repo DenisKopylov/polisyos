@@ -1,0 +1,90 @@
+"""Narrow independent native reader controls; current source unmodified."""
+import ast
+import copy
+import hashlib
+import importlib.util
+import json
+import subprocess
+import sys
+from pathlib import Path
+from unittest.mock import patch
+
+REPO = Path('/workspace/e02-E-doe-20261006')
+OUT = Path('/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b')
+CANDIDATE = '1186ce5bf60f11ceaafe395f626cee1096d0b878'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/'
+FOLDER = PREFIX + 'final-closeout-independent/'
+checks = []
+sys.dont_write_bytecode = True
+
+def git_bytes(path):
+    return subprocess.check_output(['/usr/bin/git', 'show', CANDIDATE + ':' + path], cwd=REPO)
+
+def check(name, condition, **details):
+    checks.append({'name': name, 'passed': bool(condition), **details})
+    if not condition:
+        raise AssertionError(checks[-1])
+
+path = PREFIX + 'validate_review_copies.py'
+body = git_bytes(path)
+check('actual_native_validator_exact_immutable', body == (REPO/path).read_bytes())
+spec = importlib.util.spec_from_file_location('native_byte_validator', REPO/path)
+validator = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(validator)
+index = json.loads(git_bytes(FOLDER+'copy-index.json'))
+portable = json.loads(git_bytes(FOLDER+'portable-copy-index.json'))
+records49 = [{'copied_path': FOLDER+r['path'], 'bytes': r['bytes'], 'sha256': r['sha256']} for r in index['files']]
+records51 = portable['files']
+for label, records in [('49',records49),('51',records51)]:
+    validator.validate(REPO, records, CANDIDATE)
+    check('real_current_complete_native_'+label, True, count=len(records))
+
+# Late invalid record must refuse before any Git callback, even under optimization.
+for field,value in [('bytes',True),('sha256','0'),('copied_path','.'),('copied_path','--output=fixture'),('copied_path',None)]:
+    corrupted=copy.deepcopy(records51);corrupted[-1][field]=value
+    callbacks=[]
+    with patch.object(validator,'_git_bytes',lambda *args: callbacks.append(args) or b''):
+        try: validator.validate(REPO,corrupted,CANDIDATE)
+        except ValueError: refused=True
+        else: refused=False
+    check('late_record_preflight_'+field+'_'+str(value),refused and len(callbacks)==0,callback_count=len(callbacks))
+
+# Remove only physical current/pinned-Git byte equality; marker fields stay unchanged.
+class RemovePhysicalEquality(ast.NodeTransformer):
+    count=0
+    def visit_If(self,node):
+        if any(isinstance(child,ast.Constant) and isinstance(child.value,str) and 'Review current copy differs from pinned Git' in child.value for child in ast.walk(node)):
+            self.count+=1
+            return ast.copy_location(ast.Pass(),node)
+        return self.generic_visit(node)
+transformer=RemovePhysicalEquality();mutant_ast=transformer.visit(ast.parse(body));ast.fix_missing_locations(mutant_ast)
+check('exact_one_native_physical_guard_removed',transformer.count==1)
+mutant_source=ast.unparse(mutant_ast)+'\n'
+(OUT/'physical_guard_removed.py.txt').write_text(mutant_source)
+mutant={'__name__':'physical_guard_removed_observer'};exec(compile(mutant_ast,'physical_guard_removed.py.txt','exec'),mutant)
+archive=next(r for r in records51 if r['copied_path'].endswith('build_final.py.txt'))
+actual=(REPO/archive['copied_path']).read_bytes();target=REPO/archive['copied_path'];original=Path.read_bytes
+
+def altered_read(path):
+    return actual+b'\nchanged_literal_evidence\n' if path==target else original(path)
+
+with patch.object(Path,'read_bytes',altered_read):
+    try: validator.validate(REPO,records51,CANDIDATE)
+    except ValueError: healthy_refused=True
+    else: healthy_refused=False
+    mutant['validate'](REPO,records51,CANDIDATE)
+    mutant_accepted=True
+check('actual_removal_diverges_from_current_byte_property',healthy_refused and mutant_accepted,healthy_refused=healthy_refused,mutant_accepted=mutant_accepted,retained_fields=['copied_path','bytes','sha256','revision','immutable_Git_reads'])
+
+def missing_read(path):
+    if path==target: raise FileNotFoundError('independently absent current archive')
+    return original(path)
+with patch.object(Path,'read_bytes',missing_read):
+    try: validator.validate(REPO,records51,CANDIDATE)
+    except (ValueError,FileNotFoundError): refused=True
+    else: refused=False
+check('actual_missing_current_archive_refused',refused)
+report={'candidate_sha':CANDIDATE,'reviewer':'/root/lint_r4','environment':{'python':sys.version,'executable':sys.executable,'optimize':sys.flags.optimize,'cwd':str(Path.cwd())},'input':{'path':path,'bytes':len(body),'sha256':hashlib.sha256(body).hexdigest()},'checks':checks,'check_count':len(checks),'all_controls_passed':all(r['passed'] for r in checks),'source_modified':False,'scope':'Narrow native current-reader optimization/removal observation; no numeric/global gate or finding decision'}
+filename='optimization-controls-'+str(sys.flags.optimize)+'.json'
+(OUT/filename).write_text(json.dumps(report,indent=2)+'\n')
+print(json.dumps({'controls':len(checks),'all_passed':all(r['passed'] for r in checks),'optimize':sys.flags.optimize}))

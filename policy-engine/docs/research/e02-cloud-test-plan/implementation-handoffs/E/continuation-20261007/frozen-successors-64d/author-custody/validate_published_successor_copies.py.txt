@@ -1,0 +1,68 @@
+"""Use the existing canonical current/Git byte validator on immutable DOC source."""
+from __future__ import annotations
+import hashlib
+import importlib.util
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-E-doe-20261006')
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d'
+CANDIDATE = 'c8054bb2f055fae5f94012773ab4d2efad8cfab7'
+SOURCE = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+SCRATCH = Path('/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007')
+CANONICAL = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/validate_review_copies.py'
+archive = ROOT / PREFIX / 'validate_review_copies.py.txt'
+exact = subprocess.check_output(['git', '-C', str(ROOT), 'show', SOURCE + ':' + CANONICAL])
+if archive.read_bytes() != exact or (ROOT / CANONICAL).read_bytes() != exact:
+    raise ValueError('Archived/existing validator differs before module execution')
+spec = importlib.util.spec_from_file_location('native_successor_copy_validator', ROOT / CANONICAL)
+module = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = module
+spec.loader.exec_module(module)
+index_path = ROOT / PREFIX / 'portable-copy-index.json'
+index = json.loads(index_path.read_text())
+records = index['files']
+if len(records) != index['file_count'] or sum(r['bytes'] for r in records) != index['total_bytes'] or len({r['copied_path'] for r in records}) != len(records):
+    raise ValueError('Index complete cardinality/total/uniqueness differs')
+module.validate(ROOT, records, CANDIDATE)
+controls = []
+for field, value in [('sha256', '0' * 64), ('sha256', 'A' * 64), ('bytes', -1), ('bytes', True), ('copied_path', '../outside'), ('copied_path', '/tmp/outside'), ('copied_path', '-outside')]:
+    changed = [dict(r) for r in records]
+    changed[0][field] = value
+    try:
+        module.validate(ROOT, changed, CANDIDATE)
+    except ValueError as error:
+        controls.append({'field': field, 'value': value, 'outcome': 'PASS', 'native_refusal': str(error)})
+    else:
+        raise AssertionError('Declared corrupted field escaped: ' + field)
+for revision, historical in [(SOURCE, False), ('--all', False), (CANDIDATE[:12], True)]:
+    try:
+        module.validate(ROOT, records, revision, historical=historical)
+    except ValueError as error:
+        controls.append({'revision': revision, 'historical': historical, 'outcome': 'PASS', 'native_refusal': str(error)})
+    else:
+        raise AssertionError('Unpublished/invalid revision escaped')
+selected = []
+for subdir, required in [('21-nonshared', 122), ('ci08-existing-doe-environment', 37)]:
+    original = json.loads((ROOT / PREFIX / subdir / 'closed-source-selection.json').read_text())
+    if original['asset_count'] != required or len(original['files']) != required:
+        raise ValueError('Original full selected source denominator differs')
+    for row in original['files']:
+        copied_path = PREFIX + '/' + subdir + '/' + row['destination']
+        found = [r for r in records if r['copied_path'] == copied_path]
+        if len(found) != 1 or found[0]['sha256'] != row['sha256'] or found[0]['bytes'] != row['bytes'] or found[0]['source_path'] != row['path']:
+            raise ValueError('Current source selection lost/differed: ' + copied_path)
+        selected.append(copied_path)
+result = {'schema': 'policyos.e02.current_git_successor_copy_validation.v1', 'candidate_sha': CANDIDATE,
+          'candidate_tree_sha': subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', CANDIDATE + '^{tree}'], text=True).strip(),
+          'base_sha': '43f6bb54e316ce1308d53ba75c6e27e40171e364', 'execution_source_sha': SOURCE,
+          'copied_count': len(records), 'copied_bytes': index['total_bytes'], 'mandatory_selected_source_count': len(selected),
+          'healthy_current_and_git': 'PASS', 'corrupt_controls': controls,
+          'actual_canonical_validator': {'repo_path': CANONICAL, 'bytes': len(exact), 'sha256': hashlib.sha256(exact).hexdigest(), 'archive_byte_equal': True},
+          'index': {'path': str(index_path), 'bytes': index_path.stat().st_size, 'sha256': hashlib.sha256(index_path.read_bytes()).hexdigest()},
+          'no_native_selector_repeated': True, 'authority': 'Document custody only; native check outcomes and original owner/finding decisions remain separate.'}
+with (SCRATCH / 'publication-c8054-canonical-validation.json').open('x') as handle:
+    handle.write(json.dumps(result, indent=2) + '\n')
+print(json.dumps(result, indent=2))

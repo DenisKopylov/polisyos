@@ -1,0 +1,2903 @@
+{
+  "schema": "policyos.e02.E.frozen_constituent_check_index.v1",
+  "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "check_count": 21,
+  "check_outcomes": {
+    "FAIL": 14,
+    "PASS": 7
+  },
+  "all_assigned_selectors_terminal": true,
+  "canonical_umbrella_outcomes": "Separate common-wave workspace verify and CI parity receipts remain authoritative for their fail-fast selectors.",
+  "finding_statuses": "No original finding status or owner adjudication changed by this command index.",
+  "all_source_immutable": true,
+  "source_identity": {
+    "tracked_paths": 17016,
+    "bytes": 524100024,
+    "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+  },
+  "full_input_inventory_ignored": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+    "bytes": 4244134,
+    "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693",
+    "publication": "Ignored raw; reconstruct exactly from git ls-tree -rz --long at frozen SHA, compare candidate/tree/count/hash before domainprojection."
+  },
+  "actual_environment": "Existing admitted managed environment only; every native receipt contains actual package versions, numeric backend, source/config identity and selected environment.",
+  "parallel_execution": "All 21 ready nonshared selectors launched concurrently via existing reviewed run_check. No artificial worker/process/thread/CPU caps; seven cap variables removed. Root resource selectors are outside this 21-check index.",
+  "resource_causality": "Shared cgroup OOM events were observed during cloud execution; per-selector cause is not inferred from concurrency or an exit alone. These 21 commands each returned an actual terminal receipt.",
+  "stream_capture": "Canonical run_check merges command stderr into command stdout. Separate capture.stderr.txt is orchestration stderr. Both complete streams retained.",
+  "rows": [
+    {
+      "code": "workspace-01",
+      "label": "lint imports",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "tools/quality/lint/lint_imports.py",
+        "--policy",
+        "architecture/imports/policy.toml",
+        "--exceptions",
+        "architecture/imports/exceptions.toml"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364337.158161,
+      "wall_seconds": 35.171915769577026,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-01/checks/standalone-workspace-01/standalone-workspace-01.json",
+        "bytes": 8467,
+        "sha256": "54e6ebeb42b68f5864fe2396982ebbbdae723e6a46999b302611ac1d438fdc47",
+        "destination": "stages/workspace-01/standalone-workspace-01.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-01/checks/standalone-workspace-01/standalone-workspace-01.stdout.txt",
+          "bytes": 6915,
+          "sha256": "957e564ef28b57ca626c3cfdb1c1a402300f5ae5f15453a7f8b5d96c32b55550",
+          "destination": "stages/workspace-01/standalone-workspace-01.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-01/capture.stdout.txt",
+          "bytes": 345,
+          "sha256": "b6fd81c1d61eaed77f3f599feee04944b475cab7436061b1d73ebe7f9f692c42",
+          "destination": "stages/workspace-01/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-01/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/workspace-01/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-01/dispatch-observation.json",
+          "bytes": 1854,
+          "sha256": "5edf16ca40d1ec06d1ea8c911fb048fa089570be9ee4525161b9b7b9f9f5511e",
+          "destination": "stages/workspace-01/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-01/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-01/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "src/**/*.py",
+          "architecture/imports/*"
+        ],
+        "selected_tracked_source_count": 2711,
+        "selected_paths_sha256": "af095f82885e28f6669b76a77d5331667837e9309ae9bf62b10213abb43e7aa1",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "UNRUN; actual runtime/JUnit denominator is measured only by the future full selector execution, never by this static input inventory.",
+        "live_schemas_residue_observation": null,
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution"
+    },
+    {
+      "code": "workspace-02",
+      "label": "check package import gates (shell-package closure)",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "validation",
+        "check-package-import-gates",
+        "--fail-closed",
+        "--json-output",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-02/tool-output.json"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364339.974186,
+      "wall_seconds": 2101.163923740387,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-02/checks/standalone-workspace-02/standalone-workspace-02.json",
+        "bytes": 8517,
+        "sha256": "5bb088c3942a288522923bb60de35b9cf8a409119840e7d392e316f498af8d60",
+        "destination": "stages/workspace-02/standalone-workspace-02.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-02/checks/standalone-workspace-02/standalone-workspace-02.stdout.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/workspace-02/standalone-workspace-02.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-02/capture.stdout.txt",
+          "bytes": 407,
+          "sha256": "67b7c4562d6d2d32b2c666a9b97c9686519a46dcada38e3a0db371d2dc571f3d",
+          "destination": "stages/workspace-02/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-02/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/workspace-02/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-02/dispatch-observation.json",
+          "bytes": 1919,
+          "sha256": "1ccddb6a71b1b8755d1accb14501562b61e93f0deff038fe73d472f7f80711a0",
+          "destination": "stages/workspace-02/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-02/tool-output.json",
+          "bytes": 181111,
+          "sha256": "0a9f446ace107e84c6046983baa3a85e0101cd02abdb7a0b1972ca6de21b7982",
+          "destination": "stages/workspace-02/tool-output.json",
+          "role": "complete native tool deciding output"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-02/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-02/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "src/**/*.py",
+          "architecture/public_surface/**",
+          "architecture/imports/**"
+        ],
+        "selected_tracked_source_count": 2715,
+        "selected_paths_sha256": "a56de8a8e49d6e2711263c626cbb491d4096f5b409d10c1575380adec59e322f",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "UNRUN; actual runtime/JUnit denominator is measured only by the future full selector execution, never by this static input inventory.",
+        "live_schemas_residue_observation": null,
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution"
+    },
+    {
+      "code": "workspace-03",
+      "label": "lint foundry",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "-m",
+        "tools.quality.lint.lint_foundry",
+        "--repo-root",
+        "."
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364338.2301679,
+      "wall_seconds": 80.65206694602966,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-03/checks/standalone-workspace-03/standalone-workspace-03.json",
+        "bytes": 8371,
+        "sha256": "055cf37d284cf0fed2ddd5f2d533a091f8e0001215227e1d7cf167281d6ca256",
+        "destination": "stages/workspace-03/standalone-workspace-03.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-03/checks/standalone-workspace-03/standalone-workspace-03.stdout.txt",
+          "bytes": 872,
+          "sha256": "bba8fb29e3f2ae59d7a7654e0198b95748e3937a58e3296a1d26ba0c2f1ed151",
+          "destination": "stages/workspace-03/standalone-workspace-03.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-03/capture.stdout.txt",
+          "bytes": 263,
+          "sha256": "59ed48d1474005dd23d4a3d9755ced7e28111e09321836a25b02939edf31e606",
+          "destination": "stages/workspace-03/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-03/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/workspace-03/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-03/dispatch-observation.json",
+          "bytes": 1770,
+          "sha256": "51950149d05905b6d8c862e33538fdb2b60898294be8bd7909598c39186dd7b7",
+          "destination": "stages/workspace-03/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-03/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-03/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "src/polisyos/foundry/**/*.py",
+          "tools/quality/lint/**"
+        ],
+        "selected_tracked_source_count": 615,
+        "selected_paths_sha256": "f80a63f45de001d02a863c6d46dc3bd66f465f42708979115f76be990f1f234c",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "UNRUN; actual runtime/JUnit denominator is measured only by the future full selector execution, never by this static input inventory.",
+        "live_schemas_residue_observation": null,
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution"
+    },
+    {
+      "code": "workspace-04",
+      "label": "check state reads",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "tools/quality/diagnostics/check_state_reads.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364339.8300228,
+      "wall_seconds": 31.173619031906128,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-04/checks/standalone-workspace-04/standalone-workspace-04.json",
+        "bytes": 8349,
+        "sha256": "19d40e2376abfc00ee7cc143e3144d8fc8140f8e6919d2653ffb8180cc39d4f3",
+        "destination": "stages/workspace-04/standalone-workspace-04.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-04/checks/standalone-workspace-04/standalone-workspace-04.stdout.txt",
+          "bytes": 1557,
+          "sha256": "592064763bb7fba0c143d673374f51bdf455eb6074d6cef35ee52263a5fbbbf0",
+          "destination": "stages/workspace-04/standalone-workspace-04.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-04/capture.stdout.txt",
+          "bytes": 253,
+          "sha256": "b8dc3a88c046ee7fdad24fead97784432f442caa630f1665fb9e30eb228e26cd",
+          "destination": "stages/workspace-04/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-04/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/workspace-04/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-04/dispatch-observation.json",
+          "bytes": 1746,
+          "sha256": "6db30d7e04ec9b6428a6743a2a3605f5f8c78d48a269ead8c4e7cd786ea76ec1",
+          "destination": "stages/workspace-04/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-04/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-04/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "src/**/*.py",
+          "tools/quality/diagnostics/check_state_reads.py"
+        ],
+        "selected_tracked_source_count": 2703,
+        "selected_paths_sha256": "53f291552960a008c7e2b54eda38c690b0bfe576d3864751c8b7d7f82a7b24e8",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "UNRUN; actual runtime/JUnit denominator is measured only by the future full selector execution, never by this static input inventory.",
+        "live_schemas_residue_observation": null,
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution"
+    },
+    {
+      "code": "workspace-05",
+      "label": "check scholar imports",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "tools/quality/lint/check_scholar_imports.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364337.1544435,
+      "wall_seconds": 13.222554206848145,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-05/checks/standalone-workspace-05/standalone-workspace-05.json",
+        "bytes": 8344,
+        "sha256": "4afcea2ab90083646b0c5b269b68b2b60953d4c87aa808f7f8e6bd0543fd0d94",
+        "destination": "stages/workspace-05/standalone-workspace-05.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-05/checks/standalone-workspace-05/standalone-workspace-05.stdout.txt",
+          "bytes": 24,
+          "sha256": "43f2361ccca6bc36f0477e6db72c3a0875502a3b4a1622deb4d1de713648e5ad",
+          "destination": "stages/workspace-05/standalone-workspace-05.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-05/capture.stdout.txt",
+          "bytes": 250,
+          "sha256": "5f0755721999ae0c487e809f1c644e5f39d969220f3dc4c68d8122cd6469c618",
+          "destination": "stages/workspace-05/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-05/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/workspace-05/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-05/dispatch-observation.json",
+          "bytes": 1744,
+          "sha256": "98936eccef19fed8079a25c2fc4db6f6c2a7f661766c0ad9babbf70fc1d96a4c",
+          "destination": "stages/workspace-05/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-05/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-05/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "src/polisyos/scholar/**/*.py",
+          "tools/quality/lint/check_scholar_imports.py"
+        ],
+        "selected_tracked_source_count": 22,
+        "selected_paths_sha256": "ffe8b5a0f3743cfd3b89281c766c14c51c348c6cd9b4585e74355cba908a83b3",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "UNRUN; actual runtime/JUnit denominator is measured only by the future full selector execution, never by this static input inventory.",
+        "live_schemas_residue_observation": null,
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution"
+    },
+    {
+      "code": "workspace-06",
+      "label": "check connector contracts",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "connectors",
+        "check-contracts",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364332.1488807,
+      "wall_seconds": 35.4172887802124,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-06/checks/standalone-workspace-06/standalone-workspace-06.json",
+        "bytes": 8354,
+        "sha256": "e209e0a432fdf43fe064ce530f5ffd588d00142d3baf4c703c567075bf27a8c5",
+        "destination": "stages/workspace-06/standalone-workspace-06.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-06/checks/standalone-workspace-06/standalone-workspace-06.stdout.txt",
+          "bytes": 32,
+          "sha256": "8afb1abaffac02edb4baa91bf813c45fe1ca9a346f5eac71db731d4aaba6aa57",
+          "destination": "stages/workspace-06/standalone-workspace-06.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-06/capture.stdout.txt",
+          "bytes": 253,
+          "sha256": "81bdc3fd66f35166b99cdc5495edc376c108c207e8ef5c5888bf6338981462d4",
+          "destination": "stages/workspace-06/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-06/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/workspace-06/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-06/dispatch-observation.json",
+          "bytes": 1757,
+          "sha256": "7fe02272a22371d553bece35cca2561f9c4625d1434c9ff89ea3a4e9df9bed79",
+          "destination": "stages/workspace-06/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-06/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-06/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "src/polisyos/fabric/**",
+          "schemas/connectors/**",
+          "schemas/snapshots/fabric/**"
+        ],
+        "selected_tracked_source_count": 330,
+        "selected_paths_sha256": "593c373fbd6411e73e4a93637460af54971a6db9cb0249c513831fa5a9147e1c",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "UNRUN; actual runtime/JUnit denominator is measured only by the future full selector execution, never by this static input inventory.",
+        "live_schemas_residue_observation": null,
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution"
+    },
+    {
+      "code": "workspace-07",
+      "label": "check schema freshness",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "--extra",
+        "ml",
+        "python",
+        "tools/quality/diagnostics/gen_schema.py",
+        "--check",
+        "--cache-dir",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-07/schema-cache"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364341.7941253,
+      "wall_seconds": 78.0874936580658,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-07/checks/standalone-workspace-07/standalone-workspace-07.json",
+        "bytes": 8518,
+        "sha256": "0fca7ccf15f492081f23265c94de8ffcff913ae8c737fd61884a2bd17c942a5f",
+        "destination": "stages/workspace-07/standalone-workspace-07.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-07/checks/standalone-workspace-07/standalone-workspace-07.stdout.txt",
+          "bytes": 649,
+          "sha256": "c6119fc370b13cb5ddb221d0855c195597f3a28c54b84b575bdcb44d0d9b2f0c",
+          "destination": "stages/workspace-07/standalone-workspace-07.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-07/capture.stdout.txt",
+          "bytes": 402,
+          "sha256": "d37aff4992e428d3c72a5e75faa77d8a3f4d2fd90c4cf36eedec7338aa6b11d4",
+          "destination": "stages/workspace-07/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-07/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/workspace-07/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-07/dispatch-observation.json",
+          "bytes": 1918,
+          "sha256": "83cea15fd08dd120a1b110e533018b28822ea1101d6e22a043c87c6270113c19",
+          "destination": "stages/workspace-07/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-07/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-07/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "src/**/*.py",
+          "schemas/snapshots/**",
+          "docs/reference/**",
+          "tools/quality/diagnostics/**"
+        ],
+        "selected_tracked_source_count": 3020,
+        "selected_paths_sha256": "0287d1a53a2db891df214f1ca4e39a79255cf0a84670adcf0a62f839ce436610",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "UNRUN; actual runtime/JUnit denominator is measured only by the future full selector execution, never by this static input inventory.",
+        "live_schemas_residue_observation": null,
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution"
+    },
+    {
+      "code": "workspace-09",
+      "label": "check last-mile inventory baseline",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "tools/quality/validation/repository_last_mile_inventory.py",
+        "--json-output",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-09/tool-output.json",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364336.5821295,
+      "wall_seconds": 55.15413451194763,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-09/checks/standalone-workspace-09/standalone-workspace-09.json",
+        "bytes": 8517,
+        "sha256": "ce20864b9d29335202a44966305a95fa4dc7ad48411d8d46c67fa1a28ed765e0",
+        "destination": "stages/workspace-09/standalone-workspace-09.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-09/checks/standalone-workspace-09/standalone-workspace-09.stdout.txt",
+          "bytes": 86,
+          "sha256": "c3a4d6157f63dc1e848fd161564adc9e89ac5cf904841882c8096e9a88805a7d",
+          "destination": "stages/workspace-09/standalone-workspace-09.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-09/capture.stdout.txt",
+          "bytes": 411,
+          "sha256": "24f37c085c8f2de8d0711443daecc043c4fa09603ec62ae4fa5dca17d1d70358",
+          "destination": "stages/workspace-09/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-09/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/workspace-09/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-09/dispatch-observation.json",
+          "bytes": 1918,
+          "sha256": "38b6a25a0dc3482c89c370f0fc5457c479f491dfd8bf155b248deca5d7204e49",
+          "destination": "stages/workspace-09/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-09/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-09/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "src/**",
+          "tools/**",
+          "tests/**",
+          "architecture/**",
+          "schemas/**"
+        ],
+        "selected_tracked_source_count": 7652,
+        "selected_paths_sha256": "1d117812d1962f6af07c5012a715fc2e9b6b278950cf23d571930566d3113933",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "Canonical _collect_frontend_mentions scans all tracked policy-engine text with TEXT_SUFFIXES excluding frontend/_build/_cache/.venv, including docs. The static 7652-path preparation projection excludes docs and is not the actual full caller input denominator. Complete frozen tracked inventory is retained by SHA/bytes and Git reconstruction.",
+        "live_schemas_residue_observation": null,
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution",
+      "post_freeze_correction": {
+        "candidate": "1186ce5bf60f11ceaafe395f626cee1096d0b878",
+        "publication": "43f6bb54e316ce1308d53ba75c6e27e40171e364",
+        "frozen_outcome_unchanged": "FAIL at 64d (ambiguous JSON input). E-owned document-role/custody correction was independently reviewed in isolated leaf. Exact final canonical inventory remains FAIL due baseline drift; no global PASS.",
+        "tracked_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/stdout-document-role-correction.json"
+      }
+    },
+    {
+      "code": "workspace-10",
+      "label": "build honest diagnostics coverage dashboard",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "tools/quality/validation/build_honest_diagnostics_coverage.py",
+        "--repo-root",
+        ".",
+        "--output-dir",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/coverage"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364339.9548187,
+      "wall_seconds": 309.78822350502014,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/checks/standalone-workspace-10/standalone-workspace-10.json",
+        "bytes": 8524,
+        "sha256": "a69a91fb57e5f2ed9eecf540a46cdc9978dbfa2536c96ebffc689abd7477ebdb",
+        "destination": "stages/workspace-10/standalone-workspace-10.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/checks/standalone-workspace-10/standalone-workspace-10.stdout.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/workspace-10/standalone-workspace-10.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/capture.stdout.txt",
+          "bytes": 415,
+          "sha256": "500db6d9e62d3f3c6d522ed1c2f8197b044da0ab72c509c52671f00fc92c9a16",
+          "destination": "stages/workspace-10/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/workspace-10/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/dispatch-observation.json",
+          "bytes": 1925,
+          "sha256": "b157148ce46643ca641f6ca4b3d9ba6593b4ba304f79b601767b2bc5d5dba5c2",
+          "destination": "stages/workspace-10/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/coverage/coverage.json",
+          "bytes": 10181,
+          "sha256": "ff1d7570d3f5b2e789f436910e3a37107e66cd877cb22781ef9fba07fcde7283",
+          "destination": "stages/workspace-10/coverage/coverage.json",
+          "role": "complete native coverage-dashboard output; scope does not imply behavior closure"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/coverage/coverage.md",
+          "bytes": 2251,
+          "sha256": "3d361c0cde4ff10e63560c7175a86a9a9ea65010c76014eeeaac433e73f9a3e5",
+          "destination": "stages/workspace-10/coverage/coverage.md",
+          "role": "complete native coverage-dashboard output; scope does not imply behavior closure"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "architecture/production_quality/**",
+          "src/polisyos/runtime/quality/**",
+          "tests/unit/runtime/quality/**",
+          "schemas/runtime_quality/**",
+          "docs/system-design-decisions/**"
+        ],
+        "selected_tracked_source_count": 467,
+        "selected_paths_sha256": "36a57e1bd078e4f3127b547d5461af3a7969ad60f1bbf5a1f19d5ace601ad147",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "UNRUN; actual runtime/JUnit denominator is measured only by the future full selector execution, never by this static input inventory.",
+        "live_schemas_residue_observation": null,
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution"
+    },
+    {
+      "code": "workspace-11",
+      "label": "check honest diagnostics substrate drift",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "tools/quality/validation/check_substrate_drift.py",
+        "--repo-root",
+        ".",
+        "--require-passing"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364338.6620872,
+      "wall_seconds": 82.81642532348633,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-11/checks/standalone-workspace-11/standalone-workspace-11.json",
+        "bytes": 8405,
+        "sha256": "6c7701b5999a77f0842edd3dbcd8fb01aec573552a0fc2740d5f5623c46f2d48",
+        "destination": "stages/workspace-11/standalone-workspace-11.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-11/checks/standalone-workspace-11/standalone-workspace-11.stdout.txt",
+          "bytes": 24276,
+          "sha256": "3fe62a8812679c05f8f20d5f586f7660992f01ae50fd527f10846f81d637bfce",
+          "destination": "stages/workspace-11/standalone-workspace-11.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-11/capture.stdout.txt",
+          "bytes": 296,
+          "sha256": "b2458f05529506453e0b34e54d27c42583f3f2ca6f7efe6a85d41743e3457a0f",
+          "destination": "stages/workspace-11/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-11/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/workspace-11/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-11/dispatch-observation.json",
+          "bytes": 1803,
+          "sha256": "b7cf3528ff0c0c9e11dc2ff0af6a4aeaf1991478cb4879e4e727380962882695",
+          "destination": "stages/workspace-11/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-11/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-11/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "architecture/production_quality/**",
+          "src/polisyos/runtime/quality/**",
+          "tests/unit/runtime/quality/**",
+          "tests/repo_quality/tools/**",
+          "tools/quality/validation/**",
+          "schemas/runtime_quality/**",
+          "docs/adr/**",
+          "docs/system-design-decisions/**",
+          "docs/plans/archive/**"
+        ],
+        "selected_tracked_source_count": 1164,
+        "selected_paths_sha256": "306e07b3560371118cca4872d9ee96a9dbc7e633772f4421cc8bcd71bf99a7a4",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "UNRUN; actual runtime/JUnit denominator is measured only by the future full selector execution, never by this static input inventory.",
+        "live_schemas_residue_observation": null,
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution"
+    },
+    {
+      "code": "workspace-12",
+      "label": "check extension example contract coverage",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "tools/quality/validation/check_extension_examples.py",
+        "--skip-install",
+        "--skip-discovery",
+        "--skip-pytest"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364339.6070294,
+      "wall_seconds": 24.39104700088501,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-12/checks/standalone-workspace-12/standalone-workspace-12.json",
+        "bytes": 8419,
+        "sha256": "a2120f6d4c72a38ef7d6a8cf1f64e51ed1297f49702085c07b3385157e5fb1ec",
+        "destination": "stages/workspace-12/standalone-workspace-12.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-12/checks/standalone-workspace-12/standalone-workspace-12.stdout.txt",
+          "bytes": 48,
+          "sha256": "ab15a4fdd55e1f7e85de95e6f47e0468deb6dbe7ac982c230f8d773d381d8026",
+          "destination": "stages/workspace-12/standalone-workspace-12.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-12/capture.stdout.txt",
+          "bytes": 313,
+          "sha256": "456fffa9784f633f4e1236202b4e409123048498b4cf37858149589621bd79c5",
+          "destination": "stages/workspace-12/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-12/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/workspace-12/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-12/dispatch-observation.json",
+          "bytes": 1820,
+          "sha256": "6340a11317f398359113787ead1cb63c3079c2c029fd00e8276c156e8b1b3d7d",
+          "destination": "stages/workspace-12/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-12/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-12/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "examples/**",
+          "src/**",
+          "tests/**",
+          "docs/**",
+          "pyproject.toml",
+          "uv.lock"
+        ],
+        "selected_tracked_source_count": 13500,
+        "selected_paths_sha256": "cd69e785bd7650dc16aa4600168f8939c20b1550c4edd95f6316373057bec42b",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "UNRUN; actual runtime/JUnit denominator is measured only by the future full selector execution, never by this static input inventory.",
+        "live_schemas_residue_observation": null,
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution",
+      "scope_limitation": "PASS only for canonical --skip-install --skip-discovery --skip-pytest selector; install, discovery and examples pytest were not executed by this constituent."
+    },
+    {
+      "code": "workspace-13",
+      "label": "check schemas pure-data closure",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "-c",
+        "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-13/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364336.2299705,
+      "wall_seconds": 17.57470393180847,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-13/checks/standalone-workspace-13/standalone-workspace-13.json",
+        "bytes": 8914,
+        "sha256": "ba932d71239d4071addee107fcfa58af62deb3f5387390222bb21ed220e453bc",
+        "destination": "stages/workspace-13/standalone-workspace-13.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-13/checks/standalone-workspace-13/standalone-workspace-13.stdout.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/workspace-13/standalone-workspace-13.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-13/capture.stdout.txt",
+          "bytes": 817,
+          "sha256": "0ad5d666a2a4f4c299adc1a29ee05f0db07ab7db8e09bc77e866985ec74f2e13",
+          "destination": "stages/workspace-13/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-13/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/workspace-13/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-13/dispatch-observation.json",
+          "bytes": 2316,
+          "sha256": "58ed248226a7da7df7def9f1c9dc00595417b90f0518bb1fb441fe91e011e833",
+          "destination": "stages/workspace-13/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-13/schemas-python-residue.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/workspace-13/schemas-python-residue.txt",
+          "role": "complete native tool deciding output"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-13/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-13/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "schemas/**"
+        ],
+        "selected_tracked_source_count": 157,
+        "selected_paths_sha256": "2d475479e5bd4062002e976eb5de7828488e78f419e65f5a78a72f27c5f5347c",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "UNRUN; actual runtime/JUnit denominator is measured only by the future full selector execution, never by this static input inventory.",
+        "live_schemas_residue_observation": [],
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution"
+    },
+    {
+      "code": "ci-03",
+      "label": "check directory health ratchet",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "tools/quality/validation/directory_health.py",
+        "--repo-root",
+        ".",
+        "--json-output",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/tool-output.json",
+        "--markdown-output",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/tool-output.md",
+        "--fail-on-regression"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364341.7081046,
+      "wall_seconds": 1722.4486343860626,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/checks/standalone-ci-03/standalone-ci-03.json",
+        "bytes": 8629,
+        "sha256": "06a1e294768faeea521e1964b1da1f627bc1152981b20ab9c427669769e87230",
+        "destination": "stages/ci-03/standalone-ci-03.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/checks/standalone-ci-03/standalone-ci-03.stdout.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/ci-03/standalone-ci-03.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/capture.stdout.txt",
+          "bytes": 555,
+          "sha256": "be72defb85b181e56257b41b8e63bf50549ad0b872acb7fe36c7435271a0a38b",
+          "destination": "stages/ci-03/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/ci-03/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/dispatch-observation.json",
+          "bytes": 2015,
+          "sha256": "8de6415a41b42def64a9dacda69ff5b7b42296059483b1a1cc42601e31d9907b",
+          "destination": "stages/ci-03/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/tool-output.json",
+          "bytes": 44547,
+          "sha256": "7aff70a61c4f27b6d4fd165cdb4d1636619b4c09585fd02200d4d4f7216baaac",
+          "destination": "stages/ci-03/tool-output.json",
+          "role": "complete native tool deciding output"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/tool-output.md",
+          "bytes": 5502,
+          "sha256": "59f6cf0f4b7d0935f0a505d57f6686e117dbe65928e37798e0be5307f0a5c91e",
+          "destination": "stages/ci-03/tool-output.md",
+          "role": "complete native tool deciding output"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "src/**",
+          "tools/**",
+          "tests/**",
+          "architecture/**"
+        ],
+        "selected_tracked_source_count": 7495,
+        "selected_paths_sha256": "6aa2cff42b6e6c7d19034d732bfd8cf3f6f1403ebb028abc7ee8771a0d1dd8bf",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "UNRUN; actual runtime/JUnit denominator is measured only by the future full selector execution, never by this static input inventory.",
+        "live_schemas_residue_observation": null,
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution"
+    },
+    {
+      "code": "ci-04",
+      "label": "check test ratchets and helper topology",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "tools/quality/testing/report_test_ratchets.py",
+        "--format",
+        "json",
+        "--output",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-04/tool-output.json",
+        "--fail-on-regression"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364339.6444266,
+      "wall_seconds": 95.52649331092834,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-04/checks/standalone-ci-04/standalone-ci-04.json",
+        "bytes": 8484,
+        "sha256": "bff76dbfa8b1c426968360dc89b4f3db75491a26fc3d3509f4779964932e4ac4",
+        "destination": "stages/ci-04/standalone-ci-04.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-04/checks/standalone-ci-04/standalone-ci-04.stdout.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/ci-04/standalone-ci-04.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-04/capture.stdout.txt",
+          "bytes": 419,
+          "sha256": "9f41db6c559443ec093e7046839bbcaf8c39d2428a4037c721bd3655aaf21a4f",
+          "destination": "stages/ci-04/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-04/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/ci-04/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-04/dispatch-observation.json",
+          "bytes": 1871,
+          "sha256": "728e5a89353ba6402afe81939a874a0c67816ba45af005768244a1c0f341062f",
+          "destination": "stages/ci-04/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-04/tool-output.json",
+          "bytes": 111068,
+          "sha256": "92ec6dc962d8186d29c4a82490695a4c77074f90f4c48c64f8bb2500a66d3130",
+          "destination": "stages/ci-04/tool-output.json",
+          "role": "complete native tool deciding output"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-04/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-04/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "tests/**",
+          "architecture/**",
+          "tools/quality/testing/**"
+        ],
+        "selected_tracked_source_count": 4055,
+        "selected_paths_sha256": "f62739e0758443bdf3967d8266163ba77c46e075520f1b7aca2831932eb9d110",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "UNRUN; actual runtime/JUnit denominator is measured only by the future full selector execution, never by this static input inventory.",
+        "live_schemas_residue_observation": null,
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution"
+    },
+    {
+      "code": "ci-05",
+      "label": "check architecture phase6-1 report-only contracts",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "tools/quality/validation/architecture_report_only_contracts.py",
+        "--report",
+        "phase6-1",
+        "--json-output",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-05/tool-output.json",
+        "--fail-on-contract-errors"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364337.1378665,
+      "wall_seconds": 2079.2603027820587,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-05/checks/standalone-ci-05/standalone-ci-05.json",
+        "bytes": 8518,
+        "sha256": "820d6bf7e11fa6dcd1b01f03228f95f93f2d3193652f34481e8cd6bc1da8d346",
+        "destination": "stages/ci-05/standalone-ci-05.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-05/checks/standalone-ci-05/standalone-ci-05.stdout.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/ci-05/standalone-ci-05.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-05/capture.stdout.txt",
+          "bytes": 451,
+          "sha256": "dec344f19cc07c83e49a4f2ce74a172381644b96cebdf11ad576c39e0ffe7018",
+          "destination": "stages/ci-05/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-05/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/ci-05/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-05/dispatch-observation.json",
+          "bytes": 1903,
+          "sha256": "781798e53475c5371f97572f12fd02277bb08e4162fde2ad1ba7d6aa27ba61c8",
+          "destination": "stages/ci-05/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-05/tool-output.json",
+          "bytes": 170548,
+          "sha256": "0dd2a00c1743a4bc24231fdd181db85d8ed41249f465d58cb48523a965447505",
+          "destination": "stages/ci-05/tool-output.json",
+          "role": "complete native tool deciding output"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-05/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-05/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "architecture/**",
+          "tools/quality/validation/**",
+          "docs/**",
+          "src/**"
+        ],
+        "selected_tracked_source_count": 11089,
+        "selected_paths_sha256": "32b8c36d9f741a935ed4e283fa5c440aeeadd382814956e2475d2c09d5a3b717",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "UNRUN; actual runtime/JUnit denominator is measured only by the future full selector execution, never by this static input inventory.",
+        "live_schemas_residue_observation": null,
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution"
+    },
+    {
+      "code": "ci-06",
+      "label": "check validator module-size budget",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "tools/quality/validation/architecture_report_only_contracts.py",
+        "--report",
+        "module-size",
+        "--json-output",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-06/tool-output.json",
+        "--fail-on-contract-errors"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364339.932709,
+      "wall_seconds": 26.097381830215454,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-06/checks/standalone-ci-06/standalone-ci-06.json",
+        "bytes": 8516,
+        "sha256": "613fbe287bcbb1578f88073dcacf9a9ff2f02adaa4ec1ff31363046f73390d85",
+        "destination": "stages/ci-06/standalone-ci-06.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-06/checks/standalone-ci-06/standalone-ci-06.stdout.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/ci-06/standalone-ci-06.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-06/capture.stdout.txt",
+          "bytes": 454,
+          "sha256": "7114d844c62e45c96dd3c8becf92d1dcb661a74d7a6f1b15392fcf8c4f2cf5b1",
+          "destination": "stages/ci-06/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-06/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/ci-06/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-06/dispatch-observation.json",
+          "bytes": 1905,
+          "sha256": "e986147d4f8bcb45ea3eef2f1785969a21e422de105a8dde8049f4f0a869ffe4",
+          "destination": "stages/ci-06/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-06/tool-output.json",
+          "bytes": 24136,
+          "sha256": "7f1f01b9a634c637742589d3b31b158b6ad4995efb540ddb3b039fc0f15bd3ad",
+          "destination": "stages/ci-06/tool-output.json",
+          "role": "complete native tool deciding output"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-06/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-06/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "tools/quality/validation/**",
+          "architecture/**"
+        ],
+        "selected_tracked_source_count": 942,
+        "selected_paths_sha256": "0955a7fa40638df0b385c42f65b32571a76abf40744466352472c83dd33f0b11",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "UNRUN; actual runtime/JUnit denominator is measured only by the future full selector execution, never by this static input inventory.",
+        "live_schemas_residue_observation": null,
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution"
+    },
+    {
+      "code": "ci-07",
+      "label": "report debt ledger reconciliation",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "tools/quality/validation/check_debt_ledger.py",
+        "--check",
+        "--report-only"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364337.1701305,
+      "wall_seconds": 3592.9843294620514,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-07/checks/standalone-ci-07/standalone-ci-07.json",
+        "bytes": 8340,
+        "sha256": "94c84364a361f40e556d672a2812cfcfae98c56840e181875e4508adf57b5957",
+        "destination": "stages/ci-07/standalone-ci-07.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-07/checks/standalone-ci-07/standalone-ci-07.stdout.txt",
+          "bytes": 83604,
+          "sha256": "1254b865726c3d70a26eb1a78e63dad16330b35a93d709d3c063b6d02727b8a9",
+          "destination": "stages/ci-07/standalone-ci-07.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-07/capture.stdout.txt",
+          "bytes": 280,
+          "sha256": "70f13d0e43a4f9e7c2a7c33c8c0f670679fa1c8bfeea9c66c51a82cf14d55118",
+          "destination": "stages/ci-07/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-07/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/ci-07/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-07/dispatch-observation.json",
+          "bytes": 1719,
+          "sha256": "b9755766e072462c1b6b76c74addaa5588999969db80281df1da2688d8ab790d",
+          "destination": "stages/ci-07/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-07/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-07/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "architecture/**",
+          "docs/**",
+          "src/**",
+          "tools/quality/validation/check_debt_ledger.py"
+        ],
+        "selected_tracked_source_count": 10881,
+        "selected_paths_sha256": "8c556821d0c92aca0cb0efeeb4ab24e82ee2364c4b94ab1af6f730d2f2e0788c",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "UNRUN; actual runtime/JUnit denominator is measured only by the future full selector execution, never by this static input inventory.",
+        "live_schemas_residue_observation": null,
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution",
+      "report_only_limitation": "Exit 0 is the canonical --report-only command outcome. The output reports blocking/informational findings; it does not establish ledger health or finding closure.",
+      "actual_explicit_reader_receipt": {
+        "input_operation_count": 385,
+        "finding_coverage": "explicit file-reader operations only",
+        "selector": {
+          "GY_tasks": "task-standing table row grammar; terminal/not-started tasks filtered",
+          "plans": [
+            "docs/plans/active/atlas-slices/**/*.md",
+            "docs/superpowers/plans/**/*.md"
+          ],
+          "other_sources": "register status/standing, Atlas overview, dispositions and cited selectors"
+        },
+        "unresolved_by_construction": [
+          "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt.",
+          "GY §8.6 Done-when rulings and prose completion obligations are not interpreted by the §8.5 task-standing projection, even though the GY file bytes were read.",
+          "Atlas master-plan ownership acts are not established by slice-plan filename presence; a missing plan is not measured absence of an appointed owner.",
+          "Filesystem-glob selection does not prove completeness of inaccessible or unselected documents; runtime exercise and the substance of collected tests are not measured."
+        ],
+        "complete_measurement": "Complete measurement= JSON is the first line of the exact combined stdout above."
+      }
+    },
+    {
+      "code": "ci-09",
+      "label": "check ADR thematic index freshness",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "tools/quality/validation/generate_adr_index.py",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364338.3341362,
+      "wall_seconds": 18.95936107635498,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-09/checks/standalone-ci-09/standalone-ci-09.json",
+        "bytes": 8311,
+        "sha256": "0aa0b022500ddc1207cc07b365ca8da4377a2eea60b239962ab400c0ed07a916",
+        "destination": "stages/ci-09/standalone-ci-09.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-09/checks/standalone-ci-09/standalone-ci-09.stdout.txt",
+          "bytes": 28,
+          "sha256": "e6cb3d25339d1fb5adff0f49a1bec2afc7a9101bac49d652c862d1cee37058b9",
+          "destination": "stages/ci-09/standalone-ci-09.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-09/capture.stdout.txt",
+          "bytes": 263,
+          "sha256": "9bf124cd1a966d0be5cc61d36919179f532f91899c0c5088528c9319af247cfe",
+          "destination": "stages/ci-09/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-09/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/ci-09/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-09/dispatch-observation.json",
+          "bytes": 1699,
+          "sha256": "6313c6323be7501e8ad8dec431cb1915dea39603ea6927bbbe51eb7caf51ac72",
+          "destination": "stages/ci-09/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-09/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-09/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "docs/adr/**",
+          "tools/quality/validation/generate_adr_index.py"
+        ],
+        "selected_tracked_source_count": 199,
+        "selected_paths_sha256": "7ad06ce2c5a10d8a3ebd5bfc38f94d22d6404fa2af9e0341b28a5ec53ec8e35e",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "UNRUN; actual runtime/JUnit denominator is measured only by the future full selector execution, never by this static input inventory.",
+        "live_schemas_residue_observation": null,
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution"
+    },
+    {
+      "code": "ci-10",
+      "label": "check docs accuracy",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "--extra",
+        "docs",
+        "python",
+        "tools/quality/validation/check_docs_accuracy.py",
+        "--repo-root",
+        "."
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364338.752519,
+      "wall_seconds": 27.58562183380127,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-10/checks/standalone-ci-10/standalone-ci-10.json",
+        "bytes": 8364,
+        "sha256": "02f639352706c511c153a14d06e1ea01b85abd62beda579cec004d933a309110",
+        "destination": "stages/ci-10/standalone-ci-10.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-10/checks/standalone-ci-10/standalone-ci-10.stdout.txt",
+          "bytes": 2880,
+          "sha256": "b3387b8e4cc33bf0fdc3a6486bd8e2f8767499f5b1e49bbdc2e4f3f9081560eb",
+          "destination": "stages/ci-10/standalone-ci-10.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-10/capture.stdout.txt",
+          "bytes": 292,
+          "sha256": "8f0b0e177e5d16fcd4e9646ce72b2dab86fdff58247e2fb2d1deafb9b3db0b99",
+          "destination": "stages/ci-10/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-10/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/ci-10/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-10/dispatch-observation.json",
+          "bytes": 1740,
+          "sha256": "55834c954f7d3764ffe04405579a3b5f1e4b977c20a2d303bcc30b1ca02209ee",
+          "destination": "stages/ci-10/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-10/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-10/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "docs/**",
+          "src/**",
+          "tools/**",
+          "mkdocs.yml",
+          "pyproject.toml",
+          "uv.lock"
+        ],
+        "selected_tracked_source_count": 10690,
+        "selected_paths_sha256": "f1b70141a061bff283a7ac6ee0fc165002b48a35a24d6ac149fa82f5e104398f",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "UNRUN; actual runtime/JUnit denominator is measured only by the future full selector execution, never by this static input inventory.",
+        "live_schemas_residue_observation": null,
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution"
+    },
+    {
+      "code": "ci-11",
+      "label": "build docs in strict mode",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "--extra",
+        "docs",
+        "python",
+        "-m",
+        "mkdocs",
+        "build",
+        "--strict",
+        "--site-dir",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/mkdocs-site"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364341.795317,
+      "wall_seconds": 2280.9977502822876,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/checks/standalone-ci-11/standalone-ci-11.json",
+        "bytes": 8460,
+        "sha256": "46b50df6b7652d463242e4e3eedb4f730a52beb66c60560fab52affa01f94957",
+        "destination": "stages/ci-11/standalone-ci-11.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/checks/standalone-ci-11/standalone-ci-11.stdout.txt",
+          "bytes": 230183,
+          "sha256": "a5e53cb944840209256ac0afc2fd0306e0d01f2f824bbb5c06224038dc77ccc5",
+          "destination": "stages/ci-11/standalone-ci-11.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/capture.stdout.txt",
+          "bytes": 380,
+          "sha256": "8fe7a4165d3f143eaee97ad665ddbdfbe986daed6c77d4e0a7a7dfd792d1f103",
+          "destination": "stages/ci-11/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/ci-11/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/dispatch-observation.json",
+          "bytes": 1839,
+          "sha256": "e760a26ba616d2c64320037bb9be25293c770e33634ad2d7d6d9444359fb7518",
+          "destination": "stages/ci-11/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "docs/**",
+          "src/**",
+          "tools/**",
+          "mkdocs.yml",
+          "pyproject.toml",
+          "uv.lock"
+        ],
+        "selected_tracked_source_count": 10690,
+        "selected_paths_sha256": "f1b70141a061bff283a7ac6ee0fc165002b48a35a24d6ac149fa82f5e104398f",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "UNRUN; actual runtime/JUnit denominator is measured only by the future full selector execution, never by this static input inventory.",
+        "live_schemas_residue_observation": null,
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution"
+    },
+    {
+      "code": "ci-12",
+      "label": "check semantic docstring quality",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "--extra",
+        "docs",
+        "python",
+        "tools/quality/validation/check_docstring_quality.py",
+        "--repo-root",
+        ".",
+        "--allowlist",
+        "tools/quality/validation/docstring_quality_allowlist.txt",
+        "--coverage-scope",
+        "public-surface",
+        "--minimum-coverage",
+        "85"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "started_unix": 1791364341.8626697,
+      "wall_seconds": 106.1124267578125,
+      "actual_receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-12/checks/standalone-ci-12/standalone-ci-12.json",
+        "bytes": 8536,
+        "sha256": "5ae3fe31d9acb1c838b856d90844283e733e5b1596d47d28b8c54e1843b8de1d",
+        "destination": "stages/ci-12/standalone-ci-12.json",
+        "role": "complete frozen command/environment/input receipt"
+      },
+      "complete_outputs": [
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-12/checks/standalone-ci-12/standalone-ci-12.stdout.txt",
+          "bytes": 6770,
+          "sha256": "561144a3aeb416b2516081155925bb3cf23f5564a399c29b11ed24c7d96d8bf5",
+          "destination": "stages/ci-12/standalone-ci-12.stdout.txt",
+          "role": "complete command stdout and stderr combined by canonical run_check"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-12/capture.stdout.txt",
+          "bytes": 437,
+          "sha256": "8706ed52f7c162311d8829e9d0cd0836fd5fe32dafc4ee87e2c4fde1ec697810",
+          "destination": "stages/ci-12/capture.stdout.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-12/capture.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "destination": "stages/ci-12/capture.stderr.txt",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        },
+        {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-12/dispatch-observation.json",
+          "bytes": 1909,
+          "sha256": "28c33911c0f4e63d2033cced5612ee61df8035c9fdb0484617252a81f779cf00",
+          "destination": "stages/ci-12/dispatch-observation.json",
+          "role": "complete orchestration capture; command streams stay separately in combined stdout"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "cpu_count": 5,
+        "packages": {
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "SALib": "1.5.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "ruff": "0.14.10",
+          "pytest-xdist": "3.8.0"
+        },
+        "selected_variables": {
+          "UV_NO_SYNC": "1",
+          "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+          "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+          "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-12/environment-tmp",
+          "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-12/ruff-cache",
+          "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+          "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+          "UV_CACHE_DIR": null,
+          "PNPM_HOME": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_METRICS_PORT": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "POLISYOS_PYTEST_DIST": null,
+          "PYTEST_ADDOPTS": null
+        }
+      },
+      "source_identity_before": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_identity_after": {
+        "tracked_paths": 17016,
+        "bytes": 524100024,
+        "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+      },
+      "source_immutable": true,
+      "junit": null,
+      "counts": null,
+      "finding_closure": false,
+      "canonical_workflow_outcome": "Read the actual umbrella receipt separately; this standalone command never overwrites fail-fast UNRUN.",
+      "input_domain": {
+        "full_source_inventory": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/full-tracked-source-inventory-64d7444a18c5.json",
+          "bytes": 4244134,
+          "sha256": "6d217a6b8d5f1bae1dba93c9f50a7dade15ac0576ef2b4228f459ce8ed1d7693"
+        },
+        "patterns": [
+          "src/**",
+          "tools/quality/validation/docstring_quality_allowlist.txt",
+          "architecture/public_surface/**",
+          "docs/**"
+        ],
+        "selected_tracked_source_count": 10152,
+        "selected_paths_sha256": "8ea5f88b6401814db2f181f1b8769722c097193730dcfb3e13eb246f41b08748",
+        "meaning": "Complete exact Git paths for the declared canonical domain projection, plus complete tracked source inventory for transitive context. This is not executed parametrized/JUnit/runtime dependency denominator.",
+        "actual_runtime_denominator": "UNRUN; actual runtime/JUnit denominator is measured only by the future full selector execution, never by this static input inventory.",
+        "live_schemas_residue_observation": null,
+        "complete_selection_recipe": "Read the exact ignored full_input_inventory at its SHA/bytes or reconstruct it with git ls-tree -rz --long on prepared_against_sha. Keep paths under policy-engine/, strip that prefix, fnmatch.fnmatchcase against any listed pattern, sort strings, frame each path with newline. Recompute the exact count and SHA256 above. This source domain is separate from actual runtime/JUnit."
+      },
+      "P41": "not_established until exact base/input replay; no inherited-red attribution"
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+"""Run the unchanged full CI08 selector in the exclusively leased existing DoE env."""
+from __future__ import annotations
+import ast
+import hashlib
+import json
+import os
+import subprocess
+import time
+import tomllib
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+BASE = Path('/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007')
+ENVIRONMENT = Path('/workspace/e02-E-doe-20261006/policy-engine/.venv')
+PYTHON = ENVIRONMENT / 'bin/python'
+SHA = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE = 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+RUN_CHECK = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py'
+CHECKER = 'policy-engine/tools/quality/validation/check_extension_examples.py'
+
+
+def git(*args: str) -> bytes:
+    return subprocess.check_output(['git', '-C', str(ROOT), *args])
+
+
+def identity(path: Path) -> dict:
+    data = path.read_bytes()
+    return {'path': str(path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+
+if git('rev-parse', 'HEAD').decode().strip() != SHA or git('rev-parse', 'HEAD^{tree}').decode().strip() != TREE:
+    raise RuntimeError('Exact frozen root SHA/tree required')
+if git('status', '--porcelain', '--untracked-files=no'):
+    raise RuntimeError('Root tracked source must remain clean')
+inactivity = json.loads((BASE / 'environment-inactivity-before-v2.json').read_text())
+if inactivity['active_users'] or inactivity['unreadable_agent_processes'] or not inactivity['root_env_distinct']:
+    raise RuntimeError('Existing environment admission failed')
+before = json.loads((BASE / 'doe-environment-before.json').read_text())
+expected = {'numpy': '2.3.5', 'scipy': '1.16.3', 'jax': '0.8.2', 'jaxlib': '0.8.2', 'SALib': '1.5.2'}
+versions = {d['name'].casefold(): d['version'] for d in before['distributions']}
+if any(versions[name.casefold()] != version for name, version in expected.items()) or before['prefix'] != str(ENVIRONMENT):
+    raise RuntimeError('Protected existing numeric environment differs')
+source_paths = set(git('ls-tree', '-r', '--name-only', SHA, '--', 'policy-engine/examples/extensions').decode().splitlines())
+source_paths.update((RUN_CHECK, CHECKER, 'policy-engine/tools/lib/imports.py', 'policy-engine/tools/devx/workspace/ci_parity.py', 'policy-engine/architecture/extension_points.toml', 'policy-engine/pyproject.toml', 'policy-engine/uv.lock', 'policy-engine/conftest.py', 'AGENTS.md', 'policy-engine/CONTRIBUTING.md'))
+bindings = []
+for path in sorted(source_paths):
+    exact = git('show', SHA + ':' + path)
+    physical = (ROOT / path).read_bytes()
+    if physical != exact:
+        raise RuntimeError('Root source inlet differs before any checker/install callback: ' + path)
+    bindings.append({'source_path': path, 'git_blob': git('rev-parse', SHA + ':' + path).decode().strip(), 'bytes': len(exact), 'sha256': hashlib.sha256(exact).hexdigest()})
+syntax = ast.parse((ROOT / CHECKER).read_text())
+definition = next(n for n in syntax.body if isinstance(n, ast.AnnAssign) and isinstance(n.target, ast.Name) and n.target.id == 'EXAMPLES')
+examples = [{kw.arg: ast.literal_eval(kw.value) for kw in call.keywords} for call in definition.value.elts]
+if len(examples) != 7:
+    raise RuntimeError('Native full-example denominator differs')
+for example in examples:
+    data = tomllib.loads((ROOT / 'policy-engine' / example['path'] / 'pyproject.toml').read_text())
+    example['distribution_name'] = data['project']['name']
+    example['distribution_version'] = data['project']['version']
+output = BASE / 'checks/native-ci08-existing-doe-environment'
+tmp = BASE / 'environment-tmp'
+pytest_base = BASE / 'pytest-base'
+pytest_cache = BASE / 'pytest-cache'
+benchmark = BASE / 'benchmarks'
+junit = output / 'pytest.xml'
+for path in (output, tmp, pytest_base, pytest_cache, benchmark):
+    if path.exists() or path.is_symlink():
+        raise RuntimeError('Fresh stage path already exists: ' + str(path))
+tmp.mkdir()
+plan37 = json.loads(Path('/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/dispatch-plan-64d7444a18c5-frozen-final.json').read_text())
+canonical = next(r for r in plan37['rows'] if r['code'] == 'ci-08')['canonical_CommandSpec']
+effective = [str(PYTHON), 'tools/quality/validation/check_extension_examples.py']
+argv = [str(PYTHON), str(ROOT / RUN_CHECK), '--repo', str(ROOT), '--candidate', SHA, '--cwd', str(ROOT / 'policy-engine'), '--output', str(output), '--name', 'native-ci08-existing-doe-environment', '--junit', str(junit), '--', *effective]
+env = dict(os.environ)
+removed = ['OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS', 'NUMEXPR_NUM_THREADS', 'VECLIB_MAXIMUM_THREADS', 'BLIS_NUM_THREADS', 'POLISYOS_PYTEST_WORKERS']
+for name in removed:
+    env.pop(name, None)
+changes = {'UV_NO_SYNC': '1', 'UV_PROJECT_ENVIRONMENT': str(ENVIRONMENT), 'PYTHONPATH': str(ROOT / 'policy-engine') + ':' + str(ROOT / 'policy-engine/src'),
+           'PYTHONDONTWRITEBYTECODE': '1', 'TMPDIR': str(tmp), 'RUFF_CACHE_DIR': str(BASE / 'ruff-cache'),
+           'PATH': '/workspace/.polisyos-environment/uv/bin:' + env.get('PATH', ''),
+           'PYTEST_ADDOPTS': '--basetemp=' + str(pytest_base) + ' -o cache_dir=' + str(pytest_cache) + ' --benchmark-storage=file://' + str(benchmark) + ' --junitxml=' + str(junit)}
+env.update(changes)
+plan = {'schema': 'policyos.e02.native_ci08_alternate_existing_environment.v1', 'candidate_sha': SHA, 'candidate_tree_sha': TREE,
+        'canonical_CommandSpec': canonical, 'effective_command': effective, 'capture_argv': argv, 'capture_cwd': str(ROOT), 'effective_cwd': str(ROOT / 'policy-engine'),
+        'environment_add': changes, 'environment_remove': removed, 'inactivity': identity(BASE / 'environment-inactivity-before-v2.json'),
+        'doe_environment_before': identity(BASE / 'doe-environment-before.json'), 'root_environment_before': identity(BASE / 'root-environment-before.json'),
+        'complete_declared_source_bindings': bindings, 'actual_examples': examples, 'actual_example_count': len(examples),
+        'existing_runner': identity(ROOT / RUN_CHECK), 'unchanged_checker': identity(ROOT / CHECKER), 'operation_started_unix': time.time(),
+        'original_root_env_invocation': 'Deferred/UNRUN root-env CI08 remains historical. This is the same full selector observed in a distinct already-existing admitted DoE environment.',
+        'operational_differences': ['Existing DoE interpreter/prefix replaces root interpreter; no newenv or lock synchronization.', 'Canonical checker still chooses native pip or uv installer and targets sys.executable; seven --no-deps editable installs, no manual entry points.', 'Only output/tmp/pytest-cache/basetime/JUnit/benchmark locations isolated via environment; complete seven-example scope unchanged.', 'All cap variables removed; no worker/thread/process/CPU quotas. No default root API/port mutation.'],
+        'shared_mutable_seams': ['Existing DoE site-packages editable installs run serially in canonical installer loop under exclusive lease. Root environment remains protected. Native smoke pytest gets distinct output/cache/temp; root HTTP uses its own paths.'],
+        'finding_closure': False}
+with (BASE / 'execution-plan.json').open('x') as handle:
+    handle.write(json.dumps(plan, ensure_ascii=False, indent=2) + '\n')
+print(json.dumps({'execution_plan': str(BASE / 'execution-plan.json'), 'receipt': str(output / 'native-ci08-existing-doe-environment.json'), 'argv': argv, 'started': True}), flush=True)
+with (BASE / 'capture.stdout.txt').open('xb') as out, (BASE / 'capture.stderr.txt').open('xb') as err:
+    code = subprocess.run(argv, cwd=ROOT, env=env, stdout=out, stderr=err, check=False).returncode
+for label, python in (('doe', PYTHON), ('root', ROOT / 'policy-engine/.venv/bin/python')):
+    with (BASE / (label + '-environment-after.stdout.txt')).open('xb') as out, (BASE / (label + '-environment-after.stderr.txt')).open('xb') as err:
+        subprocess.run([str(python), str(BASE / 'capture_existing_environment.py'), '--output', str(BASE / (label + '-environment-after.json'))], stdout=out, stderr=err, check=True)
+completion = {'candidate_sha': SHA, 'candidate_tree_sha': TREE, 'capturer_exit_code': code,
+              'receipt': str(output / 'native-ci08-existing-doe-environment.json'), 'ending_HEAD': git('rev-parse', 'HEAD').decode().strip(),
+              'ending_tracked_status': git('status', '--porcelain', '--untracked-files=no').decode(), 'ended_unix': time.time(), 'finding_closure': False}
+with (BASE / 'completion.json').open('x') as handle:
+    handle.write(json.dumps(completion, indent=2) + '\n')
+print(json.dumps(completion), flush=True)
+raise SystemExit(code)

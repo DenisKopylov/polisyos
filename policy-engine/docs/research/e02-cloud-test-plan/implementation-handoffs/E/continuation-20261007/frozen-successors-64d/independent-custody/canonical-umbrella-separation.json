@@ -1,0 +1,99 @@
+{
+  "schema": "policyos.e02.E.independent_canonical_umbrella_separation.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "check_outcome": "PASS",
+  "rows": [
+    {
+      "name": "workspace-verify",
+      "receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/workspace-verify.json",
+        "bytes": 8640,
+        "sha256": "0a931767d9c7ce564189b1b79d9d199731e4110a9ab70609dcdbb5d3989f67e8"
+      },
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/workspace-verify.stdout.txt",
+        "bytes": 7454,
+        "sha256": "0d323368ef32d64a3fe0d64b44831f6152bced2aa15409c3e009ddae9f2070c5"
+      },
+      "stages": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/internal-stages.json",
+        "bytes": 8762,
+        "sha256": "052b2f812761d867c9011f8db3b185d2d0d6cb45d6a63231ce4534a593d8c67e"
+      },
+      "step_outcomes": {
+        "PASS": 1,
+        "FAIL": 1,
+        "UNRUN": 13
+      },
+      "UNRUN_labels": [
+        "check package import gates (shell-package closure)",
+        "lint foundry",
+        "check state reads",
+        "check scholar imports",
+        "check connector contracts",
+        "check schema freshness",
+        "check runtime API contract",
+        "check last-mile inventory baseline",
+        "build honest diagnostics coverage dashboard",
+        "check honest diagnostics substrate drift",
+        "check extension example contract coverage",
+        "check schemas pure-data closure",
+        "pytest fast backend gate"
+      ]
+    },
+    {
+      "name": "ci-parity",
+      "receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/ci-parity.json",
+        "bytes": 8574,
+        "sha256": "8ce46546614f66778a33e41cb9ba21533edab45c97137610f6d8bb56a88114af"
+      },
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/ci-parity.stdout.txt",
+        "bytes": 15296,
+        "sha256": "048275b6f4334ea9638817049dabcff2cf1a14e9cbfb4085a30fd5f0a333c8fd"
+      },
+      "stages": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "step_outcomes": {
+        "FAIL": 1,
+        "UNRUN": 23
+      },
+      "UNRUN_labels": [
+        "verify backend fast gate",
+        "pytest runtime/http",
+        "check directory health ratchet",
+        "check test ratchets and helper topology",
+        "check architecture phase6-1 report-only contracts",
+        "check validator module-size budget",
+        "report debt ledger reconciliation",
+        "check extension example installability",
+        "check ADR thematic index freshness",
+        "check docs accuracy",
+        "build docs in strict mode",
+        "check semantic docstring quality",
+        "npm typecheck",
+        "npm lint",
+        "npm format check",
+        "npm architecture check",
+        "npm contract fixtures",
+        "npm coverage",
+        "npm build",
+        "npm build-storybook",
+        "Playwright browser install",
+        "npm Storybook interaction tests",
+        "npm accessibility suite"
+      ]
+    }
+  ],
+  "reviewer_source": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/review-canonical-umbrella-separation.py.txt",
+    "bytes": 3031,
+    "sha256": "a8c4dea43089e574528527c8eab25bc86d8a70e032adb029a7b7fdbb1fb08d59"
+  },
+  "rule": "Native standalone outcomes and alternate existing-environment CI08 do not rewrite these canonical fail-fast UNRUN observations; no full CI or finding closure inferred."
+}

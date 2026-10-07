@@ -23,15 +23,23 @@ _TENANT_ID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
 _CELL_ID = "cell-a"
 
 
-def _ncm_direct_effect(ncm_spec: Any, *, target: str, outcome: str, seed: int) -> float:
-    """Compute the same one-step do-effect from an admitted NCM with fixed seed."""
+def _ncm_direct_effect(
+    ncm_spec: Any,
+    *,
+    target: str,
+    outcome: str,
+    seed: int,
+    target_baseline: float,
+    target_value: float,
+) -> float:
+    """Compute the declared target-value do-effect from the admitted NCM."""
 
     from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
     from polisyos.foundry.methods.catalog.causal.protocols import NCMQueryData
 
     query = NCMQueryData(
         ncm_spec=ncm_spec,
-        interventions=[{target: 0.0}, {target: 1.0}],
+        interventions=[{target: target_baseline}, {target: target_value}],
         query_vars=[outcome],
         n_samples=512,
     )
@@ -92,6 +100,7 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
         GenerationCycleController,
         GenerationCycleError,
         JointSimulationPort,
+        load_joint_simulation_result,
         reconcile_candidate_model_revision,
     )
     from polisyos.runtime.quality.generation_source import (
@@ -664,12 +673,20 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
             target=old_declaration.target_world_slot,
             outcome=old_declaration.outcome_variable,
             seed=old_source.source_record.profile.n5.seed,
+            target_baseline=old_input.profile.n5.baseline_state[
+                old_declaration.target_world_slot
+            ],
+            target_value=float(old_input.materialization.value),
         )
         new_effect = _ncm_direct_effect(
             new_ncm,
             target=new_declaration.target_world_slot,
             outcome=new_declaration.outcome_variable,
             seed=new_source.source_record.profile.n5.seed,
+            target_baseline=new_input.profile.n5.baseline_state[
+                new_declaration.target_world_slot
+            ],
+            target_value=float(new_input.materialization.value),
         )
         assert old_effect == pytest.approx(0.5, abs=0.02)
         assert new_effect == pytest.approx(1.0, abs=0.02)
@@ -678,6 +695,69 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
         # Reconcile a serialized receipt against a new CAS handle to prove the
         # consumer reads persisted source, execution, context, and N5 bytes.
         fresh_store = FileSystemCAS(cas_root)
+        with tenant_scope(
+            None,
+            tenant_id=verified_scope.tenant_id,
+            cell_id=verified_scope.cell_id,
+        ):
+            old_n5_result = load_joint_simulation_result(
+                old_execution.n5_result_ref,
+                store=fresh_store,
+                expected_world_model_record_content_hash=(
+                    old_execution.world_model_record_hash
+                ),
+                expected_receipt_payload_hash=old_execution.n5_result_content_hash,
+                expected_atom_ids=(
+                    old_input.materialization.derived_n5_atom.intervention_id,
+                ),
+                expected_selected_outcomes=(outcome_variable,),
+            )
+            new_n5_result = load_joint_simulation_result(
+                new_execution.n5_result_ref,
+                store=fresh_store,
+                expected_world_model_record_content_hash=(
+                    new_execution.world_model_record_hash
+                ),
+                expected_receipt_payload_hash=new_execution.n5_result_content_hash,
+                expected_atom_ids=(
+                    new_input.materialization.derived_n5_atom.intervention_id,
+                ),
+                expected_selected_outcomes=(outcome_variable,),
+            )
+        assert old_input.materialization.value == new_input.materialization.value == 1
+        assert old_input.profile.n5.seed == new_input.profile.n5.seed
+        assert old_input.profile.n5.horizon == new_input.profile.n5.horizon
+        assert old_n5_result.atom_ids == new_n5_result.atom_ids == (
+            old_input.materialization.derived_n5_atom.intervention_id,
+        )
+        assert old_n5_result.selected_outcomes == new_n5_result.selected_outcomes == (
+            outcome_variable,
+        )
+        assert old_n5_result.horizon == new_n5_result.horizon
+        old_joint_trajectory = old_n5_result.trajectory_for(
+            "joint", old_n5_result.atom_ids
+        )
+        new_joint_trajectory = new_n5_result.trajectory_for(
+            "joint", new_n5_result.atom_ids
+        )
+        assert tuple(point.step for point in old_joint_trajectory.points) == tuple(
+            point.step for point in new_joint_trajectory.points
+        )
+        target_baseline = old_input.profile.n5.baseline_state[
+            old_declaration.target_world_slot
+        ]
+        actual_write_delta = old_input.materialization.value - target_baseline
+        assert actual_write_delta == 1.0
+        old_joint_effect = old_joint_trajectory.points[0].effect[outcome_variable]
+        new_joint_effect = new_joint_trajectory.points[0].effect[outcome_variable]
+        old_joint_outcome = old_joint_trajectory.points[0].outcomes[outcome_variable]
+        new_joint_outcome = new_joint_trajectory.points[0].outcomes[outcome_variable]
+        # The 512-draw direct oracle is run at the actual admitted intervention
+        # value above; the persisted N5 run uses two paired one-sample seeds.
+        assert old_joint_effect == pytest.approx(old_effect, abs=0.05)
+        assert new_joint_effect == pytest.approx(new_effect, abs=0.05)
+        assert new_joint_effect - old_joint_effect > 0.25
+        assert new_joint_outcome != pytest.approx(old_joint_outcome, abs=0.1)
         serialized_receipt = receipt.model_dump(mode="json")
         rehydrated_receipt = CandidateModelRevisionReentryReceipt.model_validate(
             serialized_receipt
@@ -700,49 +780,64 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
         forged_hash = "sha256:" + "f" * 64
         assert forged_hash != old_source.source_record.candidate.atom.content_hash
         assert forged_hash != new_source.source_record.candidate.atom.content_hash
-        forged_cycle = receipt.new_cycle.model_copy(
-            update={"selected_candidate_content_hash": forged_hash}
-        )
-        forged_summaries = tuple(
-            row.model_copy(
-                update={
-                    "content_hash": forged_hash,
-                    "source_content_hash": forged_hash,
-                }
+
+        def forge_occurrence_projection(
+            *, source_content_hash: str
+        ) -> CandidateModelRevisionReentryReceipt:
+            forged_cycle = receipt.new_cycle.model_copy(
+                update={"selected_candidate_content_hash": forged_hash}
             )
-            if row.candidate_id == receipt.candidate_id
-            and row.cycle_index == receipt.new_cycle.cycle_index
-            else row
-            for row in receipt.candidate_summaries
-        )
-        assert sum(
-            row.candidate_id == receipt.candidate_id
-            and row.cycle_index == receipt.new_cycle.cycle_index
-            for row in forged_summaries
-        ) == 1
-        forged_payload = receipt.model_dump(mode="python", exclude={"content_hash"})
-        forged_payload["new_cycle"] = forged_cycle
-        forged_payload["candidate_summaries"] = forged_summaries
-        forged_receipt = CandidateModelRevisionReentryReceipt.issue(**forged_payload)
-        assert forged_receipt.content_hash != receipt.content_hash
-        serialized_forgery = CandidateModelRevisionReentryReceipt.model_validate(
-            forged_receipt.model_dump(mode="json")
-        )
-        with (
-            tenant_scope(
-                None,
-                tenant_id=verified_scope.tenant_id,
-                cell_id=verified_scope.cell_id,
+            forged_summaries = tuple(
+                row.model_copy(
+                    update={
+                        "content_hash": forged_hash,
+                        "source_content_hash": source_content_hash,
+                    }
+                )
+                if row.candidate_id == receipt.candidate_id
+                and row.cycle_index == receipt.new_cycle.cycle_index
+                else row
+                for row in receipt.candidate_summaries
+            )
+            assert sum(
+                row.candidate_id == receipt.candidate_id
+                and row.cycle_index == receipt.new_cycle.cycle_index
+                for row in forged_summaries
+            ) == 1
+            forged_payload = receipt.model_dump(mode="python", exclude={"content_hash"})
+            forged_payload["new_cycle"] = forged_cycle
+            forged_payload["candidate_summaries"] = forged_summaries
+            issued = CandidateModelRevisionReentryReceipt.issue(**forged_payload)
+            assert issued.content_hash != receipt.content_hash
+            return CandidateModelRevisionReentryReceipt.model_validate(
+                issued.model_dump(mode="json")
+            )
+
+        # Case one forges the summary's source hash too. Case two preserves the
+        # true source atom hash, so only a consumer comparison of the selected
+        # cycle hash against CAS catches the mismatch.
+        forged_receipts = (
+            forge_occurrence_projection(source_content_hash=forged_hash),
+            forge_occurrence_projection(
+                source_content_hash=new_source.source_record.candidate.atom.content_hash
             ),
-            pytest.raises(GenerationCycleError) as occurrence_mismatch,
-        ):
-            reconcile_candidate_model_revision(
-                serialized_forgery,
-                artifact_store=fresh_store,
-            )
-        assert occurrence_mismatch.value.code == (
-            "candidate_model_revision_occurrence_hash_mismatch"
         )
+        for forged_receipt in forged_receipts:
+            with (
+                tenant_scope(
+                    None,
+                    tenant_id=verified_scope.tenant_id,
+                    cell_id=verified_scope.cell_id,
+                ),
+                pytest.raises(GenerationCycleError) as occurrence_mismatch,
+            ):
+                reconcile_candidate_model_revision(
+                    forged_receipt,
+                    artifact_store=fresh_store,
+                )
+            assert occurrence_mismatch.value.code == (
+                "candidate_model_revision_occurrence_hash_mismatch"
+            )
         return original_run_result
 
     monkeypatch.setattr(

@@ -1,3 +1,7 @@
+Current criterion-scope correction: [B109/B111/B100 errata](../../integration/reviews/original-criteria-errata-2026-10-06.md). B109 is fast/direct comparator acceptance; the served provider is additional capability. B111 keeps invalid-state/partial-denominator/finite-or-unavailable semantics; schema-v3 migration and finite-positive underflow are separately scoped. Historical outcomes and status counts below are retained.
+
+Current delta instructions: [latest D actions](../../integration/reviews/D-next-wave-2026-10-06.md). For E also use [PR38 r2 continuation](E-resume-after-pr38-r2.md). Apply historical tasks below only to the still-unresolved original criterion; do not repeat already-measured unchanged source.
+
 # D — продолжить после PR47 до завершения собственных критериев
 
 Ты — облачный оркестратор D. Продолжи существующую append-only работу; итог PR47 — промежуточный результат, не окончание задачи. Закрой доступные engineering/mechanism/consumer задачи, запроси минимальные реальные inputs у их canonical owners через committed handoffs и доведи каждый исходный criterion до честного решения. Не возвращай ещё один пакет `limited`, если собственный исправимый дефект или отсутствующий ordinary bridge остался без выполненной работы. Missing scientific law/authority не выдумывай; такие критерии сохраняют предметный held/input packet.

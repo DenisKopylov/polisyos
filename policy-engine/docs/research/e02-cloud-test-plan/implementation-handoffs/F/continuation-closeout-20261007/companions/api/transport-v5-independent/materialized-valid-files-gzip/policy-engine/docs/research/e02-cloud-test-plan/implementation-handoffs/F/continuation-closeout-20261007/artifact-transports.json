@@ -1,0 +1,113 @@
+{
+  "schema": "policyos.e02.artifact_transports.v1",
+  "draft": false,
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/a.gz",
+      "encoding": "gzip",
+      "bytes": 35,
+      "sha256": "7d40467d751fc96f52795eb1f51342658b57df403e359d9642701ea817b13d38",
+      "decoded_bytes": 15,
+      "decoded_sha256": "30f8c589a5fd32a1b081cbeb75e4579120b39cebd3dd61af958e36cd104a68ee",
+      "original_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/a.gz",
+      "role": "Complete declared precompressed owner output; same compressed bytes reused, no double gzip.",
+      "input_binding": {
+        "bytes": 35,
+        "sha256": "7d40467d751fc96f52795eb1f51342658b57df403e359d9642701ea817b13d38"
+      },
+      "input_encoding": "gzip"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/api/transport-v5-independent/valid-files-gzip.input.json",
+      "encoding": "identity",
+      "bytes": 364,
+      "sha256": "6f07ed84b4b1cf384b6c6876679b7d7c6160574643e5f7111957ae3de00d95e8",
+      "decoded_bytes": 364,
+      "decoded_sha256": "6f07ed84b4b1cf384b6c6876679b7d7c6160574643e5f7111957ae3de00d95e8",
+      "original_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip.input.json",
+      "role": "Exact explicit complete final reviewer selection input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "encoding": "identity",
+      "bytes": 17081,
+      "sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d",
+      "decoded_bytes": 17081,
+      "decoded_sha256": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d",
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "role": "Exact final selection refresher source"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "encoding": "identity",
+      "bytes": 11741,
+      "sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2",
+      "decoded_bytes": 11741,
+      "decoded_sha256": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2",
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "role": "Exact final additive streaming publisher source"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/companions/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "encoding": "identity",
+      "bytes": 1375,
+      "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a",
+      "decoded_bytes": 1375,
+      "decoded_sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a",
+      "original_path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "role": "Exact complete transport-format classifier source"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+      "encoding": "identity",
+      "bytes": 5996,
+      "sha256": "ca7e940ad8be8d756469db2a1b7848d337b9bc15978fbdfdf2447a7d56544f68",
+      "decoded_bytes": 5996,
+      "decoded_sha256": "ca7e940ad8be8d756469db2a1b7848d337b9bc15978fbdfdf2447a7d56544f68",
+      "original_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip.selected.json",
+      "role": "Exact frozen publisher input selection; manifest hashes it, selection does not hash itself."
+    }
+  ],
+  "aliases": [],
+  "existing_git_files": [],
+  "existing_declared_git_references": [],
+  "selection_inputs": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/valid-files-gzip.input.json",
+      "bytes": 364,
+      "sha256": "6f07ed84b4b1cf384b6c6876679b7d7c6160574643e5f7111957ae3de00d95e8"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/seed.json",
+      "bytes": 285,
+      "sha256": "14ad086a1084dd57163edd0364559f0336e1bb4b7e25a48fc53a84eb304868d6"
+    }
+  ],
+  "frozen_publisher_input": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/recipe/selection-final.json",
+    "bytes": 5996,
+    "sha256": "ca7e940ad8be8d756469db2a1b7848d337b9bc15978fbdfdf2447a7d56544f68"
+  },
+  "pending_extensions": [],
+  "source_window": {
+    "actual_final_source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "actual_final_source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "historical_seed_source_window": {
+      "scope": "Small standalone transport fixture, not scientific evidence"
+    },
+    "meaning": "Actual explicit final source window; historical b5 quality and d833 original35 GO retain their old source scopes, not current final scientific PASS."
+  },
+  "policy": {
+    "sanitation": "none"
+  },
+  "sanitation": "none; byte-exact identity or lossless gzip; originals preserved",
+  "decoded_count_scope": "decoded_unique_bytes sums decoded bytes per distinct stored custody object, including different original gzip containers; it does not assert distinct decoded payloads.",
+  "counts": {
+    "logical_files": 6,
+    "transported_files": 6,
+    "aliases": 0,
+    "existing_git_files": 0,
+    "stored_bytes": 36592,
+    "decoded_unique_bytes": 36572
+  }
+}

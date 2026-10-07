@@ -1,0 +1,100 @@
+[
+  {
+    "label": "read-actual-published-gzip",
+    "argv": [
+      "git",
+      "-C",
+      "/workspace/e02-F-api-20261006",
+      "show",
+      "c4ddc4bcbddc2a7526f541d51196b176e4311362:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/app-python-version.stdout.txt.gz"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.0037825950130354613,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/read-actual-published-gzip.stdout.txt",
+      "bytes": 90,
+      "sha256": "8aea3a1349f69e9136bbff2779f1c3dadb8d36f1c9ff1d37260691c2901d4361"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/read-actual-published-gzip.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "refresh-actual-git",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v5.py",
+      "--seed-selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/seed.json",
+      "--prior-manifest",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/prior.json",
+      "--prior-staging-root",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/prior-stage",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--final-source-sha",
+      "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "--output",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/selected.json",
+      "--include-selection",
+      "tinygit=/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/input.json",
+      "--existing-git-spec",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/existing-git-spec.json"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.08064602100057527,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/refresh-actual-git.stdout.txt",
+      "bytes": 532,
+      "sha256": "a5de1a26ff9419d918bbde624c21f9bc36ae17d7c5ade2cbd94cc8ce2f0cdb97"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/refresh-actual-git.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "label": "publish-actual-git",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v5.py",
+      "--selection",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/selected.json",
+      "--repository",
+      "/workspace/e02-F-api-20261006",
+      "--materialize",
+      "--destination",
+      "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/materialized"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 0.07504324201727286,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/publish-actual-git.stdout.txt",
+      "bytes": 790,
+      "sha256": "3b5e3bd2bda5b651c74cea06766f64e8d5d5e9dc791f307556b9581ccabbd930"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/transport-v5-independent/git-binding-controls/publish-actual-git.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+]

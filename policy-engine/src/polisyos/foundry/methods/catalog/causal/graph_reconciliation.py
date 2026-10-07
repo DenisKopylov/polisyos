@@ -23,7 +23,7 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-from polisyos.foundry.methods.catalog.causal.admg_ops import tarjan_scc
+from polisyos.foundry.methods.catalog.causal.admg_ops import _validate_static_admg, tarjan_scc
 from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
     build_composition_failure_cards,
 )
@@ -79,11 +79,28 @@ _SUPPORTED_CYCLE_TYPES = {
 }
 
 
+def _validate_reconciliation_profile(graph: CausalGraphModel) -> None:
+    """Admit the declared DAG/ADMG family before any semantic projection.
+
+    Resolved endpoint marks alone cannot establish this profile: MGraph,
+    CPDAG and PAG carry distinct semantics even with the same visible edges.
+    This boundary does not constrain their other supported consumers.
+    """
+    if graph.graph_type not in {GraphType.DAG, GraphType.ADMG}:
+        raise ValueError(
+            "Unsupported graph reconciliation profile: "
+            f"graph_type={graph.graph_type.value}; requires declared static DAG/ADMG"
+        )
+    _validate_static_admg(graph)
+
+
 @dataclass
 class _MergedEdge:
     src: str
     dst: str
     lag: int | None = None
+    mark_src: EdgeMark = EdgeMark.TAIL
+    mark_dst: EdgeMark = EdgeMark.ARROW
     sources: set[EdgeSource] = field(default_factory=set)
     data_confidence: float | None = None
     literature_confidence: float | None = None
@@ -296,8 +313,14 @@ def _clamp_probability(value: float | None) -> float:
     return max(0.0, min(1.0, float(value)))
 
 
-def _edge_key(src: str, dst: str, lag: int | None) -> tuple[str, str, int]:
-    return (str(src), str(dst), int(lag or 0))
+def _edge_key(
+    src: str,
+    dst: str,
+    lag: int | None,
+    mark_src: EdgeMark = EdgeMark.TAIL,
+    mark_dst: EdgeMark = EdgeMark.ARROW,
+) -> tuple[str, str, int, EdgeMark, EdgeMark]:
+    return (str(src), str(dst), int(lag or 0), mark_src, mark_dst)
 
 
 def _combined_confidence(edge: _MergedEdge) -> float:
@@ -327,7 +350,7 @@ def _coerce_source_tags(value: Any) -> list[str]:
 
 def _add_literature_edges(
     *,
-    merged: dict[tuple[str, str, int], _MergedEdge],
+    merged: dict[tuple[str, str, int, EdgeMark, EdgeMark], _MergedEdge],
     prior: LiteratureCausalPrior | None,
     min_edge_confidence: float,
 ) -> None:
@@ -351,9 +374,7 @@ def _add_literature_edges(
             "evidence_strength",
             edge.evidence_strength.value if edge.evidence_strength is not None else None,
         )
-        current.metadata.setdefault(
-            "evidence_strength_status", edge.evidence_strength_status.value
-        )
+        current.metadata.setdefault("evidence_strength_status", edge.evidence_strength_status.value)
         current.metadata.setdefault("scope_conditions", list(edge.scope_conditions))
         current.metadata.setdefault("direction", edge.direction.value)
         if edge.meta_effect_size is not None:
@@ -362,13 +383,33 @@ def _add_literature_edges(
 
 def _add_data_edges(
     *,
-    merged: dict[tuple[str, str, int], _MergedEdge],
+    merged: dict[tuple[str, str, int, EdgeMark, EdgeMark], _MergedEdge],
     data_graph: CausalGraphModel,
     warnings: list[str],
 ) -> None:
-    for edge in data_graph.edges:
-        key = _edge_key(edge.src, edge.dst, edge.lag)
-        reverse_key = _edge_key(edge.dst, edge.src, edge.lag)
+    for original in data_graph.edges:
+        edge = original
+        if (edge.mark_src, edge.mark_dst) == (EdgeMark.ARROW, EdgeMark.TAIL):
+            metadata = dict(edge.metadata)
+            metadata["orientation_origin"] = {
+                "src": edge.src,
+                "dst": edge.dst,
+                "mark_src": edge.mark_src.value,
+                "mark_dst": edge.mark_dst.value,
+            }
+            edge = edge.model_copy(
+                update={
+                    "src": original.dst,
+                    "dst": original.src,
+                    "mark_src": EdgeMark.TAIL,
+                    "mark_dst": EdgeMark.ARROW,
+                    "metadata": metadata,
+                }
+            )
+        elif edge.mark_src is EdgeMark.ARROW and edge.dst < edge.src:
+            edge = edge.model_copy(update={"src": original.dst, "dst": original.src})
+        key = _edge_key(edge.src, edge.dst, edge.lag, edge.mark_src, edge.mark_dst)
+        reverse_key = _edge_key(edge.dst, edge.src, edge.lag, edge.mark_src, edge.mark_dst)
         reverse = merged.get(reverse_key)
         if reverse is not None and EdgeSource.DATA not in reverse.sources:
             reverse.metadata["direction_conflict"] = True
@@ -379,7 +420,13 @@ def _add_data_edges(
 
         current = merged.get(key)
         if current is None:
-            current = _MergedEdge(src=edge.src, dst=edge.dst, lag=edge.lag)
+            current = _MergedEdge(
+                src=edge.src,
+                dst=edge.dst,
+                lag=edge.lag,
+                mark_src=edge.mark_src,
+                mark_dst=edge.mark_dst,
+            )
             merged[key] = current
         current.sources.add(EdgeSource.DATA)
         data_conf = edge.data_confidence
@@ -390,6 +437,7 @@ def _add_data_edges(
             _clamp_probability(data_conf),
         )
         current.evidence_refs.update(edge.evidence_refs)
+        current.metadata.update(dict(edge.metadata))
         source_tags = _coerce_source_tags(edge.metadata.get("source_method_tags"))
         if source_tags:
             current.metadata["source_method_tags"] = sorted(
@@ -400,7 +448,7 @@ def _add_data_edges(
 
 def _add_llm_hints(
     *,
-    merged: dict[tuple[str, str, int], _MergedEdge],
+    merged: dict[tuple[str, str, int, EdgeMark, EdgeMark], _MergedEdge],
     llm_hints: list[LLMStructuralHint],
     warnings: list[str],
 ) -> None:
@@ -455,7 +503,7 @@ def _add_llm_hints(
 
 def _materialize_edges(
     *,
-    merged: dict[tuple[str, str, int], _MergedEdge],
+    merged: dict[tuple[str, str, int, EdgeMark, EdgeMark], _MergedEdge],
     min_edge_confidence: float,
 ) -> list[CausalEdge]:
     output: list[CausalEdge] = []
@@ -467,6 +515,8 @@ def _materialize_edges(
             src=value.src,
             dst=value.dst,
             lag=value.lag,
+            mark_src=value.mark_src,
+            mark_dst=value.mark_dst,
             sources=sorted(value.sources, key=lambda item: item.value),
             data_confidence=value.data_confidence,
             literature_confidence=value.literature_confidence,
@@ -487,6 +537,11 @@ def _find_cycle(edges: list[CausalEdge]) -> list[int] | None:
     adjacency: dict[str, list[tuple[str, int]]] = defaultdict(list)
     nodes: set[str] = set()
     for idx, edge in enumerate(edges):
+        if (edge.mark_src, edge.mark_dst) != (EdgeMark.TAIL, EdgeMark.ARROW) or edge.lag not in (
+            None,
+            0,
+        ):
+            continue
         nodes.add(edge.src)
         nodes.add(edge.dst)
         adjacency[edge.src].append((edge.dst, idx))
@@ -952,6 +1007,8 @@ class ReconcileCausalGraph:
             if isinstance(state, GraphReconciliationData)
             else GraphReconciliationData.model_validate(state)
         )
+        # Admission precedes filtering, confidence merging and cycle rewrites.
+        _validate_reconciliation_profile(payload.data_graph)
         min_edge_confidence = float(params.get("min_edge_confidence", payload.min_edge_confidence))
         max_lag_depth = int(params.get("max_lag_depth", payload.max_lag_depth))
         max_lagged_edges = int(params.get("max_lagged_edges", payload.max_lagged_edges))
@@ -960,7 +1017,7 @@ class ReconcileCausalGraph:
         )
 
         warnings: list[str] = []
-        merged: dict[tuple[str, str, int], _MergedEdge] = {}
+        merged: dict[tuple[str, str, int, EdgeMark, EdgeMark], _MergedEdge] = {}
 
         _add_literature_edges(
             merged=merged,
@@ -1000,7 +1057,14 @@ class ReconcileCausalGraph:
         )
 
         graph = CausalGraphModel(
-            graph_type=GraphType.DAG,
+            graph_type=(
+                GraphType.ADMG
+                if any(
+                    (edge.mark_src, edge.mark_dst) == (EdgeMark.ARROW, EdgeMark.ARROW)
+                    for edge in resolved_edges
+                )
+                else GraphType.DAG
+            ),
             nodes=sorted(node_set),
             edges=resolved_edges,
             discovery_method="reconciled_prior_graph",
@@ -1256,6 +1320,8 @@ class ComposeSCMFragments:
             if isinstance(state, FragmentCompositionData)
             else FragmentCompositionData.model_validate(state)
         )
+        for graph in payload.fragment_graphs.values():
+            _validate_reconciliation_profile(graph)
         declared_cycle_semantics = _fragments_declare_cycles(payload.fragments)
         cycle_semantics_mode = _cycle_semantics_mode(payload.fragments)
         graph_type = _effective_composition_graph_type(payload.fragment_graphs, payload.fragments)

@@ -1,0 +1,11 @@
+{
+  "target": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+  "existing_patterns": [
+    "P02",
+    "P10",
+    "P27",
+    "P35",
+    "P40"
+  ],
+  "addition": "- P02 installed-default discriminator: does an actual neutral installed consumer read the curated default metadata, or only import its module/use an explicit custom path? Bind all finite catalog resources from original tracked bytes through sdist and wheel, route every default owner through one resolver, and reject CWD or neighboring-checkout substitutions. Retain declared absence/parse fallback semantics separately: an empty fallback is not evidence that the supported installed default was supplied. Packaging file counts without these consumer calls miss this class."
+}

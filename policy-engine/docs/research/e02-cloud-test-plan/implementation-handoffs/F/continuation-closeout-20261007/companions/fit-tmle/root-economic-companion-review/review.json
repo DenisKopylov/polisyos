@@ -1,0 +1,344 @@
+{
+  "schema": "policyos.e02.independent_readonly_review.v1",
+  "reviewer": "/root/fit_tmle",
+  "scope": "Narrow economic four-path source/evidence and corrected three ROOT current-doc captions; no renewed whole35 decision and no numerical suite execution.",
+  "verdict": "GO_BOUNDED",
+  "specification_verdict": "GO_BOUNDED",
+  "engineering_quality_verdict": "GO_BOUNDED",
+  "science_target": {
+    "sha": "193b3582a72c640c1d06a131f93502654a77a36a",
+    "tree": "81c2e3e636bec4c5d81b8f918bb61cca6a49309b"
+  },
+  "doc_companion": {
+    "sha": "c0084cd530c1dbe01eedfb9b5c24f055954a97be",
+    "tree": "9bbaa69dc195dd38adb04c9d52fc4cd700824bc7"
+  },
+  "published_eco_receipt": {
+    "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007.json",
+    "bytes": 106928,
+    "sha256": "24a72061e9e4379753f349f56c110b516cef300457b94e2d6a5e066b702f760e"
+  },
+  "original_criteria": [
+    {
+      "finding_id": "LA-035",
+      "check": "PASS",
+      "outcome": "closed",
+      "role": "original_technical_recommendation; ROOT-current-decision pending",
+      "ref": {
+        "git_ref": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "lines": [
+          2066,
+          2102
+        ],
+        "block_bytes": 7176,
+        "block_sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69"
+      }
+    },
+    {
+      "finding_id": "LA-004",
+      "check": "PASS",
+      "outcome": "closed",
+      "role": "original_technical_recommendation; ROOT-current-decision pending",
+      "ref": {
+        "git_ref": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "lines": [
+          167,
+          197
+        ],
+        "block_bytes": 3498,
+        "block_sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a"
+      }
+    }
+  ],
+  "four_changed_source_binding_pointer": {
+    "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007.json",
+    "json_pointer": "/source_bindings"
+  },
+  "requirements_to_evidence": [
+    {
+      "id": "LA-035",
+      "criterion": "Equivalent historical normalized-income/budget relocation, not a commissioned replacement objective or new optimizer. Native GlobalState, all supplied population entries, default minimum -1000, signs/scales, actual finite guard, public/internal aliases and supported literal callers preserve prior behavior.",
+      "source": "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py@193b3582a72c640c1d06a131f93502654a77a36a",
+      "evidence": [
+        {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/native.xml.xz"
+        },
+        {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/oracle.stdout.xz"
+        },
+        {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/oracle.stderr.xz"
+        },
+        {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/oracle-removal.stdout.xz"
+        },
+        {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-sign.stdout.txt.xz"
+        },
+        {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-baseline-guard.stdout.txt.xz"
+        }
+      ],
+      "outcome": "PASS",
+      "scope": "Existing full native83 and independent28+55 outputs read, exact source and decoded bytes reconciled; Fraction oracle32 panels/64 eager-JIT evaluations and2 analytic gradients already executed by independent CAU. No new numerical execution by this reviewer."
+    },
+    {
+      "id": "LA-004",
+      "criterion": "Distinguish finite native/plugin economic model profiles under matched and deliberately divergent regimes. No welfare norm or classical-Gini criterion is substituted for the original model inequivalence.",
+      "evidence": [
+        {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/siblings.stdout.xz"
+        },
+        {
+          "git_ref": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json",
+          "json_pointer": "/checks"
+        }
+      ],
+      "outcome": "PASS",
+      "scope": "New ECO193 companion preserves the separate previously executed model-profile proof and creates no new LA-004 test requirement."
+    },
+    {
+      "id": "separate-current-Gini-property",
+      "criterion": "Actual C/PPO producer makes positive wage/income and signed active wealth using unchanged law/RNG. Requested classical Gini must refuse before returning a current scalar/history; signed simulation without requested Gini is supported; inactive padding is excluded.",
+      "evidence": [
+        {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/signed-route-probe.stdout.txt.xz"
+        },
+        {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/native.stdout.txt.xz"
+        },
+        {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/removal-gini-domain.stdout.txt.xz"
+        },
+        {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/gini-removal.stdout.xz"
+        }
+      ],
+      "outcome": "PASS",
+      "scope": "Real registered actor→temporal→labor/tax/transfers/savings, actual eager bridge and requested JIT PPO metrics/current collector. Independent retained same-object domain removal causes2 DID-NOT-RAISE failures. No handconstructed Gini, new signed-Gini convention, economic law or welfare choice."
+    },
+    {
+      "id": "source-owner-boundary",
+      "criterion": "No source mutation or parallel C owner. Complete src/polisyos delta is zero8236→193→c008; current13 relevant provider blobs remain identical through frozenROOT7ba0. Five real C producer/bridge bodies matchG9a; current F MetricsCollector/Gini law is distinguished from unmergedG9a.",
+      "evidence": [
+        {
+          "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/evidence-audit.stdout.txt",
+          "bytes": 1843,
+          "sha256": "610e4b68ff4edb7372a27ec4a76cae7ebd85e578afe4a4fb273b15a8c4ae31ba"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/publication-readback.stdout.txt",
+          "bytes": 2944,
+          "sha256": "4cf50955d34a62dcc0c137cc16efb7dcfd2628265296bd86ec9f18f97c82cd97"
+        },
+        {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/independent-cau/independent-review.json",
+          "json_pointer": "/C_PPO_signed_population_chain"
+        }
+      ],
+      "outcome": "PASS",
+      "scope": "The first overbroad reviewer G-metrics identity assertion ERROR is retained, rather than promoting G9a to a tested F Gini profile."
+    },
+    {
+      "id": "current-economic-caption-correction",
+      "criterion": "Every relevant current source-qualified caption describes LA035 unchanged equivalent relocation as technically closed without an unrequested optimizer/normative prerequisite; LA004 inequivalence and requested-Gini refusal remain separate. Prior072 held receipts remain literal historical evidence.",
+      "evidence": [
+        {
+          "git_ref": "7ba0ce11648aac20351e7e9f4bf3fa61c0a847de",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+          "bytes": 26757,
+          "sha256": "4538c75a0aaf11eb253e9d7831d884859acb4c3ff9c81fea62ee2e0df8fdf2c6",
+          "matches_previously_read_working_delta": true,
+          "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+          "old_identity": {
+            "bytes": 23767,
+            "sha256": "00da8e6d723c1397546c706beb2b4dfec2664012dedc64f48c02de2126861872"
+          }
+        },
+        {
+          "git_ref": "7ba0ce11648aac20351e7e9f4bf3fa61c0a847de",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+          "bytes": 106381,
+          "sha256": "1dce4ad02656b5c9d873c2ed6066264a7b3ec3f02766001f437920a789e3f3ca",
+          "matches_previously_read_working_delta": true,
+          "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+          "old_identity": {
+            "bytes": 104210,
+            "sha256": "47993533fca8f262817dac4e93805d208c42efb63de797ef083668e30f1566a2"
+          }
+        },
+        {
+          "git_ref": "7ba0ce11648aac20351e7e9f4bf3fa61c0a847de",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+          "bytes": 35578,
+          "sha256": "ad7b68c4f9a35086e7492bfe84fb4f6a854e1d4f27f6addef07d562c06bd42d1",
+          "matches_previously_read_working_delta": true,
+          "old_ref": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+          "old_identity": {
+            "bytes": 34592,
+            "sha256": "09a9d58d24e39a79f62c71548498a2eb96d763b45c2778d22bc974e284973cc0"
+          }
+        }
+      ],
+      "outcome": "PASS",
+      "scope": "All three full current docs and literal5609→current deltas read. They were initially working-tree corrections; exact committed7ba0 bodies match that observed delta. Mechanical35-row arithmetic33closed/2limited is verified only as caption arithmetic; full35 semantic adoption belongs to ROOT/CAU/G."
+    },
+    {
+      "id": "release-internal-classification",
+      "criterion": "Internal test/doc companion has no new public, schema, persisted, dtype, simulation-law, objective or RNG change. Structured compatibility table is required for a breaking/public/migration promise, not imposed on this internal-only unchanged runtime.",
+      "evidence": [
+        {
+          "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/fragment.stdout.txt.xz"
+        },
+        {
+          "git_ref": "7ba0ce11648aac20351e7e9f4bf3fa61c0a847de",
+          "path": "policy-engine/release-fragments/README.md"
+        },
+        {
+          "git_ref": "7ba0ce11648aac20351e7e9f4bf3fa61c0a847de",
+          "path": "policy-engine/docs/how-to/release-policy.md",
+          "lines": [
+            286,
+            357
+          ]
+        }
+      ],
+      "outcome": "PASS",
+      "warning": "Canonical selected-fragment check has zero errors and one warning: no structured compatibility changes found. Warning preserved; no full release/compatibility/architecture gate PASS claimed."
+    }
+  ],
+  "evidence_fidelity": {
+    "complete_primary_checks": 13,
+    "checks_output_types": "13 strings with existing committed deciding paths",
+    "complete_evidence_manifest": {
+      "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007.json",
+      "json_pointer": "/evidence_transfer/manifest",
+      "files": 108,
+      "decoded_bytes": 7839324,
+      "stored_and_decoded_hash_verification": "PASS for every entry"
+    },
+    "native_junit": [
+      {
+        "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/native.xml.xz",
+        "decoded": {
+          "bytes": 15081,
+          "sha256": "e008d8810f6d54211800a8fedc58929de7d091c993c19296db12c175837006e9"
+        },
+        "values": {
+          "tests": 83,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    ],
+    "caption_basis": {
+      "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007/current-caption-role-classification.json",
+      "denominator": 31,
+      "all_declared_source_bytes_and_all_literal_line_matches_verified": "PASS"
+    },
+    "warning_counts": "Existing author83 native16 warnings; independent28 native16 warnings; independent55 sibling1 warning; independent Gini-removal7 warnings/5deselections retained. No warning or deselection converted to PASS.",
+    "historical_errors": "All original author collection/producer/helper FAIL/ERROR and the probe text PPO_trajectory ERROR accepted signed population stay literal. That probe is an incorrect harness expectation: a no-Gini trajectory genuinely succeeds."
+  },
+  "historical_findings": [
+    {
+      "id": "ROOT-economic-caption-precorrection",
+      "outcome": "FAIL",
+      "verdict": "BLOCK",
+      "target_sha": "5609d09cbf519f01bde1ea81c6b3ee4a36a484a8",
+      "locations": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+          "line": 52
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+          "line": 604
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+          "line": 124
+        }
+      ],
+      "reason": "Current operating views incorrectly treated absence of a new optimizer/intent/normative packet as a prerequisite to the original unchanged LA035 relocation. The9a COMMON and actual original card require no such new objective.",
+      "resolution": "Forward corrected in exactROOT7ba0; old5609 and072 records are retained, not relabeled."
+    }
+  ],
+  "review_executions": [
+    {
+      "command": "python3 /tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/audit.py",
+      "target_sha": "193/c008/fa53 immutable source/evidence, observedROOT7ba0",
+      "outcome": "ERROR",
+      "output": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/evidence-audit.initial.stderr.txt",
+      "classification": "First reviewer navigation error guessed numeric.py where the canonical owner is numeric/__init__.py; exact initial script/log retained."
+    },
+    {
+      "command": "python3 /tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/audit.py",
+      "target_sha": "193/c008/fa53 immutable source/evidence",
+      "outcome": "ERROR",
+      "output": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/evidence-audit.second.stderr.txt",
+      "classification": "Second reviewer denominator error included G9a MetricsCollector in a byte-identical C producer set. Actual G→F metric difference inspected and preserved; correct source profile is F8236."
+    },
+    {
+      "command": "python3 /tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/audit.py",
+      "target_sha": "193/c008/fa53/ROOT7ba0",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/evidence-audit.stdout.txt",
+      "scope": "Byte/hash/blob/delta/canonical-check/JUnit/document arithmetic inspection only."
+    },
+    {
+      "command": "python3 /tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/publication_replay.py",
+      "target_sha": "193/c008/fa53/ROOT7ba0",
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/publication-readback.stdout.txt",
+      "scope": "Portable Git-only publication binding, all108 raw bytes/all31 locator rows/four source files/three docs; no numerical execution."
+    }
+  ],
+  "limitations": [
+    "No fresh numerical suite or new coverage/optimizer evidence is claimed. Previously executed source193 native and independent deciding bytes were read and content-verified.",
+    "All literal9007-source/config caller results remain bounded to declared suffixes/exclusions; dynamic, untracked and external callers are unknown. The existing independent census bytes/denominator are verified, not a new census run by this reviewer.",
+    "No real training data/calibration/new welfare authority; actual C/PPO fixture is synthetic and finite.",
+    "No Runtime-appointed operational admission/statistical identification/native-value or admitted B56 shared-study workload positive is inferred from Gini/native import/install evidence.",
+    "No whole35 re-adjudication, G acceptance, global gate PASS or P41 inherited-red attribution. Separate ABM/global FAIL/ERROR/SKIP/UNRUN remain unchanged.",
+    "ROOT new REPORT/ledger transfer paths in current docs are assembly references; this review does not assert their future publication or accept all35 rows.",
+    "Derived audit JSON and tracked source/card bodies are not copied in this transfer. Full unique assertion stdout/stderr and exact replay inputs are retained; published source/evidence refs remain primary byte locators."
+  ],
+  "predicate_basis": "independently_reconciled",
+  "closure_ids": [],
+  "product_writes": false,
+  "doc_writes": false,
+  "new_children": false,
+  "source_guard": {
+    "root_head": "7ba0ce11648aac20351e7e9f4bf3fa61c0a847de",
+    "status": "?? policy-engine/workers/dowhy-014/.venv\n",
+    "outcome": "PASS; three working doc byte identities unchanged during this audit"
+  },
+  "root_final_doc_publication_readback": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-economic-companion-review/publication-readback.json",
+    "bytes": 2944,
+    "sha256": "4cf50955d34a62dcc0c137cc16efb7dcfd2628265296bd86ec9f18f97c82cd97"
+  },
+  "integrity_digest_note": "Review body digest identifies this reviewer output only; it grants no institutional/scientific authority.",
+  "review_body_sha256": "d155e91e5b389f1355c9b6df36c3589a7520ea8144be0f6a90c67e1d90c9652a"
+}

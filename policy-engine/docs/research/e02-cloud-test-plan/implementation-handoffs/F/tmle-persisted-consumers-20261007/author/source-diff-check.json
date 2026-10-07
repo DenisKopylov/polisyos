@@ -1,0 +1,25 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--check",
+    "f910039d73a56e1d3ab18a16fd17f2463b557f00",
+    "8d94a937ca6e3f886ada9ad5c1f76dadb049da84"
+  ],
+  "cwd": "/workspace/e02-F-tmle-20261006",
+  "exit_code": 0,
+  "outcome": "PASS",
+  "target_sha": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+  "index_tree_at_observation": "cff5fa97deccc4a2765f0d101b25ca5862f498a8",
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/tmle/source-diff-check.stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/tmle/source-diff-check.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "statement": "Entire three-path implementation/source companion delta whitespace clean."
+}

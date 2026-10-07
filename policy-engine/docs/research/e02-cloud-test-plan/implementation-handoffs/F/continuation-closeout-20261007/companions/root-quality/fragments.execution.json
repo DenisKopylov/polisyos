@@ -1,0 +1,28 @@
+{
+  "check_id": "fragments",
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "tools/ops_runners/release/check_compatibility_release_gates.py",
+    "--repo-root",
+    "/workspace/e02-F-closeout-20261006/policy-engine",
+    "--fragments-dir",
+    "/tmp/e02-F-continuation-20261007/root-quality/fragments",
+    "--fail-on-contract-errors",
+    "--json-output",
+    "/tmp/e02-F-continuation-20261007/root-quality/fragment-full.json"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "exit_code": 0,
+  "check": "PASS",
+  "wall_s": 0.15894818305969238,
+  "input_closure": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-economic-baseline-consumer-proof.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-installed-graph-contract-reconciliation.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml"
+  ],
+  "stdout": "/tmp/e02-F-continuation-20261007/root-quality/fragments.stdout",
+  "stderr": "/tmp/e02-F-continuation-20261007/root-quality/fragments.stderr"
+}

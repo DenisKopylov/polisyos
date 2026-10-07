@@ -1,0 +1,111 @@
+{
+  "schema": "policyos.e02.EMP01_affected_consumer_owner_packet.v1",
+  "root_source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "owner": "A-W01 / EMP-01; F only graph producer contract",
+  "finding_id": "B33",
+  "original_card": {
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EMP-01.md",
+    "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "bytes": 13972,
+    "sha256": "d04e4270ef56371ce614ab7b6f2fbe85c84a9121c1cce77b9b2c2212e97bc3b5"
+  },
+  "coverage_row": {
+    "id": "B33",
+    "unit": "A",
+    "primary_bundle": "EMP-01",
+    "source_closure_owner_literal": "EMP-01",
+    "companion_bundles": [
+      "EMP-01"
+    ],
+    "ledger_status_historical": "partial",
+    "appendix_c_status_separate": "partial",
+    "task_refs": [
+      "A.md#task-a9"
+    ],
+    "criterion_refs": [
+      {
+        "criterion_id": "B33",
+        "document": "B_r19",
+        "lines": [
+          621,
+          634
+        ],
+        "sha256": "8c095310505a69341c5faa680dfa7c46888374c0f46f4b617fa87d9d1fbf9d03",
+        "card": "EMP-01"
+      }
+    ],
+    "closure_now": "not_adjudicated",
+    "criterion_specific_acceptance_not_executed": "variable names/URI/template or refusal-only test proxy for verified graph.",
+    "capability_label": "bridge_missing"
+  },
+  "original_acceptance": "Same names/marginal data with genuinely different causal structure cannot obtain the same transport justification/certificate by topology template; missing causal structural basis cannot be manufactured from a name.",
+  "consumer": {
+    "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "bytes": 578822,
+    "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+    "function": "_build_candidate_selection_diagram",
+    "lines": [
+      10592,
+      10669
+    ],
+    "maintained_caller": "_build_default_selection_diagram@10576–10589",
+    "behavior": "After actual context/problem/world/transport validation, every current path raises ValueOwnerAccessError acquire_data:causal_graph_artifact_unresolved. Raw graph/hypothesis and measured covariate deltas affect refusal detail only. No CausalGraphModelRef/ArtifactStore verifier admission branch exists."
+  },
+  "producer_delta": {
+    "paths": [
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+    ],
+    "source_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+    "root_bytes_equal": true,
+    "schema_and_IR_unchanged": true,
+    "scientific_native_route": "Registered native reconciliation → typed result → CAS→ fresh/current Scientist content reader; preserves the finite native candidate structure/content contract, not an issued transport certificate."
+  },
+  "narrow_affected_check": {
+    "proposed_command": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "tests/unit/remediation/test_emp_01.py::test_selection_diagram_requires_verified_causal_artifact",
+      "tests/unit/remediation/test_emp_01.py::test_raw_graph_without_artifact_bridge_fails_closed"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+    "environment": {
+      "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "canonical_selectors": [
+      "tests/unit/remediation/test_emp_01.py::test_selection_diagram_requires_verified_causal_artifact",
+      "tests/unit/remediation/test_emp_01.py::test_raw_graph_without_artifact_bridge_fails_closed"
+    ],
+    "outcome": "UNRUN_BY_THIS_REVIEW",
+    "genuine_unavailable_authority_input_required": false,
+    "fixture": "Existing tests monkeypatch substrate-context revalidation to a valid bounded synthetic context then test absent/raw graph refusal. They need no accepted authority bridge; they do not prove production context/transport acceptance.",
+    "test_source_binding": {
+      "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+      "git_ref": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "bytes": 20102,
+      "sha256": "ce85c78a031b4e61bc6ff75081d9d343793b8ca8666f5116bd526cab8f148ee6"
+    },
+    "both_consumer_and_test_bytes_unchanged_from072": true
+  },
+  "positive_owner_followup": {
+    "state": "bridge_missing / not_available in this current A consumer",
+    "owner": "Existing A EMP-01 graph/transport admission owner with F producer binding, not F new authority/schema writer",
+    "minimum_inputs": [
+      "actual typed persisted CausalGraphModelRef with graph edge/content/model purpose identity and CAS store/resolver",
+      "source/target population/scope, estimand/assumptions, model/version/time/content bindings consistent with CycleSubstrateContext",
+      "accepted current A graph-admission verifier/consumer contract and its actual supported producer→persist→fresh consumer route"
+    ],
+    "required_positive": "Admitted model→F registered producer→actual persisted typed graph→A accepted verifier and selection-diagram consumer. Change an edge while holding node names/marginals fixed: consumed content/justification changes; missing/corrupt/foreign/expired refs refuse.",
+    "authority_boundary": "No global empirical causal certificate supplied by finite F reconciliation CAS alone. This review cannot claim B33 closure or authorize broad A changes. Current narrow refusal tests remain runnable without waiting for unavailable positive inputs."
+  },
+  "not_affected_other_EMP_ids": [
+    "B16 empirical sample scope/units/LIMIT",
+    "B31 identification vs statistical uncertainty projection"
+  ]
+}

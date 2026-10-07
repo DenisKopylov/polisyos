@@ -1,0 +1,55 @@
+{
+  "schema": "F-final-ledger-caption-independent-addendum/v1",
+  "check": "PASS",
+  "target": {
+    "sha": "cdf61b4500e355a27db14260e80ce673ddf8869e",
+    "tree": "a08083a193d4621a5d5c59bf31a94916e8323a0a"
+  },
+  "previous_complete_metadata_review": {
+    "sha": "46cc03546f2572986962555ddf04d858163c1cf6",
+    "tree": "bb2ceacff846b68466a03fce767f7d300b18240e",
+    "check": "PASS",
+    "negative_controls": "six actualFAIL/exit1; harnessPASS; remain bound to46cc, not relabeled as cdf executions"
+  },
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/REPORT.md"
+  ],
+  "complete_diff": {
+    "bytes": 2215,
+    "sha256": "2117fcacdaad3e6c744f2ed6feb81500c3b2f3f9b43e7519064c9316af2c9ea6",
+    "reconstruction": [
+      "git",
+      "diff",
+      "--no-ext-diff",
+      "46cc03546f2572986962555ddf04d858163c1cf6",
+      "cdf61b4500e355a27db14260e80ce673ddf8869e"
+    ]
+  },
+  "report_before": {
+    "git_ref": "46cc03546f2572986962555ddf04d858163c1cf6",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/REPORT.md",
+    "bytes": 29017,
+    "sha256": "8d023886e9f8e854a27d7adc73348450bf9b4da13e2f15951412a45ff2f781de"
+  },
+  "report_after": {
+    "git_ref": "cdf61b4500e355a27db14260e80ce673ddf8869e",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/REPORT.md",
+    "bytes": 29022,
+    "sha256": "7ac674ae385c0d215ada5c27966bcec0aba551cb493751205576783b3ffdf1b9"
+  },
+  "old_sentence": "Final installed affected-wave output and complete dependency/source-order records are published separately and referenced in this index once available.",
+  "new_sentence": "Final source519 installed affected-wave output and complete dependency/source-order records are published at de197/c4 and bound by exact refs in this index.",
+  "byte_identity_by_exact_one_path_diff": "All35perIDs/index/audit/10registry/source-order/3currentcaptions/scientific provider/test/schema/build bytes unchanged46cc; only one REPORT sentence changes. No repeat old1659/480 material or numerical suites.",
+  "rationale": "Removes observed stale future wording after actualde197/c4 publication; source519 installed91/profile and separatewheel-child remain finite observed properties, original34PASS/33closed and G0 separate.",
+  "environment": {
+    "python": "3.12.14",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "purpose": "stdlib immutable Git doc delta only"
+  },
+  "replayer": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/review_caption_addendum.py",
+    "bytes": 3480,
+    "sha256": "4bb2c96e9ec529da6ba811b88d5d18445f71bdcd53e674260c03c9439e282375"
+  },
+  "elapsed_s": 0.023661398008698598
+}

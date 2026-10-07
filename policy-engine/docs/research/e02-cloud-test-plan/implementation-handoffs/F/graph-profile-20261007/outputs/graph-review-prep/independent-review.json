@@ -1,0 +1,242 @@
+{
+  "P40": {
+    "outcome": "bounded class containment",
+    "predicate": "Single shared local family admission predicate reused before canonical reconciliation/composition/Node transformations, cutoff and cache admission; existing static endpoint/lag validation follows. Five-tag finite denominator and real MGraph semantic discriminator."
+  },
+  "P41": {
+    "outcome": "not_established",
+    "reason": "No inherited-failure attribution or full disjoint source-input denominator is claimed."
+  },
+  "check": "PASS",
+  "fresh_reader_argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-I",
+    "-B",
+    "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid_reader.py",
+    "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/fresh-reader-inputs.json"
+  ],
+  "fresh_reader_stderr": {
+    "bytes": 0,
+    "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/fresh-reader.stderr.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "fresh_reader_stdout": {
+    "bytes": 24101,
+    "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/fresh-reader.stdout.txt",
+    "sha256": "4f7c941197fe24f28d05234b6e4def1dec2ecdc8a649ca6ff8027e7dd372d0ec"
+  },
+  "full_native_witness": {
+    "bytes": 75630,
+    "decoded": {
+      "bytes": 507857,
+      "media_type": "application/json",
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json",
+      "sha256": "ab5158126e7079bc05a3f901f3b75868bd21e9f956d31f906f86add8822954f5"
+    },
+    "encoding": "gzip",
+    "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json.gz",
+    "sha256": "5e6c43436923dd9c83786048203d42c16e6b5259f796661b06c6037871ce1911"
+  },
+  "implementation_sha": "36b18cc142aff77a5825126b4f07bafec09a5180",
+  "implementation_tree": "28a104214fe96f1ccf572aeb64a7866c41776344",
+  "native_argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-I",
+    "-B",
+    "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid_producer.py",
+    "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected"
+  ],
+  "native_cwd": "/tmp/e02-F-graph-profile-20261007/graph-review-prep",
+  "native_environment_overrides": {
+    "POLISYOS_METRICS_PORT": "9465",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "native_execution": {
+    "bytes": 1165,
+    "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-corrected-execution.json",
+    "sha256": "010477d85ab865e6b3fd89d39b81a62202685634a8d82d7b0d253cc0ad232914"
+  },
+  "native_execution_check": "PASS",
+  "native_exit_code": 0,
+  "native_stderr": {
+    "bytes": 0,
+    "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected.stderr.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "native_stdout": {
+    "bytes": 3015,
+    "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected.stdout.txt",
+    "sha256": "5a7127c28351a0224bc4e2f812dae283b26ce012d2c765abf4bffafe1a3c21a4"
+  },
+  "native_wall_s": 12.326087055000244,
+  "no_product_or_G_writes": true,
+  "original_B214": {
+    "card_reference_check": "PASS",
+    "meaning": "The broader original criterion was not rerun. This finite graph-family/profile repair is separate; no formal G closure or causal authority claim.",
+    "original_criterion_reassessment": "UNRUN",
+    "outcome": "limited"
+  },
+  "outcome": "GO_BOUNDED",
+  "preserved_nonPASS": [
+    {
+      "check": "ERROR",
+      "class": "Initial independent analysis claim",
+      "correction": {
+        "bytes": 56684,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/profile-review-preparation.json",
+        "sha256": "c0f449c0b48e74306d67113987963431a0d76aa4aae97322b5b0d6e00ceedb13"
+      },
+      "reason": "Initial text missed the existing FragmentCompositionData ordinary mapping/DTO type validator; corrected before final source assessment.",
+      "record": {
+        "bytes": 54998,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/profile-review-preparation.initial.json",
+        "sha256": "b44d46588ae09dd5f1c9190aae9ab5c5524ba65aebc9a25ab90e708043f99cf1"
+      }
+    },
+    {
+      "check": "ERROR",
+      "class": "First orchestration tool launch",
+      "reason": "Exec tool rejected scratch cwd before native process start; next invocation used workspace cwd and explicit script-native cwd.",
+      "record": {
+        "bytes": 798,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-first-attempt/classification.json",
+        "sha256": "39dc93bca79b8df601ffb3bd31de314918b9d5c808270ba2d415cd99689a126c"
+      }
+    },
+    {
+      "check": "ERROR",
+      "class": "First independent reader harness expectation",
+      "full_execution": {
+        "bytes": 1136,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-first-attempt/freshpid-execution.json",
+        "sha256": "6c4c766ef243b63b141e16b0cf068e33bcacdd453f4a8f18ef786473abe6e84e"
+      },
+      "reason": "Directed-only reverse input legitimately becomes DAG; initial reader demanded ADMG. Exact first runner, child output and selected CAS bytes retained; correction changes only expected output family.",
+      "record": {
+        "bytes": 798,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-first-attempt/classification.json",
+        "sha256": "39dc93bca79b8df601ffb3bd31de314918b9d5c808270ba2d415cd99689a126c"
+      },
+      "stderr": {
+        "bytes": 749,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-first-attempt/freshpid-native.stderr.txt",
+        "sha256": "6580c3c32c691dbf81699a4a6c3a324186dd67b0adaa4f868e232d70b0aae876"
+      },
+      "stdout": {
+        "bytes": 2742,
+        "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-first-attempt/freshpid-native.stdout.txt",
+        "sha256": "7ed550078906a4bedb4107a772c857fce344bf8a0c0978d05c986fc32412042e"
+      }
+    }
+  ],
+  "reviewer": "graph_scm",
+  "role": "independent_read_only",
+  "runtime_properties": [
+    {
+      "check": "PASS",
+      "criterion": "Genuine scored build_mgraph producer refuses reconciliation",
+      "measurement": "Registered run_job dispatcher returns issues and no method_result_ref.",
+      "outcome": "limited"
+    },
+    {
+      "check": "PASS",
+      "criterion": "Direct Node refuses genuine MGraph without publishing reconciled artifact",
+      "measurement": "fail; stable Unsupported graph reconciliation profile; no artifacts or reconciled state ref.",
+      "outcome": "limited"
+    },
+    {
+      "check": "PASS",
+      "criterion": "Original MGraph is independently readable with actual semantic extractor in another PID",
+      "measurement": "Exact persisted model and three relations; actual extract_mgraph_metadata returns MCAR X/r-node/proxy metadata.",
+      "outcome": "limited",
+      "producer_pid": 1004380,
+      "reader_isolated": 1,
+      "reader_pid": 1004459
+    },
+    {
+      "check": "PASS",
+      "criterion": "Same complete shape and metadata tagged ADMG traverses genuine producer→Node→fresh child CAS",
+      "measurement": "ADMG retained because X↔Y exists; exact X→Y, X↔Y, R_X→X_star and metadata remain.",
+      "outcome": "limited"
+    },
+    {
+      "check": "PASS",
+      "criterion": "Reverse-stored directed ADMG retains known arrow direction",
+      "measurement": "Y arrow–tail X becomes X tail–arrow Y; output DAG is expected when no bidirected relation remains; child reads exact real artifact.",
+      "outcome": "limited"
+    },
+    {
+      "case_denominator": 3,
+      "cases": [
+        "circle_endpoint",
+        "tail_tail",
+        "compact_lag"
+      ],
+      "check": "PASS",
+      "criterion": "Static unsupported endpoints and compact lag refuse before confidence filtering",
+      "measurement": "Each real registered producer refuses; each direct Node with cutoff0.99 fails with Unsupported static ADMG profile and no artifact.",
+      "outcome": "limited"
+    }
+  ],
+  "schema": "independent_graph_reconciliation_semantic_profile_review/1.0",
+  "scientific_and_backend_limits": [
+    "Finite native graph family-admission witness; no general PAG/CPDAG identification property.",
+    "Original B214 remains limited; no G ledger closure or scientific authority claim.",
+    "DoWhy/EconML are neither selected nor witnesses in this native Python 3.14 graph profile."
+  ],
+  "scope": {
+    "GraphType_enum_denominator": 5,
+    "Node_routes": [
+      "direct graph parameter",
+      "actual supplied MethodResult CAS",
+      "fragment refs and source graph reconstruction",
+      "selected current graph cache",
+      "query-preservation composition replay"
+    ],
+    "declared_supported_types": [
+      "dag",
+      "admg"
+    ],
+    "declared_unsupported_types": [
+      "cpdag",
+      "pag",
+      "mgraph"
+    ],
+    "node": "scientist.node_reconcile_causal_graph@1.0.0",
+    "ordinary_compose_constructor": "Existing FragmentCompositionData validator already rejects unsupported graph types. New pure-step defense covers explicit unsafe typed model_copy updates. This is not a schema-valid ordinary Compose escape.",
+    "outside_profile": [
+      "gcm_fit graph projection",
+      "general _graph_projection orientation/inspection",
+      "universal PAG/CPDAG identification",
+      "general temporal causal inference"
+    ],
+    "registered_producers": [
+      "causal.prior.reconcile_causal_graph@1.0.0",
+      "causal.composition.compose_scm_fragments@1.0.0"
+    ]
+  },
+  "selected_CAS_byte_transfer": {
+    "bytes": 19524,
+    "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/selected-cas-export-index.json",
+    "sha256": "deee3acbca6f6005010e81d361a48951916ac465476be692047c4ddd8a91528f"
+  },
+  "source_guard": {
+    "before_after_equal": true,
+    "binding_law": "Every actual Polisyos module with a filesystem origin resolves inside candidate src; complete file bytes equal git show of literal4ee. Producer and child origin inventories remain separate overlapping denominators.",
+    "check": "PASS",
+    "graph_file_denominator": 6,
+    "producer_loaded_origin_bindings": 970,
+    "reader_loaded_origin_bindings": 84,
+    "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d"
+  },
+  "source_hold": "Released after full source reads and all authorized native runs completed.",
+  "source_review": {
+    "bytes": 31262,
+    "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/source-review36.json",
+    "sha256": "e5a36ec6574921a4048e4b4531514bbf892958c36fad96b99b1f043a1f79448b"
+  },
+  "source_review_check": "PASS",
+  "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "warnings": "Corrected witness stderr is0B; actual expected dispatcher refusal logs remain complete stdout. Metrics port9465 captured for both processes. No warning suppression."
+}

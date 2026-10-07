@@ -1,0 +1,248 @@
+{
+  "schema": "e02.F.independent-root-original35-final-metadata-review.v1",
+  "target": {
+    "sha": "d8334672f44d24dd32113264f96ca3f7954dace4",
+    "tree": "a68dbc3ecf4ccf9a5a59fa4b830464e32d81dd8f"
+  },
+  "check": "PASS",
+  "recommendation": "GO_BOUNDED",
+  "issues": [],
+  "material_review": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-complete-material-final-review.json",
+    "bytes": 785366,
+    "sha256": "2f7b4d04645a63a044d05e6e76f5b646c9ab6125c5d2ccc67f95eba53b962228"
+  },
+  "source_order_caption_review": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-source-order-captions-review.json",
+    "bytes": 45869,
+    "sha256": "072ccdf87c4634a6bc1a8384de5da31dfa83689ce04a691d635630650308de80"
+  },
+  "original_denominator": {
+    "IDs": 35,
+    "bundles": 17,
+    "original_bindings": 36
+  },
+  "current_F_recommendation": {
+    "closed": 33,
+    "limited": 2,
+    "held": 0,
+    "limited_ids": [
+      "B214",
+      "B56"
+    ]
+  },
+  "checks": {
+    "PASS": 34,
+    "UNRUN": 1,
+    "UNRUN_ids": [
+      "B56"
+    ]
+  },
+  "formal_G_finding_acceptance": "not_issued/zero formal closures",
+  "raw_material_denominator": {
+    "unique_artifacts": 1659,
+    "decoded_bindings": 480,
+    "current_manifest_record_occurrences": 653,
+    "current_manifest_counts": [
+      {
+        "git_ref": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-graph-reconciliation-20261007/full-output-manifest.json",
+        "bytes": 65255,
+        "sha256": "c0a77d5de2d7674d2328192b863ba663733ff40c5e8c7fbf73e0f466877ecce1",
+        "records": 120
+      },
+      {
+        "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007.json",
+        "json_pointer": "/evidence_transfer/manifest",
+        "bytes": 106928,
+        "sha256": "24a72061e9e4379753f349f56c110b516cef300457b94e2d6a5e066b702f760e",
+        "records": 108,
+        "binding": "complete inline manifest in hash-bound original receipt"
+      },
+      {
+        "git_ref": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/outputs.json",
+        "bytes": 59678,
+        "sha256": "1e47ffc839769853cde18ef16219a1d74a3c1d026104f48a01e87678dc382a2f",
+        "records": 102
+      },
+      {
+        "git_ref": "0552bd338dad23b2eabb0d22a1c7c4eb4bcd61d6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-consumer-input-review-20261007/outputs.json",
+        "bytes": 25901,
+        "sha256": "720582c9bb59082fea7ec65d9a29d3de1996548cbafeac4292c8a689ee8611d7",
+        "records": 48
+      },
+      {
+        "git_ref": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/outputs.json",
+        "bytes": 133199,
+        "sha256": "e6948907fbae06ebd42e4e45f7c9834ce01085b4cdf2114690481e3f2e55ba5d",
+        "records": 223
+      },
+      {
+        "git_ref": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/full-output-manifest.json",
+        "bytes": 35038,
+        "sha256": "e67f60c627a836d745083865c0feb13d9a1278e5985781ae845761430cb4e9c2",
+        "records": 52
+      }
+    ],
+    "complete_historical_check_records": 566,
+    "per_ID_raw_check_pointer_count": 446
+  },
+  "negative_controls": [
+    {
+      "control": "remove-original-binding",
+      "validator_check": "FAIL",
+      "harness_check": "PASS",
+      "reason": "original36 binding denominator"
+    },
+    {
+      "control": "wrong-card-hash",
+      "validator_check": "FAIL",
+      "harness_check": "PASS",
+      "reason": "original card bytes: B204"
+    },
+    {
+      "control": "missing-ID",
+      "validator_check": "FAIL",
+      "harness_check": "PASS",
+      "reason": "original35 ID denominator"
+    },
+    {
+      "control": "wrong-source-tree",
+      "validator_check": "FAIL",
+      "harness_check": "PASS",
+      "reason": "scientific source/tree: B204"
+    },
+    {
+      "control": "wrong-owner",
+      "validator_check": "FAIL",
+      "harness_check": "PASS",
+      "reason": "TSV owner: B204"
+    },
+    {
+      "control": "stale-per-ID-hash",
+      "validator_check": "FAIL",
+      "harness_check": "PASS",
+      "reason": "artifact bytes/hash: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B204.json"
+    }
+  ],
+  "complete_source_order_topics": 6,
+  "complete_current_minimal_owner_packets": 7,
+  "product_source": {
+    "sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+    "tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+    "prior_source8236": "8236d9c368336a5ea20c1586f29aea7321db6536",
+    "new_product_paths": [
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+    ],
+    "all_other_product_worker_lock_bytes_unchanged": true,
+    "full_product_patch": "See committed root closeout companions source8236-to-freeze-product-full.patch"
+  },
+  "semantic_read_scope": "All35 full original card blocks and owners/17bundle TSV/36 bindings plus current per-ID producer/artifact/bridge/consumer/actual surfaces, exact source/tree/owner receipts/full check pointers. Full REPORT and ROOT F.md/F-M1..16/runtime captions read; exact documents are bound in caption review. Scientific prior independent card review is actualpublished4d; current ROOT decisions remain ROOT recommendations.",
+  "criterion_corrections_checked": [
+    "B206 bothDiD/RDD",
+    "B207-209 finite selectedDGP/diagnostic contract separateinstitutional admission",
+    "B212 point-only versusrealinterval",
+    "B213 estimand_type/contrast/target identify/estimate",
+    "B214 limitedconditionalcapability",
+    "B216 actualdo/sigma/IDC",
+    "B220 internalstable",
+    "B222 conditionalhelperpayload notnewdefaultfit",
+    "B223 attributiontarget/baseline/queryrefs primary",
+    "B225 independentmath.erfc",
+    "LA002 catalog/IC notnewfamilysolver",
+    "LA003 separatedABMdiagnosticFAIL/P41notestablished",
+    "LA004 distinctmatched/divergentmodels notGini",
+    "LA007/019 absentbase198 notnewdeletion",
+    "LA016 oneID/twobindings dedicatedmaintainedFQN",
+    "LA017 fullnormdiff/LegalPass/issues/report/CAS/CLI notdedupealone",
+    "LA035 unchangedhistoricalrelocation no newoptimizerprerequisite",
+    "LA037 actualIR/compiler/docs/installed"
+  ],
+  "locator_resolution": {
+    "initial_issue": "6a G-source-order pointed to old minimal-owner-inputs.json",
+    "corrected_commit": "d8334672f44d24dd32113264f96ca3f7954dace4",
+    "current_locator": "G-local-causal-reruns.json",
+    "check": "PASS",
+    "scope": "Two packet documents only, no per-ID/source/check/outcome change"
+  },
+  "bounded_limits": {
+    "original_limited_ids": [
+      "B214",
+      "B56"
+    ],
+    "formal_G_finding_acceptance": "not_issued",
+    "baseline314_optional_backend": "excluded/UNRUN",
+    "historical175c4_nondeciding_custody": "UNRUN",
+    "historical20_check_raw_output_custody": "UNRUN",
+    "global_quality": "actual FAIL/partial UNRUN preserved; P41 not_established",
+    "final_b5_installed_wave": "Await separately published exact-source deciding receipt; old8236 PASS not reused",
+    "A_protected_graph_bridge": "Refusal-only sibling tests PASS; bridge_missing positive UNRUN; not original F closure prerequisite"
+  },
+  "historical_custody": {
+    "missing175c_provenance_occurrences": 4,
+    "check": "UNRUN",
+    "deciding_dependency": false,
+    "full_raw_absent_check_records": 20,
+    "full_raw_absent_check": "UNRUN",
+    "no_reclassification_as_measured_PASS": true
+  },
+  "historical_reviewer_harness_attempts": [
+    {
+      "report": "da59-material-review.json",
+      "classification": "Reviewer encoding harness ERROR rendered FAIL by its metadata checker: explicit lossless_utf8_json not implemented. No owner artifact or product defect; full actual streams preserved.",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/da59-material-review.json",
+        "bytes": 247412,
+        "sha256": "6c75fb03bedc1d80b664d3809975cf92a11f609d3ba8a1fdf5e27d74d381fd1e"
+      }
+    },
+    {
+      "report": "da59-material-v2-review.json",
+      "classification": "Reviewer schema harness ERROR rendered FAIL: zero-dependence claim belongs to immutable072 INDEX, not AUDIT. Actual old bytes/pointers retained; no owner defect.",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/da59-material-v2-review.json",
+        "bytes": 266899,
+        "sha256": "cfd3010fc08060ca82cdcdea8e4a678534f7b4686e32d598b3c872abbc415266"
+      }
+    },
+    {
+      "report": "6a39-material-review.json",
+      "classification": "Reviewer alias handling ERROR rendered FAIL: explicit decoding=gzip was missed by encoding-only lookup. Actual stored/decoded Git bytes match declaration; corrected in forward checker.",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/6a39-material-review.json",
+        "bytes": 568773,
+        "sha256": "bd2a83e427f64d8b6a5cf1b0123fb4c443f0c1a6847869b288c31d7326d9bad3"
+      }
+    },
+    {
+      "report": "6a39-material-v2-review.json",
+      "classification": "PASS on1359/369 measured artifact footprint, qualified incomplete current manifest traversal. Never broad complete-footprint PASS; final walker independently follows nested Graph223 and own52 bodies.",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/6a39-material-v2-review.json",
+        "bytes": 634032,
+        "sha256": "a930a6af1c4bad1d32b68b0526f7b7c20538b84108bd115566c08fb6afc17ac9"
+      }
+    },
+    {
+      "report": "d833-complete-material-review.json",
+      "classification": "PASS full raw/decode traversal1659/480; initial manifest_record_occurrences373 was a reviewer count-field omission for records lists/inline ECO. Final653 count fixed with explicit denominator assertion, no byte/property change.",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-complete-material-review.json",
+        "bytes": 784894,
+        "sha256": "433f2df061f7508e8d38da0bf346ef3ef2d63f1213d8853287f2b9c56e61f626"
+      }
+    }
+  ],
+  "no_source_or_ledger_writes": true,
+  "no_scientific_rerun": true,
+  "no_new_checkout_or_agents": true,
+  "no_new_authority_or_G_decision": true,
+  "future_metadata_delta": "New exact installed/quality carrier references require only finite material/caption delta revalidation; old8236 wave never presented as currentb5 whole-product witness.",
+  "self_packaging": "This script only assembles already independently executed reviewer observations and their exact full byte references; it supplies no new independent or scientific test result."
+}

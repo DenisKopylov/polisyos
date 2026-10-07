@@ -1,0 +1,1211 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "role": "One canonical graph-profile repair after25c, narrow B204/backend/LA-037 companions and B218 supersession; source-ready F recommendation only",
+  "canonical_writer": {
+    "graph_mechanism": "F root",
+    "B204_checker": "F cau",
+    "LA-037_docs": "F foundry",
+    "ledger": "F root"
+  },
+  "branch": "codex/e02-F-closeout-20261006",
+  "PR": "https://github.com/DenisKopylov/polisyos/pull/65",
+  "slice_base": {
+    "sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+    "tree": "ed4a4fd6864e8b60cb45124fb8e6fa9b7c503b66"
+  },
+  "candidate": {
+    "sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+    "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+    "parents": [
+      "38ba3e80ad4ff1e7f958d72e568f9967347fea86",
+      "6beacc8b42dacabff214901919203323f07d1fef"
+    ],
+    "fetchable": true
+  },
+  "implementation_commits": [
+    "36b18cc142aff77a5825126b4f07bafec09a5180",
+    "e1c4bb28c9d5ff936ae1c047619c56cf12ba5347",
+    "6beacc8b42dacabff214901919203323f07d1fef"
+  ],
+  "history": {
+    "append_only": true,
+    "reset_rebase_force_main_integration_write": false,
+    "previous_measured_source": {
+      "sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "role": "Recovered historical actual91wheel/91sdist source, not new whole-head proof"
+    }
+  },
+  "G_dependency": {
+    "sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+    "tree": "f79fc5304324b92aeed741d7abdd6fc6f54a130a",
+    "read_only_ref": "origin/codex/e02-integration",
+    "newer_than_previous_83e": "106 documentation/review/prompt paths, zero product paths",
+    "decision": "integration/reviews/2026-10-07-F35-decision/README.md",
+    "bounded_original_recommendations_supported": 33,
+    "new_F_runtime_source_accepted": 0,
+    "formal_findings_closed": 0,
+    "prior_Lex_accepted_source_preserved": "00a6eda114b903bc5abe86902cd8372426f739a1"
+  },
+  "original_criterion_bindings": {
+    "B204": [
+      {
+        "criterion_id": "B204",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          5094,
+          5105
+        ],
+        "bytes": 3579,
+        "sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+        "title": "## B204. Стандартный DiD принимает отсутствие предшествующего периода за пригодный дизайн",
+        "byte_binding_check": "PASS"
+      }
+    ],
+    "B212": [
+      {
+        "criterion_id": "B212",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          5194,
+          5205
+        ],
+        "bytes": 2849,
+        "sha256": "dd369570f1235d66729b8c5526f88a5968905343594089f5a4c00da90631238f",
+        "title": "## B212. Point-only ответ DoWhy превращается в почти точный доверительный интервал",
+        "byte_binding_check": "PASS"
+      }
+    ],
+    "B213": [
+      {
+        "criterion_id": "B213",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          5206,
+          5217
+        ],
+        "bytes": 2615,
+        "sha256": "6684013f61227644563e3dd6ac181b2546b5797168cd0b93fef3ef1bf75fe243",
+        "title": "## B213. Запрошенный estimand_type остаётся только подписью отчёта DoWhy",
+        "byte_binding_check": "PASS"
+      }
+    ],
+    "B214": [
+      {
+        "criterion_id": "B214",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          5218,
+          5229
+        ],
+        "bytes": 3537,
+        "sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+        "title": "## B214. Проекция PAG/CPDAG разворачивает известное направление и может создать цикл",
+        "byte_binding_check": "PASS"
+      }
+    ],
+    "B218": [
+      {
+        "criterion_id": "B218",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          5361,
+          5374
+        ],
+        "bytes": 3861,
+        "sha256": "8ce1868ddb2663580547f475288d03502e03ae6a4bc38923313bc069efb0a40a",
+        "title": "## B218. Временной граф теряет лаги при экспорте, а лаговая самозависимость отвергается как обычный self-loop",
+        "byte_binding_check": "PASS"
+      }
+    ],
+    "LA-037": [
+      {
+        "criterion_id": "LA-037",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines": [
+          2146,
+          2178
+        ],
+        "bytes": 5602,
+        "sha256": "79dc9efe37fc67c6b481db97f51d50a38d4aea4cff051ce0ffcf864ce049589c",
+        "title": "## LA-037. Slot layout: две последовательные compatibility-обёртки после переноса в IR",
+        "byte_binding_check": "PASS"
+      }
+    ]
+  },
+  "affected_IDs": [
+    "B204",
+    "B212",
+    "B213",
+    "B214",
+    "B218",
+    "LA-037"
+  ],
+  "unchanged_ID_count": 29,
+  "full_source_footprint": {
+    "base": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+    "source": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+    "path_count": 10,
+    "paths": [
+      {
+        "path": "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+        "base_blob": "a19e12824078d3964f45c861be9cdb17714e0c42",
+        "source_blob": "148595971cf96a656de47c390e6496ce8fa4acbf",
+        "base_bytes": 13365,
+        "base_sha256": "e58553495f2f83554196125999bfad0eabc7e70d6a8d5760e5b677616ae9d007",
+        "source_bytes": 13981,
+        "source_sha256": "127abcfd0b2d39a115e5e93ccb537f58fdb018fc6813a935f13fec37a145dc4a",
+        "working_bytes_match_frozen": true
+      },
+      {
+        "path": "policy-engine/docs/reference/foundry/state.md",
+        "base_blob": "4285201b5ecfa2d4e4b207bd61dd80e84d4f2b9f",
+        "source_blob": "a32d9c14381d33bf62a1bb2ff193f7b5bf1c5471",
+        "base_bytes": 4810,
+        "base_sha256": "008b08d202406a570cc837a2c6f78c6f68bedcefb59057b7d0cdd269ba3a90a9",
+        "source_bytes": 5289,
+        "source_sha256": "82e6ff5fa530806371e4e1f67b3120bff1fd229e4855a715be4f20d9c79027c8",
+        "working_bytes_match_frozen": true
+      },
+      {
+        "path": "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+        "base_blob": "a9b35548f12e975eeb0f5b0ea6209f712dfecc28",
+        "source_blob": "c466cd06a14c37736924709bc8ebae99f6174f37",
+        "base_bytes": 3146,
+        "base_sha256": "f70150fd50f77e9beb3a9a90920e66b2e4218698e587982c0b4368af2886f67f",
+        "source_bytes": 3865,
+        "source_sha256": "a9989b4216f1428923558add2cb56ce99e3a65b5687d2d70546311ada79c92fc",
+        "working_bytes_match_frozen": true
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+        "base_blob": "32cb4e45d650246704b4e545fca00b7fc5c0de5e",
+        "source_blob": "0d506b76554a16ff2c605a812d176ebe7d5560b7",
+        "base_bytes": 2072,
+        "base_sha256": "925e4b3cd2a3842b8169926757c0aca866f7128de1e7c541d206be20dbec7dac",
+        "source_bytes": 2432,
+        "source_sha256": "aa5ce09f178044a7a3ef5519613f6d159abdbc19f9fda59850f74ffd46e44903",
+        "working_bytes_match_frozen": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/README.md",
+        "base_blob": "bc3487e1c22b921abb675a67a16dc503447d9433",
+        "source_blob": "c9dd7993483ae703c8c5ca037fabd2f2cd20c57e",
+        "base_bytes": 9910,
+        "base_sha256": "241962a02e0e02386d2812c5fb30c44aeffd9af6bd61b9f0ca1946026ca21bb6",
+        "source_bytes": 10519,
+        "source_sha256": "b3f7cc5ad1317a969b8b9215544566036defc6db64d72973d81a4f1842772edc",
+        "working_bytes_match_frozen": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+        "base_blob": "6b148f720d7fb7aa978fb46bbca722615cf433cf",
+        "source_blob": "3af0355c3f7e0dc4872f20c3b1d0223423785f55",
+        "base_bytes": 62212,
+        "base_sha256": "559af61ee42f294bf28fe71beca620c9ce4091bcc2ffdc38c611f3a8da83ee44",
+        "source_bytes": 62982,
+        "source_sha256": "087608c68bda58d1ae026006085665d04dce6d8f63c65849f200027fe4340855",
+        "working_bytes_match_frozen": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/compiler/README.md",
+        "base_blob": "40933e424bbe4b5523744f0f452de0dbcf3d616d",
+        "source_blob": "59cc0948a8b25b93e35455b99ba17079f0adfd4a",
+        "base_bytes": 867,
+        "base_sha256": "f1acc1e8d44f25707d983ad16e2f8408b3bc8cdbefdabe4a6048c1eec5da98cc",
+        "source_bytes": 1865,
+        "source_sha256": "0d8f02ab3ddc41a4d507e6b7ebe374209d5b6217bd3cb1688da88c6b279263b0",
+        "working_bytes_match_frozen": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+        "base_blob": "70ccfd46c42253861c31210ac176e22df3119e15",
+        "source_blob": "411d98f8bc3d355a997a83653d2b551011ba35d9",
+        "base_bytes": 48349,
+        "base_sha256": "4696b3597bf23b6dab8d3170cd846151d8c6d78b5c52d8dcc21a2d54aebe1253",
+        "source_bytes": 48337,
+        "source_sha256": "1491b91aaeb57b30d32e34c8fa1b5ab3be5ed20b0907dc9765eb3d916597bcdc",
+        "working_bytes_match_frozen": true
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "base_blob": "5212ac4094dd8ac41bcd5fab8ffe5855b57764d1",
+        "source_blob": "072c10f4a75f32f2443e78cc6a8a55015a545bdc",
+        "base_bytes": 43886,
+        "base_sha256": "0b5248df1126345364f780cf134f2a6716bb6a380643b9a82606c47b11d98539",
+        "source_bytes": 45219,
+        "source_sha256": "37f7fc1dc7a3d4d840ba1c42472854dcf00a895a3dfae8213c6f2ef562e42712",
+        "working_bytes_match_frozen": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+        "base_blob": "319a13ba97da60d70117c526dd03828ad216aea0",
+        "source_blob": "5bfcc1b7fc4241422cd1eb4b69cc6a36693fd13c",
+        "base_bytes": 20756,
+        "base_sha256": "250584c3c31cae1192cfcbf20ffe6610fec49668da2a4f2cb2a86daeae0f6df7",
+        "source_bytes": 26534,
+        "source_sha256": "d1c11a3161cca0d7720e9d3c4a7ba46649a2e672f2202688c8f03206bbb99465",
+        "working_bytes_match_frozen": true
+      }
+    ]
+  },
+  "complete_diff": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/root/combined-implementation.full.patch",
+    "encoding": "identity",
+    "stored_bytes": 28829,
+    "stored_sha256": "e2ce21030ebcd3c4664a9d78133d6f3df7054d3dee5f664bdd681e999a166c79",
+    "decoded_bytes": 28829,
+    "decoded_sha256": "e2ce21030ebcd3c4664a9d78133d6f3df7054d3dee5f664bdd681e999a166c79"
+  },
+  "property": {
+    "invariant": "Only declared static DAG/ADMG may enter canonical reconciliation, before confidence filtering, endpoint rewrites or persistence. Other semantic graph families refuse rather than acquire DAG/ADMG identity.",
+    "chain": "schema-valid scored build_mgraph → actual MethodRegistry/run_job → ReconcileCausalGraphNode → no reconciled publication; original MGraph CAS → distinct-process extractor. Same-form ADMG → registered job/Node → CAS → distinct-process fresh reader.",
+    "surfaces": [
+      "direct Node intake",
+      "supplied method-result intake",
+      "selected current-CAS/cache intake",
+      "fragment composition defensive admission"
+    ],
+    "oracle": "Actual extract_mgraph_metadata plus declared graph-type identity and complete relation/metadata readback; known reverse normalization; lag/unresolved refusal. This synthetic DATA confidence0.9 only passes cutoff, not empirical confidence or authority.",
+    "negative": "Keep enum, strings, diagnostic messages, endpoints, status and module bytes; disable only runtime semantic-family predicate. Real MGraph producer/direct and supplied/cache negatives fail; ordinary ADMG/DAG/reverse positives remain green.",
+    "class_P40": "Widened endpoint/static-profile class to semantic graph family at its canonical reconciliation owner; no metadata-name allowlist and no per-caller graph-type patch.",
+    "scope_limit": "Reconciliation/Node/defensive Compose boundary only. Shared ADMG inference helper, all other identification consumers, PAG/CPDAG/MGraph support and temporal identification are not newly claimed. Ordinary FragmentCompositionData already refuses unsupported families; unsafe model_copy test is defensive, not a newly discovered normal constructor escape.",
+    "no_new_finding_ID": true,
+    "statement": "Only declared static DAG/ADMG may enter canonical reconciliation, before confidence filtering, endpoint rewrites or persistence. Other semantic graph families refuse rather than acquire DAG/ADMG identity.",
+    "runtime_path": [
+      "scored schema-valid build_mgraph or same-formADMG producer",
+      "source-typed original CAS graph artifact",
+      "actual MethodRegistry/run_job and ReconcileCausalGraphNode",
+      "refusal without reconciled publication or supported DAG/ADMG CAS → distinct-process actual extractor/reader"
+    ],
+    "proxy_divergence": "MGraph may have valid endpoint pairs, valid schema, metadata and synthetic DATAconfidence0.9; the old static endpoint/cutoff proxy accepts and retypes ADMG while actual missingness extractor rejects. Declared semantic graph-family guard refuses before transformations.",
+    "negative_controls": [
+      "Keep enum, strings, diagnostic messages, endpoints, status and module bytes; disable only runtime semantic-family predicate. Real MGraph producer/direct and supplied/cache negatives fail; ordinary ADMG/DAG/reverse positives remain green.",
+      "Missing/stale/current-content mutation refs and unresolved/lagged static inputs remain typed refusals; exact same-shapeADMG and known reverse positives remain admitted."
+    ]
+  },
+  "independent_reviews": [
+    {
+      "role": "full10-path immutable source and specification review, independent of writers",
+      "outcome": "GO",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/api-review/combined4ee/review.json",
+        "encoding": "identity",
+        "stored_bytes": 11041,
+        "stored_sha256": "f3c2052a3d3f80043ab9735bf8e1dc19f50905f8dcfd89c2c52bb9f7a09f7b25",
+        "decoded_bytes": 11041,
+        "decoded_sha256": "f3c2052a3d3f80043ab9735bf8e1dc19f50905f8dcfd89c2c52bb9f7a09f7b25"
+      }
+    },
+    {
+      "role": "graph source, scored native discriminator and different-PID reader",
+      "outcome": "GO",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/graph-review-prep/independent-review.json",
+        "encoding": "identity",
+        "stored_bytes": 11148,
+        "stored_sha256": "9f8659f75e0ba1560309682ba8cd1e6c537731771557119fa9b9f1ac269b0c68",
+        "decoded_bytes": 11148,
+        "decoded_sha256": "9f8659f75e0ba1560309682ba8cd1e6c537731771557119fa9b9f1ac269b0c68"
+      }
+    },
+    {
+      "role": "original35/36 criterion custody and independent scoped source review",
+      "outcome": "GO",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/economics-review/review.json",
+        "encoding": "identity",
+        "stored_bytes": 5865,
+        "stored_sha256": "0abcbfd82e3755f8d769a7c5deac409fbf52e50ee8a682ce8e12c16f3284332c",
+        "decoded_bytes": 5865,
+        "decoded_sha256": "0abcbfd82e3755f8d769a7c5deac409fbf52e50ee8a682ce8e12c16f3284332c"
+      }
+    },
+    {
+      "role": "new exact-source wheel archive/site/source and complete installed packet independent audit",
+      "outcome": "GO",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/api-review/installed4ee/review.json",
+        "encoding": "identity",
+        "stored_bytes": 18112,
+        "stored_sha256": "2293bf75df18e6098d643fa36a2972db5066bce34c089ffaf8341163e6e5d08f",
+        "decoded_bytes": 18112,
+        "decoded_sha256": "2293bf75df18e6098d643fa36a2972db5066bce34c089ffaf8341163e6e5d08f"
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "affected graph defining/consumer wave",
+      "check": "PASS",
+      "passed": 62,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/root/final-wave/graph-consumers.junit.xml",
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "outcome": "PASS",
+      "input_closure": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+        "fixture_profile": "Synthetic only; exact full test inputs/commands/guards captured in evidence_transport; no production inputs",
+        "full_output_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/artifact-transports.json",
+        "original_criterion_bindings": [
+          "B204",
+          "B212",
+          "B213",
+          "B214",
+          "B218",
+          "LA-037"
+        ],
+        "no_authority_positive": true
+      },
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -q policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_simple_cycle_converts_min_confidence_edge_to_lagged_edge policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_more_than_eight_cycles_triggers_fallback_removal_warning policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_cycle_edge_with_lag_depth_limit_is_removed policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_diagnostics_truncated_when_hard_limits_exceeded policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_refuses_other_semantic_profiles policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_preserves_exact_observed_interface policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_allows_supported_internal_cyclic_scc policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_promotes_output_to_admg_when_any_fragment_is_admg policy-engine/tests/unit/remediation/test_grf_03.py --junitxml=/tmp/e02-F-graph-profile-20261007/root/final-wave/graph-consumers.junit.xml",
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src",
+        "parent_python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python"
+      },
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/root/final-wave/graph-consumers.junit.xml",
+        "encoding": "identity",
+        "stored_bytes": 11499,
+        "stored_sha256": "43ffcd38b5e4e3d76fe729d527141f6a0bf845b0000b5e4b0a8019a6022db032",
+        "decoded_bytes": 11499,
+        "decoded_sha256": "43ffcd38b5e4e3d76fe729d527141f6a0bf845b0000b5e4b0a8019a6022db032"
+      }
+    },
+    {
+      "name": "natural-experiment smoke, full affected3-case denominator",
+      "check": "PASS",
+      "passed": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/root/final-wave/natural-experiments.json",
+      "execution": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/root/final-wave/natural-experiments.execution.json",
+        "encoding": "identity",
+        "stored_bytes": 934,
+        "stored_sha256": "fd898ad14e9c469e3c10dc2fa9f58cd71d4be36610392b7ff87abc0103303fd8",
+        "decoded_bytes": 934,
+        "decoded_sha256": "fd898ad14e9c469e3c10dc2fa9f58cd71d4be36610392b7ff87abc0103303fd8"
+      },
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "outcome": "PASS",
+      "input_closure": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+        "fixture_profile": "Synthetic only; exact full test inputs/commands/guards captured in evidence_transport; no production inputs",
+        "full_output_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/artifact-transports.json",
+        "original_criterion_bindings": [
+          "B204",
+          "B212",
+          "B213",
+          "B214",
+          "B218",
+          "LA-037"
+        ],
+        "no_authority_positive": true
+      },
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m benchmarks.natural_experiments.policy_natural_experiments --mode smoke --quiet --json /tmp/e02-F-graph-profile-20261007/root/final-wave/natural-experiments.json",
+      "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "9467"
+      },
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/root/final-wave/natural-experiments.json",
+        "encoding": "identity",
+        "stored_bytes": 26111,
+        "stored_sha256": "575f4f5166a7f0bdf0953926a3a36c281957fb5ce981fcf7e42807c2e952bc28",
+        "decoded_bytes": 26111,
+        "decoded_sha256": "575f4f5166a7f0bdf0953926a3a36c281957fb5ce981fcf7e42807c2e952bc28"
+      }
+    },
+    {
+      "name": "actual configured Python3.12/DoWhy0.14 changed-body selected backend tests",
+      "check": "PASS",
+      "passed": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/worker/focused-real-worker-review.json",
+      "qualifier": "Point-only case executes a genuine estimator, then deliberately removes interval/SE accessor responses in the test child; controlled real-backend post-fit negative, not a naturally point-only backend positive. Parent3.14/fresh reader non-gating without admitted identification basis.",
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "outcome": "PASS",
+      "input_closure": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+        "fixture_profile": "Synthetic only; exact full test inputs/commands/guards captured in evidence_transport; no production inputs",
+        "full_output_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/artifact-transports.json",
+        "original_criterion_bindings": [
+          "B204",
+          "B212",
+          "B213",
+          "B214",
+          "B218",
+          "LA-037"
+        ],
+        "no_authority_positive": true
+      },
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -B -m pytest tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_public_complete_report_builder_abi_and_real_producer_invocation tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_estimate_point_only_survives_parent_cas_and_reader -o addopts= --import-mode=importlib -p no:cacheprovider -q -s --tb=short --basetemp=/tmp/e02-F-graph-profile-20261007/worker/frozen-4ee-native/wait4-replay/frozen-native-cas --junitxml=/tmp/e02-F-graph-profile-20261007/worker/frozen-4ee-native/wait4-replay/frozen-native.junit.xml",
+      "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+      "environment": {
+        "POLISYOS_METRICS_PORT": "9468",
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+        "E02_TEST_DOWHY_WORKER_PYTHON": "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "MPLCONFIGDIR": "/tmp/e02-F-graph-profile-20261007/worker/frozen-4ee-native/wait4-replay/mpl-native",
+        "backend_profile": "Actual configured standalone Python3.12 DoWhy0.14; application baseline remains3.14 with DoWhy/EconML exclusions. No mock estimator/skip/missing-backend substitution."
+      },
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/worker/focused-real-worker-review.json",
+        "encoding": "identity",
+        "stored_bytes": 26431,
+        "stored_sha256": "80e55aefd5794b55c494d3efcef0783cde9c7364e4fc545a168338b042f98f40",
+        "decoded_bytes": 26431,
+        "decoded_sha256": "80e55aefd5794b55c494d3efcef0783cde9c7364e4fc545a168338b042f98f40"
+      }
+    },
+    {
+      "name": "independent untouched graph controls",
+      "check": "PASS",
+      "passed": 7,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/api-review/combined4ee/graph-untouched.xml",
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "outcome": "PASS",
+      "input_closure": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+        "fixture_profile": "Synthetic only; exact full test inputs/commands/guards captured in evidence_transport; no production inputs",
+        "full_output_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/artifact-transports.json",
+        "original_criterion_bindings": [
+          "B204",
+          "B212",
+          "B213",
+          "B214",
+          "B218",
+          "LA-037"
+        ],
+        "no_authority_positive": true
+      },
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph_guard_probe.py untouched",
+      "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools:/workspace/e02-F-closeout-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/api-review/combined4ee/graph-untouched.xml",
+        "encoding": "identity",
+        "stored_bytes": 1606,
+        "stored_sha256": "923173592ededfddda892880dc22f1afec34219a2aa3bbecd403ba7243ff6a0f",
+        "decoded_bytes": 1606,
+        "decoded_sha256": "923173592ededfddda892880dc22f1afec34219a2aa3bbecd403ba7243ff6a0f"
+      }
+    },
+    {
+      "name": "independent semantic-family property removal",
+      "check": "FAIL",
+      "expected_control_failure": true,
+      "behavioral_failures": 2,
+      "positive_controls_passed": 5,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/api-review/combined4ee/graph-removed.xml",
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "outcome": "FAIL",
+      "input_closure": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+        "fixture_profile": "Synthetic only; exact full test inputs/commands/guards captured in evidence_transport; no production inputs",
+        "full_output_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/artifact-transports.json",
+        "original_criterion_bindings": [
+          "B204",
+          "B212",
+          "B213",
+          "B214",
+          "B218",
+          "LA-037"
+        ],
+        "no_authority_positive": true
+      },
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph_guard_probe.py removed",
+      "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools:/workspace/e02-F-closeout-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/api-review/combined4ee/graph-removed.xml",
+        "encoding": "identity",
+        "stored_bytes": 5423,
+        "stored_sha256": "dacf47a7c7347efa08a7466dc3b612e30dc284fe49985b05ef10e076301e15cd",
+        "decoded_bytes": 5423,
+        "decoded_sha256": "dacf47a7c7347efa08a7466dc3b612e30dc284fe49985b05ef10e076301e15cd"
+      }
+    },
+    {
+      "name": "new exact4ee source wheel affected consumers",
+      "check": "PASS",
+      "passed": 16,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "warning_count": 1,
+      "warning_kind": "unchanged unit-mark instrumentation",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/foundry/installed-4ee/native-junit.xml",
+      "fresh_reader": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/foundry/installed-4ee/fresh-admg-corrected.stdout.txt",
+        "encoding": "identity",
+        "stored_bytes": 903,
+        "stored_sha256": "f053792917546d621e359bd8a4f9f82206184bcba8015ea45c8ba82f305cdfaf",
+        "decoded_bytes": 903,
+        "decoded_sha256": "f053792917546d621e359bd8a4f9f82206184bcba8015ea45c8ba82f305cdfaf"
+      },
+      "archive_sha256": "1c912ce057fcdd3f91201979025867f9df1f2dc9041020877e2476cd7d396159",
+      "archive_bytes": 15147133,
+      "byte_origin_denominator": "3464 package files =3453 tracked source +11 Hatch resources;3147 Python; parent970/reader83 exact origins",
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "outcome": "PASS",
+      "input_closure": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+        "fixture_profile": "Synthetic only; exact full test inputs/commands/guards captured in evidence_transport; no production inputs",
+        "full_output_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/artifact-transports.json",
+        "original_criterion_bindings": [
+          "B204",
+          "B212",
+          "B213",
+          "B214",
+          "B218",
+          "LA-037"
+        ],
+        "no_authority_positive": true
+      },
+      "command": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env/bin/python -I /tmp/e02-F-graph-profile-20261007/foundry/launch_narrow_installed.py /tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/installed-config.json native",
+      "cwd": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer",
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "9466"
+      },
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/foundry/installed-4ee/native-junit.xml",
+        "encoding": "identity",
+        "stored_bytes": 3245,
+        "stored_sha256": "0b4f374d64ca226712bb479577bede7bc1e6901377750a4302a8c121f65c1756",
+        "decoded_bytes": 3245,
+        "decoded_sha256": "0b4f374d64ca226712bb479577bede7bc1e6901377750a4302a8c121f65c1756"
+      }
+    },
+    {
+      "name": "new installed semantic-family property removal",
+      "check": "FAIL",
+      "expected_control_failure": true,
+      "behavioral_failures": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/foundry/installed-4ee/removal-junit.xml",
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "outcome": "FAIL",
+      "input_closure": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+        "fixture_profile": "Synthetic only; exact full test inputs/commands/guards captured in evidence_transport; no production inputs",
+        "full_output_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/artifact-transports.json",
+        "original_criterion_bindings": [
+          "B204",
+          "B212",
+          "B213",
+          "B214",
+          "B218",
+          "LA-037"
+        ],
+        "no_authority_positive": true
+      },
+      "command": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env/bin/python -I /tmp/e02-F-graph-profile-20261007/foundry/remove_installed_profile_guard.py",
+      "cwd": "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer",
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "9466"
+      },
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/foundry/installed-4ee/removal-junit.xml",
+        "encoding": "identity",
+        "stored_bytes": 1761,
+        "stored_sha256": "0cfc62b7ca5d12929e55b550257d3074e057c8147f740821b2b24ffd7a64f8bf",
+        "decoded_bytes": 1761,
+        "decoded_sha256": "0cfc62b7ca5d12929e55b550257d3074e057c8147f740821b2b24ffd7a64f8bf"
+      }
+    },
+    {
+      "name": "independent B204 four-means oracle and10 retained-report falsifiers",
+      "check": "PASS",
+      "actual_ATT": 1.997217038863679,
+      "oracle_ATT": 1.9972170388636759,
+      "tamper_controls_refused": 10,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/api-review/combined4ee/b204.stdout.json.gz",
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "outcome": "PASS",
+      "input_closure": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+        "fixture_profile": "Synthetic only; exact full test inputs/commands/guards captured in evidence_transport; no production inputs",
+        "full_output_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/artifact-transports.json",
+        "original_criterion_bindings": [
+          "B204",
+          "B212",
+          "B213",
+          "B214",
+          "B218",
+          "LA-037"
+        ],
+        "no_authority_positive": true
+      },
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-graph-profile-20261007/api-review/combined4ee/probe_b204.py",
+      "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools:/workspace/e02-F-closeout-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/api-review/combined4ee/b204.stdout.json.gz",
+        "encoding": "gzip",
+        "stored_bytes": 11904,
+        "stored_sha256": "f02870999c2af736f982515cd39edb1a909255e1c30aeff1b807e6dd52fbfb64",
+        "decoded_bytes": 194492,
+        "decoded_sha256": "6acdf5f4f818f2def7d4136b32b8453825c45a2ce7d91c4026bc6e97f273dd43"
+      }
+    },
+    {
+      "name": "new rebuilt-sdist affected consumers",
+      "check": "UNRUN",
+      "reason": "No new rebuilt-sdist wave commissioned; historical519 qualification stays source-bound. New wheel does not prove new sdist.",
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "outcome": "UNRUN",
+      "input_closure": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+        "fixture_profile": "Synthetic only; exact full test inputs/commands/guards captured in evidence_transport; no production inputs",
+        "full_output_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/artifact-transports.json",
+        "original_criterion_bindings": [
+          "B204",
+          "B212",
+          "B213",
+          "B214",
+          "B218",
+          "LA-037"
+        ],
+        "no_authority_positive": true
+      },
+      "command": "UNRUN: new rebuilt-sdist affected consumers",
+      "environment": {
+        "profile": "not_executed",
+        "limitation": "No new rebuilt-sdist wave commissioned; historical519 qualification stays source-bound. New wheel does not prove new sdist."
+      },
+      "output": "UNRUN: No new rebuilt-sdist wave commissioned; historical519 qualification stays source-bound. New wheel does not prove new sdist."
+    },
+    {
+      "name": "in-process Python3.14 DoWhy/EconML optional profiles",
+      "check": "UNRUN",
+      "reason": "Application markers exclude these backends; actual selected3.12 worker is separate.",
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "outcome": "UNRUN",
+      "input_closure": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+        "fixture_profile": "Synthetic only; exact full test inputs/commands/guards captured in evidence_transport; no production inputs",
+        "full_output_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/artifact-transports.json",
+        "original_criterion_bindings": [
+          "B204",
+          "B212",
+          "B213",
+          "B214",
+          "B218",
+          "LA-037"
+        ],
+        "no_authority_positive": true
+      },
+      "command": "UNRUN: in-process Python3.14 DoWhy/EconML optional profiles",
+      "environment": {
+        "profile": "not_executed",
+        "limitation": "Application markers exclude these backends; actual selected3.12 worker is separate."
+      },
+      "output": "UNRUN: Application markers exclude these backends; actual selected3.12 worker is separate."
+    }
+  ],
+  "exact_root_commands": [
+    {
+      "name": "graph-consumers",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_simple_cycle_converts_min_confidence_edge_to_lagged_edge",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_more_than_eight_cycles_triggers_fallback_removal_warning",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_cycle_edge_with_lag_depth_limit_is_removed",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_diagnostics_truncated_when_hard_limits_exceeded",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_refuses_other_semantic_profiles",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_preserves_exact_observed_interface",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_allows_supported_internal_cyclic_scc",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_promotes_output_to_admg_when_any_fragment_is_admg",
+        "policy-engine/tests/unit/remediation/test_grf_03.py",
+        "--junitxml=/tmp/e02-F-graph-profile-20261007/root/final-wave/graph-consumers.junit.xml"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "target_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src",
+        "parent_python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python"
+      },
+      "returncode": 0,
+      "check_result": "PASS",
+      "wall_seconds": 26.987791260995436,
+      "stdout": "/tmp/e02-F-graph-profile-20261007/root/final-wave/graph-consumers.stdout",
+      "stderr": "/tmp/e02-F-graph-profile-20261007/root/final-wave/graph-consumers.stderr",
+      "stdout_sha256": "de0615cf37b5c81f3262e96c1af6d39e3e1ed022fb623f364a1d3c083a4e551f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -q policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_simple_cycle_converts_min_confidence_edge_to_lagged_edge policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_more_than_eight_cycles_triggers_fallback_removal_warning policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_cycle_edge_with_lag_depth_limit_is_removed policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_diagnostics_truncated_when_hard_limits_exceeded policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_refuses_other_semantic_profiles policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_preserves_exact_observed_interface policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_allows_supported_internal_cyclic_scc policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_promotes_output_to_admg_when_any_fragment_is_admg policy-engine/tests/unit/remediation/test_grf_03.py --junitxml=/tmp/e02-F-graph-profile-20261007/root/final-wave/graph-consumers.junit.xml",
+      "input_closure": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+        "denominator": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_simple_cycle_converts_min_confidence_edge_to_lagged_edge",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_more_than_eight_cycles_triggers_fallback_removal_warning",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_cycle_edge_with_lag_depth_limit_is_removed",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_diagnostics_truncated_when_hard_limits_exceeded",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_refuses_other_semantic_profiles",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_preserves_exact_observed_interface",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_allows_supported_internal_cyclic_scc",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py::test_compose_scm_fragments_promotes_output_to_admg_when_any_fragment_is_admg",
+          "policy-engine/tests/unit/remediation/test_grf_03.py",
+          "--junitxml=/tmp/e02-F-graph-profile-20261007/root/final-wave/graph-consumers.junit.xml"
+        ],
+        "no_P41_inherited_attribution": true
+      },
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-graph-profile-20261007/root/final-wave/graph-consumers.stdout"
+    },
+    {
+      "name": "format",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "target_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src",
+        "parent_python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python"
+      },
+      "returncode": 0,
+      "check_result": "PASS",
+      "wall_seconds": 0.05074069197871722,
+      "stdout": "/tmp/e02-F-graph-profile-20261007/root/final-wave/format.stdout",
+      "stderr": "/tmp/e02-F-graph-profile-20261007/root/final-wave/format.stderr",
+      "stdout_sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m ruff format --check policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+      "input_closure": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+        "denominator": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+          "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+        ],
+        "no_P41_inherited_attribution": true
+      },
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-graph-profile-20261007/root/final-wave/format.stdout"
+    },
+    {
+      "name": "ruff-runtime-tests",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+        "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "target_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src",
+        "parent_python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python"
+      },
+      "returncode": 0,
+      "check_result": "PASS",
+      "wall_seconds": 0.05213608799385838,
+      "stdout": "/tmp/e02-F-graph-profile-20261007/root/final-wave/ruff-runtime-tests.stdout",
+      "stderr": "/tmp/e02-F-graph-profile-20261007/root/final-wave/ruff-runtime-tests.stderr",
+      "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m ruff check policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+      "input_closure": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+        "denominator": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "ruff",
+          "check",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+          "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+          "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+        ],
+        "no_P41_inherited_attribution": true
+      },
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-graph-profile-20261007/root/final-wave/ruff-runtime-tests.stdout"
+    },
+    {
+      "name": "ruff-benchmark",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "target_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src",
+        "parent_python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python"
+      },
+      "returncode": 1,
+      "check_result": "FAIL",
+      "wall_seconds": 0.05206094900495373,
+      "stdout": "/tmp/e02-F-graph-profile-20261007/root/final-wave/ruff-benchmark.stdout",
+      "stderr": "/tmp/e02-F-graph-profile-20261007/root/final-wave/ruff-benchmark.stderr",
+      "stdout_sha256": "fde3f8f45967a54a841e6f237c105a54edbe28653826305b910341aa89b6d98f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m ruff check policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+      "input_closure": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+        "denominator": [
+          "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "ruff",
+          "check",
+          "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py"
+        ],
+        "no_P41_inherited_attribution": true
+      },
+      "outcome": "FAIL",
+      "output": "/tmp/e02-F-graph-profile-20261007/root/final-wave/ruff-benchmark.stdout"
+    },
+    {
+      "name": "source-diff-check",
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+        "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "target_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "target_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src",
+        "parent_python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python"
+      },
+      "returncode": 0,
+      "check_result": "PASS",
+      "wall_seconds": 0.010065449023386464,
+      "stdout": "/tmp/e02-F-graph-profile-20261007/root/final-wave/source-diff-check.stdout",
+      "stderr": "/tmp/e02-F-graph-profile-20261007/root/final-wave/source-diff-check.stderr",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command": "git diff --check 25cdea9064ddea2c3a812fd68670076bd4b088cb 4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "input_closure": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+        "denominator": [
+          "git",
+          "diff",
+          "--check",
+          "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+          "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d"
+        ],
+        "no_P41_inherited_attribution": true
+      },
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-graph-profile-20261007/root/final-wave/source-diff-check.stdout"
+    }
+  ],
+  "baseline_and_harness_outcomes": {
+    "real_pre_guard_MGraph_negative": {
+      "check": "FAIL",
+      "role": "Actual property regression witness on unchanged25c runtime",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/outputs/root/baseline-mgraph.stdout",
+        "encoding": "identity",
+        "stored_bytes": 2906,
+        "stored_sha256": "ade4489987d1643f80e21bdb96655fbcb6e0de458a774d64cf0aacd8005fde24",
+        "decoded_bytes": 2906,
+        "decoded_sha256": "ade4489987d1643f80e21bdb96655fbcb6e0de458a774d64cf0aacd8005fde24"
+      }
+    },
+    "development_ordinary_compose_DTO_constructor": "3 development harness FAIL before corrected explicit unsafe-copy setup; original DTO already rejects unsupported family",
+    "worker_first_launch": "ERROR before0tests because /usr/bin/time absent; corrected os.wait4 harness, no backend substitution",
+    "installed_first_collection": "ERROR: overbroad dependency pth origin exclusion; exact read-only dependency exception fixed, Polisyos own-origin guard preserved",
+    "installed_first_child": "ERROR StopIteration in evidence harness; original and corrected complete outputs retained",
+    "no_harness_error_relabelled_product_failure": true
+  },
+  "companions": {
+    "B204": "Only benchmark checker changes: two preperiods require not_testable/insufficient_pre_periods, passedFalse, statistic/pNone, identification_authorityFalse; ATT2DGP/time_treatment2/seed11 unchanged. No estimator/diagnostic admission weakening.",
+    "B212_B213": "Focused exact-source changed test body3PASS on genuine configured3.12/DoWhy0.14 worker; old implementation receipts remain at their original sources.",
+    "B218": "Explicit append supersession: historical limited→bounded original lag/export/static-refusal closed recommendation. Full protected temporal readiness stays separate limited/UNRUN; serialization is not identification.",
+    "LA037": "Three docs align IR canonical owner, direct Foundry facade, same-object compatibility alias and finite lifecycle; both paths retained, no runtime/layout/API change."
+  },
+  "published_companion_receipts": [
+    {
+      "branch": "codex/e02-F-cau-20261006",
+      "git_ref": "a7204961ac1028965c58224fe40e6bb3a397d8a8",
+      "tree": "936d0e79ae4fea92dfb082a98296037bdc965452",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-clean-rollout-companion-20261007.json",
+      "role": "Separate implementatione1/handoff; exactGitREST upload after ordinarypush500, forcefalse/refreadback verified"
+    },
+    {
+      "branch": "codex/e02-F-fry-20261006",
+      "git_ref": "b634d8a17ed43cad6f7e1558a9c927feb3d2e8ba",
+      "tree": "c04125bf993487876f64a7b1abb176a3acbd07e4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/layout-compatibility-docs-20261007.json",
+      "role": "Separate source6be/docs identity/MkDocs native6PASS receipt, ordinary remote readback"
+    },
+    {
+      "branch": "codex/e02-F-fry-20261006",
+      "git_ref": "defa506dfbe226fbbdbdf7722ae84c03828e181b",
+      "tree": "5e6aa2bd1fa5a47eef1fd76198a2fde916346325",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-graph-profile-20261007.json",
+      "bytes": 33160,
+      "sha256": "c9c1b717ac2b2fa60b2fad8508abbc1276d32ab963a067727b1ae6a7d5160f68",
+      "role": "External exact4ee installed qualification,89 newreceipt paths/zero runtime delta; final defa forward-adds mandatory ignored trace plus complete Git transport audit, ordinary remote readback"
+    }
+  ],
+  "source_carry": {
+    "rule": "Unchanged input/blob/origin-qualified old evidence only. None of historical numerical160-DGP/4000RDD/91wheel/91sdist results reassigned to new whole-head candidate.",
+    "catalog": "11 packaged resource/build contracts unchanged, exact byte/origin rows guarded in new wheel; no full old catalog wave repeated",
+    "worker": "Seven implementation/profile/lock blobs unchanged; newbody selected tests actually rerun3PASS",
+    "unaffected_finding_rows": "29 per-ID bytes retained; six appended focused evidence only; original35/36 bindings unchanged"
+  },
+  "quality": {
+    "historical_source519_scanner": "ERROR/incomplete, two returncode-9 attempts, complete configured5957 denominator; no retry in narrow continuation",
+    "historical_Ruff": "FAIL103 on exact maintained loader denominator",
+    "historical_public_surface": "FAIL38",
+    "new_changed_graph_Ruff": "PASS4files",
+    "new_changed_Python_format": "PASS5files",
+    "new_benchmark_Ruff": "FAIL2T201 full changed benchmark file; base also red is not P41 inherited proof",
+    "P41": "not_established; no complete zero-overlap slice-base witness",
+    "new_full_scanner": "UNRUN"
+  },
+  "owner_triggers": {
+    "B214": {
+      "outcome": "limited",
+      "owners": [
+        "A",
+        "C",
+        "F graph"
+      ],
+      "minimal_packet": "Tracked family/identified-vs-conditional/partial output and authority-projection contract; query with distinct effects across admissible completions. No arbitrary DAG completion/new general ID engine."
+    },
+    "B56": {
+      "check": "UNRUN",
+      "outcome": "limited",
+      "owners": [
+        "Runtime",
+        "Scientist",
+        "G local measurement"
+      ],
+      "minimal_packet": "Canonical shared admission/cap and complete workload/input roster. Local active/wait/wall/RSS/all-fold/provenance/readback on exact candidate; serial folds retained, no second TMLE scheduler."
+    }
+  },
+  "acceptance": {
+    "F_code_ready": true,
+    "F_technical_original_recommendations": {
+      "closed": 33,
+      "limited": 2
+    },
+    "F_finding_recommendations": {
+      "closed": 33,
+      "limited": 2
+    },
+    "finding_check_states": {
+      "PASS": 34,
+      "UNRUN": 1
+    },
+    "G_new_source_acceptance": "not_issued",
+    "G_formal_finding_closure": "not_issued",
+    "no_main_publication": true
+  },
+  "evidence_transport": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007/artifact-transports.json",
+    "bytes": 332686,
+    "sha256": "0892f02bbe70d25d8e3d3a8fecd8df845657f15f252082685b8ffc86ea30653a",
+    "files": 513,
+    "stored_bytes": 2539936,
+    "decoded_bytes": 5633677,
+    "complete_outputs_retained": true
+  },
+  "cleanup": {
+    "action": "none",
+    "preserve": "Git objects, source, docs, all deciding outputs/unique input artifacts and active environments",
+    "candidates_for_later_inactive_review_only": [
+      "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/uv-cache",
+      "/tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-env"
+    ],
+    "no_native_Trash": true,
+    "permanent_delete_or_Trash_empty": false
+  },
+  "previous_custom_receipt": {
+    "git_ref": "e89d449acc6eedb1629c42c428689f7c578fce26",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-profile-20261007.json",
+    "bytes": 38873,
+    "sha256": "dba5e9957daf152c370868e7424bdc90baef646760b57af6a4c1377057ceb439",
+    "role": "Complete deciding outputs and source were already valid; canonical HANDOFF field names absent, forward receipt-only correction"
+  },
+  "slice": "graph-profile-20261007",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CAU-01",
+    "CAU-04",
+    "GRF-03",
+    "FRY-01"
+  ],
+  "slice_base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+  "implementation_commit_bindings": [
+    {
+      "sha": "36b18cc142aff77a5825126b4f07bafec09a5180",
+      "tree": "28a104214fe96f1ccf572aeb64a7866c41776344",
+      "role": "canonical reconciliation profile guard and real consumer tests"
+    },
+    {
+      "sha": "e1c4bb28c9d5ff936ae1c047619c56cf12ba5347",
+      "tree": "7ae6991cb8424e93b22dee4234914a6c99c88141",
+      "role": "honest two-preperiod benchmark checker"
+    },
+    {
+      "sha": "6beacc8b42dacabff214901919203323f07d1fef",
+      "tree": "64dc785b6bf29659e94acdd7cf3100c02179e2c0",
+      "role": "IR direct facade/same-object alias lifecycle docs"
+    }
+  ],
+  "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "candidate_tree_sha": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/65",
+  "changed_paths": [
+    "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+    "policy-engine/docs/reference/foundry/state.md",
+    "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+    "policy-engine/src/polisyos/foundry/methods/README.md",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "policy-engine/src/polisyos/foundry/methods/compiler/README.md",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+    "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py"
+  ],
+  "baseline_cells": [],
+  "baseline_cells_scope": "No old baseline cell automatically assigned to this property follow-up; actual25c runtime regression and G nativeMGraph witness are the deciding baselines. Original35 bindings/receipts and importer verification remain separate.",
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded_reconciliation_property_code_ready; original35_F_states_unchanged; G_acceptance_not_issued",
+  "limitations_and_next_owner": [
+    "B214 remainslimited: A/C/F tracked graph-family/identified-versus-conditional/partial outputs and authority projection with completion-distinguishing query.",
+    "B56 remainslimited/UNRUN: Runtime/Scientist canonical shared admission/cap and full workload/input roster; G local active/wait/wall/RSS/all-fold/CAS/readback after packet.",
+    "Reconciliation only; no new MGraph/PAG/CPDAG/general/temporal identification support. OriginalMGraph remains readable and is refused by this static route.",
+    "New rebuilt-sdistUNRUN; old51991/91 source-bound qualification unchanged, not new4ee whole-head proof.",
+    "Selected genuine3.12/DoWhy0.14 worker passes; optionalinprocess3.14 DoWhy/EconML and scientific/Runtime authority positivesUNRUN.",
+    "Global scannerERROR−9twice/Ruff103FAIL/publicsurface38FAIL and P41not_established preserved. New benchmarkRuff2T201FAIL not establishedinherited."
+  ],
+  "fresh_remote_checkpoint": {
+    "sha": "9806442ddb47d624a2940bac75d9d6248e934c48",
+    "tree": "4a1caafc331990e0ebf0130a9051c08ae1ffcbd4",
+    "previous_dependency_pin": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+    "previous_is_ancestor": true,
+    "delta_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/B-resume-after-53b-all60.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/C-resume-after-C4-all54.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/C-resume-after-c54-v10.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/C.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/D-resume-after-a795-all45.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/D-resume-after-pr68-680.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/D.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C-CAN-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C-CAN-review.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C-NET-decoder-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C-NET-decoder-review.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C54-actions.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C54-decisions.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C54-remaining.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-resume-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-resume-review.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D45-actions.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D45-decisions.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/cache-candidates.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/cache-candidates.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/final-links.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/final-links.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/final-semantics.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/final-semantics.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/identity.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/identity.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/local-build-availability.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/pins.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/storage.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/storage.md"
+    ],
+    "product_delta_paths": [],
+    "F35_decision_blob_unchanged": true,
+    "G_ref_read_only": true,
+    "not_an_accepted_or_merged_G_candidate": true
+  }
+}

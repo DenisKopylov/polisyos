@@ -1,0 +1,188 @@
+{
+  "baseline_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+  "rows": [
+    {
+      "finding_id": "B204",
+      "per_ID_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B204.json",
+      "index_row_pointer": "/rows/0",
+      "audit_row_pointer": "/rows/0",
+      "index_byte_binding_pointer": "/per_ID_complete_records/0",
+      "per_ID_mutable_recommendation_fields": [
+        "/F_rationale",
+        "/oracle_and_negative",
+        "/next_concrete_result",
+        "/separate_unavailable_inputs_or_authority",
+        "/original_missing_input",
+        "/original_next_owner",
+        "/new_property_followups_not_automatically_original_reopen"
+      ],
+      "immutable_original_fields": [
+        "/original_card_refs",
+        "/original_text",
+        "/historical_ROOT072",
+        "/deciding_per_ID_carrier_ref"
+      ],
+      "source_checks": "Append measured candidate/consumer refs only; never retarget unchanged scientific checks."
+    },
+    {
+      "finding_id": "B212",
+      "per_ID_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B212.json",
+      "index_row_pointer": "/rows/8",
+      "audit_row_pointer": "/rows/8",
+      "index_byte_binding_pointer": "/per_ID_complete_records/8",
+      "per_ID_mutable_recommendation_fields": [
+        "/F_rationale",
+        "/oracle_and_negative",
+        "/next_concrete_result",
+        "/separate_unavailable_inputs_or_authority",
+        "/original_missing_input",
+        "/original_next_owner",
+        "/new_property_followups_not_automatically_original_reopen"
+      ],
+      "immutable_original_fields": [
+        "/original_card_refs",
+        "/original_text",
+        "/historical_ROOT072",
+        "/deciding_per_ID_carrier_ref"
+      ],
+      "source_checks": "Append measured candidate/consumer refs only; never retarget unchanged scientific checks."
+    },
+    {
+      "finding_id": "B213",
+      "per_ID_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B213.json",
+      "index_row_pointer": "/rows/9",
+      "audit_row_pointer": "/rows/9",
+      "index_byte_binding_pointer": "/per_ID_complete_records/9",
+      "per_ID_mutable_recommendation_fields": [
+        "/F_rationale",
+        "/oracle_and_negative",
+        "/next_concrete_result",
+        "/separate_unavailable_inputs_or_authority",
+        "/original_missing_input",
+        "/original_next_owner",
+        "/new_property_followups_not_automatically_original_reopen"
+      ],
+      "immutable_original_fields": [
+        "/original_card_refs",
+        "/original_text",
+        "/historical_ROOT072",
+        "/deciding_per_ID_carrier_ref"
+      ],
+      "source_checks": "Append measured candidate/consumer refs only; never retarget unchanged scientific checks."
+    },
+    {
+      "finding_id": "B214",
+      "per_ID_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B214.json",
+      "index_row_pointer": "/rows/10",
+      "audit_row_pointer": "/rows/10",
+      "index_byte_binding_pointer": "/per_ID_complete_records/10",
+      "per_ID_mutable_recommendation_fields": [
+        "/F_rationale",
+        "/oracle_and_negative",
+        "/next_concrete_result",
+        "/separate_unavailable_inputs_or_authority",
+        "/original_missing_input",
+        "/original_next_owner",
+        "/new_property_followups_not_automatically_original_reopen"
+      ],
+      "immutable_original_fields": [
+        "/original_card_refs",
+        "/original_text",
+        "/historical_ROOT072",
+        "/deciding_per_ID_carrier_ref"
+      ],
+      "source_checks": "Append measured candidate/consumer refs only; never retarget unchanged scientific checks."
+    },
+    {
+      "finding_id": "B218",
+      "per_ID_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B218.json",
+      "index_row_pointer": "/rows/14",
+      "audit_row_pointer": "/rows/14",
+      "index_byte_binding_pointer": "/per_ID_complete_records/14",
+      "per_ID_mutable_recommendation_fields": [
+        "/F_rationale",
+        "/oracle_and_negative",
+        "/next_concrete_result",
+        "/separate_unavailable_inputs_or_authority",
+        "/original_missing_input",
+        "/original_next_owner",
+        "/new_property_followups_not_automatically_original_reopen"
+      ],
+      "immutable_original_fields": [
+        "/original_card_refs",
+        "/original_text",
+        "/historical_ROOT072",
+        "/deciding_per_ID_carrier_ref"
+      ],
+      "source_checks": "Append measured candidate/consumer refs only; never retarget unchanged scientific checks."
+    },
+    {
+      "finding_id": "B56",
+      "per_ID_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B56.json",
+      "index_row_pointer": "/rows/23",
+      "audit_row_pointer": "/rows/23",
+      "index_byte_binding_pointer": "/per_ID_complete_records/23",
+      "per_ID_mutable_recommendation_fields": [
+        "/F_rationale",
+        "/oracle_and_negative",
+        "/next_concrete_result",
+        "/separate_unavailable_inputs_or_authority",
+        "/original_missing_input",
+        "/original_next_owner",
+        "/new_property_followups_not_automatically_original_reopen"
+      ],
+      "immutable_original_fields": [
+        "/original_card_refs",
+        "/original_text",
+        "/historical_ROOT072",
+        "/deciding_per_ID_carrier_ref"
+      ],
+      "source_checks": "Append measured candidate/consumer refs only; never retarget unchanged scientific checks."
+    },
+    {
+      "finding_id": "LA-037",
+      "per_ID_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/LA-037.json",
+      "index_row_pointer": "/rows/34",
+      "audit_row_pointer": "/rows/34",
+      "index_byte_binding_pointer": "/per_ID_complete_records/34",
+      "per_ID_mutable_recommendation_fields": [
+        "/F_rationale",
+        "/oracle_and_negative",
+        "/next_concrete_result",
+        "/separate_unavailable_inputs_or_authority",
+        "/original_missing_input",
+        "/original_next_owner",
+        "/new_property_followups_not_automatically_original_reopen"
+      ],
+      "immutable_original_fields": [
+        "/original_card_refs",
+        "/original_text",
+        "/historical_ROOT072",
+        "/deciding_per_ID_carrier_ref"
+      ],
+      "source_checks": "Append measured candidate/consumer refs only; never retarget unchanged scientific checks."
+    }
+  ],
+  "global_keys": {
+    "index_and_full_audit": [
+      "/product_source",
+      "/G_checkpoint",
+      "/summary",
+      "/current_receipt_registry",
+      "/formal_G_acceptance",
+      "/assembled_consumer_ready",
+      "/assembled_consumer_scope",
+      "/global_quality",
+      "/P41"
+    ],
+    "index_only": [
+      "/per_ID_complete_records"
+    ],
+    "full_audit_only": [
+      "/fresh_independent_reconciliation",
+      "/pattern_review"
+    ]
+  },
+  "preserve_all_original_bindings": true,
+  "old_history_and_raw_review_snapshots_not_rewrite": true
+}

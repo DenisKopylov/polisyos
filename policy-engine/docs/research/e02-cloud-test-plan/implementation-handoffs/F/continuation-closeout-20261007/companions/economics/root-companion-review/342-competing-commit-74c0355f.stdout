@@ -1,0 +1,4 @@
+A	policy-engine/docs/reference/ir/causal-graph-cache-rows.md
+A	policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-cache-rows.toml
+M	policy-engine/src/polisyos/ir/analytics/causal_graph.py
+A	policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py

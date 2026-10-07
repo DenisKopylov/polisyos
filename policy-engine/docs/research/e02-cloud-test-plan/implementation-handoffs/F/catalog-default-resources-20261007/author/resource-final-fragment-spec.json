@@ -1,0 +1,32 @@
+{
+  "id": "resource-final-fragment",
+  "repo": "/workspace/e02-F-graph-20261006",
+  "prefix": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/resource-final-fragment",
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "target_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+  "env": {
+    "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/FRfxDH8nJU3psJuO:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/UiWY5OJhIS1bCbbj:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/rzzxdszJdjA2TxUF:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/jzraMA8hdiRZ6IzT:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5rluSUsE3KBgGB71:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5Ru6KSKyfVbEb5in",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "source_paths": [
+    "policy-engine/docs/reference/data-forge/catalog-default-resources.md",
+    "policy-engine/hatch.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-catalog-default-resources.toml",
+    "policy-engine/src/polisyos/data_forge/domains/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+    "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+    "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+    "policy-engine/tests/repo_quality/tools/test_catalog_default_resources_packaging.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py"
+  ],
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/check_corrected_resource_fragment.py"
+  ],
+  "input_closure": "Actual immutable6ba9 metadata successor; one owned public_experimental Path compatibility record uses canonical validator/renderer. All runtime/tests/Hatch/fouroriginalYAML byte-identical089. No whole repository gate verdict."
+}

@@ -1,0 +1,28 @@
+{
+  "source": "46cc03546f2572986962555ddf04d858163c1cf6",
+  "tree": "bb2ceacff846b68466a03fce767f7d300b18240e",
+  "full_document_inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+      "bytes": 28219,
+      "sha256": "e699ec5b847164b7fc58587368ff84887ae053d681faa9c364dff19f65228ea2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+      "bytes": 107675,
+      "sha256": "924cb435a093d73e1194223df7f8ffe56ae8ee88b5b02a5f81089498fd6a1995"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+      "bytes": 36900,
+      "sha256": "8a94771a2221b1e1318b1ce5d0f0c88ff8c15c3e97de43897a06ace93eeafe8f"
+    },
+    {
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "bytes": 62396,
+      "sha256": "a64956e284b411276a16a612afffb1fb42daf03ffef8f7ef1c3f3f9bc25d0349"
+    }
+  ],
+  "production_data_uploaded": false,
+  "new_cleanup_actions": []
+}

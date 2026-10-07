@@ -1,0 +1,230 @@
+{
+  "schema": "e02.F.api.independent_b204_review.v1",
+  "outcome": "PASS",
+  "decision": "bounded independent GO; source/checker/native known-DGP property only",
+  "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "component_source_sha": "e1c4bb28c9d5ff936ae1c047619c56cf12ba5347",
+  "base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+  "related_finding_ids": [
+    "B204"
+  ],
+  "closure_ids": [],
+  "source_bindings": [
+    {
+      "candidate": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+        "bytes": 13981,
+        "sha256": "127abcfd0b2d39a115e5e93ccb537f58fdb018fc6813a935f13fec37a145dc4a",
+        "git_blob": "148595971cf96a656de47c390e6496ce8fa4acbf"
+      },
+      "component": {
+        "source_sha": "e1c4bb28c9d5ff936ae1c047619c56cf12ba5347",
+        "path": "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+        "bytes": 13981,
+        "sha256": "127abcfd0b2d39a115e5e93ccb537f58fdb018fc6813a935f13fec37a145dc4a",
+        "git_blob": "148595971cf96a656de47c390e6496ce8fa4acbf"
+      },
+      "base": {
+        "source_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+        "path": "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+        "bytes": 13365,
+        "sha256": "e58553495f2f83554196125999bfad0eabc7e70d6a8d5760e5b677616ae9d007",
+        "git_blob": "a19e12824078d3964f45c861be9cdb17714e0c42"
+      },
+      "candidate_equals_component": true,
+      "candidate_equals_base": false
+    },
+    {
+      "candidate": {
+        "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+        "bytes": 52392,
+        "sha256": "0a352e6895e4683f07f8494b51508401fa98b7cb4d733d27365388de063c7919",
+        "git_blob": "5def0fef6e14fb17cf026d13ec517b97bd77d615"
+      },
+      "component": {
+        "source_sha": "e1c4bb28c9d5ff936ae1c047619c56cf12ba5347",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+        "bytes": 52392,
+        "sha256": "0a352e6895e4683f07f8494b51508401fa98b7cb4d733d27365388de063c7919",
+        "git_blob": "5def0fef6e14fb17cf026d13ec517b97bd77d615"
+      },
+      "base": {
+        "source_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+        "bytes": 52392,
+        "sha256": "0a352e6895e4683f07f8494b51508401fa98b7cb4d733d27365388de063c7919",
+        "git_blob": "5def0fef6e14fb17cf026d13ec517b97bd77d615"
+      },
+      "candidate_equals_component": true,
+      "candidate_equals_base": true
+    }
+  ],
+  "source_footprint": {
+    "checker_only_AST_change": true,
+    "fixture_method_parameters_runner_other_module_AST_unchanged": true,
+    "did_math_implementation_byte_identical": true
+  },
+  "execution": {
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/probe_b204.py"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+    "env_overrides": {
+      "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools:/workspace/e02-F-closeout-20261006/policy-engine",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "source_before": {
+      "head": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "tracked_clean": true
+    },
+    "source_after": {
+      "head": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "tracked_clean": true
+    },
+    "exit_code": 0,
+    "wall_seconds": 6.764667097013444,
+    "stdout": {
+      "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/b204.stdout.json",
+      "bytes": 194492,
+      "sha256": "6acdf5f4f818f2def7d4136b32b8453825c45a2ce7d91c4026bc6e97f273dd43"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/b204.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "replayer": {
+      "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/probe_b204.py",
+      "bytes": 4001,
+      "sha256": "1ce12aace43bbbd8943c51b9b614d29054054614dd4fd1e57a566b77ee4ee09f"
+    },
+    "scope": "native known DGP/checker; no authority or optional worker claim"
+  },
+  "independent_oracle": {
+    "point_estimate": 1.997217038863679,
+    "four_means_att": 1.9972170388636759,
+    "absolute_difference": 3.1086244689504383e-15,
+    "tolerance": 1e-10,
+    "pre_periods": 2,
+    "diagnostic": {
+      "test_name": "pre_trend_parallelism",
+      "statistic": null,
+      "p_value": null,
+      "passed": false,
+      "details": {
+        "identification_authority": false,
+        "limitation": "Non-rejection cannot establish untreated potential-outcome parallel trends.",
+        "status": "not_testable",
+        "reason": "insufficient_pre_periods"
+      }
+    },
+    "falsifiers": [
+      {
+        "name": "passed_true",
+        "actual_refusal": "two-pre-period rollout must retain an untestable pretrend diagnostic",
+        "outcome": "PASS"
+      },
+      {
+        "name": "statistic_invented",
+        "actual_refusal": "two-pre-period rollout must retain an untestable pretrend diagnostic",
+        "outcome": "PASS"
+      },
+      {
+        "name": "p_value_invented",
+        "actual_refusal": "two-pre-period rollout must retain an untestable pretrend diagnostic",
+        "outcome": "PASS"
+      },
+      {
+        "name": "status_passed",
+        "actual_refusal": "two-pre-period rollout must retain an untestable pretrend diagnostic",
+        "outcome": "PASS"
+      },
+      {
+        "name": "wrong_reason",
+        "actual_refusal": "two-pre-period rollout must retain an untestable pretrend diagnostic",
+        "outcome": "PASS"
+      },
+      {
+        "name": "missing_reason",
+        "actual_refusal": "two-pre-period rollout must retain an untestable pretrend diagnostic",
+        "outcome": "PASS"
+      },
+      {
+        "name": "identification_authority_true",
+        "actual_refusal": "two-pre-period rollout must retain an untestable pretrend diagnostic",
+        "outcome": "PASS"
+      },
+      {
+        "name": "missing_identification_authority",
+        "actual_refusal": "two-pre-period rollout must retain an untestable pretrend diagnostic",
+        "outcome": "PASS"
+      },
+      {
+        "name": "missing_pretrend_diagnostic",
+        "actual_refusal": "two-pre-period rollout must retain an untestable pretrend diagnostic",
+        "outcome": "PASS"
+      },
+      {
+        "name": "att_drift",
+        "actual_refusal": "clean rollout ATT drifted: want 2.0, got 2.997217038863679",
+        "outcome": "PASS"
+      }
+    ]
+  },
+  "environment": {
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "python": "3.14.7",
+    "versions": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "statsmodels": "0.14.6",
+      "pydantic": "2.12.5"
+    },
+    "benchmark_origin": "/workspace/e02-F-closeout-20261006/policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+    "estimator_origin": "/workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py"
+  },
+  "owned_import_origins": {
+    "count": 761,
+    "all_actual_candidate_src": true
+  },
+  "complete_outputs": [
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/b204.stdout.json",
+      "bytes": 194492,
+      "sha256": "6acdf5f4f818f2def7d4136b32b8453825c45a2ce7d91c4026bc6e97f273dd43"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/b204.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/b204.execution.json",
+      "bytes": 1551,
+      "sha256": "c22a3162fc69cd15b3b7ce43be03f546aeb9bfd51035fb8f6ed6d178914dda64"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/probe_b204.py",
+      "bytes": 4001,
+      "sha256": "1ce12aace43bbbd8943c51b9b614d29054054614dd4fd1e57a566b77ee4ee09f"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/run_b204.py",
+      "bytes": 1820,
+      "sha256": "52ae7e294f3b92ad23b153ebf84b1832693d9938dbec9c60d68682be95689ee5"
+    }
+  ],
+  "limits": [
+    "One native StandardDiD known-DGP case; not full benchmark suite.",
+    "No genuine pretrend test from two pre-periods; not_testable/identification_authority=false is required.",
+    "No optional DoWhy/EconML positive witness, admitted real data or Runtime authority claim.",
+    "Component e1 supplies benchmark bytes only; execution is exact combined4ee, not whole e1-tree PASS.",
+    "No P41 inherited-quality attribution or formal G finding closure."
+  ]
+}

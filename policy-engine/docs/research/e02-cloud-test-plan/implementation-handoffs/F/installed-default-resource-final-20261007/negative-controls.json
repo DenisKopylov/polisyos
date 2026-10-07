@@ -1,0 +1,246 @@
+{
+  "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "profiles": [
+    {
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "kind": "wheel",
+      "label": "law-removal",
+      "argv": [
+        "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-env/bin/python",
+        "-I",
+        "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/removal_replay.py",
+        "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/installed-config.json",
+        "wheel"
+      ],
+      "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-consumer",
+      "environment": {
+        "PYTHONPATH": "absent",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_CATALOG_EXPECTED_JSON": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/catalog-expected.json",
+        "POLISYOS_DOWHY_WORKER_PYTHON": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python"
+      },
+      "exit_code": 1,
+      "outcome": "FAIL",
+      "expected_property_detection": "PASS",
+      "wall_seconds": 3.5916947799851187,
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-law-removal.stdout.txt",
+        "bytes": 2527,
+        "sha256": "d75378148d62361b067f6282da19b206b342e6dca22070fe2aad833525e759d2"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-law-removal.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "kind": "wheel",
+      "label": "projection-missing",
+      "argv": [
+        "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-env/bin/python",
+        "-I",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "-ra",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-missing-pytest-tmp",
+        "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-consumer/test_installed_catalog_defaults.py::test_installed_path_abi_and_exact_original_yaml_bytes[seed_variable_alignments.yaml]"
+      ],
+      "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-consumer",
+      "environment": {
+        "PYTHONPATH": "absent",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_CATALOG_EXPECTED_JSON": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/catalog-expected.json",
+        "POLISYOS_DOWHY_WORKER_PYTHON": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python"
+      },
+      "exit_code": 1,
+      "outcome": "FAIL",
+      "expected_property_detection": "PASS",
+      "wall_seconds": 3.279859044996556,
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-projection-missing.stdout.txt",
+        "bytes": 2747,
+        "sha256": "cb0735cee05de47b94e565fab3f0879f3319d15f5bb3d5bb69152566e8ac3604"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-projection-missing.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "kind": "wheel",
+      "label": "projection-changed",
+      "argv": [
+        "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-env/bin/python",
+        "-I",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "-ra",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-changed-pytest-tmp",
+        "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-consumer/test_installed_catalog_defaults.py::test_installed_path_abi_and_exact_original_yaml_bytes[seed_variable_alignments.yaml]"
+      ],
+      "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-consumer",
+      "environment": {
+        "PYTHONPATH": "absent",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_CATALOG_EXPECTED_JSON": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/catalog-expected.json",
+        "POLISYOS_DOWHY_WORKER_PYTHON": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python"
+      },
+      "exit_code": 1,
+      "outcome": "FAIL",
+      "expected_property_detection": "PASS",
+      "wall_seconds": 2.64591378197656,
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-projection-changed.stdout.txt",
+        "bytes": 1668,
+        "sha256": "66436edfa6fb13f0f899615f3d5a8ca7cd3faa14ad55a34bca347c281c4731bb"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-projection-changed.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "kind": "sdist",
+      "label": "law-removal",
+      "argv": [
+        "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-env/bin/python",
+        "-I",
+        "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/removal_replay.py",
+        "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/installed-config.json",
+        "sdist"
+      ],
+      "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-consumer",
+      "environment": {
+        "PYTHONPATH": "absent",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_CATALOG_EXPECTED_JSON": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/catalog-expected.json",
+        "POLISYOS_DOWHY_WORKER_PYTHON": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python"
+      },
+      "exit_code": 1,
+      "outcome": "FAIL",
+      "expected_property_detection": "PASS",
+      "wall_seconds": 3.5313918460160494,
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-law-removal.stdout.txt",
+        "bytes": 2527,
+        "sha256": "677e35a5efcdcf58d4dee5a44e684205b84d87bea8e9b321fd742c7381512bea"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-law-removal.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "kind": "sdist",
+      "label": "projection-missing",
+      "argv": [
+        "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-env/bin/python",
+        "-I",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "-ra",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-missing-pytest-tmp",
+        "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-consumer/test_installed_catalog_defaults.py::test_installed_path_abi_and_exact_original_yaml_bytes[seed_variable_alignments.yaml]"
+      ],
+      "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-consumer",
+      "environment": {
+        "PYTHONPATH": "absent",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_CATALOG_EXPECTED_JSON": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/catalog-expected.json",
+        "POLISYOS_DOWHY_WORKER_PYTHON": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python"
+      },
+      "exit_code": 1,
+      "outcome": "FAIL",
+      "expected_property_detection": "PASS",
+      "wall_seconds": 3.2794244319957215,
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-projection-missing.stdout.txt",
+        "bytes": 2747,
+        "sha256": "84122d6ada95837ee6f92add00e412307fc1766eccf8c40af5156769931eb504"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-projection-missing.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+      "kind": "sdist",
+      "label": "projection-changed",
+      "argv": [
+        "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-env/bin/python",
+        "-I",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "-ra",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-changed-pytest-tmp",
+        "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-consumer/test_installed_catalog_defaults.py::test_installed_path_abi_and_exact_original_yaml_bytes[seed_variable_alignments.yaml]"
+      ],
+      "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-consumer",
+      "environment": {
+        "PYTHONPATH": "absent",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_CATALOG_EXPECTED_JSON": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/catalog-expected.json",
+        "POLISYOS_DOWHY_WORKER_PYTHON": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python"
+      },
+      "exit_code": 1,
+      "outcome": "FAIL",
+      "expected_property_detection": "PASS",
+      "wall_seconds": 2.599450909998268,
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-projection-changed.stdout.txt",
+        "bytes": 1668,
+        "sha256": "c7fbd2800cabf277d930bd9d77aed1605d8b40c3dd91d98c0d38856780f520bb"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-projection-changed.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "scope": "Actual one marker-kept function-law removal and missing/byte-changed private projection, full restoration; failures are expected deciding discriminators, not native PASS."
+}

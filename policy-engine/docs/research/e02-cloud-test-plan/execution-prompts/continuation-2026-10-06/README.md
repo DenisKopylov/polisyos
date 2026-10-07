@@ -1,3 +1,7 @@
+Latest A continuation: [A after full delivery](A-resume-after-delivery.md), with [exact audit and all criterion actions](../../integration/reviews/A-delivery-continuation-audit-2026-10-06.md).
+
+Latest E continuation: [E after PR38 r2](E-resume-after-pr38-r2.md), with the [current G audit](../../integration/reviews/E-pr38-r2-continuation-audit-2026-10-06.md). Its original-criterion scope and current output roles supersede stale E wave/pending statements.
+
 # E02: шесть поручений продолжения после публикации main
 
 G опубликовал код, пакет решений и publication companions в `origin/main`

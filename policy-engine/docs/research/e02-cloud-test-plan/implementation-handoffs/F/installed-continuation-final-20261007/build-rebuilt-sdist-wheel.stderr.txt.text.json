@@ -1,0 +1,6 @@
+{
+  "schema": "policyos.e02.lossless_utf8_text.v1",
+  "decoded_bytes": 157,
+  "decoded_sha256": "683a6a4e2af71330770a9200fd4d51d99f9793dc53adc106a7779fe1e2352497",
+  "text": "Building wheel...\nSuccessfully built /tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/dist-rebuilt/policy_engine-0.1.0-py3-none-any.whl\n"
+}

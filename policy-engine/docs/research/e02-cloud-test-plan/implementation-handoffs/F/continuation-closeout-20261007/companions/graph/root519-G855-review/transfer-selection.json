@@ -1,0 +1,301 @@
+{
+  "schema": "policyos.e02.complete_transfer_selection.v1",
+  "reviewer": "graph_scm",
+  "source_sha": "79895c6758307a56b1613a8d1c19daa3f0d92c25",
+  "source_tree": "5bfbc2720c92fccb63ab2f288971b182cd09073b",
+  "scope": "independent assembly/source-input/custody review; not author-as-independent scientific review",
+  "check": "PASS",
+  "selection_is_complete": true,
+  "item_count": 42,
+  "stored_bytes": 2410883,
+  "decoded_bytes": 18285155,
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/merge-tree.json",
+      "bytes": 1047,
+      "sha256": "a7b9e04b95a95f05e935b83cbc07a9fe9c4855f0d4971a5b0029ebd69a670a84",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/merge-tree.stdout.txt",
+      "bytes": 615,
+      "sha256": "401997e86507c82f9aee59f46f6f7e7938d974997b5d43e3f3d463615827ec50",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/merge-tree.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/compare_inputs.py",
+      "bytes": 5218,
+      "sha256": "5b56dc8595db314f7124bb4cbb99f3985435bf2c40ecec2ce1d6a57f617da38c",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/source-input-comparison.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/source-input-comparison.stderr.txt",
+      "bytes": 1611,
+      "sha256": "0704fe0a4d7846cc51ccd287a743add40c212a6c1deb1a24e0cea3dd9e7cc3dc",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/compare_inputs_v2.py",
+      "bytes": 6081,
+      "sha256": "bac4136fb6efd33d2e08407272c9574d49d76dbcf788d8da97f1416729378ca1",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/source-input-comparison-v2.json.lossless.gz",
+      "bytes": 578537,
+      "sha256": "305611a9ae256875e728f2be7dcd3cab50674a8e102ab51499cc01f1b80b2025",
+      "encoding": "gzip",
+      "decoded_bytes": 6256190,
+      "decoded_sha256": "7274772e3993e3f546b816cc3e87b818a1bc4b7cea316c38398c2bc4ba1bc79c",
+      "original_raw_path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/source-input-comparison-v2.json",
+      "transport_reason": "complete moderate/large deciding metadata or source-diff output; original unchanged; single lossless compressed copy for Git transfer"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/source-input-comparison-v2.stdout.txt",
+      "bytes": 6822,
+      "sha256": "0909785f48b552df20daa9b9c821998a229b1812c824f17a943f2413e8cdd76f",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/source-input-comparison-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/finalize_comparison.py",
+      "bytes": 3539,
+      "sha256": "4a5cce6a8bb68a47c67308bf8d81254e3dbd64123c3ca0daf3ff977513bf23a6",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/source-input-comparison-final.json.lossless.gz",
+      "bytes": 603368,
+      "sha256": "76dc57d5f853105a732125b9e2d77b51e7918309d9822b66dd2a0b971a74675e",
+      "encoding": "gzip",
+      "decoded_bytes": 6492091,
+      "decoded_sha256": "0021a9b71121c10ec4b60263f26b58f018307acc8dec2a1be693ece8fe1b3333",
+      "original_raw_path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/source-input-comparison-final.json",
+      "transport_reason": "complete moderate/large deciding metadata or source-diff output; original unchanged; single lossless compressed copy for Git transfer"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/source-input-comparison-final.stdout.txt",
+      "bytes": 1118,
+      "sha256": "f39bf43cddf8e7b5552b5ab5e7911175ee246516a719d8377380faa87abb1c29",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/source-input-comparison-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/prepare_resolution.py",
+      "bytes": 2855,
+      "sha256": "633ca61228ab960a935d8cc21c216ba267c4ca731e802b3048da7a9dbe40c1da",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/ledger-resolution-proposal.json",
+      "bytes": 2775,
+      "sha256": "abc19a0182a63ad384ac1bc5279222255081e4a57b9554ed3854af9ce2d2bdf6",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/ledger-resolution-proposal.stdout.txt",
+      "bytes": 3529,
+      "sha256": "c984e59c4e09e3675c2896a1551ab2418855dd9b41c52303cc537600d532f64f",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/ledger-resolution-proposal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/F.md.root-to-proposal.patch",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/method-decisions.md.root-to-proposal.patch",
+      "bytes": 744,
+      "sha256": "2ccb45a1b0916235d6bc9364f6574c41356344858595b544eef9fc11b756ed2a",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/original-card-bindings.json",
+      "bytes": 2349,
+      "sha256": "427174b3176c50cfac8e070ca373f938869ea5e658829b59adb7fd54940c3a16",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/B214-original-card.md",
+      "bytes": 3537,
+      "sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/B218-original-card.md",
+      "bytes": 3861,
+      "sha256": "8ce1868ddb2663580547f475288d03502e03ae6a4bc38923313bc069efb0a40a",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/LA-004-original-card.md",
+      "bytes": 3498,
+      "sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/LA-035-original-card.md",
+      "bytes": 7176,
+      "sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/G-delta.txt",
+      "bytes": 44408,
+      "sha256": "f9642853d541d272d041257de14bbd0455fff71556637bef0121f48dce382aa6",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/root-vs-own.txt.lossless.gz",
+      "bytes": 6569,
+      "sha256": "541f6a354a2cda5298da1789febc847ff1b99f920641303e2aab6b47ede7b3f7",
+      "encoding": "gzip",
+      "decoded_bytes": 128976,
+      "decoded_sha256": "11a4e4a7974b1fc962c30ccf676c7712de7e15067af3f42aeb554ab56a5bdcb4",
+      "original_raw_path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/root-vs-own.txt",
+      "transport_reason": "complete moderate/large deciding metadata or source-diff output; original unchanged; single lossless compressed copy for Git transfer"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/actual798-vs519-name-status.txt.lossless.gz",
+      "bytes": 5539,
+      "sha256": "63fc0111041c8c1d04a741f0fd050c7df3018114361fefe3716e35dcb215e8e6",
+      "encoding": "gzip",
+      "decoded_bytes": 85633,
+      "decoded_sha256": "6a1ce0e2f420f596b3ea6e197c68a5dfefd8df5bbc178141caeb8bb43f3faebf",
+      "original_raw_path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/actual798-vs519-name-status.txt",
+      "transport_reason": "complete moderate/large deciding metadata or source-diff output; original unchanged; single lossless compressed copy for Git transfer"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/review_actual_merge.py",
+      "bytes": 13358,
+      "sha256": "e8f018235f10226c8860274d802a4d344c4e635a6d14649fd3e18f0da6f0fda7",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/actual798-review.json.lossless.gz",
+      "bytes": 345186,
+      "sha256": "52cf92534f0c5e439211fd2ddbd47178543f7c7bcc0643cb53d7512b9ffe4305",
+      "encoding": "gzip",
+      "decoded_bytes": 2375601,
+      "decoded_sha256": "43e2455b59998c3d995b92ab2e2651f7c2241cae22d8312b2293d277efff4566",
+      "original_raw_path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/actual798-review.json",
+      "transport_reason": "complete moderate/large deciding metadata or source-diff output; original unchanged; single lossless compressed copy for Git transfer"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/actual798-review.stdout.txt",
+      "bytes": 3073,
+      "sha256": "4088c460a0cb689d7c687e11f14b6f025cc4435a3b1bdda062a3bad67cde093d",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/actual798-review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/REVIEW.txt",
+      "bytes": 2331,
+      "sha256": "2563fe1c1cf549ea0db9a2c16aed9ba0c628a3a2fd9581a99987a867c409af7b",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/write_selection.py",
+      "bytes": 6165,
+      "sha256": "2647123ad1f7510a824215996f1ef7bab1cc1868c0a3df0d535f6f749270985a",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-recovery/merge-latest-G.json",
+      "bytes": 47336,
+      "sha256": "7c13754b64258b8dc1477e40b83b4b17669b27919d57c0255dfc73f99f967d12",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-recovery/merge-latest-G.stdout",
+      "bytes": 482,
+      "sha256": "b7d438add15fb0006ba64c65ba6e840d3700f60c7fb477cf60b90aa8c2e5346f",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-recovery/merge-latest-G.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/root519-G855-review/merge-latest-G-full.patch.lossless.gz",
+      "bytes": 697849,
+      "sha256": "8067022d7f0eca8eeff528443b9640ac7c060ed6002477804f6e455eb8c0f648",
+      "encoding": "gzip",
+      "decoded_bytes": 2772829,
+      "decoded_sha256": "5ffca9dd969b0824564a404f01492311e6c5b76769ba5e6d75ec6cf209ae597a",
+      "original_raw_path": "/tmp/e02-F-continuation-20261007/root-recovery/merge-latest-G-full.patch",
+      "transport_reason": "complete moderate/large deciding metadata or source-diff output; original unchanged; single lossless compressed copy for Git transfer"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-recovery/merge-latest-G-diff-check.stdout",
+      "bytes": 307,
+      "sha256": "587dfc6d9418e2d543edb9ed1c398c01e5184393449897149844976d31d7f83a",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-recovery/merge-latest-G-diff-check.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-recovery/merge-authored-docs-diff-check.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/root-recovery/merge-authored-docs-diff-check.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity"
+    }
+  ],
+  "already_Git_source_inputs_not_duplicated": [
+    "519e4822 andG855 and798 complete Git source trees; actual two ledger docs and publishedffae primaries/material bound by review JSON",
+    "both proposed docs equal actual798; hashes retained in ledger proposal; no extra uncompressed source-body transport"
+  ],
+  "preserved_nonPASS": [
+    "initial strict comparison readerERROR at missing519 resource companion",
+    "historical519 root-local resource custodyFAIL",
+    "v2 documentation-inclusive comparison metadata qualification",
+    "actual full merge raw stdout whitespaceFAIL/P41not_established"
+  ],
+  "numerical_runs": "none"
+}

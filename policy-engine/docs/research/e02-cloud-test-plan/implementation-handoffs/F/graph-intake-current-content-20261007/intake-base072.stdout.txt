@@ -1,0 +1,226 @@
+2026-10-07 07:27:36 [info     ] method_registered              backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 lazy=False namespace=causal.prior override=True tags=['causal', 'estimation', 'prior', 'reconciliation', 'structural'] version=1.0.0
+2026-10-07 07:27:36 [debug    ] method_dispatch_start          backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 07:27:36 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=13.48 fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 07:27:36 [debug    ] method_dispatch_start          backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 07:27:36 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=12.19 fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{
+  "scope": "Known synthetic graph, real registered job -> CAS method payload -> existing node -> actual persisted fresh graph reader. No real-data or authority claim.",
+  "source": {
+    "old": {
+      "artifact_id": "sha256:d097e64f0afa5a1d63943453615e6aa1545811162dc977e88173923a15881dbc",
+      "kind": "tests.synthetic.graph_reconciliation_input",
+      "media_type": "application/json"
+    },
+    "new": {
+      "artifact_id": "sha256:154e55ae521d5b617ec2d0e0333dcc65073ae75bd5a39d340860b6b7cb6d28cb",
+      "kind": "tests.synthetic.graph_reconciliation_input",
+      "media_type": "application/json"
+    }
+  },
+  "producer": {
+    "fqn": "causal.prior.reconcile_causal_graph@1.0.0",
+    "old_method_result": {
+      "artifact_id": "sha256:dd5f5b51f842f843c740747628b9b0ec4d2032082f94fcfa209101f37815c1bf",
+      "kind": "scientist.method_result.causal.prior",
+      "media_type": "application/json"
+    },
+    "new_method_result": {
+      "artifact_id": "sha256:af020cb62e70489283437ed9d9bd61ffff73b819d015ec6d9485c6fd99a496aa",
+      "kind": "scientist.method_result.causal.prior",
+      "media_type": "application/json"
+    }
+  },
+  "positive": {
+    "node_status": "ok",
+    "fresh_edges": [
+      [
+        "X",
+        "Y"
+      ]
+    ],
+    "actual_data_graph_manifest_input": true
+  },
+  "changed_source_control": {
+    "node_status": "ok",
+    "requested_actual_source_edges": [
+      [
+        "Y",
+        "X"
+      ]
+    ],
+    "consumed_cached_edges": [
+      [
+        "X",
+        "Y"
+      ]
+    ],
+    "same_cached_ref": true
+  },
+  "missing_ref_control": {
+    "artifact_bytes_exist": false,
+    "node_status": "ok"
+  },
+  "interpretation": "Observed presence-only cache admission; no downstream protected policy promotion measured. Source-aware cache invalidation and ref verification remain C/A/G consumer lifecycle dependencies."
+}
+{
+  "unresolved_intake_control": {
+    "input_graph": {
+      "schema_version": "1.0",
+      "graph_type": "pag",
+      "nodes": [
+        "X",
+        "Y"
+      ],
+      "edges": [
+        {
+          "src": "X",
+          "dst": "Y",
+          "mark_src": "circle",
+          "mark_dst": "circle",
+          "lag": null,
+          "sources": [
+            "data"
+          ],
+          "data_confidence": 0.9,
+          "literature_confidence": null,
+          "llm_confidence": null,
+          "expert_confidence": null,
+          "simulation_confidence": null,
+          "combined_confidence": 0.9,
+          "unsupported_by_evidence": false,
+          "evidence_refs": [],
+          "p_value": null,
+          "metadata": {}
+        }
+      ],
+      "discovery_method": "",
+      "skg_version_id": null,
+      "pag_identification_policy": "conservative",
+      "id_confidence_under_pag": null,
+      "metadata": {}
+    },
+    "node_status": "ok",
+    "fresh_output_graph": {
+      "schema_version": "1.0",
+      "graph_type": "dag",
+      "nodes": [
+        "X",
+        "Y"
+      ],
+      "edges": [
+        {
+          "src": "X",
+          "dst": "Y",
+          "mark_src": "tail",
+          "mark_dst": "arrow",
+          "lag": null,
+          "sources": [
+            "data"
+          ],
+          "data_confidence": 0.9,
+          "literature_confidence": null,
+          "llm_confidence": null,
+          "expert_confidence": null,
+          "simulation_confidence": null,
+          "combined_confidence": 0.9,
+          "unsupported_by_evidence": false,
+          "evidence_refs": [],
+          "p_value": null,
+          "metadata": {}
+        }
+      ],
+      "discovery_method": "reconciled_prior_graph",
+      "skg_version_id": null,
+      "pag_identification_policy": "conservative",
+      "id_confidence_under_pag": null,
+      "metadata": {
+        "llm_prior_constants": {
+          "LLM_OVERLAP_DISCOUNT": 0.5,
+          "LLM_PRIOR_CEILING": 0.3,
+          "LLM_REPLICATION_BONUS": 0.05
+        },
+        "needs_expert_review": false,
+        "reconciliation_diagnostics": {
+          "curl_norm": 0.0,
+          "cyclic_inconsistency_norm": 0.0,
+          "d0_shape": [
+            1,
+            2
+          ],
+          "d1_shape": [
+            0,
+            1
+          ],
+          "delta0_shape": [
+            2,
+            1
+          ],
+          "delta1_shape": [
+            1,
+            0
+          ],
+          "diagnostics_truncated": false,
+          "gradient_norm": 0.9000000000000002,
+          "harmonic_norm": 2.220446049250313e-16,
+          "irreducible_conflict_norm": 2.220446049250313e-16,
+          "n_components": 1,
+          "n_edges": 1,
+          "n_sources": 1,
+          "n_triangles": 0,
+          "operators": {
+            "D0": [
+              [
+                -1.0,
+                1.0
+              ]
+            ],
+            "D1": [],
+            "delta^0": [
+              [
+                -1.0
+              ],
+              [
+                1.0
+              ]
+            ],
+            "delta^1": []
+          },
+          "truncation_reason": null
+        },
+        "reconciliation_warnings": []
+      }
+    },
+    "needs_expert_review": false,
+    "no_prior_or_hint_supplied": true,
+    "protected_policy_promotion_measured": false
+  }
+}
+{
+  "temporal_intake_control": {
+    "input_lag": 1,
+    "node_status": "ok",
+    "fresh_output_edges": [
+      {
+        "src": "X",
+        "dst": "Y",
+        "mark_src": "tail",
+        "mark_dst": "arrow",
+        "lag": 1,
+        "sources": [
+          "data"
+        ],
+        "data_confidence": 0.9,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "expert_confidence": null,
+        "simulation_confidence": null,
+        "combined_confidence": 0.9,
+        "unsupported_by_evidence": false,
+        "evidence_refs": [],
+        "p_value": null,
+        "metadata": {}
+      }
+    ],
+    "static_profile_admission_measured": false
+  }
+}

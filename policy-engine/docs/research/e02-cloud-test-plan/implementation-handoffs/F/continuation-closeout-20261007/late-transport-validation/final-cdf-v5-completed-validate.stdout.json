@@ -1,0 +1,8 @@
+{
+  "mode": "validation_only",
+  "validated_logical_files": 1775,
+  "checks": "PASS",
+  "science_tests_run": false,
+  "git_writes": false,
+  "pending_extensions": []
+}

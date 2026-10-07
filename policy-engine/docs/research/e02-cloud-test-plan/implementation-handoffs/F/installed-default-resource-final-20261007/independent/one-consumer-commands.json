@@ -1,0 +1,58 @@
+[
+  {
+    "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "profile": "wheel",
+    "argv": [
+      "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-env/bin/python",
+      "-I",
+      "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/launch_one_consumer.py",
+      "wheel"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/wheel-consumer",
+    "env": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 4.492038591997698,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/wheel-consumer.stdout.txt",
+      "bytes": 105,
+      "sha256": "116b204ff1e1676fd7502f7e86faab3c4c4151b6e3db8bc8ec45b612b9456909"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/wheel-consumer.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "source_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "source_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "profile": "sdist",
+    "argv": [
+      "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-env/bin/python",
+      "-I",
+      "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/launch_one_consumer.py",
+      "sdist"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-default-resource-forward/sdist-consumer",
+    "env": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 0,
+    "seconds": 4.372199290024582,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/sdist-consumer.stdout.txt",
+      "bytes": 105,
+      "sha256": "deb8f49c8e18d22848e6f1564bbe3a49a91bf381096dac5f770814450f860137"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/sdist-consumer.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+]

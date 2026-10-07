@@ -1,0 +1,79 @@
+{
+  "unchanged_profile_and_schema_sources": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_graph_projection.py",
+      "baseline": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "candidate": "36b18cc142aff77a5825126b4f07bafec09a5180",
+      "bytes": 4734,
+      "sha256": "1f3b85621bc414f3aade7344dab0a620c4b282e4f7a24f8e74a844c5b73d0158",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+      "baseline": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "candidate": "36b18cc142aff77a5825126b4f07bafec09a5180",
+      "bytes": 59964,
+      "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "baseline": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "candidate": "36b18cc142aff77a5825126b4f07bafec09a5180",
+      "bytes": 20654,
+      "sha256": "431b0c00ddbc0c33720c1b5ee61b85493a3c4bb1759e1487d2cbe5b016456dc7",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/mgraph.py",
+      "baseline": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "candidate": "36b18cc142aff77a5825126b4f07bafec09a5180",
+      "bytes": 11577,
+      "sha256": "f2133e1fd2ee8abaa99154cc70032a700c55869e2c71976cc63a012c8db60497",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+      "baseline": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "candidate": "36b18cc142aff77a5825126b4f07bafec09a5180",
+      "bytes": 89157,
+      "sha256": "250497e0024481a5bdc4e0b941fb31e57eaeb841702164490874f3978a3134c1",
+      "whole_blob_equal": true
+    }
+  ],
+  "canonical_guard_calls": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "line": 1011,
+      "expression": "_validate_reconciliation_profile(payload.data_graph)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "line": 1324,
+      "expression": "_validate_reconciliation_profile(graph)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "line": 207,
+      "expression": "_validate_reconciliation_profile(graph)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "line": 573,
+      "expression": "_validate_reconciliation_profile(composed_graph)"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "line": 1073,
+      "expression": "_validate_reconciliation_profile(reconciled_graph)"
+    }
+  ],
+  "source_only_GCM_boundary_note": {
+    "projection_profile": "unchanged existing owner supports known reverse PAG projection",
+    "current_callers": [
+      "constraint_discovery PAG-selected",
+      "gcm_fit native_hybrid non-DAG branch"
+    ],
+    "limitation": "New guard is reconciliation/fragment/selectedCAS only, not admission for every static consumer; no new GCM execution or reopened finding is claimed."
+  }
+}

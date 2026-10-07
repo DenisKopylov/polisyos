@@ -1,0 +1,140 @@
+{
+  "schema": "policyos.e02.transfer_selection.v1",
+  "target_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+  "tree": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+  "required_files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/review.json",
+      "bytes": 23034,
+      "sha256": "b16355ee8e6401b80a62dec280605d43f066fbee6d074087ca8fc150e05431bc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/run_native.py",
+      "bytes": 1978,
+      "sha256": "09dcb3d83d7db14da79f4fc8b3d90ec3e4b89c9e5cc6652c3511f21fb42614d1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/native.json",
+      "bytes": 1225,
+      "sha256": "bf805682b443c401a139263b928c689cf2331d140c000d11fce480e6afa46beb"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/native.stdout",
+      "bytes": 700,
+      "sha256": "3ca16f9c534ee5492f1b559439cae8f620e85fb14b5d6e16684ac0b481845a5a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/native.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/capture_controls.py",
+      "bytes": 1807,
+      "sha256": "513e247d1510a4a17a7b2914d2110ba4e910766990df69b8455291ba88d71138"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/test_current_source_guards.py",
+      "bytes": 5956,
+      "sha256": "2a8742281445266e7a601e794cf7d2191aaaa992dd8c21c598a105cd7f5fe997"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/original-controls.json",
+      "bytes": 1331,
+      "sha256": "99ac1914f50206e1de05d1d9fe8a6353cd81502257bbf65962fe176c9577361c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/original-controls.stdout",
+      "bytes": 229,
+      "sha256": "7c7625b57fae652cd7760c14549d13046b2efabf1fa2ffb20084e69699740fda"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/original-controls.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/test_complete_projection.py",
+      "bytes": 4007,
+      "sha256": "e5c0a846a15752c8cf01ae455b6057d55bc769d040d5c59f93fba723acf4579e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/complete-projection.json",
+      "bytes": 1331,
+      "sha256": "3434533ddbb99baeab4372481b5a02b0bb5727cc555556d9bfd822c86b4f3c27"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/complete-projection.stdout",
+      "bytes": 4095,
+      "sha256": "1d2c0f801f294d25ec86a22b820e8da7a65abfb5407ee8e1c099c13c5f7235e7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/complete-projection.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/bind_review.py",
+      "bytes": 3479,
+      "sha256": "66b35e52ac8b3a2abe778dda6638c98debe1201e65529b17bcc75f39be28426b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/source-bindings.json",
+      "bytes": 4717,
+      "sha256": "b475c05c71eca4f16fcc802ca75941b4527ed1e78d5d388005187a9e6672edf9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/full-delta.diff",
+      "bytes": 30145,
+      "sha256": "8d5129f52c55c21560174f6c0feae268ae35af54fbe5e071a382116abbd39a8a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/profile.json",
+      "bytes": 1210,
+      "sha256": "3bfcf242f9483948cd608b8024544175456ded8c1356ec4930a67628e2a6daa0"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/profile.stdout",
+      "bytes": 1336,
+      "sha256": "56d91172befd182c9be3fbbdd51c9b6c9927615f30630da05fa6641dca5e60a9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/profile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/finish_review.py",
+      "bytes": 7632,
+      "sha256": "6b5a229451b33f42e6f3d29bbafdb607854c377a1bb890814719cc9af1456cc7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/finish_review_first_observer_error.py",
+      "bytes": 7238,
+      "sha256": "0f4164832a4194d1a9324004428a2106baa99e8dcbeccb1ded307711159cb00c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/finish-first-observer-error.json",
+      "bytes": 706,
+      "sha256": "3416731a3fb229ca910fcf74b84b12882bf3b93c2772d9b4bebaf16cb3c473d7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/finish-first-observer-error.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/finish-first-observer-error.stderr",
+      "bytes": 345,
+      "sha256": "e2a470e80339687efa2367383ed9e710506731e0b8d71436ebfd88520847ddc9"
+    }
+  ],
+  "historical_selection": {
+    "path": "/tmp/e02-F-continuation-20261007/api/graph-intake-review/transfer-selection-with-warning.json",
+    "bytes": 3533,
+    "sha256": "9d3d115ab9bb0c8c88c89e53857c9b9f895afe940a03551a5d95da60bc458f7c"
+  },
+  "all_deciding_stdout_stderr_complete": true,
+  "source_unchanged": true,
+  "no_cas_fixture_directory_needed_for_deciding_outputs": "Commands/replayers and complete deciding output bytes are selected; disposable synthetic CAS contents only generated by replay and contain no owner-authority input"
+}

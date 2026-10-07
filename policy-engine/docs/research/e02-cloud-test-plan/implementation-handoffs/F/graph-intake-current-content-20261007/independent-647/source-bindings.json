@@ -1,0 +1,107 @@
+{
+  "target_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+  "tree": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+  "base": "3e6b47e88e0f25474df8cffa213a5e09e7b7affa",
+  "base_tree": "8e06d6ff04e060f3e759708344a2071e82780ca0",
+  "changed_paths": [
+    "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+    "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py"
+  ],
+  "bindings": [
+    {
+      "path": "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+      "git_blob": "a9b35548f12e975eeb0f5b0ea6209f712dfecc28",
+      "sha256": "f70150fd50f77e9beb3a9a90920e66b2e4218698e587982c0b4368af2886f67f",
+      "bytes": 3146,
+      "changed_in_delta": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+      "git_blob": "32cb4e45d650246704b4e545fca00b7fc5c0de5e",
+      "sha256": "925e4b3cd2a3842b8169926757c0aca866f7128de1e7c541d206be20dbec7dac",
+      "bytes": 2072,
+      "changed_in_delta": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/composition_failure_cards.py",
+      "git_blob": "a65a310da2f209eb92e309440d8dc6e0a9a53450",
+      "sha256": "1d7d0044eaab0a4a5d7b77320d4fe90f1da2ea974af7f507d081cad130e64aec",
+      "bytes": 17160,
+      "changed_in_delta": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "git_blob": "6b148f720d7fb7aa978fb46bbca722615cf433cf",
+      "sha256": "559af61ee42f294bf28fe71beca620c9ce4091bcc2ffdc38c611f3a8da83ee44",
+      "bytes": 62212,
+      "changed_in_delta": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/query_preservation.py",
+      "git_blob": "53efdc09ae6ca79ad39bb470b3d5215798163857",
+      "sha256": "4ac6d5e7faf0e0a43223070855398f7d0cbb161013d06cb3350cd090e2fcd207",
+      "bytes": 75689,
+      "changed_in_delta": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/alignment_certification.py",
+      "git_blob": "3c3b55726af202917cb44df11fb52a64170963b4",
+      "sha256": "c9f3ebfd78cd6283014bef6dc26dfbcf7038a718e7aa8e2596a6e0dfaa79171c",
+      "bytes": 99348,
+      "changed_in_delta": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "git_blob": "f2635665550259d20323d29a784faf11dc8896b7",
+      "sha256": "431b0c00ddbc0c33720c1b5ee61b85493a3c4bb1759e1487d2cbe5b016456dc7",
+      "bytes": 20654,
+      "changed_in_delta": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/cross_graph.py",
+      "git_blob": "0a860029b673d0a9e02989a2415874836facba12",
+      "sha256": "b9587ed0eb528b6e9c71614a33f81ea92073398fffde64536f6cafcab6dda816",
+      "bytes": 42361,
+      "changed_in_delta": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "git_blob": "70ccfd46c42253861c31210ac176e22df3119e15",
+      "sha256": "4696b3597bf23b6dab8d3170cd846151d8c6d78b5c52d8dcc21a2d54aebe1253",
+      "bytes": 48349,
+      "changed_in_delta": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+      "git_blob": "5212ac4094dd8ac41bcd5fab8ffe5855b57764d1",
+      "sha256": "0b5248df1126345364f780cf134f2a6716bb6a380643b9a82606c47b11d98539",
+      "bytes": 43886,
+      "changed_in_delta": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+      "git_blob": "319a13ba97da60d70117c526dd03828ad216aea0",
+      "sha256": "250584c3c31cae1192cfcbf20ffe6610fec49668da2a4f2cb2a86daeae0f6df7",
+      "bytes": 20756,
+      "changed_in_delta": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+      "git_blob": "3be9dccea3ef8aba1c8473da83e36a28ee768529",
+      "sha256": "190bbb495f923e9e3cab420e89781d393b0ed60c5b53a69c4585fad7495d8e89",
+      "bytes": 33920,
+      "changed_in_delta": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+      "git_blob": "a34a76a8444b01e0ba8d98ff6f03a2ba89aed6ca",
+      "sha256": "37df9399ff0acc0d0fa845af9f9eaa81614163ae74a88c23a14ea49b1bfd4dfc",
+      "bytes": 8593,
+      "changed_in_delta": true
+    }
+  ],
+  "tracked_clean": true
+}

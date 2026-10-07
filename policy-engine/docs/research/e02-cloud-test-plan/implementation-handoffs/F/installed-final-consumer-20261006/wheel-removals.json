@@ -1,0 +1,154 @@
+[
+  {
+    "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+    "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+    "profile": "wheel",
+    "mode": "raw_keys",
+    "argv": [
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python",
+      "-I",
+      "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_monitor_property.py",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json",
+      "wheel",
+      "raw_keys"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-consumer",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "wall_seconds": 9.194199159988784,
+    "peak_children_rss_kib_cumulative_process": 582076,
+    "installed_source_hashes_before_and_after": {
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/backends/dispatch.py": "51273afac6480b557a518ec7ed8c7565cceac524ce1a4b656788f86b1899f8e1",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/lifecycle/output_monitor.py": "87ef51fd2f181bc64b1bbd6d5349fc8d06066bf2a384ad1ecefac1a62de02108"
+    },
+    "replayer_sha256": "f4c84c9e4dd68ed1fac6bf6197089f7c79adead9dd9eb28f757095784403655e",
+    "expected": "Actual assertion FAIL detects removed implementation with function identity/name/doc/signature retained; no worker or estimator repeat.",
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-raw_keys.stdout.txt",
+      "bytes": 1926,
+      "sha256": "45291d5dca5c2d21dcd3d61b07d88228bb64f65b0eaf6de1f6fa84210f08d9e6"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-raw_keys.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+    "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+    "profile": "wheel",
+    "mode": "no_raw_numeric",
+    "argv": [
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python",
+      "-I",
+      "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_monitor_property.py",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json",
+      "wheel",
+      "no_raw_numeric"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-consumer",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "wall_seconds": 9.098587055006647,
+    "peak_children_rss_kib_cumulative_process": 582076,
+    "installed_source_hashes_before_and_after": {
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/backends/dispatch.py": "51273afac6480b557a518ec7ed8c7565cceac524ce1a4b656788f86b1899f8e1",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/lifecycle/output_monitor.py": "87ef51fd2f181bc64b1bbd6d5349fc8d06066bf2a384ad1ecefac1a62de02108"
+    },
+    "replayer_sha256": "f4c84c9e4dd68ed1fac6bf6197089f7c79adead9dd9eb28f757095784403655e",
+    "expected": "Actual assertion FAIL detects removed implementation with function identity/name/doc/signature retained; no worker or estimator repeat.",
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-no_raw_numeric.stdout.txt",
+      "bytes": 1587,
+      "sha256": "75d0f3f191ef93a1bcdff3d451e730bafc1997c43397d41e5d8953917aeed3cc"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-no_raw_numeric.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+    "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+    "profile": "wheel",
+    "mode": "no_consumption",
+    "argv": [
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python",
+      "-I",
+      "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_count_property.py",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json",
+      "wheel",
+      "no_consumption"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-consumer",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "wall_seconds": 2.0924284610082395,
+    "peak_children_rss_kib_cumulative_process": 582076,
+    "installed_source_hashes_before_and_after": {
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/backends/dispatch.py": "51273afac6480b557a518ec7ed8c7565cceac524ce1a4b656788f86b1899f8e1",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/lifecycle/output_monitor.py": "87ef51fd2f181bc64b1bbd6d5349fc8d06066bf2a384ad1ecefac1a62de02108"
+    },
+    "replayer_sha256": "db50f472562f61fa4432cb3ed0eee4a92ef9e189d050ee5706b0209c2433feca",
+    "expected": "Actual assertion FAIL detects removed implementation with function identity/name/doc/signature retained; no worker or estimator repeat.",
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-no_consumption.stdout.txt",
+      "bytes": 6293,
+      "sha256": "f7d88d0d666d01c31e7ca146ee689c59c15d359fb4575be240489085f979b94a"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-no_consumption.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+    "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+    "profile": "wheel",
+    "mode": "broad_identity_skip",
+    "argv": [
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python",
+      "-I",
+      "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/remove_installed_count_property.py",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/installed-config.json",
+      "wheel",
+      "broad_identity_skip"
+    ],
+    "cwd": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-consumer",
+    "environment": {
+      "PYTHONPATH": "absent",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "exit_code": 1,
+    "wall_seconds": 2.0035389700060477,
+    "peak_children_rss_kib_cumulative_process": 582076,
+    "installed_source_hashes_before_and_after": {
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/backends/dispatch.py": "51273afac6480b557a518ec7ed8c7565cceac524ce1a4b656788f86b1899f8e1",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/lifecycle/output_monitor.py": "87ef51fd2f181bc64b1bbd6d5349fc8d06066bf2a384ad1ecefac1a62de02108"
+    },
+    "replayer_sha256": "db50f472562f61fa4432cb3ed0eee4a92ef9e189d050ee5706b0209c2433feca",
+    "expected": "Actual assertion FAIL detects removed implementation with function identity/name/doc/signature retained; no worker or estimator repeat.",
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-broad_identity_skip.stdout.txt",
+      "bytes": 3009,
+      "sha256": "7f963aa43988021a56df9f9744321b974c98f0f122041462f4ccb45a7a6c9e85"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review/wheel-removal-broad_identity_skip.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+]

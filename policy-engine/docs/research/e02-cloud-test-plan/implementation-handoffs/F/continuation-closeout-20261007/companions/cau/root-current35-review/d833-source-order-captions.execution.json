@@ -1,0 +1,40 @@
+{
+  "command": [
+    "python3",
+    "review_source_order_and_caps.py",
+    "--repo",
+    "/workspace/e02-F-closeout-20261006",
+    "--target",
+    "d8334672f44d24dd32113264f96ca3f7954dace4",
+    "--output",
+    "d833-source-order-captions-review.json"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/cau/root-current35-review",
+  "exit": 0,
+  "elapsed_s": 0.3629148006439209,
+  "environment": {
+    "python": "3.12.14",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "purpose": "stdlib immutable Git metadata verification only"
+  },
+  "target": {
+    "sha": "d8334672f44d24dd32113264f96ca3f7954dace4",
+    "tree": "a68dbc3ecf4ccf9a5a59fa4b830464e32d81dd8f"
+  },
+  "capture_replayer": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/capture_metadata_check.py",
+    "bytes": 1628,
+    "sha256": "0eb3653d46c5587432f882ca1ef8d6c6e91102e0d50e081a11512cd2a1864a11"
+  },
+  "scope_guard": "All deciding reads immutable target Gitshow; no repo writes",
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-source-order-captions.stdout",
+    "bytes": 496,
+    "sha256": "2f19eb5ec2bd1eb0ec0c53c2fea70d594d1b1d650b1d4cceefde00d7f79b55c7"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/root-current35-review/d833-source-order-captions.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

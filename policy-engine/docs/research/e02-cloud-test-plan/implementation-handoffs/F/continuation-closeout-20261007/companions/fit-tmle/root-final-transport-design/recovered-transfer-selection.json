@@ -1,0 +1,117 @@
+{
+  "schema": "policyos.e02.explicit_transport_selection.v1",
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/recovered_validate.py",
+      "bytes": 4747,
+      "sha256": "5a052c6d2f804f38b1b6b32d2fd268539984f73808692f9317185ef8999565f9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/recovered-validation.json",
+      "bytes": 230617,
+      "sha256": "7cea307f6acbe0600a49770d5f596e8f8e40ac61d6d80d9f9cbe04ea63fb0e1a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/recovered-validation.stdout.json",
+      "bytes": 457,
+      "sha256": "3599a113bda00776b3b5768acb5870c37d60ee8ac771f1eaccc6c5d0bbe99601"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/recovered-validation.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/prepare_recovered_inputs.py",
+      "bytes": 5652,
+      "sha256": "b12f65970ef846c32fb6d26bce7acc13b759b7228131365c8356a6fbf96fcf93"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/prepare-recovered-inputs.stdout.json",
+      "bytes": 548,
+      "sha256": "866b404a6a6aaf36cc7bef05108841c7716751bd236fa80a60a96acac566c96c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/prepare-recovered-inputs.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/quality-519-execution-selection.json",
+      "bytes": 6781,
+      "sha256": "49483b15148f8c8186d9419b80f9a97fbb412b494f3dd3098dd2082a3fcf9253"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/published-graph-ffae-spec.json",
+      "bytes": 3512,
+      "sha256": "52d0f3a1825ec47b0b341f0f0af2a376ef3877841fcaf4f49b33d1d124b2bbbd"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/recovered-519-cli-inputs.json",
+      "bytes": 3768,
+      "sha256": "78704d666d70af85a030a45f7f5acd7d5d02a11dbba610fb92e5b772649bc1db"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh-recovered-519.execution.json",
+      "bytes": 2235,
+      "sha256": "5b6786d5f3381b5fb56e7c29c09a9dfc8fad931392102f55c3c1fbe3c4bca63d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh-recovered-519.stdout.json",
+      "bytes": 1059,
+      "sha256": "8151cc900a6fea5c7bc84100dad6617720b909674da859aa8b10aee41228a73d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh-recovered-519.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/validate-recovered-519.execution.json",
+      "bytes": 504,
+      "sha256": "0fbaa0f9085e674ffff1739d01f2e97c0452b10941282ff04700348481de38ca"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/validate-recovered-519.stdout.json",
+      "bytes": 676,
+      "sha256": "31612c31adf27e238fe1236ffbe5267e4594fe179675003bbc97902de181f375"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/validate-recovered-519.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-recovered-519-v3.json",
+      "bytes": 381441,
+      "sha256": "30bd6f4cbd52ee55e1a25e8f3b94977785b1e4c5548a7a1c069ceaf131b5e0db"
+    }
+  ],
+  "status": "GO_BOUNDED_RECOVERY_CUSTODY",
+  "science_scope": "No scientific test, 35-row closure or global gate decided. Current519 source window, all old staging completebytes verified; actual final published installed packet and economic quality review pending.",
+  "existing_helper_refs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/refresh_selection_v3.py",
+      "sha256": "4df1398167268650297f6a27acffe472759a3bd4829e741273bc10256a94d05a",
+      "bytes": 14155
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_v3.py",
+      "sha256": "c55ab809c690634feb93b4b819d58f3b64518b9d15220742261805180bec41f4",
+      "bytes": 11196
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/transport_text_policy.py",
+      "sha256": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a",
+      "bytes": 1375
+    }
+  ],
+  "own_checkout_end": {
+    "head": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+    "tree": "13736344f761ab911a1607fc2ebb9d722395ec68",
+    "tracked_status": "clean",
+    "branch": "codex/e02-F-tmle-20261006"
+  },
+  "root_source_or_Git_writes": false,
+  "sanitation": "none; all originals and old drafts/staging retained byte-exact. Whitespace/binary output is transported by lossless gzip only."
+}

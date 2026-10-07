@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-c",
+    "import importlib,importlib.metadata,json,platform,sys\nmodules={}\nfor name,dist in [('hatchling','hatchling'),('pathspec','pathspec'),('trove_classifiers','trove-classifiers'),('pluggy','pluggy'),('packaging','packaging'),('tomlkit','tomlkit'),('pytest','pytest'),('yaml','PyYAML'),('polisyos.data_forge.domains.catalog._resources',None)]:\n m=importlib.import_module(name); modules[name]={'origin':m.__file__,'version':importlib.metadata.version(dist) if dist else None}\nprint(json.dumps({'python':sys.version,'executable':sys.executable,'platform':platform.platform(),'modules':modules},indent=2))\n"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "env": {
+    "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/FRfxDH8nJU3psJuO:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/UiWY5OJhIS1bCbbj:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/rzzxdszJdjA2TxUF:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/jzraMA8hdiRZ6IzT:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5rluSUsE3KBgGB71:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5Ru6KSKyfVbEb5in",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "target_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+  "candidate_tree_sha": "cc4c47d1c12fd3174b546d9622a0878d3b88361d",
+  "exit": 0,
+  "outcome": "PASS",
+  "purpose": "Actual import/version/origin witness for genuine cached official Hatch backend; no complete product installed proof."
+}

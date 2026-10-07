@@ -4,7 +4,7 @@
 computations: ABI contracts, registry/discovery, DAG composition, backend
 dispatch, capability metadata, and the domain catalog under `catalog/`.
 
-- Last updated: 2026-08-27
+- Last updated: 2026-10-07
 
 ## Purpose
 
@@ -171,6 +171,14 @@ Catalog-family tests should mirror the package layout under
 
 ## Known Shims/Deprecations
 
+- Slot-layout types and builders belong to `polisyos.ir.kernel.slots`.
+  `polisyos.foundry.methods.layout` retains direct compatibility bindings;
+  `polisyos.foundry.methods.compiler.layout` retains the legacy alias with
+  the same IR object identities. Both nested paths are internal under the
+  [public-surface contract](../../../../architecture/public_surface/contract.toml).
+  Foundry owners preserve both addresses for compatible callers until a
+  separate lifecycle decision updates callers, references, and release notes.
+  See [compiler layout compatibility](compiler/README.md#layout-compatibility).
 - Package-level compatibility and deprecation records are governed by
   [architecture/shims.toml](../../../../architecture/shims.toml) and the
   method lifecycle/deprecation helpers under `lifecycle/`.

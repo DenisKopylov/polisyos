@@ -1,0 +1,175 @@
+{
+  "source_guard": {
+    "refresh_selection_v5.py": "1ed83f18c764e2dd74234580d8cb88d9c24d55118e1d4b29a08b24280686048d",
+    "publish_transport_v5.py": "39c07c78cc45087d3e4552b9d6de6a62788f43bae31fa89c4da1e1733ecaefa2",
+    "transport_text_policy.py": "2d332a9099f212564d14ce3a0b5f3b8515eb34148611ebfc41bb1af76ef2101a"
+  },
+  "science_tests_run": false,
+  "Git_or_product_writes": false,
+  "input_payload_bytes": 15,
+  "results": [
+    {
+      "case": "valid-files-gzip",
+      "outcome": "PASS",
+      "full_stored_and_decoded_exact": true,
+      "stored_domain_and_binding_retained": true
+    },
+    {
+      "case": "valid-files-gzip-lossless",
+      "outcome": "PASS",
+      "full_stored_and_decoded_exact": true,
+      "stored_domain_and_binding_retained": true
+    },
+    {
+      "case": "valid-items-gzip",
+      "outcome": "PASS",
+      "full_stored_and_decoded_exact": true,
+      "stored_domain_and_binding_retained": true
+    },
+    {
+      "case": "valid-items-gzip-lossless",
+      "outcome": "PASS",
+      "full_stored_and_decoded_exact": true,
+      "stored_domain_and_binding_retained": true
+    },
+    {
+      "case": "valid-selection-gzip",
+      "outcome": "PASS",
+      "full_stored_and_decoded_exact": true,
+      "stored_domain_and_binding_retained": true
+    },
+    {
+      "case": "valid-selection-gzip-lossless",
+      "outcome": "PASS",
+      "full_stored_and_decoded_exact": true,
+      "stored_domain_and_binding_retained": true
+    },
+    {
+      "case": "bad-stored-sha",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "bad-stored-size",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "bad-decoded-sha",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "bad-decoded-size",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "missing-decoded-identity",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "unknown-encoding",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "unknown-codec",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "contradictory-codec",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "codec-only-wrong-decoded",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "codec-only-correct-decoded",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "ambiguous",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "identity-false-decoded",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "identity-incomplete-decoded",
+      "outcome": "PASS",
+      "invalid_input_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "identity-valid-decoded",
+      "outcome": "PASS",
+      "whitespace_and_CRLF_not_normalized": true
+    },
+    {
+      "case": "different-stored-same-decoded",
+      "outcome": "PASS",
+      "both_distinct_containers_exactly_transportable": true,
+      "count_scope_explicit_per_custody_object": true
+    },
+    {
+      "case": "identical-stored-and-decoded",
+      "outcome": "PASS",
+      "valid_alias_full_both_domain_binding_retained": true,
+      "one_stored_object_for_identical_inputs": true
+    },
+    {
+      "case": "forged-decoded-only-alias",
+      "outcome": "PASS",
+      "forged_stored_basis_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "forged-input-binding",
+      "outcome": "PASS",
+      "forged_stored_basis_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "stripped-alias-binding",
+      "outcome": "PASS",
+      "unbound_alias_refused": true,
+      "actual_exit": 1
+    },
+    {
+      "case": "future-git-refusal",
+      "outcome": "PASS",
+      "unknown_Git_ref_refused": true
+    },
+    {
+      "case": "recursive-output",
+      "outcome": "PASS",
+      "self_output_refused_without_overwrite": true
+    }
+  ],
+  "actual_control_counts": {
+    "PASS": 27
+  },
+  "command_count": 36
+}

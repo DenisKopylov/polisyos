@@ -1,0 +1,56 @@
+{
+  "schema": "e02.F.independent.exception_controls.v1",
+  "base_candidate_sha": "cbfc2647b63b7b43e608532abb2159d3785bab42",
+  "base_candidate_tree": "37e88297463ae4084c5812ba20fddfc65d373d3d",
+  "primary_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007.json",
+  "index_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/index.json",
+  "script": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/verify_final_root.py",
+    "bytes": 21982,
+    "sha256": "0d869472ed4e4bcdfba9bc9d4abc268789d20299bb1dd1c5b8f3b16fa935a2ee"
+  },
+  "aggregate_cli_exit_code": 0,
+  "separate_control_process_exit_codes": null,
+  "execution_kind": "Four actual in-process Invalid exceptions inside the successful aggregate CLI; no separate control subprocess exit was observed.",
+  "controls": [
+    {
+      "control": "future_SHA",
+      "expected_refusal": "PASS",
+      "actual_outcome": "FAIL",
+      "reason": "Git missing/invalid object: cat-file -t 0000000000000000000000000000000000000000 fatal: git cat-file: could not get object info\n",
+      "mutation": {
+        "location": "primary.checks[0].target_sha",
+        "replacement": "0000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "control": "missing_output",
+      "expected_refusal": "PASS",
+      "actual_outcome": "FAIL",
+      "reason": "Git missing/invalid object: rev-parse cbfc2647b63b7b43e608532abb2159d3785bab42:policy-engine/__independent_missing_deciding_output__.json fatal: path 'policy-engine/__independent_missing_deciding_output__.json' does not exist in 'cbfc2647b63b7b43e608532abb2159d3785bab42'\n",
+      "mutation": {
+        "location": "primary.checks[0].output",
+        "replacement": "policy-engine/__independent_missing_deciding_output__.json"
+      }
+    },
+    {
+      "control": "duplicate_ID",
+      "expected_refusal": "PASS",
+      "actual_outcome": "FAIL",
+      "reason": "35-row duplicate/missing/unknown ID",
+      "mutation": {
+        "location": "index.rows[1].finding_id",
+        "replacement_expression": "index.rows[0].finding_id"
+      }
+    },
+    {
+      "control": "malformed_JSON",
+      "expected_refusal": "PASS",
+      "actual_outcome": "FAIL",
+      "reason": "malformed JSON: Expecting value: line 1 column 11 (char 10)",
+      "mutation": {
+        "input_utf8": "{\"schema\":"
+      }
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "check": "PASS",
+  "output": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/expected-original35-compact.json",
+    "bytes": 57856,
+    "sha256": "0867b703c8dcef66e9fbabb8593a1a371f16c177580c5c3621d15a02372e1f66"
+  },
+  "denominator": {
+    "IDs": 35,
+    "bundles": 17,
+    "original_bindings": 36,
+    "full_source_TSVs": {
+      "finding_rows": 282,
+      "bundle_rows": 127
+    }
+  },
+  "proposed_counts": {
+    "original_check": {
+      "PASS": 34,
+      "UNRUN": 1
+    },
+    "F_original_recommendation": {
+      "closed": 33,
+      "limited": 2
+    },
+    "original_technical_lens": {
+      "closed": 33,
+      "limited": 2
+    },
+    "formal_G_closures": 0
+  }
+}

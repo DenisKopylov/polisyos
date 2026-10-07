@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid_producer.py", line 285, in <module>
+    main()
+    ~~~~^^
+  File "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid_producer.py", line 221, in main
+    assert child.returncode == 0, child.stderr.decode(errors="replace")
+           ^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Traceback (most recent call last):
+  File "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid_reader.py", line 87, in <module>
+    main()
+    ~~~~^^
+  File "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid_reader.py", line 49, in main
+    assert reverse.graph_type.value == "admg"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+

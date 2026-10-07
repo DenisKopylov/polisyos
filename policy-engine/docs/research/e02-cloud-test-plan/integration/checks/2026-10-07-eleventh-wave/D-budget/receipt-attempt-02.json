@@ -1,0 +1,106 @@
+{
+  "schema": "policyos.e02.local-test-receipt.v1",
+  "candidate_sha": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "g_checkout_head_before": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+  "g_checkout_head_after": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+  "g_branch_before": "codex/e02-integration",
+  "g_branch_after": "codex/e02-integration",
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/candidate_pytest_runner.py",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/owner-budget-factory.attempt-02.junit.xml",
+    "-o",
+    "addopts=",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/unit/scientist/methods/search/test_service_owner_budget_factory.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/checkout/policy-engine",
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/checkout/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/checkout/policy-engine/tests/unit/scientist/methods/search",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "JAX_NUM_THREADS": "1"
+  },
+  "interpreter": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+  "python_version": "Python 3.14.3",
+  "timeout_seconds": 180,
+  "terminated_for_timeout": false,
+  "process_exit_code": 0,
+  "wall_seconds": 11.777,
+  "peak_rss_kib_sampled": 554800,
+  "rss_samples": 45,
+  "source_before": {
+    "label": "before",
+    "candidate_sha": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+    "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+    "files_checked": 2926,
+    "status": "PASS",
+    "mismatches": []
+  },
+  "source_after": {
+    "label": "after",
+    "candidate_sha": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+    "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+    "files_checked": 2926,
+    "status": "PASS",
+    "mismatches": []
+  },
+  "junit": {
+    "exists": true,
+    "tests": 10,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "time_seconds": 7.809
+  },
+  "stdout": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/pytest.attempt-02.stdout.log",
+    "bytes": 5328,
+    "sha256": "16bdd1cc561e94bc8360fe3b2f31897df877bc0f2dd9d8a1cf93b342362890f0"
+  },
+  "stderr": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/pytest.attempt-02.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "junit_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/owner-budget-factory.attempt-02.junit.xml",
+  "origins_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/polisyos-origins-attempt-02.json",
+  "resources_before": {
+    "disk_usage_bytes": {
+      "total": 245107195904,
+      "used": 220105871360,
+      "free": 25001324544
+    },
+    "df_h": "Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on\n/dev/disk3s5   228Gi   173Gi    23Gi    89%    3.5M  244M    1%   /System/Volumes/Data",
+    "memory_pressure": "The system has 17179869184 (1048576 pages with a page size of 16384).\n\nStats: \nPages free: 9653 \nPages purgeable: 404 \nPages purged: 10554748 \n\nSwap I/O:\nSwapins: 2866698 \nSwapouts: 3960046 \n\nPage Q counts:\nPages active: 215231 \nPages inactive: 211193 \nPages speculative: 3381 \nPages throttled: 0 \nPages wired down: 215654 \n\nCompressor Stats:\nPages used by compressor: 356788 \nPages decompressed: 474690856 \nPages compressed: 508064931 \n\nFile I/O:\nPageins: 146805321 \nPageouts: 110751 \n\nSystem-wide memory free percentage: 43%",
+    "git_head": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+    "git_branch": "codex/e02-integration",
+    "git_status": "## codex/e02-integration...origin/codex/e02-integration"
+  },
+  "resources_after": {
+    "disk_usage_bytes": {
+      "total": 245107195904,
+      "used": 219732672512,
+      "free": 25374523392
+    },
+    "df_h": "Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on\n/dev/disk3s5   228Gi   173Gi    24Gi    88%    3.5M  248M    1%   /System/Volumes/Data",
+    "memory_pressure": "The system has 17179869184 (1048576 pages with a page size of 16384).\n\nStats: \nPages free: 30182 \nPages purgeable: 849 \nPages purged: 10555149 \n\nSwap I/O:\nSwapins: 2866706 \nSwapouts: 3960046 \n\nPage Q counts:\nPages active: 189696 \nPages inactive: 191098 \nPages speculative: 169 \nPages throttled: 0 \nPages wired down: 215696 \n\nCompressor Stats:\nPages used by compressor: 385059 \nPages decompressed: 474702846 \nPages compressed: 508124203 \n\nFile I/O:\nPageins: 146814474 \nPageouts: 110753 \n\nSystem-wide memory free percentage: 40%",
+    "git_head": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+    "git_branch": "codex/e02-integration",
+    "git_status": "## codex/e02-integration...origin/codex/e02-integration"
+  },
+  "test_outcome": "PASS",
+  "origin_summary": {
+    "polisyos_modules_loaded": 833,
+    "polisyos_origins_matched": 833,
+    "origin_problems": []
+  }
+}

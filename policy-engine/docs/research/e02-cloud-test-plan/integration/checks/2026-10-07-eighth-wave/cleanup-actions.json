@@ -1,0 +1,325 @@
+{
+  "schema": "policyos.e02.native_trash_actions.v1",
+  "started_utc": "2026-10-07T06:47:14.676905+00:00",
+  "published_receipts": {
+    "outcome": "PASS",
+    "utc": "2026-10-07T06:45:12.953226+00:00",
+    "head": "172db850d398d6c656a818c1f36fa6b673284dec",
+    "tree": "9650d2272f4eaf3c27d4bf02bfe911b6b4b8ee8a",
+    "full_changed_files_readback": 68,
+    "all_file_bytes_match": true,
+    "main": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "main_unchanged": true
+  },
+  "inactive_threads": [
+    {
+      "thread_id": "01a0f42b-ce9d-7ad1-af00-17da61980060",
+      "status": "notLoaded",
+      "latest_turn_status": "completed",
+      "completedAt": 1790880388
+    },
+    {
+      "thread_id": "01a0faef-aa69-7732-b3ed-62ce07a31670",
+      "status": "notLoaded",
+      "latest_turn_status": "completed",
+      "completedAt": 1790994647
+    },
+    {
+      "thread_id": "01a0d6f8-3f17-7cc1-bab4-416a0283f5c7",
+      "status": "notLoaded",
+      "latest_turn_status": "completed",
+      "completedAt": 1790436682
+    }
+  ],
+  "readers": "Alldirecthelperscompleted;Darchive/Greceiptsreviewcompleted;noheavyGprocess;exactlsofrefreshedperobject",
+  "preflight_sha256": "b6f2b6ba278f3e3a1d821ffe58e0a3115cf2a33e84c569deaa92ce88e89e6995",
+  "actions": [
+    {
+      "source": "/Users/deniskopylov/.codex/sessions/2026/10/01/rollout-2026-10-01T00-15-06-01a0f42b-ce9d-7ad1-af00-17da61980060.jsonl",
+      "kind": "completed_session",
+      "device": 16777231,
+      "inode": 158185317,
+      "allocated_bytes": 154980352,
+      "lsof_argv": [
+        "lsof",
+        "-nP",
+        "/Users/deniskopylov/.codex/sessions/2026/10/01/rollout-2026-10-01T00-15-06-01a0f42b-ce9d-7ad1-af00-17da61980060.jsonl"
+      ],
+      "lsof_exit": 1,
+      "lsof_stdout": "",
+      "lsof_stderr": "",
+      "state": "MOVED_VERIFIED_NATIVE_TRASH",
+      "native_exit": 0,
+      "native_stdout": "{\"native_success\":true,\"source_exists\":false,\"matches\":[{\"path\":\"/Users/deniskopylov/.Trash/rollout-2026-10-01T00-15-06-01a0f42b-ce9d-7ad1-af00-17da61980060.jsonl\",\"inode\":158185317,\"device\":16777231}]}\n",
+      "native_stderr": "",
+      "destination": "/Users/deniskopylov/.Trash/rollout-2026-10-01T00-15-06-01a0f42b-ce9d-7ad1-af00-17da61980060.jsonl",
+      "identity_match": true
+    },
+    {
+      "source": "/Users/deniskopylov/.codex/sessions/2026/10/02/rollout-2026-10-02T07-46-45-01a0faef-aa69-7732-b3ed-62ce07a31670.jsonl",
+      "kind": "completed_session",
+      "device": 16777231,
+      "inode": 158871588,
+      "allocated_bytes": 137232384,
+      "lsof_argv": [
+        "lsof",
+        "-nP",
+        "/Users/deniskopylov/.codex/sessions/2026/10/02/rollout-2026-10-02T07-46-45-01a0faef-aa69-7732-b3ed-62ce07a31670.jsonl"
+      ],
+      "lsof_exit": 1,
+      "lsof_stdout": "",
+      "lsof_stderr": "",
+      "state": "MOVED_VERIFIED_NATIVE_TRASH",
+      "native_exit": 0,
+      "native_stdout": "{\"native_success\":true,\"source_exists\":false,\"matches\":[{\"path\":\"/Users/deniskopylov/.Trash/rollout-2026-10-02T07-46-45-01a0faef-aa69-7732-b3ed-62ce07a31670.jsonl\",\"inode\":158871588,\"device\":16777231}]}\n",
+      "native_stderr": "",
+      "destination": "/Users/deniskopylov/.Trash/rollout-2026-10-02T07-46-45-01a0faef-aa69-7732-b3ed-62ce07a31670.jsonl",
+      "identity_match": true
+    },
+    {
+      "source": "/Users/deniskopylov/.codex/sessions/2026/09/25/rollout-2026-09-25T08-09-48-01a0d6f8-3f17-7cc1-bab4-416a0283f5c7.jsonl",
+      "kind": "completed_session",
+      "device": 16777231,
+      "inode": 149848628,
+      "allocated_bytes": 130764800,
+      "lsof_argv": [
+        "lsof",
+        "-nP",
+        "/Users/deniskopylov/.codex/sessions/2026/09/25/rollout-2026-09-25T08-09-48-01a0d6f8-3f17-7cc1-bab4-416a0283f5c7.jsonl"
+      ],
+      "lsof_exit": 1,
+      "lsof_stdout": "",
+      "lsof_stderr": "",
+      "state": "MOVED_VERIFIED_NATIVE_TRASH",
+      "native_exit": 0,
+      "native_stdout": "{\"native_success\":true,\"source_exists\":false,\"matches\":[{\"path\":\"/Users/deniskopylov/.Trash/rollout-2026-09-25T08-09-48-01a0d6f8-3f17-7cc1-bab4-416a0283f5c7.jsonl\",\"inode\":149848628,\"device\":16777231}]}\n",
+      "native_stderr": "",
+      "destination": "/Users/deniskopylov/.Trash/rollout-2026-09-25T08-09-48-01a0d6f8-3f17-7cc1-bab4-416a0283f5c7.jsonl",
+      "identity_match": true
+    },
+    {
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/candidate",
+      "kind": "completed_exact_D_source_archive",
+      "device": 16777231,
+      "inode": 173165748,
+      "allocated_bytes": 62726144,
+      "lsof_argv": [
+        "lsof",
+        "-nP",
+        "+D",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/candidate"
+      ],
+      "lsof_exit": 1,
+      "lsof_stdout": "",
+      "lsof_stderr": "",
+      "state": "MOVED_VERIFIED_NATIVE_TRASH",
+      "native_exit": 0,
+      "native_stdout": "{\"native_success\":true,\"source_exists\":false,\"matches\":[{\"path\":\"/Users/deniskopylov/.Trash/candidate\",\"inode\":173165748,\"device\":16777231}]}\n",
+      "native_stderr": "",
+      "destination": "/Users/deniskopylov/.Trash/candidate",
+      "identity_match": true
+    }
+  ],
+  "trash_emptied": false,
+  "permanent_deletion": false,
+  "retained_Git_refs": {
+    "codex/e02-retired-r1-20261005": "fd00ddba8f4c36b43aef8c28c5f9173334970e32",
+    "codex/e02-retired-r9-20261005": "5fb35d303aa5745af50410f2a9ba14ef84961bf0",
+    "codex/e02-retired-r9-base-20261005": "5efe61758e2b49ebb95d38bf15457f9846f8b78e"
+  },
+  "preserved_paths": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/receipt.md",
+      "sha256": "ac5692e5aa2cd0460f7d801355f6937a824af28fa9020e0199a54cf5c848dab2"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/source-manifest-before.json",
+      "sha256": "d5b72e1c2a451e439f87be7441018a64a9ec8c6fc6928ca1f2f84139949ecd11"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/source-manifest-attempt2.json",
+      "sha256": "fada274e6b224df099a18380edbf2568f5f441a468875f8c216a9c00ea32e93e"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/context.json",
+      "sha256": "03c334ef8093bb865cbaf8e34659403136f0c902cb81fb6b768ea79cabdc6934"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/context-attempt2.json",
+      "sha256": "9a8ef0bef14c0b0b00ff4b54e8f16986080e8dd55ed19bdd2bc5238517694875"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/module-origins.json",
+      "sha256": "9a794ac1100e3abebed9cbb8aa2bef49bcf5ec860224f026941914b35359a9b8"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/module-origins-attempt2.json",
+      "sha256": "f2acfba71e381b5ff7b15723832e7c3f921437edd6636d5f473a843aa2744ab4"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/pytest.junit.xml",
+      "sha256": "5be4303431419a310b1e393b01c0ea96a2314b8419efdd8ee06fef3d92f45c14"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/pytest.stdout.txt",
+      "sha256": "e354d909ea5532ae2bb562c01a319fbd7bd0b04eb7b4956c86f936ad96e2dbcd"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/pytest-attempt2.junit.xml",
+      "sha256": "b62d577e83acc0d428f255bb1e72188bf0bdc82d992e552eb9ff243c0bfb4e85"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/pytest-attempt2.stdout.txt",
+      "sha256": "b817ab5d3f0264104de117d586c6b8c709061a2219bf23c0252134b5a8f1d56a"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/pytest-attempt2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_R1_INTEGRATION_CENSUS_20261001.md",
+      "sha256": "42b6044181939cbf027ac7e7dc91d8680479e4a2c435e0f47ed1c2994859d789",
+      "bytes": 11754
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/scratch/e02-r2-h-la032-la049-delta-review-251318475.md",
+      "sha256": "79f07900d05c244b9eb9c64d59490112188012c1f3be72e669c8c862c0a13d0f",
+      "bytes": 1389
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_R1_GENERIC_JOB_SCOPE_HANDOFF_20261003/candidate.patch",
+      "sha256": "3f34a1fb827193488ead7f2e88fc96de9a95823a143fa572b08266ba98e087f5",
+      "bytes": 18152
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_CAS_ENUMERATION_WITNESS_TEST_CANDIDATE_20261003/candidate.patch",
+      "sha256": "52a37df9b8e3fe9040aa95e433a15120f49b2a12a78198f236481aeb5007473b",
+      "bytes": 27598
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/scratch/E02R2_R9_HUMAN_DECISION_REASON_REVIEW_20261003_V2/candidate.patch",
+      "sha256": "60027430a35796a0f9a19c4a132534aee60972e9db72da46045928d10122b09a",
+      "bytes": 5258
+    }
+  ],
+  "finished_utc": "2026-10-07T06:47:15.803403+00:00",
+  "moved_objects": 4,
+  "allocated_bytes_transferred": 485703680,
+  "free_after_bytes": 11844595712,
+  "space_caveat": "NativeTrashsamevolume;notimmediatefree-space reclamation. APFS allocation isnotpromisedphysicalrecovery.",
+  "publication_draft_copy_moves": {
+    "scope": "6redundantdraftcopiesafterlosslessencoding/originalverification;noexperimentaloutputlost",
+    "actions": [
+      {
+        "source": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/D-ask/results/pytest.stdout.txt",
+        "kind": "duplicate_publication_draft_stream",
+        "allocated_bytes": 12288,
+        "native_output": {
+          "native_success": true,
+          "source_exists": false,
+          "matches": [
+            {
+              "path": "/Users/deniskopylov/.Trash/pytest.stdout.txt",
+              "inode": 173180825,
+              "device": 16777231
+            }
+          ]
+        },
+        "original_retained": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/pytest.stdout.txt"
+      },
+      {
+        "source": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/D-ask/results/pytest.stderr.txt",
+        "kind": "duplicate_publication_draft_stream",
+        "allocated_bytes": 0,
+        "native_output": {
+          "native_success": true,
+          "source_exists": false,
+          "matches": [
+            {
+              "path": "/Users/deniskopylov/.Trash/pytest.stderr.txt",
+              "inode": 173180826,
+              "device": 16777231
+            }
+          ]
+        },
+        "original_retained": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/pytest.stderr.txt"
+      },
+      {
+        "source": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/D-ask/results/pytest.junit.xml",
+        "kind": "duplicate_publication_draft_stream",
+        "allocated_bytes": 12288,
+        "native_output": {
+          "native_success": true,
+          "source_exists": false,
+          "matches": [
+            {
+              "path": "/Users/deniskopylov/.Trash/pytest.junit.xml",
+              "inode": 173180827,
+              "device": 16777231
+            }
+          ]
+        },
+        "original_retained": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/pytest.junit.xml"
+      },
+      {
+        "source": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/D-ask/results/pytest-attempt2.stdout.txt",
+        "kind": "duplicate_publication_draft_stream",
+        "allocated_bytes": 4096,
+        "native_output": {
+          "native_success": true,
+          "source_exists": false,
+          "matches": [
+            {
+              "path": "/Users/deniskopylov/.Trash/pytest-attempt2.stdout.txt",
+              "inode": 173180828,
+              "device": 16777231
+            }
+          ]
+        },
+        "original_retained": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/pytest-attempt2.stdout.txt"
+      },
+      {
+        "source": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/D-ask/results/pytest-attempt2.stderr.txt",
+        "kind": "duplicate_publication_draft_stream",
+        "allocated_bytes": 0,
+        "native_output": {
+          "native_success": true,
+          "source_exists": false,
+          "matches": [
+            {
+              "path": "/Users/deniskopylov/.Trash/pytest-attempt2.stderr.txt",
+              "inode": 173180829,
+              "device": 16777231
+            }
+          ]
+        },
+        "original_retained": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/pytest-attempt2.stderr.txt"
+      },
+      {
+        "source": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/D-ask/results/pytest-attempt2.junit.xml",
+        "kind": "duplicate_publication_draft_stream",
+        "allocated_bytes": 4096,
+        "native_output": {
+          "native_success": true,
+          "source_exists": false,
+          "matches": [
+            {
+              "path": "/Users/deniskopylov/.Trash/pytest-attempt2.junit.xml",
+              "inode": 173180830,
+              "device": 16777231
+            }
+          ]
+        },
+        "original_retained": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/2034-intake/G-D-ask-checks/results/pytest-attempt2.junit.xml"
+      }
+    ],
+    "trash_emptied": false,
+    "permanent_deletion": false
+  },
+  "all_moved_objects": 10,
+  "all_allocated_bytes_transferred": 485736448
+}

@@ -1,0 +1,27 @@
+{
+  "check": "PASS",
+  "mode": "workingtree stored/decoded custody",
+  "carrier_sha": null,
+  "candidate_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+  "candidate_tree_sha": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+  "canonical_checks": 20,
+  "canonical_outcomes": {
+    "PASS": 12,
+    "FAIL": 6,
+    "ERROR": 1,
+    "SKIP": 0,
+    "UNRUN": 1
+  },
+  "transport_checks": 2,
+  "material_files": 219,
+  "stored_bytes": 794392,
+  "gzip_files": 28,
+  "decoded_gzip_bytes": 388468,
+  "raw_originals_preserved": true,
+  "all_seven_actual_source_files_unchanged": true,
+  "finding_outcomes": {
+    "B214": "limited",
+    "B218": "closed"
+  },
+  "closure_ids": []
+}

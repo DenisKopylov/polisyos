@@ -1,0 +1,115 @@
+{
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/review.json",
+      "bytes": 15140,
+      "sha256": "ee1f456035b4a01689708b1ab0b29d388e97673dadf084c71bcc156c191cf922"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/basis-audit.json",
+      "bytes": 33738,
+      "sha256": "be576d6a7487b61edda5e184a527a296fbb02da83dbbc5d8a2be639a71aff5d7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/basis-audit.stdout.txt",
+      "bytes": 4765,
+      "sha256": "b9a3fc6c0defef0ff3ed73ca8f2bd57ffc1841cbb753d4a6b4f3f5e0be4864cd"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/basis-audit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/inspect_basis.py",
+      "bytes": 7947,
+      "sha256": "2e350514ee5febf9d5419a179e3c3f9caa2b070882b283493985daf40d60bde8"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/probe_additional_consumers.py",
+      "bytes": 4731,
+      "sha256": "c7b23a4a7cca25b9627b93e0d3e21c01d94bbd111a2a1ff5730dfaa298809c6c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/run_probes.py",
+      "bytes": 1253,
+      "sha256": "14233c304a9e61befe9485a093bc858d170cf3acbd2cdb2f56126c0bf1550cf9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/assemble_review.py",
+      "bytes": 12090,
+      "sha256": "a558a9165cf55c1c7171bc22dca6ec9fda3e195defc6c40a565d0a911de699d7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/wheel-additional.execution.json",
+      "bytes": 1269,
+      "sha256": "a7b8504fb054c90384428f6c3255e3ce744795d41cbce32cac891d60382c0595"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/wheel-additional.stdout.txt",
+      "bytes": 76612,
+      "sha256": "0f9f1eb4cc30bf8060bf3da7b53ff34e25f606fb83d85280c98daf65b0aa4f31"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/wheel-additional.stderr.txt",
+      "bytes": 1082,
+      "sha256": "bb1b5b79d46b458a84a7d1ffd69e5dd1d8f480655a72a15caf5eaab32ee23eff"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/sdist-additional.execution.json",
+      "bytes": 1271,
+      "sha256": "c2313fa7887f6db7d80c5224935ae81f5f35f0f642a1cb718c35bc6b84d3dd9a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/sdist-additional.stdout.txt",
+      "bytes": 76612,
+      "sha256": "eb4dc2c9b30193b3545460ddb30023b12fcaa0bb9188e4f96b21a8cf0d866d85"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/dataforge-resource-review/sdist-additional.stderr.txt",
+      "bytes": 1082,
+      "sha256": "00172152d573f5d957e550f367248a531c99175bff533343d72f48fe1ca0280f"
+    }
+  ],
+  "external_existing_owner_files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/probe_installed_defaults.py",
+      "bytes": 2762,
+      "sha256": "c26fae457023bfe36405e39d0e7607bfaf0c3c670ebcde27e7c2d6198579c485"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/wheel-defaults.json",
+      "bytes": 921,
+      "sha256": "cd42ae633c3396a8762055d5369e7c54e74d1fcf836d7f5120361bdc9a29505d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/wheel-defaults.stdout.json",
+      "bytes": 78329,
+      "sha256": "7b8594ba5ae407652c7dbf9ea8238d3d8f00870aff87e73913fd1f085526039f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/wheel-defaults.stderr.txt",
+      "bytes": 2148,
+      "sha256": "c16e26774c3edbde5bc943e79d497018bec1d477f7fb6b35eaf8e1511ce28ba7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/sdist-defaults.json",
+      "bytes": 921,
+      "sha256": "55511a8d3e6776d5d2ae4778f46e53fd4ba11833aac2920e533134d8fc9e87c9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/sdist-defaults.stdout.json",
+      "bytes": 78329,
+      "sha256": "3abc06eb3c34abd729b6adaed1c4180de5e222ee5824cbfd7c662763355c0fc1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/sdist-defaults.stderr.txt",
+      "bytes": 2148,
+      "sha256": "7c807acb6b6aed4aa3716547002d709f47f64089b83d2f88bdc422cb441957c9"
+    }
+  ],
+  "source_reconstruction": "Immutable Git b5 refs in basis-audit.json; originals are not copied. Archive binary zip/tar are optional local raw; complete archive membership observation is recorded. Graph full outputs must be transferred by canonical Graph owner or root via their exact bindings.",
+  "excluded": "Own /tmp state directories contain only custom-config created empty structure, no deciding state/input data; no production data copied.",
+  "unique_file_count": 14,
+  "unique_full_bytes": 237592
+}

@@ -1,0 +1,205 @@
+{
+  "schema": "e02.F.api.combined_independent_review.v1",
+  "outcome": "PASS",
+  "decision": "bounded independent GO of exact combined10-path source and selected measured properties",
+  "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+  "implementation_commits": {
+    "graph": "36b18cc142aff77a5825126b4f07bafec09a5180",
+    "B204": "e1c4bb28c9d5ff936ae1c047619c56cf12ba5347",
+    "LA037": "6beacc8b42dacabff214901919203323f07d1fef"
+  },
+  "related_finding_ids": [
+    "B214",
+    "B204",
+    "LA037"
+  ],
+  "closure_ids": [],
+  "source_footprint": {
+    "full_changed_path_count": 10,
+    "graph": 6,
+    "benchmark": 1,
+    "LA037docs": 3,
+    "component_ancestry_and_all10Git_working_bytes_verified": true,
+    "full_source_audit": {
+      "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/source-audit.json",
+      "bytes": 37449,
+      "sha256": "cdaa5b52a594ed51ab389104bef6afee62a1f77a2a783609db4c0e3be5e99d43"
+    },
+    "full_diff": {
+      "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/combined.full.patch",
+      "bytes": 28829,
+      "sha256": "e2ce21030ebcd3c4664a9d78133d6f3df7054d3dee5f664bdd681e999a166c79"
+    }
+  },
+  "checks": [
+    {
+      "name": "graph_type_guard_untouched",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph_guard_probe.py",
+        "untouched"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools:/workspace/e02-F-closeout-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph-untouched.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph-untouched.stdout.txt",
+        "bytes": 165369,
+        "sha256": "f15f9822d5a16885bdd15219d99575147c1cc61c409ac43191e0805fa4a257c8"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph-untouched.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "junit": {
+        "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph-untouched.xml",
+        "bytes": 1606,
+        "sha256": "923173592ededfddda892880dc22f1afec34219a2aa3bbecd403ba7243ff6a0f"
+      },
+      "actual_counts": {
+        "tests": 7,
+        "PASS": 7,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "nodeids": [
+        "test_mgraph_producer_and_node_refuse_without_retyping_or_publishing",
+        "test_supplied_mgraph_result_and_selected_cache_apply_same_profile_boundary",
+        "test_same_admg_shape_has_real_producer_node_and_fresh_reader",
+        "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph0-expected0]",
+        "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph1-expected1]",
+        "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph2-expected2]",
+        "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph3-expected3]"
+      ],
+      "warnings": [
+        "  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping",
+        "  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir"
+      ],
+      "expected_removal_failures": false,
+      "interpretation": "Candidate admission law PASS"
+    },
+    {
+      "name": "graph_type_guard_removed",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph_guard_probe.py",
+        "removed"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools:/workspace/e02-F-closeout-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 1,
+      "outcome": "FAIL",
+      "output": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph-removed.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph-removed.stdout.txt",
+        "bytes": 170354,
+        "sha256": "bbfda65ba199504f971a80d8f53067ad5b70e6be4d9c04a7d239a954e7a720b9"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph-removed.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "junit": {
+        "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/graph-removed.xml",
+        "bytes": 5423,
+        "sha256": "dacf47a7c7347efa08a7466dc3b612e30dc284fe49985b05ef10e076301e15cd"
+      },
+      "actual_counts": {
+        "tests": 7,
+        "PASS": 5,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "nodeids": [
+        "test_mgraph_producer_and_node_refuse_without_retyping_or_publishing",
+        "test_supplied_mgraph_result_and_selected_cache_apply_same_profile_boundary",
+        "test_same_admg_shape_has_real_producer_node_and_fresh_reader",
+        "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph0-expected0]",
+        "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph1-expected1]",
+        "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph2-expected2]",
+        "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph3-expected3]"
+      ],
+      "warnings": [
+        "  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping",
+        "  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir"
+      ],
+      "expected_removal_failures": true,
+      "interpretation": "Two genuine behavioral failures when only graph-family admission predicate disabled; all5ADMGpositivecases remainPASS."
+    },
+    {
+      "name": "B204_genuine_native_case_and_ten_output_falsifiers",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/probe_b204.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+      "env": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools:/workspace/e02-F-closeout-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "outcome": "PASS",
+      "output": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/b204.stdout.json",
+      "output_ref": {
+        "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/b204.stdout.json",
+        "bytes": 194492,
+        "sha256": "6acdf5f4f818f2def7d4136b32b8453825c45a2ce7d91c4026bc6e97f273dd43"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/b204.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "point_estimate": 1.997217038863679,
+      "four_means_att": 1.9972170388636759,
+      "actual_positive_cases": 1,
+      "actual_reused_report_falsifiers": 10,
+      "estimator_invocations": 1,
+      "interpretation": "Known native syntheticDGP point estimate and bounded diagnostic checker, not identification authority."
+    }
+  ],
+  "B204_review": {
+    "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/b204-independent-review.json",
+    "bytes": 9229,
+    "sha256": "7f330f3653414cacf04aa14547fe824dc3915380404b2a2db7edfc30aa8103e8"
+  },
+  "LA037_review": {
+    "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/la037-independent-review.json",
+    "bytes": 13642,
+    "sha256": "95c88c2d73d97c7abefec19d67727635d981858322f5611bf9f3eccc2c85f34e"
+  },
+  "LA037_measured_evidence_origin": "Author-native6PASS and scoped real MkDocs independently read/byte-verified; reviewer did not rebuild/rerunthese.",
+  "methodology": [
+    "Typed DAG/ADMG reconciliation-only admission before source filtering, transformation, merge, query/cache projection and persistence.",
+    "Runtime removal changes only private guard predicate to original_predicate AND False; AST/dynamic owners/enum values/message/docstrings and static endpoint/lag guard retained, actual canonical producer+Node importedalias patched inside isolated process.",
+    "Exactsame seven native selectors untreated/removal; XML gives7PASS then2FAIL5PASS and no SKIP/ERROR; syntheticGraph fixtures realMethodJob/Node/CAS, all actualpolisyos origins in candidate src.",
+    "Four real knownrelations include actualADMGreverse and bidirected normalization; same MGraph shape taggedADMG positive also kept.",
+    "B204 ten malicious diagnostic/point checker inputs reuse exactlyone actual report and preserve method/status; no estimator reruns.",
+    "LA037 full3doc diff/source/manifest/directIRimports and all9native/render input bindings inspected; actualfiveIRautodoc HTML anchors exist."
+  ],
+  "harness_measurement_errors": [],
+  "limitations": [
+    "No formal finding closure or G authority adjudication.",
+    "B214 remains broadly limited; only reconciliation/Compose/Node admission is DAG/ADMG.",
+    "Same-process reopenedCAS in these7tests; no new fresh-child claim.",
+    "No DoWhy/EconML optional backend/profile run, admitted real data or actual Runtime authority-positive from these probes.",
+    "Two original scanner ERROR/-9,103 RuffFAIL and38 static incomplete exports retain original-input scope; no third scanner or P41 exclusion.",
+    "No broad docs/native package/installed-suite PASS inferred."
+  ],
+  "other_current_quality_observations": "Original scanner2ERROR/-9, Ruff103FAIL and canonical38incompleteFAIL remain separately scoped earlier-input evidence; no third scanner/globalP41 exclusion.",
+  "authority_status": "UNRUN: no actual admitted realworld Runtime challenge/issuer/data packet; no authority-positive or all35closure."
+}

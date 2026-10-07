@@ -1,0 +1,10 @@
+[
+  {
+    "git_ref": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/app-python-version.stdout.txt.gz",
+    "bytes": 90,
+    "sha256": "8aea3a1349f69e9136bbff2779f1c3dadb8d36f1c9ff1d37260691c2901d4361",
+    "remote_ref": "refs/remotes/origin/codex/e02-F-fry-20261006",
+    "remote_head": "c4ddc4bcbddc2a7526f541d51196b176e4311362"
+  }
+]

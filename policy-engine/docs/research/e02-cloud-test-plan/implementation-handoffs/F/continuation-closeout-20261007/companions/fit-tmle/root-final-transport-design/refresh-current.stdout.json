@@ -1,0 +1,41 @@
+{
+  "output": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-refreshed-current-demonstration.json",
+    "bytes": 238527,
+    "sha256": "0f183387ced5dd42e83a5abed67ae7e77e39eaf6e9b30fc74627ca92470a80a9"
+  },
+  "counts": {
+    "logical_files": 426,
+    "unique_transport_files": 199,
+    "aliases": 203,
+    "existing_git_files": 24,
+    "changed_prior_inputs": 0,
+    "unique_raw_transport_bytes": 191714881
+  },
+  "pending_extensions": [
+    {
+      "id": "new-final-root-quality",
+      "status": "UNRUN",
+      "git_ref": null,
+      "path": null,
+      "reason": "New source/resource fix has not frozen with exact final quality receipt; append only after publication and byte readback."
+    },
+    {
+      "id": "new-final-installed-composition",
+      "status": "UNRUN",
+      "git_ref": null,
+      "path": null,
+      "reason": "Repaired actual wheel/sdist final composition receipt not available yet; no future SHA or pass carry."
+    },
+    {
+      "id": "packaged-resource-owner-receipt",
+      "status": "UNRUN",
+      "git_ref": null,
+      "path": null,
+      "reason": "Root assigned canonical Graph author. Reference author published resource proposal/diagnostics/own review instead of duplicate transfer. Existing FIT resource proposal review/selection and Graph diagnosis are not copied by this root transport."
+    }
+  ],
+  "root_source_writes": false,
+  "Git_writes": false,
+  "tests_run": false
+}

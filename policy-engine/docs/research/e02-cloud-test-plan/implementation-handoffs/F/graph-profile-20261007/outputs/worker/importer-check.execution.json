@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "python3",
+    "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+    "--check"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006",
+  "exit_code": 0,
+  "wall_seconds": 0.19056127200019546,
+  "outcome": "PASS",
+  "stdout": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/importer-check.stdout.txt",
+    "bytes": 112,
+    "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/importer-check.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "scope": "Planning/results importer consistency only; no current DoWhy estimator PASS."
+}

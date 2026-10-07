@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+    "--check"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006",
+  "exit": 0,
+  "elapsed_s": 0.17690587043762207,
+  "source_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+  "scope": "Readonly baseline source pack integrity, not product test",
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-import-check.stdout",
+    "bytes": 112,
+    "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/cau/ledger-recovery-review/baseline-import-check.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

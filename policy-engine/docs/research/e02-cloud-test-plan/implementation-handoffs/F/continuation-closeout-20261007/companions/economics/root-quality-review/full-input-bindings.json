@@ -1,0 +1,121 @@
+[
+  {
+    "path": "/tmp/e02-F-continuation-20261007/root-quality/EMP01-narrow.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fully_read": true,
+    "transport": "copied exact moderate output"
+  },
+  {
+    "path": "/tmp/e02-F-continuation-20261007/root-quality/EMP01-narrow.stdout",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fully_read": true,
+    "transport": "copied exact moderate output"
+  },
+  {
+    "path": "/tmp/e02-F-continuation-20261007/root-quality/checks.json",
+    "bytes": 6476,
+    "sha256": "5cac0eabc587f9aa345e51c8bb450783be719d29e1e291d126c2b27169bf2de1",
+    "fully_read": true,
+    "transport": "copied exact moderate output"
+  },
+  {
+    "path": "/tmp/e02-F-continuation-20261007/root-quality/format.execution.json",
+    "bytes": 1985,
+    "sha256": "13ec503a696473f379457f13d2273806dc170b01a4551734c5d220fba7958f6d",
+    "fully_read": true,
+    "transport": "copied exact moderate output"
+  },
+  {
+    "path": "/tmp/e02-F-continuation-20261007/root-quality/format.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fully_read": true,
+    "transport": "copied exact moderate output"
+  },
+  {
+    "path": "/tmp/e02-F-continuation-20261007/root-quality/format.stdout",
+    "bytes": 26,
+    "sha256": "2ce9758b9f8abd876ec3e76c589e099e8b05377b1e7ea2331e81ee80f07bdff8",
+    "fully_read": true,
+    "transport": "copied exact moderate output"
+  },
+  {
+    "path": "/tmp/e02-F-continuation-20261007/root-quality/fragment-full.json",
+    "bytes": 546,
+    "sha256": "7487b7dfeae58d654838cdef2aa36f064239ac20696c2291dc04defb62c52636",
+    "fully_read": true,
+    "transport": "copied exact moderate output"
+  },
+  {
+    "path": "/tmp/e02-F-continuation-20261007/root-quality/fragments.execution.json",
+    "bytes": 1287,
+    "sha256": "1fd870816ae030942b61d99aa5ab94b968d4ecdbe3b0fce9cd2c3bbb99daf733",
+    "fully_read": true,
+    "transport": "copied exact moderate output"
+  },
+  {
+    "path": "/tmp/e02-F-continuation-20261007/root-quality/fragments.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fully_read": true,
+    "transport": "copied exact moderate output"
+  },
+  {
+    "path": "/tmp/e02-F-continuation-20261007/root-quality/fragments.stdout",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fully_read": true,
+    "transport": "copied exact moderate output"
+  },
+  {
+    "path": "/tmp/e02-F-continuation-20261007/root-quality/invocation-full.json",
+    "bytes": 171603690,
+    "sha256": "fae5f81078cf13f61d26be40450e957affdea1fb73e69fffde3d34e804ee4ee9",
+    "fully_read": true,
+    "transport": "original-local lossless full receipt; no duplicate171MB"
+  },
+  {
+    "path": "/tmp/e02-F-continuation-20261007/root-quality/invocation.execution.json",
+    "bytes": 989,
+    "sha256": "f48c365c1e3280e24425c6091399f48f52923f8994ca60e3b44076fbf387de1e",
+    "fully_read": true,
+    "transport": "copied exact moderate output"
+  },
+  {
+    "path": "/tmp/e02-F-continuation-20261007/root-quality/invocation.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fully_read": true,
+    "transport": "copied exact moderate output"
+  },
+  {
+    "path": "/tmp/e02-F-continuation-20261007/root-quality/invocation.stdout",
+    "bytes": 1548,
+    "sha256": "44eacfb1e134fcb73363fe99946d9962caff4b919e01ad7f8489d9b30e80b8e3",
+    "fully_read": true,
+    "transport": "copied exact moderate output"
+  },
+  {
+    "path": "/tmp/e02-F-continuation-20261007/root-quality/ruff.execution.json",
+    "bytes": 1964,
+    "sha256": "3b271ee77d577017f54622d7853330f42dfe7af710685b34b137397ade2b08ef",
+    "fully_read": true,
+    "transport": "copied exact moderate output"
+  },
+  {
+    "path": "/tmp/e02-F-continuation-20261007/root-quality/ruff.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fully_read": true,
+    "transport": "copied exact moderate output"
+  },
+  {
+    "path": "/tmp/e02-F-continuation-20261007/root-quality/ruff.stdout",
+    "bytes": 19,
+    "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "fully_read": true,
+    "transport": "copied exact moderate output"
+  }
+]

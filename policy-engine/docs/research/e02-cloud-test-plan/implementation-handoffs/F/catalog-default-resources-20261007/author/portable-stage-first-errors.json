@@ -1,0 +1,9 @@
+{
+  "check": "ERROR",
+  "source_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+  "command": "build_resource_transport.py --output resource-transport-stage followed by write_resource_receipt.py --stage resource-transport-stage",
+  "reason": "Existing staged replayer bytes differ after author script extension; overwrite protection correctly stopped incomplete builder. Following receipt writer saw old incomplete manifest with no finalRuff record. No product changes or scientific tests.",
+  "correction": "Use fresh explicit resource-transport-stage-v2 with complete current selection; preserve prior staging and error observations.",
+  "exit": 1,
+  "capture": "Human-readable direct tool transcript, not original subprocess byte custody; this is a non-deciding transport harness diagnostic. All scientific source/native deciding stdout/stderr have separately bound original bytes."
+}

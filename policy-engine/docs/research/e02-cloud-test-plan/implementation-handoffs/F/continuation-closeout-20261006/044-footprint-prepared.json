@@ -1,0 +1,58 @@
+{
+  "schema": "F-independent-required-owner-footprint/1",
+  "check": "PASS",
+  "selected_before_final_index_read": true,
+  "final_index_reads": 0,
+  "original_denominator": {
+    "findings": 35,
+    "bundles": 17,
+    "card_bindings": 36
+  },
+  "components": 35,
+  "seed_observations": 37,
+  "receipt_input_roles_not_per_ID_closure": true,
+  "required_registry": {
+    "path": "/tmp/e02-F-continuation-20261006/graph/final-packet-review/required-registry-prepared.json",
+    "bytes": 19147,
+    "sha256": "a735432f6588fb87426098fdf3ce19303f7508ff23045ea88b98bfde3edc185a"
+  },
+  "selection_inputs": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/canonical-receipt-inventory.json",
+      "bytes": 8571,
+      "sha256": "7c96b024d8392b23206f3ab5b6ab74b9f8c5bb71f94c73e40137dc28e9b5ee12"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/docs-reconciliation/current35-doc-ledger-draft.json",
+      "bytes": 162693,
+      "sha256": "f9b89e45ec7d349716385bb44879121b737d24dd929fb5ccd8629eda9543ebf0"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-ledger-draft/current-extra-specifications-six.json",
+      "bytes": 1403,
+      "sha256": "7241c5a9cf7726f39d1ff9203d394c4c4b91adc98d914c77fc655781b341be8b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.json",
+      "bytes": 235804,
+      "sha256": "95f728b758fde25591b0124bc0a2cd8b6c0acd86a61deb6d13bc07e99c4ba2a7"
+    }
+  ],
+  "original_owner_TSV": {
+    "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "source_path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+    "bytes": 9504,
+    "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722"
+  },
+  "author_heads_readonly_observation_not_ancestry_runtime_proof": true,
+  "pending_unreceived_components": [
+    "final common-source API inventory receipt",
+    "final both-sites common-source installed wave receipt"
+  ],
+  "final_packet_validation": "UNRUN",
+  "limitations": [
+    "Footprint/carrier/tree/card preparation is not original-finding closure or formal G acceptance.",
+    "Full metadata/transport/guard/narrative review runs only after ROOT publishes frozen packet.",
+    "All future owner receipts must be explicitly selected before reading final index."
+  ]
+}

@@ -1,0 +1,223 @@
+{
+  "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+  "root_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+  "baseline_runtime_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "resource_runtime_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+  "resource_companion_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+  "graph_runtime_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+  "resource_and_graph_bindings": [
+    {
+      "path": "policy-engine/docs/reference/data-forge/catalog-default-resources.md",
+      "reviewed_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+      "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "bytes": 2667,
+      "sha256": "560fe59923f18982d33a18a443ec7fc46c24bc914243d560abf86252245bf77e",
+      "root_blob": "d3e22ee2398a29d5f85b825feb97433d9854b9a6",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/hatch.toml",
+      "reviewed_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "bytes": 2194,
+      "sha256": "24ad192a85397fdf56e2722275e19adf79c10a27938640f5bc4f86353936efcd",
+      "root_blob": "ab91c577cc1fc7beed00b78d29efd9c84ba7c9f7",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-catalog-default-resources.toml",
+      "reviewed_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+      "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "bytes": 2119,
+      "sha256": "8f7a53c9e1f75fd69d5e223854764d1e26d59ba29d3c74a62ee88e597cc2c13c",
+      "root_blob": "44ac48039635aab7c61e06a79b07640e0b4ad7c3",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/README.md",
+      "reviewed_sha": "81f482e04bd8a2c85f894d425847c6e8657b6ea6",
+      "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "bytes": 2100,
+      "sha256": "197210b6730b1ca2644b14aeb0498cc6df20b799172f89d1b7690db49261f2a7",
+      "root_blob": "53ab141fd82e55159670384ec4ff2442cff4f35d",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+      "reviewed_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "bytes": 1914,
+      "sha256": "6c36ffce957ade642ba1cc1dab2367c2620dd7c75d0219520c64b3eec94bf0a6",
+      "root_blob": "0867804c64b5468bff7025a5208574b2390b90ad",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "reviewed_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "bytes": 9406,
+      "sha256": "a36c29470453ce0a5465a8f7ed9cb5c2c9f890c8d4bae098c05dd37fd2aa941b",
+      "root_blob": "f688aee6a609a5d7e7c7f656cef89659928783c0",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "reviewed_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "bytes": 65343,
+      "sha256": "fd7b207553fc7ec7e0747a5981ab93c3c9469639fbd214e9eda7edd423fb7574",
+      "root_blob": "fb6d0f4d9bbc52b20cbdf0ceec88e411348948ba",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "reviewed_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "bytes": 80809,
+      "sha256": "78d7666e95c310c6ef0e2651135377eb0ecdb71523d95506f4987f799d9b23c4",
+      "root_blob": "7f2da42fadbeb5a0ccd1ae8b1d3b2f0e9844a25d",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "reviewed_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "bytes": 5973,
+      "sha256": "589026e8fb6751b04039baed5794e4df152caa15d218805bbb7bffc8ada137fe",
+      "root_blob": "e6dda2023438f9c65f3ee59c5959c154092b11fa",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+      "reviewed_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "bytes": 18695,
+      "sha256": "bb547db9fee687f463b633b4f0d6ee24ab527c1b0ea207160aaffddf6c7d1422",
+      "root_blob": "abe7878b7ccd24414349e660dd1664c1b7137ab5",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "reviewed_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "bytes": 37750,
+      "sha256": "a77be622a7e8193b0c245d4a731fcf4128d84faa48b48e63460246db5673af47",
+      "root_blob": "2c72928690b4981542475bc0f7861bb808c921b1",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+      "reviewed_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "bytes": 18202,
+      "sha256": "c1b45bd356f9ca7e0a65edf202f827b0145eb9421c89de07512e07de37256fc7",
+      "root_blob": "11da30a73e3286d145846701a32ff28503d614d2",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_catalog_default_resources_packaging.py",
+      "reviewed_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "bytes": 4539,
+      "sha256": "0219d8c046bdce189e574f7116aab478dff98d8f06a7c9072833f83c704e20e2",
+      "root_blob": "2097797d90b8dfb0f9fca9082c6f34b2d9ddcff7",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py",
+      "reviewed_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "bytes": 10467,
+      "sha256": "62f847792345f52f226481451867314520b6b794d7ce7e159663885e71215f89",
+      "root_blob": "d1345a0411d394a4136c0037553819a9f07620bf",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/metrics_map.yaml",
+      "reviewed_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "bytes": 2163,
+      "sha256": "0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266",
+      "root_blob": "7f6cf78a02e4e58219353548af604de49e796442",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/proxy_metric_alignments.yaml",
+      "reviewed_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "bytes": 293,
+      "sha256": "4c6c04bb99ea566b061c7b2d23540d22f8eb7c043067585a7e9b93ccaf87388b",
+      "root_blob": "649cd9a249ca12745b4ed9c9871d2aca57eb0a61",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/seed_variable_alignments.yaml",
+      "reviewed_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "bytes": 1309,
+      "sha256": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8",
+      "root_blob": "49d63f6e693ab9488fad50b25d75b042f3dff9dd",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/wvs_indicator_registry.yaml",
+      "reviewed_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+      "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "bytes": 160329,
+      "sha256": "dabbadf04fdbf6c4658a720a6af5b63a60c69727b2350c0424368691399e413d",
+      "root_blob": "e28c9dfc7e83f3c7d2fbf020312dcfdd66bee3a0",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "reviewed_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+      "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "bytes": 62212,
+      "sha256": "559af61ee42f294bf28fe71beca620c9ce4091bcc2ffdc38c611f3a8da83ee44",
+      "root_blob": "6b148f720d7fb7aa978fb46bbca722615cf433cf",
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "reviewed_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+      "root_sha": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "bytes": 48349,
+      "sha256": "4696b3597bf23b6dab8d3170cd846151d8c6d78b5c52d8dcc21a2d54aebe1253",
+      "root_blob": "70ccfd46c42253861c31210ac176e22df3119e15",
+      "byte_equal": true
+    }
+  ],
+  "complete_denominator": 3464,
+  "unchanged_exact_blob_mode_rows": 3452,
+  "changed_paths": [
+    "policy-engine/hatch.toml",
+    "policy-engine/src/polisyos/data_forge/domains/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+    "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+    "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+  ],
+  "scientific_prefix_denominator": 251,
+  "scientific_changed_paths": [
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+  ],
+  "lock_manifest_python_version_denominator": 5,
+  "all_locks_and_app_manifest_equal": true,
+  "full_comparison": {
+    "path": "/tmp/e02-F-continuation-20261007/api/installed-resource-final-519/full-runtime-tool-worker-blob-comparison.json.gz",
+    "stored_bytes": 136568,
+    "stored_sha256": "2a611cc0bb0c232592e595bbd9062c048582e623e9f8f50737ffc6a036ae3ef7",
+    "decoded_bytes": 1235490,
+    "decoded_sha256": "bbdef14e8325e165c60e93e90294feb332ed68ea51fc9a57d8775e7a23304edc"
+  },
+  "publication_boundary": "Root519immutableproducttree; laterreceipt-onlyrootheads do notretargetthissource. Competing3dde unmerged.",
+  "prior_b5_NO_GO_immutable": "c22786dfce8308bb7d48a177ccb1b109843262b5 remains130P32F/each.",
+  "scientific_replay": "UNRUN thisstep; unchangedproviders reused exact8236sourceprofile witnesses, notwholecurrentHEADPASS."
+}

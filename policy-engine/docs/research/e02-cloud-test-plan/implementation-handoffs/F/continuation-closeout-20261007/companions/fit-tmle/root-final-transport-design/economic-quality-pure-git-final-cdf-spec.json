@@ -1,0 +1,199 @@
+{
+  "files": [
+    {
+      "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+      "path": "AGENTS.md",
+      "bytes": 22656,
+      "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-closeout-20261006",
+      "remote_head": "cdf61b4500e355a27db14260e80ce673ddf8869e",
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/AGENTS.stdout",
+      "role": "Actual pure Git-show source/previous-receipt output exactly equals already-published immutable body; referenced without copying tracked source."
+    },
+    {
+      "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+      "path": "policy-engine/CONTRIBUTING.md",
+      "bytes": 10553,
+      "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-closeout-20261006",
+      "remote_head": "cdf61b4500e355a27db14260e80ce673ddf8869e",
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/CONTRIBUTING.stdout",
+      "role": "Actual pure Git-show source/previous-receipt output exactly equals already-published immutable body; referenced without copying tracked source."
+    },
+    {
+      "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+      "bytes": 20260,
+      "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-closeout-20261006",
+      "remote_head": "cdf61b4500e355a27db14260e80ce673ddf8869e",
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/HANDOFF.stdout",
+      "role": "Actual pure Git-show source/previous-receipt output exactly equals already-published immutable body; referenced without copying tracked source."
+    },
+    {
+      "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F.md",
+      "bytes": 17214,
+      "sha256": "6fcc13f11194d20e7a3bbadb2d70397da0b2c16e9695f43375a69c8bf222d89b",
+      "remote_ref": "refs/remotes/origin/codex/e02-integration",
+      "remote_head": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/G-tenth-F.md.stdout",
+      "role": "Actual pure Git-show source/previous-receipt output exactly equals already-published immutable body; referenced without copying tracked source."
+    },
+    {
+      "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F-criteria-correction.md",
+      "bytes": 6784,
+      "sha256": "c1afc93ce7dc62b0dbc7c1489e7d5dd113b60c9d2a5d2487e44a40fcda7d7d11",
+      "remote_ref": "refs/remotes/origin/codex/e02-integration",
+      "remote_head": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/G-tenth-F-criteria-correction.md.stdout",
+      "role": "Actual pure Git-show source/previous-receipt output exactly equals already-published immutable body; referenced without copying tracked source."
+    },
+    {
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+      "bytes": 26857,
+      "sha256": "724f37608e3f3cbd3ff3445f7bcbd26f90c916c51bb50016ce7389a0c1fd77f4",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-closeout-20261006",
+      "remote_head": "cdf61b4500e355a27db14260e80ce673ddf8869e",
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-519e4822-F.md.stdout",
+      "role": "Actual pure Git-show source/previous-receipt output exactly equals already-published immutable body; referenced without copying tracked source."
+    },
+    {
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+      "bytes": 106381,
+      "sha256": "1dce4ad02656b5c9d873c2ed6066264a7b3ec3f02766001f437920a789e3f3ca",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-closeout-20261006",
+      "remote_head": "cdf61b4500e355a27db14260e80ce673ddf8869e",
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-519e4822-method-decisions.md.stdout",
+      "role": "Actual pure Git-show source/previous-receipt output exactly equals already-published immutable body; referenced without copying tracked source."
+    },
+    {
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+      "bytes": 35578,
+      "sha256": "ad7b68c4f9a35086e7492bfe84fb4f6a854e1d4f27f6addef07d562c06bd42d1",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-closeout-20261006",
+      "remote_head": "cdf61b4500e355a27db14260e80ce673ddf8869e",
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-519e4822-runtime-profiles.md.stdout",
+      "role": "Actual pure Git-show source/previous-receipt output exactly equals already-published immutable body; referenced without copying tracked source."
+    },
+    {
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+      "bytes": 3819,
+      "sha256": "15adc343cc2f252c82d94bd026d5a6fa0384af0c597fb19698b3c5722fd12922",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-closeout-20261006",
+      "remote_head": "cdf61b4500e355a27db14260e80ce673ddf8869e",
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-519e4822-economic-baseline-profile.md.stdout",
+      "role": "Actual pure Git-show source/previous-receipt output exactly equals already-published immutable body; referenced without copying tracked source."
+    },
+    {
+      "git_ref": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/REPORT.md",
+      "bytes": 26187,
+      "sha256": "f45a2e848b4ccd57b0bf44d6fb61332f0231a082edc7d2f6d9fc3e7966c9eac0",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-closeout-20261006",
+      "remote_head": "cdf61b4500e355a27db14260e80ce673ddf8869e",
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-519e4822-REPORT.md.stdout",
+      "role": "Actual pure Git-show source/previous-receipt output exactly equals already-published immutable body; referenced without copying tracked source."
+    },
+    {
+      "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+      "bytes": 37207,
+      "sha256": "0ce262811ae316de4d493477f7894a76066c0b906baa266dd969a25aee58c454",
+      "remote_ref": "refs/remotes/origin/codex/e02-integration",
+      "remote_head": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-855cb26a-F.md.stdout",
+      "role": "Actual pure Git-show source/previous-receipt output exactly equals already-published immutable body; referenced without copying tracked source."
+    },
+    {
+      "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+      "bytes": 146346,
+      "sha256": "490dd9f23d5b82b9ae5f3243fb3e66886217f29eae19c0b1365cdc8c0d2aa612",
+      "remote_ref": "refs/remotes/origin/codex/e02-integration",
+      "remote_head": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-855cb26a-method-decisions.md.stdout",
+      "role": "Actual pure Git-show source/previous-receipt output exactly equals already-published immutable body; referenced without copying tracked source."
+    },
+    {
+      "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+      "bytes": 46944,
+      "sha256": "35e15ee0f92a76df0af8cbef16cda9bc3d6b21838a7f81c868c71db3e1d317f0",
+      "remote_ref": "refs/remotes/origin/codex/e02-integration",
+      "remote_head": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-855cb26a-runtime-profiles.md.stdout",
+      "role": "Actual pure Git-show source/previous-receipt output exactly equals already-published immutable body; referenced without copying tracked source."
+    },
+    {
+      "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F.md",
+      "bytes": 17214,
+      "sha256": "6fcc13f11194d20e7a3bbadb2d70397da0b2c16e9695f43375a69c8bf222d89b",
+      "remote_ref": "refs/remotes/origin/codex/e02-integration",
+      "remote_head": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-855cb26a-F.md.stdout",
+      "role": "Actual pure Git-show source/previous-receipt output exactly equals already-published immutable body; referenced without copying tracked source."
+    },
+    {
+      "git_ref": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/F-criteria-correction.md",
+      "bytes": 6784,
+      "sha256": "c1afc93ce7dc62b0dbc7c1489e7d5dd113b60c9d2a5d2487e44a40fcda7d7d11",
+      "remote_ref": "refs/remotes/origin/codex/e02-integration",
+      "remote_head": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/current-855cb26a-F-criteria-correction.md.stdout",
+      "role": "Actual pure Git-show source/previous-receipt output exactly equals already-published immutable body; referenced without copying tracked source."
+    },
+    {
+      "git_ref": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-baseline-consumer-proof-20261007.json",
+      "bytes": 106928,
+      "sha256": "24a72061e9e4379753f349f56c110b516cef300457b94e2d6a5e066b702f760e",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-closeout-20261006",
+      "remote_head": "cdf61b4500e355a27db14260e80ce673ddf8869e",
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/ECO-full-published-handoff.stdout",
+      "role": "Actual pure Git-show source/previous-receipt output exactly equals already-published immutable body; referenced without copying tracked source."
+    },
+    {
+      "git_ref": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006-economic-native-final-candidate.json",
+      "bytes": 2440,
+      "sha256": "ddd8b2cbe422691580858c62cf98b50e8ea8750889168f085235ceb474535ff9",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-closeout-20261006",
+      "remote_head": "cdf61b4500e355a27db14260e80ce673ddf8869e",
+      "original_path": "/tmp/e02-F-continuation-20261007/economics/recovery-review-20261007/existing244-native-receipt.stdout",
+      "role": "Actual pure Git-show source/previous-receipt output exactly equals already-published immutable body; referenced without copying tracked source."
+    },
+    {
+      "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "bytes": 648034,
+      "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-closeout-20261006",
+      "remote_head": "cdf61b4500e355a27db14260e80ce673ddf8869e",
+      "role": "Immutable original complete card source at actual published ancestor; two exact byte/line excerpts reconstructible, no duplicate source/card bodies."
+    },
+    {
+      "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "bytes": 648034,
+      "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+      "remote_ref": "refs/remotes/origin/codex/e02-F-closeout-20261006",
+      "remote_head": "cdf61b4500e355a27db14260e80ce673ddf8869e",
+      "role": "Immutable original complete card source at actual published ancestor; two exact byte/line excerpts reconstructible, no duplicate source/card bodies."
+    }
+  ],
+  "policy": "Actual complete pureGitshow source/old receipt equality + current observed origin ancestry. Full deciding native/scanner/error/review outputs stay transported unless exact body already published.",
+  "previous_spec": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/economic-quality-pure-git-spec.json",
+    "bytes": 13454,
+    "sha256": "354466dd59a4a74ec68649f86463a85f15884e17f077c49f0b2873a7aed244ed"
+  },
+  "refresh_scope": "Origin tip/readback changed only; immutable body references and historical scientific sources are identical."
+}

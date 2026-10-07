@@ -1,0 +1,252 @@
+{
+  "schema": "policyos.e02.continuation_intake.v1",
+  "unit": "F",
+  "slice": "continuation-20261007-intake",
+  "branch": "codex/e02-F-closeout-20261006",
+  "worktree_root": "/workspace/e02-F-closeout-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/65",
+  "slice_base_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+  "slice_base_tree_sha": "f2b9b2d4bcc24a2feeae6f4873b61845a07cc090",
+  "root_carrier_is_not_unified_product_source": true,
+  "product_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "product_source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "fresh_G_checkpoint_sha": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+  "fresh_G_checkpoint_tree": "f27a36aa7eae9d6e329e0602ea40b6169a5bcf35",
+  "fresh_G_relation": [
+    {
+      "ancestor": "ff277db7798fc312654704fa51c52e00f53f10f4",
+      "descendant": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+      "returncode": 0
+    },
+    {
+      "ancestor": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "descendant": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+      "returncode": 1
+    },
+    {
+      "ancestor": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "descendant": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "returncode": 0
+    },
+    {
+      "ancestor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+      "descendant": "origin/main",
+      "returncode": 0
+    }
+  ],
+  "workspace_admission": "All seven exact existing branch/path resume pairs admitted/complete; full JSON in transport. No new checkout.",
+  "mandatory_document_refs": [
+    {
+      "source_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "AGENTS.md",
+      "bytes": 22656,
+      "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+      "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98"
+    },
+    {
+      "source_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/CONTRIBUTING.md",
+      "bytes": 10553,
+      "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783",
+      "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf"
+    },
+    {
+      "source_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/tools/devx/workspace/README.md",
+      "bytes": 15883,
+      "sha256": "a0a605d3ef5febb11b5573fd9affce75f634c6c7ad33171bf1d770966014b901",
+      "git_blob": "e4713740c8d5fb50fb82132c83ba274d1feea352"
+    },
+    {
+      "source_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+      "bytes": 20260,
+      "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b",
+      "git_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e"
+    },
+    {
+      "source_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/README.md",
+      "bytes": 41135,
+      "sha256": "ab45ac1dc98969df9149e56e7afd19843c777854a7bff4bacb4bcc2e37f1933e",
+      "git_blob": "036ff3998acb4ea915f23b68e53c07f6fe89bbf7"
+    },
+    {
+      "source_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/README.md",
+      "bytes": 11029,
+      "sha256": "2f91e5a04610ef877dce4ed9121a045aefac01540662a85c12c340a5ed32b8e7",
+      "git_blob": "06a23494628f5aca4815bc097901311f7cc27a51"
+    },
+    {
+      "source_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/verification.json",
+      "bytes": 13971,
+      "sha256": "26fcc44ff5094586402edf421cb04faf944578be3f628edd2577f5ed589d2c17",
+      "git_blob": "b4d46edbd185add382dbc3a86f762274a3c5e781"
+    },
+    {
+      "source_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/README.md",
+      "bytes": 16778,
+      "sha256": "d23afa2c31cada1a42be2c3e66ecdaa7b57cb436a7a133f288c36edd361f5fbe",
+      "git_blob": "dd710824ea417f410e0de55d4e46165bf15571cd"
+    },
+    {
+      "source_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+      "bytes": 23767,
+      "sha256": "00da8e6d723c1397546c706beb2b4dfec2664012dedc64f48c02de2126861872",
+      "git_blob": "ea11cf2deea4f832b10096064af0192c9b2cdaaf"
+    },
+    {
+      "source_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "bytes": 549568,
+      "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2",
+      "git_blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a"
+    },
+    {
+      "source_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+      "bytes": 104210,
+      "sha256": "47993533fca8f262817dac4e93805d208c42efb63de797ef083668e30f1566a2",
+      "git_blob": "d7b2906b19577d5a7a98855692b0afb8f46ca64a"
+    },
+    {
+      "source_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+      "bytes": 34592,
+      "sha256": "09a9d58d24e39a79f62c71548498a2eb96d763b45c2778d22bc974e284973cc0",
+      "git_blob": "814161a7f8cdc1bc5fb99ae25de93330f76d0176"
+    },
+    {
+      "source_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md",
+      "bytes": 52438,
+      "sha256": "4d09c54010b46a6e9b59a37e82dce9b9d75b853bea3e799078382afb16ee8db0",
+      "git_blob": "b242397fb26eaf0bee86a867aed6e21768d094e2"
+    },
+    {
+      "source_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/semantic-decisions.md",
+      "bytes": 11008,
+      "sha256": "30b8b82573381ffac6fb18e984e36273be9ed29579027818c4e2a9711e994d1a",
+      "git_blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a"
+    },
+    {
+      "source_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/execution-sequence.md",
+      "bytes": 33201,
+      "sha256": "920498645c448bbcf656236dcaed6b9a4aae8961f6ebb9913c54ad1664151f82",
+      "git_blob": "9e51765727debc87bb0a3a1ea7686f557d718b0a"
+    },
+    {
+      "source_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/verification-and-closeout.md",
+      "bytes": 20783,
+      "sha256": "d71d4aa68d1cb754139030367514b3662fa4c9acde54d55af66311213a3c32a1",
+      "git_blob": "63d8874b95576792abf84eeaf3db871139e14490"
+    },
+    {
+      "source_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/F-pr65-continuation-audit-2026-10-06.md",
+      "bytes": 16042,
+      "sha256": "adc970b3c9180afb065af4f420a89938113f696053d42d544766dde32fb95ac9",
+      "git_blob": "50b61edf2525ab2964fe17c75aed9d4710939573"
+    },
+    {
+      "source_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006.json",
+      "bytes": 47474,
+      "sha256": "a1fe644a1ba0f8f54897c626bd86a76062a3ddfca8e55cb5fa03e326f230499d",
+      "git_blob": "2e69b7a090da2263c911f4bd975f59c68682ca84"
+    },
+    {
+      "source_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "bytes": 61268,
+      "sha256": "64f9fa40453980d9128443ee34a4bf3298b71c157a5ebcc3bd6cb786abeb090a",
+      "git_blob": "7f4cc9ab9541a44c26e4648a2c08326e53743492"
+    },
+    {
+      "source_sha": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/COMMON.md",
+      "bytes": 8565,
+      "sha256": "f408d34394bab5f708df7afb6f59195588b5fc394b8304434c9e2fbe2238be79",
+      "git_blob": "d549b92b6a33efc32ffcb7c27261538f06a8e26e"
+    }
+  ],
+  "baseline_import_check": {
+    "ok": true,
+    "files": [
+      "cells.tsv",
+      "properties.tsv",
+      "events.jsonl",
+      "gates.json",
+      "routes.tsv",
+      "verification.json"
+    ]
+  },
+  "baseline_pack_role": "transfer_and_navigation_only; raw archives0; oldPASSs not current candidate proof",
+  "full_result_pack_read_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-intake-20261007/result-pack-and-owner-read.json",
+    "bytes": 16647,
+    "sha256": "73187870d201e825d5e093abfbe25598697386d0bf426169c21353191a88884e",
+    "encoding": "raw",
+    "decoded_bytes": 16647,
+    "decoded_sha256": "73187870d201e825d5e093abfbe25598697386d0bf426169c21353191a88884e",
+    "original_execution_path": "/tmp/e02-F-continuation-20261007/intake/result-pack-and-owner-read.json",
+    "role": "Full read-only startup/protocol/query output. Not a current scientific PASS."
+  },
+  "full_current_pack_read_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-intake-20261007/current-pack-read.json.gz",
+    "bytes": 204133,
+    "sha256": "a2ee2e35146a257cb8390e223fd8b7755fdae03d336c11871acd7d1df707191d",
+    "encoding": "gzip",
+    "decoded_bytes": 1714162,
+    "decoded_sha256": "87fd620aa541ffd784551a5506a53b408de954fb5bb2eb8ed2650de04aebbb60",
+    "original_execution_path": "/tmp/e02-F-continuation-20261007/intake/current-pack-read.json",
+    "role": "Full read-only startup/protocol/query output. Not a current scientific PASS."
+  },
+  "current_pack_read_denominator": {
+    "IDs": 35,
+    "bundles": 17,
+    "original_bindings": 36,
+    "stored_material_records": 3532,
+    "decoded_material_records": 1938,
+    "closeout_transport_records": 86
+  },
+  "failure_queries": "failures-only30 fullmatching3; three exactcells +35findingdetails executed. Full outputs/commands/returncodes in transport.",
+  "findings_closed_by_this_intake": [],
+  "formal_G_acceptance": false,
+  "historical_outcomes_are_preserved": true,
+  "superseded_criterion_extensions": [
+    "LA-035 unchanged equivalent relocation does not require a new optimizer/normative objective packet; COMMON controls."
+  ],
+  "current_ownership": "Graph sole producer+reconcile writer; FIT/API/ECO narrow consumer tests; independent CAU/Foundry/API reviewers; ROOT sole common ledger/docs writer. Six direct helpers, no grandchildren.",
+  "process_quotas_added": false,
+  "production_data_uploaded": false,
+  "no_main_or_G_integration_write": true,
+  "cleanup": "Native Trash unavailable; no permanent deletion. Active Git/worker/environment symlinks preserved. Exact scratch candidates only at closeout.",
+  "full_output_transport": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-intake-20261007/transport.json",
+  "known_startup_errors": "Initial remote own-ref was absent until explicit ordinary fetch; first two input-reader decoders did not support legacy wrappers and exited ERROR; full versions/stdout/stderr retained, corrected complete3532 record check PASS. One tool cwd typo failed before execution; no source mutation.",
+  "patterns": [
+    "P01",
+    "P02",
+    "P05",
+    "P09",
+    "P10",
+    "P14",
+    "P27",
+    "P29",
+    "P32",
+    "P35",
+    "P36",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ],
+  "P41": "not_established; no inherited-red waiver by this intake."
+}

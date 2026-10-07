@@ -1,0 +1,20 @@
+{
+  "outcome": "ERROR",
+  "stage": "auxiliary orchestration before any installedPython or native fit launched",
+  "reason": "/usr/bin/time unavailable; exact original input and traceback retained. Corrected runner uses real per-process os.wait4 rusage, no quota.",
+  "original_inputs": [
+    "capture_native.py"
+  ],
+  "original_outputs": [
+    "native-wave.stderr.txt",
+    "native-wave.stdout.json",
+    "wheel-native.json",
+    "wheel-native.stdout.txt",
+    "wheel-native.stderr.txt",
+    "sdist-native.json",
+    "sdist-native.stdout.txt",
+    "sdist-native.stderr.txt"
+  ],
+  "deciding_runner": "capture_native_v2.py",
+  "native_repeated": false
+}

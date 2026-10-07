@@ -1,0 +1,31 @@
+{
+  "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+  "executable": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "packages": {
+    "pytest": "9.0.2",
+    "pytest-asyncio": "1.3.0",
+    "pytest-benchmark": "5.2.3",
+    "hypothesis": "6.151.2",
+    "pydantic": "2.12.5",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "loguru": "0.7.3",
+    "opentelemetry-api": "1.39.1",
+    "opentelemetry-sdk": "1.39.1",
+    "opentelemetry-exporter-otlp-proto-grpc": "1.39.1",
+    "opentelemetry-exporter-prometheus": "0.60b1",
+    "orjson": "3.11.5",
+    "pyyaml": "6.0.3"
+  },
+  "distribution_inventory": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1146/I/D-budget-local/results/dependency-inventory.json",
+    "distribution_count": 174,
+    "sha256": "dddd8c29847a4d7d69f748c5b08e14223a28ca3537f4e4bd5fa2e0199034d460",
+    "method": "importlib.metadata.distributions"
+  },
+  "pip_freeze_probe": {
+    "status": "UNAVAILABLE",
+    "detail": "The existing venv has no pip module; no installation was attempted. Complete installed distribution names/versions were captured via importlib.metadata."
+  }
+}

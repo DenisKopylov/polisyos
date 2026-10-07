@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/tmp/e02-F-continuation-20261007/foundry/root-final-appendix-review/verify_appendix.py"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/foundry/root-final-appendix-review",
+  "Python": "3.12.14",
+  "scope": "Precommit appendix bytes only; stdlib/read-only Git; no main transport decode or science.",
+  "script_bytes": 9002,
+  "script_sha256": "af699a16f1af6a9892146dcc8449e6a3f05801a1b8a143ec7aa9da773d9903e8",
+  "exit_code": 0,
+  "wall_seconds": 0.2620516370225232,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-appendix-review/stdout.json",
+    "bytes": 52030,
+    "sha256": "a0620d42582ba3dc778f58362399d0c0d88d24914ee5d8e70ff9485aa6059aab"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-appendix-review/stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

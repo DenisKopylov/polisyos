@@ -1,0 +1,452 @@
+Merge made by the 'ort' strategy.
+ .../F/graph-intake-current-content-20261007.json   |  924 ++++
+ .../artifact-whitespace-attempt.json               |   49 +
+ .../base072-cas-manifest.json                      |  326 ++
+ ...0d67a51ba440fb5c517a68ba3171960ee4086c4f2f.blob |    1 +
+ ...440fb5c517a68ba3171960ee4086c4f2f.manifest.json |    1 +
+ ...c26aed0381e5621a776ecc241af6bc821.manifest.json |    1 +
+ ...6cd231efbce3dd5034b2cde1eed481b6d9cc3caf6a.blob |    1 +
+ ...ce3dd5034b2cde1eed481b6d9cc3caf6a.manifest.json |    1 +
+ ...353dc9b66c6c7902c2f08bfa7fe16ff5e.manifest.json |    1 +
+ ...000d4bc4fa88d764c4c1aa9dd2887fec0.manifest.json |    1 +
+ ...043e7a32c94935713296cfa5a93021900c730b597d.blob |    1 +
+ ...94935713296cfa5a93021900c730b597d.manifest.json |    1 +
+ ...933126add8c984a77168514a66c5c2261.manifest.json |    1 +
+ ...2e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob |    1 +
+ ...05a1b8e68f20cd077df327efca18a8e62.manifest.json |    1 +
+ ...ecfda6a555fb27f1fc67e403105b5557d.manifest.json |    1 +
+ ...e0333dcc65073ae75bd5a39d340860b6b7cb6d28cb.blob |    1 +
+ ...5073ae75bd5a39d340860b6b7cb6d28cb.manifest.json |    1 +
+ ...9e6604c18742181366179d545fd4da931.manifest.json |    1 +
+ ...cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob |    1 +
+ ...d7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json |    1 +
+ ...67a428b6bb60792977e1b52cd4fef8271.manifest.json |    1 +
+ ...d2885c0a0ba54834973415851452db48cd885f74ec.blob |    1 +
+ ...ba54834973415851452db48cd885f74ec.manifest.json |    1 +
+ ...a102c82aba9e00fb145814aeaac31d78f.manifest.json |    1 +
+ ...bedc0183c436492a991e01b535d4ee882610e25ba9.blob |    1 +
+ ...436492a991e01b535d4ee882610e25ba9.manifest.json |    1 +
+ ...99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json |    1 +
+ ...d9d9bd61ffff73b819d015ec6d9485c6fd99a496aa.blob |    1 +
+ ...fff73b819d015ec6d9485c6fd99a496aa.manifest.json |    1 +
+ ...0b268a962c2ae8d15fc731981a8b85f04.manifest.json |    1 +
+ ...9417e7094be527a5b8460a0798accc43dffd9bed20.blob |    1 +
+ ...be527a5b8460a0798accc43dffd9bed20.manifest.json |    1 +
+ ...0bb10811224e26afa5cfa60c2a15d7895.manifest.json |    1 +
+ ...1c80abb0c7962677246a6efdcb3515acf1b5952771.blob |    1 +
+ ...7962677246a6efdcb3515acf1b5952771.manifest.json |    1 +
+ ...3e4db81f4a39e4434188e307a6b81d379.manifest.json |    1 +
+ ...53615e6aa1545811162dc977e88173923a15881dbc.blob |    1 +
+ ...1545811162dc977e88173923a15881dbc.manifest.json |    1 +
+ ...9e6604c18742181366179d545fd4da931.manifest.json |    1 +
+ ...9410aecbd9a22468181c871c937f4d5623f78ebe31.blob |    1 +
+ ...9a22468181c871c937f4d5623f78ebe31.manifest.json |    1 +
+ ...9225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json |    1 +
+ ...7628b9b0ec4d2032082f94fcfa209101f37815c1bf.blob |    1 +
+ ...c4d2032082f94fcfa209101f37815c1bf.manifest.json |    1 +
+ ...2878c9154f2f6f1698642c1e54803a7e0.manifest.json |    1 +
+ ...9b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob |    1 +
+ ...bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json |    1 +
+ ...7c661f851233e9b64aa152083e7bcf3c5.manifest.json |    1 +
+ ...f81f63e8f45e530ac87bc06e1ecf884db3947eba52.blob |    1 +
+ ...45e530ac87bc06e1ecf884db3947eba52.manifest.json |    1 +
+ ...353dc9b66c6c7902c2f08bfa7fe16ff5e.manifest.json |    1 +
+ ...eb74d83603874ac579cea46b92d02c41bbe5d31028.blob |    1 +
+ ...3874ac579cea46b92d02c41bbe5d31028.manifest.json |    1 +
+ ...7e18d4c11845e362e637a859bc9342db7.manifest.json |    1 +
+ .../runs/narrow-intake-independent/trace.jsonl     |    1 +
+ .../baseline-B214-source-reported.txt              |  721 +++
+ .../baseline-B218-source-reported.txt              |  721 +++
+ .../baseline-F08-P048-source-reported.txt          | 1488 ++++++
+ .../build_receipt.py                               |   15 +
+ .../capture_case_denominator.py                    |    6 +
+ .../capture_environment.py                         |   10 +
+ .../capture_original_criteria.py                   |    7 +
+ .../check_fragment.py                              |   13 +
+ .../corrected-frozen-fragment-spec.json            |   27 +
+ .../corrected-frozen-fragment.json                 |   70 +
+ .../corrected-frozen-fragment.stderr.txt           |    0
+ .../corrected-frozen-fragment.stdout.txt.gz        |  Bin 0 -> 1036 bytes
+ .../corrected-frozen-native-spec.json              |   40 +
+ .../corrected-frozen-native.json                   |   83 +
+ .../corrected-frozen-native.stderr.txt             |    0
+ .../corrected-frozen-native.stdout.txt.gz          |  Bin 0 -> 314 bytes
+ .../corrected-frozen-native.xml                    |    1 +
+ .../corrected-frozen-ruff-format-spec.json         |   35 +
+ .../corrected-frozen-ruff-format.json              |   78 +
+ .../corrected-frozen-ruff-format.stderr.txt        |    0
+ .../corrected-frozen-ruff-format.stdout.txt        |    1 +
+ .../corrected-frozen-ruff-spec.json                |   34 +
+ .../corrected-frozen-ruff.json                     |   77 +
+ .../corrected-frozen-ruff.stderr.txt               |    0
+ .../corrected-frozen-ruff.stdout.txt               |    1 +
+ .../corrected-native-case-denominator.json         |  419 ++
+ .../corrected-source-footprint.json                |   68 +
+ .../correction-development.stderr.txt              |    0
+ .../correction-development.stdout.txt.gz           |  Bin 0 -> 1647 bytes
+ .../correction-development2.stderr.txt             |    0
+ .../correction-development2.stdout.txt.gz          |  Bin 0 -> 2509 bytes
+ .../correction-development3.stderr.txt             |    0
+ .../correction-development3.stdout.txt.gz          |  Bin 0 -> 314 bytes
+ .../correction-format-final.stdout.txt             |    1 +
+ .../correction-format.stdout.txt                   |    1 +
+ .../correction-freeze-format.stdout.txt            |    1 +
+ .../correction-freeze-ruff.stdout.txt              |    1 +
+ .../correction-ruff.stdout.txt                     |    1 +
+ .../correction-tests-format.stdout.txt             |    1 +
+ .../correction-tests-ruff.stdout.txt               |    1 +
+ .../correction.patch.gz                            |  Bin 0 -> 6659 bytes
+ .../criterion-harness-first-error.txt              |    3 +
+ .../denominator-harness-first-error.txt            |    5 +
+ .../development-native.stderr.txt                  |    0
+ .../development-native.stdout.txt.gz               |  Bin 0 -> 9677 bytes
+ .../development-native2.stderr.txt                 |    0
+ .../development-native2.stdout.txt.gz              |  Bin 0 -> 305 bytes
+ .../development-native3.stderr.txt                 |    0
+ .../development-native3.stdout.txt.gz              |  Bin 0 -> 314 bytes
+ .../encode_artifact_transport.py                   |   44 +
+ .../encoded-artifact-cached-diff-check.json        |   10 +
+ .../encoded-artifact-cached-diff-check.stderr.txt  |    0
+ .../encoded-artifact-cached-diff-check.stdout.txt  |    0
+ .../environment.json                               |   22 +
+ .../frozen-fragment-spec.json                      |   27 +
+ .../frozen-fragment.json                           |   70 +
+ .../frozen-fragment.stderr.txt                     |    0
+ .../frozen-fragment.stdout.txt.gz                  |  Bin 0 -> 986 bytes
+ .../frozen-native-spec.json                        |   40 +
+ .../frozen-native.json                             |   83 +
+ .../frozen-native.stderr.txt                       |    0
+ .../frozen-native.stdout.txt.gz                    |  Bin 0 -> 305 bytes
+ .../frozen-native.xml                              |    1 +
+ .../frozen-ruff-format-spec.json                   |   35 +
+ .../frozen-ruff-format.json                        |   78 +
+ .../frozen-ruff-format.stderr.txt                  |    0
+ .../frozen-ruff-format.stdout.txt                  |    1 +
+ .../frozen-ruff-spec.json                          |   34 +
+ .../frozen-ruff.json                               |   77 +
+ .../frozen-ruff.stderr.txt                         |    0
+ .../frozen-ruff.stdout.txt                         |    1 +
+ .../full-implementation.patch.gz                   |  Bin 0 -> 14914 bytes
+ .../implementation-published-readback.json         |    9 +
+ .../implementation.patch.gz                        |  Bin 0 -> 11539 bytes
+ .../independent-3e/adversarial-corrected.stderr    |    0
+ .../independent-3e/adversarial-corrected.stdout.gz |  Bin 0 -> 1115 bytes
+ .../independent-3e/adversarial.stderr              |    0
+ .../independent-3e/adversarial.stdout.gz           |  Bin 0 -> 947 bytes
+ .../independent-3e/exec.stderr                     |    0
+ .../independent-3e/exec.stdout.gz                  |  Bin 0 -> 307 bytes
+ .../first-adversarial-setup/adversarial.stderr     |    0
+ .../first-adversarial-setup/adversarial.stdout.gz  |  Bin 0 -> 947 bytes
+ .../test_current_source_guards.py                  |   60 +
+ .../independent-3e/native.json                     |   30 +
+ .../independent-3e/native.stderr                   |    0
+ .../independent-3e/native.stdout.gz                |  Bin 0 -> 306 bytes
+ .../independent-3e/review-with-warning.json        |  172 +
+ .../independent-3e/review.json                     |  171 +
+ .../independent-3e/run_native.py                   |    8 +
+ .../independent-3e/test_current_source_guards.py   |   60 +
+ .../transfer-selection-with-warning.json           |   87 +
+ .../independent-3e/transfer-selection.json         |   82 +
+ .../independent-647/bind_review.py                 |   35 +
+ .../independent-647/capture_controls.py            |    9 +
+ .../independent-647/complete-projection.json       |   37 +
+ .../independent-647/complete-projection.stderr     |    0
+ .../independent-647/complete-projection.stdout     |   19 +
+ .../finish-first-observer-error.json               |   13 +
+ .../finish-first-observer-error.stderr             |    5 +
+ .../finish-first-observer-error.stdout             |    0
+ .../independent-647/finish_review.py.gz            |  Bin 0 -> 3160 bytes
+ .../finish_review_first_observer_error.py          |   61 +
+ .../independent-647/full-delta.diff.gz             |  Bin 0 -> 6922 bytes
+ .../independent-647/native.json                    |   30 +
+ .../independent-647/native.stderr                  |    0
+ .../independent-647/native.stdout.gz               |  Bin 0 -> 314 bytes
+ .../independent-647/original-controls.json         |   37 +
+ .../independent-647/original-controls.stderr       |    0
+ .../independent-647/original-controls.stdout       |    4 +
+ .../independent-647/profile.json                   |   16 +
+ .../independent-647/profile.stderr                 |    0
+ .../independent-647/profile.stdout                 |   22 +
+ .../independent-647/review.json                    |  464 ++
+ .../independent-647/run_native.py                  |    8 +
+ .../independent-647/source-bindings.json           |  107 +
+ .../independent-647/test_complete_projection.py    |   64 +
+ .../independent-647/test_current_source_guards.py  |   60 +
+ .../independent-647/transfer-selection.json        |  140 +
+ .../inputs/B214-original.md.gz                     |  Bin 0 -> 1514 bytes
+ .../inputs/B218-original.md.gz                     |  Bin 0 -> 1669 bytes
+ .../inputs/G-COMMON-9a187.md                       |   28 +
+ .../inputs/admission-pair.json                     | 4775 ++++++++++++++++++++
+ .../installed-selector-plan.json                   |   80 +
+ .../intake-base072-probe.py                        |   60 +
+ .../intake-base072.json                            |   38 +
+ .../intake-base072.stderr.txt                      |    0
+ .../intake-base072.stdout.txt                      |  226 +
+ .../lossless-prestage-custody.json                 |   27 +
+ .../lossless-transport.json                        |  435 ++
+ .../metadata-first-custody202.json                 |   21 +
+ .../native-case-denominator.json                   |  508 +++
+ .../original-criterion-bindings.json               |   68 +
+ .../outputs.json                                   | 1759 +++++++
+ .../publish_receipt.py                             |   47 +
+ .../raw-artifact-cached-diff-check.stderr.txt      |    0
+ .../raw-artifact-cached-diff-check.stdout.txt.gz   |  Bin 0 -> 1779 bytes
+ .../removal-composition-result-spec.json           |   28 +
+ .../removal-composition-result.json                |   71 +
+ .../removal-composition-result.stderr.txt          |    0
+ .../removal-composition-result.stdout.txt.gz       |  Bin 0 -> 780 bytes
+ .../removal-current-content-spec.json              |   31 +
+ .../removal-current-content.json                   |   74 +
+ .../removal-current-content.stderr.txt             |    0
+ .../removal-current-content.stdout.txt.gz          |  Bin 0 -> 992 bytes
+ .../removal-early-profile-spec.json                |   31 +
+ .../removal-early-profile.json                     |   74 +
+ .../removal-early-profile.stderr.txt               |    0
+ .../removal-early-profile.stdout.txt.gz            |  Bin 0 -> 1061 bytes
+ .../removal-endpoint-identity-spec.json            |   31 +
+ .../removal-endpoint-identity.json                 |   74 +
+ .../removal-endpoint-identity.stderr.txt           |    0
+ .../removal-endpoint-identity.stdout.txt.gz        |  Bin 0 -> 984 bytes
+ .../remove_composition_basis.py                    |   15 +
+ .../remove_property.py                             |   41 +
+ .../ruff-development.stdout.txt                    |    1 +
+ .../ruff-final-preformat.stdout.txt                |    1 +
+ .../ruff-format-development.stdout.txt             |    1 +
+ .../ruff-pre-freeze-format.stdout.txt              |    1 +
+ .../ruff-pre-freeze.stdout.txt                     |    1 +
+ .../run_check.py                                   |   12 +
+ .../source-footprint.json                          |   71 +
+ .../source-seven-path-diff-check.stderr.txt        |    0
+ .../source-seven-path-diff-check.stdout.txt        |    0
+ .../transport-first-cross-device-error.json        |   10 +
+ .../transport-first-cross-device-error.stderr.txt  |    7 +
+ .../transport-first-cross-device-error.stdout.txt  |    0
+ .../verify_lossless_receipt.py                     |   39 +
+ .../verify_receipt.py                              |   14 +
+ .../widen_composition_replay.py                    |  121 +
+ 225 files changed, 16436 insertions(+)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/artifact-whitespace-attempt.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas-manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/0a/7c/0a7c697c903e65528247140d67a51ba440fb5c517a68ba3171960ee4086c4f2f.blob
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/0a/7c/0a7c697c903e65528247140d67a51ba440fb5c517a68ba3171960ee4086c4f2f.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/0a/7c/0a7c697c903e65528247140d67a51ba440fb5c517a68ba3171960ee4086c4f2f.view.4ed4baf65084d66de43e0a303f081ebc26aed0381e5621a776ecc241af6bc821.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/0d/e4/0de487452cc6aa5e4906406cd231efbce3dd5034b2cde1eed481b6d9cc3caf6a.blob
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/0d/e4/0de487452cc6aa5e4906406cd231efbce3dd5034b2cde1eed481b6d9cc3caf6a.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/0d/e4/0de487452cc6aa5e4906406cd231efbce3dd5034b2cde1eed481b6d9cc3caf6a.view.2dba9e0183db6116994a119010af991353dc9b66c6c7902c2f08bfa7fe16ff5e.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/0d/e4/0de487452cc6aa5e4906406cd231efbce3dd5034b2cde1eed481b6d9cc3caf6a.view.ff006259511cdb915c32db2b709bce5000d4bc4fa88d764c4c1aa9dd2887fec0.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.blob
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/0e/23/0e23cde92e5e32bb17a1e5043e7a32c94935713296cfa5a93021900c730b597d.view.e7c460095f15f8e04f8016863abcb90933126add8c984a77168514a66c5c2261.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.blob
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/12/5f/125f9b97712d5ae2980e242e1fbd41305a1b8e68f20cd077df327efca18a8e62.view.96ae9f269a07ee4e2755848495673a9ecfda6a555fb27f1fc67e403105b5557d.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/15/4e/154e55ae521d5b617ec2d0e0333dcc65073ae75bd5a39d340860b6b7cb6d28cb.blob
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/15/4e/154e55ae521d5b617ec2d0e0333dcc65073ae75bd5a39d340860b6b7cb6d28cb.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/15/4e/154e55ae521d5b617ec2d0e0333dcc65073ae75bd5a39d340860b6b7cb6d28cb.view.6b969f30678b33679353f81dc81c9069e6604c18742181366179d545fd4da931.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.blob
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/62/52/625214ef58ec339625d878cbc70ef5bd7e79c2840f8523c4d2cc3e74c3fcdb47.view.cd25f336da7c2808daee74efbae9c8c67a428b6bb60792977e1b52cd4fef8271.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.blob
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/87/6d/876d070f02d2d48eb3d7ddd2885c0a0ba54834973415851452db48cd885f74ec.view.57cf6c00bca56f385cd50828b3b7b30a102c82aba9e00fb145814aeaac31d78f.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.blob
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/8e/1f/8e1fc942e652f0022c4601bedc0183c436492a991e01b535d4ee882610e25ba9.view.58772a1da07253d6cf84a491cedb6af99f0e2050a32de8d5f5c1c525fbbe694e.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/af/02/af020cb62e70489283437ed9d9bd61ffff73b819d015ec6d9485c6fd99a496aa.blob
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/af/02/af020cb62e70489283437ed9d9bd61ffff73b819d015ec6d9485c6fd99a496aa.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/af/02/af020cb62e70489283437ed9d9bd61ffff73b819d015ec6d9485c6fd99a496aa.view.e0a326da9726c81185818f27a2c4c240b268a962c2ae8d15fc731981a8b85f04.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.blob
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/b0/36/b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20.view.a575d0e0e3f3dc9ba62bf99f624105f0bb10811224e26afa5cfa60c2a15d7895.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.blob
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/c3/c2/c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771.view.97892007b7b5a307bde290da7e805d43e4db81f4a39e4434188e307a6b81d379.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/d0/97/d097e64f0afa5a1d63943453615e6aa1545811162dc977e88173923a15881dbc.blob
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/d0/97/d097e64f0afa5a1d63943453615e6aa1545811162dc977e88173923a15881dbc.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/d0/97/d097e64f0afa5a1d63943453615e6aa1545811162dc977e88173923a15881dbc.view.6b969f30678b33679353f81dc81c9069e6604c18742181366179d545fd4da931.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.blob
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/d4/c9/d4c9d615537748854e9f129410aecbd9a22468181c871c937f4d5623f78ebe31.view.a4284d8a5e551ea9290f2bd128b7ac39225ddd6a29c953d5f4d884f7d0b2abc4.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/dd/5f/dd5f5b51f842f843c740747628b9b0ec4d2032082f94fcfa209101f37815c1bf.blob
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/dd/5f/dd5f5b51f842f843c740747628b9b0ec4d2032082f94fcfa209101f37815c1bf.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/dd/5f/dd5f5b51f842f843c740747628b9b0ec4d2032082f94fcfa209101f37815c1bf.view.8f9a9a580bb821f06ed14dfb4a465762878c9154f2f6f1698642c1e54803a7e0.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.blob
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/f2/48/f2480f28ba1298ef31bdd39b9accb87bb2a7cdff2172ddfeee8b760e2ce63cc3.view.50675d243c81302723dc95ce0134c557c661f851233e9b64aa152083e7bcf3c5.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/f6/0a/f60a99c191727d6d331b35f81f63e8f45e530ac87bc06e1ecf884db3947eba52.blob
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/f6/0a/f60a99c191727d6d331b35f81f63e8f45e530ac87bc06e1ecf884db3947eba52.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/f6/0a/f60a99c191727d6d331b35f81f63e8f45e530ac87bc06e1ecf884db3947eba52.view.2dba9e0183db6116994a119010af991353dc9b66c6c7902c2f08bfa7fe16ff5e.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/fa/4e/fa4eb9be7079a53bdb0aeceb74d83603874ac579cea46b92d02c41bbe5d31028.blob
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/fa/4e/fa4eb9be7079a53bdb0aeceb74d83603874ac579cea46b92d02c41bbe5d31028.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/artifacts/sha256/fa/4e/fa4eb9be7079a53bdb0aeceb74d83603874ac579cea46b92d02c41bbe5d31028.view.b198b8c880a9af9a700f8510e4d9c6c7e18d4c11845e362e637a859bc9342db7.manifest.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/base072-cas/runs/narrow-intake-independent/trace.jsonl
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/baseline-B214-source-reported.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/baseline-B218-source-reported.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/baseline-F08-P048-source-reported.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/build_receipt.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/capture_case_denominator.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/capture_environment.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/capture_original_criteria.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/check_fragment.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-fragment-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-fragment.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-fragment.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-fragment.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-native-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-native.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-native.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-native.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-native.xml
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-ruff-format-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-ruff-format.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-ruff-format.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-ruff-format.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-ruff-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-ruff.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-ruff.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-frozen-ruff.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-native-case-denominator.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/corrected-source-footprint.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/correction-development.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/correction-development.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/correction-development2.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/correction-development2.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/correction-development3.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/correction-development3.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/correction-format-final.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/correction-format.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/correction-freeze-format.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/correction-freeze-ruff.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/correction-ruff.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/correction-tests-format.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/correction-tests-ruff.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/correction.patch.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/criterion-harness-first-error.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/denominator-harness-first-error.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/development-native.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/development-native.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/development-native2.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/development-native2.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/development-native3.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/development-native3.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/encode_artifact_transport.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/encoded-artifact-cached-diff-check.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/encoded-artifact-cached-diff-check.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/encoded-artifact-cached-diff-check.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/environment.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-fragment-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-fragment.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-fragment.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-fragment.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-native-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-native.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-native.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-native.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-native.xml
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-ruff-format-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-ruff-format.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-ruff-format.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-ruff-format.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-ruff-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-ruff.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-ruff.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/frozen-ruff.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/full-implementation.patch.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/implementation-published-readback.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/implementation.patch.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/adversarial-corrected.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/adversarial-corrected.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/adversarial.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/adversarial.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/exec.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/exec.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/first-adversarial-setup/adversarial.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/first-adversarial-setup/adversarial.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/first-adversarial-setup/test_current_source_guards.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/native.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/native.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/native.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/review-with-warning.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/review.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/run_native.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/test_current_source_guards.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/transfer-selection-with-warning.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-3e/transfer-selection.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/bind_review.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/capture_controls.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/complete-projection.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/complete-projection.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/complete-projection.stdout
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/finish-first-observer-error.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/finish-first-observer-error.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/finish-first-observer-error.stdout
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/finish_review.py.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/finish_review_first_observer_error.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/full-delta.diff.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/native.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/native.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/native.stdout.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/original-controls.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/original-controls.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/original-controls.stdout
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/profile.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/profile.stderr
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/profile.stdout
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/review.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/run_native.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/source-bindings.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/test_complete_projection.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/test_current_source_guards.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/independent-647/transfer-selection.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/inputs/B214-original.md.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/inputs/B218-original.md.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/inputs/G-COMMON-9a187.md
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/inputs/admission-pair.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/installed-selector-plan.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/intake-base072-probe.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/intake-base072.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/intake-base072.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/intake-base072.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/lossless-prestage-custody.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/lossless-transport.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/metadata-first-custody202.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/native-case-denominator.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/original-criterion-bindings.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/outputs.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/publish_receipt.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/raw-artifact-cached-diff-check.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/raw-artifact-cached-diff-check.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-composition-result-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-composition-result.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-composition-result.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-composition-result.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-current-content-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-current-content.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-current-content.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-current-content.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-early-profile-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-early-profile.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-early-profile.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-early-profile.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-endpoint-identity-spec.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-endpoint-identity.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-endpoint-identity.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/removal-endpoint-identity.stdout.txt.gz
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/remove_composition_basis.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/remove_property.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/ruff-development.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/ruff-final-preformat.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/ruff-format-development.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/ruff-pre-freeze-format.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/ruff-pre-freeze.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/run_check.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/source-footprint.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/source-seven-path-diff-check.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/source-seven-path-diff-check.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/transport-first-cross-device-error.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/transport-first-cross-device-error.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/transport-first-cross-device-error.stdout.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/verify_lossless_receipt.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/verify_receipt.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-current-content-20261007/widen_composition_replay.py

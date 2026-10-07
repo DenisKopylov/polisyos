@@ -1,0 +1,16 @@
+{
+  "target_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+  "tree": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-c",
+    "import sys,json,importlib,importlib.util,importlib.metadata\nmods=['polisyos.ir.analytics.causal_graph','polisyos.ir.analytics.cross_graph','polisyos.ir.analytics.alignment_certification','polisyos.foundry.methods.catalog.causal.graph_reconciliation','polisyos.foundry.methods.catalog.causal.query_preservation','polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph']\nprint(json.dumps({'python':sys.version,'executable':sys.executable,'origins':{m:importlib.import_module(m).__file__ for m in mods},'backend_presence':{m:importlib.util.find_spec(m) is not None for m in ['dowhy','econml']},'packages':{m:importlib.metadata.version(m) for m in ['pytest','numpy','networkx','pydantic']}},indent=2))\n"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "env": {
+    "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "exit_code": 0,
+  "seconds": 9.432155995018547
+}

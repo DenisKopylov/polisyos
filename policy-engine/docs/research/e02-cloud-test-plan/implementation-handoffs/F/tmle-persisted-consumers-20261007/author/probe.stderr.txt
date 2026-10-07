@@ -1,0 +1,2 @@
+ERROR: found no collectors for /workspace/e02-F-tmle-20261006/policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py::test_unmodified_native_report_reaches_both_fresh_consumers
+

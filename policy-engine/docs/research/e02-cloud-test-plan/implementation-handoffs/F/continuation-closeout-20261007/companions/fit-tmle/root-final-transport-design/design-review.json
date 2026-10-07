@@ -1,0 +1,98 @@
+{
+  "schema": "policyos.e02.root_transport_design_review.v1",
+  "decision": "GO_BOUNDED as exact-byte draft transport; final closeout publication remains blocked on the three declared exact new carrier extensions.",
+  "root_source_git_writes": false,
+  "tests_or_scientific_replay": false,
+  "selection": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-draft.json",
+    "bytes": 304062,
+    "sha256": "5b502dc4136bd9ea962e6daa9a6feed3dd39bedf89ba4b17b5a353eab2cd0546"
+  },
+  "publisher": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_draft.py",
+    "bytes": 9096,
+    "sha256": "cdd70cb5f494c7dc0e0ce7e6d37a701b551ff39f0f3d13725013faa271081bbb"
+  },
+  "selection_replayer": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/design_selection.py",
+    "bytes": 9299,
+    "sha256": "9564644b17b9ff5d5ac93980eaacce40a3a27fcb8b2de26b55d4144fde6b76a6"
+  },
+  "stored_manifest": {
+    "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/staged-draft/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261007/artifact-transports.json",
+    "bytes": 325734,
+    "sha256": "5c9ded97c345a87d3f9ac0d6b2a262d2c414bc14cf9d5af2f8c3d6b60abfd683"
+  },
+  "execution": {
+    "argv": [
+      "python3",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/publish_transport_draft.py",
+      "--selection",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/selection-draft.json",
+      "--repository",
+      "/workspace/e02-F-closeout-20261006",
+      "--materialize",
+      "--destination",
+      "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/staged-draft"
+    ],
+    "exit": 0,
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/materialize.stdout.json",
+      "bytes": 780,
+      "sha256": "18396cfd9a5a020ffe6fa3e0d86f42bf4cef85528f59ee68e045768139310778"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261007/fit-tmle/root-final-transport-design/materialize.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "meaning": "Actual scratch materialization and every stored/decompressed byte readback succeeded. This does not run new science or publish a primary."
+  },
+  "validated_counts": {
+    "logical_files": 423,
+    "transported_files": 196,
+    "aliases": 203,
+    "existing_git_files": 24,
+    "stored_bytes": 18530761,
+    "decoded_unique_bytes": 191688035
+  },
+  "source_selection_read_scope": "All four upstream selection JSONs loaded completely and all selected actual files checked bytes/SHA; all423 logical entries and24 direct immutable Git outputs checked. Pointer-only existing refs remain pointers, not invented full-body hashes.",
+  "no_recursive_transport": "Publisher/selection-design artifacts are separately referenced here. Original selection is not rewritten by publication; no final manifest contains its own byte hash. No ROOT primary fabricated.",
+  "pending": [
+    {
+      "id": "new-final-root-quality",
+      "status": "UNRUN",
+      "git_ref": null,
+      "path": null,
+      "reason": "New source/resource fix has not frozen with exact final quality receipt; append only after publication and byte readback."
+    },
+    {
+      "id": "new-final-installed-composition",
+      "status": "UNRUN",
+      "git_ref": null,
+      "path": null,
+      "reason": "Repaired actual wheel/sdist final composition receipt not available yet; no future SHA or pass carry."
+    },
+    {
+      "id": "packaged-resource-owner-receipt",
+      "status": "UNRUN",
+      "git_ref": null,
+      "path": null,
+      "reason": "Root assigned canonical Graph author. Reference author published resource proposal/diagnostics/own review instead of duplicate transfer. Existing FIT resource proposal review/selection and Graph diagnosis are not copied by this root transport."
+    }
+  ],
+  "staging_location": "Entire staged-draft resides in own /tmp scratch, not ROOT checkout. ROOT can copy full exact stored files from this scratch or materialize with explicit destination once source refs still match. A changed original input stops validation; never overwrite partial/different carriers.",
+  "publication_recipe": [
+    "Keep this draft and historical FAIL/ERROR bytes immutable. For final newly published quality/installed/resource refs, create a new additive selection version with exact refs/bytes/hash and then rerun metadata-only transport validation.",
+    "Do not repeat scientific suites to publish a transport. Add current final owner receipts as existing Git references; retain this b5 scanner FAIL/d833GO as historical scoped evidence.",
+    "Use publisher --materialize --destination <explicit ROOT delivery worktree> only under ROOT writer lease. It performs filesystem artifact writes only; no staging/commit/push operation is built into it.",
+    "For a final primary, provide ROOT-reviewed --primary-template with actual candidate_sha and candidate_tree_sha; pending_extensions must be resolved/empty and canonical checks output/outcome strings preserved. Script rejects missing/future candidate and never decides closure.",
+    "Commit source/reviewed documentation separately from this transport receipt; ordinary topic push and remote Git-byte readback remain ROOT protocol actions."
+  ],
+  "raw_policy": "User explicitly requires complete deciding raw outputs, including171603690B scanner and complete actual root input/history diff custody. All compressed streams preserve decoded SHA/bytes; moderate unique outputs are complete. This supersedes excerpt-only or ignored-raw-only transport advice; no original deletion or raw source reformat. Direct old owner primary/Git-source copies use immutable existing Git locator instead; no whole scientific old-wave carry.",
+  "privacy": "No inherited environment values or extra credentials/queries collected. No sanitation/text normalization. This packet transports previously recorded repo/quality/reviewer outputs and path/byte/hash metadata only.",
+  "free_space_at_completed_materialization": {
+    "tmp_bytes": 734928896,
+    "workspace_bytes": 708640768
+  }
+}

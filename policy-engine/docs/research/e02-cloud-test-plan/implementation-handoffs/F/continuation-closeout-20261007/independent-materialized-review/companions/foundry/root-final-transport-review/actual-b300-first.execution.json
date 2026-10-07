@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "python3",
+    "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/verify_final_root.py",
+    "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/frozen-config.json",
+    "--controls"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review",
+  "Python": "3.12.14",
+  "environment": {
+    "PYTHONPATH": null,
+    "scope": "stdlib/Git metadata only; no product/scientific imports, installations or cleanup"
+  },
+  "source_receipt_sha": "b300da2e134a67fbd6f585a21ab42286c356fe7e",
+  "source_receipt_tree": "396e5e0998c9e0cc11ba7372dcce6773200dd7bf",
+  "script_bytes": 18065,
+  "script_sha256": "30a312dccecfcc35c831922b9955e28be21161e3a3830739417a44860e110761",
+  "config_bytes": 916,
+  "config_sha256": "2cd2cdb865c43e5e62d1d915032695373b8c8068fa3dda755849e173f88c552c",
+  "exit_code": 1,
+  "wall_seconds": 8.073183301021345,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-b300-first.stdout.json",
+    "bytes": 111,
+    "sha256": "464d955038bb5fef4c3f834dbcfe0312ff88dc389cb0b935cb6728a4f7bb68c4"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/foundry/root-final-transport-review/actual-b300-first.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

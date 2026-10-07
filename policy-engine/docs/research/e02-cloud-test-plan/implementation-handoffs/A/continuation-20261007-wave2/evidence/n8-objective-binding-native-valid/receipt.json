@@ -1,0 +1,60 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "e02_origin",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-q",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n8-objective-binding-native-valid/junit.xml",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n8-objective-binding-native-valid/pytest-basetemp",
+    "tests/unit/runtime/quality/test_value_gate.py::test_n8_intake_rejects_outcome_candidate_and_atom_mismatches",
+    "tests/unit/runtime/quality/test_value_gate.py::test_foundry_value_port_recomputes_actual_n5_outcome_and_atom_bindings",
+    "tests/unit/runtime/quality/test_value_gate.py::test_simulate_only_n8_rejects_unknown_or_fatal_n5_blocker_before_owner_gateway",
+    "tests/unit/runtime/quality/test_value_gate.py::test_simulate_only_n8_rejects_tampered_persisted_n5_reference_before_owner_gateway"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "069ceaa7af2dba02f1cb303a251a03c3095b6bbc",
+  "candidate_tree": "6d47aefc789db4e1bdb6d53d1af7722f0c4ac643",
+  "exit_code": 0,
+  "wall_s": 20.84575550002046,
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n8-objective-binding-native-valid:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "JAX_PLATFORMS": "cpu"
+  },
+  "probe_environment": {},
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+    "sha256": "928c32ba9a42cd2c1e28652bf9d6ba3bddf038de5d17abfef3ac701fcd04c7e2"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 99,
+      "sha256": "5a1f791c4674ba888389da7f3dd843f32def58ad6bbdddd9714a423dda42eb1a"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "e02_origin.py": {
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    "junit.xml": {
+      "bytes": 1084,
+      "sha256": "b463fdd6ea0c5ea3ec932769270b04f4dcf04577ac3e9f7e958f9017a4e61f95"
+    },
+    "origins.json": {
+      "bytes": 1095,
+      "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+    }
+  }
+}

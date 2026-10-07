@@ -1,0 +1,78 @@
+{
+  "created_at_utc": "2026-10-07T14:22:42.211150+00:00",
+  "generation_cycle_git_blob": "e2541f7e721378ef6937d02f96203dd754f65373",
+  "generation_cycle_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+  "generation_cycle_sha256": "b93373793499c473c040d8f4d488d02163c3b610d5ee007d0353c4908e8bfd90",
+  "head": "5b27a5dd6956912655c30f161a67fb38681cb5d8",
+  "head_tree": "82c9af68248cdbd795e9b60bc04c10a9c996c82a",
+  "intended_assertion_failure_observed": true,
+  "interpretation": "A failure at the consumer's wrong-outcome-is-None assertion, after the real helper returns a CAS-backed ArtifactRef with candidate/problem binding omitted, witnesses that the removed binding is behaviorally required. This is a removal probe, not evidence that the unmodified product passes.",
+  "plugin_path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n8-binding-removal-native/n8_binding_removal.py",
+  "plugin_sha256": "3cd798fdbfcd48f0c76d0830a9ececeab27f218e031cd3c8843b201ef6afe5d2",
+  "purpose": "source-property-removal witness; never a product PASS",
+  "pytest_exitstatus": 1,
+  "real_artifact_ref_returned_under_removed_binding": true,
+  "real_helper_calls": [
+    {
+      "artifact_ref": {
+        "artifact_id": "polisyos.runtime.n5.simulation.candidate_cyc_n5_builder",
+        "artifact_type": "joint_simulation_observation",
+        "content_hash": "sha256:8caf516b40d08473ac5a80c0b4e78667a0c570e6148b99e8b4a4edc5e3cc3d33",
+        "schema_ref": "policyos.runtime.n5.joint_simulation_result.v1",
+        "uri": "runtime://n5/simulation/candidate_cyc_n5_builder",
+        "version": "1.0.0"
+      },
+      "artifact_store_supplied": true,
+      "artifact_store_type": "polisyos.core.artifacts.store.FileSystemCAS",
+      "candidate_supplied": true,
+      "candidate_type": "types.SimpleNamespace",
+      "problem_supplied": true,
+      "problem_target_variable": "avg_income",
+      "result_is_none": false,
+      "result_type": "polisyos.pdc._impl.gy_waist.ArtifactRef",
+      "simulation_type": "polisyos.runtime.quality.generation_cycle.SimulationPortObservation"
+    },
+    {
+      "artifact_ref": {
+        "artifact_id": "polisyos.runtime.n5.simulation.candidate_cyc_n5_builder",
+        "artifact_type": "joint_simulation_observation",
+        "content_hash": "sha256:8caf516b40d08473ac5a80c0b4e78667a0c570e6148b99e8b4a4edc5e3cc3d33",
+        "schema_ref": "policyos.runtime.n5.joint_simulation_result.v1",
+        "uri": "runtime://n5/simulation/candidate_cyc_n5_builder",
+        "version": "1.0.0"
+      },
+      "artifact_store_supplied": true,
+      "artifact_store_type": "polisyos.core.artifacts.store.FileSystemCAS",
+      "candidate_supplied": true,
+      "candidate_type": "types.SimpleNamespace",
+      "problem_supplied": true,
+      "problem_target_variable": "firm_survival",
+      "result_is_none": false,
+      "result_type": "polisyos.pdc._impl.gy_waist.ArtifactRef",
+      "simulation_type": "polisyos.runtime.quality.generation_cycle.SimulationPortObservation"
+    }
+  ],
+  "schema": "policyos.e02.n8_binding_removal_r1.v1",
+  "target_nodeid": "tests/unit/runtime/quality/test_value_gate.py::test_foundry_value_port_recomputes_actual_n5_outcome_and_atom_bindings",
+  "target_reports": [
+    {
+      "longrepr": null,
+      "nodeid": "tests/unit/runtime/quality/test_value_gate.py::test_foundry_value_port_recomputes_actual_n5_outcome_and_atom_bindings",
+      "outcome": "passed",
+      "when": "setup"
+    },
+    {
+      "longrepr": "tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n8-binding-removal-native/pytest-basetemp/test_foundry_value_port_recomp0')\n\n    def test_foundry_value_port_recomputes_actual_n5_outcome_and_atom_bindings(\n        tmp_path: Path,\n    ) -> None:\n        \"\"\"Direct Foundry N8 intake re-resolves N5 bytes for the active problem.\"\"\"\n    \n        from polisyos.runtime.quality.intervention_atom_binding import (\n            InterventionAtomBinding,\n            intervention_atom_content_hash,\n        )\n    \n        candidate, problem, simulation, execution_context, store = _persisted_n5_value_fixture(\n            tmp_path,\n            problem_seed=_avg_income_problem(),\n        )\n        wrong_outcome_problem = problem.model_copy(\n            update={\n                \"outcome_of_interest\": OutcomeOfInterest(\n                    target_variable=\"firm_survival\",\n                    metric_id=\"firm_survival\",\n                    estimand=problem.outcome_of_interest.estimand,\n                    direction=problem.outcome_of_interest.direction,\n                )\n            }\n        )\n>       assert (\n            simulation_evaluation_input_ref(\n                simulation,\n                artifact_store=store,\n                candidate=candidate,\n                problem=wrong_outcome_problem,\n            )\n            is None\n        )\nE       AssertionError: assert ArtifactRef(artifact_id='polisyos.runtime.n5.simulation.candidate_cyc_n5_builder', artifact_type='joint_simulation_obs...licyos.runtime.n5.joint_simulation_result.v1', uri='runtime://n5/simulation/candidate_cyc_n5_builder', version='1.0.0') is None\nE        +  where ArtifactRef(artifact_id='polisyos.runtime.n5.simulation.candidate_cyc_n5_builder', artifact_type='joint_simulation_obs...licyos.runtime.n5.joint_simulation_result.v1', uri='runtime://n5/simulation/candidate_cyc_n5_builder', version='1.0.0') = simulation_evaluation_input_ref(SimulationPortObservation(candidate_id='candidate_cyc_n5_builder', status='joint_simulated', simulation_ref='sha256:23...ncident_refs=(), posterior_update_refs=()), artifact_views=None), k_world_update_mode='read_only_no_k_world_narrowing'), artifact_store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x13f1d2e40>, candidate=namespace(candidate_id='candidate_cyc_n5_builder', atom=InterventionAtomBinding(atom_id='atom_7434f2b601a635ca', schem...9780c9e45ab9', producer_ref='test.joint_simulation:income_subsidy', provenance_refs=(), status='candidate_unverified')), problem=DesignProblem(schema_version='policyos.runtime.design_problem.v1', design_problem_id='value_gate_avg_income_problem', ...h=None, budget_ref=None, seed=0, replications=1, world_credal_state_before={'avg_income': {'low': 0.2, 'high': 0.8}})}))\n\ntests/unit/runtime/quality/test_value_gate.py:3682: AssertionError",
+      "nodeid": "tests/unit/runtime/quality/test_value_gate.py::test_foundry_value_port_recomputes_actual_n5_outcome_and_atom_bindings",
+      "outcome": "failed",
+      "when": "call"
+    },
+    {
+      "longrepr": null,
+      "nodeid": "tests/unit/runtime/quality/test_value_gate.py::test_foundry_value_port_recomputes_actual_n5_outcome_and_atom_bindings",
+      "outcome": "passed",
+      "when": "teardown"
+    }
+  ],
+  "verdict": "EXPECTED_FALSIFIER"
+}

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.213" timestamp="2026-10-07T17:22:40.996398+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.runtime.quality.test_value_gate" name="test_foundry_value_port_recomputes_actual_n5_outcome_and_atom_bindings" time="1.007"><failure message="AssertionError: assert ArtifactRef(artifact_id='polisyos.runtime.n5.simulation.candidate_cyc_n5_builder', artifact_type='joint_simulation_obs...licyos.runtime.n5.joint_simulation_result.v1', uri='runtime://n5/simulation/candidate_cyc_n5_builder', version='1.0.0') is None&#10; +  where ArtifactRef(artifact_id='polisyos.runtime.n5.simulation.candidate_cyc_n5_builder', artifact_type='joint_simulation_obs...licyos.runtime.n5.joint_simulation_result.v1', uri='runtime://n5/simulation/candidate_cyc_n5_builder', version='1.0.0') = simulation_evaluation_input_ref(SimulationPortObservation(candidate_id='candidate_cyc_n5_builder', status='joint_simulated', simulation_ref='sha256:23...ncident_refs=(), posterior_update_refs=()), artifact_views=None), k_world_update_mode='read_only_no_k_world_narrowing'), artifact_store=&lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x13f1d2e40&gt;, candidate=namespace(candidate_id='candidate_cyc_n5_builder', atom=InterventionAtomBinding(atom_id='atom_7434f2b601a635ca', schem...9780c9e45ab9', producer_ref='test.joint_simulation:income_subsidy', provenance_refs=(), status='candidate_unverified')), problem=DesignProblem(schema_version='policyos.runtime.design_problem.v1', design_problem_id='value_gate_avg_income_problem', ...h=None, budget_ref=None, seed=0, replications=1, world_credal_state_before={'avg_income': {'low': 0.2, 'high': 0.8}})}))">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/n8-binding-removal-native/pytest-basetemp/test_foundry_value_port_recomp0')
+
+    def test_foundry_value_port_recomputes_actual_n5_outcome_and_atom_bindings(
+        tmp_path: Path,
+    ) -&gt; None:
+        """Direct Foundry N8 intake re-resolves N5 bytes for the active problem."""
+    
+        from polisyos.runtime.quality.intervention_atom_binding import (
+            InterventionAtomBinding,
+            intervention_atom_content_hash,
+        )
+    
+        candidate, problem, simulation, execution_context, store = _persisted_n5_value_fixture(
+            tmp_path,
+            problem_seed=_avg_income_problem(),
+        )
+        wrong_outcome_problem = problem.model_copy(
+            update={
+                "outcome_of_interest": OutcomeOfInterest(
+                    target_variable="firm_survival",
+                    metric_id="firm_survival",
+                    estimand=problem.outcome_of_interest.estimand,
+                    direction=problem.outcome_of_interest.direction,
+                )
+            }
+        )
+&gt;       assert (
+            simulation_evaluation_input_ref(
+                simulation,
+                artifact_store=store,
+                candidate=candidate,
+                problem=wrong_outcome_problem,
+            )
+            is None
+        )
+E       AssertionError: assert ArtifactRef(artifact_id='polisyos.runtime.n5.simulation.candidate_cyc_n5_builder', artifact_type='joint_simulation_obs...licyos.runtime.n5.joint_simulation_result.v1', uri='runtime://n5/simulation/candidate_cyc_n5_builder', version='1.0.0') is None
+E        +  where ArtifactRef(artifact_id='polisyos.runtime.n5.simulation.candidate_cyc_n5_builder', artifact_type='joint_simulation_obs...licyos.runtime.n5.joint_simulation_result.v1', uri='runtime://n5/simulation/candidate_cyc_n5_builder', version='1.0.0') = simulation_evaluation_input_ref(SimulationPortObservation(candidate_id='candidate_cyc_n5_builder', status='joint_simulated', simulation_ref='sha256:23...ncident_refs=(), posterior_update_refs=()), artifact_views=None), k_world_update_mode='read_only_no_k_world_narrowing'), artifact_store=&lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x13f1d2e40&gt;, candidate=namespace(candidate_id='candidate_cyc_n5_builder', atom=InterventionAtomBinding(atom_id='atom_7434f2b601a635ca', schem...9780c9e45ab9', producer_ref='test.joint_simulation:income_subsidy', provenance_refs=(), status='candidate_unverified')), problem=DesignProblem(schema_version='policyos.runtime.design_problem.v1', design_problem_id='value_gate_avg_income_problem', ...h=None, budget_ref=None, seed=0, replications=1, world_credal_state_before={'avg_income': {'low': 0.2, 'high': 0.8}})}))
+
+tests/unit/runtime/quality/test_value_gate.py:3682: AssertionError</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,500 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "N8-objective-intake",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CYC-02"
+  ],
+  "slice_base_sha": "4ca1b0efeb4018a0494d9f0adc3cfae887455b8f",
+  "slice_base_tree_sha": "946428cd2299cc6d932ca67087fcd405f3cbb7ff",
+  "implementation_commits": [
+    "e1b970bb438fea61e632d4e162980500ca85861c"
+  ],
+  "implementation_commit_records": [
+    {
+      "sha": "e1b970bb438fea61e632d4e162980500ca85861c",
+      "tree": "955c992d2e16a10f4739ce82b0a5e769a5d72c5c",
+      "parents": [
+        "4ca1b0efeb4018a0494d9f0adc3cfae887455b8f"
+      ],
+      "subject": "fix(e02-a): bind value intake to candidate atoms and objective",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+        }
+      ],
+      "slice_role": "N8 objective-intake source mechanism"
+    },
+    {
+      "sha": "69c647bcb627fbd9cf52cca1e651c1b02fdd9f90",
+      "tree": "106027c2a1d148fd6ba98595902c504d4c627d6c",
+      "parents": [
+        "e1b970bb438fea61e632d4e162980500ca85861c"
+      ],
+      "subject": "feat(e02-a): replay candidate N5 on owner-declared model revision",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+        }
+      ],
+      "slice_role": "co-resident candidate-model-revision source; separately receipted under candidate-model-revision"
+    },
+    {
+      "sha": "5030b39c57de36a491a20340561fcb493e11591a",
+      "tree": "2f929d726c08952db7f5fc3111b94714471ab48c",
+      "parents": [
+        "69c647bcb627fbd9cf52cca1e651c1b02fdd9f90"
+      ],
+      "subject": "test(e02-a): repair cost DTO assertions and scoped consumer fixtures",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_provider_quality.py"
+        }
+      ],
+      "slice_role": "test and fixture companion commit"
+    },
+    {
+      "sha": "069ceaa7af2dba02f1cb303a251a03c3095b6bbc",
+      "tree": "6d47aefc789db4e1bdb6d53d1af7722f0c4ac643",
+      "parents": [
+        "5030b39c57de36a491a20340561fcb493e11591a"
+      ],
+      "subject": "test(e02-a): bind real N5 fixture and exercise sibling value intake refusals",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py"
+        }
+      ],
+      "slice_role": "test companion commit"
+    }
+  ],
+  "candidate_sha": "069ceaa7af2dba02f1cb303a251a03c3095b6bbc",
+  "candidate_tree_sha": "6d47aefc789db4e1bdb6d53d1af7722f0c4ac643",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "full_path_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "base_blob": "64ab5d46257065c0ef7148655984c050bc481d5a",
+      "candidate_blob": "c4c0feab8d58eea39024924e9ff0608d52e03bfb",
+      "net_status": "modified",
+      "touched_in": [
+        {
+          "commit": "e1b970bb438fea61e632d4e162980500ca85861c",
+          "status_in_commit": "M",
+          "tree_after_commit": "955c992d2e16a10f4739ce82b0a5e769a5d72c5c"
+        },
+        {
+          "commit": "69c647bcb627fbd9cf52cca1e651c1b02fdd9f90",
+          "status_in_commit": "M",
+          "tree_after_commit": "106027c2a1d148fd6ba98595902c504d4c627d6c"
+        }
+      ],
+      "classification": "N8_objective_intake_mechanism",
+      "classification_basis": "path-role label only; no formal capability acceptance or finding closure is implied"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+      "base_blob": "d3028a4da81998a6f615d225dae667491952544b",
+      "candidate_blob": "dc7235e3bcc6f9612c905355a9151ffa684eaf72",
+      "net_status": "modified",
+      "touched_in": [
+        {
+          "commit": "5030b39c57de36a491a20340561fcb493e11591a",
+          "status_in_commit": "M",
+          "tree_after_commit": "2f929d726c08952db7f5fc3111b94714471ab48c"
+        }
+      ],
+      "classification": "test_companion",
+      "classification_basis": "path-role label only; no formal capability acceptance or finding closure is implied"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+      "base_blob": "ca4bd39abd9d1fa0e699139a34010619aca3f9e9",
+      "candidate_blob": "8403bf014866397032909720eea6602515252fd5",
+      "net_status": "modified",
+      "touched_in": [
+        {
+          "commit": "5030b39c57de36a491a20340561fcb493e11591a",
+          "status_in_commit": "M",
+          "tree_after_commit": "2f929d726c08952db7f5fc3111b94714471ab48c"
+        }
+      ],
+      "classification": "test_companion",
+      "classification_basis": "path-role label only; no formal capability acceptance or finding closure is implied"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+      "base_blob": "f900bac7d09dbd0f1af8d6d5791c16ce56b8eef8",
+      "candidate_blob": "5c124e527892f4e0b1405c7044b763aa4cf04734",
+      "net_status": "modified",
+      "touched_in": [
+        {
+          "commit": "069ceaa7af2dba02f1cb303a251a03c3095b6bbc",
+          "status_in_commit": "M",
+          "tree_after_commit": "6d47aefc789db4e1bdb6d53d1af7722f0c4ac643"
+        }
+      ],
+      "classification": "test_companion",
+      "classification_basis": "path-role label only; no formal capability acceptance or finding closure is implied"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_provider_quality.py",
+      "base_blob": "27708b1a2187d7e30d4afb77ba7f37c1ec891076",
+      "candidate_blob": "8e642c12c759ae6d966513226ee7ca9bf187c13f",
+      "net_status": "modified",
+      "touched_in": [
+        {
+          "commit": "5030b39c57de36a491a20340561fcb493e11591a",
+          "status_in_commit": "M",
+          "tree_after_commit": "2f929d726c08952db7f5fc3111b94714471ab48c"
+        }
+      ],
+      "classification": "test_companion",
+      "classification_basis": "path-role label only; no formal capability acceptance or finding closure is implied"
+    }
+  ],
+  "footprint_summary": {
+    "complete_base_to_candidate_path_count": 5,
+    "source_path_count": 1,
+    "test_path_count": 4,
+    "other_committed_path_count": 0,
+    "source_paths_classified_by_role": true,
+    "all_changed_paths_included": true
+  },
+  "baseline_cells": [],
+  "property": {
+    "statement": "The new N8 helper binds a consumed CAS-resolved N5 result to the expected candidate, outcome and intervention-atom identities, then applies the simulate-only blocker/tamper refusals before owner-gateway authority.",
+    "runtime_path": [
+      "N5 producer result",
+      "persisted CAS reference",
+      "simulation_evaluation_input_ref candidate/outcome/atom recomputation",
+      "FoundryValuePort consumer",
+      "simulate-only owner-gateway refusal"
+    ],
+    "code_actually_checks": "Expected candidate outcome and intervention-atom IDs are reconstructed from the active candidate and compared with the resolved N5 artifact before the helper returns an evaluation input; simulate-only checks reject unknown/fatal blockers and the tampered persisted reference.",
+    "proxy_divergence": "Correct shape/hash alone is insufficient: a CAS result with another candidate/outcome/atom binding must be refused. The focused mismatch and removal controls exercise that divergence, but do not establish the full conditional production surface."
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded_N8_objective_atom_binding_and_negative_refusal_evidence; full_CYC02_criteria_not_closed",
+  "limitations_and_next_owner": [
+    "The five focused cases pass on immutable 069ce. They establish bounded helper-level candidate/outcome/atom binding and negative refusal behavior, not the complete ordinary factual served route or an empirical effect.",
+    "B04 has only a bounded CAS reader component: post-process reopen and a second permitted consumer remain UNRUN.",
+    "B05 positive conditional use on the fresh standard default consumer remains pending. Ancestor source 268eb528 admits verified simulation limitations at N8, but it is source ancestry, not a current positive-consumer receipt.",
+    "B08’s native positive conditional consumer is unchanged baseline behavior; no new candidate wave establishes that complete standard served branch. The exact five-case wave includes one focused actual-N5/Foundry consumer case and is otherwise primarily mismatch/blocker/tamper negatives.",
+    "The factual C/F observation rule and served-profile evidence are UNRUN; B09 remains open as separately cited in the wave catalogue. No row outcome or source status is changed by this slice receipt."
+  ],
+  "handoff_state": "source and focused check receipts assembled; bounded independent source review GO; G integration acceptance pending",
+  "candidate_role": "historical_as_of_receipt_candidate_not_a_claim_about_current_workspace_or_dirty_overlay",
+  "footprint_note": "full_path_footprint is the complete base-to-candidate Git path set, including implementation, typed contract/API companions, and test companions; classifications are descriptive and do not imply acceptance.",
+  "progress_source": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+    "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+    "denominator_pointer": "#/denominator_and_reconciliation/A_slice",
+    "criterion_source_pins_pointer": "#/source_pins",
+    "finding_rows_pointer_template": "#/finding_rows/{index}",
+    "note": "Original source statuses and provisional outcomes are preserved by reference. This receipt does not edit or replace the append-only progress matrix."
+  },
+  "criterion_and_finding_refs": [
+    {
+      "id": "B04",
+      "primary_bundle": "CYC-02",
+      "owner_bundle_ids": [
+        "CYC-02"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/3"
+      },
+      "historical_status_ref": "#/finding_rows/3/historical_status",
+      "historical_status": {
+        "owner_tsv": "partial",
+        "coverage_ledger": "partial",
+        "appendix_c_status_separate": "closed_bounded",
+        "source_closure_now": "not_adjudicated",
+        "owner_tsv_row": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv#L5",
+        "coverage_json_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/3"
+      },
+      "provisional_finding_outcome_ref": "#/finding_rows/3/provisional_finding_outcome",
+      "provisional_finding_outcome": {
+        "value": "limited",
+        "state": "provisional_carried_forward_not_final",
+        "prior_decision": "root_row_adjudication_20261006",
+        "source_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+          "sha256": "9e90757596bad74282dc83e4ca71c390bc6c2f81bbd46f1ff92c70ec515a4201",
+          "json_pointer": "#/finding_rows/3"
+        }
+      },
+      "criterion_check_state_carried_forward": "UNRUN",
+      "criterion_check_state_ref": "#/finding_rows/3/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B04",
+          "bundle_occurrence": "CYC-02",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob_at_main_checkpoint": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            241,
+            252
+          ],
+          "criterion_block_sha256": "2f664b147db7753604b3fa729f42e5d1560d9ed43de9643169255d6b8270df26",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/3/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_this_source_slice_receipt",
+      "criterion_role_in_slice": "bundle_context_bounded_CAS_reader_evidence",
+      "evidence_alignment": {
+        "check_ids": [
+          "n8-objective-candidate-069ce-valid"
+        ],
+        "scope": "The actual helper resolves and validates a N5 CAS result in the focused consumer test. Reopening after process exit and a second permitted reader remain unverified.",
+        "finding_closure": "not_adjudicated; original owner/coverage status and provisional limited outcome are unchanged."
+      }
+    },
+    {
+      "id": "B05",
+      "primary_bundle": "CYC-02",
+      "owner_bundle_ids": [
+        "CYC-02"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/4"
+      },
+      "historical_status_ref": "#/finding_rows/4/historical_status",
+      "historical_status": {
+        "owner_tsv": "partial",
+        "coverage_ledger": "partial",
+        "appendix_c_status_separate": "closed_bounded",
+        "source_closure_now": "not_adjudicated",
+        "owner_tsv_row": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv#L6",
+        "coverage_json_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/4"
+      },
+      "provisional_finding_outcome_ref": "#/finding_rows/4/provisional_finding_outcome",
+      "provisional_finding_outcome": {
+        "value": "limited",
+        "state": "provisional_carried_forward_not_final",
+        "prior_decision": "root_row_adjudication_20261006",
+        "source_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+          "sha256": "9e90757596bad74282dc83e4ca71c390bc6c2f81bbd46f1ff92c70ec515a4201",
+          "json_pointer": "#/finding_rows/4"
+        }
+      },
+      "criterion_check_state_carried_forward": "UNRUN",
+      "criterion_check_state_ref": "#/finding_rows/4/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B05",
+          "bundle_occurrence": "CYC-02",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob_at_main_checkpoint": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            253,
+            264
+          ],
+          "criterion_block_sha256": "7ab0816d8b7cc9f46a900842951a67c92b12ff09362616d87afd82223bcd7970",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/4/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/original-A-binding-corrections.json@9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7#/records/0",
+        "git_commit": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+        "git_blob": "2d322088105d9be291e87e450d987fa005bf0164",
+        "sha256": "b8c690105157087ebe30f7a0ef1f772864c0f31f6f7085fc73fe005bfc9fd1e1",
+        "record_index": 0,
+        "applies_to_occurrences": [
+          "CYC-02"
+        ],
+        "operative_text": "Use the pinned correction record; criterion text is not duplicated here."
+      },
+      "adjudication": "not_adjudicated_by_this_source_slice_receipt",
+      "criterion_role_in_slice": "actual_N8_objective_atom_binding_and_conditional_use_mechanism",
+      "evidence_alignment": {
+        "check_ids": [
+          "n8-objective-candidate-069ce-valid",
+          "n8-binding-removal-r1-5b27"
+        ],
+        "scope": "The exact five-case candidate run and the expected removal red exercise candidate/outcome/atom binding, blocker refusal and persisted-reference tampering; a fresh positive standard default conditional consumer is still pending.",
+        "finding_closure": "not_adjudicated; original owner/coverage status and provisional limited outcome are unchanged."
+      }
+    },
+    {
+      "id": "B08",
+      "primary_bundle": "CYC-02",
+      "owner_bundle_ids": [
+        "CYC-02"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/7"
+      },
+      "historical_status_ref": "#/finding_rows/7/historical_status",
+      "historical_status": {
+        "owner_tsv": "partial",
+        "coverage_ledger": "partial",
+        "appendix_c_status_separate": "closed_bounded",
+        "source_closure_now": "not_adjudicated",
+        "owner_tsv_row": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv#L9",
+        "coverage_json_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/7"
+      },
+      "provisional_finding_outcome_ref": "#/finding_rows/7/provisional_finding_outcome",
+      "provisional_finding_outcome": {
+        "value": "limited",
+        "state": "provisional_carried_forward_not_final",
+        "prior_decision": "root_row_adjudication_20261006",
+        "source_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json",
+          "sha256": "9e90757596bad74282dc83e4ca71c390bc6c2f81bbd46f1ff92c70ec515a4201",
+          "json_pointer": "#/finding_rows/7"
+        }
+      },
+      "criterion_check_state_carried_forward": "UNRUN",
+      "criterion_check_state_ref": "#/finding_rows/7/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B08",
+          "bundle_occurrence": "CYC-02",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob_at_main_checkpoint": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            289,
+            300
+          ],
+          "criterion_block_sha256": "ca0c9f2ceb0a7fd1323082c9a317a509a1ee78f25ec73185c59b3de1d019ffb9",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/7/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_this_source_slice_receipt",
+      "criterion_role_in_slice": "bundle_context_unchanged_baseline_positive_consumer",
+      "evidence_alignment": {
+        "check_ids": [
+          "n8-objective-candidate-069ce-valid"
+        ],
+        "scope": "The earlier native positive conditional consumer is unchanged/reused. The new five-case set is largely negative; it does not establish the refreshed standard served positive branch.",
+        "finding_closure": "not_adjudicated; original owner/coverage status and provisional limited outcome are unchanged."
+      }
+    }
+  ],
+  "bundle_context_only_refs": [
+    "B04",
+    "B08"
+  ],
+  "check_catalogue_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/checks.json",
+    "schema": "policyos.e02.implementation_handoff_checks.v1",
+    "check_ids": [
+      "n8-objective-candidate-069ce-valid",
+      "n8-binding-removal-r1-5b27",
+      "n8-objective-selection-error-069ce",
+      "n8-selector-selection-error-a2fca",
+      "n8-selector-valid-overlay-a2fca"
+    ],
+    "note": "Commands, immutable targets, complete output hashes and copied evidence are recorded once in checks.json. Check outcomes are distinct from finding outcomes and do not close criteria."
+  },
+  "review_and_acceptance": {
+    "independent_code_review": "bounded_source_GO",
+    "independent_source_review_ref": {"path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-wave2/source-reviews.json", "sha256": "09000a5d5fed3d0e1006be49a514500261a7b5cbcc23038be5eec0de5f1db971", "json_pointer": "#/reviews/0"},
+    "G_acceptance": "pending",
+    "formal_closure": false,
+    "closure_ids": [],
+    "note": "Independent source review is bounded and did not execute tests; G acceptance and finding closure remain pending."
+  },
+  "source_candidate_pin_as_of": {
+    "sha": "069ceaa7af2dba02f1cb303a251a03c3095b6bbc",
+    "tree": "6d47aefc789db4e1bdb6d53d1af7722f0c4ac643",
+    "status": "historical_as_of_immutable_receipt_candidate_not_current_workspace_state",
+    "note": "Immutable commit tree pin only. Current checkout/head and dirty overlay are reported separately in the shared checks catalogue."
+  },
+  "criterion_scope": {
+    "actual_mechanism_finding_ids": [
+      "B05"
+    ],
+    "bundle_context_only_finding_ids": [
+      "B04",
+      "B08"
+    ],
+    "note": "B05 is the operative K_sim/conditional-use boundary for this new helper: objective/atom binding plus refusal of malformed or unsupported use. B04 receives only bounded CAS-reader evidence. B08 positive conditional-consumer behavior is retained as unchanged baseline context; the new five-case wave is largely negative and does not establish a refreshed standard served positive branch."
+  },
+  "assembly_snapshot": {
+    "assembled_at_utc": "2026-10-07T14:58:42Z",
+    "workspace_branch": "codex/e02-A-delivery-attached",
+    "workspace_HEAD": "01e465e25577eb285fefc06e4e8d3ce5dd430e86",
+    "workspace_tree": "fb676e7cfd525f01c8ccd95cdb0ee109e7b64d23",
+    "workspace_dirty_paths": [
+      "M policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      " M policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py"
+    ],
+    "main_checkpoint_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "main_checkpoint_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "scope_note": "Assembly snapshot is separate from each immutable test/source candidate. Dirty paths are not silently included in the candidate receipts."
+  },
+  "source_candidate_review_note": "Root-reported source review direction is not represented as a canonical review artifact here; code review acceptance and G acceptance remain pending.",
+  "candidate_composition_note": "The tested candidate tree 069ce includes both the N8 objective-intake source commit e1b970 and a later co-resident model-revision source commit 69c647 in the same generation_cycle.py path. The five-case result applies to the exact combined 069ce tree and cannot isolate the effect of e1b970 alone.",
+  "predicate_basis_scope": {
+    "classification": "recomputed",
+    "scope": "The focused helper check recomputes candidate/outcome/atom bindings from the actual test candidate and CAS-resolved N5 result; the negative mismatch/blocker/tamper cases are part of the exact 069ce run.",
+    "limits": "This does not recompute factual C/F observation rules, an external production currentness predicate, a second authorized consumer after process restart, or the full standard served path."
+  },
+  "source_precondition_refs": [
+    {
+      "commit": "268eb52873273fd981b528ecb55d61bcf63f83ff",
+      "tree": "ccc74932c94ec8d7c7b86c8f0a0cccdf0ce01735",
+      "parent": "883488d670b2b83ea236f04de694d7fe7ba5f12e",
+      "subject": "fix(e02): admit verified simulation limitations at N8 intake",
+      "ancestry": "ancestor of both N8 slice base 4ca1 and tested candidate 069ce",
+      "scope": "Prior source support for admitting verified simulation limitations; not evidence that the pending fresh standard default conditional positive consumer has run."
+    }
+  ],
+  "predicate_basis_by_finding": [
+    {
+      "id": "B04",
+      "basis": "recomputed",
+      "scope": "Bounded evidence that the helper resolves the actual N5 CAS reference and recomputes the selected candidate/outcome/atom reader inputs; process-reopen and second-reader conditions remain unestablished."
+    },
+    {
+      "id": "B05",
+      "basis": "recomputed",
+      "scope": "The current candidate helper recomputes objective/atom binding and the focused tests exercise simulate-only blocker and tampered-reference refusals; fresh standard-default conditional positive-consumer execution remains pending."
+    },
+    {
+      "id": "B08",
+      "basis": "not_established",
+      "scope": "The positive conditional baseline consumer remains unchanged and is not freshly demonstrated by this largely negative five-case wave."
+    }
+  ]
+}

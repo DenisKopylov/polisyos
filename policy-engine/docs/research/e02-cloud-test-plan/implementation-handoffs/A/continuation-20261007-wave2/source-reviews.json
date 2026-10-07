@@ -1,0 +1,47 @@
+{
+  "schema": "policyos.e02.independent_source_review_attestation.v1",
+  "unit": "A",
+  "recorded_by": "root",
+  "recorded_at_utc": "2026-10-07T15:35:00Z",
+  "recording_time_is_not_review_execution_time": true,
+  "reviews": [
+    {
+      "reviewer": "/root/engine_fallback",
+      "reviewer_was_not_author": true,
+      "candidate_sha": "069ceaa7af2dba02f1cb303a251a03c3095b6bbc",
+      "candidate_tree": "6d47aefc789db4e1bdb6d53d1af7722f0c4ac643",
+      "source_blob": "c4c0feab8d58eea39024924e9ff0608d52e03bfb",
+      "test_blob": "5c124e527892f4e0b1405c7044b763aa4cf04734",
+      "scope": "N8 intake candidate/atom/outcome binding to resolved N5 CAS; default N8 and direct Foundry refusal before owner access",
+      "verdict": "bounded_GO",
+      "tests_by_reviewer": "UNRUN",
+      "limits": [
+        "Direct Foundry wrong-outcome refusal is end to end; atom mismatch is exercised at its shared resolver/context builder.",
+        "Source review does not close B04/B05/B08 or prove factual served inputs."
+      ]
+    },
+    {
+      "reviewer": "/root/public_ir",
+      "reviewer_was_not_author": true,
+      "candidate_sha": "de0e1862cb830021db54f0a12e4290c995fdc490",
+      "candidate_tree": "6b6becb30901265e739f129d3533a283eba51ca3",
+      "source_blob": "9cb88715df8356bb0866443e09a0a1771ecd432a",
+      "same_blob_at_test_candidate": "01e465e25577eb285fefc06e4e8d3ce5dd430e86",
+      "scope": "standalone same-candidate owner-admitted model-revision readback; source/execution/NCM/result lineage, historical context WMR, actual conditional value, current summary and N4 atom equality",
+      "verdict": "bounded_GO",
+      "tests_by_reviewer": "UNRUN",
+      "limits": [
+        "Original source_history_binding remains not_established.",
+        "No ordinary HTTP/history transition or full B09 closure."
+      ]
+    }
+  ],
+  "custody_review": {
+    "reviewer": "/root/accepted_ancestry",
+    "verdict": "no_blocking_receipt_defect",
+    "scope": "two receipt full footprints, all12runrecords/27evidencefiles, original6criterionoccurrences, nofictionalGacceptance",
+    "limit": "Old model red proves missing method; final stronger test body changed, so it is not an identical-test paired baseline replay."
+  },
+  "G_acceptance": "pending",
+  "formal_closure": false
+}

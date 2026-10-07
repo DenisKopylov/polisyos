@@ -1,0 +1,142 @@
+{
+  "schema": "policyos.e02.native_input_preparation.v1",
+  "source_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+  "source_tree_sha": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
+  "qualification": "Published source paths verified via read-only GitHub contents API. Full tree suffix, archive, projection, and runtime remain not_established here; no collection/native executed.",
+  "inputs": [
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+      "git_blob": "476026dd34b5da75689b88de1a43958c73ddbdfd",
+      "bytes": 25676
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "git_blob": "e0d4c98e6f3d33eddc70a4affe7c1a0f89908357",
+      "bytes": 8098
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "git_blob": "645e30fa190a9f66b77b468adb6ceb5826213ce7",
+      "bytes": 15169
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+      "git_blob": "9da3011fd50602ec0e97c57519dd0323a6fc892b",
+      "bytes": 5301
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "git_blob": "ac99313f5b20011f3e0987d4f04ff2cdaef09b16",
+      "bytes": 30145
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+      "git_blob": "cb9e0c436c7ed4761600ecb09eef50cabdb9acdd",
+      "bytes": 15391
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "git_blob": "93e6a0c49e34e9d5f756df8ecd69248fb7c0f3a1",
+      "bytes": 20275
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+      "git_blob": "7e0d8869b551adb42abf099c22a0e53c3a3dd867",
+      "bytes": 6681
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "git_blob": "5fe7458c29f4c2ec00a1bd21f941e87cb7977680",
+      "bytes": 30571
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+      "git_blob": "5371ea84d9b40d7f09587285f4594c675c9b7160",
+      "bytes": 18097
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "git_blob": "597dd54a11ee8b2212537fd51a5f73d5cc20ae8b",
+      "bytes": 23634
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "git_blob": "14b5c2a343d24fab107952a7873653ca06137253",
+      "bytes": 16009
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+      "git_blob": "0c066894d2e7a35e4078725203cbc2752eb6060b",
+      "bytes": 10251
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+      "git_blob": "eea97f4ac8db8bbd3c0a58a6c54aa2166520b149",
+      "bytes": 4600
+    }
+  ],
+  "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+  "product_cwd": "${FULL_GIT_PROJECTION}/policy-engine",
+  "argv": [
+    "-m",
+    "pytest",
+    "-q",
+    "--basetemp=${OWN_TMP}/pytest",
+    "--junitxml=${OWN_TMP}/native.xml",
+    "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+    "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+    "tests/unit/scientist/orchestration/engine/test_state_merge.py",
+    "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+    "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+    "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+    "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+    "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+    "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+    "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+    "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py"
+  ],
+  "environment": {
+    "PYTHONPATH": "${FULL_GIT_PROJECTION}/policy-engine/src:${FULL_GIT_PROJECTION}/policy-engine",
+    "POLISYOS_METRICS_PORT": "0",
+    "compute_limits": "No new caps or process/thread/CPU quotas; enumerate and remove inherited artificial cap variables before launch; record original values and exact removed keys.",
+    "source_verification": "Full tracked repository Git blob/tree matches including architecture, product lock/python-version/config, tests/tools/apps. Root full archive untouched."
+  },
+  "execution_state": "UNRUN",
+  "case_denominator": {
+    "defining_parameter_combinations": 59,
+    "basis": "Literal reviewed parametrization source; not an observed collection/runtime count.",
+    "affected_modules": 13,
+    "affected_cases": "not_collected",
+    "defining_profiles": [
+      {
+        "profile": "real_grant/copy/completion/cache",
+        "source_combinations": 15
+      },
+      {
+        "profile": "existing_typed_models_and_root_delete",
+        "source_combinations": 18
+      },
+      {
+        "profile": "finite_model_boundary_frozen_detached_extra_private",
+        "source_combinations": 8
+      },
+      {
+        "profile": "custom_runtime_class_hooks_failclosed",
+        "source_combinations": 18
+      }
+    ]
+  },
+  "inputs_qualified_by": "consumer_asserted",
+  "runtime_environment_observation": {
+    "observed_at_utc": "2026-10-07 14:03:17 UTC",
+    "observations_current": true,
+    "observed_phase": "pending",
+    "connectivity": "offline",
+    "spec_revision": "76",
+    "failure": null,
+    "network_policy_state": "unknown"
+  }
+}

@@ -919,6 +919,7 @@ def _validate_loaded_joint_simulation_result(
     expected_world_model_record_ref: str | None,
     expected_atom_ids: Sequence[str] | None,
     expected_selected_outcomes: Sequence[str] | None,
+    refusal_request: JointSimulationRequest | None = None,
 ) -> None:
     """Check semantic bindings that CAS byte integrity cannot establish."""
 
@@ -962,6 +963,32 @@ def _validate_loaded_joint_simulation_result(
         _joint_simulation_result_integrity_error("selected_outcomes_binding_mismatch")
     if not result.selected_outcomes:
         _joint_simulation_result_integrity_error("selected_outcomes_missing")
+    if refusal_request is not None:
+        from polisyos.runtime.quality.joint_simulation_horizon import _simulation_value_packet
+
+        assessment = JointSimulationHorizonController().assess_applicability(refusal_request)
+        if (
+            assessment.status != "ineligible"
+            or not assessment.engine_decisions
+            or result.engine_decisions != assessment.engine_decisions
+            or any(item.decision == "selected" for item in result.engine_decisions)
+            or result.horizon != refusal_request.horizon
+            or result.trajectories
+            or result.receipt.trajectory_count != 0
+            or result.marginal_effects
+            or result.interaction_terms
+            or result.higher_order_residuals
+            or result.state_consumption is not None
+            or result.diagnostics.get("engine_run_claimed") is not False
+            or result.world_credal_state_before != refusal_request.world_credal_state_before
+            or result.world_credal_state_after != refusal_request.world_credal_state_before
+            or result.diagnostics.get("requested_replications") != refusal_request.replications
+            or result.receipt.engine_kind != result.engine_decisions[0].engine_kind
+            or result.promotion_ready_value_packet
+            != _simulation_value_packet(refusal_request, assessment.engine_decisions)
+        ):
+            _joint_simulation_result_integrity_error("refusal_request_or_result_mismatch")
+        return
     if not result.trajectories:
         raise GenerationCycleError(
             "joint_simulation_result_trajectory_missing",
@@ -1015,6 +1042,55 @@ def load_joint_simulation_result(
     expected_selected_outcomes: Sequence[str] | None = None,
 ) -> JointSimulationResult:
     """Resolve, verify, and semantically bind one persisted N5 result."""
+
+    return _load_joint_simulation_result(
+        ref,
+        store=store,
+        expected_world_model_record_content_hash=expected_world_model_record_content_hash,
+        expected_world_model_record_ref=expected_world_model_record_ref,
+        expected_receipt_payload_hash=expected_receipt_payload_hash,
+        expected_atom_ids=expected_atom_ids,
+        expected_selected_outcomes=expected_selected_outcomes,
+    )
+
+
+def _load_joint_simulation_refusal_result(
+    ref: CASArtifactRef,
+    *,
+    store: ArtifactStore,
+    request: JointSimulationRequest,
+    expected_receipt_payload_hash: str,
+) -> JointSimulationResult:
+    """Read only a content-bound refusal reconciled with the actual N5 owner.
+
+    This never admits a numerical value or substitutes for an execution record.
+    The ordinary numerical reader retains its trajectory requirements.
+    """
+
+    return _load_joint_simulation_result(
+        ref,
+        store=store,
+        expected_world_model_record_content_hash=request.world_model_record.content_hash,
+        expected_world_model_record_ref=request.world_model_record_ref,
+        expected_receipt_payload_hash=expected_receipt_payload_hash,
+        expected_atom_ids=tuple(atom.intervention_id for atom in request.intervention_atoms),
+        expected_selected_outcomes=request.selected_outcomes,
+        refusal_request=request,
+    )
+
+
+def _load_joint_simulation_result(
+    ref: CASArtifactRef,
+    *,
+    store: ArtifactStore,
+    expected_world_model_record_content_hash: str | None = None,
+    expected_world_model_record_ref: str | None = None,
+    expected_receipt_payload_hash: str | None = None,
+    expected_atom_ids: Sequence[str] | None = None,
+    expected_selected_outcomes: Sequence[str] | None = None,
+    refusal_request: JointSimulationRequest | None = None,
+) -> JointSimulationResult:
+    """Use one CAS/manifest/receipt intake for numerical and refusal readers."""
 
     try:
         resolved_ref = (
@@ -1122,6 +1198,7 @@ def load_joint_simulation_result(
         expected_world_model_record_ref=expected_world_model_record_ref,
         expected_atom_ids=expected_atom_ids,
         expected_selected_outcomes=expected_selected_outcomes,
+        refusal_request=refusal_request,
     )
     return result
 

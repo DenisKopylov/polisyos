@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts import ArtifactRef, artifact_ref_identity_key
 from polisyos.runtime.quality.candidate_simulation import (
+    CandidateSimulationContextHandoff,
     CandidateSimulationExecutionV5,
     CandidateSimulationN5InputV5,
     CandidateSimulationSyntheticModelDeclarationV1,
@@ -23,9 +24,11 @@ from polisyos.runtime.quality.design_generation import N4CandidateScenarioPropos
 from polisyos.runtime.quality.generation_cycle import (
     _N8_CANDIDATE_SIMULATION_LIMITATIONS,
     GenerationCycleRecord,
+    JointSimulationPort,
     SimulationPortObservation,
     ValuePortObservation,
     _DefaultSimulationBoundFoundryValuePort,
+    _load_joint_simulation_refusal_result,
     load_joint_simulation_result,
 )
 from polisyos.runtime.quality.generation_source import (
@@ -172,11 +175,6 @@ def _replay_cycle(
             selected_key="candidate_simulation_n5_input_selected_ref",
             identity_key="candidate_simulation_n5_input_ref",
         )
-        execution_ref = _selected_artifact_ref(
-            diagnostics,
-            selected_key="candidate_simulation_execution_selected_ref",
-            identity_key="candidate_simulation_execution_ref",
-        )
         source_ref = _selected_artifact_ref(
             diagnostics,
             selected_key="candidate_simulation_n4_source_selected_ref",
@@ -228,43 +226,6 @@ def _replay_cycle(
                 "world_model_record_content_hash": (materialization.world_model_record_hash),
             }
         )
-        execution = repository.resolve_candidate_simulation_v5(
-            ref=execution_ref,
-            expected_run_id=expected_run_id,
-            expected_job_id=expected_job_id,
-            expected_tenant_id=expected_tenant_id,
-            expected_cell_id=expected_cell_id,
-        )
-        if type(execution) is not CandidateSimulationExecutionV5:
-            raise ValueError("candidate_simulation_execution_v5_required")
-        if artifact_ref_identity_key(execution.n5_input_ref) != artifact_ref_identity_key(
-            input_ref
-        ):
-            raise ValueError("candidate_simulation_execution_input_selected_view_mismatch")
-        if artifact_ref_identity_key(execution.n4_source_ref) != artifact_ref_identity_key(
-            source_ref
-        ):
-            raise ValueError("candidate_simulation_execution_source_selected_view_mismatch")
-        if artifact_ref_identity_key(execution.context_job_ref) != artifact_ref_identity_key(
-            context_ref
-        ):
-            raise ValueError("candidate_simulation_execution_context_selected_view_mismatch")
-        value = value.model_copy(
-            update={"n5_execution_ref": execution_ref, "n5_result_ref": execution.n5_result_ref}
-        )
-        if (
-            execution.original_candidate_id != candidate_id
-            or execution.original_candidate_hash != cycle.selected_candidate_content_hash
-            or execution.original_n4_atom_hash != cycle.selected_candidate_content_hash
-            or execution.profile_config_ref != input_record.profile_config_ref
-            or execution.derived_n5_atom_hash
-            != input_record.materialization.derived_n5_atom.content_hash
-            or execution.problem_ref != input_record.materialization.problem_ref
-            or execution.world_model_record_hash
-            != input_record.materialization.world_model_record_hash
-        ):
-            raise ValueError("candidate_simulation_execution_cycle_binding_mismatch")
-
         source = repository.load_candidate_scenario_source_for_n5(
             source_ref,
             expected_run_id=expected_run_id,
@@ -366,7 +327,6 @@ def _replay_cycle(
             or context_job.context.domain != source_v1.problem.domain
             or world.content_hash != source_v1.world_model_record_hash
             or world.content_hash != materialization.world_model_record_hash
-            or world.content_hash != execution.world_model_record_hash
             or world != expected_world
             or str(world.world_model_record_id)
             != str(input_record.materialization.derived_n5_atom.world_model_record_ref)
@@ -375,6 +335,119 @@ def _replay_cycle(
             raise ValueError("candidate_simulation_context_world_binding_mismatch")
 
         simulation = cycle.simulation
+        if simulation.status == "simulation_blocked":
+            # A genuine no-run has no execution artifact. Reconcile its owners
+            # before reporting the refusal; never turn it into a numeric value.
+            if (
+                type(simulation) is not SimulationPortObservation
+                or simulation.candidate_id != candidate_id
+                or simulation.simulation_result_ref is None
+                or simulation.simulation_ref is None
+                or simulation.uncertainty_kind != "K_sim"
+                or simulation.k_world_ref_before != world.content_hash
+                or simulation.k_world_ref_after != world.content_hash
+                or "candidate_scenario_n5_only" not in simulation.authority_blockers
+            ):
+                raise ValueError("candidate_simulation_refusal_basis_missing")
+            historical_handoff = CandidateSimulationContextHandoff(
+                context=context_job.context,
+                context_job_ref=context_ref,
+                profile=input_record.profile,
+                profile_config_ref=input_record.profile_config_ref,
+                job_id=expected_job_id,
+                run_id=expected_run_id,
+                tenant_id=expected_tenant_id,
+                cell_id=expected_cell_id,
+                model_declaration=persisted_declaration,
+                model_declaration_ref=input_record.model_declaration_ref,
+                ncm_ref=input_record.ncm_ref,
+            )
+            request = JointSimulationPort(
+                artifact_store=store,
+                cycle_substrate_context=context_job.context,
+                candidate_simulation_handoff=historical_handoff,
+            )._build_candidate_simulation_request(
+                candidate=source_v1.candidate,
+                problem=source_v1.problem,
+                input_record=input_record,
+            )
+            refused = _load_joint_simulation_refusal_result(
+                simulation.simulation_result_ref,
+                store=store,
+                request=request,
+                expected_receipt_payload_hash=simulation.simulation_ref,
+            )
+            if diagnostics.get("engine_decisions") != [
+                item.model_dump(mode="json") for item in refused.engine_decisions
+            ]:
+                raise ValueError("candidate_simulation_refusal_decision_projection_mismatch")
+            reasons = tuple(dict.fromkeys(item.reason for item in refused.engine_decisions))
+            return value.model_copy(
+                update={
+                    "n5_execution_ref": None,
+                    "n5_result_ref": simulation.simulation_result_ref,
+                    "n5_receipt_payload_hash": refused.receipt.payload_hash,
+                    "trajectory_count": 0,
+                    "observation": ValuePortObservation(
+                        status="value_blocked",
+                        candidate_id=candidate_id,
+                        authority_blockers=(
+                            "simulation_only_k_sim_not_world_evidence",
+                            "candidate_scenario_n5_only",
+                            "n5_execution_not_performed",
+                            *reasons,
+                        ),
+                        reason="; ".join(reasons),
+                        evaluation_mode="simulate_only",
+                        decision_grade="blocked",
+                    ),
+                }
+            )
+
+        execution_ref = _selected_artifact_ref(
+            diagnostics,
+            selected_key="candidate_simulation_execution_selected_ref",
+            identity_key="candidate_simulation_execution_ref",
+        )
+        execution = repository.resolve_candidate_simulation_v5(
+            ref=execution_ref,
+            expected_run_id=expected_run_id,
+            expected_job_id=expected_job_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+        )
+        if type(execution) is not CandidateSimulationExecutionV5:
+            raise ValueError("candidate_simulation_execution_v5_required")
+        if artifact_ref_identity_key(execution.n5_input_ref) != artifact_ref_identity_key(
+            input_ref
+        ):
+            raise ValueError("candidate_simulation_execution_input_selected_view_mismatch")
+        if artifact_ref_identity_key(execution.n4_source_ref) != artifact_ref_identity_key(
+            source_ref
+        ):
+            raise ValueError("candidate_simulation_execution_source_selected_view_mismatch")
+        if artifact_ref_identity_key(execution.context_job_ref) != artifact_ref_identity_key(
+            context_ref
+        ):
+            raise ValueError("candidate_simulation_execution_context_selected_view_mismatch")
+        value = value.model_copy(
+            update={"n5_execution_ref": execution_ref, "n5_result_ref": execution.n5_result_ref}
+        )
+        if (
+            execution.original_candidate_id != candidate_id
+            or execution.original_candidate_hash != cycle.selected_candidate_content_hash
+            or execution.original_n4_atom_hash != cycle.selected_candidate_content_hash
+            or execution.profile_config_ref != input_record.profile_config_ref
+            or execution.derived_n5_atom_hash
+            != input_record.materialization.derived_n5_atom.content_hash
+            or execution.problem_ref != input_record.materialization.problem_ref
+            or execution.world_model_record_hash
+            != input_record.materialization.world_model_record_hash
+        ):
+            raise ValueError("candidate_simulation_execution_cycle_binding_mismatch")
+
+        if world.content_hash != execution.world_model_record_hash:
+            raise ValueError("candidate_simulation_context_world_binding_mismatch")
         if (
             type(simulation) is not SimulationPortObservation
             or simulation.status != "joint_simulated"

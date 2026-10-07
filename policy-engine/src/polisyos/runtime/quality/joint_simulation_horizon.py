@@ -1307,6 +1307,30 @@ def _trajectory_count(payload: Mapping[str, Any]) -> int:
     return 0
 
 
+def _simulation_value_packet(
+    request: JointSimulationRequest,
+    decisions: Sequence[EngineDecision],
+    *,
+    interaction_evidence_issues: Sequence[str] = (),
+) -> dict[str, Any]:
+    """Build the canonical purpose-limited packet for the N5 producer/readers."""
+
+    authority_blockers = ["simulation_only_k_sim_not_world_evidence"]
+    if interaction_evidence_issues:
+        authority_blockers.append("interaction_evidence_incomplete")
+    return {
+        "world_model_record_ref": request.world_model_record_ref,
+        "world_model_record_content_hash": request.world_model_record.content_hash,
+        "atom_ids": [atom.intervention_id for atom in request.intervention_atoms],
+        "grounding_method_refs": [
+            item.method_fqn for item in decisions if item.method_fqn is not None
+        ],
+        "comparator_refs_status": "not_established",
+        "authority_blockers": authority_blockers,
+        "uncertainty_kind": "K_sim",
+    }
+
+
 class JointSimulationHorizonController:
     """Thin N5 controller over registry-selected Foundry joint engines."""
 
@@ -1590,20 +1614,9 @@ class JointSimulationHorizonController:
             interaction_evidence_issues=interaction_evidence_issues,
             aggregate_order_three_plus=len(request.intervention_atoms) >= 4,
         )
-        authority_blockers = ["simulation_only_k_sim_not_world_evidence"]
-        if interaction_evidence_issues:
-            authority_blockers.append("interaction_evidence_incomplete")
-        value_packet = {
-            "world_model_record_ref": request.world_model_record_ref,
-            "world_model_record_content_hash": request.world_model_record.content_hash,
-            "atom_ids": [atom.intervention_id for atom in request.intervention_atoms],
-            "grounding_method_refs": [
-                item.method_fqn for item in decisions if item.method_fqn is not None
-            ],
-            "comparator_refs_status": "not_established",
-            "authority_blockers": authority_blockers,
-            "uncertainty_kind": "K_sim",
-        }
+        value_packet = _simulation_value_packet(
+            request, decisions, interaction_evidence_issues=interaction_evidence_issues
+        )
         world_credal_state_after = _json_ready(request.world_credal_state_before)
         if self._settings.shrink_world_credal_state:
             world_credal_state_after = _contract_testing_shrunk_credal_state(

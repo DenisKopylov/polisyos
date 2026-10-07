@@ -581,10 +581,11 @@ async def test_partial_http_cost_events_survive_owned_core_cas_and_fresh_details
             expected_state_ref
         )
         assert run["control_job_id"] == completed.job_id
-
-    with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
-        assert fresh_context.store.verify(state_ref).ok
-        raw = fresh_context.store.get_bytes(state_ref)
+        # Keep the independently bootstrapped RuntimeApiContext open while using
+        # its guarded CAS. TestClient shutdown closes the owned runtime guard.
+        with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
+            assert fresh_context.store.verify(state_ref).ok
+            raw = fresh_context.store.get_bytes(state_ref)
     persisted = ExperimentState.model_validate(canon.from_canonical_bytes(raw))
     persisted_params = persisted.params
     assert persisted_params["llm_cost_events"] == list(summary["cost_events"])

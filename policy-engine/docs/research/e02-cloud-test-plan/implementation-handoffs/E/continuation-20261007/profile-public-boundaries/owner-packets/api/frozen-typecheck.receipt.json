@@ -1,0 +1,142 @@
+{
+  "schema": "policyos.e02.frozen_affected_native_typecheck.v1",
+  "source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+  "tree": "6700da10bc8e13d7c6c1683b140e805546e5d084",
+  "base": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-B",
+    "-m",
+    "basedpyright",
+    "--project",
+    "/workspace/e02-E-continuation-20261006/policy-engine/basedpyright.toml",
+    "--pythonpath",
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "--baselinemode=discard",
+    "--outputjson",
+    "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+    "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+    "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+  "environment_overrides": {
+    "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "wall_seconds": 3.9872000217437744,
+  "exit_code": 1,
+  "outcome": "FAIL",
+  "summary": {
+    "filesAnalyzed": 3,
+    "errorCount": 7,
+    "warningCount": 1,
+    "informationCount": 0,
+    "timeInSec": 3.366
+  },
+  "stdout": {
+    "path": "/tmp/e02-E-api-companions-thirteenth-20261007/frozen-typecheck.stdout.txt",
+    "bytes": 6198,
+    "sha256": "41221e43e6d18424a7c47cfa0f2d629a9cda5b63d16cbe0009caec7a3d7e79fe"
+  },
+  "stderr": {
+    "path": "/tmp/e02-E-api-companions-thirteenth-20261007/frozen-typecheck.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "environment_command": {
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "-B",
+      "-c",
+      "import sys,platform,importlib.metadata,importlib.util,json; print(json.dumps({\"python_executable\":sys.executable,\"version\":sys.version,\"platform\":platform.platform(),\"basedpyright_origin\":importlib.util.find_spec(\"basedpyright\").origin,\"basedpyright_version\":importlib.metadata.version(\"basedpyright\"),\"numpy_origin\":importlib.util.find_spec(\"numpy\").origin,\"pydantic_origin\":importlib.util.find_spec(\"pydantic\").origin},indent=2))"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-E-api-companions-thirteenth-20261007/frozen-typecheck-environment.stdout.json",
+      "bytes": 658,
+      "sha256": "e028bc00070660f3c5369890c77185a1e2e95687d760449f53c8799a5bf0cade"
+    },
+    "stderr": {
+      "path": "/tmp/e02-E-api-companions-thirteenth-20261007/frozen-typecheck-environment.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "source_inputs": [
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "bytes": 96198,
+      "sha256": "d28620b88968dd13fd1d467aebc2183098f44c460bb813b33612d1cbb181bfb0",
+      "repository_path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "git_blob": "95082a5faeffe94a11925ea0fb404e6960ecefc3"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "bytes": 31271,
+      "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d",
+      "repository_path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "git_blob": "48eb8c09bd2470977fb7f86258d739a80738362c"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "bytes": 17159,
+      "sha256": "82b9e77bc1da07223f6df644c166c47a4a127eacd47abe84185360c022c27224",
+      "repository_path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "git_blob": "cad31a1e6e42e21bf176270e3a2b39e5c4eebd6a"
+    }
+  ],
+  "protected_inputs": [
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/basedpyright.toml",
+      "bytes": 841,
+      "sha256": "c7921e8bf04131158f84ee1b3b28f9620ba7cc8cfa36c64cabd90478e958f1b2"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/baselines/basedpyright/baseline.json",
+      "bytes": 1006190,
+      "sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af"
+    }
+  ],
+  "tool_inputs": [
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/basedpyright/dist/pyright.js",
+      "bytes": 8466912,
+      "sha256": "4db877420247ead5c8385b2ee2731f5760c423a1c7fc813aa2a744e7751dd36d"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/basedpyright/__main__.py",
+      "bytes": 145,
+      "sha256": "81b60cfb679e4f17e0338ab9d23448ed9e555a41f8a532e816dea7afba6deb40"
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/pyvenv.cfg",
+      "bytes": 194,
+      "sha256": "2babae500cfeb9d798df4241f91104fd98a1f968dd54b8462273da6900c4fc3a"
+    }
+  ],
+  "canonical_config_and_baseline_unchanged": true,
+  "source_unchanged": true,
+  "changed_test_companions": [
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "git_blob": "d13f7f2b1099b99e9abb08dfe4b4521c41d84c85",
+      "bytes": 15848,
+      "sha256": "0ff0a476dc48165ce73b0ade953d9af2ba182cc151fdb6c57ca21dd5da412f34",
+      "scoped_typecheck_selected": false,
+      "scope_reason": "Repository curated basedpyright configuration selects product layers. Deliberately malformed fixture inputs are verified by runtime property wave, not admitted as a new public typing surface."
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py",
+      "git_blob": "3bde24469403ce232808a4d58ee2f06eb5d6c770",
+      "bytes": 10145,
+      "sha256": "79e4e72361f1fc6a7addeb3c0cf16b604782985437ddf75a45c20c9ac9b2b2a4",
+      "scoped_typecheck_selected": false,
+      "scope_reason": "Repository curated basedpyright configuration selects product layers. Deliberately malformed fixture inputs are verified by runtime property wave, not admitted as a new public typing surface."
+    }
+  ],
+  "baseline_scope": "Exactly original canonicalproject/settings/baseline read under supported discard, no override or rewritten pathmatching. This is not an unbaselined or whole-repository typecheck claim.",
+  "whole_type_gate": "UNRUN",
+  "initial_attempt": "df5252files0diagnostics bounded native observation, custodyERROR automaticbaselinewriter; preserved original output/error/root restoration separately, never relabeled as this frozen PASS.",
+  "P41": "not_established",
+  "source_read_lease": "CLOSED"
+}

@@ -1,0 +1,14 @@
+{
+  "schema": "policyos.e02.one_time_assembly.v1",
+  "argv": [
+    "python3",
+    "/tmp/e02-E-pr38-thirteenth-continuation-20261007/finalize-packet.py"
+  ],
+  "source": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+  "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+  "role": "One-time executed orchestration, not installed product or maintained utility",
+  "copied_bytes": 8396995,
+  "copied_files": 359,
+  "source_unchanged": true,
+  "future_receipt_commit_sha": null
+}

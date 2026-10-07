@@ -1,0 +1,188 @@
+{
+  "schema": "policyos.e02.publication_selection.v1",
+  "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+  "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/README.md",
+      "portable_path": "README.md",
+      "bytes": 1479,
+      "sha256": "602039d6b225ec208ca7a610eae1281d78a95dd18620468a557a8c5a49291930",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/float-materializer-applicable-owner-packet.json",
+      "portable_path": "float-materializer-applicable-owner-packet.json",
+      "bytes": 1986,
+      "sha256": "6696aaa670f9946fe920d99d5994bf603accab80f9e2caf1afadacba8cffa48f",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/float-materializer-owner.json",
+      "portable_path": "float-materializer-owner.json",
+      "bytes": 1894,
+      "sha256": "213864b9bc32678b079c87a46641dd4cd53be31a9e52131a3fdbf7a52ec55bec",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/float-materializer-owner.patch",
+      "portable_path": "float-materializer-owner.patch",
+      "bytes": 973,
+      "sha256": "e0896df4944af562d8f43c96cedd72f80f62f3328dc1c81413a952dd084d8758",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/float-materializer-typed-ref-supplement.patch",
+      "portable_path": "float-materializer-typed-ref-supplement.patch",
+      "bytes": 1224,
+      "sha256": "3b0f5f0887f976580db268e9fbad2dcd20d6c6c9011e68f61806bb6a01e70750",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/native-input-diagnostic/diagnostic.json",
+      "portable_path": "native-input-diagnostic/diagnostic.json",
+      "bytes": 19680,
+      "sha256": "24a0e28c1306f6e406c49e464cddb3a51545281d7f72808189489546a9657f47",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/native-input-diagnostic-v2/diagnostic.json",
+      "portable_path": "native-input-diagnostic-v2/diagnostic.json",
+      "bytes": 19683,
+      "sha256": "dc6fa90314c5101861c93a4d31758f9efbc98554ac83f7321a77f92af9476e8d",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/native-input-probe-receipt.json",
+      "portable_path": "native-input-probe-receipt.json",
+      "bytes": 1033,
+      "sha256": "17cfacb60f269d87167a884baa64dce6e0c6ca4d968bbee7d818169131ae724f",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/native-input-probe.stderr.txt",
+      "portable_path": "native-input-probe.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/native-input-probe.stdout.txt",
+      "portable_path": "native-input-probe.stdout.txt",
+      "bytes": 317,
+      "sha256": "a566a2b5ce5de30c7a07c3520e1a1cd806a9d72b798feef37b14356cce713aef",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/native-input-v2-complete-receipt.json",
+      "portable_path": "native-input-v2-complete-receipt.json",
+      "bytes": 3904,
+      "sha256": "0551c617481f742123dc5a880e0fc5ad38d3ce6e297ebb4a2e1f818d4064d28b",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/native-input-v2.stderr.txt",
+      "portable_path": "native-input-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/native-input-v2.stdout.txt",
+      "portable_path": "native-input-v2.stdout.txt",
+      "bytes": 317,
+      "sha256": "a566a2b5ce5de30c7a07c3520e1a1cd806a9d72b798feef37b14356cce713aef",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/native_input_probe.py.txt",
+      "portable_path": "native_input_probe.py.txt",
+      "bytes": 6472,
+      "sha256": "3d1be3836786e924b9ec00476a7f0214d262cce568aa222bbd8b71db32fc8fa0",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/owner-handoff-v2.json",
+      "portable_path": "owner-handoff-v2.json",
+      "bytes": 13932,
+      "sha256": "7351f59ad4dcaa33d1a042bbb35a23d13c47935ee4982fec0644d2013b2ee551",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/owner-handoff-v3.json",
+      "portable_path": "owner-handoff-v3.json",
+      "bytes": 14343,
+      "sha256": "19f54b441e79bc5d20bed32a118a31936baa3e5f842bbc6b9d3f2c4d9ea2f268",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/probe-lint.stderr.txt",
+      "portable_path": "probe-lint.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/probe-lint.stdout.txt",
+      "portable_path": "probe-lint.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/publication-selection-v2-historical.json",
+      "portable_path": "publication-selection-v2-historical.json",
+      "bytes": 8976,
+      "sha256": "2324b2affb891b52d268487f28e007dd3df05adfcec24bc8a5d228e702b27d5b",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/source-identity-and-patch-check.json",
+      "portable_path": "source-identity-and-patch-check.json",
+      "bytes": 10104,
+      "sha256": "4fe04b3f018d03cc6a4241099ade591e66abb9a593a8b7e7d061e98f33a8b749",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/test_bayesian_fit_float_inlet.py.txt",
+      "portable_path": "test_bayesian_fit_float_inlet.py.txt",
+      "bytes": 4759,
+      "sha256": "568c00a04687fe5803c0744c85a4505c35d2ea1a05c0561ce3f6a1555bbf1ce7",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/tests-lint.stderr.txt",
+      "portable_path": "tests-lint.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/tests-lint.stdout.txt",
+      "portable_path": "tests-lint.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/typed-ref-supplement-apply-check.stderr.txt",
+      "portable_path": "typed-ref-supplement-apply-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    },
+    {
+      "source_path": "/tmp/e02-E-fit-packet-thirteenth-20261007/typed-ref-supplement-apply-check.stdout.txt",
+      "portable_path": "typed-ref-supplement-apply-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete owner packet/source identity/native-input diagnostic or unapplied companion"
+    }
+  ],
+  "files": 25,
+  "bytes": 111114,
+  "current_owner_packet": "owner-handoff-v3.json",
+  "source_write_lease": "closed",
+  "native_backend_rerun": false,
+  "independent_review": "pending non-author packet review; author does not accept own packet"
+}

@@ -1,0 +1,21 @@
+from pathlib import Path
+import hashlib,json,subprocess,os,time,sys
+R=Path('/workspace/e02-E-continuation-20261006'); P=R/'policy-engine'; S=Path('/tmp/e02-E-api-companions-thirteenth-20261007'); PY=P/'.venv/bin/python'
+def h(p):
+ b=Path(p).read_bytes();return {'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def run(a):
+ q=subprocess.run(a,cwd=R,capture_output=True,text=True);assert q.returncode==0,q.stderr;return q.stdout.strip()
+head=run(['git','rev-parse','HEAD']);tree=run(['git','rev-parse','HEAD^{tree}']);assert head=='df5258b7ddfade5b952e3b21ef28116ced40fa68'
+paths=['src/polisyos/ir/analytics/uncertainty.py','src/polisyos/ir/analytics/posterior_summary.py'];baseline=P/'architecture/baselines/basedpyright/baseline.json';cfg=P/'basedpyright.toml';private=S/'baseline.private.json';private.write_bytes(baseline.read_bytes())
+inputs=[h(P/p)|{'git_blob':run(['git','rev-parse',f'{head}:policy-engine/{p}'])} for p in paths];protected=[h(cfg),h(baseline)];before=h(private)
+env=os.environ.copy();env.update({'PYTHONPATH':str(P/'src'),'PYTHONDONTWRITEBYTECODE':'1'})
+argv=[str(PY),'-m','basedpyright','--project',str(cfg),'--baselinefile',str(private),'--pythonpath',str(PY),'--outputjson',*[str(P/p) for p in paths]]
+t=time.time();q=subprocess.run(argv,cwd=P,env=env,capture_output=True);elapsed=time.time()-t
+out=S/'current-scoped-typecheck.stdout.txt';err=S/'current-scoped-typecheck.stderr.txt';out.write_bytes(q.stdout);err.write_bytes(q.stderr)
+raw=q.stdout.decode();j=json.loads(raw[raw.find('{'):]);(S/'current-scoped-typecheck.parsed.json').write_text(json.dumps(j,indent=2)+'\n')
+assert [h(cfg),h(baseline)]==protected
+assert run(['git','rev-parse','HEAD'])==head
+assert [h(P/p)|{'git_blob':run(['git','rev-parse',f'{head}:policy-engine/{p}'])} for p in paths]==inputs
+origin=subprocess.run([str(PY),'-B','-c','import sys,platform,importlib.util,importlib.metadata,json; print(json.dumps({"python_executable":sys.executable,"version":sys.version,"platform":platform.platform(),"basedpyright_origin":importlib.util.find_spec("basedpyright").origin,"basedpyright_version":importlib.metadata.version("basedpyright")},indent=2))'],cwd=P,env=env,capture_output=True);(S/'typecheck-environment.stdout.json').write_bytes(origin.stdout);(S/'typecheck-environment.stderr.txt').write_bytes(origin.stderr)
+receipt={'schema':'policyos.e02.current_scoped_typecheck.v1','source_sha':head,'tree':tree,'product_source':'b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641','argv':argv,'cwd':str(P),'environment_overrides':{'PYTHONPATH':str(P/'src'),'PYTHONDONTWRITEBYTECODE':'1'},'wall_seconds':elapsed,'exit_code':q.returncode,'outcome':'PASS' if q.returncode==0 else 'FAIL','summary':j['summary'],'inputs':inputs,'canonical_config':protected[0],'canonical_baseline':protected[1],'private_baseline_before':before,'private_baseline_after':h(private),'canonical_config_and_baseline_unchanged':True,'stdout':h(out),'stderr':h(err),'environment':h(S/'typecheck-environment.stdout.json'),'baseline_semantics':'Canonical project/settings and exact original baseline copied to private path via supported CLI --baselinefile; baseline may auto-retally private file only. Not an unbaselined or whole-repository type claim.','whole_type_gate':'UNRUN','P41':'not_established','source_mutated':False,'old_3932_expression_carried':False,'source_read_lease':'CLOSED'}
+(S/'current-scoped-typecheck.receipt.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps({'outcome':receipt['outcome'],'summary':receipt['summary'],'wall_seconds':elapsed,'canonical_baseline_unchanged':True,'source_sha':head,'receipt':str(S/'current-scoped-typecheck.receipt.json')},indent=2))

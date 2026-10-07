@@ -1,0 +1,201 @@
+{
+  "assets": [
+    {
+      "bytes": 17981,
+      "portable_path": "probe.py.txt",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "df825ee55233813d4553518b183db211f6899a67867ef700dee9f4c58e6131f0",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/probe.py"
+    },
+    {
+      "bytes": 2233,
+      "portable_path": "run-source2-probes.py.txt",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "e53ee7c5bf4575ac9dd8e7fd28e1742656ee3a880df844cb17a3aa5eeb3c0fa8",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/run-source2-probes.py"
+    },
+    {
+      "bytes": 4769,
+      "portable_path": "source2-delta-native.py.txt",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "15c0d8d274d2096a9a6fb1b6607fb6a39afc117ccf414bd7fed9d519d4090d97",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-delta-native.py"
+    },
+    {
+      "bytes": 6046,
+      "portable_path": "execution-source2.json",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "57e19b14616c1ed7a727e5cbdf778e66fc86ee234d77487c8ca604c510cb5bb9",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/execution-source2.json"
+    },
+    {
+      "bytes": 5674,
+      "portable_path": "source2-runner.stdout.txt",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "b290f4fe935c8c28cd4e358e5b55cae2b987bf1fbf2968eb91eed1d89864f5f2",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-runner.stdout.txt"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "source2-runner.stderr.txt",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-runner.stderr.txt"
+    },
+    {
+      "bytes": 11826,
+      "portable_path": "review-final-11082.json",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "4f59a0976d443425e18098c01e1a86abe5d77ab66124dd8ac1fc6031696aa0d1",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/review-final-11082.json"
+    },
+    {
+      "bytes": 6577,
+      "portable_path": "source2-delta-native.json",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "75073092ab96b2e5180a919afbab12ba92f61a0f38dc9d8f6e9fb0e851701d77",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-delta-native.json"
+    },
+    {
+      "bytes": 128,
+      "portable_path": "source2-delta-native.stdout.txt",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "e3c77a919c862fe38acc4964138a9dfdcf4c3bd42704eaf84940a08596548c7f",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-delta-native.stdout.txt"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "source2-delta-native.stderr.txt",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-delta-native.stderr.txt"
+    },
+    {
+      "bytes": 539117,
+      "portable_path": "source2-normal.json",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "54149859f90b95a2c0bdf2d124ac2e4665efb53a544c7a0cd5b8c6ee590264e0",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-normal.json"
+    },
+    {
+      "bytes": 277,
+      "portable_path": "source2-normal.stdout.txt",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "b7deaf22e7813620f7584efbc3be4130a7678b00b155dcdde071a26c229885ab",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-normal.stdout.txt"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "source2-normal.stderr.txt",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-normal.stderr.txt"
+    },
+    {
+      "bytes": 1300,
+      "portable_path": "source2-normal.execution.json",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "f4156e2d9113a099b50be1dc40ad4ccf9daafc07d95989b6426fb66cf3a03e8c",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-normal.execution.json"
+    },
+    {
+      "bytes": 539669,
+      "portable_path": "source2-optimized.json",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "09782147b94c7496c6e1a13cf9abd6f32665874e12f19f134ab13d4c73ded427",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-optimized.json"
+    },
+    {
+      "bytes": 280,
+      "portable_path": "source2-optimized.stdout.txt",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "3acdd04950692c6b8a7ce5ce05793e44aa98275a47811eeb6a015be2a1dcc229",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-optimized.stdout.txt"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "source2-optimized.stderr.txt",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-optimized.stderr.txt"
+    },
+    {
+      "bytes": 1325,
+      "portable_path": "source2-optimized.execution.json",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "735624b52f1b3bf2393880744f33b8952150352b7b99a42a60732d0a3e4c672a",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-optimized.execution.json"
+    },
+    {
+      "bytes": 215894,
+      "portable_path": "source2-normal-removal.json",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "691b5dbac8c66401fa7c360f3c2f0489d5f5b033e28db15c961ff1d911bd3c2e",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-normal-removal.json"
+    },
+    {
+      "bytes": 282,
+      "portable_path": "source2-normal-removal.stdout.txt",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "8c93c5bdab285ed66025874aee8be344ff40d7b42141973ed0a60d0a0cf0ba7f",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-normal-removal.stdout.txt"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "source2-normal-removal.stderr.txt",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-normal-removal.stderr.txt"
+    },
+    {
+      "bytes": 1364,
+      "portable_path": "source2-normal-removal.execution.json",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "56044511fed57003c301145dc616138c08cedb41028fd390e8cf6c44aba5767e",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-normal-removal.execution.json"
+    },
+    {
+      "bytes": 215943,
+      "portable_path": "source2-optimized-removal.json",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "33bed27c41a0945fb24ff9a908c799d57949eb8dec55931c9f258de318c872c5",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-optimized-removal.json"
+    },
+    {
+      "bytes": 286,
+      "portable_path": "source2-optimized-removal.stdout.txt",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "f62f1a4e02ea979c907d24be55ee9cc02c4681466797e04eda2eb2d5374b970e",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-optimized-removal.stdout.txt"
+    },
+    {
+      "bytes": 0,
+      "portable_path": "source2-optimized-removal.stderr.txt",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-optimized-removal.stderr.txt"
+    },
+    {
+      "bytes": 1390,
+      "portable_path": "source2-optimized-removal.execution.json",
+      "role": "complete deciding Source2 native/review/control command/environment/source before-after/module origins or reproducer",
+      "sha256": "d18936cb2a46acee061f5ca5081f4bd8ab5f643ce0e59e4484a1791ca5b2dc99",
+      "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-optimized-removal.execution.json"
+    }
+  ],
+  "bytes": 1572361,
+  "candidate": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+  "excluded": "All CAS fixture trees/__pycache__/complete source copies. Root final maintained wave/typecheck/global generated companions have independent outcome receipts.",
+  "files": 26,
+  "no_self_reference": "This selector does not bind its own future Git SHA; exact immutable source and parent review selectors pinned separately.",
+  "review_history_selector": {
+    "bytes": 12175,
+    "selected_bytes": 1564837,
+    "selected_files": 29,
+    "sha256": "85fa22ab0fbb129c1b12e8f90919d8cea3ced9274328a5226b1da68d6454f8fa",
+    "source_path": "/tmp/e02-E-ingress-oracle-thirteenth-20261007/publication-selection-b305.json"
+  },
+  "schema": "policyos.e02.publication_selection.v1",
+  "source_acceptance": "GO_bounded_source_and_corrective_test_companions",
+  "tree": "9263d367d41359f1f1a2758419fbc1c8f1eace0f"
+}

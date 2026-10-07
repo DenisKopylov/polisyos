@@ -1,0 +1,290 @@
+{
+  "schema": "policyos.e02.canonical_owner_input_packet.v1",
+  "unit": "E",
+  "slice": "configured-finite-float-fit-inlet-thirteenth-wave",
+  "appointed_writer": "Scientist compute/input-materializer canonical writer, source lease routed by G",
+  "e_preparer_role": "independent source/packet analyst, not producer-mechanism author; author of this owner packet only",
+  "source_mutated": false,
+  "patches_applied": false,
+  "backend_or_sampler_rerun": false,
+  "source_roles": {
+    "reviewed_scientific_source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+    "E_receipt_head": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+    "G_review_checkpoint": "2abc17f46a033a7879663486ff9946a95786601f",
+    "original_fit_implementation": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+    "original_fit_tree": "d5efa295c8af983a86a620a120ab091aae580db3",
+    "original_handoff": "c40b2f5767bb5810bc8ac4c2ead9510f8c01430b"
+  },
+  "authoritative_source_citations": [
+    {
+      "commit": "2abc17f46a033a7879663486ff9946a95786601f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-fit-inlet.md"
+    },
+    {
+      "commit": "2abc17f46a033a7879663486ff9946a95786601f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-API.md"
+    },
+    {
+      "commit": "c40b2f5767bb5810bc8ac4c2ead9510f8c01430b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/configured-bayesian-fit/implementation-handoff.json"
+    }
+  ],
+  "exact_source_identity_and_delta": {
+    "path": "source-identity-and-patch-check.json",
+    "bytes": 10104,
+    "sha256": "4fe04b3f018d03cc6a4241099ade591e66abb9a593a8b7e7d061e98f33a8b749"
+  },
+  "observed_source_state": {
+    "protected_path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+    "protected_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+    "protected_sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd",
+    "all_five_pinned_runner_blobs_equal": true,
+    "no_owner_decoder_publication_in_exact_fetched_G": true,
+    "E_b2_to_df525_full_5_path_delta": [],
+    "G_compared_to_E": "G2abc lacks E fit bridge and consumer test entirely, and its runner/Core codec blobs are unchanged. This is missing E intake at that G, not established deletion/regression/ancestry."
+  },
+  "property": {
+    "statement": "Native configured method loading decodes existing canonical finite numeric values while retaining the complete supplied ArtifactRef through Core integrity checks, and malformed input produces refusal before MethodBackend publication.",
+    "actual_runtime_path": [
+      "FileSystemCAS.put_json / existing Core canonical writer",
+      "JobSpec.input_refs",
+      "run_job -> _run_method_job -> _load_input_refs",
+      "MethodBackend HMC/NUTS NumPy retained64 draws -> result/evidence refs",
+      "persist_bayesian_fit_envelopes -> configured same CAS",
+      "fresh PropagateUncertaintyNode -> persisted report -> fresh Core read"
+    ],
+    "old_proxy_divergence": "A valid JSON object/tag and content ID are treated as loaded numeric input; ordinary canonical float tags remain dicts. Stripping a complete ArtifactRef to artifact_id also lets wrong kind/media-type or a nonexistent selected view read the default bytes.",
+    "P40_bucket": "Existing typed-source/raw-admission inlet class one level deeper, not a Fraction/CDF/kernel numerical defect. Widen to the existing Core complete-ref read and canonical decoder; do not repair each sampler backend separately.",
+    "gate_eligibility": false,
+    "scientific_fit_validity": "not_established",
+    "production_or_WMR_input_required_for_generic_float_fixture": false
+  },
+  "minimum_inputs": {
+    "features": [
+      [
+        -1.0
+      ],
+      [
+        0.0
+      ],
+      [
+        1.0
+      ],
+      [
+        -0.5
+      ],
+      [
+        0.5
+      ]
+    ],
+    "target": [
+      -0.2,
+      0.1,
+      0.2,
+      -0.1,
+      0.0
+    ],
+    "CAS_kind": "test.bayesian_source for bounded native fixture only, not a production data authority",
+    "media_type": "application/json",
+    "canon_spec": {
+      "forbid_floats": false,
+      "forbid_nan_inf": true
+    },
+    "seed": 321,
+    "configured_store": "one same filesystem CAS root, fresh FileSystemCAS reopening it",
+    "methods": [
+      "bayesian.sampling.hmc@1.0.0",
+      "bayesian.sampling.nuts@1.0.0"
+    ],
+    "method_params": {
+      "runtime_backend": "numpy",
+      "num_warmup": 32,
+      "num_samples": 32,
+      "num_chains": 2,
+      "step_size": 0.015,
+      "credible_mass": 0.9,
+      "HMC_n_leapfrog": 8,
+      "NUTS_max_depth": 3
+    }
+  },
+  "owner_ready_unapplied_changes": {
+    "historical_decoder_only_patch": {
+      "path": "float-materializer-owner.patch",
+      "bytes": 973,
+      "sha256": "e0896df4944af562d8f43c96cedd72f80f62f3328dc1c81413a952dd084d8758"
+    },
+    "historical_packet": {
+      "path": "float-materializer-applicable-owner-packet.json",
+      "bytes": 1986,
+      "sha256": "6696aaa670f9946fe920d99d5994bf603accab80f9e2caf1afadacba8cffa48f"
+    },
+    "minimum_typed_ref_supplement": {
+      "path": "float-materializer-typed-ref-supplement.patch",
+      "bytes": 1224,
+      "sha256": "3b0f5f0887f976580db268e9fbad2dcd20d6c6c9011e68f61806bb6a01e70750"
+    },
+    "supplement_scope": "Replace plain JSON loader with existing Core decoder; pass complete ref to Core get_bytes; normalize missing canonical-tag keys/type errors into ValueError so existing structured JobResult refusal applies. No copied codec/store, sampler change, generated output, source law or new authority.",
+    "exact_apply_checks": {
+      "decoder_only": "PASS for applicability only, no source application",
+      "typed_ref_supplement": "PASS for applicability only, no source application"
+    },
+    "companion_tests": {
+      "path": "test_bayesian_fit_float_inlet.py.txt",
+      "bytes": 4759,
+      "sha256": "568c00a04687fe5803c0744c85a4505c35d2ea1a05c0561ce3f6a1555bbf1ce7"
+    },
+    "test_destination_after_owner_admission": "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_float_inlet.py",
+    "full_anticipated_footprint": [
+      "policy-engine/src/polisyos/scientist/compute/runner.py",
+      "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_float_inlet.py",
+      "canonical owner implementation/independent review receipt"
+    ]
+  },
+  "actual_available_checks": {
+    "receipt": {
+      "path": "native-input-v2-complete-receipt.json",
+      "bytes": 3904,
+      "sha256": "0551c617481f742123dc5a880e0fc5ad38d3ce6e297ebb4a2e1f818d4064d28b"
+    },
+    "complete_native_diagnostic": {
+      "path": "native-input-diagnostic-v2/diagnostic.json",
+      "bytes": 19683,
+      "sha256": "dc6fa90314c5101861c93a4d31758f9efbc98554ac83f7321a77f92af9476e8d"
+    },
+    "native_cases": 9,
+    "source_loader_counterexamples": [
+      "ordinary_float_features",
+      "ordinary_float_target",
+      "mismatched_kind",
+      "mismatched_media_type",
+      "missing_selected_view",
+      "malformed_float_hex_value",
+      "missing_float_hex_value",
+      "unsupported_canonical_tag"
+    ],
+    "retained_integer_source_control": true,
+    "numerical_backend_or_sampler_cases_executed": 0,
+    "actual_existing_Core_values": [
+      {
+        "case": "ordinary_float_features",
+        "ref": {
+          "artifact_id": "sha256:4fe6b8cc46840776a7dabd40a785fa644e1d7fd8ea4ebd296857aa0e7e60b2c2",
+          "kind": "test.bayesian_source",
+          "media_type": "application/json"
+        },
+        "payload_bytes": 162,
+        "payload_sha256": "4fe6b8cc46840776a7dabd40a785fa644e1d7fd8ea4ebd296857aa0e7e60b2c2",
+        "actual_native_loader_numeric": {
+          "status": "RAISED",
+          "exception": "TypeError",
+          "message": "float() argument must be a string or a real number, not 'dict'"
+        },
+        "existing_core_decoder_numeric": {
+          "status": "RETURNED",
+          "value": [
+            [
+              -1.0
+            ],
+            [
+              0.0
+            ],
+            [
+              1.0
+            ],
+            [
+              -0.5
+            ],
+            [
+              0.5
+            ]
+          ]
+        }
+      },
+      {
+        "case": "ordinary_float_target",
+        "ref": {
+          "artifact_id": "sha256:ba3645a8e93df5ca2ec65fc1845e7f606b5ccbfac6d71de7701852a6a0e8c721",
+          "kind": "test.bayesian_source",
+          "media_type": "application/json"
+        },
+        "payload_bytes": 220,
+        "payload_sha256": "ba3645a8e93df5ca2ec65fc1845e7f606b5ccbfac6d71de7701852a6a0e8c721",
+        "actual_native_loader_numeric": {
+          "status": "RAISED",
+          "exception": "TypeError",
+          "message": "float() argument must be a string or a real number, not 'dict'"
+        },
+        "existing_core_decoder_numeric": {
+          "status": "RETURNED",
+          "value": [
+            -0.2,
+            0.1,
+            0.2,
+            -0.1,
+            0.0
+          ]
+        }
+      }
+    ],
+    "meaning": "9 bounded observations reproduce existing native inlet and Core decoder/ref behavior; diagnostic exit0 is successful reproduction of defects, not repaired-source PASS."
+  },
+  "post_owner_publication_acceptance": {
+    "status": "UNRUN",
+    "prerequisite": "canonical Scientist writer publishes immutable implementation candidate plus independent review and G supplies exact intake SHA. E does not edit the protected source.",
+    "run_once_after_review": [
+      "Two actual configured finite-float run_job HMC/NUTS cases, each64 retained corpus rows with exact output result/evidence/source refs and seed321, then fresh CAS -> actual Node256 Sobol callback rows and nominal calls. Reuse maintained sibling Fraction/Counter oracle rather than infer from fit mean or sample count.",
+      "Six malformed-tag/kind/media-type/missing-view negatives at native run_job before MethodBackend/evaluator and zero result/evidence/envelope publication; require structured nonempty JobResult.issues.",
+      "Retain generic integer materialization, non-Bayesian caller tests in test_runner_polyglot.py, and historical valid integer HMC/NUTS witness without rerunning the old full fit wave.",
+      "Property-removal isolated source: lower get_bytes(ref) to get_bytes(ref.artifact_id), while preserving loader names/markers; wrong kind/media/view now reaches forbidden backend. Remove canonical decode while retaining admission names; finite float positive fails or tagged inputs reach backend. Keep full outcomes separate from healthy-source results."
+    ],
+    "exact_new_positive_selectors": [
+      "tests/unit/scientist/nodes/test_bayesian_fit_float_inlet.py::test_real_float_configured_backend_fresh_node[hmc]",
+      "tests/unit/scientist/nodes/test_bayesian_fit_float_inlet.py::test_real_float_configured_backend_fresh_node[nuts]"
+    ],
+    "exact_negative_selector": "tests/unit/scientist/nodes/test_bayesian_fit_float_inlet.py::test_invalid_native_float_input_refuses_before_backend_and_publication",
+    "fresh_readback_oracle": "Maintained test_bayesian_fit_consumer.py test_real_configured_backend_corpus_persists_and_fresh_node_consumes: independent Fraction corpus mean/quantiles, exact paired row Counter256, fresh stored refs/manifests/report and gate_eligible false."
+  },
+  "retained_limits_and_owner_inputs": [
+    {
+      "owner": "Scientist compute input-materializer",
+      "boundary": "Valid selected source profiles remain unsupported by current E fit Binding because MethodBackend input edges omit manifest_profile_sha256. Invalid supplied view must refuse before publication. Do not claim valid selected-view fit support by changing decoder alone; owner either records scoped refusal or preserves exact profiles through existing lineage helper with independent consumer review."
+    },
+    {
+      "owner": "Core canonical decoder owner / Scientist typed method input owner",
+      "boundary": "Existing decoder is reused, not declared a universal numeric/source-law validator. Supported literal finite fixture and named malformed cases are bounded. Wider numeric tag/type/depth/domain admission remains the canonical contract."
+    },
+    {
+      "owner": "Actual model/quantity/likelihood/source producer",
+      "boundary": "Separate model/quantity materializer and scientific B197 factual source/fit/noise/axis/CalibratorInputs are unrelated external-input decisions; generic finite-float technical inlet does not await them or manufacture them."
+    },
+    {
+      "owner": "G",
+      "boundary": "Code intake and original B201/B202 closure are separate. Existing E bounded proposals and historical ledger statuses do not change from this packet; no G formal intake asserted."
+    }
+  ],
+  "predicate_basis": {
+    "source_blobs_and_full_5_path_deltas": "recomputed",
+    "native_tag_and_complete_ref_read_observations": "recomputed",
+    "future_post_publication_backend_witness": "not_established",
+    "model_noise_source_fit_truth": "not_established"
+  },
+  "capability_state": "bridge_missing",
+  "capability_state_scope": "Existing Core finite-float writer/decoder and native fit/consumer producers exist, but configured method input materialization does not connect their numeric bytes. The already orchestrated integer-source path is retained and is not labeled absent.",
+  "cleanup_candidates": [
+    "native-input-diagnostic/cas",
+    "native-input-diagnostic-v2/cas"
+  ],
+  "cleanup_policy": "No permanent deletion. Preserve receipts/unique data; cloud without native Trash lists reproducible fixtures only.",
+  "leases": {
+    "protected_source_write": "not granted / not used",
+    "source_read_lease": "closed after source identity and current native diagnostics",
+    "environment_lease": "closed after current nine-case loader probe; no backend/CPU lease"
+  },
+  "historical_packet": {
+    "path": "owner-handoff-v2.json",
+    "bytes": 13932,
+    "sha256": "7351f59ad4dcaa33d1a042bbb35a23d13c47935ee4982fec0644d2013b2ee551",
+    "correction": "Only float-path capability label clarified to bridge_missing; nine observations, original source bodies, unapplied patches, future UNRUN backend selectors unchanged."
+  }
+}

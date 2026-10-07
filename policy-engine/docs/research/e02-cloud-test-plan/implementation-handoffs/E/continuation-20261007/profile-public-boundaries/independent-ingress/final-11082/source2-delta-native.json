@@ -1,0 +1,171 @@
+{
+  "argv": [
+    "/tmp/e02-E-ingress-oracle-thirteenth-20261007/source2-delta-native.py",
+    "11082e91d61ace2f3bd7016d408341fdd6ec1702"
+  ],
+  "candidate": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+  "numpy": "2.3.5",
+  "optimization": 0,
+  "outcomes": {
+    "FAIL": 0,
+    "PASS": 15
+  },
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "rows": [
+    {
+      "actual_std": 0.25,
+      "case": "scalar_compatibility/Decimal",
+      "check_outcome": "PASS",
+      "diagnostic_non_gating_unknown_noise_law": true,
+      "expected_std": 0.25,
+      "scope": "existing diagnostic conversion only; no Gaussian/noise-law admission/Calibrator input claim"
+    },
+    {
+      "actual_std": 0.25,
+      "case": "scalar_compatibility/Fraction",
+      "check_outcome": "PASS",
+      "diagnostic_non_gating_unknown_noise_law": true,
+      "expected_std": 0.25,
+      "scope": "existing diagnostic conversion only; no Gaussian/noise-law admission/Calibrator input claim"
+    },
+    {
+      "actual_std": 0.25,
+      "case": "scalar_compatibility/numpy_float32",
+      "check_outcome": "PASS",
+      "diagnostic_non_gating_unknown_noise_law": true,
+      "expected_std": 0.25,
+      "scope": "existing diagnostic conversion only; no Gaussian/noise-law admission/Calibrator input claim"
+    },
+    {
+      "actual_std": 0.25,
+      "case": "scalar_compatibility/numpy_float64",
+      "check_outcome": "PASS",
+      "diagnostic_non_gating_unknown_noise_law": true,
+      "expected_std": 0.25,
+      "scope": "existing diagnostic conversion only; no Gaussian/noise-law admission/Calibrator input claim"
+    },
+    {
+      "actual_std": 2.0,
+      "case": "scalar_compatibility/int",
+      "check_outcome": "PASS",
+      "diagnostic_non_gating_unknown_noise_law": true,
+      "expected_std": 2.0,
+      "scope": "existing diagnostic conversion only; no Gaussian/noise-law admission/Calibrator input claim"
+    },
+    {
+      "actual_std": 1.0,
+      "case": "scalar_compatibility/bool",
+      "check_outcome": "PASS",
+      "diagnostic_non_gating_unknown_noise_law": true,
+      "expected_std": 1.0,
+      "scope": "existing diagnostic conversion only; no Gaussian/noise-law admission/Calibrator input claim"
+    },
+    {
+      "actual_std": 0.25,
+      "case": "scalar_compatibility/numeric_string",
+      "check_outcome": "PASS",
+      "diagnostic_non_gating_unknown_noise_law": true,
+      "expected_std": 0.25,
+      "scope": "existing diagnostic conversion only; no Gaussian/noise-law admission/Calibrator input claim"
+    },
+    {
+      "actual_std": 0.25,
+      "case": "scalar_compatibility/numeric_bytes",
+      "check_outcome": "PASS",
+      "diagnostic_non_gating_unknown_noise_law": true,
+      "expected_std": 0.25,
+      "scope": "existing diagnostic conversion only; no Gaussian/noise-law admission/Calibrator input claim"
+    },
+    {
+      "actual": {
+        "message": "scalar emulator noise requires a supported float conversion",
+        "type": "TypeError"
+      },
+      "case": "scalar_compatibility/builtin_complex",
+      "check_outcome": "PASS",
+      "expected": "TypeError"
+    },
+    {
+      "actual_CAS_integrity": true,
+      "case": "raw_integrity_valid_forgery/mean",
+      "check_outcome": "PASS",
+      "derived_publications": 0,
+      "input_ref": "sha256:52e327450d0dd0860fa0327a0f1991054443a19b9f8d3596147f44a01de47fce",
+      "refusal": {
+        "message": "posterior summary named functionals do not reconcile",
+        "type": "ValueError"
+      }
+    },
+    {
+      "actual_CAS_integrity": true,
+      "case": "raw_integrity_valid_forgery/profile",
+      "check_outcome": "PASS",
+      "derived_publications": 0,
+      "input_ref": "sha256:54be5d7f3b0bc778d894448751a60272605d31a296535b5854f7ec2b5774c11a",
+      "refusal": {
+        "message": "1 validation error for PosteriorSummaryProfileV2\nprofile_version\n  Input should be '2.0' [type=literal_error, input_value='999.0', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/literal_error",
+        "type": "ValidationError"
+      }
+    },
+    {
+      "actual_CAS_integrity": true,
+      "case": "raw_integrity_valid_forgery/carrier",
+      "check_outcome": "PASS",
+      "derived_publications": 0,
+      "input_ref": "sha256:970b879d850ad39c2150800ff2fa37ed9c8a0a9da200fe195d6bf21fa897a38b",
+      "refusal": {
+        "message": "posterior summary raw carrier is missing",
+        "type": "ValueError"
+      }
+    },
+    {
+      "actual_CAS_integrity": true,
+      "case": "raw_integrity_valid_forgery/rows",
+      "check_outcome": "PASS",
+      "derived_publications": 0,
+      "input_ref": "sha256:d91d3552fa9d3e525162a7b64e7f99d588b60cffc5c466a270870ec48bccac0e",
+      "refusal": {
+        "message": "posterior summary profile/carrier binding is invalid",
+        "type": "ValueError"
+      }
+    },
+    {
+      "actual_CAS_integrity": true,
+      "case": "raw_integrity_valid_forgery/required",
+      "check_outcome": "PASS",
+      "derived_publications": 0,
+      "input_ref": "sha256:90e5981440cb9c5cec1720514271c2c68d0dc4d897e2c34db5292d2a0c346fb0",
+      "refusal": {
+        "message": "posterior summary profile is missing",
+        "type": "ValueError"
+      }
+    },
+    {
+      "actual_CAS_integrity": true,
+      "case": "raw_integrity_valid_forgery/context",
+      "check_outcome": "PASS",
+      "derived_publications": 0,
+      "input_ref": "sha256:0903c5c1ee7c6de58f588136488b0bcb9a0bfee0d48c3f92491560a464ef47ee",
+      "refusal": {
+        "message": "1 validation error for PosteriorSummaryProfileV2\n  Value error, posterior ratio profile identity/paired premise is invalid [type=value_error, input_value={'binding': None, 'carrie...on', 'thinning': 'none'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error",
+        "type": "ValidationError"
+      }
+    }
+  ],
+  "schema": "policyos.e02.independent_source2_delta_native.v1",
+  "scope": "six actual raw CAS forgery axes and nine scalar legacy diagnostic compatibility controls, not maintained pytest/G acceptance or settled exact-ratio revalidation",
+  "source_after": {
+    "all_git_blobs_bound": true,
+    "bytes": 55109718,
+    "errors": [],
+    "full_path_gitblob_size_frame_sha256": "e7dd1bca5adaa7b36ffe36236c4bc0e9807b5ecc8682cdd28a37b3ec9289887f",
+    "paths": 2917
+  },
+  "source_before": {
+    "all_git_blobs_bound": true,
+    "bytes": 55109718,
+    "errors": [],
+    "full_path_gitblob_size_frame_sha256": "e7dd1bca5adaa7b36ffe36236c4bc0e9807b5ecc8682cdd28a37b3ec9289887f",
+    "paths": 2917
+  }
+}

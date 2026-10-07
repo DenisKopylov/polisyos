@@ -1,0 +1,36 @@
+"""Run the four independent isolated oracle modes with literal full outputs."""
+import datetime
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+root=Path('/workspace/e02-E-continuation-20261006')
+base=Path('/tmp/e02-E-ingress-oracle-thirteenth-20261007')
+candidate=sys.argv[1]
+assert len(candidate)==40
+python=str(root/'policy-engine/.venv/bin/python')
+started=[]
+for optimize,remove in ((False,False),(True,False),(False,True),(True,True)):
+    label=('optimized' if optimize else 'normal')+('-removal' if remove else '')
+    command=[python,'-B']+(['-O'] if optimize else [])+[str(base/'probe.py'),'--candidate',candidate,'--label',label]+(['--remove-property'] if remove else [])
+    stdout=(base/(label+'.stdout.txt')).open('wb');stderr=(base/(label+'.stderr.txt')).open('wb')
+    env=os.environ.copy();env['PYTHONDONTWRITEBYTECODE']='1'
+    start=time.monotonic();when=datetime.datetime.now(datetime.timezone.utc).isoformat()
+    process=subprocess.Popen(command,cwd=root/'policy-engine',env=env,stdout=stdout,stderr=stderr)
+    started.append((label,command,process,stdout,stderr,start,when))
+receipts=[]
+for label,command,process,stdout,stderr,start,when in started:
+    rc=process.wait();stdout.close();stderr.close()
+    outputs=[]
+    for suffix in ('.stdout.txt','.stderr.txt','.json'):
+        file=base/(label+suffix)
+        if file.exists():
+            data=file.read_bytes();outputs.append({'path':str(file),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+    receipt={'candidate':candidate,'mode':label,'argv':command,'cwd':str(root/'policy-engine'),'exit_code':rc,'started_at_UTC':when,'wall_seconds':time.monotonic()-start,'outputs':outputs,'inherited_environment':'existing configured .venv; only PYTHONDONTWRITEBYTECODE=1 added, no artificial process/thread/CPU quotas'}
+    receipts.append(receipt);(base/(label+'.execution.json')).write_text(json.dumps(receipt,indent=2)+'\n')
+(base/'execution.json').write_text(json.dumps({'schema':'policyos.e02.independent_ingress_oracle_execution.v1','runs':receipts},indent=2)+'\n')
+print(json.dumps(receipts,indent=2))
+sys.exit(0 if all(r['exit_code']==0 for r in receipts) else 1)

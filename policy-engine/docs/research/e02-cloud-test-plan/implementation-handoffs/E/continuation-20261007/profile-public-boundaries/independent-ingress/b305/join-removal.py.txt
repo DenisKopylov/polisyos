@@ -1,0 +1,50 @@
+"""Independent removal of runtime Profile2 join refusal with markers retained."""
+import hashlib
+import json
+from pathlib import Path
+import platform
+import subprocess
+import sys
+import time
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+BASE=Path('/tmp/e02-E-ingress-oracle-thirteenth-20261007')
+candidate=sys.argv[1]
+sys.path.insert(0,str(ROOT/'policy-engine/src'))
+from probe import source_binding
+before=source_binding(candidate)
+if not before['all_git_blobs_bound']: raise RuntimeError(before)
+from polisyos.core import artifacts as cas
+from polisyos.foundry.uncertainty import summarize_bayesian_calibration_posterior
+from polisyos.ir.analytics import read_posterior_summary_profile
+import polisyos.ir.analytics.uncertainty as uncertainty
+left=summarize_bayesian_calibration_posterior({'x':[2.]},weights=[1.]).parameter_envelopes['x']
+right=summarize_bayesian_calibration_posterior({'x':[10.,14.]},weights=[1.,1.]).parameter_envelopes['x']
+generic=right.model_copy(update={'metadata':{}})
+pairs={'unequal_totals':(left,right),'reversed':(right,left),'profile_generic':(left,generic),'generic_profile':(generic,left)}
+rows=[]
+for key,pair in pairs.items():
+ try: uncertainty.join_envelopes(pair)
+ except uncertainty.UncertaintyCompatibilityError as exc:
+  before_outcome='typed_refusal';before_error=str(exc)
+ else: before_outcome='lowered';before_error=None
+ rows.append({'case':key,'before':before_outcome,'before_error':before_error})
+# Remove only the actual law-declaration admission used by join. All caller
+# code/docstrings and original typed input law/context/digest markers remain.
+uncertainty._ratio_composition_profile=lambda envelope:None
+for row,(key,pair) in zip(rows,pairs.items(),strict=True):
+ output=uncertainty.join_envelopes(pair)
+ store_path=BASE/('join-removal-optimized' if sys.flags.optimize else 'join-removal-normal')/key
+ ref=uncertainty.persist_uncertainty_envelope(cas.FileSystemCAS(store_path),output)
+ fresh=uncertainty.load_uncertainty_envelope(cas.FileSystemCAS(store_path),ref)
+ profile=read_posterior_summary_profile(fresh)
+ row.update(after='lowered_without_profile',output_ref=str(ref.artifact_id),
+  samples=list(fresh.distribution_payload.samples),weights=list(fresh.distribution_payload.weights),
+  profile_present=profile is not None,input_profile_markers_retained=any('posterior_summary_profile' in x.metadata for x in pair),
+  output_metadata=fresh.metadata,check_outcome='PASS' if row['before']=='typed_refusal' and profile is None and row.get('input_profile_markers_retained',True) else 'FAIL')
+after=source_binding(candidate)
+if not after['all_git_blobs_bound']:raise RuntimeError(after)
+d={'schema':'policyos.e02.independent_join_guard_removal.v1','candidate':candidate,'tree':subprocess.check_output(['git','rev-parse',candidate+'^{tree}'],cwd=ROOT).decode().strip(),'optimization':sys.flags.optimize,'rows':rows,'source_before':before,'source_after':after,'outcomes':{state:sum(r['check_outcome']==state for r in rows) for state in ('PASS','FAIL')},'scope':'no mixture estimand inferred; control deliberately exposes loss of typed declaration at retained-marker public join','environment':{'python':sys.version,'platform':platform.platform(),'argv':sys.argv,'cwd':str(Path.cwd())}}
+name='join-removal-optimized' if sys.flags.optimize else 'join-removal-normal'
+(BASE/(name+'.json')).write_text(json.dumps(d,sort_keys=True,indent=2)+'\n')
+print(json.dumps({'candidate':candidate,'optimization':sys.flags.optimize,'outcomes':d['outcomes']},indent=2))
+sys.exit(0 if d['outcomes']['FAIL']==0 else 1)

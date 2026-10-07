@@ -1,0 +1,246 @@
+{
+  "schema": "policyos.e02.fit_owner_source_identity.v1",
+  "root": "/workspace/e02-E-continuation-20261006",
+  "readonly": true,
+  "source_paths": [
+    "policy-engine/src/polisyos/scientist/compute/runner.py",
+    "policy-engine/src/polisyos/core/canon/canon_json.py",
+    "policy-engine/src/polisyos/common/canonical.py",
+    "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+    "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py"
+  ],
+  "refs": [
+    {
+      "commit": "6638e18a3295e43a89b0ae6adba32e62952154bb",
+      "tree": "5bc2352671f5172a88268ec45d8dd537b4e048fe",
+      "paths": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+          "blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+          "bytes": 29575,
+          "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd"
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+          "blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+          "bytes": 1882,
+          "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95"
+        },
+        {
+          "path": "policy-engine/src/polisyos/common/canonical.py",
+          "blob": "25fa43311ba8a04a25845a1863898399a7eed958",
+          "bytes": 10154,
+          "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+          "blob": "a8ee658d7b54604292fa82713a2dcba06f06400d",
+          "bytes": 16707,
+          "sha256": "c6cfc4e4c2c412903bd37411951362846e09eca64b9f1384ace27684e838a70e"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+          "blob": "57f272f4c5feee006112374a3751705431518d59",
+          "bytes": 22494,
+          "sha256": "7cefa4f0699f4ddba4782cca19136c5cb7070158d0a5f7c3975db54d1f457f05"
+        }
+      ]
+    },
+    {
+      "commit": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+      "tree": "d5efa295c8af983a86a620a120ab091aae580db3",
+      "paths": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+          "blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+          "bytes": 29575,
+          "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd"
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+          "blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+          "bytes": 1882,
+          "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95"
+        },
+        {
+          "path": "policy-engine/src/polisyos/common/canonical.py",
+          "blob": "25fa43311ba8a04a25845a1863898399a7eed958",
+          "bytes": 10154,
+          "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+          "blob": "1306214ad83d92ce5778deb7257bafcd08be7e38",
+          "bytes": 18180,
+          "sha256": "4e71a1bf6745108ee998226ded768b0e0c868a29d8a413b8dcac122f2744a674"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+          "blob": "a4da5f1f87cef67afd76033d43950fb7603f7b30",
+          "bytes": 34293,
+          "sha256": "a3c52aba86dcb0c219f6f47a876f90a02da460b2a346c726ca75b7ddec57594b"
+        }
+      ]
+    },
+    {
+      "commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+      "paths": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+          "blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+          "bytes": 29575,
+          "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd"
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+          "blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+          "bytes": 1882,
+          "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95"
+        },
+        {
+          "path": "policy-engine/src/polisyos/common/canonical.py",
+          "blob": "25fa43311ba8a04a25845a1863898399a7eed958",
+          "bytes": 10154,
+          "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+          "blob": "1306214ad83d92ce5778deb7257bafcd08be7e38",
+          "bytes": 18180,
+          "sha256": "4e71a1bf6745108ee998226ded768b0e0c868a29d8a413b8dcac122f2744a674"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+          "blob": "a4da5f1f87cef67afd76033d43950fb7603f7b30",
+          "bytes": 34293,
+          "sha256": "a3c52aba86dcb0c219f6f47a876f90a02da460b2a346c726ca75b7ddec57594b"
+        }
+      ]
+    },
+    {
+      "commit": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "tree": "7bec40f1926422c363a3cf3fa623089d85a68139",
+      "paths": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+          "blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+          "bytes": 29575,
+          "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd"
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+          "blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+          "bytes": 1882,
+          "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95"
+        },
+        {
+          "path": "policy-engine/src/polisyos/common/canonical.py",
+          "blob": "25fa43311ba8a04a25845a1863898399a7eed958",
+          "bytes": 10154,
+          "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+          "blob": "1306214ad83d92ce5778deb7257bafcd08be7e38",
+          "bytes": 18180,
+          "sha256": "4e71a1bf6745108ee998226ded768b0e0c868a29d8a413b8dcac122f2744a674"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+          "blob": "a4da5f1f87cef67afd76033d43950fb7603f7b30",
+          "bytes": 34293,
+          "sha256": "a3c52aba86dcb0c219f6f47a876f90a02da460b2a346c726ca75b7ddec57594b"
+        }
+      ]
+    },
+    {
+      "commit": "2abc17f46a033a7879663486ff9946a95786601f",
+      "tree": "375301dd0c86a6168f4f747d8c56d9e0acb9567c",
+      "paths": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+          "blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+          "bytes": 29575,
+          "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd"
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+          "blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+          "bytes": 1882,
+          "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95"
+        },
+        {
+          "path": "policy-engine/src/polisyos/common/canonical.py",
+          "blob": "25fa43311ba8a04a25845a1863898399a7eed958",
+          "bytes": 10154,
+          "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+          "state": "absent",
+          "exit_code": 128,
+          "stderr": "fatal: path 'policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py' exists on disk, but not in '2abc17f46a033a7879663486ff9946a95786601f'\n"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+          "state": "absent",
+          "exit_code": 128,
+          "stderr": "fatal: path 'policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py' exists on disk, but not in '2abc17f46a033a7879663486ff9946a95786601f'\n"
+        }
+      ]
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-status",
+        "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+        "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+        "--",
+        "policy-engine/src/polisyos/scientist/compute/runner.py",
+        "policy-engine/src/polisyos/core/canon/canon_json.py",
+        "policy-engine/src/polisyos/common/canonical.py",
+        "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+        "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-status",
+        "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+        "2abc17f46a033a7879663486ff9946a95786601f",
+        "--",
+        "policy-engine/src/polisyos/scientist/compute/runner.py",
+        "policy-engine/src/polisyos/core/canon/canon_json.py",
+        "policy-engine/src/polisyos/common/canonical.py",
+        "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+        "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "exit_code": 0,
+      "stdout": "D\tpolicy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py\nD\tpolicy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "/tmp/e02-E-fit-packet-thirteenth-20261007/float-materializer-owner.patch"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ]
+}

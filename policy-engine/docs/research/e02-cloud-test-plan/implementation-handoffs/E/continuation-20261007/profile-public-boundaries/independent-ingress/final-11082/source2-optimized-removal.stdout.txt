@@ -1,0 +1,12 @@
+{
+  "candidate": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+  "tree": "9263d367d41359f1f1a2758419fbc1c8f1eace0f",
+  "mode": "source2-optimized-removal",
+  "row_count": 28,
+  "outcomes": {
+    "PASS": 28,
+    "FAIL": 0
+  },
+  "module_errors": [],
+  "wall_seconds": 25.121688140003243
+}

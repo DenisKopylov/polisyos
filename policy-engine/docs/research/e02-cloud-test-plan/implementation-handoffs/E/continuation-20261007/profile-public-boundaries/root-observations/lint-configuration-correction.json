@@ -1,0 +1,16 @@
+{
+  "schema": "policyos.e02.lint_configuration_correction.v1",
+  "retained_native_receipt": "publication-lint-initial-381/receipt.json",
+  "actual_native_results": {
+    "Ruff": "FAIL",
+    "diagnostics": 293,
+    "E_diagnostics": 1,
+    "format": "FAIL",
+    "E_would_reformat": 2
+  },
+  "receipt_metadata_correction": "Initial receipt incorrectly identified pyproject.toml as the effective Ruff configuration. Native default-file discovery actually uses policy-engine/ruff.toml; command/default diagnostics themselves are preserved exactly.",
+  "separate_previous_helper_observation": "Explicit pyproject override PASS is retained with its actual args; it is not the effective repo configuration for installed utility paths.",
+  "required_next_result": "Format/split only two current E maintained utilities under actual ruff.toml, rerun document corrupt-field controls and complete381 default checks. No product or foreign code edit.",
+  "product_source_unchanged": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+  "P41": "not_established"
+}

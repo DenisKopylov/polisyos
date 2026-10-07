@@ -1,0 +1,355 @@
+{
+  "schema": "e02.E.independent-api-owner-packet-review.v2",
+  "reviewer": "/root/fit_packet",
+  "author": "/root/api_companions",
+  "disposition": "GO",
+  "scope": "Owner-ready typed facade and canonical-generator packet only; no source application, canonical owner lease, generator result, scoped typecheck result or scientific finding acceptance is established by this review.",
+  "candidate": {
+    "commit": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+    "tree": "9263d367d41359f1f1a2758419fbc1c8f1eace0f"
+  },
+  "packet_pins": [
+    {
+      "path": "/tmp/e02-E-api-companions-thirteenth-20261007/canonical-ABI-public-companions.json",
+      "bytes": 7905,
+      "sha256": "3dec84bb90f406811d1c52d8846edb153619bc1172f1807e79cbf6f5fa62b412"
+    },
+    {
+      "path": "/tmp/e02-E-api-companions-thirteenth-20261007/canonical-owner-import-packets-v2.json",
+      "bytes": 14725,
+      "sha256": "c380b3267a2b4b12c144bcb51771d65b3b331a00ce4500a7afad036c9b95c54e"
+    }
+  ],
+  "initial_review_retained": {
+    "path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-api-review/initial-review.json",
+    "bytes": 2597,
+    "sha256": "0099a987b969d325f810ed50cd85a2d3ae0410b34eae8163c6a3c1baba75388e"
+  },
+  "initial_change_required_resolved": "V2 covers every cross-root CanonSpec caller in complete exact-base changed-source census, including forecast_owner and the existing IRCanonSpec alias in orchestrator. All three are preexisting at exactbase198; no new edge attribution is invented.",
+  "full_changed_source_AST_denominator": {
+    "all_changed_source_paths": 75,
+    "canonical_spec_matches": [
+      {
+        "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+        "line": 39,
+        "alias": null,
+        "scope": "E_cross_root"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "line": 20,
+        "alias": null,
+        "scope": "intra_IR"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "line": 18,
+        "alias": null,
+        "scope": "intra_IR"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+        "line": 72,
+        "alias": null,
+        "scope": "E_cross_root"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "line": 40,
+        "alias": "IRCanonSpec",
+        "scope": "E_cross_root"
+      }
+    ],
+    "E_cross_root_count": 3,
+    "intra_IR_count": 2,
+    "current_and_base_literal_refs_reconciled": true
+  },
+  "complete_API_source_ref_occurrences": [
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "bytes": 39467,
+      "sha256": "f7ae4be784059917c8602267231896d0d53755636f04851f149f614faf68c0bc",
+      "unchanged_from_b305_and_declared_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "bytes": 50093,
+      "sha256": "44200deaa78c8abc9707ebd67f730d10287c07c51d2d3b7246c080e82d11e486",
+      "unchanged_from_b305_and_declared_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "bytes": 31271,
+      "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d",
+      "unchanged_from_b305_and_declared_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "bytes": 27715,
+      "sha256": "5d4366804bc9fa2b0e9c1193d1b9412fb5a1408064ffc35c3d72f4025d82de84",
+      "unchanged_from_b305_and_declared_source": true
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "bytes": 222856,
+      "sha256": "63a4ed665331cb937ec4ec5968e72ba5659914c147ed23eb447f7183c5a37fd1",
+      "unchanged_from_b305_and_declared_source": true
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "bytes": 154167,
+      "sha256": "99b655871e2e68c0577cd6f6e18358dfea9a5aac7e216bcbb3a6aed7d2fd56ed",
+      "unchanged_from_b305_and_declared_source": true
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+      "bytes": 52447,
+      "sha256": "b566b7f999f25d3aec2bb10184ed85c108ccbdfd8abad8f558259c037d9b2a27",
+      "unchanged_from_b305_and_declared_source": true
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+      "unchanged_from_b305_and_declared_source": true
+    },
+    {
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "bytes": 253707,
+      "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0",
+      "unchanged_from_b305_and_declared_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "bytes": 50093,
+      "sha256": "44200deaa78c8abc9707ebd67f730d10287c07c51d2d3b7246c080e82d11e486",
+      "unchanged_from_b305_and_declared_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/__init__.py",
+      "bytes": 1561,
+      "sha256": "4572f556ca63babc19c33f5d44b1418b310d9089455773266b655979cf723ce1",
+      "unchanged_from_b305_and_declared_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/__init__.py",
+      "bytes": 1915,
+      "sha256": "0ed2e21568bd6e97323957da0a8970ca172b64a61a8b77e8ed6cb773bb550134",
+      "unchanged_from_b305_and_declared_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "bytes": 81721,
+      "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "unchanged_from_b305_and_declared_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "bytes": 59611,
+      "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "unchanged_from_b305_and_declared_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "bytes": 27666,
+      "sha256": "808fc6a04d7bd74addfd7a77d6607c480b8b61a7e4a637e72177058f412dbce0",
+      "unchanged_from_b305_and_declared_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/executor.py",
+      "bytes": 2305,
+      "sha256": "7577afbd9236d6a7e2670888c923f7a79f98df39521e967919eb56b2ebe788db",
+      "unchanged_from_b305_and_declared_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "bytes": 2555,
+      "sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b",
+      "unchanged_from_b305_and_declared_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/__init__.py",
+      "bytes": 606,
+      "sha256": "e33a7486224d5e15cd418ac4dab69bb38ac6b1593d739a4b7ac24ea4d477dfb3",
+      "unchanged_from_b305_and_declared_source": true
+    }
+  ],
+  "ABI_contract_reuse": {
+    "root_exports_missing_inventory": [
+      {
+        "name": "PosteriorParameterBinding",
+        "fqn": "polisyos.ir.PosteriorParameterBinding",
+        "source_binding": [
+          "polisyos.ir.analytics.posterior_summary",
+          "PosteriorParameterBinding"
+        ],
+        "in_root_all": true,
+        "inventory_present": false,
+        "reference_present": false
+      },
+      {
+        "name": "PosteriorSummaryContext",
+        "fqn": "polisyos.ir.PosteriorSummaryContext",
+        "source_binding": [
+          "polisyos.ir.analytics.posterior_summary",
+          "PosteriorSummaryContext"
+        ],
+        "in_root_all": true,
+        "inventory_present": false,
+        "reference_present": false
+      },
+      {
+        "name": "PosteriorSummaryProfile",
+        "fqn": "polisyos.ir.PosteriorSummaryProfile",
+        "source_binding": [
+          "polisyos.ir.analytics.posterior_summary",
+          "PosteriorSummaryProfile"
+        ],
+        "in_root_all": true,
+        "inventory_present": false,
+        "reference_present": false
+      },
+      {
+        "name": "PosteriorSummaryProfileV2",
+        "fqn": "polisyos.ir.PosteriorSummaryProfileV2",
+        "source_binding": [
+          "polisyos.ir.analytics.posterior_summary",
+          "PosteriorSummaryProfileV2"
+        ],
+        "in_root_all": true,
+        "inventory_present": false,
+        "reference_present": false
+      }
+    ],
+    "ABI_registrations": [
+      {
+        "abi_key": "posterior_summary_profile_v2",
+        "fqn": "polisyos.ir.analytics.posterior_summary.PosteriorSummaryProfileV2",
+        "module": "ir",
+        "schema_file": "posterior_summary_profile_v2.schema.json",
+        "version_field": "profile_version"
+      },
+      {
+        "abi_key": "posterior_summary_profile",
+        "fqn": "polisyos.ir.analytics.posterior_summary.PosteriorSummaryProfile",
+        "module": "ir",
+        "schema_file": "posterior_summary_profile.schema.json",
+        "version_field": "profile_version"
+      }
+    ],
+    "canonical_order": [
+      {
+        "cwd": "policy-engine",
+        "argv": [
+          "uv",
+          "run",
+          "--extra",
+          "ml",
+          "polisyos-tools",
+          "diagnostics",
+          "gen-schema"
+        ],
+        "prerequisite": "G has admitted intended E source + canonical facade-owner deltas and frozen composed SHA",
+        "expected": "both profile snapshots + complete ABI manifest recomputed",
+        "outcome": "UNRUN"
+      },
+      {
+        "cwd": "policy-engine",
+        "argv": [
+          "uv",
+          "run",
+          "python",
+          "tools/devx/architecture/guardrails.py",
+          "sync",
+          "--skip-deep-import-baseline"
+        ],
+        "expected": "full facade inventory/reference from frozen source; current fouradditions count288, with any admitted new aliases recompute denominator",
+        "outcome": "UNRUN"
+      },
+      {
+        "cwd": "policy-engine",
+        "argv": [
+          "uv",
+          "run",
+          "--extra",
+          "ml",
+          "polisyos-tools",
+          "diagnostics",
+          "gen-schema",
+          "--check"
+        ],
+        "outcome": "UNRUN"
+      },
+      {
+        "cwd": "policy-engine",
+        "argv": [
+          "uv",
+          "run",
+          "polisyos-tools",
+          "architecture",
+          "guardrails",
+          "check"
+        ],
+        "outcome": "UNRUN"
+      }
+    ],
+    "compatibility": {
+      "Envelope": "1.1 unchanged",
+      "Profile1": {
+        "id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+        "version": "1.0",
+        "literal_replay": "retained, no redefinition",
+        "weights": "historical normalized probabilities"
+      },
+      "Profile2": {
+        "id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+        "version": "2.0",
+        "weights": "canonical binary ratio weights need not sum1",
+        "probability_convention": "exact_binary_weight_ratios",
+        "sampling_approximation": "finite_uniform_mesh_discretization",
+        "gate_eligible": false,
+        "axis_alignment": "multidimensional supplied aligned unique draw IDs; not lineage/institutional authority"
+      }
+    },
+    "state": "surface_missing",
+    "generated_source_mutated": false,
+    "retained_initial_full103_snapshot_denominator_review": {
+      "path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-api-review/readback.json",
+      "bytes": 21940,
+      "sha256": "610ec4f05dbdc37330b5806cccd2f79e4347815fb1a134c8ad1675880fb9ff01"
+    }
+  },
+  "combined_patch_check": {
+    "argv": [
+      "git",
+      "apply",
+      "--check",
+      "/tmp/e02-E-api-companions-thirteenth-20261007/IR-owner-forecast-producer-reader-aliases-and-E-callers.patch",
+      "/tmp/e02-E-api-companions-thirteenth-20261007/Foundry-owner-state-path-snapshot-aliases-and-E-caller.patch",
+      "/tmp/e02-E-api-companions-thirteenth-20261007/IR-owner-CanonSpec-alias-and-all-E-callers-v2.patch"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-api-review/three-patches-v2-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-api-review/three-patches-v2-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "meaning": "Exact combined contexts applicable to current unchanged owner files; unapplied, not behavior acceptance."
+  },
+  "owner_dispositions": {
+    "IR_facade": "Canonical owner must admit exact exports/object identity, public companions and behavioral CAS/codec negative tests before E routes callers.",
+    "Foundry_facade": "Canonical owner must preserve callable lazy facade and run real state snapshot/CAS/native replay controls.",
+    "G_generator": "After admitted composed source freeze: gen-schema, public-surface sync, recomputing architecture/ABI checks. No hand-edited generated files."
+  },
+  "predicate_basis": "independently_reconciled",
+  "source_mutation": false,
+  "Git_mutation": false,
+  "backend_rerun": false,
+  "formal_G_acceptance": 0,
+  "leases": "source/env read leases closed"
+}

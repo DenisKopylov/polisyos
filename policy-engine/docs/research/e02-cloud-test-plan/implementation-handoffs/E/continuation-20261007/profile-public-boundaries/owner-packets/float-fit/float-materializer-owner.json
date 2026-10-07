@@ -1,0 +1,57 @@
+{
+  "source_base": "3cc20af36297493aa8ba8fdc66f3810abadf81a2",
+  "protected_writer": "Scientist compute/input-materializer canonical owner; G handoff",
+  "source_path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+  "exact_native_inlet": "_load_input_refs uses json.loads on canonical float-tagged CAS payloads",
+  "actual_first_job_receipt": "pytest.stdout.txt/pytest.junit.xml retained (15 setup ERROR; no E evaluator reached)",
+  "bounded_operator_rows": [
+    {
+      "source_ref": "sha256:4fe6b8cc46840776a7dabd40a785fa644e1d7fd8ea4ebd296857aa0e7e60b2c2",
+      "raw_json_numpy": {
+        "outcome": "ERROR",
+        "type": "TypeError",
+        "message": "float() argument must be a string or a real number, not 'dict'"
+      },
+      "canonical_decode_numpy": {
+        "outcome": "PASS",
+        "values": [
+          [
+            -1.0
+          ],
+          [
+            0.0
+          ],
+          [
+            1.0
+          ],
+          [
+            -0.5
+          ],
+          [
+            0.5
+          ]
+        ]
+      }
+    },
+    {
+      "source_ref": "sha256:ba3645a8e93df5ca2ec65fc1845e7f606b5ccbfac6d71de7701852a6a0e8c721",
+      "raw_json_numpy": {
+        "outcome": "ERROR",
+        "type": "TypeError",
+        "message": "float() argument must be a string or a real number, not 'dict'"
+      },
+      "canonical_decode_numpy": {
+        "outcome": "PASS",
+        "values": [
+          -0.2,
+          0.1,
+          0.2,
+          -0.1,
+          0.0
+        ]
+      }
+    }
+  ],
+  "minimal_patch": "Decode with the existing Core canonical decoder; preserve input typed kind/profile binding in the canonical owner implementation. Do not copy codec.",
+  "next_result": "Actual configured float-valued JobSpec source refs run through unchanged HMC/NUTS producer and source refs materialize numeric arrays; malformed canonical tagged input refuses."
+}

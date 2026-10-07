@@ -1,0 +1,50 @@
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/README.md:102:Profile2 scalar `push_forward_envelope` admits the source carrier before any
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/privacy_transportability.py:30:    combine_envelopes,
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/privacy_transportability.py:482:    combined = combine_envelopes(
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:1231:    raise ValueError("compress_envelope(target='particles') requires a representable law payload")
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:1493:def join_envelopes(
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:1503:        raise ValueError("join_envelopes requires at least one envelope")
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:1556:        stage_name="join_envelopes",
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:1711:def compress_envelope(
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:1793:        stage_name="compress_envelope",
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:1848:def push_forward_envelope(
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:1999:        stage_name="push_forward_envelope",
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:2053:def pull_back_envelope(
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:2067:            "pull_back_envelope requires base_measure, upstream_particles, or local_inverse"
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:2176:        stage_name="pull_back_envelope",
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:2218:def combine_envelopes(
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:2227:        raise ValueError("combine_envelopes requires at least one envelope")
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:2278:        stage_name="combine_envelopes",
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:2354:def load_uncertainty_envelope(
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:2400:    "combine_envelopes",
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:2401:    "compress_envelope",
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:2403:    "join_envelopes",
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:2404:    "load_uncertainty_envelope",
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:2406:    "pull_back_envelope",
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/ir/analytics/uncertainty.py:2407:    "push_forward_envelope",
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py:15:from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py:110:                env = load_uncertainty_envelope(store, ref)
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py:121:                    operation="load_uncertainty_envelope",
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py:37:    combine_envelopes,
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py:735:                combine_envelopes(envelope_contracts)
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py:16:from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py:322:                load_uncertainty_envelope(ctx.store, ref)
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:63:from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:2012:            envelope = load_uncertainty_envelope(
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:2794:            env = load_uncertainty_envelope(ctx.store, ref)
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:2815:            env = load_uncertainty_envelope(ctx.store, ref)
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py:2835:            env = load_uncertainty_envelope(ctx.store, ref)
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py:29:from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py:1007:    return to_search_uncertainty_envelope(load_uncertainty_envelope(ctx.store, ref))
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py:19:from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py:412:    return to_search_uncertainty_envelope(load_uncertainty_envelope(ctx.store, ref))
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py:654:            operation="load_uncertainty_envelope",
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py:36:from polisyos.ir.analytics import load_posterior_summary_envelope as load_uncertainty_envelope
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py:258:            persisted_envelope = load_uncertainty_envelope(ctx.store, ref)
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py:386:                snapshot_env = load_uncertainty_envelope(
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py:407:                envelopes[str(name)] = load_uncertainty_envelope(ctx.store, ref)
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:52:from polisyos.ir.analytics import load_posterior_summary_envelope as load_uncertainty_envelope
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:239:        envelope = load_uncertainty_envelope(store, ref)
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:1060:            env = load_uncertainty_envelope(ctx.store, snapshot.uncertainty_envelope_ref)
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:1087:                    load_uncertainty_envelope(ctx.store, ref),
+b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py:1142:                    load_uncertainty_envelope(ctx.store, ref),

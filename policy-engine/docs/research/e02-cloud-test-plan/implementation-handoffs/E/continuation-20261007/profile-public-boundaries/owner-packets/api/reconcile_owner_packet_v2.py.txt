@@ -1,0 +1,60 @@
+from pathlib import Path
+import ast
+import difflib
+import hashlib
+import json
+import subprocess
+
+R = Path('/workspace/e02-E-continuation-20261006')
+S = Path('/tmp/e02-E-api-companions-thirteenth-20261007')
+H = 'df5258b7ddfade5b952e3b21ef28116ced40fa68'
+B = '198076863e143dea9f89f02734b13d50dae3eed5'
+CURRENT = '11082e91d61ace2f3bd7016d408341fdd6ec1702'
+
+def git(*args):
+    q = subprocess.run(['git', *args], cwd=R, capture_output=True)
+    assert q.returncode == 0, (args, q.stderr)
+    return q.stdout
+
+def ref(path, source):
+    data = git('show', source + ':' + path)
+    return {'path': path, 'source': source, 'blob': git('rev-parse', source + ':' + path).decode().strip(), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+arts = 'policy-engine/src/polisyos/ir/artifacts/__init__.py'
+callers = ['policy-engine/src/polisyos/calibration/forecast_bridge.py', 'policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py', 'policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py']
+a = git('show', H + ':' + arts).decode()
+changes = [(arts, a.replace('\nfrom .contracts import (', '\nfrom polisyos.ir.model_layer.canon import CanonSpec\n\nfrom .contracts import (').replace('    "CanonInfo",\n', '    "CanonInfo",\n    "CanonSpec",\n'))]
+rows = []
+for path in callers:
+    body = git('show', H + ':' + path).decode()
+    assert git('show', CURRENT + ':' + path).decode() == body
+    old = git('show', B + ':' + path).decode()
+    hits = [n for n in ast.walk(ast.parse(body)) if isinstance(n, ast.ImportFrom) and n.module == 'polisyos.ir.model_layer.canon']
+    old_hits = [n for n in ast.walk(ast.parse(old)) if isinstance(n, ast.ImportFrom) and n.module == 'polisyos.ir.model_layer.canon']
+    assert len(hits) == len(old_hits) == 1
+    if path.endswith('orchestrator.py'):
+        changed = body.replace('from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec\n', 'from polisyos.ir.artifacts import CanonSpec as IRCanonSpec\n')
+    else:
+        assert body.count('    ArtifactStore,\n') == 1
+        changed = body.replace('    ArtifactStore,\n', '    ArtifactStore,\n    CanonSpec,\n').replace('from polisyos.ir.model_layer.canon import CanonSpec\n', '')
+    changes.append((path, changed))
+    rows.append({'path': path, 'writer': 'E', 'historical_source': ref(path, H), 'current_source': ref(path, CURRENT), 'base_source': ref(path, B), 'current_line': hits[0].lineno, 'base_line': old_hits[0].lineno, 'symbol': hits[0].names[0].name, 'alias': hits[0].names[0].asname, 'new_cross_root_edge_at_exact_base': False, 'included_in_v2_patch': True})
+text = ''.join(''.join(difflib.unified_diff(git('show', H + ':' + path).decode().splitlines(keepends=True), body.splitlines(keepends=True), fromfile='a/' + path, tofile='b/' + path)) for path, body in changes)
+patch = S / 'IR-owner-CanonSpec-alias-and-all-E-callers-v2.patch'
+patch.write_text(text)
+packet = json.loads((S / 'canonical-owner-import-packets.json').read_text())
+packet['schema'] = 'policyos.e02.canonical_owner_import_packet.v2'
+packet['current_qualified_source'] = CURRENT
+packet['current_qualified_tree'] = git('rev-parse', CURRENT + '^{tree}').decode().strip()
+packet['original_packet_retained'] = {'path': 'canonical-owner-import-packets.json', 'bytes': (S / 'canonical-owner-import-packets.json').stat().st_size, 'sha256': hashlib.sha256((S / 'canonical-owner-import-packets.json').read_bytes()).hexdigest()}
+p = next(p for p in packet['packets'] if p['id'] == 'preexisting-IR-CanonSpec')
+p['caller_writer'] = 'E forecast_bridge / forecast_owner / backtesting orchestrator'
+p['complete_E_changed_source_caller_denominator'] = rows
+p['patch'] = {'path': str(patch), 'bytes': len(text.encode()), 'sha256': hashlib.sha256(text.encode()).hexdigest(), 'changed_paths': [path for path, _ in changes], 'applied': False, 'apply_check': 'UNRUN; source-derived exact Git proposal only'}
+p['scope_correction'] = 'Original bounded patch routed forecast_bridge only. V2 routes all three E-owned current changed-source CanonSpec cross-root callers, each already present at exact base198. This class is separate from original12 and newer23 module-pair edge denominators. Intra-IR uses and non-E full-repository canon imports retain their actual writer and are not covered by this bounded E packet.'
+p['positive_next_result'] = 'Canonical IR facade CanonSpec is the exact class required by IR put_json_artifact; all three E native persistence callers use that same public object and preserve configured floats/profile/lineage. Core sibling spec is distinct and not cast/substituted. Consumer/native tests and scoped typing run after canonical export admission.'
+p['negative_next_result'] = 'Malformed strict IR tags remain refused; remove the facade alias while keeping markers and all three actual persistence callers fail at the boundary. Existing Core/IR spec distinction remains explicit.'
+packet['source_refs'].append(ref(callers[-1], H))
+packet['all_owner_lease_states'] = 'not_established'
+(S / 'canonical-owner-import-packets-v2.json').write_text(json.dumps(packet, ensure_ascii=False, indent=2) + '\n')
+print(json.dumps({'packet_sha256': hashlib.sha256((S / 'canonical-owner-import-packets-v2.json').read_bytes()).hexdigest(), 'packet_bytes': (S / 'canonical-owner-import-packets-v2.json').stat().st_size, 'patch_sha256': p['patch']['sha256'], 'patch_bytes': p['patch']['bytes'], 'E_caller_denominator': len(rows), 'source_mutated': False}, indent=2))

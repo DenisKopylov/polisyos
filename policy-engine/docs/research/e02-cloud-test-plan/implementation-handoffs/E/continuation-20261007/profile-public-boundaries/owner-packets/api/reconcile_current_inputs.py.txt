@@ -1,0 +1,92 @@
+from pathlib import Path
+import ast
+import collections
+import hashlib
+import json
+import subprocess
+import tomllib
+
+R = Path('/workspace/e02-E-continuation-20261006')
+S = Path('/tmp/e02-E-api-companions-thirteenth-20261007')
+H = 'e4b97c15196d8e276745f55a4367da83586511d9'
+B = '198076863e143dea9f89f02734b13d50dae3eed5'
+OLD = 'df5258b7ddfade5b952e3b21ef28116ced40fa68'
+G = '2abc17f46a033a7879663486ff9946a95786601f'
+
+def git(*args, missing=False):
+    q = subprocess.run(['git', *args], cwd=R, capture_output=True)
+    assert missing or q.returncode == 0, (args, q.stderr)
+    return q
+
+def source_ref(path, source=H):
+    data = git('show', source + ':' + path).stdout
+    return {'path': path, 'source': source, 'blob': git('rev-parse', source + ':' + path).stdout.decode().strip(), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+def write(name, data):
+    path = S / name
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
+    return {'path': str(path), 'bytes': path.stat().st_size, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}
+
+contract_path = 'policy-engine/architecture/public_surface/contract.toml'
+contract = tomllib.loads(git('show', H + ':' + contract_path).stdout.decode())
+supported = {e for p in contract['package'] for e in p.get('supported_entrypoints', [])}
+prior_path = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-lint/inputs.json'
+prior = json.loads(git('show', OLD + ':' + prior_path).stdout)
+writers = {r['path']: r['writer_attribution']['writer'] for r in prior['python_rows']}
+delta = git('diff', '--name-status', B, H).stdout.decode().splitlines()
+python_paths = [line.split('\t')[-1] for line in delta if line.split('\t')[-1].endswith('.py')]
+local_delta = git('diff', '--name-status', OLD, H).stdout.decode().splitlines()
+local_paths = [line.split('\t')[-1] for line in local_delta]
+new_python = sorted(set(python_paths) - set(writers))
+assert new_python == ['policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py']
+writers.update({p: 'E' for p in new_python})
+
+def edges(path, commit):
+    q = git('show', commit + ':' + path, missing=True)
+    if q.returncode:
+        return []
+    root = path.removeprefix('policy-engine/src/polisyos/').split('/')[0] if path.startswith('policy-engine/src/polisyos/') else None
+    rows = []
+    for n in ast.walk(ast.parse(q.stdout)):
+        pairs = [(n.module, [(a.name, a.asname) for a in n.names])] if isinstance(n, ast.ImportFrom) and n.level == 0 and n.module else ([(a.name, [(a.name, a.asname)]) for a in n.names] if isinstance(n, ast.Import) else [])
+        for module, names in pairs:
+            if module.startswith('polisyos.'):
+                rows.append({'path': path, 'line': n.lineno, 'module': module, 'names': names, 'cross_root': root is not None and module.split('.')[1] != root, 'supported_entrypoint': module in supported})
+    return rows
+
+src = [p for p in python_paths if p.startswith('policy-engine/src/')]
+tests = [p for p in python_paths if p.startswith('policy-engine/tests/')]
+new_edges = []
+source_rows = []
+test_rows = []
+source_refs = []
+for path in src + tests:
+    refs = source_ref(path)
+    refs['writer'] = writers[path]
+    source_refs.append(refs)
+    current = edges(path, H)
+    (source_rows if path in src else test_rows).extend(current)
+    if path in src and writers[path] == 'E':
+        old = edges(path, B)
+        old_set = {r['module'] for r in old if r['cross_root']}
+        for module in sorted({r['module'] for r in current if r['cross_root']} - old_set):
+            new_edges.append({'path': path, 'module': module, 'supported_entrypoint': module in supported, 'rows': [r for r in current if r['cross_root'] and r['module'] == module]})
+assert len(new_edges) == 23
+assert sum(not row['supported_entrypoint'] for row in new_edges) == 2
+all_rows = write('current-complete-static-rows-v3.json', {'source': H, 'tree': git('rev-parse', H + '^{tree}').stdout.decode().strip(), 'all_source_rows': source_rows, 'all_test_rows': test_rows})
+input_index = write('current-complete-input-index-v3.json', {'schema': 'policyos.e02.current_complete_import_inputs.v1', 'base': B, 'source': H, 'tree': git('rev-parse', H + '^{tree}').stdout.decode().strip(), 'all_changed_python_paths_and_writers': [{'path': p, 'writer': writers[p]} for p in python_paths], 'all_changed_product_source_and_test_inputs': source_refs, 'prior_writer_input': source_ref(prior_path, OLD), 'new_writer_admission': {'path': new_python[0], 'writer': 'E', 'evidence': 'Exact df525→e4b root-owned six-path source slice; no owner inferred from short result query'}, 'public_surface_contract': source_ref(contract_path), 'full_local_source_delta': local_delta, 'all_static_rows_derived_output': all_rows, 'recomputation': 'reconcile_current_inputs.py.txt is archival exact executed source; extract to scratch and run to reconstruct complete rows directly from pinned Git bytes without source/generator mutation'})
+old_abi = json.loads((S / 'canonical-ABI-public-companions.json').read_text())
+old_owner = json.loads((S / 'canonical-owner-import-packets-v2.json').read_text())
+refs = {r['path']: r for r in old_abi['source_refs'] + old_owner['source_refs']}
+current_refs = []
+for path, row in refs.items():
+    now = source_ref(path)
+    assert now['blob'] == row['blob']
+    current_refs.append({'path': path, 'historical_source': row['source'], 'current_source': H, 'blob': now['blob'], 'unchanged': True, 'bytes': now['bytes'], 'sha256': now['sha256']})
+root = ast.parse(git('show', H + ':policy-engine/src/polisyos/ir/__init__.py').stdout)
+all_list = next(ast.literal_eval(n.value) for n in root.body if isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id == '__all__' for t in n.targets))
+inv = json.loads(git('show', H + ':policy-engine/architecture/public_surface/inventory.json').stdout)
+ir = next(row for row in inv['packages'] if row['module'] == 'polisyos.ir')
+report = {'schema': 'policyos.e02.API_import_source_qualification.v3', 'source': H, 'tree': git('rev-parse', H + '^{tree}').stdout.decode().strip(), 'historical_receipt_source': OLD, 'base': B, 'G': G, 'full_python_denominator': len(python_paths), 'writer_counts': dict(collections.Counter(writers[p] for p in python_paths)), 'source_denominator': len(src), 'test_denominator': len(tests), 'E_source': sum(writers[p] == 'E' for p in src), 'E_tests': sum(writers[p] == 'E' for p in tests), 'full_product_source_AST_rows': len(source_rows), 'full_changed_test_AST_rows': len(test_rows), 'E_new_cross_root_module_edges': new_edges, 'E_new_cross_root_private_edges': sum(not r['supported_entrypoint'] for r in new_edges), 'original12_current_state': '11 removed/admitted; 1 ForecastBridge private reader remains, exact corresponding caller/source blobs unchanged', 'preexisting_CanonSpec_class': '3 E callers at exactbase198, v2 owner packet covers all3; private sibling class distinct from original12/new23 denominator', 'IR_root_all': len(all_list), 'IR_inventory_count': ir['export_count'], 'four_additive_exports_and_two_registered_Profile1_Profile2_ABI_companions_still_missing': True, 'unchanged_API_ABI_owner_packet_inputs': current_refs, 'complete_input_index': input_index, 'latest_scoped_typecheck': {'receipt': 'final-v3-frozen-typecheck.receipt.json', 'actual_child_exit': 0, 'files': 3, 'errors': 0, 'warnings': 0, 'baseline_freshness': 'reported_outdated; canonical unchanged/read-only discard; whole type gate UNRUN'}, 'lease_states': {'canonical_owner_exports': 'not_established', 'source_read': 'CLOSED'}, 'P41': 'not_established', 'predicate_basis': 'recomputed', 'limitations': ['Static import census does not prove invocation, persistence or runtime consumers.', 'Test imports are counted separately and do not acquire a product root from their path.', 'Generated companion output and facade exports require canonical owner admission; no snapshots/public inventory or exceptions edited.']}
+write('current-source-qualification-v3.json', report)
+print(json.dumps({'full_python_denominator': len(python_paths), 'writer_counts': report['writer_counts'], 'source': len(src), 'tests': len(tests), 'E_source': report['E_source'], 'E_tests': report['E_tests'], 'static_source_rows': len(source_rows), 'static_test_rows': len(test_rows), 'input_index': input_index, 'derived_static_rows': all_rows}, indent=2))

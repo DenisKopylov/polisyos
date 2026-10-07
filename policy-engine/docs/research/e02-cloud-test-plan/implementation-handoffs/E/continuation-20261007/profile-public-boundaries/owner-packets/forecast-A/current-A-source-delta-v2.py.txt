@@ -1,0 +1,173 @@
+"""Read immutable current A objects; prepare unapplied narrow owner patch."""
+from __future__ import annotations
+import ast
+import difflib
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+OUT=Path('/tmp/e02-E-forecast-packet-thirteenth-20261007')
+E='b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641'
+A='332ba0b91e9a85774d48d101d4af86e3a3baf911'
+PREVIOUS_A='2605d13916f4dd38f216419562c04718ba4c2028'
+G='2abc17f46a033a7879663486ff9946a95786601f'
+PATH='policy-engine/src/polisyos/runtime/quality/generation_cycle.py'
+commands=[]
+def run(*args):
+ p=subprocess.run(args,cwd=ROOT,capture_output=True,check=False)
+ commands.append({'argv':list(args),'cwd':str(ROOT),'exit':p.returncode,
+                  'stdout':p.stdout.decode(),'stderr':p.stderr.decode()})
+ if p.returncode:raise RuntimeError(p.stderr.decode())
+ return p.stdout
+
+def sha(b):return hashlib.sha256(b).hexdigest()
+def read(ref,p):
+ # Large whole code bytes are input refs, not repeated source payload in Git.
+ return subprocess.check_output(['git','show',ref+':'+p],cwd=ROOT)
+def functions(s):
+ return {n.name:n for n in ast.parse(s).body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))}
+def write(n,d):
+ (OUT/n).write_text(json.dumps(d,ensure_ascii=False,indent=2,sort_keys=True)+'\n')
+
+paths=[PATH,'policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py',
+       'policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py',
+       'policy-engine/tests/unit/remediation/test_frc_01.py']
+rows=[]
+for p in paths:
+ eb=read(E,p);ab=read(A,p)
+ rows.append({'path':p,'E_source':E,'A_source':A,
+              'E_blob':run('git','rev-parse',E+':'+p).decode().strip(),
+              'A_blob':run('git','rev-parse',A+':'+p).decode().strip(),
+              'E_bytes':len(eb),'E_sha256':sha(eb),'A_bytes':len(ab),'A_sha256':sha(ab),
+              'same_bytes':eb==ab})
+assert all(not r['same_bytes'] for r in rows)
+es=read(E,PATH).decode();asrc=read(A,PATH).decode();ef=functions(es);af=functions(asrc)
+names=['_s10_empirical_projection','_resolve_s10_empirical_evidence','_build_s10_forecast_inputs','_s10_limitation_refs']
+func_rows=[];diffs=[]
+for name in names:
+ ex=ast.get_source_segment(es,ef[name]);ax=ast.get_source_segment(asrc,af[name])
+ func_rows.append({'name':name,'E_start':ef[name].lineno,'E_end':ef[name].end_lineno,
+                   'A_start':af[name].lineno,'A_end':af[name].end_lineno,
+                   'E_sha256':sha(ex.encode()),'A_sha256':sha(ax.encode()),
+                   'same_bytes':ex==ax,
+                   'same_AST':ast.dump(ef[name],include_attributes=False)==ast.dump(af[name],include_attributes=False)})
+ diffs.extend(difflib.unified_diff(ex.splitlines(keepends=True),ax.splitlines(keepends=True),
+              fromfile='b2/'+name,tofile='A332/'+name))
+(OUT/'current-A-four-function-delta.patch.txt').write_text(''.join(diffs))
+prior_src=read(PREVIOUS_A,PATH).decode(); prior_functions=functions(prior_src)
+prior_function_rows=[]
+for name in names:
+ old_function=ast.get_source_segment(prior_src,prior_functions[name])
+ new_function=ast.get_source_segment(asrc,af[name])
+ prior_function_rows.append({'name':name,'prior_A_sha256':sha(old_function.encode()),
+                            'new_A_sha256':sha(new_function.encode()),
+                            'literal_function_unchanged':old_function==new_function})
+assert all(row['literal_function_unchanged'] for row in prior_function_rows)
+full_A_delta=run('git','diff','--name-status',PREVIOUS_A,A).decode().splitlines()
+write('A2605-to-A332-full-path-delta.json',{'schema':'policyos.e02.complete_source_delta.v1',
+      'prior_A_source':PREVIOUS_A,'new_A_source':A,'full_path_count':len(full_A_delta),
+      'all_name_status_rows':full_A_delta,'selected_S10_functions':prior_function_rows,
+      'source_path_changed':PATH in [line.split('\t')[-1] for line in full_A_delta],
+      'claim':'Whole generation-cycle source changed; all four selected S10 functions remain literal unchanged. New A DOC title is not a source-delta oracle.',
+      'current_A_runtime':'UNRUN','predicate_basis':'recomputed'})
+
+projection=af['_s10_empirical_projection']
+projection_nodes=[n for n in ast.walk(projection) if isinstance(n,ast.AnnAssign) and isinstance(n.target,ast.Name) and n.target.id=='projection']
+assert len(projection_nodes)==1 and isinstance(projection_nodes[0].value,ast.Dict)
+projection_keys=[k.value for k in projection_nodes[0].value.keys if isinstance(k,ast.Constant) and isinstance(k.value,str)]
+assert 'failure_codes' not in projection_keys
+build=ast.get_source_segment(asrc,af['_build_s10_forecast_inputs'])
+assert 'evidence.get("forecast_authority_disposition_reason")\n            or (' in build
+old1='''        "calibration_status": calibration_status,
+        "forecast_tier": forecast_tier,
+'''
+new1='''        "calibration_status": calibration_status,
+        "failure_codes": list(failure_codes),
+        "forecast_tier": forecast_tier,
+'''
+old2='''    calibration_record_available = (
+        calibration_bound
+'''
+new2='''    if not calibration_bound and calibration_status is not None:
+        # Preserve explicit missing-reference refusal through tier, S6, and disposition.
+        empirical_evidence_error = empirical_evidence_error or "empirical_evidence_ref_missing"
+    calibration_record_available = (
+        calibration_bound
+'''
+old3='''        forecast_authority_disposition_reason=str(
+            evidence.get("forecast_authority_disposition_reason")
+            or (
+                "S10 estimator diagnostics retained; empirical calibration evidence is "
+                "not established."
+                if empirical_evidence_error is None and not calibration_bound
+                else "S10 owner forecast over Foundry method output"
+            )
+            + (f" [{empirical_evidence_error}]" if empirical_evidence_error else "")
+        ),
+'''
+new3='''        forecast_authority_disposition_reason=(
+            f"S10 empirical calibration refused: {empirical_evidence_error}"
+            if empirical_evidence_error is not None
+            else str(
+                evidence.get("forecast_authority_disposition_reason")
+                or (
+                    "S10 estimator diagnostics retained; empirical calibration evidence is "
+                    "not established."
+                    if not calibration_bound
+                    else "S10 owner forecast over Foundry method output"
+                )
+            )
+        ),
+'''
+for old in [old1,old2,old3]:assert asrc.count(old)==1
+new=asrc.replace(old1,new1).replace(old2,new2).replace(old3,new3)
+ast.parse(new)
+patch=''.join(difflib.unified_diff(asrc.splitlines(keepends=True),new.splitlines(keepends=True),
+              fromfile='a/'+PATH,tofile='b/'+PATH))
+(OUT/'A332-status-reason-carry.patch.txt').write_text(patch)
+# Check application only against a complete exact A blob in an isolated scratch
+# mirror. This creates no checkout, branch, env or protected source edit.
+mirror=OUT/'ignored-patch-check-input'
+file=mirror/PATH;file.parent.mkdir(parents=True,exist_ok=True);file.write_text(asrc)
+p=subprocess.run(['git','apply','--check',str(OUT/'A332-status-reason-carry.patch.txt')],cwd=mirror,capture_output=True)
+assert p.returncode==0,p.stderr.decode()
+write('A332-patch-check-receipt.json',{'argv':['git','apply','--check',str(OUT/'A332-status-reason-carry.patch.txt')],
+      'cwd':str(mirror),'source':A,'source_blob':rows[0]['A_blob'],'source_sha256':sha(asrc.encode()),
+      'patch_sha256':sha(patch.encode()),'patch_bytes':len(patch.encode()),'exit':p.returncode,
+      'stdout':p.stdout.decode(),'stderr':p.stderr.decode(),'patch_applied':False,
+      'product_runtime_outcome':'UNRUN','scope':'read-only patch context applicability, not behavioral proof'})
+remote=run('git','ls-remote','--heads','origin','refs/heads/codex/e02-A-delivery-attached').decode().strip()
+assert remote==A+'\trefs/heads/codex/e02-A-delivery-attached'
+receipt={'schema':'policyos.e02.current_source_delta_review.v1','reader':'E forecast packet helper',
+ 'E_source':E,'A_source':A,'A_tree':run('git','rev-parse',A+'^{tree}').decode().strip(),
+ 'previous_sampled_A_source':PREVIOUS_A, 'previous_A_to_current_delta':'A2605-to-A332-full-path-delta.json',
+ 'selected_S10_functions_unchanged_from_previous_A':prior_function_rows,
+ 'published_A_ref':'refs/heads/codex/e02-A-delivery-attached','remote_readback':remote,'G_review':G,
+ 'paths':rows,'whole_path_denominator':len(rows),'function_denominator':len(names),'functions':func_rows,
+ 'comparison_kind':'literal immutable Git bytes and complete selected AST functions; no runtime executed',
+ 'current_A_check_outcome':'UNRUN','b2_historical_failures_still_bound_to_E_source':True,
+ 'source_findings':[
+  {'cases':[1,2],'boundary':'direct helper versus configured gateway',
+   'observation':'caller calibration_status now reaches S6 helper; direct helper retains generic insufficient-history policy while configured resolver can supply exact missing-ref',
+   'outcome':'UNRUN','predicate_basis':'recomputed'},
+  {'cases':[3],'boundary':'_s10_empirical_projection → _s10_limitation_refs',
+   'observation':'current projection computes failure_codes but omits it from returned projection; consumer reads absent key and can fall back to insufficient-history',
+   'projection_literal_keys':projection_keys,'outcome':'UNRUN','predicate_basis':'recomputed',
+   'G_summary_qualification':'G correctly marks changed current execution UNRUN; source inspection does not establish that all projected floor codes survive'},
+  {'cases':[4,5,6,7,8],'boundary':'_build_s10_forecast_inputs disposition reason precedence',
+   'observation':'report-derived nonempty generic reason takes precedence over fallback appending typed resolver code; S6 resolver mapping exists',
+   'outcome':'UNRUN','predicate_basis':'recomputed'}],
+ 'HTTP_scope':'Full exact HTTP path hashes differ; ordinary default/HTTP persistent fresh read is UNRUN. Lifecycle transports artifacts generically, not the S10 reason writer.',
+ 'unapplied_patch':{'path':'A332-status-reason-carry.patch.txt','sha256':sha(patch.encode()),
+  'bytes':len(patch.encode()),'canonical_writer':'A','scope':'three existing reason/projection carry boundaries only',
+  'context_check':'PASS','runtime_check':'UNRUN','protected_source_edited':False},
+ 'remaining_verification':'A applies/reviews at admitted composed source, then once executes exact authentic native packet + fresh configured/default/HTTP reader and removal controls',
+ 'P41_red_introducing_cause':'not_established'}
+write('current-A-source-delta.json',receipt)
+write('current-A-source-commands.json',{'commands':commands,'no_Git_mutations':True,'no_product_runtime_execution':True})
+print(json.dumps({'outcome':'PASS','scope':'literal source delta and unapplied patch context',
+ 'A_source':A,'changed_paths':4,'selected_functions':4,'patch_context_exit':0,
+ 'current_A_runtime':'UNRUN','protected_source_edited':False,'projection_failure_code_omission':True,
+ 'resolver_reason_precedence_gap':True},sort_keys=True))

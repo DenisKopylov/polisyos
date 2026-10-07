@@ -1,0 +1,41 @@
+{
+  "schema": "policyos.e02.current_architecture_classification.v1",
+  "source": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+  "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+  "check_outcome": "FAIL",
+  "child_exit": 1,
+  "full_command_and_outputs": {
+    "path": "root-observations/architecture-current/receipt.json",
+    "bytes": 5460,
+    "sha256": "e717f9d507a030f4afeea4e6199787cc6c05d98603c390cfb5c472f8a71e526e"
+  },
+  "full_stdout": {
+    "path": "root-observations/architecture-current/stdout.txt",
+    "bytes": 127152,
+    "sha256": "ac20607c9fffe226bae5f6d6879ec0caedc0b4a88d153f54ccb8d4892507f883"
+  },
+  "classification": {
+    "new_deep_import_messages": 151,
+    "catalogue_and_baseline_drifts": [
+      "public surface inventory JSON",
+      "public surface reference document",
+      "deep-import baseline"
+    ],
+    "required_generated_drifts": [
+      "runtime-openapi-snapshot",
+      "trust-claim-posture-register"
+    ],
+    "clean_required_generator_outputs": {
+      "runtime-api-client": 3,
+      "runtime-dashboard-api-types": 1
+    },
+    "UNRUN_markers_inside_this_command": 0,
+    "unified_diff_deletions_are_not_violations": true
+  },
+  "separate_unrun_selector": "Standalone Atlas retirement inventory is not part of this command. Run through its canonical owner/final G gate queue; no implied PASS.",
+  "mandatory_companions": "G generator writer must generate both Profile ABI snapshots/manifest entries and synchronize four IR exports, then recompute check/architecture on admitted composed source. This command does not establish those absent ABI companions.",
+  "denominator_distinction": "API packet 23 new E cross-root module pairs with 21 admitted facades/2 private edges is a different input/rule denominator from 151 global deep-import baseline messages. Neither count excuses a red.",
+  "predicate_basis": "recomputed",
+  "P41": "not_established",
+  "attribution_limit": "No exact slice-base full command/input-intersection replay was performed. Current red is not declared inherited. Canonical writers are named in owner packets; baseline widening is not an admitted repair."
+}

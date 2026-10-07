@@ -1,0 +1,414 @@
+{
+  "schema": "policyos.e02.independent_owner_packet_readback.v1",
+  "reviewer": "fit_packet; independent of API companion packet authors",
+  "source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+  "tree": "6700da10bc8e13d7c6c1683b140e805546e5d084",
+  "packet_pins": {
+    "canonical-ABI-public-companions.json": "3dec84bb90f406811d1c52d8846edb153619bc1172f1807e79cbf6f5fa62b412",
+    "canonical-owner-import-packets.json": "12183e433984637724be0966b5ee9de1a8f453d0de3e05b7577f43be0b389e58"
+  },
+  "complete_source_ref_occurrences": 18,
+  "unique_source_paths": 17,
+  "source_refs": [
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "packet_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "packet_blob": "fdde5e22d0827595f2a48284cdd9167e9e5e2490",
+      "current_source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "current_same_literal_bytes": true,
+      "bytes": 39467,
+      "sha256": "f7ae4be784059917c8602267231896d0d53755636f04851f149f614faf68c0bc"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "packet_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "packet_blob": "59074cc5a7cebbbd45a610853d78e2a1bee403ee",
+      "current_source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "current_same_literal_bytes": true,
+      "bytes": 50093,
+      "sha256": "44200deaa78c8abc9707ebd67f730d10287c07c51d2d3b7246c080e82d11e486"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "packet_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "packet_blob": "48eb8c09bd2470977fb7f86258d739a80738362c",
+      "current_source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "current_same_literal_bytes": true,
+      "bytes": 31271,
+      "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "packet_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "packet_blob": "b1131c15a8fb98fe16b1f15fdfdfc709f922da49",
+      "current_source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "current_same_literal_bytes": true,
+      "bytes": 27715,
+      "sha256": "5d4366804bc9fa2b0e9c1193d1b9412fb5a1408064ffc35c3d72f4025d82de84"
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "packet_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "packet_blob": "1d0d243ada1d27ec2656c56a5976fe6d70593ffd",
+      "current_source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "current_same_literal_bytes": true,
+      "bytes": 222856,
+      "sha256": "63a4ed665331cb937ec4ec5968e72ba5659914c147ed23eb447f7183c5a37fd1"
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "packet_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "packet_blob": "bf18b5670034762c0b86d7bc5cc9ab192e949ddc",
+      "current_source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "current_same_literal_bytes": true,
+      "bytes": 154167,
+      "sha256": "99b655871e2e68c0577cd6f6e18358dfea9a5aac7e216bcbb3a6aed7d2fd56ed"
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+      "packet_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "packet_blob": "69a0ec74a123c345d1c3248d36aab50cf50885cc",
+      "current_source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "current_same_literal_bytes": true,
+      "bytes": 52447,
+      "sha256": "b566b7f999f25d3aec2bb10184ed85c108ccbdfd8abad8f558259c037d9b2a27"
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "packet_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "packet_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "current_source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "current_same_literal_bytes": true,
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+    },
+    {
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "packet_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "packet_blob": "6621206f112833142f966ce8318f3f6b48e3e57d",
+      "current_source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "current_same_literal_bytes": true,
+      "bytes": 253707,
+      "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "packet_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "packet_blob": "59074cc5a7cebbbd45a610853d78e2a1bee403ee",
+      "current_source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "current_same_literal_bytes": true,
+      "bytes": 50093,
+      "sha256": "44200deaa78c8abc9707ebd67f730d10287c07c51d2d3b7246c080e82d11e486"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/__init__.py",
+      "packet_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "packet_blob": "c755be5ff6271d019ba9960ecbb71b42f9876e6d",
+      "current_source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "current_same_literal_bytes": true,
+      "bytes": 1561,
+      "sha256": "4572f556ca63babc19c33f5d44b1418b310d9089455773266b655979cf723ce1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/__init__.py",
+      "packet_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "packet_blob": "c96397492332b5a5d896f1c990c5bfe34513f693",
+      "current_source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "current_same_literal_bytes": true,
+      "bytes": 1915,
+      "sha256": "0ed2e21568bd6e97323957da0a8970ca172b64a61a8b77e8ed6cb773bb550134"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "packet_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "packet_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+      "current_source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "current_same_literal_bytes": true,
+      "bytes": 81721,
+      "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "packet_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "packet_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "current_source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "current_same_literal_bytes": true,
+      "bytes": 59611,
+      "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "packet_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "packet_blob": "5ce80d5d2481ea86f8950fb1da1cbaebf3ebccd5",
+      "current_source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "current_same_literal_bytes": true,
+      "bytes": 27666,
+      "sha256": "808fc6a04d7bd74addfd7a77d6607c480b8b61a7e4a637e72177058f412dbce0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/executor.py",
+      "packet_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "packet_blob": "1319ad807b921d5809e481e7967c56c3ae3f3fa7",
+      "current_source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "current_same_literal_bytes": true,
+      "bytes": 2305,
+      "sha256": "7577afbd9236d6a7e2670888c923f7a79f98df39521e967919eb56b2ebe788db"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "packet_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "packet_blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90",
+      "current_source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "current_same_literal_bytes": true,
+      "bytes": 2555,
+      "sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/__init__.py",
+      "packet_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "packet_blob": "a0b19b5ce6a9bfd9f5d4149fbdbe76429d14fe29",
+      "current_source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "current_same_literal_bytes": true,
+      "bytes": 606,
+      "sha256": "e33a7486224d5e15cd418ac4dab69bb38ac6b1593d739a4b7ac24ea4d477dfb3"
+    }
+  ],
+  "IR_root": {
+    "complete_source_all_names": 288,
+    "unique_names": 288,
+    "inventory_all_exports": 284,
+    "missing_profile_root_names": [
+      "PosteriorParameterBinding",
+      "PosteriorSummaryContext",
+      "PosteriorSummaryProfile",
+      "PosteriorSummaryProfileV2"
+    ]
+  },
+  "IR_ABI": {
+    "all_tracked_snapshot_paths": 103,
+    "JSON_path_denominator": 100,
+    "complete_snapshot_paths": [
+      "policy-engine/schemas/snapshots/ir/AUTHORING.md",
+      "policy-engine/schemas/snapshots/ir/README.md",
+      "policy-engine/schemas/snapshots/ir/_manifest.json",
+      "policy-engine/schemas/snapshots/ir/abm_alignment_report.schema.json",
+      "policy-engine/schemas/snapshots/ir/abm_result.schema.json",
+      "policy-engine/schemas/snapshots/ir/article_extraction_result.schema.json",
+      "policy-engine/schemas/snapshots/ir/backtest_plan_bundle.schema.json",
+      "policy-engine/schemas/snapshots/ir/backtest_report.schema.json",
+      "policy-engine/schemas/snapshots/ir/bounds_estimation_bundle.schema.json",
+      "policy-engine/schemas/snapshots/ir/calibration_config.schema.json",
+      "policy-engine/schemas/snapshots/ir/calibration_target_bundle_manifest.schema.json",
+      "policy-engine/schemas/snapshots/ir/causal_discovery_report.schema.json",
+      "policy-engine/schemas/snapshots/ir/causal_effect_report.schema.json",
+      "policy-engine/schemas/snapshots/ir/causal_graph_model.schema.json",
+      "policy-engine/schemas/snapshots/ir/causal_model_ensemble.schema.json",
+      "policy-engine/schemas/snapshots/ir/causal_panel_bundle_manifest.schema.json",
+      "policy-engine/schemas/snapshots/ir/causal_query.schema.json",
+      "policy-engine/schemas/snapshots/ir/causal_query_result.schema.json",
+      "policy-engine/schemas/snapshots/ir/certification_result.schema.json",
+      "policy-engine/schemas/snapshots/ir/claim.schema.json",
+      "policy-engine/schemas/snapshots/ir/conflict_resolution.schema.json",
+      "policy-engine/schemas/snapshots/ir/conflict_set.schema.json",
+      "policy-engine/schemas/snapshots/ir/conflict_set_resolution.schema.json",
+      "policy-engine/schemas/snapshots/ir/context_adaptive_parameter_bundle.schema.json",
+      "policy-engine/schemas/snapshots/ir/data_view_request.schema.json",
+      "policy-engine/schemas/snapshots/ir/distributional_report.schema.json",
+      "policy-engine/schemas/snapshots/ir/doc_fragment.schema.json",
+      "policy-engine/schemas/snapshots/ir/doc_meta.schema.json",
+      "policy-engine/schemas/snapshots/ir/dtr_treatment_sequence_bundle_manifest.schema.json",
+      "policy-engine/schemas/snapshots/ir/dynamic_microsim_validation_report.schema.json",
+      "policy-engine/schemas/snapshots/ir/entity_scope.schema.json",
+      "policy-engine/schemas/snapshots/ir/equilibrium_multiplicity_report.schema.json",
+      "policy-engine/schemas/snapshots/ir/fact.schema.json",
+      "policy-engine/schemas/snapshots/ir/fact_segment_manifest.schema.json",
+      "policy-engine/schemas/snapshots/ir/feedback_jacobian_diagnostics.schema.json",
+      "policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json",
+      "policy-engine/schemas/snapshots/ir/feedback_solver_config.schema.json",
+      "policy-engine/schemas/snapshots/ir/forecasting_uncertainty_bundle.schema.json",
+      "policy-engine/schemas/snapshots/ir/gate_context.schema.json",
+      "policy-engine/schemas/snapshots/ir/gate_decision.schema.json",
+      "policy-engine/schemas/snapshots/ir/gate_event.schema.json",
+      "policy-engine/schemas/snapshots/ir/gate_request.schema.json",
+      "policy-engine/schemas/snapshots/ir/governance_pass_alias.schema.json",
+      "policy-engine/schemas/snapshots/ir/governance_pass_alias_registry.schema.json",
+      "policy-engine/schemas/snapshots/ir/governance_pass_alias_status.schema.json",
+      "policy-engine/schemas/snapshots/ir/governance_pass_mapping_bundle.schema.json",
+      "policy-engine/schemas/snapshots/ir/hte_result.schema.json",
+      "policy-engine/schemas/snapshots/ir/identification_mode.schema.json",
+      "policy-engine/schemas/snapshots/ir/index.md",
+      "policy-engine/schemas/snapshots/ir/intervention_cost_manifold.schema.json",
+      "policy-engine/schemas/snapshots/ir/leontief_io_bundle.schema.json",
+      "policy-engine/schemas/snapshots/ir/lesson_registry_seed_bundle.schema.json",
+      "policy-engine/schemas/snapshots/ir/literature_causal_prior.schema.json",
+      "policy-engine/schemas/snapshots/ir/measurement_aware_loss_config.schema.json",
+      "policy-engine/schemas/snapshots/ir/measurement_aware_target.schema.json",
+      "policy-engine/schemas/snapshots/ir/metric_validation_report.schema.json",
+      "policy-engine/schemas/snapshots/ir/microsim_survey_contract_bundle.schema.json",
+      "policy-engine/schemas/snapshots/ir/model_spec.schema.json",
+      "policy-engine/schemas/snapshots/ir/multiplex_graph_layer_id.schema.json",
+      "policy-engine/schemas/snapshots/ir/network_causal_contract_bundle.schema.json",
+      "policy-engine/schemas/snapshots/ir/network_contract_bundle.schema.json",
+      "policy-engine/schemas/snapshots/ir/norm_pack.schema.json",
+      "policy-engine/schemas/snapshots/ir/norm_ref.schema.json",
+      "policy-engine/schemas/snapshots/ir/norm_rule.schema.json",
+      "policy-engine/schemas/snapshots/ir/observation_family.schema.json",
+      "policy-engine/schemas/snapshots/ir/observation_family_policy.schema.json",
+      "policy-engine/schemas/snapshots/ir/observation_family_policy_registry.schema.json",
+      "policy-engine/schemas/snapshots/ir/observation_panel.schema.json",
+      "policy-engine/schemas/snapshots/ir/observation_record.schema.json",
+      "policy-engine/schemas/snapshots/ir/observation_to_contract_manifest.schema.json",
+      "policy-engine/schemas/snapshots/ir/optimal_recourse_intervention_bundle.schema.json",
+      "policy-engine/schemas/snapshots/ir/optimal_recourse_intervention_query.schema.json",
+      "policy-engine/schemas/snapshots/ir/outer_search_result.schema.json",
+      "policy-engine/schemas/snapshots/ir/panel_econometric_bundle_manifest.schema.json",
+      "policy-engine/schemas/snapshots/ir/partial_identification_result.schema.json",
+      "policy-engine/schemas/snapshots/ir/phase4_temporal_policy_gate_verdict.schema.json",
+      "policy-engine/schemas/snapshots/ir/policy_portfolio.schema.json",
+      "policy-engine/schemas/snapshots/ir/policy_recommendation.schema.json",
+      "policy-engine/schemas/snapshots/ir/policy_spec.schema.json",
+      "policy-engine/schemas/snapshots/ir/problem_frame.schema.json",
+      "policy-engine/schemas/snapshots/ir/prov_activity.schema.json",
+      "policy-engine/schemas/snapshots/ir/proxy_identification_bundle.schema.json",
+      "policy-engine/schemas/snapshots/ir/quality_report.schema.json",
+      "policy-engine/schemas/snapshots/ir/recourse_feasibility_certificate.schema.json",
+      "policy-engine/schemas/snapshots/ir/recourse_proof_bundle.schema.json",
+      "policy-engine/schemas/snapshots/ir/refutation_result.schema.json",
+      "policy-engine/schemas/snapshots/ir/regime_shift_forecast_bundle.schema.json",
+      "policy-engine/schemas/snapshots/ir/sensitivity_result.schema.json",
+      "policy-engine/schemas/snapshots/ir/source_confidence_tier.schema.json",
+      "policy-engine/schemas/snapshots/ir/space_time_causal_certificate.schema.json",
+      "policy-engine/schemas/snapshots/ir/specification_curve_bundle.schema.json",
+      "policy-engine/schemas/snapshots/ir/strategic_response_channel.schema.json",
+      "policy-engine/schemas/snapshots/ir/strategic_response_specs_bundle.schema.json",
+      "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+      "policy-engine/schemas/snapshots/ir/survival_data_bundle_manifest.schema.json",
+      "policy-engine/schemas/snapshots/ir/temporal_graph_causal_certificate.schema.json",
+      "policy-engine/schemas/snapshots/ir/temporal_intervention_sequence.schema.json",
+      "policy-engine/schemas/snapshots/ir/temporal_intervention_step.schema.json",
+      "policy-engine/schemas/snapshots/ir/transportability_result.schema.json",
+      "policy-engine/schemas/snapshots/ir/trinity_bundle.schema.json",
+      "policy-engine/schemas/snapshots/ir/trust_assessment.schema.json",
+      "policy-engine/schemas/snapshots/ir/uncertainty_envelope.schema.json",
+      "policy-engine/schemas/snapshots/ir/world_event.schema.json"
+    ],
+    "all_profile_registrations": [
+      {
+        "abi_key": "posterior_summary_profile_v2",
+        "fqn": "polisyos.ir.analytics.posterior_summary.PosteriorSummaryProfileV2",
+        "module": "ir",
+        "schema_file": "posterior_summary_profile_v2.schema.json",
+        "version_field": "profile_version"
+      },
+      {
+        "abi_key": "posterior_summary_profile",
+        "fqn": "polisyos.ir.analytics.posterior_summary.PosteriorSummaryProfile",
+        "module": "ir",
+        "schema_file": "posterior_summary_profile.schema.json",
+        "version_field": "profile_version"
+      }
+    ],
+    "profile_outputs_absent": true,
+    "profile_manifest_entries_absent": true
+  },
+  "canonical_generator": {
+    "family": {
+      "id": "abi-schema-snapshots",
+      "label": "ABI schema snapshots",
+      "owner": "team-polisyos",
+      "approval_owner": "team-polisyos",
+      "lifecycle": "generated_committed",
+      "generator": "canonical generator declared in regenerate_commands",
+      "verifier": "verifier declared by check_command, drift_gate, workflow, or manual review policy",
+      "promotion_target": "registered committed outputs listed in outputs",
+      "stale_output_behavior": "fail",
+      "source_of_truth": "src/polisyos/schemas/abi_models.py + src/polisyos/** Pydantic/Enum contracts",
+      "outputs": [
+        "schemas/snapshots/ir/",
+        "schemas/snapshots/fabric/edge_kind.schema.json",
+        "schemas/snapshots/fabric/node_kind.schema.json",
+        "schemas/snapshots/fabric/_manifest.json"
+      ],
+      "regenerate_commands": [
+        "uv run --extra ml polisyos-tools diagnostics gen-schema"
+      ],
+      "commit_policy": "committed",
+      "freshness_rule": "Regenerate and commit whenever ABI-visible IR or Fabric contracts change.",
+      "compatibility_class": "schema-openapi-abi",
+      "version_owner": "team-polisyos",
+      "deprecation_window": "2 minor releases",
+      "release_fragment_change_class": "schema-openapi-abi",
+      "compatibility_promise": "Generated ABI manifests declare owner/window metadata; breaking semantic snapshot changes require structured compatibility release fragments.",
+      "drift_gate": "automated",
+      "workflow": "../.github/workflows/abi.yml",
+      "check_cwd": ".",
+      "check_command": [
+        "uv",
+        "run",
+        "--extra",
+        "ml",
+        "polisyos-tools",
+        "diagnostics",
+        "gen-schema",
+        "--check"
+      ]
+    },
+    "inventory_owner": "team-architecture",
+    "inventory_command": "uv run python tools/devx/architecture/guardrails.py sync --skip-deep-import-baseline"
+  },
+  "unapplied_patches": [
+    {
+      "id": "forecast-producer-reader",
+      "path": "/tmp/e02-E-api-companions-thirteenth-20261007/IR-owner-forecast-producer-reader-aliases-and-E-callers.patch",
+      "bytes": 1930,
+      "sha256": "7052a5120cf519b4ec0a41de55af11ca068edda91fc05f2e57f93f1832ec6162",
+      "full_footprint": [
+        "policy-engine/src/polisyos/ir/api.py",
+        "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py"
+      ],
+      "unapplied": true
+    },
+    {
+      "id": "native-replay-statehelpers",
+      "path": "/tmp/e02-E-api-companions-thirteenth-20261007/Foundry-owner-state-path-snapshot-aliases-and-E-caller.patch",
+      "bytes": 1390,
+      "sha256": "25cbb5c1b13e0f12868559dbf23691a571d5b6c44537b919288c07be725ac96a",
+      "full_footprint": [
+        "policy-engine/src/polisyos/foundry/execute/__init__.py",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py"
+      ],
+      "unapplied": true
+    },
+    {
+      "id": "preexisting-IR-CanonSpec",
+      "path": "/tmp/e02-E-api-companions-thirteenth-20261007/IR-owner-CanonSpec-alias-and-E-caller.patch",
+      "bytes": 1015,
+      "sha256": "12f527d63ff94602e6edcb5010f4a145c3d89f6e04216a5a3879b4000975481d",
+      "full_footprint": [
+        "policy-engine/src/polisyos/ir/artifacts/__init__.py",
+        "policy-engine/src/polisyos/calibration/forecast_bridge.py"
+      ],
+      "unapplied": true
+    }
+  ],
+  "three_patch_combined_applicability": {
+    "argv": [
+      "git",
+      "apply",
+      "--check",
+      "/tmp/e02-E-api-companions-thirteenth-20261007/IR-owner-forecast-producer-reader-aliases-and-E-callers.patch",
+      "/tmp/e02-E-api-companions-thirteenth-20261007/Foundry-owner-state-path-snapshot-aliases-and-E-caller.patch",
+      "/tmp/e02-E-api-companions-thirteenth-20261007/IR-owner-CanonSpec-alias-and-E-caller.patch"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006",
+    "exit_code": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "scope": "Independent literal source/facade/schema/generator/owner packet review only; no generator/API consumer/backend/typecheck rerun; no code or finding acceptance inferred",
+  "source_mutated": false,
+  "predicate_basis": "recomputed",
+  "generator_and_native_consumer_outcome": "UNRUN",
+  "finding_acceptance": "not_established"
+}

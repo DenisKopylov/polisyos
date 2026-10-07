@@ -1,0 +1,78 @@
+
+{
+    "version": "1.39.0",
+    "time": "1791402161069",
+    "generalDiagnostics": [
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+            "severity": "error",
+            "message": "\"parameters\" is not a known attribute of \"None\"",
+            "range": {
+                "start": {
+                    "line": 281,
+                    "character": 19
+                },
+                "end": {
+                    "line": 281,
+                    "character": 29
+                }
+            },
+            "rule": "reportOptionalMemberAccess"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+            "severity": "error",
+            "message": "Argument of type \"dict[str, str]\" cannot be assigned to parameter \"numeric_policy\" of type \"NumericPolicySpec\" in function \"__init__\"",
+            "range": {
+                "start": {
+                    "line": 310,
+                    "character": 27
+                },
+                "end": {
+                    "line": 310,
+                    "character": 52
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+            "severity": "error",
+            "message": "\"parameters\" is not a known attribute of \"None\"",
+            "range": {
+                "start": {
+                    "line": 386,
+                    "character": 28
+                },
+                "end": {
+                    "line": 386,
+                    "character": 38
+                }
+            },
+            "rule": "reportOptionalMemberAccess"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+            "severity": "error",
+            "message": "\"content_hash\" is not a known attribute of \"None\"",
+            "range": {
+                "start": {
+                    "line": 388,
+                    "character": 41
+                },
+                "end": {
+                    "line": 388,
+                    "character": 53
+                }
+            },
+            "rule": "reportOptionalMemberAccess"
+        }
+    ],
+    "summary": {
+        "filesAnalyzed": 3,
+        "errorCount": 4,
+        "warningCount": 0,
+        "informationCount": 0,
+        "timeInSec": 3.564
+    }
+}

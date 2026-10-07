@@ -1,0 +1,240 @@
+"""One-time executed publication assembly; retained as a literal execution artifact."""
+
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+SCRATCH = Path('/tmp/e02-E-pr38-thirteenth-continuation-20261007')
+DEST = ROOT / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries'
+SOURCE = '8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c'
+TREE = '192e584c646ee6df303b8793e7b92aa741dcaebb'
+BASE = 'df5258b7ddfade5b952e3b21ef28116ced40fa68'
+
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT).decode().strip()
+
+
+def identity(path):
+    data = Path(path).read_bytes()
+    return {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+
+def write_json(relative, value):
+    target = DEST / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    data = (json.dumps(value, ensure_ascii=False, indent=2) + '\n').encode()
+    if target.exists() and target.read_bytes() != data:
+        raise ValueError(f'immutable publication target changed: {relative}')
+    target.write_bytes(data)
+
+
+assets = json.loads((SCRATCH / 'publication-inputs/copied-assets.json').read_text())
+
+
+def copied(original):
+    matches = [x for x in assets if x['original_path'] == str(original)]
+    if not matches:
+        raise ValueError(f'unpublished deciding input: {original}')
+    item = matches[0]
+    return {'path': item['path'], 'bytes': item['bytes'], 'sha256': item['sha256']}
+
+
+if git('rev-parse', 'HEAD') != SOURCE or git('rev-parse', SOURCE + '^{tree}') != TREE:
+    raise ValueError('product source identity changed before receipt assembly')
+paths = git('diff', '--name-only', BASE, SOURCE, '--').splitlines()
+if len(paths) != 7:
+    raise ValueError('seven-path complete implementation footprint required')
+footprint = []
+for path in paths:
+    data = subprocess.check_output(['git', 'show', SOURCE + ':' + path], cwd=ROOT)
+    if (ROOT / path).read_bytes() != data:
+        raise ValueError(f'product candidate modified: {path}')
+    footprint.append({'path': path, 'git_blob': git('rev-parse', SOURCE + ':' + path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
+
+wave = json.loads((SCRATCH / 'final-wave-v4/wave-receipt.json').read_text())
+architecture = json.loads((SCRATCH / 'architecture-current/receipt.json').read_text())
+text = (SCRATCH / 'architecture-current/stdout.txt').read_text()
+deep = [line for line in text.splitlines() if 'New deep-import creep detected' in line]
+if len(deep) != 151 or architecture['exit_code'] != 1:
+    raise ValueError('complete current architecture output no longer reconciles')
+architecture_summary = {
+    'schema': 'policyos.e02.current_architecture_classification.v1',
+    'source': SOURCE, 'tree': TREE, 'check_outcome': 'FAIL', 'child_exit': 1,
+    'full_command_and_outputs': copied(SCRATCH / 'architecture-current/receipt.json'),
+    'full_stdout': copied(SCRATCH / 'architecture-current/stdout.txt'),
+    'classification': {
+        'new_deep_import_messages': 151,
+        'catalogue_and_baseline_drifts': ['public surface inventory JSON', 'public surface reference document', 'deep-import baseline'],
+        'required_generated_drifts': ['runtime-openapi-snapshot', 'trust-claim-posture-register'],
+        'clean_required_generator_outputs': {'runtime-api-client': 3, 'runtime-dashboard-api-types': 1},
+        'UNRUN_markers_inside_this_command': 0,
+        'unified_diff_deletions_are_not_violations': True,
+    },
+    'separate_unrun_selector': 'Standalone Atlas retirement inventory is not part of this command. Run through its canonical owner/final G gate queue; no implied PASS.',
+    'mandatory_companions': 'G generator writer must generate both Profile ABI snapshots/manifest entries and synchronize four IR exports, then recompute check/architecture on admitted composed source. This command does not establish those absent ABI companions.',
+    'denominator_distinction': 'API packet 23 new E cross-root module pairs with 21 admitted facades/2 private edges is a different input/rule denominator from 151 global deep-import baseline messages. Neither count excuses a red.',
+    'predicate_basis': 'recomputed', 'P41': 'not_established',
+    'attribution_limit': 'No exact slice-base full command/input-intersection replay was performed. Current red is not declared inherited. Canonical writers are named in owner packets; baseline widening is not an admitted repair.',
+}
+write_json('architecture-current-summary.json', architecture_summary)
+
+handoff = {
+    'schema': 'policyos.e02.E.profile_public_boundaries_handoff.v1',
+    'unit': 'E', 'slice': 'Profile2 common raw ingress and typed multi-join refusal',
+    'branch': 'codex/e02-E-continuation-20261006', 'worktree': str(ROOT),
+    'PR': 'https://github.com/DenisKopylov/polisyos/pull/38',
+    'base': {'commit': BASE, 'tree': git('rev-parse', BASE + '^{tree}')},
+    'candidate': {'commit': SOURCE, 'tree': TREE},
+    'original_implementation_commits': [
+        'b305cef2fe2b6f7740d1fe8fd07c4a8901374252',
+        '11082e91d61ace2f3bd7016d408341fdd6ec1702',
+        'e4b97c15196d8e276745f55a4367da83586511d9', SOURCE,
+    ],
+    'implementation_footprint': footprint,
+    'publication_footprint': 'copy-index.json enumerates complete moderate receipts, independent reviews, unapplied owner patches and two maintained evidence builders; no future evidence-commit SHA is self-referenced.',
+    'canonical_writers': {
+        'E': 'owned uncertainty/profile/producer adapter source and tests; B201/B202 appointed semantic owner only',
+        'A': 'runtime/quality/generation_cycle.py and HTTP run_lifecycle.py; resolver reason/recompute/persist/fresh consumers',
+        'Scientist_compute': 'scientist/compute/runner.py::_load_input_refs; configured canonical float decoder/full typed ref binding',
+        'IR_Core_Foundry_facades': 'canonical narrow typed aliases and public admission/compatibility owners',
+        'G_generators': 'generated schema ABI/public inventory/reference/runtime API/OpenAPI/trust companions; integration publisher',
+        'C_F_D': 'their actual profile/search consumers; independent from original B100 sampler/analyzer criterion',
+    },
+    'original_ids': {'direct': ['B201', 'B202'], 'joint_law_siblings': ['B188', 'B192'], 'diagnostic_aggregation': ['B199'], 'owner_packet_associations': ['B32', 'LA-051']},
+    'semantic_authorization': {
+        'appointment': 'a0ac10fc11975c345312034d0e568b4cfc330d76',
+        'initial_tracked_four_decisions': 'cdaea067935c8062a6a13fab8d7ffb53ae5fd401',
+        'Profile2_technical_decision': '55422d4f179f56d796794938be66bcb0741b13ed',
+        'bounds': 'Only B201/B202; E is not the owner of all IR, A B31, institutional authority or G publication.',
+    },
+    'runtime_properties': [
+        {
+            'property': 'Declared Profile2 raw real values are admitted before numerical coercion at the common public DTO/loading boundary. Bool/string and malformed/unsupported declarations cannot lower into an admitted derived law.',
+            'path': 'UncertaintyEnvelope._canonicalize_numeric_payload -> existing validate_raw_posterior_summary_envelope -> load_uncertainty_envelope/direct DTO -> actual push/compress/pull admission -> configured CAS -> fresh strict reader',
+            'scope': 'Raw numeric/context declarations before coercion; full carrier/joint/functionals/content digests are independently reconciled by existing composition reader before evaluator callback/derived publication. Integrity-valid malformed raw CAS bytes remain legitimate rejection inputs.',
+            'old_proxy_divergence': 'At exact df525/b2 raw bool and numeric string strict reader rejected, while legacy read coerced them, public callback executed, and derived strict fresh reader accepted.',
+            'oracle_and_negatives': 'Independent normal and optimized native strict/legacy/directed routes, malformed markers/context/digest, callback/publication counters, retained-marker guard removal. Old maintained78:22FAIL/56PASS; Source2 independent387PASS per interpreter and28 actual derived publications per interpreter after raw-guard removal.',
+            'compatibility': 'Literal Profile1 v1.0 and unprofiled Envelope1.1 retained. Distinct Profile2 v2.0 and exact ratio law are unchanged. No self-attested admission flag or covariance authority is added.',
+        },
+        {
+            'property': 'Any multi-envelope join involving a Profile2 declaration refuses with typed UncertaintyCompatibilityError before generic lowering; singleton identity and generic/Profile1 joins remain.',
+            'path': 'join_envelopes -> typed explicit-mixture-contract refusal; no implicit normalization/equal mixture',
+            'oracle_and_negatives': 'Unequal raw weight totals0.5/1.0, mixed joins, identity/generic controls; independent retained-marker join-guard removal re-admits4 lossy joins per normal/optimized run. Exact unchanged join body transferred by Git blob, not relabeled a new execution.',
+            'combine_scope': 'combine_envelopes is explicitly diagnostic/non-gating and lossy. Fresh combined generic hull is not a preserved Profile2 law.',
+        },
+        {
+            'property': 'Actual typed producer attaches required marker only with the final profile; final runtime adapter preserves exact already-established CAS bytes.',
+            'controls': 'Independent Source3 old/new actual producer CAS wire comparison2PASS with identical content bytes/refs; six integrity-valid forged rawCAS axes refuse. Source4 tests retain both original in-memory exact-carrier refusal and earlier fresh-read raw-carrier refusal on the same forged object.',
+        },
+    ],
+    'independent_review_chain': 'independent-ingress/ contains exact b305, Source2, Source3 and Source4 immutable non-author reviews; independent-owner-reviews/ contains facade/float/FRC/full54 custody. Final publication custody is separately pinned to immutable payload-index.json.',
+    'current_check_outcomes': {
+        'affected_defining_wave': {'outcome': 'PASS', 'counts': {'PASS': 195, 'FAIL': 0, 'ERROR': 0, 'SKIP': 0}, 'receipt': copied(SCRATCH / 'final-wave-v4/wave-receipt.json'), 'real_configured_HMC_NUTS_to_fresh_Node': '2PASS inside195, not counted again; integer source, NumPy backend corpus64'},
+        'architecture_maintained_adversarial_controls': {'outcome': 'PASS', 'PASS': 3, 'receipt': copied(SCRATCH / 'final-wave-v4/architecture-maintained-controls.receipt.json')},
+        'scoped_typecheck': {'outcome': 'PASS', 'source_of_execution': 'e4b97c15196d8e276745f55a4367da83586511d9', 'selected_files': 3, 'errors': 0, 'warnings': 0, 'child_exit': 0, 'receipt': copied('/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck.receipt.json'), 'reuse_basis': 'All3 native type input byte hashes/Git blobs unchanged on Source4, which is test-only. Canonical config/baseline unchanged; retained CLI baseline freshness notice is separate.', 'whole_repository_typecheck': 'UNRUN'},
+        'changed_product_Ruff_format': {'outcome': 'PASS', 'files': 5, 'receipt': copied(SCRATCH / 'source4-final-owned-lint/receipt.json')},
+        'full_current_architecture': {'outcome': 'FAIL', 'receipt': copied(SCRATCH / 'architecture-current/receipt.json'), 'summary': 'architecture-current-summary.json'},
+        'current_full_python_lint': 'Complete denominator and outputs are added in publication-lint/ after both maintained receipt builders are frozen; no blanket waiver for foreign rows.',
+        'current_A_default_HTTP_consumer': 'UNRUN on fetched332ba0 source; historical b2 eight failures/source-level current reason gap and unapplied exact packet are preserved separately.',
+    },
+    'historical_checks_preserved': {
+        'b2_wave': '1465=1457PASS+8FAIL, not current candidate evidence.',
+        'prior_e4_affected_wave': '193PASS+2FAIL, both exact refusal-stage test companion expectations; full XML/stdout preserved, independently reviewed test-only fix then current195PASS.',
+        'type': 'b305:7errors/1warning/exit1 FAIL; Source2:4errors/0warnings/exit1 FAIL. These are diagnostics, not test counts.',
+        'tool_errors': 'First native type tool automatically rewrote baseline under project precedence; full unexpected bytes preserved in ignored raw, only own side effect restored exactly with receipt. Later JSON wrapper lost child rc: ERROR retained, never promoted to PASS. Final native immutable child exit0 measured separately.',
+        'seven_global_gates': 'Historical FAIL remain historical. Workspace13 and CI parity23 successor UNRUN remain separate stages. Current whole architecture is a fresh FAIL, scoped type is current bounded PASS; no full CI claim.',
+    },
+    'all54_dispositions': {
+        'scope': {'bundles': 22, 'IDs': 54, 'links': 55},
+        'historical_ledger': {'partial': 49, 'held': 4, 'closed': 1},
+        'E_proposed_finding_verdicts': {'closed': 43, 'limited': 9, 'held': 2},
+        'formal_G_intake': 0,
+        'current_original_row_packet': 'full54/all54-delta-associations-v2-source11082.json is immutable prior row/criterion/owner record; source4-association-prewave.json and all54-final-source4-verification-binding-v2.json are additive current dependency/check bindings.',
+        'B198': 'Historical closed preserved; no new defining-property falsifier.',
+        'rule': 'Neither code GO nor numerical PASS changes finding status automatically. Source4 repairs change affected boundary evidence; original54 row dispositions remain individually attributable.',
+        'limited': ['B32', 'LA-051', 'B172', 'B173', 'B190', 'B200', 'LA-053', 'LA-054', 'LA-055'],
+        'held': ['B194', 'B197'],
+        'missing_inputs_and_next_owners': 'full54/external_owner_inputs on each original row plus owner-packets/; no blanket production gate, no synthetic institutional trust/noise/feed/R2/source law.',
+    },
+    'owner_ready_packets': {
+        'API_ABI_imports': copied('/tmp/e02-E-api-companions-thirteenth-20261007/implementation-owner-handoff-v3.json'),
+        'finite_float_configured_fit': copied('/tmp/e02-E-fit-packet-thirteenth-20261007/owner-handoff-v3.json'),
+        'A_forecast_reasons': 'owner-packets/forecast-A/ contains authentic configured ETS separate candidate/evidence CAS refs, correct six roles, missing/unresolved vs resolved-floor cases, all8 unique tests associated once with both B32/LA051, and unapplied A332 typed patch.',
+        'patches_applied_by_E': False,
+        'next_results': 'Canonical owners publish narrow facade aliases/generated companions, Scientist canonical float/full-ref loader, and A reason recomputation/persist/fresh default+HTTP. Then run only affected real native witnesses; no assumed consumer_missing and no second runtime.',
+    },
+    'environment_and_inputs': {
+        'native': 'Existing repo Python3.14.7, NumPy2.3.5, Pydantic2.12.5; basedpyright1.39.0. Exact executed argv/environment/origins and source2917blob inventories retained in literal receipts.',
+        'cloud_orchestration': 'Python3.12.14; native checks use existing locked repo environment. No new worktrees/environments except canonical architecture private generated-freshness workspace.',
+        'architecture_storage': 'Existing offline uv cache /workspace/.polisyos-environment/cache/uv and same-filesystem hardlinks; all required generators run, no CPU/thread/process/worker caps.',
+        'importer': copied(SCRATCH / 'navigation/queries-receipt.json'),
+        'baseline_limits': 'Imported2074cells/282IDs/15sources is navigation/source-reported text only; rawVM archives0, not candidatePASS. Full query raw outputs retained ignored with exact hash/size; relevant compact rows and full criteria/owner TSV refs copied.',
+        'admission': copied(SCRATCH / 'root-resume.full.json'),
+        'history': copied(SCRATCH / 'initial-git-fetch-readback.json'),
+        'production': 'Stays local/read-only. Six committed G recipes are a scoped initial queue, not a universal gate or maximum.',
+    },
+    'predicate_basis': {
+        'raw_type_and_declared_profile': 'recomputed',
+        'content_axes_context_functionals_digest': 'independently_reconciled',
+        'join_refusal': 'recomputed',
+        'configured_fresh_read': 'consumer_asserted',
+        'institutional_scientific_gate_authority': 'not_established',
+    },
+    'capability_state': {
+        'bounded_non_gating_library_profile': {'label': 'surface_out_of_scope', 'scope': 'E-owned typed library producer/CAS/fresh-reader and refusal chain is verified. This bounded slice intentionally provides no institutional or served authority surface; A/C/F own affected external consumers.'},
+        'registered_profile_ABI_public_inventory': {'label': 'surface_missing', 'scope': 'Two registered ABI snapshots/manifest entries and four public inventory/reference companions await G canonical generation.'},
+        'ordinary_float_configured_fit': {'label': 'bridge_missing', 'scope': 'Existing canonical tagged-float decoder and configured fit consumer require Scientist loader binding; integer fixture is already verified separately.'},
+        'A_reason_propagation': {'label': 'semantic_test_missing', 'scope': 'Existing predictive consumer loses exact reasons in historical cases; current source/owner patch and fresh default/HTTP cases are supplied, current execution UNRUN.'},
+    },
+    'P41': 'not_established',
+    'limitations': [
+        'No unknown dependence or law reconstruction, scientific authority, implicit mixture or production witness is claimed.',
+        'Profile1/Profile2 ABI snapshots/manifest entries and four facade inventory/reference companions require G canonical generation, not manual edits.',
+        'Current full architecture FAIL is preserved; static invocation proxy/runtime API/workspace/CI successors require their exact canonical owner prerequisites and G final composed gate queue.',
+        'Finite ordinary float configured fit remains owner-loader prerequisite; integer configured native2PASS is not a float positive.',
+        'All54 original proposals remain distinct from G formal intake and the historical ledger.',
+        'Maintained evidence utilities require the pinned cloud root/referenced scratch input paths or explicit reconstruction/rebinding via copy-index; portable direct local execution is not established.',
+    ],
+    'cleanup': {
+        'deleted': False,
+        'retained_candidates': [
+            '/workspace/e02-E-thirteenth-architecture-recompute-source4-20261007',
+            '/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave/affected-defining-fixtures',
+            '/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave-v4/affected-defining-fixtures',
+            '/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave-v4/architecture-maintained-controls-fixtures',
+            '/tmp/e02-E-ingress-author-thirteenth-20261007/diagnostic-cas',
+        ],
+        'policy': 'Latest continuation requires no permanent deletion. Native Trash unavailable: exact repeatable candidates only; code, useful docs, unique outputs and pre-existing Root untracked data retained.',
+    },
+    'no_future_self_SHA': True,
+}
+write_json('implementation-handoff.json', handoff)
+
+readme = '''# E Profile2 public boundaries — PR38 continuation
+
+Source `8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c`, tree `192e584c646ee6df303b8793e7b92aa741dcaebb`, is published on `codex/e02-E-continuation-20261006`. The append-only implementation commits are b305 → 11082 → e4b97 → 8d8; base df525 remains in history. G alone publishes integration; this handoff does not publish main.
+
+The common loading boundary now checks declared Profile2 raw values before coercion. Bool/string and malformed declarations cannot enter supported push/compress/pull by legacy loading. Multi-envelope Profile2 joins refuse before generic lowering. Single identity, generic joins and literal Profile1 replay remain; generic combine is explicitly lossy, diagnostic and non-gating. Real typed producer/test companions retain exact final CAS bytes and both in-memory and fresh-read refusal stages.
+
+The final affected native wave on 8d8 is **195 PASS / 0 FAIL / 0 ERROR / 0 SKIP**, including two actual configured HMC/NUTS integer-source → CAS → fresh Node cases. Three maintained architecture adversarial controls pass separately. Independent raw-guard removal controls and complete historical red outputs are preserved. Scoped native typing on e4b97 is **3 files / 0 errors / 0 warnings / exit 0**; all three product blobs are unchanged on 8d8, so this is reused evidence, not a new type run. Whole repository typing remains UNRUN.
+
+The fresh **full read-only architecture check is FAIL** on 8d8. Its complete 127,152-byte stdout records catalogue/baseline drifts, 151 deep-import messages and two required generated-output drifts. Client/dashboard generated outputs are clean. This is separate from the three healthy architecture controls; unified diff deletion lines are not violation counts. [Current classification](architecture-current-summary.json) and [complete receipt](root-observations/architecture-current/receipt.json) preserve the command, environment, full outputs and exact source. No base replay establishes inherited attribution; P41 stays `not_established`.
+
+The full22/54/55 criterion record retains **43 E proposed closed / 9 limited / 2 held**, **G formal intake 0/54**, and historical **49 partial / 4 held / 1 closed**. B198 remains historically closed. [Full54](full54/) preserves original cards/owner TSV/source citations and additive final source4 bindings. The prior immutable v2 row packet and prewave observations remain historical; the corrected final binding supplies current checks and does not reclassify findings. B194/B197 remain held for their exact factual inputs. B201/B202 already have E appointment and tracked decisions; this repair does not reopen them.
+
+Owner-ready packets are available for [API/schema/import companions](owner-packets/api/), [canonical finite-float configured fit inlet](owner-packets/float-fit/) and [A predictive-consumer reason propagation](owner-packets/forecast-A/). The A association preserves all eight unique b2 failures across both B32/LA051, rather than duplicating shared tests or dropping five cases. Current fetched A execution is UNRUN; authentic ETS CAS positives and applicable unapplied patch are supplied. Canonical owners apply their own protected writers and G generates companions after composed source admission. Missing source/institutional inputs are named per original row; production data stays local and read-only.
+
+[Implementation handoff](implementation-handoff.json) pins all seven implementation paths, original commits, runtime path/oracle/removal controls, owner prerequisites, separate check states, environment and cleanup candidates. [Copy index](copy-index.json) maps original scratch paths to verified portable publication files. Literal historical scripts/overlay snapshots are `.py.txt` execution artifacts with their original paths and hashes retained. The two `.py` full54 builders are maintained publication utilities, separately linted and verified with corrupt-field controls; replay requires their pinned cloud inputs or explicit path reconstruction. The receipt commit does not refer to its own future SHA. No historical stdout or reviewed packet was rewritten, no protected owner path was edited, and no data was deleted.
+'''
+target = DEST / 'README.md'
+if target.exists() and target.read_text() != readme:
+    raise ValueError('immutable main README changed')
+target.write_text(readme)
+
+assembly = {'schema': 'policyos.e02.one_time_assembly.v1', 'argv': ['python3', str(Path(__file__))], 'source': SOURCE, 'tree': TREE, 'role': 'One-time executed orchestration, not installed product or maintained utility', 'copied_bytes': sum(x['bytes'] for x in assets), 'copied_files': len(assets), 'source_unchanged': True, 'future_receipt_commit_sha': None}
+write_json('root-observations/assembly-command.json', assembly)
+(DEST / 'root-observations/finalize-packet.py.txt').write_bytes(Path(__file__).read_bytes())
+print(json.dumps({'source': SOURCE, 'files_before_root_addenda': len(assets), 'source_footprint': len(footprint), 'handoff': identity(DEST / 'implementation-handoff.json')}))

@@ -1,0 +1,14 @@
+baseline file is outdated, run without `--baselinemode=discard` to update it. (went down by 1124)
+
+{
+    "version": "1.39.0",
+    "time": "1791402663122",
+    "generalDiagnostics": [],
+    "summary": {
+        "filesAnalyzed": 3,
+        "errorCount": 0,
+        "warningCount": 0,
+        "informationCount": 0,
+        "timeInSec": 3.379
+    }
+}

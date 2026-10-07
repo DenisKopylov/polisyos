@@ -1,0 +1,161 @@
+{
+  "author": "/root/ingress_author; sole Root source writer",
+  "base": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+  "candidate": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+  "cleanup": "Repeatable isolated scratch CAS fixtures not selected for Git publication; unique deciding stdout/stderr/results/probes preserved, no permanent deletion done.",
+  "finding_scope": {
+    "G_formal_acceptance": false,
+    "bounded_proposal_only": true,
+    "historical_status_unchanged": true,
+    "ids": [
+      "B201",
+      "B202"
+    ]
+  },
+  "footprint": [
+    {
+      "base_blob": null,
+      "candidate_blob": "43c9c7185acd8c8f8e17964780d52b90e0ea34e5",
+      "candidate_bytes": 1323,
+      "candidate_sha256": "82a80155636bf13db75170e46320daf4634d8cf51a39085735fb4159ad237223",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-profile2-raw-ingress.toml"
+    },
+    {
+      "base_blob": "aebd421615d935b1c6711b75ae1ae9b6ed991709",
+      "candidate_blob": "cad31a1e6e42e21bf176270e3a2b39e5c4eebd6a",
+      "candidate_bytes": 17159,
+      "candidate_sha256": "82b9e77bc1da07223f6df644c166c47a4a127eacd47abe84185360c022c27224",
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py"
+    },
+    {
+      "base_blob": "19c38cd8fb3df7b7475581c060c3dbab672a0981",
+      "candidate_blob": "a3d4385ecdb98ec43baf70b85c9b0e722ae86c8f",
+      "candidate_bytes": 10175,
+      "candidate_sha256": "216df7733150f0aea483bdec13b53c543d173809b41148612bcce4c928f2c726",
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md"
+    },
+    {
+      "base_blob": "7c77982d7a0380870d1d55e3eca77b61cbb53c4f",
+      "candidate_blob": "95082a5faeffe94a11925ea0fb404e6960ecefc3",
+      "candidate_bytes": 96198,
+      "candidate_sha256": "d28620b88968dd13fd1d467aebc2183098f44c460bb813b33612d1cbb181bfb0",
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py"
+    },
+    {
+      "base_blob": "2f6f3b20ed9af91389859ed380b56627b27e6b68",
+      "candidate_blob": "d13f7f2b1099b99e9abb08dfe4b4521c41d84c85",
+      "candidate_bytes": 15848,
+      "candidate_sha256": "0ff0a476dc48165ce73b0ade953d9af2ba182cc151fdb6c57ca21dd5da412f34",
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py"
+    },
+    {
+      "base_blob": null,
+      "candidate_blob": "3bde24469403ce232808a4d58ee2f06eb5d6c770",
+      "candidate_bytes": 10145,
+      "candidate_sha256": "79e4e72361f1fc6a7addeb3c0cf16b604782985437ddf75a45c20c9ac9b2b2a4",
+      "path": "policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py"
+    }
+  ],
+  "mandatory_companion_blocker": {
+    "classification": "verification/test fixture expectation, not mathematical runtime defect",
+    "id": "E-P2-INGRESS-TESTFIXTURE-01",
+    "line": 113,
+    "minimum_fix": "Persist forged raw mapping through existing configured CAS put_json to retain integrity-valid malformed input, then wrap legacy load and named consumer in rejection assertion. Preserve test identity, mutations and negative bytes; do not weaken numeric/raw admission.",
+    "next_result": "Corrective immutable SHA delta review, then single affected maintained pytest wave.",
+    "owner": "/root/ingress_author; Root append-only source writer",
+    "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+    "source_level_observation": "Existing 6-case test constructs malformed profiled DTO outside raises block; profile/carrier/required/context mutations now correctly refuse before reaching consumer assertion. This predicts 4 early fixture failures; no pytest outcome claimed because the ONE affected wave is reserved until corrective freeze.",
+    "test_identity": "test_integrity_valid_forged_profile_refuses_fresh_named_computation"
+  },
+  "native_evidence": {
+    "backend": {
+      "argv": [
+        "/tmp/e02-E-ingress-oracle-thirteenth-20261007/probe.py",
+        "--candidate",
+        "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+        "--label",
+        "normal"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "optimization": 0,
+      "packages": {
+        "jax": "0.8.2",
+        "numpy": "2.3.5",
+        "pydantic": "2.12.5",
+        "scipy": "1.16.3"
+      },
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"
+    },
+    "effective_join_guard_removal": {
+      "behavior": "Actual concatenated samples/weights lose Profile2 on fresh read despite original profile/context/digest markers retained. No equal mixture claim.",
+      "each_mode_cases": 4,
+      "outcome": "PASS"
+    },
+    "effective_raw_admission_removal": {
+      "behavior": "Input bool/numeric string admitted; actual derived CAS publication and fresh readers become reachable while source/profile/context/digest markers remain.",
+      "each_mode_cases": 28,
+      "outcome": "PASS"
+    },
+    "imported_origin_count": 763,
+    "normal": {
+      "cases": 387,
+      "negative_routes": 364,
+      "outcome": "PASS",
+      "positive_compatibility_join_cases": 23
+    },
+    "optimized": {
+      "outcome": "PASS",
+      "same_logical_cases": 387
+    },
+    "origin_errors": [],
+    "tracked_source_walk": {
+      "all_git_blobs_bound": true,
+      "bytes": 55109306,
+      "errors": [],
+      "full_path_gitblob_size_frame_sha256": "67977eacfbd8d57b11d065de8f5f2075b648443a04cfee40ebfa3ca23293fc9e",
+      "paths": 2917
+    },
+    "unique_imported_origin_paths": 763
+  },
+  "patterns": [
+    "P01",
+    "P02",
+    "P07",
+    "P10",
+    "P14",
+    "P27",
+    "P29",
+    "P31",
+    "P32",
+    "P33",
+    "P35",
+    "P36",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ],
+  "predicate_basis": "independently_reconciled",
+  "property_verdict": "GO_bounded_raw_Profile2_ingress_and_multi_join_mechanisms",
+  "reviewer": "/root/ingress_oracle",
+  "reviewer_authored_product_source": false,
+  "schema": "policyos.e02.independent_source_review.v1",
+  "source_acceptance": "HOLD_pending_mandatory_test_companion_and_current_scoped_typecheck_corrections",
+  "specification": {
+    "bindings": "Existing composition reader recomputes context/carrier/functionals/joint digest before callbacks and derived publication. Direct generic artifact persistence may intentionally retain malformed negative fixtures; no blanket CAS validity/authority or self-attested admitted bit is inferred.",
+    "combine": "Actual fresh CAS output has no carrier/profile, gate_eligible false; API docs/release explicitly bound this to interval diagnostic, not admitted posterior law.",
+    "join": "All multi joins involving valid Profile2, either order and with generic sibling, raise typed UncertaintyCompatibilityError before generic lowering. Singleton returns identical object, generic joins retain compatibility. No mass/mixture meaning is inferred.",
+    "legacy": "Exact Profile1 id1/version1 raw decoding and seven literal canonical byte replays plus generic unprofiled bool/string semantics remain distinct.",
+    "producer_companion": "Only provisional profile_required marker moves to final metadata attachment; full profile/id/version/required remain co-emitted. No ratio/kernel/summary functional math changed.",
+    "raw_ingress": "Same P40 raw-type class, now existing shared DTO before-validator calls real raw numeric/profile/context admission before float coercion; both direct and legacy configured CAS loading inherit it. Typed internal PosteriorSamplesCarrier dumps only its already-decoded carrier, leaving raw mapping untouched."
+  },
+  "tree": "6700da10bc8e13d7c6c1683b140e805546e5d084",
+  "unmeasured_boundaries": [
+    "Production posterior/source/fit validity and scientific/institutional authority",
+    "Actual C/F consumers and their canonical writer adoption",
+    "Broader source/global gate closure",
+    "New mixture contract (explicitly unsupported/refused)"
+  ]
+}

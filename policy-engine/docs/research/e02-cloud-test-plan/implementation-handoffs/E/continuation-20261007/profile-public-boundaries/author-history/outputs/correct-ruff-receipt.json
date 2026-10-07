@@ -1,0 +1,74 @@
+[
+  {
+    "path": "src/polisyos/ir/analytics/uncertainty.py",
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--no-cache",
+      "--stdin-filename",
+      "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "-"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 0,
+    "stdout": "All checks passed!\n",
+    "stderr": "",
+    "input_sha256": "d28620b88968dd13fd1d467aebc2183098f44c460bb813b33612d1cbb181bfb0"
+  },
+  {
+    "path": "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--no-cache",
+      "--stdin-filename",
+      "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "-"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 0,
+    "stdout": "All checks passed!\n",
+    "stderr": "",
+    "input_sha256": "82b9e77bc1da07223f6df644c166c47a4a127eacd47abe84185360c022c27224"
+  },
+  {
+    "path": "tests/unit/ir/test_uncertainty_profile_ingress.py",
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--no-cache",
+      "--stdin-filename",
+      "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py",
+      "-"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 1,
+    "stdout": "PT012 `pytest.raises()` block should contain a single simple statement\n  --> tests/unit/ir/test_uncertainty_profile_ingress.py:84:5\n   |\n82 |       calls = []\n83 |       outputs = []\n84 | /     with pytest.raises(ValueError, match=\"finite real non-bool\"):\n85 | |         envelope = _load_raw(tmp_path / \"input\", raw, inlet)\n86 | |         derived = _compose(envelope, operation, calls)\n87 | |         outputs.append(\n88 | |             persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path / \"output\"), derived)\n89 | |         )\n   | |_________^\n90 |       assert calls == []\n91 |       assert outputs == []\n   |\n\nPT012 `pytest.raises()` block should contain a single simple statement\n   --> tests/unit/ir/test_uncertainty_profile_ingress.py:123:5\n    |\n121 |       calls = []\n122 |       outputs = []\n123 | /     with pytest.raises(ValueError):\n124 | |         envelope = _load_raw(tmp_path / \"input\", raw, inlet)\n125 | |         derived = _compose(envelope, operation, calls)\n126 | |         outputs.append(\n127 | |             persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path / \"output\"), derived)\n128 | |         )\n    | |_________^\n129 |       assert calls == []\n130 |       assert outputs == []\n    |\n\nPT012 `pytest.raises()` block should contain a single simple statement\n   --> tests/unit/ir/test_uncertainty_profile_ingress.py:216:5\n    |\n214 |           right = right.model_copy(update={\"metadata\": {}})\n215 |       pair = (left, right) if order == \"profile_first\" else (right, left)\n216 | /     with pytest.raises(UncertaintyCompatibilityError, match=\"Profile2.*mixture\"):\n217 | |         result = join_envelopes(pair)\n218 | |         persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), result)\n    | |____________________________________________________________________________________^\n219 |       assert not tmp_path.exists() or not any(tmp_path.iterdir())\n    |\n\nFound 3 errors.\n",
+    "stderr": "",
+    "input_sha256": "f7b50115a71ff9ff219f4b8f0a6e447ef99a9e39507fa3702a8f5813dbe774e3"
+  },
+  {
+    "path": "tests/unit/ir/test_posterior_summary.py",
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "--no-cache",
+      "--stdin-filename",
+      "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "-"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "exit_code": 0,
+    "stdout": "All checks passed!\n",
+    "stderr": "",
+    "input_sha256": "0ff0a476dc48165ce73b0ade953d9af2ba182cc151fdb6c57ca21dd5da412f34"
+  }
+]

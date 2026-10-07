@@ -1,0 +1,17 @@
+{
+  "base": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+  "parent": "e4b97c15196d8e276745f55a4367da83586511d9",
+  "candidate": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+  "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+  "complete_footprint": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-posterior-profile2-raw-ingress.toml",
+    "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+    "policy-engine/src/polisyos/ir/analytics/README.md",
+    "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+    "policy-engine/tests/unit/ir/test_posterior_summary.py",
+    "policy-engine/tests/unit/ir/test_uncertainty_posterior_composition.py",
+    "policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py"
+  ],
+  "runtime_source_unchanged_from": "e4b97c15196d8e276745f55a4367da83586511d9",
+  "scope": "seven total source/test/README/release paths; last append-only commit test-only dual-stage actualCAS refusal companion"
+}

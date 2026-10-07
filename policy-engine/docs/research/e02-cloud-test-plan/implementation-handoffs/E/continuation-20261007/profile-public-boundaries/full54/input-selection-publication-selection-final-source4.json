@@ -1,0 +1,380 @@
+{
+  "schema": "e02.E.full54.final-additive.publication-selection.v1",
+  "source_candidate": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+  "source_tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+  "destination_recommendation": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries/full54-delta/",
+  "selected_moderate_files": [
+    {
+      "name": "README-final-source4.md",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/README-final-source4.md",
+      "bytes": 3354,
+      "sha256": "fc33bffbd3384bd7fd387d5debe8323fddff6c5d871ae3dacefaf9de35ca0822"
+    },
+    {
+      "name": "source3-association-delta.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/source3-association-delta.json",
+      "bytes": 1622,
+      "sha256": "960d07854e7cf88e0d03a53462b589d77dc24f2c55172626cc3facd12e3b3a4a"
+    },
+    {
+      "name": "source4-association-prewave.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/source4-association-prewave.json",
+      "bytes": 41454,
+      "sha256": "48ffafea495646677b9d743a03ff0454e8dc6050ec687ac03bb5c59c0302b085"
+    },
+    {
+      "name": "coverage-reconciliation.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/coverage-reconciliation.json",
+      "bytes": 1954,
+      "sha256": "74055d7615e785f93fd85c6121e0c290eebd0e3cd52de413d61f0b1a942ecf4a"
+    },
+    {
+      "name": "all54-final-source4-verification-binding.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/all54-final-source4-verification-binding.json",
+      "bytes": 9855,
+      "sha256": "60414f70c439ecc051d508a290f3cd0f874aa30b40722df38510d76f8f727ba7"
+    },
+    {
+      "name": "all54-final-source4-verification-binding-v2.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/all54-final-source4-verification-binding-v2.json",
+      "bytes": 10951,
+      "sha256": "2fdb3b574f5e7bbdf71fefbd5a7f7e44094d794f9b579197ef86e14283c3fe0a"
+    },
+    {
+      "name": "source4-current-architecture-binding.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/source4-current-architecture-binding.json",
+      "bytes": 3186,
+      "sha256": "f848557d6c34f4fa663d5eef904a9aa73bcf6ecfef8277ba1d7be4435103ee42"
+    },
+    {
+      "name": "build_delta_packet.py",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/build_delta_packet.py",
+      "bytes": 35780,
+      "sha256": "4f970d5492db1b7316563d6d3d7e0bb10e7884f08761c1abc700a356c8ee3cc0"
+    },
+    {
+      "name": "bind_final_source4.py",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/bind_final_source4.py",
+      "bytes": 21214,
+      "sha256": "094f59dd079e7612a145e53d08fbe8e1d046663c032bc881822517e56d0ee918"
+    },
+    {
+      "name": "final-two-utilities-execution-receipt.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/final-two-utilities-execution-receipt.json",
+      "bytes": 12836,
+      "sha256": "b4bff8a2589459438980b069270decfef211caf92ca492a0a2c498c968a0eedf"
+    },
+    {
+      "name": "association-final-canonical-normal-validation.validation.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/association-final-canonical-normal-validation.validation.json",
+      "bytes": 5865,
+      "sha256": "3099ec7eb52b9437156a5bce67ddf3776a0b9f5974f4f2ec007c4fc0edaf37f6"
+    },
+    {
+      "name": "association-final-canonical-optimized-validation.validation.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/association-final-canonical-optimized-validation.validation.json",
+      "bytes": 5865,
+      "sha256": "3099ec7eb52b9437156a5bce67ddf3776a0b9f5974f4f2ec007c4fc0edaf37f6"
+    },
+    {
+      "name": "final-binding-v2-canonical-normal-validation.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/final-binding-v2-canonical-normal-validation.json",
+      "bytes": 3532,
+      "sha256": "617dd42263506b8f6d3da224247122a236657407a9ebc358cd6ca046a4b53b10"
+    },
+    {
+      "name": "final-binding-v2-canonical-optimized-validation.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/final-binding-v2-canonical-optimized-validation.json",
+      "bytes": 3532,
+      "sha256": "617dd42263506b8f6d3da224247122a236657407a9ebc358cd6ca046a4b53b10"
+    },
+    {
+      "name": "association-final-canonical-normal.stdout.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/association-final-canonical-normal.stdout.json",
+      "bytes": 368,
+      "sha256": "7707b08945f4883d46df24cde4a50a9495a4c1bf84456884498edccbb809735c"
+    },
+    {
+      "name": "association-final-canonical-normal.stderr.txt",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/association-final-canonical-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "association-final-canonical-optimized.stdout.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/association-final-canonical-optimized.stdout.json",
+      "bytes": 368,
+      "sha256": "7707b08945f4883d46df24cde4a50a9495a4c1bf84456884498edccbb809735c"
+    },
+    {
+      "name": "association-final-canonical-optimized.stderr.txt",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/association-final-canonical-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "final-binding-v2-canonical-normal.stdout.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/final-binding-v2-canonical-normal.stdout.json",
+      "bytes": 239,
+      "sha256": "950c6dd476c606d98ffb8ac7c7a323f139604112985502229b2d6d7547891b16"
+    },
+    {
+      "name": "final-binding-v2-canonical-normal.stderr.txt",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/final-binding-v2-canonical-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "final-binding-v2-canonical-optimized.stdout.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/final-binding-v2-canonical-optimized.stdout.json",
+      "bytes": 239,
+      "sha256": "950c6dd476c606d98ffb8ac7c7a323f139604112985502229b2d6d7547891b16"
+    },
+    {
+      "name": "final-binding-v2-canonical-optimized.stderr.txt",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/final-binding-v2-canonical-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "final-two-utilities-current-ruff.stdout.txt",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/final-two-utilities-current-ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "name": "final-two-utilities-current-ruff.stderr.txt",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/final-two-utilities-current-ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "final-two-utilities-current-format.stdout.txt",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/final-two-utilities-current-format.stdout.txt",
+      "bytes": 26,
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "name": "final-two-utilities-current-format.stderr.txt",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/final-two-utilities-current-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "final-two-utilities-format.stdout.txt",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/final-two-utilities-format.stdout.txt",
+      "bytes": 181,
+      "sha256": "ca2e5571139f496b8f81329fec62c7a1cdeddc42200d4f6ae919b413815af19b"
+    },
+    {
+      "name": "final-two-utilities-format.stderr.txt",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/final-two-utilities-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "final-two-utilities-format-corrective.stdout.txt",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/final-two-utilities-format-corrective.stdout.txt",
+      "bytes": 20,
+      "sha256": "96a977f329ec3c59092d40e041a019b49dcf03ca04055e177aa0ccb8c27234df"
+    },
+    {
+      "name": "final-two-utilities-format-corrective.stderr.txt",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/final-two-utilities-format-corrective.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "independent-review-source4-final.json",
+      "path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-full54-review/review-source4-final.json",
+      "bytes": 18002,
+      "sha256": "b672b909eb2fe4be5b736c0d10189b5d4d64e98373a569ddcc1e0349190d3e8c"
+    },
+    {
+      "name": "independent-review-source4-final-optimized.json",
+      "path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-full54-review/review-source4-final-optimized.json",
+      "bytes": 18001,
+      "sha256": "3dbf0c8c4b0bbfc4d80a316114f1a20b7233c136f4790a8ba989d4344fc06e32"
+    }
+  ],
+  "bytes": 198463,
+  "immutable_prior_selection": {
+    "name": "publication-selection.json",
+    "path": "/tmp/e02-E-full54-thirteenth-20261007/publication-selection.json",
+    "bytes": 6178,
+    "sha256": "7323a7cc35632f0286f10bf72e99d872e8cd687e56a1c8e92e38559f256bae31"
+  },
+  "prior_asset_custody": [
+    {
+      "original_name": "README.md",
+      "original_bytes": 3769,
+      "original_sha256": "448301345f81e77568a10401182d4a6154ee8dad2bba4cdf8196ececc9e6b0d8",
+      "current_original_path_matches": true,
+      "handling": "unchanged existing selection; reuse its already-copied publication asset"
+    },
+    {
+      "original_name": "all54-delta-associations-v2-source11082.json",
+      "original_bytes": 243560,
+      "original_sha256": "f840b7082a3a6b4e5edb0563b47d197960de2ca728e83813096e7f152236c8fe",
+      "current_original_path_matches": true,
+      "handling": "unchanged existing selection; reuse its already-copied publication asset"
+    },
+    {
+      "original_name": "all54-delta-associations-v2-source11082.validation.json",
+      "original_bytes": 5865,
+      "original_sha256": "3099ec7eb52b9437156a5bce67ddf3776a0b9f5974f4f2ec007c4fc0edaf37f6",
+      "current_original_path_matches": true,
+      "handling": "unchanged existing selection; reuse its already-copied publication asset"
+    },
+    {
+      "original_name": "all54-v2-optimized-validation.validation.json",
+      "original_bytes": 5865,
+      "original_sha256": "3099ec7eb52b9437156a5bce67ddf3776a0b9f5974f4f2ec007c4fc0edaf37f6",
+      "current_original_path_matches": true,
+      "handling": "unchanged existing selection; reuse its already-copied publication asset"
+    },
+    {
+      "original_name": "baseline-relevant-cells.json",
+      "original_bytes": 57175,
+      "original_sha256": "930a3bc24abb000ff3c72780dccc65c09ee70e9536398e3215c9a7f9fc913eb1",
+      "current_original_path_matches": true,
+      "handling": "unchanged existing selection; reuse its already-copied publication asset"
+    },
+    {
+      "original_name": "build_delta_packet.py",
+      "original_bytes": 35053,
+      "original_sha256": "363ed2bf0e38400baf48dcac6ae034bb62daf119779c1e8799902deb7483f52c",
+      "current_original_path_matches": false,
+      "handling": "canonical formatter updated maintained source; root preserves original already-copied body as historical-v2-build_delta_packet.py.txt; additive selection supplies current maintained .py"
+    },
+    {
+      "original_name": "association-normal-v2.stdout.json",
+      "original_bytes": 368,
+      "original_sha256": "7707b08945f4883d46df24cde4a50a9495a4c1bf84456884498edccbb809735c",
+      "current_original_path_matches": true,
+      "handling": "unchanged existing selection; reuse its already-copied publication asset"
+    },
+    {
+      "original_name": "association-normal-v2.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_original_path_matches": true,
+      "handling": "unchanged existing selection; reuse its already-copied publication asset"
+    },
+    {
+      "original_name": "association-optimized-v2.stdout.json",
+      "original_bytes": 368,
+      "original_sha256": "7707b08945f4883d46df24cde4a50a9495a4c1bf84456884498edccbb809735c",
+      "current_original_path_matches": true,
+      "handling": "unchanged existing selection; reuse its already-copied publication asset"
+    },
+    {
+      "original_name": "association-optimized-v2.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_original_path_matches": true,
+      "handling": "unchanged existing selection; reuse its already-copied publication asset"
+    },
+    {
+      "original_name": "packet-builder-ruff.stdout.txt",
+      "original_bytes": 19,
+      "original_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "current_original_path_matches": true,
+      "handling": "unchanged existing selection; reuse its already-copied publication asset"
+    },
+    {
+      "original_name": "packet-builder-ruff.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_original_path_matches": true,
+      "handling": "unchanged existing selection; reuse its already-copied publication asset"
+    },
+    {
+      "original_name": "packet-builder-format.stdout.txt",
+      "original_bytes": 25,
+      "original_sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "current_original_path_matches": true,
+      "handling": "unchanged existing selection; reuse its already-copied publication asset"
+    },
+    {
+      "original_name": "packet-builder-format.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_original_path_matches": true,
+      "handling": "unchanged existing selection; reuse its already-copied publication asset"
+    }
+  ],
+  "immutable_reviewed_original54": {
+    "name": "all54-delta-associations-v2-source11082.json",
+    "path": "/tmp/e02-E-full54-thirteenth-20261007/all54-delta-associations-v2-source11082.json",
+    "bytes": 243560,
+    "sha256": "f840b7082a3a6b4e5edb0563b47d197960de2ca728e83813096e7f152236c8fe"
+  },
+  "independent_original54_review": {
+    "name": "review-v2-source11082.json",
+    "path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-full54-review/review-v2-source11082.json",
+    "bytes": 72218,
+    "sha256": "b5b8ee8ea2566722c274736af37d8a41e8083d61c68ba5a0e6b6f2c9440be6e8"
+  },
+  "current_binding": {
+    "name": "all54-final-source4-verification-binding-v2.json",
+    "path": "/tmp/e02-E-full54-thirteenth-20261007/all54-final-source4-verification-binding-v2.json",
+    "bytes": 10951,
+    "sha256": "2fdb3b574f5e7bbdf71fefbd5a7f7e44094d794f9b579197ef86e14283c3fe0a"
+  },
+  "retained_original_binding": {
+    "name": "all54-final-source4-verification-binding.json",
+    "path": "/tmp/e02-E-full54-thirteenth-20261007/all54-final-source4-verification-binding.json",
+    "bytes": 9855,
+    "sha256": "60414f70c439ecc051d508a290f3cd0f874aa30b40722df38510d76f8f727ba7"
+  },
+  "current_whole_architecture_overlay": {
+    "name": "source4-current-architecture-binding.json",
+    "path": "/tmp/e02-E-full54-thirteenth-20261007/source4-current-architecture-binding.json",
+    "bytes": 3186,
+    "sha256": "f848557d6c34f4fa663d5eef904a9aa73bcf6ecfef8277ba1d7be4435103ee42"
+  },
+  "status_layers_unchanged": {
+    "historical_ledger": {
+      "partial": 49,
+      "held": 4,
+      "closed": 1
+    },
+    "E_author_proposals": {
+      "closed": 43,
+      "limited": 9,
+      "held": 2
+    },
+    "formal_G_acceptance": 0
+  },
+  "check_states": {
+    "Source4_affected_defining": {
+      "PASS": 195,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "Source4_maintained_architecture_controls": {
+      "PASS": 3,
+      "FAIL": 0
+    },
+    "configured_HMC_NUTS_fresh_Node": "2PASS included within195",
+    "scoped_type": "Measured e4 PASS0errors on3files, exact blobs equal Source4; no Source4 rerun; whole gateUNRUN",
+    "Source4_owned_changed_file_lint": "PASS separately pinned by final binding",
+    "maintained_publication_utilities": "Ruff/formatPASS both2 .py, normal/-O16controls each",
+    "Source4_whole_architecture": "Native child1FAIL, complete root receipt/stdout linked via additive overlay",
+    "current_A_native": "UNRUN; source-only review separate",
+    "historical_gate_queue": "b2 sevenFAIL/workspace13UNRUN/CI23UNRUN observations preserved; not current Source4 blanket outcome"
+  },
+  "maintenance_source_correction_only": "Canonical formatter changed two helper .py bodies after prior-config PASS; complete canonical formatFAIL/corrective stdout/PASS and new control receipts are selected. Immutable JSON packets/reviews and product Source4 untouched.",
+  "utility_execution_receipt": {
+    "name": "final-two-utilities-execution-receipt.json",
+    "path": "/tmp/e02-E-full54-thirteenth-20261007/final-two-utilities-execution-receipt.json",
+    "bytes": 12836,
+    "sha256": "b4bff8a2589459438980b069270decfef211caf92ca492a0a2c498c968a0eedf"
+  },
+  "copy_custody_scope": "Root already copied historical selector assets. This selector is additive; use current maintained .py replacements while preserving exact old executed source snapshot. Exact original /tmp refs are custody identities, not portable G replay claims.",
+  "future_self_sha": false,
+  "source_and_repo_writes_by_agent": false,
+  "deletion": false
+}

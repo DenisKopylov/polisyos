@@ -1,0 +1,55 @@
+"""Native Source3 actual producer identity versus preserved Source2 CAS bytes."""
+import ast
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+ROOT=Path('/workspace/e02-E-continuation-20261006');BASE=Path('/tmp/e02-E-ingress-oracle-thirteenth-20261007')
+candidate=sys.argv[1];parent='11082e91d61ace2f3bd7016d408341fdd6ec1702'
+sys.path.insert(0,str(ROOT/'policy-engine/src'))
+from probe import source_binding
+before=source_binding(candidate)
+if not before['all_git_blobs_bound']:raise RuntimeError(before)
+from polisyos.core import artifacts as cas
+from polisyos.foundry.uncertainty import summarize_bayesian_calibration_posterior
+from polisyos.ir.analytics import PosteriorParameterBinding,PosteriorSummaryContext,read_posterior_summary_profile,load_posterior_summary_envelope
+from polisyos.ir.analytics.uncertainty import NumericPolicySpec,NumericToleranceMode,UncertaintyEnvelope,persist_uncertainty_envelope
+from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
+old=json.loads((BASE/'source2-normal.json').read_text())
+old_row=next(x for x in old['rows'] if x['case']=='positive/push')
+old_ref=UncertaintyEnvelopeRef(artifact_id=old_row['source_ref'],kind='ir.uncertainty_envelope',media_type='application/json')
+old_store=cas.FileSystemCAS(BASE/'source2-normal'/'positive-source')
+old_bytes=old_store.get_bytes(old_ref.artifact_id)
+binding=PosteriorParameterBinding(estimand_id='finite:theta',unit='score',scale='linear')
+context=PosteriorSummaryContext(parameters={'x':binding},purpose='synthetic_diagnostic',time_roles={'source_valid_at':'2026-10-01T00:00:00Z','computed_at':'2026-10-02T00:00:00Z'})
+summary=summarize_bayesian_calibration_posterior({'x':[0.,1.]},weights=[1.,1.],draw_ids=['source:zero','source:one'],sample_axis='synthetic-row',context=context)
+env=summary.parameter_envelopes['x'];new_store=cas.FileSystemCAS(BASE/'source3-wire-cas')
+new_ref=persist_uncertainty_envelope(new_store,env)
+new_bytes=new_store.get_bytes(new_ref.artifact_id)
+fresh=load_posterior_summary_envelope(cas.FileSystemCAS(BASE/'source3-wire-cas'),new_ref)
+profile=read_posterior_summary_profile(fresh)
+rows=[{'case':'explicit-bound-context-law-identical-CAS','prior_source':parent,'current_source':candidate,
+ 'prior_ref':str(old_ref.artifact_id),'current_ref':str(new_ref.artifact_id),'prior_bytes':len(old_bytes),'current_bytes':len(new_bytes),
+ 'prior_sha256':hashlib.sha256(old_bytes).hexdigest(),'current_sha256':hashlib.sha256(new_bytes).hexdigest(),
+ 'source_context_identity_preserved':profile.context==context,'schema_version':fresh.schema_version,
+ 'check_outcome':'PASS' if old_bytes==new_bytes and profile.context==context and fresh.schema_version=='1.1' and not fresh.gate_eligible else 'FAIL'}]
+# Typed policy is the already-supported model that the old coercible dict decoded
+# to. Compare complete public model outputs and actual native empty context.
+policy_dict=NumericPolicySpec.model_validate({'mode':'decimal_exact'})
+policy_model=NumericPolicySpec(mode=NumericToleranceMode.DECIMAL_EXACT)
+empty=summarize_bayesian_calibration_posterior({'x':[0.,1.]},context=None).parameter_envelopes['x']
+empty_profile=read_posterior_summary_profile(empty)
+rows.append({'case':'typed-policy-and-None-context-equivalent','policy_dict_dump':policy_dict.model_dump(mode='json'),'policy_model_dump':policy_model.model_dump(mode='json'),'actual_default_schema_version':UncertaintyEnvelope.model_fields['schema_version'].default,'empty_context_dump':empty_profile.context.model_dump(mode='json'),'check_outcome':'PASS' if policy_dict==policy_model and empty_profile.context==PosteriorSummaryContext() and UncertaintyEnvelope.model_fields['schema_version'].default=='1.1' else 'FAIL'})
+g=lambda *a:subprocess.check_output(['git',*a],cwd=ROOT)
+unchanged=[]
+for path in ('policy-engine/src/polisyos/ir/analytics/uncertainty.py','policy-engine/src/polisyos/ir/analytics/posterior_summary.py','policy-engine/tests/unit/ir/test_posterior_summary.py','policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py'):
+ old_body=g('show',parent+':'+path);new_body=g('show',candidate+':'+path)
+ if old_body!=new_body:raise RuntimeError('unchanged dependency changed: '+path)
+ unchanged.append({'path':path,'parent_and_current_blob':g('rev-parse',candidate+':'+path).decode().strip(),'bytes':len(new_body),'sha256':hashlib.sha256(new_body).hexdigest()})
+after=source_binding(candidate)
+if before!=after or not after['all_git_blobs_bound']:raise RuntimeError('Source3 runtime input mutation')
+result={'schema':'policyos.e02.independent_source3_wire_identity.v1','candidate':candidate,'tree':g('rev-parse',candidate+'^{tree}').decode().strip(),'parent':parent,'rows':rows,'outcomes':{state:sum(r['check_outcome']==state for r in rows) for state in ('PASS','FAIL')},'source_before':before,'source_after':after,'unchanged_native_review_dependencies':unchanged,'argv':sys.argv,'python':sys.version,'scope':'actual native producer→configured CAS→fresh strict named reader and complete canonical bytes/policy/typed optional context; no repeated ratio/kernel/Hessian suite or whole type/gate/finding acceptance'}
+(BASE/'source3-wire-identity.json').write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
+print(json.dumps({'candidate':candidate,'outcomes':result['outcomes'],'prior_current_ref':rows[0]['current_ref']},indent=2))
+sys.exit(0 if result['outcomes']['FAIL']==0 else 1)

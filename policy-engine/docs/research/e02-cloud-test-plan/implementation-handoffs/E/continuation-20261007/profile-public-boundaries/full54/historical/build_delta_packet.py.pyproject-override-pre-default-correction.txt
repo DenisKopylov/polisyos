@@ -1,0 +1,832 @@
+"""Bind the E thirteenth-wave delta to original criteria and immutable receipts.
+
+Read-only Git input; output is confined to this temporary packet directory.
+The checks below validate associations, not scientific finding closure.
+"""
+
+from __future__ import annotations
+
+import argparse
+import copy
+import csv
+import hashlib
+import io
+import json
+import subprocess
+import sys
+from collections import Counter
+from pathlib import Path
+
+ROOT = Path("/workspace/e02-E-continuation-20261006")
+OUT = Path(__file__).resolve().parent
+PREFIX = "policy-engine/docs/research/e02-cloud-test-plan/"
+OLD_HEAD = "df5258b7ddfade5b952e3b21ef28116ced40fa68"
+OLD_SOURCE = "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641"
+G_HEAD = "2abc17f46a033a7879663486ff9946a95786601f"
+A_SOURCE = "2605d13916f4dd38f216419562c04718ba4c2028"
+OLD_PATH = (
+    PREFIX + "implementation-handoffs/E/continuation-20261007/"
+    "final-publication-r5-b2f2/final54-current-and-independent-joins/003/"
+    "current-all-54-b2-final-v4-normal.json"
+)
+G_PATH = (
+    PREFIX + "integration/reviews/2026-10-07-thirteenth-wave/E54-current-decisions.json"
+)
+CASE_PATH = (
+    PREFIX + "implementation-handoffs/E/continuation-20261007/"
+    "final-publication-r5-b2f2/final-numeric/preparation/current-case-index.json"
+)
+LIMITED = {
+    "B32",
+    "LA-051",
+    "B172",
+    "B173",
+    "B190",
+    "B200",
+    "LA-053",
+    "LA-054",
+    "LA-055",
+}
+HELD = {"B194", "B197"}
+DIRECT = {"B201", "B202"}
+SIBLING = {"B188", "B192"}
+
+
+def git(*args: str) -> bytes:
+    return subprocess.check_output(["/usr/bin/git", *args], cwd=ROOT)  # noqa: S603 - argv is read-only Git, never shell text
+
+
+def body(sha: str, path: str) -> bytes:
+    return git("show", f"{sha}:{path}")
+
+
+def digest(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def identity(sha: str, path: str) -> dict:
+    data = body(sha, path)
+    return {"revision": sha, "path": path, "bytes": len(data), "sha256": digest(data)}
+
+
+def ref(input_name: str, fragment: str) -> dict:
+    return {"input": input_name, "fragment": fragment}
+
+
+def source_tree(sha: str) -> str:
+    return git("rev-parse", f"{sha}^{{tree}}").decode().strip()
+
+
+def unchanged_paths(old: str, new: str, paths: list[str]) -> list[dict]:
+    rows = []
+    for path in paths:
+        left = body(old, path)
+        try:
+            right = body(new, path)
+        except subprocess.CalledProcessError:
+            right = None
+        rows.append(
+            {
+                "path": path,
+                "base_sha256": digest(left),
+                "candidate_sha256": digest(right) if right is not None else None,
+                "body_equal": left == right,
+            }
+        )
+    return rows
+
+
+def validate(packet: dict) -> None:
+    """Recompute criteria, owners, unique cases and status-layer assertions."""
+    old = json.loads(body(OLD_HEAD, OLD_PATH))
+    g = json.loads(body(G_HEAD, G_PATH))
+    rows = packet["rows"]
+    if [r["id"] for r in rows] != [r["id"] for r in old["rows"]]:
+        raise ValueError("exact 54 original row identities/order")
+    original_links = {(r["id"], b) for r in old["rows"] for b in r["bundle_ids"]}
+    links = [(r["id"], b) for r in rows for b in r["bundle_ids"]]
+    if len(links) != 55 or set(links) != original_links:
+        raise ValueError("exact 55 ID-to-bundle associations")
+    if len({b for _, b in links}) != 22:
+        raise ValueError("exact 22 bundle denominator")
+    histories = Counter(r["historical_ledger_status"] for r in rows)
+    proposals = Counter(r["retained_E_author_proposal"] for r in rows)
+    if histories != {"partial": 49, "held": 4, "closed": 1}:
+        raise ValueError("historical ledger layer")
+    if proposals != {"closed": 43, "limited": 9, "held": 2}:
+        raise ValueError("author proposals layer")
+    if packet["status_layers"]["formal_G_acceptance"] != 0:
+        raise ValueError("formal G acceptance is separate")
+    if packet["status_layers"]["formal_ledger_change"] is not False:
+        raise ValueError("no automatic historical ledger migration")
+    source_bindings = packet["original_sources"]
+    for source in (
+        source_bindings["finding_owners"],
+        source_bindings["bundle_owners"],
+        *source_bindings["cards"],
+    ):
+        exact = identity(source["revision"], source["path"])
+        if any(source[key] != exact[key] for key in ("bytes", "sha256")):
+            raise ValueError("original full cards and owner TSV content identity")
+        if body(source["revision"], source["path"]) != body(
+            packet["candidate"]["commit"], source["path"]
+        ):
+            raise ValueError("unexpected original ownership/card source change")
+    for fragment in source_bindings["criterion_fragments"]:
+        lines = body(fragment["revision"], fragment["path"]).splitlines(keepends=True)
+        start, end = fragment["lines"]
+        data = b"".join(lines[start - 1 : end])
+        if len(data) != fragment["bytes"] or digest(data) != fragment["sha256"]:
+            raise ValueError("exact original criterion line-fragment identity")
+    for index, row in enumerate(rows):
+        before = old["rows"][index]
+        review = g["per_finding_rows"][index]
+        for key in ("id", "bundle_ids", "historical_ledger_status"):
+            if row[key] != before[key]:
+                raise ValueError(f"original row {row['id']} {key}")
+        if row["retained_E_author_proposal"] != review["current_E_proposed_outcome"]:
+            raise ValueError(f"retained proposal {row['id']}")
+        if row["historical_property"] != before["criterion_evidence"]["property"]:
+            raise ValueError(f"exact original property {row['id']}")
+        if (
+            row["original_criteria"]
+            != before["criterion_evidence"]["original_criterion_refs"]
+        ):
+            raise ValueError(f"criterion citation {row['id']}")
+        if row["formal_G_acceptance"] or row["formal_ledger_change"]:
+            raise ValueError("author finding proposal does not change G intake")
+        if row["retained_E_author_proposal"] in ("limited", "held"):
+            if not row["external_owner_input"]:
+                raise ValueError(f"missing exact external input {row['id']}")
+        elif row["external_owner_input"] is not None:
+            raise ValueError("unrelated production inputs do not gate closed proposals")
+    old_cases = json.loads(body(OLD_HEAD, CASE_PATH))["cases"]
+    expected = [c for c in old_cases if c["outcome"] == "failed"]
+    failures = packet["shared_A_reason_cases"]["historical_unique_failures"]
+    tokens = {(c["job_name"], c["classname"], c["name"]) for c in failures}
+    if len(failures) != 8 or len(tokens) != 8:
+        raise ValueError("eight unique historical A reason failures")
+    if failures != expected:
+        raise ValueError("immutable b2 exact case tokens, no removed/doubled failure")
+    if packet["shared_A_reason_cases"]["associated_findings"] != ["B32", "LA-051"]:
+        raise ValueError("both affected IDs navigate the same eight cases")
+    if packet["shared_A_reason_cases"]["current_A_native_check"] != "UNRUN":
+        raise ValueError("A source-level review is not a current native run")
+    if packet["shared_A_reason_cases"]["capability_state"] != "verification_missing":
+        raise ValueError("existing consumer cannot be claimed wholly absent")
+    if packet["historical_checks"]["candidate"] != OLD_SOURCE:
+        raise ValueError("b2 wave does not belong to new candidate")
+    if packet["historical_checks"]["counts"] != {
+        "cases": 1465,
+        "passed": 1457,
+        "failed": 8,
+        "errors": 0,
+        "skipped": 0,
+    }:
+        raise ValueError("exact b2 observation retained")
+    if packet["new_boundary"]["affected_original_ids"] != ["B201", "B202"]:
+        raise ValueError("raw/join repairs not global closure by count")
+    if packet["new_boundary"]["gate_eligible"] is not False:
+        raise ValueError("finite law does not confer gate authority")
+    if (
+        packet["new_boundary"]["production_or_institutional_authority"]
+        != "not_established"
+    ):
+        raise ValueError("synthetic fixture not factual authority")
+    if packet["new_boundary"]["mechanism_completed"]:
+        binding = packet["new_boundary"]["source_and_receipt_binding"]
+        if (
+            not binding
+            or not binding.get("independent_review")
+            or not binding.get("deciding_receipts")
+        ):
+            raise ValueError("new mechanism requires immutable source/review/receipts")
+        if binding["candidate"] != packet["candidate"]["commit"]:
+            raise ValueError("binding source identity")
+        if binding["tree"] != source_tree(binding["candidate"]):
+            raise ValueError("binding source tree")
+    for dep in packet["criterion_dependency_reconciliation"]:
+        recomputed = unchanged_paths(
+            OLD_SOURCE, packet["candidate"]["commit"], [dep["path"]]
+        )[0]
+        if recomputed != dep:
+            raise ValueError("dependency bytes recomputed from exact Git source")
+
+
+def build(candidate: str, binding_path: Path | None) -> dict:
+    old_data = body(OLD_HEAD, OLD_PATH)
+    old = json.loads(old_data)
+    g = json.loads(body(G_HEAD, G_PATH))
+    case_index = json.loads(body(OLD_HEAD, CASE_PATH))
+    failures = [c for c in case_index["cases"] if c["outcome"] == "failed"]
+    inputs = {
+        "full54_b2": identity(OLD_HEAD, OLD_PATH),
+        "G_thirteenth54": identity(G_HEAD, G_PATH),
+        "b2_case_index": identity(OLD_HEAD, CASE_PATH),
+        "G_A_reason_delta": identity(
+            G_HEAD,
+            PREFIX
+            + "integration/reviews/2026-10-07-thirteenth-wave/E-to-A-reason-carry.json",
+        ),
+        "G_native_diagnostic": identity(
+            G_HEAD,
+            PREFIX
+            + "integration/reviews/2026-10-07-thirteenth-wave/E-native-diagnostics.md",
+        ),
+        "G_API": identity(
+            G_HEAD, PREFIX + "integration/reviews/2026-10-07-thirteenth-wave/E-API.md"
+        ),
+        "G_fit_inlet": identity(
+            G_HEAD,
+            PREFIX + "integration/reviews/2026-10-07-thirteenth-wave/E-fit-inlet.md",
+        ),
+    }
+    if (
+        len(old_data) != 1144158
+        or digest(old_data)
+        != "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+    ):
+        raise ValueError("immutable original all54 record")
+    raw_bindings = old["original_source_bindings"]
+    finding_tsv = raw_bindings["finding_owners"]
+    owners = list(
+        csv.DictReader(
+            io.StringIO(body(finding_tsv["revision"], finding_tsv["path"]).decode()),
+            delimiter="\t",
+        )
+    )
+    exact_owners = {r["finding_id"]: r for r in owners if r["unit"] == "E"}
+    if set(exact_owners) != {r["id"] for r in old["rows"]}:
+        raise ValueError("full finding owner TSV denominator")
+    rows = []
+    external = []
+    for index, (before, review) in enumerate(
+        zip(old["rows"], g["per_finding_rows"], strict=True)
+    ):
+        ident = before["id"]
+        if before["canonical_ownership"] != exact_owners[ident]:
+            raise ValueError("full original TSV controls ownership")
+        ext = review["remaining_owner_input"]
+        if ext:
+            ext_index = len(external)
+            external.append(
+                {"id": ident, **ext, "check_outcome_is_not_finding_outcome": True}
+            )
+            ext_ref = {"fragment": f"#/external_owner_inputs/{ext_index}"}
+        else:
+            ext_ref = None
+        if ident in DIRECT:
+            delta = (
+                "direct raw-Profile2 admission and unsupported multi-envelope "
+                "join repair; historical proposal requires new immutable boundary "
+                "proof"
+            )
+            next_action = (
+                "E freezes repaired public boundary, non-author review, then "
+                "affected native routes once; G independently accepts source and "
+                "adjudicates this original row."
+            )
+            next_owner = "E public Profile2 technical owner; independent reviewer; then G formal intake"
+        elif ident in SIBLING:
+            delta = (
+                "joint kernel/settled exact-ratio math unchanged; public reader "
+                "is an upstream dependency; rerun affected sibling consumers when "
+                "boundary changes"
+            )
+            next_action = (
+                "E repeats affected native sampling consumers after final public "
+                "reader source freeze; retain unchanged "
+                "exact-likelihood/covariance/paired-law controls by immutable "
+                "refs. G separately adjudicates original criterion."
+            )
+            next_owner = "E affected consumer verifier; then G formal intake"
+        elif ident == "B199":
+            delta = (
+                "duplicate-level/type criterion unchanged; multi-envelope "
+                "Profile2 join refuses and combine remains diagnostic/non-gating "
+                "loss, not posterior-law preservation"
+            )
+            next_action = (
+                "E checks generic join compatibility and diagnostic claim "
+                "restriction in the affected boundary run; G separately "
+                "adjudicates the original duplicate-level/type criterion."
+            )
+            next_owner = "E affected IR consumer verifier; then G formal intake"
+        else:
+            delta = (
+                "no new original-row source claim; prior individualized "
+                "oracle/negative and current-bound dependency records reused by "
+                "exact Git refs"
+            )
+            next_action = review["remaining_action"]
+            next_owner = review["next_owner"]
+        rows.append(
+            {
+                "id": ident,
+                "bundle_ids": before["bundle_ids"],
+                "historical_ledger_status": before["historical_ledger_status"],
+                "retained_E_author_proposal": review["current_E_proposed_outcome"],
+                "retained_E_owner_decision": review["E_owner_decision"],
+                "formal_G_acceptance": False,
+                "formal_ledger_change": False,
+                "accountable_owner": review["accountable_owner"],
+                "canonical_original_owner": exact_owners[ident],
+                "historical_property": before["criterion_evidence"]["property"],
+                "original_criteria": before["criterion_evidence"][
+                    "original_criterion_refs"
+                ],
+                "criterion_cards": before["criterion_evidence"]["original_card_refs"],
+                "producer_artifact_bridge_consumer_surface": ref(
+                    "full54_b2",
+                    f"#/rows/{index}/producer_artifact_bridge_consumer_surface",
+                ),
+                "individual_oracle_negative_and_predicate_basis": ref(
+                    "full54_b2", f"#/rows/{index}/criterion_evidence"
+                ),
+                "bounded_decision_and_original_current_checks": ref(
+                    "full54_b2", f"#/rows/{index}"
+                ),
+                "G_current_original_row_assessment": ref(
+                    "G_thirteenth54", f"#/per_finding_rows/{index}"
+                ),
+                "historical_b2_check_navigation": ref(
+                    "G_thirteenth54",
+                    f"#/per_finding_rows/{index}/current_check_navigation",
+                ),
+                "shared_A_case_association": {"fragment": "#/shared_A_reason_cases"}
+                if ident in ("B32", "LA-051")
+                else None,
+                "external_owner_input": ext_ref,
+                "new_delta_qualification": delta,
+                "next_owner": next_owner,
+                "next_verifiable_result": next_action,
+            }
+        )
+    binding = json.loads(binding_path.read_text()) if binding_path else None
+    diff = git("diff", "--name-status", OLD_HEAD, candidate, "--").decode().splitlines()
+    product_roots = (
+        "policy-engine/src/",
+        "policy-engine/tests/",
+        "policy-engine/tools/",
+        "policy-engine/schemas/",
+        "policy-engine/architecture/",
+        "policy-engine/release-fragments/",
+    )
+    scientific_diff = (
+        git("diff", "--name-status", OLD_SOURCE, candidate, "--").decode().splitlines()
+    )
+    changed_product = [
+        row
+        for row in scientific_diff
+        if any(path.startswith(product_roots) for path in row.split("\t")[1:])
+    ]
+    deps = [r["current_source"]["path"] for r in old["source_role_qualification"]]
+    native_test_paths = [
+        p
+        for job in old["current_numeric_wave"]["jobs"]
+        for p in job["command"]
+        if p.startswith("tests/")
+    ]
+    deps.extend("policy-engine/" + p for p in sorted(set(native_test_paths)))
+    return {
+        "schema": "e02.E.original54.delta-associations.v1",
+        "scope": (
+            "Moderate delta over existing original54 record; no repeated "
+            "all54 review or new acceptance by PASS count."
+        ),
+        "candidate": {
+            "commit": candidate,
+            "tree": source_tree(candidate),
+            "branch": "codex/e02-E-continuation-20261006",
+            "scientific_ancestor": OLD_SOURCE,
+            "published_evidence_ancestor": OLD_HEAD,
+            "compared_G_source": G_HEAD,
+            "full_footprint_since_evidence_head": diff,
+            "product_test_tool_schema_architecture_release_footprint_since_b2": changed_product,
+            "passive_doc_evidence_delta_since_b2": {
+                "paths": len(scientific_diff) - len(changed_product),
+                "exact_command": [
+                    "git",
+                    "diff",
+                    "--name-status",
+                    OLD_SOURCE,
+                    candidate,
+                    "--",
+                ],
+                "complete_stdout_sha256": digest(
+                    ("\n".join(scientific_diff) + "\n").encode()
+                ),
+                "source": (
+                    "Original b2→df525 passive handoff plus current complete "
+                    "df525→candidate footprint; no b2 wave is relabeled current."
+                ),
+            },
+            "source_snapshot_immutable": True,
+            "independent_review_and_deciding_receipts_complete": binding is not None,
+        },
+        "inputs": inputs,
+        "original_sources": raw_bindings,
+        "status_layers": {
+            "historical_ledger": {"partial": 49, "held": 4, "closed": 1},
+            "retained_E_author_proposals": {"closed": 43, "limited": 9, "held": 2},
+            "retained_E_individual_decisions": {"accepted": 43, "pending": 11},
+            "formal_G_acceptance": 0,
+            "formal_ledger_change": False,
+            "B198": (
+                "Historical closed retained; no new defining-property falsifier established."
+            ),
+            "rule": (
+                "Proposal, historical ledger, check outcome, independent source "
+                "recommendation and formal G intake are separate. New "
+                "public-boundary completion requires its own evidence."
+            ),
+        },
+        "denominator": {
+            "bundles": 22,
+            "finding_ids": 54,
+            "ID_to_bundle_links": 55,
+            "shared_link": "LA-051 in FRC-01 and FRC-02",
+        },
+        "bundles": old["bundles"],
+        "rows": rows,
+        "external_owner_inputs": external,
+        "new_boundary": {
+            "affected_original_ids": ["B201", "B202"],
+            "sibling_dependency_ids": ["B188", "B192"],
+            "diagnostic_aggregation_scope_id": "B199",
+            "mechanism_completed": bool(binding and binding.get("mechanism_completed")),
+            "source_and_receipt_binding": binding,
+            "current_native_check": "UNRUN"
+            if binding is None
+            else binding["affected_native_check"],
+            "raw_ingress_property": (
+                "Any declared Profile2 raw payload is validated at common public "
+                "loading boundary before coercion, evaluator callback or "
+                "publication; strict/legacy push, compress and pull siblings "
+                "share the invariant."
+            ),
+            "join_contract": (
+                "Multi-envelope join containing a Profile2 declaration refuses "
+                "before generic lowering; single-envelope identity and generic "
+                "legacy joins retain compatibility. No implicit equal mixture or "
+                "raw-weight-total normalization is admitted."
+            ),
+            "combine_claim": (
+                "Generic combination may be diagnostic and non-gating loss; it is "
+                "not exact posterior-law preservation."
+            ),
+            "retained_compatibility": (
+                "Profile1 literal replay, unprofiled Envelope1.1 generic replay, "
+                "distinct Profile1/Profile2 IDs, exact-ratio summary law and "
+                "finite-mesh approximation remain separate."
+            ),
+            "required_controls": [
+                "raw bool",
+                "raw numeric string",
+                "malformed/unsupported declaration",
+                "context mismatch",
+                "digest mismatch",
+                "retained-marker guard removal",
+                "clean strict-to-push positive",
+                "legacy push/compress/pull sibling controls",
+                "Profile2 multi-join typed refusal",
+                "single identity",
+                "generic join replay",
+            ],
+            "gate_eligible": False,
+            "production_or_institutional_authority": "not_established",
+            "appointment_and_decisions": {
+                "E_appointment": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+                "initial_four_decisions": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+                "Profile2_technical_decision": "55422d4f179f56d796794938be66bcb0741b13ed",
+                "record": ref("full54_b2", "#/tracked_four_semantic_decisions"),
+                "rule": (
+                    "Appointed E owner and tracked decisions already exist; this "
+                    "repair does not reopen settled math or require another "
+                    "institutional appointment."
+                ),
+            },
+        },
+        "criterion_dependency_reconciliation": unchanged_paths(
+            OLD_SOURCE, candidate, sorted(set(deps))
+        ),
+        "shared_A_reason_cases": {
+            "associated_findings": ["B32", "LA-051"],
+            "historical_candidate": OLD_SOURCE,
+            "historical_unique_failures": failures,
+            "historical_denominator": {
+                "native": 1,
+                "owner_packet": 7,
+                "unique_total": 8,
+            },
+            "previous_per_ID_association": (
+                "78 selected cases with the same three failures each; five "
+                "distinct packet variants omitted from per-ID navigation. Those "
+                "old observations remain at the original source; do not count six "
+                "independent failures."
+            ),
+            "source_of_unique_tokens": ref("b2_case_index", "#/cases"),
+            "A_reviewed_source": A_SOURCE,
+            "current_A_native_check": "UNRUN",
+            "current_A_source_qualification": (
+                "Cases 1–3 changed/current UNRUN; cases 4–8 retain source-level "
+                "disposition reason-carry gap/current UNRUN. A2605 is an external "
+                "topic, not a merged current-root native run."
+            ),
+            "source_assessment": ref("G_A_reason_delta", "#"),
+            "existing_consumer": True,
+            "capability_state": "verification_missing",
+            "reason_loss_semantic_coverage": "semantic_test_missing",
+            "canonical_writer": (
+                "A runtime/quality/generation_cycle.py resolver/disposition; "
+                "run_lifecycle.py preserves typed transport and belongs to A"
+            ),
+            "required_result": (
+                "Configured ETS with separate CAS candidate receipt/evidence; A "
+                "independently resolves/recomputes all bound inputs and six "
+                "roles, persists verifier decision, fresh grade/S6/default/HTTP "
+                "read preserves missing/unresolved/kind/time/rule reasons "
+                "distinctly from resolved-floor failure."
+            ),
+            "causal_treatment_policy_authority": "denied",
+            "P41_introducing_cause": "not_established",
+        },
+        "historical_checks": {
+            "candidate": OLD_SOURCE,
+            "tree": old["current_numeric_wave"]["tree"],
+            "check_outcome": "FAIL",
+            "counts": old["current_numeric_wave"]["counts"],
+            "original_complete_commands_outputs_environment": ref(
+                "full54_b2", "#/current_numeric_wave"
+            ),
+            "original_seven_global_gates": ref("full54_b2", "#/current_global_gates"),
+            "global_gate_outcomes": {"FAIL": 7},
+            "successors": {"workspace_verify_UNRUN": 13, "CI_parity_UNRUN": 23},
+            "E_lint": (
+                "349 E paths of 378 current denominator; E Ruff/format zero. "
+                "Global 292 diagnostics/14 actual A/B/G paths; not a request to "
+                "refix clean E code."
+            ),
+            "P41_introducing_cause": "not_established",
+            "rule": (
+                "Frozen b2 observations are not current candidate tests and are "
+                "not finding verdicts. Parent root/G own available affected "
+                "checks and final accepted-source global queue."
+            ),
+        },
+        "cross_owner_packets": {
+            "G_generated_companions": {
+                "input": "G_API",
+                "next": (
+                    "After admitted composed source freeze, canonical gen-schema plus "
+                    "public-surface sync; then recomputing check, inventory/ABI "
+                    "manifest reconciliation and architecture gates. E supplies "
+                    "source/lease/release metadata and does not hand-edit generated "
+                    "snapshots."
+                ),
+            },
+            "Scientist_compute_float_inlet": {
+                "input": "G_fit_inlet",
+                "owner": (
+                    "Scientist compute/input-materializer writer of runner.py::_load_input_refs"
+                ),
+                "next": (
+                    "Apply existing Core canonical decoder through protected owner, "
+                    "then actual configured HMC/NUTS finite-float source -> "
+                    "configured CAS -> fresh Node; malformed canonical tag/kind/view "
+                    "refuse before publication."
+                ),
+                "independent_from": (
+                    "Core/IR model/quantity materialization semantic binding; "
+                    "production dataset/WMR authority is not a prerequisite for "
+                    "finite-float technical input."
+                ),
+            },
+            "facade_seams": {
+                "owner": (
+                    "IR forecast-bundle loader and separate CanonSpec API owner; "
+                    "Foundry state-path/snapshot object owner; then E caller owner"
+                ),
+                "next": (
+                    "Publish exact typed facade companions/leases, E rewires "
+                    "canonical callers, affected persisted/native consumers and "
+                    "architecture recomputing controls; no exception widening."
+                ),
+            },
+            "D_Search": {
+                "owner": "D",
+                "next": "Existing analysis_ref/codec/reopen/ranking default edge",
+                "original_B100_blocker": False,
+            },
+            "C_F_profile_adoption": {
+                "owners": ["C", "F"],
+                "next": (
+                    "Actual typed profile/law consumer fresh read and "
+                    "alignment/context negatives; E supplies strict reader packet"
+                ),
+                "E_claims_their_acceptance": False,
+            },
+            "global_gate_queue": {
+                "owner": "G with factual A/B/G canonical source/generator writers",
+                "next": (
+                    "Accepted composed source freeze, repaired prerequisites, then "
+                    "all available seven-gate successors with full outputs; current "
+                    "UNRUN remains UNRUN."
+                ),
+            },
+        },
+        "local_input_scope": {
+            "source": ref("full54_b2", "#/local_recipe_rebinding"),
+            "queue": (
+                "Six initial scoped read-only G recipes, not a universal gate or "
+                "a maximum. New source may justify additional minimal "
+                "original-criterion-supported inputs."
+            ),
+            "production_transfer": False,
+            "bounded_fixtures": (
+                "Native NumPy corpus64 and Welfare requested128=92+36 are useful "
+                "generic witnesses, not B194/B197 factual served/source/fit "
+                "inputs."
+            ),
+        },
+        "publication_notes": {
+            "source_writer": "Parent E root; this agent writes only temporary documentation packet",
+            "review": (
+                "Author association validation is not independent review; "
+                "assigned non-author reviews immutable packet/source."
+            ),
+            "no_future_self_SHA": True,
+            "old_large_bytes_copied": False,
+            "canonical_capability_vocabulary": [
+                "surface_missing",
+                "verification_missing",
+                "semantic_test_missing",
+            ],
+        },
+    }
+
+
+def corrupt_controls(packet: dict) -> list[dict]:
+    changes = [
+        ("remove_original_row", lambda x: x["rows"].pop()),
+        (
+            "remove_shared_LA051_bundle_link",
+            lambda x: next(r for r in x["rows"] if r["id"] == "LA-051")[
+                "bundle_ids"
+            ].pop(),
+        ),
+        (
+            "promote_historical_partial",
+            lambda x: x["rows"][0].__setitem__("historical_ledger_status", "closed"),
+        ),
+        (
+            "declare_G_acceptance_from_author_count",
+            lambda x: x["status_layers"].__setitem__("formal_G_acceptance", 43),
+        ),
+        (
+            "overwrite_original_criterion",
+            lambda x: x["rows"][0].__setitem__("historical_property", "PASS count"),
+        ),
+        (
+            "forge_original_card_digest",
+            lambda x: x["original_sources"]["cards"][0].__setitem__("sha256", "0" * 64),
+        ),
+        (
+            "delete_unavailable_served_input",
+            lambda x: next(r for r in x["rows"] if r["id"] == "B194").__setitem__(
+                "external_owner_input", None
+            ),
+        ),
+        (
+            "drop_five_A_failures",
+            lambda x: x["shared_A_reason_cases"].__setitem__(
+                "historical_unique_failures",
+                x["shared_A_reason_cases"]["historical_unique_failures"][:3],
+            ),
+        ),
+        (
+            "double_count_A_shared_failures",
+            lambda x: x["shared_A_reason_cases"]["historical_unique_failures"].extend(
+                copy.deepcopy(x["shared_A_reason_cases"]["historical_unique_failures"])
+            ),
+        ),
+        (
+            "A_source_diagnostic_as_native_PASS",
+            lambda x: x["shared_A_reason_cases"].__setitem__(
+                "current_A_native_check", "PASS"
+            ),
+        ),
+        (
+            "claim_existing_A_consumer_absent",
+            lambda x: x["shared_A_reason_cases"].__setitem__(
+                "capability_state", "consumer_missing"
+            ),
+        ),
+        (
+            "move_b2_wave_to_future_candidate",
+            lambda x: x["historical_checks"].__setitem__("candidate", G_HEAD),
+        ),
+        (
+            "Profile2_ratio_law_grants_authority",
+            lambda x: x["new_boundary"].__setitem__("gate_eligible", True),
+        ),
+        (
+            "generic_fixture_as_production_authority",
+            lambda x: x["new_boundary"].__setitem__(
+                "production_or_institutional_authority", "independently_reconciled"
+            ),
+        ),
+        (
+            "new_boundary_complete_without_review_receipts",
+            lambda x: (
+                x["new_boundary"].__setitem__("mechanism_completed", True),
+                x["new_boundary"].__setitem__("source_and_receipt_binding", None),
+            ),
+        ),
+        (
+            "false_unchanged_source_digest",
+            lambda x: x["criterion_dependency_reconciliation"][0].__setitem__(
+                "candidate_sha256", "0" * 64
+            ),
+        ),
+    ]
+    results = []
+    for name, change in changes:
+        bad = copy.deepcopy(packet)
+        change(bad)
+        try:
+            validate(bad)
+        except ValueError as exc:
+            results.append({"control": name, "observed": "refused", "reason": str(exc)})
+        else:
+            raise ValueError(f"corrupt field admitted: {name}")
+    return results
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--candidate")
+    mode.add_argument("--verify", type=Path)
+    parser.add_argument("--output-stem", required=True)
+    parser.add_argument("--binding", type=Path)
+    args = parser.parse_args()
+    if Path(args.output_stem).name != args.output_stem or not args.output_stem:
+        raise ValueError("output stem must stay in this packet directory")
+    target = OUT / f"{args.output_stem}.json"
+    if args.verify is not None:
+        packet = json.loads(args.verify.read_text())
+        target = args.verify
+    else:
+        if target.exists():
+            raise ValueError(
+                "immutable packet already exists; select a new output stem"
+            )
+        candidate = (
+            git("rev-parse", "--verify", f"{args.candidate}^{{commit}}")
+            .decode()
+            .strip()
+        )
+        packet = build(candidate, args.binding)
+    validate(packet)
+    if args.verify is None:
+        target.write_text(json.dumps(packet, ensure_ascii=False, indent=2) + "\n")
+    controls = corrupt_controls(packet)
+    receipt = {
+        "schema": "e02.E.original54.association-validation.v1",
+        "scope": (
+            "Author recomputing associations/source hashes; not independent "
+            "product review or scientific finding closure"
+        ),
+        "packet": {
+            "path": str(target),
+            "bytes": target.stat().st_size,
+            "sha256": digest(target.read_bytes()),
+        },
+        "candidate": packet["candidate"],
+        "denominator": packet["denominator"],
+        "status_layers": packet["status_layers"],
+        "positive_control": (
+            "exact rows, criterion cards, owner TSV, source dependencies and A cases admitted"
+        ),
+        "corrupt_field_controls": controls,
+        "result": "PASS",
+    }
+    (OUT / f"{args.output_stem}.validation.json").write_text(
+        json.dumps(receipt, ensure_ascii=False, indent=2) + "\n"
+    )
+    sys.stdout.write(
+        json.dumps(
+            {
+                "packet": receipt["packet"],
+                "denominator": packet["denominator"],
+                "negative_controls": len(controls),
+                "result": "PASS",
+            }
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

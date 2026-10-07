@@ -1,0 +1,122 @@
+"""Publish an exact typed E→A dependency packet; does not run product code."""
+from pathlib import Path
+import hashlib,json,subprocess
+p=Path('/tmp/e02-E-forecast-packet-thirteenth-20261007')
+root=Path('/workspace/e02-E-continuation-20261006')
+source='b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641'
+tree='4cbbed1d9392832729cab92c6615f9a1d03a41c7'
+carrier='df5258b7ddfade5b952e3b21ef28116ced40fa68'
+A='332ba0b91e9a85774d48d101d4af86e3a3baf911'
+G='2abc17f46a033a7879663486ff9946a95786601f'
+plan='policy-engine/docs/research/e02-cloud-test-plan/'
+frc=plan+'implementation-handoffs/E/continuation-20261007/frc-native-cas/'
+def sha(b):return hashlib.sha256(b).hexdigest()
+def record(path):
+ b=(p/path).read_bytes();r={'path':path,'bytes':len(b),'sha256':sha(b)}
+ aliases=json.loads((p/'literal-input-index.json').read_text())['assets']
+ matched=[x for x in aliases if x['portable_path']==path]
+ if matched:
+  assert len(matched)==1 and matched[0]['sha256']==r['sha256']
+  r.update({'already_committed_git_ref':matched[0]['source_ref'],
+            'already_committed_git_path':matched[0]['source_path'],
+            'already_committed_git_blob':matched[0]['source_blob'],
+            'publication_rule':'Reuse exact original committed Git bytes; do not duplicate old source/card/wave payload.'})
+ return r
+def gitrecord(path):
+ b=subprocess.check_output(['git','show',source+':'+path],cwd=root)
+ return {'path':path,'source':source,'blob':subprocess.check_output(['git','rev-parse',source+':'+path],cwd=root).decode().strip(),'bytes':len(b),'sha256':sha(b)}
+roles=['data_valid_time','calibration_window_start','calibration_window_end','policy_effective_time','prediction_time','observation_time']
+contract={
+ 'schema':'policyos.e02.owner_dependency_packet.v1','unit':'E','owner':'A','finding_ids':['B32','LA-051'],
+ 'source_candidate':source,'source_tree':tree,'receipt_carrier':carrier,'G_review':G,
+ 'current_A_source':A,'current_A_tree':'4e21c90467913c6dae1c85b84b8c7a42a1dc9124','current_A_product_checks':'UNRUN',
+ 'canonical_writers':{'E':['policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py','policy-engine/src/polisyos/calibration/forecast_bridge.py'],
+ 'A':['policy-engine/src/polisyos/runtime/quality/generation_cycle.py','policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py']},
+ 'E_dependencies':[gitrecord(x) for x in ['policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py','policy-engine/src/polisyos/calibration/forecast_bridge.py','policy-engine/tests/_helpers/forecast.py','policy-engine/tests/unit/remediation/test_frc_01.py']],
+ 'original_criteria':[{'id':'B32','card':'original-cards/FRC-01.md','source_locator':'B_r19 lines607–620','criterion':'Use bound actual time roles and evidence; absent credibility remains unknown; no fixed June2/now substitution; no conditional simulation empirical record; keep historical replay and denials.'},
+ {'id':'LA-051','cards':['original-cards/FRC-01.md','original-cards/FRC-02.md'],'accountable_bundle':'FRC-02','source_locator':'LA_r09 lines3712–3746','criterion':'Replace estimator-shape calibration pass with one compatible actual producer and named estimand; observed numerator/denominator, model/rule/report/time/source binding; source observations determine suitability and nominal confidence cannot fabricate observed coverage.'}],
+ 'producer_artifact_bridge_consumer':{
+  'producer':'ForecastOwner(configured CAS, empirical_profile_ref=configured profile).run(admitted ForecastOwnerRequest)',
+  'backend':'existing registered forecasting.univariate.exponential_smoothing@1.0.0, Foundry MethodDispatcher NumPy ETS/Holt kernel',
+  'source':'same configured CAS DataSnapshot(data_ref, data_schema_ref); metric 1..30 + explicit holdout; schema metric/float64/count/source_native; 30/4 train/holdout; seed17; horizon4',
+  'profile':'ForecastCalibrationProfile v1.0 outside request, exact persisted request_ref; purpose predictive_calibration; threshold0.8 declared synthetic fixture configuration, not institutional admission',
+  'estimand':'predictive_interval_coverage; predictive output intervals retain source_native count units; not causal effect CI',
+  'artifacts':[{'kind':'ir.forecast_owner_request','schema_version':'2.0'},{'kind':'ir.forecast_calibration_profile','schema_version':'1.0'},{'kind':'ir.forecast_candidate_receipt','schema_version':'1.0'},{'kind':'ir.empirical_calibration_evidence','schema_version':'1.1'}, {'kind':'ir.backtest_report'},{'kind':'ir.forecasting_uncertainty_bundle'}],
+  'identity':'candidate receipt and neutral empirical evidence are separate distinct content-bound refs; all nested source/schema/model/policy/method/rule/profile/report artifacts persist in the same configured CAS',
+  'bridge':'ForecastOwnerResult.to_s10_input_fields(new FileSystemCAS instance at same CAS root) resolves fresh candidate/evidence/request/measurement binding before projecting A fields',
+  'consumer':'RealValueOwnerGateway.produce_forecast_inputs already exists and resolves through injected canonical empirical loader; A must preserve verified resolution/floor reason through ForecastSupport, S6 and persisted default/HTTP readback',
+  'surface':'native typed ForecastSupport/calibration record exists; ordinary default/HTTP grade/S6/persistence/fresh recomputation of the current composed source is UNRUN',
+  'minimum_capability_labels':['verification_missing'],
+  'named_code_gap':'A reason/projection carry is lossy; do not replace this observed existing consumer with blanket consumer_missing.'},
+ 'adapter_fields':{
+  'empirical_calibration_evidence_ref':'receipt.empirical_evidence_ref (EmpiricalCalibrationEvidenceRef)',
+  'forecast_candidate_receipt_ref':'separate ForecastCandidateReceiptRef',
+  'expected_rule_version_ref':'persisted request.calibration_rule.rule_id',
+  'temporal_roles':'persisted request.ForecastTemporalRoles, six named distinct timezone-aware roles',
+  'measurement_binding':'resolved source schema/metric/field/unit/type/source_native and optional decimal-storage-scale',
+  'authority_scope':'predictive_only','verifier_provenance':'not_established'},
+ 'six_time_roles':{'ordered_names':roles,'fixture_values':{r:f'2026-01-0{i+1}T00:00:00Z' for i,r in enumerate(roles)},
+ 'admission':'data_valid_time < calibration_window_start < calibration_window_end <= prediction_time < observation_time; policy_effective_time <= prediction_time; all six distinct and aware',
+ 'claim':'These are explicitly supplied synthetic role values, not observed production events or now defaults.'},
+ 'independent_oracle':{
+  'source': 'native test_calibration_time_roles_are_preserved_from_bound_evidence reads original source row bytes and issued persisted bounds from different artifacts with Core canonical decoder; it does not use producer hit/result loop',
+  'healthy':'source holdout31..34 and bounds[(31,31),(32,32),(33,33),(34,34)] independently yield4/4; fresh receipt/evidence distinct and same six roles; retained terminal denials',
+  'floor_negative':'same training/profile/method/horizon and heldout[1000]*4 independently yield0/4; resolved floor cause calibration_floor_not_met stays distinct from missing ref',
+  'existing_receipts': ['authentic-native-packet/checks/native-core-route-final.json','authentic-native-packet/checks/native-core-route-final.xml','authentic-native-packet/independent-review/frc-independent-review-1eba9f9e.json'],
+  'receipt_qualification':'These retain their own historical source/environment identities; b2 wave is separately pinned. No current A product runtime was run here.'},
+ 'reason_cases':{'association':record('all-eight-failure-identities.json'),'full83':record('full83-FRC-case-association.json'),
+  'unique_b2_failures':8,'per_finding_links':{'B32':8,'LA-051':8},'unique_observations_after_join':8,
+  'old_association':'both IDs had the same three failures (not six); five packet resolver/disposition variants are now included in each navigation set',
+  'current_A_status':'all exact current A selectors UNRUN; four selected S10 functions literal unchanged2605→332 despite surrounding generation-cycle source delta',
+  'updated_source_observation':'Current _s10_empirical_projection computes failure_codes but omits them from returned projection; updated _s10_limitation_refs cannot source codes from absent key. Disposition still favors generic report reason over typed resolver fallback. These are source observations, not measured A failures.'},
+ 'applicable_A_packet':{
+  'tests':record('authentic-native-packet/a-status-reason-tests.py.txt'),'native_baseline_test':record('authentic-native-packet/test_frc_01-b2.py.txt'),
+  'patch':record('A332-status-reason-carry.patch.txt'),'patch_base':A,'patch_context_check':record('A332-patch-check-receipt.json'),
+  'patch_scope':'only existing projection failure-code carry, explicit missing-reference cause and disposition resolver-priority; keep loaded-floor failure in the ordinary evidence branch',
+  'applied':False,'protected_writer':'A','behavioral_acceptance':'UNRUN; A reviews/applies on its admitted composed source then runs narrow native packet once'},
+ 'negative_and_removal_controls':[
+  'Retain unresolved/malformed historical hand-built mapping as rejection; no calibration record and no admission. It is never the authentic positive.',
+  'Remove empirical ref while retaining real candidate receipt, request/time/unit/rule/profile markers: named missing-ref refusal before calibration publication.',
+  'Five actual gateway variants missing_ref/unresolved_ref/wrong_kind/wrong_time/wrong_rule preserve exactly the same decisive typed reason in blocked tier, S6 and forecast_authority_disposition_reason.',
+  'Resolved authentic0/4 floor failure retains calibration_floor_not_met; changing nominal confidence alone supplies no observations and must not become empirical coverage.',
+  'Integrity-valid forged producer credible/status/floor/count/unit/split/horizon/purpose/profile fields cannot bypass A recomputation from content-bound rows and admitted config.',
+  'Isolated removal of reason-carry/projection guard with named markers/blocked tier/S6 retained must make reason-conservation test fail; do not merely check string presence in source.',
+  'Fresh default/HTTP persistence reader resolves/re-verifies configured CAS again; missing artifact/changed resolver reason/stale mismatch must change current output; terminal causal/treatment/policy refusal remains.'
+ ],
+ 'authority_boundary':{
+  'purpose':'predictive_calibration only','producer_verifier_provenance':'not_established',
+  'gate_eligibility':'producer receipt, credible flag, hash/role/schema and floor/status are not A verifier or institutional authority',
+  'denied':['causal_effect_authority','treatment_assignment_authority','s10_authority','policy/recommendation/production authority'],
+  'preserve':'prediction can proceed to typed terminal causal/treatment refusal; predictive sibling cannot remove that refusal'},
+ 'A_required_successor':{
+  'minimum_configuration':['same runtime configured CAS immutable source/schema/model/policy/request/profile/rule/receipt/evidence refs','trusted A composition selects allowed predictive-calibration purpose/profile threshold outside E payload','A verifier code/config identity and persisted neutral verification decision'],
+  'independent_recomputation':['profile/source/metric/field/unit/scale','train/holdout source positions and horizon','source rows→issued intervals pairing and requested/eligible/observed denominator','numerator/counts/pass-rate/threshold/floor','report/model/method/rule identities','purpose/may_not_use_for and six distinct role values'],
+  'execution':'A applies reviewed narrow reason patch or equivalent canonical fix; real configured/default consumer; persist its decision; fresh grade/S6/default/HTTP read resolves evidence and recomputes',
+  'retained_tests_in_current_A':[
+   'tests/unit/remediation/test_frc_01.py::test_missing_calibration_evidence_refs_stays_typed_blocked',
+   'tests/unit/remediation/test_frc_01.py::test_gateway_rejects_temporal_roles_that_disagree_with_loaded_evidence',
+   'tests/unit/remediation/test_frc_01.py::test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero'],
+  'additional_exact_packet_selectors':['test_missing_ref_tier_and_s6_share_named_missing_ref_reason','test_resolved_limited_evidence_keeps_floor_failure_reason','test_native_gateway_tier_s6_and_disposition_share_resolver_reason[missing_ref-empirical_evidence_ref_missing]','test_native_gateway_tier_s6_and_disposition_share_resolver_reason[unresolved_ref-empirical_evidence_ref_unresolved]','test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_kind-empirical_evidence_ref_kind_mismatch]','test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_time-empirical_evidence_time_mismatch]','test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_rule-empirical_evidence_rule_mismatch]'],
+  'production_requirement':'No production dataset or WMR authority is a prerequisite for this generic exact reason/CAS wiring witness. Model-specific empirical calibration claims retain their separate original-criterion local read-only recipe.'},
+ 'predicate_basis':{'case_identity_join':'recomputed','source_delta':'recomputed','past_native_oracle':'independently_reconciled','current_A_runtime':'not_established','A_verifier_profile_authority':'not_established'},
+ 'finding_outcomes':{'B32':{'historical':'partial','E_proposal':'limited','G_accepted':False},'LA-051':{'historical':'partial','E_proposal':'limited','G_accepted':False}},
+ 'P41_introducing_red_cause':'not_established','check_status_is_finding_outcome':False,
+ 'new_runtime_evidence':False,'own_future_commit_sha':None,
+ 'next_owner':'A canonical generation-cycle and HTTP writer via Git/G intake; G independently accepts source and original finding criteria separately',
+ 'cleanup_candidates':['ignored-patch-check-input (complete exact A source mirror used only for read-only git apply --check; no active users after receipt)'],
+ 'cleanup':'Listed only; no permanent deletion and no local Trash action performed.',
+ 'pattern_pass':['P01','P02','P04','P05','P07','P08','P10','P14','P27','P29','P31','P32','P33','P35','P36','P37','P38','P40','P41']}
+actual_native=json.loads((p/'authentic-native-packet/independent-review/native-fRC-review-results.json').read_text())
+contract['authentic_historical_CAS_refs']={'source_candidate':actual_native['candidate_sha'],
+ 'source_tree':actual_native['candidate_tree'],
+ 'literal_receipt':record('authentic-native-packet/independent-review/native-fRC-review-results.json'),
+ 'healthy':actual_native['complete_cases'][0], 'resolved_floor_limited':actual_native['complete_cases'][1],
+ 'claim':'These exact refs came from the actual configured CAS run in the historical receipt. Their identifiers alone are not current store resolution, current A execution, trusted verifier provenance or production evidence.'}
+contract['complete_original_input_refs']=json.loads((p/'literal-input-index.json').read_text())
+contract['new_E_dependency_readback']=record('b2-to-b305-FRC-unchanged-dependency-basis.json')
+contract['current_A_E_composition_prerequisites']=record('current-A-E-upstream-composition-prerequisites.json')
+contract['A_required_successor']['minimum_configuration'].insert(0,
+ 'A/G must compose admitted E upstream source: A332 lacks authentic forecast helper and to_s10_input_fields adapter; existing ForecastOwner/forecast_bridge blobs differ. Source dependency is not missing production data.')
+
+(p/'E-to-A-reason-consumer-contract.json').write_text(json.dumps(contract,ensure_ascii=False,indent=2,sort_keys=True)+'\n')
+print(json.dumps({'outcome':'PASS','operation':'typed owner packet assembly only','new_runtime_evidence':False,'unique_b2_FAIL_cases':8,'current_A_product_checks':'UNRUN','source':source,'current_A':A,'contract':record('E-to-A-reason-consumer-contract.json')},sort_keys=True))

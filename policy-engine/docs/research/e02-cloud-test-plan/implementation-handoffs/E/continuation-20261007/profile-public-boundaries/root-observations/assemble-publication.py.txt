@@ -1,0 +1,119 @@
+"""Executed one-time receipt assembly; publication preserves it as a literal .py.txt."""
+
+import hashlib
+import json
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+DEST = ROOT / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries'
+SCRATCH = Path('/tmp/e02-E-pr38-thirteenth-continuation-20261007')
+INDEX_PATH = SCRATCH / 'publication-inputs/copied-assets.json'
+rows = json.loads(INDEX_PATH.read_text()) if INDEX_PATH.exists() else []
+
+
+def fingerprint(path):
+    data = path.read_bytes()
+    return {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+
+def copy(source, relative, expected=None, role='literal command output or immutable receipt', selector=None):
+    source = Path(source)
+    relative = Path(relative)
+    if relative.is_absolute() or '..' in relative.parts:
+        raise ValueError(f'unsafe publication path: {relative}')
+    actual = fingerprint(source)
+    if expected is not None and any(actual[k] != expected[k] for k in actual):
+        raise ValueError(f'changed deciding input: {source}')
+    target = DEST / relative
+    if target.exists() and target.read_bytes() != source.read_bytes():
+        raise ValueError(f'publication conflict: {target}')
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(source.read_bytes())
+    if fingerprint(target) != actual:
+        raise ValueError(f'copy divergence: {target}')
+    item = {'path': relative.as_posix(), 'original_path': str(source), **actual, 'role': role}
+    if selector:
+        item['original_selection'] = selector
+    existing = next((x for x in rows if x['path'] == item['path']), None)
+    if existing and existing != item:
+        raise ValueError(f'index collision: {relative}')
+    if not existing:
+        rows.append(item)
+
+
+def select(selector, prefix):
+    selector = Path(selector)
+    record = json.loads(selector.read_text())
+    identity = {'path': str(selector), **fingerprint(selector)}
+    assets = record.get('assets', record.get('selected_moderate_files', record.get('literal_files', [])))
+    if not assets:
+        raise ValueError(f'empty selector: {selector}')
+    for asset in assets:
+        source = Path(asset.get('source_path', asset.get('path', selector.parent / asset['name'] if 'name' in asset else '')))
+        if not source.is_absolute():
+            source = selector.parent / source
+        name = asset.get('portable_path', asset.get('name', asset.get('path')))
+        role = asset.get('role', 'literal historical output/input or immutable receipt')
+        # Historical overlay inputs and executed scripts are preserved as documents,
+        # not installed as active publication utilities. Their original path/hash
+        # and original executed argv remain in the copy index and literal receipts.
+        if selector.name == 'evidence-index.json' and str(name).endswith('.py'):
+            name += '.txt'
+            role = 'literal historical executed script or overlay source snapshot; not an active utility'
+        copy(source, Path(prefix) / name, asset, role, identity)
+    copy(selector, Path(prefix) / ('input-selection-' + selector.name), role='immutable selection; its original paths map through copy-index.json')
+
+
+select('/tmp/e02-E-ingress-author-thirteenth-20261007/evidence-index.json', 'author-history')
+author = Path('/tmp/e02-E-ingress-author-thirteenth-20261007')
+for family, names in [
+    ('corrective-b305', ['corrective.patch', 'footprint.json', 'ruff-current-corrective.json']),
+    ('corrective-11082', ['corrective.patch', 'footprint-and-ruff.json']),
+    ('test-companion-e4b', ['corrective.patch', 'footprint-and-ruff.json']),
+]:
+    for name in names:
+        copy(author / family / name, Path('author-history') / family / name)
+
+oracle = Path('/tmp/e02-E-ingress-oracle-thirteenth-20261007')
+for selector in sorted(oracle.glob('publication-selection*.json')):
+    select(selector, Path('independent-ingress') / selector.stem.removeprefix('publication-selection-'))
+for agent, prefix in [
+    ('api-companions', 'owner-packets/api'),
+    ('forecast-packet', 'owner-packets/forecast-A'),
+    ('fit-packet', 'owner-packets/float-fit'),
+]:
+    select(Path('/tmp') / f'e02-E-{agent}-thirteenth-20261007/publication-selection.json', prefix)
+select('/tmp/e02-E-fit-packet-thirteenth-20261007/independent-review-publication-selection.json', 'independent-owner-reviews')
+copy('/tmp/e02-E-api-companions-thirteenth-20261007/fit-owner-packet-independent-review.json', 'independent-owner-reviews/fit-owner-packet-independent-review.json')
+
+root_names = [
+    'initial-git-fetch-readback.json', 'fetched-G-full-delta.tsv',
+    'root-resume-receipt.json', 'root-resume.full.json', 'root-resume.stderr.txt',
+    'applied-source-footprint.json', 'corrective-applied-source-footprint.json',
+    'immutable-source.json', 'immutable-source-final.json',
+    'immutable-source-final-v3.json', 'immutable-source-final-v4.json',
+    'source-commit.stdout.txt', 'source-commit.stderr.txt',
+    'source-corrective-commit.stdout.txt', 'source-corrective-commit.stderr.txt',
+    'source-typing-commit.stdout.txt', 'source-typing-commit.stderr.txt',
+    'source-test-companion-commit.stdout.txt', 'source-test-companion-commit.stderr.txt',
+    'source4-push.stdout.txt', 'source4-push.stderr.txt',
+    'source4-fetch-readback.stdout.txt', 'source4-fetch-readback.stderr.txt',
+    'source4-ls-remote.stdout.txt', 'source4-ls-remote.stderr.txt',
+    'architecture-retained-capacity-preflight.json',
+    'final-wave.py.txt', 'final-wave-v4.py.txt',
+    'baseline-sideeffect/restoration-receipt.json',
+    'typing-working-preflight/wrapper-error-corrective-receipt.json',
+    'typing-working-preflight/stdout.txt', 'typing-working-preflight/stderr.txt',
+    'navigation/queries-receipt.json',
+]
+for name in root_names:
+    copy(SCRATCH / name, Path('root-observations') / name)
+for directory in ['final-wave', 'final-wave-v4', 'source4-final-owned-lint', 'source-gates', 'architecture-current']:
+    for path in sorted((SCRATCH / directory).iterdir()):
+        if path.is_file():
+            copy(path, Path('root-observations') / directory / path.name)
+
+copy(Path(__file__), 'root-observations/assemble-publication.py.txt', role='literal one-time executed assembly source; original command/path retained; not an active utility')
+INDEX_PATH.parent.mkdir(parents=True, exist_ok=True)
+INDEX_PATH.write_text(json.dumps(rows, indent=2, ensure_ascii=False) + '\n')
+print(json.dumps({'copied_files': len(rows), 'bytes': sum(r['bytes'] for r in rows), 'destination': str(DEST), 'index': str(INDEX_PATH)}))

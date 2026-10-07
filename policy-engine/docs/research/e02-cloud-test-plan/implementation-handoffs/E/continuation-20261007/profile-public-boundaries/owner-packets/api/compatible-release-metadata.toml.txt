@@ -1,0 +1,11 @@
+id = "2026-10-07-posterior-public-ingress-join-boundary"
+title = "Admit Profile2 raw data before coercion and refuse unsupported posterior joins"
+type = "fixed"
+component = "ir-posterior-summary"
+owner = "E-scoped-B201-B202"
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.ir; scoped Profile2 reader/composition boundary"
+compatibility = "Envelope1.1 and literal Profile1 decode/replay retain their existing semantics. Valid Profile2 strict reader/push and single-envelope identity remain supported. Malformed Profile2 raw inputs and unsupported multi-envelope Profile2 joins refuse rather than lower into generic samples. This is stricter behavior for previously accepted malformed/unsupported Profile2 input; no wire id/version is silently redefined."
+migration = "Use admitted Profile2 raw input and explicit supported transforms. Mixture law is unsupported until declared masses/units/context semantics and independent persisted consumer evidence exist. Generic unprofiled joins and diagnostic non-gating combination retain their bounded behavior."
+limitations = "Exact finite ratio/sample law remains non-gating; no source-law/fit/causal/institutional authority. C/F owner consumer adoption is separate."
+public_surface_inventory_reviewed = false

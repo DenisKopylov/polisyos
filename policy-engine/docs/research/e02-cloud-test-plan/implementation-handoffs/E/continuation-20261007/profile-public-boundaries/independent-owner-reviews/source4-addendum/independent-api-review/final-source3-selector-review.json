@@ -1,0 +1,222 @@
+{
+  "schema": "e02.E.independent-final-source3-API-custody-review.v1",
+  "reviewer": "/root/fit_packet",
+  "author": "/root/api_companions",
+  "disposition": "GO",
+  "scope": "Additive final-source qualification, complete import denominator/AST and typed native receipt custody; no new source/backend run or canonical facade/generator acceptance.",
+  "source": "e4b97c15196d8e276745f55a4367da83586511d9",
+  "tree": "48af48c6462db76be9ba962dc6df07a9a1977963",
+  "selector": {
+    "path": "/tmp/e02-E-api-companions-thirteenth-20261007/publication-selection.json",
+    "bytes": 22114,
+    "sha256": "9ef63d52a4b9fb87da5a9ddebfa51c6c45ce878c2d18a85b5a9f3afbfbab62b5"
+  },
+  "selected_assets": {
+    "count": 51,
+    "bytes": 678046,
+    "all51literal_hashes_verified": true,
+    "no_active_Python_utility": true,
+    "omitted_raw_preserved": [
+      {
+        "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-full-source-test-import-census.json",
+        "bytes": 561083,
+        "sha256": "85473f80ff185dc1a95539de2dd90f75c9e9244013aeab99bbccaeced666c365"
+      },
+      {
+        "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/canonical-baseline-after-unexpected.json",
+        "bytes": 733805,
+        "sha256": "1ea9bf864600d6e12d2e7643c2d5a8033359a68e99bfaf7789e73e45c69186a4"
+      },
+      {
+        "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/canonical-baseline-before-from-Git.json",
+        "bytes": 1006190,
+        "sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af"
+      }
+    ]
+  },
+  "handoff": {
+    "path": "/tmp/e02-E-api-companions-thirteenth-20261007/implementation-owner-handoff-v3.json",
+    "bytes": 11806,
+    "sha256": "9a145a54ba3174bb6f8d951f58ee8836d5ceb51335779c607b1f1a15969fcb0b"
+  },
+  "source_qualification": {
+    "path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-source-qualification-v3.json",
+    "bytes": 31997,
+    "sha256": "8c38b9cfe8b2c2f645fd0fc3b68119f8855af09fc21d36a23f67cd7d1c13cfbe"
+  },
+  "complete_input_index": {
+    "path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-complete-input-index-v3.json",
+    "bytes": 111325,
+    "sha256": "d4e3c1b2e473671936d4b6645dd196d52d48adf0fd946af3205c63be1c7530e2"
+  },
+  "complete_static_rows": {
+    "path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-complete-static-rows-v3.json",
+    "bytes": 341063,
+    "sha256": "af29b30eca5c8b9712fecbe1c67b4084079dcf6f77bc2f22170ac274f8f06571"
+  },
+  "source_reconciliation": {
+    "complete_changed_python_paths": 379,
+    "writer_counts": {
+      "A": 2,
+      "B": 13,
+      "E": 350,
+      "G": 12,
+      "F": 2
+    },
+    "changed_product_source": 60,
+    "changed_tests": 68,
+    "E_source": 55,
+    "E_tests": 59,
+    "all128literal_Git_inputs_reconciled": true,
+    "source_AST_rows": 301,
+    "test_AST_rows": 540,
+    "new_E_cross_root_module_edges": 23,
+    "unadmitted_module_edges": 2,
+    "canonical_contract_bound": true,
+    "new_E_maintained_test_only": [
+      "policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py"
+    ],
+    "API_ref_occurrences_unchanged": 18
+  },
+  "prior_owner_packet_peer_review": {
+    "path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-api-review/final-review-v2.json",
+    "bytes": 13360,
+    "sha256": "3f334dfc689e532e7314da37f924df12169cb95dd047f44138b8cb99483fd148"
+  },
+  "current_type_receipt": {
+    "receipt": {
+      "path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck.receipt.json",
+      "bytes": 8048,
+      "sha256": "d1bb59a5a3993bc8964bb5bcc8946aa30dc25c5dce0e20a0fa84cde69cef3f91"
+    },
+    "actual_child_exit_before_parse": {
+      "path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck-child-before-parse.json",
+      "bytes": 1431,
+      "sha256": "95ae6ac929f7064061109db1ff91483e60309a3de93fe8b9b8725943286d57a9"
+    },
+    "source_inputs": [
+      {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "bytes": 96135,
+        "sha256": "a11a7097dd462ec8c8da6ca457d9d6905f1773bb606797f5389a8effcc44a27d",
+        "repository_path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "git_blob": "6468bf46e3a3dfa341112022eccdfe826aaa04ac"
+      },
+      {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "bytes": 31271,
+        "sha256": "795423c2c7c00a3299aade7dae2e21fd626d2e80cf8f58186eff03610c91b98d",
+        "repository_path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "git_blob": "48eb8c09bd2470977fb7f86258d739a80738362c"
+      },
+      {
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "bytes": 17806,
+        "sha256": "e8e81a9792edcc1a6df4d9783b02e64fc8f756f41d8eafd63d9bde40cd72dee3",
+        "repository_path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "git_blob": "211103b83d6e71aadc314464d799c97eb1ed41f0"
+      }
+    ],
+    "summary": {
+      "filesAnalyzed": 3,
+      "errorCount": 0,
+      "warningCount": 0,
+      "informationCount": 0,
+      "timeInSec": 3.379
+    },
+    "stdout": {
+      "path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck.stdout.txt",
+      "bytes": 348,
+      "sha256": "b6ef08556cdd5c253d7d9716a45eff2a1880ed11bd11aacc574f5c6c07d2224b"
+    },
+    "stderr": {
+      "path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "baseline_freshness": "reported_outdated",
+    "canonical_project_baseline_current_and_Git_unchanged": true,
+    "whole_type_gate": "UNRUN",
+    "meaning": "Captured actual supported --baselinemode=discard CLI child0 + full diagnostic JSON3file0errors0warnings. Outdated-baseline notice retained; no full/unbaselined gate or source property acceptance."
+  },
+  "historical_errors_failures_preserved": [
+    {
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "selected_files": 2,
+      "diagnostic_observation": "0 errors/0 warnings; native child exit not retained before wrapper failure",
+      "custody_outcome": "ERROR",
+      "receipt": {
+        "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-scoped-typecheck.ERROR.json",
+        "bytes": 1389,
+        "sha256": "ebf6206c848bb0af94a7035245c91739a392d3a21fa95daacdccf1c238c9a9b3"
+      },
+      "correction": "Historical receipt native_outcome PASS was inferred from summary only; it is not a captured child outcome or clean gate PASS. Unsupported private project/baseline drafts remain UNRUN and are omitted from publication."
+    },
+    {
+      "source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "selected_files": 3,
+      "actual_child_exit": 1,
+      "outcome": "FAIL",
+      "errors": 7,
+      "warnings": 1,
+      "receipt": {
+        "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/frozen-typecheck.receipt.json",
+        "bytes": 6906,
+        "sha256": "4dc685843058b885e60a1a6eda0cd3b189883a9ee6ac89f11139df2950db08fa"
+      }
+    },
+    {
+      "source": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+      "selected_files": 3,
+      "actual_child_exit": 1,
+      "outcome": "FAIL",
+      "errors": 4,
+      "warnings": 0,
+      "receipt": {
+        "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-frozen-typecheck.receipt.json",
+        "bytes": 7159,
+        "sha256": "c4bfbd74749ec5112beab917a092e1cbb7e468712f0f2af78e4f7141bdb049cd"
+      }
+    },
+    {
+      "source": "11082e91d61ace2f3bd7016d408341fdd6ec1702 plus Root working adapter-only patch",
+      "diagnostic_observation": "Root working stdout0/0 with outdated-baseline prelude; wrapper JSON parsing failed before child exit capture",
+      "custody_outcome": "ERROR",
+      "native_child_exit": "not_established",
+      "root_receipt": {
+        "source_path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/typing-working-preflight/wrapper-error-corrective-receipt.json",
+        "bytes": 1204,
+        "sha256": "eba591d33c1ed0dcf69cc188e54d065f27b1c4188597233002c9734954c9d166"
+      }
+    }
+  ],
+  "first_tool_baseline_mutation_and_exact_blob_restoration_preserved": {
+    "unexpected_unique_changed_bytes": {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/canonical-baseline-after-unexpected.json",
+      "bytes": 733805,
+      "sha256": "1ea9bf864600d6e12d2e7643c2d5a8033359a68e99bfaf7789e73e45c69186a4"
+    },
+    "preserved_before_bytes": {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/canonical-baseline-before-from-Git.json",
+      "bytes": 1006190,
+      "sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af"
+    },
+    "exact_original_baseline_git_blob": "c8fb66459e43d28bb64de12d4497a39f48705101",
+    "original_baseline_sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+    "root_exact_blob_restoration": {
+      "source_path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/baseline-sideeffect/restoration-receipt.json",
+      "bytes": 923,
+      "sha256": "aafcb120aa8821ac295f5e4a79a815a0c450f0024b8ef37b51410036b7b15efa"
+    },
+    "restoration_rule": "Root preserved unique mutated output then restored only exact Git blob bytes; no reset/checkout/rebase. Subsequent checks used supported read-only discard and hash guards."
+  },
+  "canonical_owner_export_lease": "not_established",
+  "current_API_ABI_generation": "UNRUN",
+  "P41": "not_established",
+  "formal_G_acceptance": 0,
+  "predicate_basis": "independently_reconciled",
+  "leases": "source/env read leases closed",
+  "product_mutation": false,
+  "Git_mutation": false,
+  "numeric_or_type_rerun": false
+}

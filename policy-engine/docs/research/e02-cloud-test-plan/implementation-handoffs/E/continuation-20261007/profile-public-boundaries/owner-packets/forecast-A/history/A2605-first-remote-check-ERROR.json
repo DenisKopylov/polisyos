@@ -1,0 +1,12 @@
+{
+  "operation": "literal A2605 packet build",
+  "outcome": "ERROR",
+  "reason": "published A ref advanced during read-only comparison",
+  "sampled_A": "2605d13916f4dd38f216419562c04718ba4c2028",
+  "later_remote_A": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+  "patch_context_check_exit": 0,
+  "source_code_edited": false,
+  "runtime_executed": false,
+  "stdout_bytes": 0,
+  "stderr_sha256": "5c20be9231a3f89a4cd084fc66fd00f6195856e3a8410137422d7b2fabc25c57"
+}

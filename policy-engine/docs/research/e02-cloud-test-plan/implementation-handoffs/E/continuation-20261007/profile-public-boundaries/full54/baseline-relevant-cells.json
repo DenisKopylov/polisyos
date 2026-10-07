@@ -1,0 +1,1405 @@
+{
+  "schema": "e02.E.thirteenth.targeted-baseline-navigation.v1",
+  "finding_ids": [
+    "B188",
+    "B192",
+    "B199"
+  ],
+  "classification": "transfer_and_navigation_only",
+  "raw_archives_received": 0,
+  "current_candidate_PASS_asserted": false,
+  "commands": [
+    {
+      "finding": "B188",
+      "argv": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B188",
+        "--details",
+        "--job-context",
+        "--limit",
+        "250",
+        "--block-limit",
+        "250"
+      ],
+      "full_stdout_bytes": 30443,
+      "full_stdout_sha256": "9ae5beb7ab72e3047e316c7b2017071ee049255691471635c8d4ca91dbef1f73",
+      "full_stdout_path": "/tmp/e02-E-full54-thirteenth-20261007/baseline-B188.json",
+      "matching_cells": 9,
+      "displayed_cells": 9,
+      "exit": 0
+    },
+    {
+      "finding": "B192",
+      "argv": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B192",
+        "--details",
+        "--job-context",
+        "--limit",
+        "250",
+        "--block-limit",
+        "250"
+      ],
+      "full_stdout_bytes": 30443,
+      "full_stdout_sha256": "1a9ddec91b8232b1e0d9973185e7f2a5433824d3145583bf3bfc67e21b183a99",
+      "full_stdout_path": "/tmp/e02-E-full54-thirteenth-20261007/baseline-B192.json",
+      "matching_cells": 9,
+      "displayed_cells": 9,
+      "exit": 0
+    },
+    {
+      "finding": "B199",
+      "argv": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B199",
+        "--details",
+        "--job-context",
+        "--limit",
+        "250",
+        "--block-limit",
+        "250"
+      ],
+      "full_stdout_bytes": 108578,
+      "full_stdout_sha256": "5fab2e44a62cabea8d0a4cbc6e9bcdaa58161e5ff4c8a456e2321a5caf6cb5f4",
+      "full_stdout_path": "/tmp/e02-E-full54-thirteenth-20261007/baseline-B199.json",
+      "matching_cells": 9,
+      "displayed_cells": 9,
+      "exit": 0
+    }
+  ],
+  "unique_cells": [
+    {
+      "id": "F01-P043",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_uqp_02.py",
+      "state": "PASS",
+      "collected": "18",
+      "calls": "18",
+      "call_pass": "18",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "9.06",
+      "rss_kib": "473604",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "160",
+      "extra_json": "{}",
+      "associated_findings": [
+        "B188",
+        "B192"
+      ],
+      "source_reported_check": "PASS",
+      "candidate_check_outcome": "UNRUN",
+      "native_archive_available": false,
+      "tracked_fixture_source_identity": {
+        "path": "policy-engine/tests/unit/remediation/test_uqp_02.py",
+        "revision": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "bytes": 19993,
+        "sha256": "4df3c7882958f0bddae4c9efb575f45d4d3e99fc0e8c5af6459dfd4aeee700c1"
+      },
+      "actual_materialized_runtime_data_identity": "not_established; raw VM archive absent; exact tracked test source is a code locator, not captured production/materialized bytes",
+      "actual_per_cell_backend_witness": "not_established; reported job profile/device is not an executed backend witness for this cell"
+    },
+    {
+      "id": "F04-P028",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py",
+      "state": "PASS",
+      "collected": "10",
+      "calls": "10",
+      "call_pass": "10",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.836",
+      "rss_kib": "209356",
+      "receipt_status": "valid_reconciled_parent",
+      "source_file": "received/F04.txt",
+      "source_line": "238",
+      "extra_json": "{}",
+      "associated_findings": [
+        "B188",
+        "B192"
+      ],
+      "source_reported_check": "PASS",
+      "candidate_check_outcome": "UNRUN",
+      "native_archive_available": false,
+      "tracked_fixture_source_identity": {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py",
+        "revision": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "bytes": 6161,
+        "sha256": "9cb910d48b43a57e3d138cd45ae4215a2e877f09bfbf031093795d1f7cc79206"
+      },
+      "actual_materialized_runtime_data_identity": "not_established; raw VM archive absent; exact tracked test source is a code locator, not captured production/materialized bytes",
+      "actual_per_cell_backend_witness": "not_established; reported job profile/device is not an executed backend witness for this cell"
+    },
+    {
+      "id": "F04-P047",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/ir/test_uncertainty.py",
+      "state": "PASS",
+      "collected": "17",
+      "calls": "17",
+      "call_pass": "17",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.39",
+      "rss_kib": "94912",
+      "receipt_status": "valid_reconciled_parent",
+      "source_file": "received/F04.txt",
+      "source_line": "257",
+      "extra_json": "{}",
+      "associated_findings": [
+        "B188",
+        "B192",
+        "B199"
+      ],
+      "source_reported_check": "PASS",
+      "candidate_check_outcome": "UNRUN",
+      "native_archive_available": false,
+      "tracked_fixture_source_identity": {
+        "path": "policy-engine/tests/unit/ir/test_uncertainty.py",
+        "revision": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "bytes": 12411,
+        "sha256": "77069e5027d3f4e6bbc087a82cc4cbeffac5be27c41acdf726fcbd337b4d7c71"
+      },
+      "actual_materialized_runtime_data_identity": "not_established; raw VM archive absent; exact tracked test source is a code locator, not captured production/materialized bytes",
+      "actual_per_cell_backend_witness": "not_established; reported job profile/device is not an executed backend witness for this cell"
+    },
+    {
+      "id": "F05-P048",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "3.3",
+      "rss_kib": "344320",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "458",
+      "extra_json": "{}",
+      "associated_findings": [
+        "B188",
+        "B192"
+      ],
+      "source_reported_check": "PASS",
+      "candidate_check_outcome": "UNRUN",
+      "native_archive_available": false,
+      "tracked_fixture_source_identity": {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py",
+        "revision": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "bytes": 3307,
+        "sha256": "3bbe0ea70556cd60a5ae9aebabaf2aca29065f17a02ed2018dd6673872229a82"
+      },
+      "actual_materialized_runtime_data_identity": "not_established; raw VM archive absent; exact tracked test source is a code locator, not captured production/materialized bytes",
+      "actual_per_cell_backend_witness": "not_established; reported job profile/device is not an executed backend witness for this cell"
+    },
+    {
+      "id": "F07-P028",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.823547840118408",
+      "rss_kib": "350256.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "34",
+      "extra_json": "{}",
+      "associated_findings": [
+        "B188",
+        "B192"
+      ],
+      "source_reported_check": "PASS",
+      "candidate_check_outcome": "UNRUN",
+      "native_archive_available": false,
+      "tracked_fixture_source_identity": {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py",
+        "revision": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "bytes": 3307,
+        "sha256": "3bbe0ea70556cd60a5ae9aebabaf2aca29065f17a02ed2018dd6673872229a82"
+      },
+      "actual_materialized_runtime_data_identity": "not_established; raw VM archive absent; exact tracked test source is a code locator, not captured production/materialized bytes",
+      "actual_per_cell_backend_witness": "not_established; reported job profile/device is not an executed backend witness for this cell"
+    },
+    {
+      "id": "F07-P040",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_uqp_02.py",
+      "state": "PASS",
+      "collected": "18",
+      "calls": "18",
+      "call_pass": "18",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.395581960678101",
+      "rss_kib": "601780.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "46",
+      "extra_json": "{}",
+      "associated_findings": [
+        "B188",
+        "B192"
+      ],
+      "source_reported_check": "PASS",
+      "candidate_check_outcome": "UNRUN",
+      "native_archive_available": false,
+      "tracked_fixture_source_identity": {
+        "path": "policy-engine/tests/unit/remediation/test_uqp_02.py",
+        "revision": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "bytes": 19993,
+        "sha256": "4df3c7882958f0bddae4c9efb575f45d4d3e99fc0e8c5af6459dfd4aeee700c1"
+      },
+      "actual_materialized_runtime_data_identity": "not_established; raw VM archive absent; exact tracked test source is a code locator, not captured production/materialized bytes",
+      "actual_per_cell_backend_witness": "not_established; reported job profile/device is not an executed backend witness for this cell"
+    },
+    {
+      "id": "F11-P037",
+      "job": "F11",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "3.001",
+      "rss_kib": "345852",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F11.txt",
+      "source_line": "166",
+      "extra_json": "{\"receipt_quality\":\"reconciled\",\"input_custody_blockers\":\"0\"}",
+      "associated_findings": [
+        "B188",
+        "B192"
+      ],
+      "source_reported_check": "PASS",
+      "candidate_check_outcome": "UNRUN",
+      "native_archive_available": false,
+      "tracked_fixture_source_identity": {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py",
+        "revision": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "bytes": 3307,
+        "sha256": "3bbe0ea70556cd60a5ae9aebabaf2aca29065f17a02ed2018dd6673872229a82"
+      },
+      "actual_materialized_runtime_data_identity": "not_established; raw VM archive absent; exact tracked test source is a code locator, not captured production/materialized bytes",
+      "actual_per_cell_backend_witness": "not_established; reported job profile/device is not an executed backend witness for this cell"
+    },
+    {
+      "id": "F14-P053",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_uqp_02.py",
+      "state": "PASS",
+      "collected": "18",
+      "calls": "18",
+      "call_pass": "18",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "14.710791577000236",
+      "rss_kib": "576832",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "403",
+      "extra_json": "{}",
+      "associated_findings": [
+        "B188",
+        "B192"
+      ],
+      "source_reported_check": "PASS",
+      "candidate_check_outcome": "UNRUN",
+      "native_archive_available": false,
+      "tracked_fixture_source_identity": {
+        "path": "policy-engine/tests/unit/remediation/test_uqp_02.py",
+        "revision": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "bytes": 19993,
+        "sha256": "4df3c7882958f0bddae4c9efb575f45d4d3e99fc0e8c5af6459dfd4aeee700c1"
+      },
+      "actual_materialized_runtime_data_identity": "not_established; raw VM archive absent; exact tracked test source is a code locator, not captured production/materialized bytes",
+      "actual_per_cell_backend_witness": "not_established; reported job profile/device is not an executed backend witness for this cell"
+    },
+    {
+      "id": "F15-P034",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py",
+      "state": "PASS",
+      "collected": "10",
+      "calls": "10",
+      "call_pass": "10",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.22",
+      "rss_kib": "300872",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "189",
+      "extra_json": "{\"reason\":\"null\"}",
+      "associated_findings": [
+        "B188",
+        "B192"
+      ],
+      "source_reported_check": "PASS",
+      "candidate_check_outcome": "UNRUN",
+      "native_archive_available": false,
+      "tracked_fixture_source_identity": {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py",
+        "revision": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "bytes": 6161,
+        "sha256": "9cb910d48b43a57e3d138cd45ae4215a2e877f09bfbf031093795d1f7cc79206"
+      },
+      "actual_materialized_runtime_data_identity": "not_established; raw VM archive absent; exact tracked test source is a code locator, not captured production/materialized bytes",
+      "actual_per_cell_backend_witness": "not_established; reported job profile/device is not an executed backend witness for this cell"
+    },
+    {
+      "id": "F01-P027",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "state": "PASS",
+      "collected": "10",
+      "calls": "10",
+      "call_pass": "10",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "12.35",
+      "rss_kib": "481204",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "144",
+      "extra_json": "{}",
+      "associated_findings": [
+        "B199"
+      ],
+      "source_reported_check": "PASS",
+      "candidate_check_outcome": "UNRUN",
+      "native_archive_available": false,
+      "tracked_fixture_source_identity": {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "revision": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "bytes": 8895,
+        "sha256": "868a42e317bed65571cde0aa9d9846153bf32a8b476e41fbed6648f013cab50b"
+      },
+      "actual_materialized_runtime_data_identity": "not_established; raw VM archive absent; exact tracked test source is a code locator, not captured production/materialized bytes",
+      "actual_per_cell_backend_witness": "not_established; reported job profile/device is not an executed backend witness for this cell"
+    },
+    {
+      "id": "F03-P086",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_uqs_01.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.77",
+      "rss_kib": "155016.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "216",
+      "extra_json": "{}",
+      "associated_findings": [
+        "B199"
+      ],
+      "source_reported_check": "PASS",
+      "candidate_check_outcome": "UNRUN",
+      "native_archive_available": false,
+      "tracked_fixture_source_identity": {
+        "path": "policy-engine/tests/unit/remediation/test_uqs_01.py",
+        "revision": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "bytes": 9507,
+        "sha256": "5f71b1f249864eb982625d8de4ffe9f7b0d195c19d4f963e91ad7f753e1b9579"
+      },
+      "actual_materialized_runtime_data_identity": "not_established; raw VM archive absent; exact tracked test source is a code locator, not captured production/materialized bytes",
+      "actual_per_cell_backend_witness": "not_established; reported job profile/device is not an executed backend witness for this cell"
+    },
+    {
+      "id": "F06-P047",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "29.15124201774597",
+      "rss_kib": "606176",
+      "receipt_status": "valid",
+      "source_file": "received/F06.txt",
+      "source_line": "231",
+      "extra_json": "{\"reason\":\"null\"}",
+      "associated_findings": [
+        "B199"
+      ],
+      "source_reported_check": "PASS",
+      "candidate_check_outcome": "UNRUN",
+      "native_archive_available": false,
+      "tracked_fixture_source_identity": {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "revision": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "bytes": 3086,
+        "sha256": "9a8df32930710d061d2dcc285518e4cf30053ce44c86fb16b81b75018aa47000"
+      },
+      "actual_materialized_runtime_data_identity": "not_established; raw VM archive absent; exact tracked test source is a code locator, not captured production/materialized bytes",
+      "actual_per_cell_backend_witness": "not_established; reported job profile/device is not an executed backend witness for this cell"
+    },
+    {
+      "id": "F08-P036",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "35.08224844932556",
+      "rss_kib": "621504",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "159",
+      "extra_json": "{}",
+      "associated_findings": [
+        "B199"
+      ],
+      "source_reported_check": "PASS",
+      "candidate_check_outcome": "UNRUN",
+      "native_archive_available": false,
+      "tracked_fixture_source_identity": {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "revision": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "bytes": 3086,
+        "sha256": "9a8df32930710d061d2dcc285518e4cf30053ce44c86fb16b81b75018aa47000"
+      },
+      "actual_materialized_runtime_data_identity": "not_established; raw VM archive absent; exact tracked test source is a code locator, not captured production/materialized bytes",
+      "actual_per_cell_backend_witness": "not_established; reported job profile/device is not an executed backend witness for this cell"
+    },
+    {
+      "id": "F09-P088",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_uqs_01.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.4",
+      "rss_kib": "242544",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "204",
+      "extra_json": "{}",
+      "associated_findings": [
+        "B199"
+      ],
+      "source_reported_check": "PASS",
+      "candidate_check_outcome": "UNRUN",
+      "native_archive_available": false,
+      "tracked_fixture_source_identity": {
+        "path": "policy-engine/tests/unit/remediation/test_uqs_01.py",
+        "revision": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "bytes": 9507,
+        "sha256": "5f71b1f249864eb982625d8de4ffe9f7b0d195c19d4f963e91ad7f753e1b9579"
+      },
+      "actual_materialized_runtime_data_identity": "not_established; raw VM archive absent; exact tracked test source is a code locator, not captured production/materialized bytes",
+      "actual_per_cell_backend_witness": "not_established; reported job profile/device is not an executed backend witness for this cell"
+    },
+    {
+      "id": "F11-P036",
+      "job": "F11",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "26.005",
+      "rss_kib": "585036",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F11.txt",
+      "source_line": "165",
+      "extra_json": "{\"receipt_quality\":\"reconciled\",\"input_custody_blockers\":\"0\"}",
+      "associated_findings": [
+        "B199"
+      ],
+      "source_reported_check": "PASS",
+      "candidate_check_outcome": "UNRUN",
+      "native_archive_available": false,
+      "tracked_fixture_source_identity": {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "revision": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "bytes": 3086,
+        "sha256": "9a8df32930710d061d2dcc285518e4cf30053ce44c86fb16b81b75018aa47000"
+      },
+      "actual_materialized_runtime_data_identity": "not_established; raw VM archive absent; exact tracked test source is a code locator, not captured production/materialized bytes",
+      "actual_per_cell_backend_witness": "not_established; reported job profile/device is not an executed backend witness for this cell"
+    },
+    {
+      "id": "F14-P034",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "state": "PASS",
+      "collected": "10",
+      "calls": "10",
+      "call_pass": "10",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "20.163054617000853",
+      "rss_kib": "645628",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "384",
+      "extra_json": "{}",
+      "associated_findings": [
+        "B199"
+      ],
+      "source_reported_check": "PASS",
+      "candidate_check_outcome": "UNRUN",
+      "native_archive_available": false,
+      "tracked_fixture_source_identity": {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "revision": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "bytes": 8895,
+        "sha256": "868a42e317bed65571cde0aa9d9846153bf32a8b476e41fbed6648f013cab50b"
+      },
+      "actual_materialized_runtime_data_identity": "not_established; raw VM archive absent; exact tracked test source is a code locator, not captured production/materialized bytes",
+      "actual_per_cell_backend_witness": "not_established; reported job profile/device is not an executed backend witness for this cell"
+    },
+    {
+      "id": "F15-P100",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_uqs_01.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.99",
+      "rss_kib": "240852",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "255",
+      "extra_json": "{\"reason\":\"null\"}",
+      "associated_findings": [
+        "B199"
+      ],
+      "source_reported_check": "PASS",
+      "candidate_check_outcome": "UNRUN",
+      "native_archive_available": false,
+      "tracked_fixture_source_identity": {
+        "path": "policy-engine/tests/unit/remediation/test_uqs_01.py",
+        "revision": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "bytes": 9507,
+        "sha256": "5f71b1f249864eb982625d8de4ffe9f7b0d195c19d4f963e91ad7f753e1b9579"
+      },
+      "actual_materialized_runtime_data_identity": "not_established; raw VM archive absent; exact tracked test source is a code locator, not captured production/materialized bytes",
+      "actual_per_cell_backend_witness": "not_established; reported job profile/device is not an executed backend witness for this cell"
+    }
+  ],
+  "job_contexts": {
+    "F01": {
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt",
+      "source_file_bytes": 71251,
+      "source_file_sha256": "5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+      "metadata_lines": [
+        4,
+        114
+      ],
+      "source_reported_metadata": {
+        "job": "E02-full-F01",
+        "run": "20261005T074145Z",
+        "source": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+        "manifest_sha256": "a6ad0dad1bbad671dbf5a9efb3892d4a55c5445573e0060c0eac27c85f097527",
+        "environment": {
+          "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+          "arch": "x86_64",
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.23.3",
+          "corepack": "0.36.0",
+          "pnpm": "10.33.2",
+          "cpu_max": "400000 100000",
+          "cpuset": "0-4",
+          "memory_limit_bytes": 17179869184,
+          "disk_initial_free_bytes": 32026370048,
+          "disk_after_profile_free_bytes": 23258984448,
+          "installed_distributions": 253,
+          "post_series_distributions_match": true,
+          "lock_version_mismatches": 0,
+          "threads": 1,
+          "JAX_PLATFORMS": "cpu",
+          "profile_changes_after_native_start": 0,
+          "gnu_time_version": "time (GNU Time) UNKNOWN",
+          "gnu_time_binary_sha256": "efc0d1112e36ec76c14bf7508e287935cf1631d9d0d91fb532802d07aef51cea",
+          "gnu_time_probe": "child exit=7 and wall/user/sys/RSS verified",
+          "base_frozen_sync_exit": 0,
+          "node_frozen_install_exit": 0,
+          "union_frozen_sync_exit": 0
+        },
+        "config_sha256": {
+          "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+          "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+        }
+      },
+      "qualification": "Transferred committed UTF8 job context; raw archives absent; source-reported environment/data/backend only, not current-candidate deciding evidence."
+    },
+    "F03": {
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+      "source_file_bytes": 75761,
+      "source_file_sha256": "1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318",
+      "metadata_lines": [
+        6,
+        128
+      ],
+      "source_reported_metadata": {
+        "job": "F03",
+        "run_id": "20261005T0743Z",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+        "manifest_sha256": "b5a8936a67d7e05869331c2ec7ad0c9b36148ec7b9fa7ea00e8f210d4d9a87b0",
+        "profile": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.23.3",
+          "pnpm": "10.33.2",
+          "frozen": true,
+          "execution_device": "cpu",
+          "distributions": 253,
+          "extras": [
+            "lint",
+            "test",
+            "runtime",
+            "ml",
+            "analytics",
+            "bayesian",
+            "optimization-advanced",
+            "sensitivity",
+            "causal-discovery",
+            "vector-search",
+            "solvers",
+            "search_bo",
+            "agent-sim",
+            "causal-discovery-scale"
+          ],
+          "unchanged": true
+        },
+        "numeric_threads": 1,
+        "JAX_PLATFORMS": "cpu",
+        "cpu_max": "400000 100000",
+        "cpuset": "0-4",
+        "memory_limit_bytes": 17179869184,
+        "config_sha256": {
+          "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+          "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+        }
+      },
+      "qualification": "Transferred committed UTF8 job context; raw archives absent; source-reported environment/data/backend only, not current-candidate deciding evidence."
+    },
+    "F04": {
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt",
+      "source_file_bytes": 79431,
+      "source_file_sha256": "17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86",
+      "metadata_lines": [
+        4,
+        78
+      ],
+      "source_reported_metadata": {
+        "job": "F04",
+        "run_id": "20261005T0725Z",
+        "source": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+        "manifest_sha256": "eba2a5ce95a6c327bb6e102c7f52e91f645fb5ba54f7f0b3e92b597358fa1d2e",
+        "profile": [
+          "lint",
+          "test",
+          "runtime",
+          "ml",
+          "analytics",
+          "bayesian",
+          "optimization-advanced",
+          "sensitivity",
+          "causal-discovery",
+          "vector-search",
+          "solvers"
+        ],
+        "toolchain": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.22.0",
+          "corepack": "0.34.0",
+          "pnpm": "10.33.2",
+          "gnu_time_package": "time_1.9-0.2_amd64.deb",
+          "gnu_time_runtime_version": "GNU Time UNKNOWN"
+        },
+        "vm": {
+          "os": "Linux",
+          "arch": "x86_64",
+          "cpu_max": "400000 100000",
+          "cpuset": "0-4",
+          "memory_max_bytes": 17179869184
+        },
+        "config_sha256": {
+          "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+          "tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+        }
+      },
+      "qualification": "Transferred committed UTF8 job context; raw archives absent; source-reported environment/data/backend only, not current-candidate deciding evidence."
+    },
+    "F05": {
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt",
+      "source_file_bytes": 97032,
+      "source_file_sha256": "2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0",
+      "metadata_lines": [
+        7,
+        408
+      ],
+      "source_reported_metadata": {
+        "job": "E02-full-F05",
+        "run": "20261005T0743Z",
+        "source": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "tree": "595f1df8f85c0a096aa2b61cac01b7d35a81ed7e",
+        "manifest_sha256": "9f736f1d425b5eba2a5eafd45d759488f178ac3236a61a8e24b45384cd64f312",
+        "profile": {
+          "extras": [
+            "lint",
+            "test",
+            "runtime",
+            "ml",
+            "analytics",
+            "bayesian",
+            "optimization-advanced",
+            "sensitivity",
+            "causal-discovery",
+            "search_bo",
+            "solvers",
+            "vector-search"
+          ],
+          "argv": [
+            "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/uv-package/bin/uv",
+            "sync",
+            "--frozen",
+            "--python",
+            "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/python-runtime/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+            "--extra",
+            "lint",
+            "--extra",
+            "test",
+            "--extra",
+            "runtime",
+            "--extra",
+            "ml",
+            "--extra",
+            "analytics",
+            "--extra",
+            "bayesian",
+            "--extra",
+            "optimization-advanced",
+            "--extra",
+            "sensitivity",
+            "--extra",
+            "causal-discovery",
+            "--extra",
+            "search_bo",
+            "--extra",
+            "solvers",
+            "--extra",
+            "vector-search"
+          ]
+        },
+        "environment_compact": {
+          "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+          "architecture": "x86_64",
+          "cgroup": {
+            "cpu.max": "400000 100000",
+            "cpuset.cpus.effective": "0-4",
+            "memory.max": "17179869184"
+          },
+          "python": {
+            "executable": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/.venv/bin/python",
+            "resolved": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/python-runtime/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+            "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+          },
+          "toolchain": {
+            "uv": {
+              "argv": [
+                "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/uv-package/bin/uv",
+                "--version"
+              ],
+              "exit": 0,
+              "stdout": "uv 0.9.21\n",
+              "stderr": "",
+              "path": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/uv-package/bin/uv"
+            },
+            "node": {
+              "argv": [
+                "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/node-v22.22.0-linux-x64/bin/node",
+                "--version"
+              ],
+              "exit": 0,
+              "stdout": "v22.22.0\n",
+              "stderr": "",
+              "path": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/node-v22.22.0-linux-x64/bin/node"
+            },
+            "pnpm": {
+              "argv": [
+                "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/node-v22.22.0-linux-x64/bin/corepack",
+                "pnpm",
+                "--version"
+              ],
+              "exit": 0,
+              "stdout": "10.33.2\n",
+              "stderr": "",
+              "path": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/node-v22.22.0-linux-x64/bin/corepack"
+            },
+            "compiler": {
+              "argv": [
+                "g++",
+                "--version"
+              ],
+              "exit": 0,
+              "stdout": "g++ (Debian 14.2.0-19) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+              "stderr": "",
+              "path": "/usr/bin/g++"
+            }
+          },
+          "disk_free_bytes": 31589965824,
+          "disk_after_setup_bytes": 20976594944,
+          "native_execution_start": "2026-10-05T08:04:17.853653Z",
+          "budget_last_new_cell_deadline": "2026-10-05T11:13:00Z"
+        },
+        "config_sha256": {
+          "policy-engine/pyproject.toml": "d19b37b3ab80ad9c71e329a3f347d54033f88ea7df11d60ddadcefba6d36880f",
+          "policy-engine/uv.lock": "b87e993a35ef7d39ef046ed5f068e2ce264017a7368e848b223f9a0347470039",
+          "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "policy-engine/pnpm-lock.yaml": "da12dfb5ee90b8fb99eaf918d93bb8e24d056e378798d13ae88a542c1a65e217",
+          "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+        }
+      },
+      "qualification": "Transferred committed UTF8 job context; raw archives absent; source-reported environment/data/backend only, not current-candidate deciding evidence."
+    },
+    "F06": {
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt",
+      "source_file_bytes": 99912,
+      "source_file_sha256": "b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f",
+      "metadata_lines": [
+        3,
+        126
+      ],
+      "source_reported_metadata": {
+        "job": "F06",
+        "run": "20261005T074535Z",
+        "source": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "tree": "595f1df8f85c0a096aa2b61cac01b7d35a81ed7e",
+        "manifest_sha256": "d7df889ef4e489f4695a6c9241f78b379db15168974a2940bf43be969292840e",
+        "profile": [
+          "lint",
+          "test",
+          "runtime",
+          "ml",
+          "analytics",
+          "bayesian",
+          "optimization-advanced",
+          "sensitivity",
+          "causal-discovery",
+          "vector-search",
+          "solvers",
+          "search_bo",
+          "agent-sim"
+        ],
+        "environment": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.20.0",
+          "pnpm": "10.33.2",
+          "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+          "machine": "x86_64",
+          "cpu.max": "400000 100000",
+          "cpuset.cpus.effective": "0-4",
+          "memory.max_bytes": 17179869184,
+          "numerical_threads": 1,
+          "JAX_PLATFORMS": "cpu",
+          "CUDA_VISIBLE_DEVICES": "",
+          "installed_distributions_before": 250,
+          "installed_distributions_after": 250,
+          "metadata_RECORD_direct_url_locations_unchanged": true,
+          "node_links_unchanged": true,
+          "disk_free_closeout_inventory_bytes": 17770393600,
+          "resource_adapter_missing": false,
+          "observer_sha256": "72111e340c3fabdd3a90176ddfac6cc44a0af8226a31dadd0b869d03740d4cb4"
+        }
+      },
+      "qualification": "Transferred committed UTF8 job context; raw archives absent; source-reported environment/data/backend only, not current-candidate deciding evidence."
+    },
+    "F07": {
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt",
+      "source_file_bytes": 74977,
+      "source_file_sha256": "eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866",
+      "metadata_lines": [
+        5,
+        5
+      ],
+      "source_reported_metadata": {
+        "job": "E02-full-F07",
+        "run": "20261005T074300Z",
+        "source": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "tree": "dde3150361bb45ae3347e585a38dc297015da7ef",
+        "manifest_sha256": "d7fb66fc3665474c59f11b0463c741b1b05c1b7c8646897c9b4b7d455a68c40f",
+        "profile": [
+          "lint",
+          "test",
+          "runtime",
+          "ml",
+          "analytics",
+          "bayesian",
+          "optimization-advanced",
+          "sensitivity",
+          "causal-discovery",
+          "vector-search",
+          "solvers",
+          "search_bo"
+        ],
+        "environment": {
+          "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+          "arch": "x86_64",
+          "cpu_max": "400000 100000",
+          "cpuset": "0-4",
+          "memory_limit_bytes": 17179869184,
+          "versions": [
+            {
+              "argv": [
+                ".venv/bin/python",
+                "--version"
+              ],
+              "version": "Python 3.14.2",
+              "exit": 0
+            },
+            {
+              "argv": [
+                "/workspace/polisyos-e02-full-F07-20261005T074300Z/policy-engine/_build/e02-full/F07/20261005T074300Z/setup/uv-tool/bin/uv",
+                "--version"
+              ],
+              "version": "uv 0.9.21",
+              "exit": 0
+            },
+            {
+              "argv": [
+                "node",
+                "--version"
+              ],
+              "version": "v22.23.3",
+              "exit": 0
+            },
+            {
+              "argv": [
+                "corepack",
+                "--version"
+              ],
+              "version": "0.36.0",
+              "exit": 0
+            },
+            {
+              "argv": [
+                "corepack",
+                "pnpm",
+                "--version"
+              ],
+              "version": "10.33.2",
+              "exit": 0
+            },
+            {
+              "argv": [
+                "/workspace/polisyos-e02-full-F07-20261005T074300Z/policy-engine/_build/e02-full/F07/20261005T074300Z/setup/gnu-time/usr/bin/time",
+                "--version"
+              ],
+              "version": "time (GNU Time) UNKNOWN\nCopyright (C) 2018 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by David Keppel, David MacKenzie, and Assaf Gordon.",
+              "exit": 0
+            }
+          ],
+          "python_executable": "/workspace/polisyos-e02-full-F07-20261005T074300Z/policy-engine/.venv/bin/python",
+          "installed_distributions": 238,
+          "distributions_unchanged_after_series": true,
+          "node_workspace_links_ref": "setup/node-workspace-links.json",
+          "GNU_time_package": {
+            "package_metadata": "Package: time\nVersion: 1.9-0.2\nArchitecture: amd64\n",
+            "exit": 0,
+            "deb_sha256": "10257c6fe888e6578550b1f20705d282dd630b76f8df0c006aec3031fefe5e23",
+            "extracted_binary_sha256": "efc0d1112e36ec76c14bf7508e287935cf1631d9d0d91fb532802d07aef51cea"
+          },
+          "disk_before_sync_final_bytes": 28581031936,
+          "disk_floor_bytes": 21474836480
+        },
+        "config_sha256": {
+          "policy-engine/pyproject.toml": "d19b37b3ab80ad9c71e329a3f347d54033f88ea7df11d60ddadcefba6d36880f",
+          "policy-engine/uv.lock": "b87e993a35ef7d39ef046ed5f068e2ce264017a7368e848b223f9a0347470039",
+          "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+          "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+        }
+      },
+      "qualification": "Transferred committed UTF8 job context; raw archives absent; source-reported environment/data/backend only, not current-candidate deciding evidence."
+    },
+    "F08": {
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F08.txt",
+      "source_file_bytes": 95586,
+      "source_file_sha256": "d4ccc20c4f1c70e35c9e07c049552e5a8a2a1eca750c350f23f13040468d7f18",
+      "metadata_lines": [
+        5,
+        121
+      ],
+      "source_reported_metadata": {
+        "job": "F08",
+        "run": "20261005T0746Z",
+        "source": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "tree": "dde3150361bb45ae3347e585a38dc297015da7ef",
+        "manifest_sha256": "9f127589aca86d743c482b2e68a3d330e148248109b5f84e69d4497b8aafbc9f",
+        "environment": {
+          "os": "Debian 13",
+          "architecture": "x86_64",
+          "cpu_max": "400000 100000",
+          "effective_cpu_quota": 4,
+          "memory_max_bytes": 17179869184,
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.23.3",
+          "corepack": "0.36.0",
+          "pnpm": "10.33.2",
+          "distribution_count": 253,
+          "distribution_metadata_drift": [],
+          "numerical_threads": 1,
+          "jax_platforms": "cpu"
+        }
+      },
+      "qualification": "Transferred committed UTF8 job context; raw archives absent; source-reported environment/data/backend only, not current-candidate deciding evidence."
+    },
+    "F09": {
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt",
+      "source_file_bytes": 75983,
+      "source_file_sha256": "0bd494ff47e618125b8fec7074f76e3c4375da60b0bc2a0fe8860f885ece88ff",
+      "metadata_lines": [
+        5,
+        113
+      ],
+      "source_reported_metadata": {
+        "job": "F09",
+        "run": "20261005T074624Z",
+        "source": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "tree": "dde3150361bb45ae3347e585a38dc297015da7ef",
+        "manifest_sha256": "033d478d225b3e4fe2322d0ccb0e5a83993fca17ab37f8dc7148e73fa0246b01",
+        "toolchain": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.16.0",
+          "pnpm": "10.33.2",
+          "gnu_time": "1.9",
+          "platform": "Linux x86_64",
+          "cpu_quota_equivalents": 4,
+          "memory_limit_bytes": 17179869184
+        },
+        "config_sha256": {
+          "policy-engine/pyproject.toml": "d19b37b3ab80ad9c71e329a3f347d54033f88ea7df11d60ddadcefba6d36880f",
+          "policy-engine/uv.lock": "b87e993a35ef7d39ef046ed5f068e2ce264017a7368e848b223f9a0347470039",
+          "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+          "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+        }
+      },
+      "qualification": "Transferred committed UTF8 job context; raw archives absent; source-reported environment/data/backend only, not current-candidate deciding evidence."
+    },
+    "F11": {
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt",
+      "source_file_bytes": 62579,
+      "source_file_sha256": "5d24641c10ed0943503e5c14c2965a849d5389a4ba35ece518418fe12a03f471",
+      "metadata_lines": [
+        5,
+        127
+      ],
+      "source_reported_metadata": {
+        "job": "E02-F11",
+        "run": "20261005-a",
+        "source": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "tree": "eb96aa6d6ebc05c23e9eb740895dd0b009ac7e65",
+        "manifest_sha256": "70c193180f8034353f89544f8b27bdbb8afbb5d87b0087e5d4a86d89d5f9681b",
+        "environment": {
+          "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+          "arch": "x86_64",
+          "cgroup": {
+            "cpu.max": "400000 100000",
+            "cpuset.cpus.effective": "0-4",
+            "memory.max": "17179869184"
+          },
+          "versions": {
+            "python": "Python 3.14.0",
+            "uv": "uv 0.9.21",
+            "node": "v22.14.0",
+            "pnpm": "10.33.2",
+            "gnu_time": "time (GNU Time) UNKNOWN"
+          },
+          "gnu_time_sha256": "efc0d1112e36ec76c14bf7508e287935cf1631d9d0d91fb532802d07aef51cea",
+          "gnu_time_package_sha256": "10257c6fe888e6578550b1f20705d282dd630b76f8df0c006aec3031fefe5e23"
+        }
+      },
+      "qualification": "Transferred committed UTF8 job context; raw archives absent; source-reported environment/data/backend only, not current-candidate deciding evidence."
+    },
+    "F14": {
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt",
+      "source_file_bytes": 122592,
+      "source_file_sha256": "6746baa7b42a4fad583e640a8ba845806612b34c13a9688c86fbe7ff667fb50e",
+      "metadata_lines": [
+        4,
+        113
+      ],
+      "source_reported_metadata": {
+        "job": "F14",
+        "run_id": "20261005T074752Z",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+        "manifest_sha256": "6d22c80796c9d830c55b3b68393f43cd90593f7cb4bfa57643bc32a2da53debf",
+        "environment": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.16.0",
+          "corepack_pnpm": "10.33.2",
+          "cpu_max": "400000 100000",
+          "cpu_quota": 4,
+          "cpuset_effective": "0-4",
+          "memory_max_bytes": 17179869184,
+          "numerical_threads": 1,
+          "JAX_PLATFORMS": "cpu",
+          "profile_segment": "frozen-union-1",
+          "selected_extras": [
+            "lint",
+            "test",
+            "runtime",
+            "ml",
+            "analytics",
+            "bayesian",
+            "optimization-advanced",
+            "sensitivity",
+            "causal-discovery",
+            "vector-search",
+            "solvers",
+            "search_bo",
+            "agent-sim",
+            "causal-discovery-scale"
+          ],
+          "native_property_controls": "all three removal controls absent in actual children",
+          "distribution_origins_ref": "environment.json",
+          "raw_transfer_missing": true
+        }
+      },
+      "qualification": "Transferred committed UTF8 job context; raw archives absent; source-reported environment/data/backend only, not current-candidate deciding evidence."
+    },
+    "F15": {
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt",
+      "source_file_bytes": 85661,
+      "source_file_sha256": "efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169",
+      "metadata_lines": [
+        5,
+        153
+      ],
+      "source_reported_metadata": {
+        "job": "F15",
+        "run": "20261005T074740Z",
+        "source": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+        "manifest_sha256": "303fa24cde39780a16e39ee738d073c9e172b5286bb724e44859ea6f72198bec",
+        "config_hashes": {
+          "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+          "tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+        },
+        "environment": {
+          "python": "3.14.2",
+          "uv": "0.9.21",
+          "node": "22.16.0",
+          "pnpm": "10.33.2",
+          "platform": "Linux Debian 13 x86_64",
+          "cpu_quota_cores": 4.0,
+          "cpuset": "0-4",
+          "memory_limit_bytes": 17179869184,
+          "numerical_threads": 1,
+          "jax_platforms": "cpu",
+          "precision": "repository default unchanged",
+          "gnu_time_package": "time 1.9-0.2 amd64; --version reports GNU Time UNKNOWN",
+          "native_property_controls": "all three absent in every observed primary child",
+          "python_profile": "single frozen selected-extras union installed before native series",
+          "node_install": "one CI=true corepack pnpm install --frozen-lockfile before native series",
+          "setup_interruption": "initial uv sync lost VM connection; exit=null, cause not_established; same frozen profile resumed before native tests",
+          "toolchain_bootstrap_initial_wall_s": null
+        },
+        "backend_surfaces": {
+          "existing_test_witnesses": [
+            {
+              "surface": "OR-Tools CP-SAT real Solve",
+              "evidence_node": "tests/unit/runtime/quality/test_grounding_relation.py::test_synonym_alias_resolves_without_surface_exact_match",
+              "call_outcome": "failed",
+              "source_ref": "policy-engine/tests/unit/runtime/quality/test_grounding_relation.py@81b62f954f38f11c12da1f5bfd8a384e43049bef",
+              "boundary": "RecordingSolver delegates to real CpSolver.Solve and asserts one search worker; other cases include UNKNOWN/mock paths.",
+              "witness_status": "not_established; failed call may have stopped before Solve"
+            }
+          ],
+          "installed_profile_is_not_execution_evidence": true,
+          "not_attested": [
+            "Metal",
+            "macOS",
+            "GPU",
+            "live LLM",
+            "paid APIs",
+            "live remote services"
+          ],
+          "other_surfaces": "FileSystemCAS/DuckDB/TestClient and runtime-service fixture flows are scoped to assigned tests and synthetic tmp_path inputs. Full nested import history and all backend bytes were not observed."
+        }
+      },
+      "qualification": "Transferred committed UTF8 job context; raw archives absent; source-reported environment/data/backend only, not current-candidate deciding evidence."
+    }
+  },
+  "input_rule": "Importer --check PASS and full verification.json inspected before queries. Parent retains the new invocation/importer receipt; baseline states are historical source-reported text only.",
+  "reuse_rule": "B188/B192 have byte-identical query stdout; one content body is sufficient plus both exact argv/digest associations. Large complete query bodies stay in ignored/temp output; publish this moderate resolved-cell receipt."
+}

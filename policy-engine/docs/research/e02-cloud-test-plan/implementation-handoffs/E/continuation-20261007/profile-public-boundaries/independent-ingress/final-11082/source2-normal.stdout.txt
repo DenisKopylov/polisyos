@@ -1,0 +1,12 @@
+{
+  "candidate": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+  "tree": "9263d367d41359f1f1a2758419fbc1c8f1eace0f",
+  "mode": "source2-normal",
+  "row_count": 387,
+  "outcomes": {
+    "PASS": 387,
+    "FAIL": 0
+  },
+  "module_errors": [],
+  "wall_seconds": 11.005402928014519
+}

@@ -1,0 +1,399 @@
+--- /dev/null
++++ b/policy-engine/release-fragments/unreleased/2026-10-07-posterior-profile2-raw-ingress.toml
+@@ -0,0 +1,11 @@
++id = "2026-10-07-posterior-profile2-raw-ingress"
++title = "Admit raw posterior Profile2 before numeric coercion and generic joins"
++type = "fixed"
++component = "ir-uncertainty"
++owner = "E-scoped-B201-B202"
++summary = "The shared envelope DTO validates declared raw Profile2 before bool/string coercion; multi-envelope Profile2 joins refuse before losing the law under an undeclared mixture."
++surface_classification = "public_stable: existing uncertainty DTO, loaders and composition; no new export, schema ID or outer wire version"
++compatibility = "Literal Profile1 id1/version1 and generic unprofiled Envelope1.1 raw replay retain their existing decoder. Profile2 singleton join is identity; generic joins remain unchanged."
++migration = "Supply finite real non-bool Profile2 values and complete supported declarations. A multi-law join requires a separate explicit mixture contract; no equal-mixture interpretation is inferred."
++limitations = "Profile2 remains non-gating. combine_envelopes is a lossy diagnostic interval summary, not a preserved posterior law. Source/fit quality, institutional authority and canonical generated companions remain separate."
++evidence = ["tests/unit/ir/test_uncertainty_profile_ingress.py", "tests/unit/ir/test_posterior_summary.py", "tests/unit/ir/test_uncertainty_posterior_composition.py"]
+--- a/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py
++++ b/policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py
+@@ -316,7 +316,6 @@
+                 "posterior_basis": "posterior_draws",
+                 "emulator_diagnostics": emulator_info,
+                 "posterior_diagnostics": diagnostics,
+-                "posterior_summary_profile_required": True,
+                 "point_functional": "median",
+                 "interval_functional": "equal_tail_inverse_cdf",
+             },
+@@ -385,6 +384,7 @@
+             update={
+                 "metadata": {
+                     **envelope.metadata,
++                    "posterior_summary_profile_required": True,
+                     "posterior_summary_profile_id": profile.profile_id,
+                     "posterior_summary_profile_version": profile.profile_version,
+                     "joint_sample_id": joint_digest,
+--- a/policy-engine/src/polisyos/ir/analytics/README.md
++++ b/policy-engine/src/polisyos/ir/analytics/README.md
+@@ -114,3 +114,18 @@
+ interval, rather than reinterpret the original equal-tail posterior interval.
+ Pull-back remains constraint-only and drops posterior authority. These changes
+ apply to Profile2; Profile1 and unprofiled composition retain their legacy behavior.
++
++Raw Profile2 declarations are admitted at the common envelope DTO inlet before
++numeric coercion, covering legacy CAS loading and direct raw model validation.
++Boolean and numeric-string carrier/functionals refuse before public map callbacks
++or derived-law publication. Unsupported/incomplete profile declarations cannot
++downgrade to generic input; existing composition readers independently reconcile
++carrier/context/joint digests. Literal Profile1 replay and unprofiled Envelope1.1
++retain their prior raw numeric decoder.
++
++`join_envelopes` returns a singleton unchanged and retains generic joins, but
++refuses every multi-envelope join involving Profile2 before generic lowering.
++No implicit equal mixture or pooled-row posterior semantics is selected.
++`combine_envelopes` remains a lossy, non-gating diagnostic interval summary:
++multiple Profile2 inputs lose their carrier, context and named functionals, so
++the output is not an admitted posterior law for new law-dependent computations.
+--- a/policy-engine/src/polisyos/ir/analytics/uncertainty.py
++++ b/policy-engine/src/polisyos/ir/analytics/uncertainty.py
+@@ -1381,6 +1381,37 @@
+             return value
+         if not isinstance(value, dict):
+             return value
++        # Profile2 raw types are part of its declared law. Admit them before
++        # float()/carrier coercion can erase a bool or numeric-string defect.
++        # The literal Profile1 and unprofiled v1.1 compatibility paths retain
++        # their existing numeric decoder; unsupported declarations do not.
++        from .posterior_summary import (
++            PROFILE_ID,
++            PROFILE_KEY,
++            _profile_declared,
++            validate_raw_posterior_summary_envelope,
++        )
++
++        metadata = value.get("metadata")
++        if isinstance(metadata, dict) and _profile_declared(metadata):
++            declaration = metadata.get(PROFILE_KEY)
++            literal_profile1 = (
++                isinstance(declaration, dict)
++                and declaration.get("profile_id") == PROFILE_ID
++                and declaration.get("profile_version") == "1.0"
++            )
++            if not literal_profile1:
++                raw_payload = value
++                carrier = value.get("distribution_payload")
++                if isinstance(carrier, PosteriorSamplesCarrier):
++                    # A typed internal composition carrier is already decoded;
++                    # dump only that carrier, leaving raw dictionaries untouched.
++                    raw_payload = {
++                        **value,
++                        "distribution_payload": carrier.model_dump(mode="python"),
++                    }
++                validate_raw_posterior_summary_envelope(raw_payload)
++
+         payload = dict(value)
+         policy = NumericPolicySpec.model_validate(payload.get("numeric_policy", {}))
+         payload["numeric_policy"] = policy.model_dump(mode="python")
+@@ -1496,13 +1527,21 @@
+     representation: str = "best_available_outer_hull",
+     source: UncertaintySource = UncertaintySource.ENSEMBLE,
+ ) -> UncertaintyEnvelope:
+-    """Build the smallest representable outer hull over several envelopes."""
++    """Build a generic outer hull; refuse undeclared Profile2 mixtures.
++
++    A singleton is an identity. Multiple Profile2 laws cannot be concatenated
++    without declared mixture masses, units and context, including mixed joins.
++    """
+ 
+     normalized = tuple(envelopes)
+     if not normalized:
+         raise ValueError("join_envelopes requires at least one envelope")
+     if len(normalized) == 1:
+         return normalized[0]
++    if any(_ratio_composition_profile(envelope) is not None for envelope in normalized):
++        raise UncertaintyCompatibilityError(
++            "Profile2 multi-envelope join requires an explicit mixture contract"
++        )
+ 
+     lows = [envelope.ci_lower for envelope in normalized]
+     highs = [envelope.ci_upper for envelope in normalized]
+@@ -2221,7 +2260,12 @@
+     method: EnvelopeCombinationMethod = EnvelopeCombinationMethod.CONSERVATIVE_UNION,
+     source: UncertaintySource = UncertaintySource.ENSEMBLE,
+ ) -> UncertaintyEnvelope:
+-    """Combine compatible envelopes through one shared contract layer."""
++    """Combine compatible interval summaries, without preserving a posterior law.
++
++    Multiple Profile2 inputs lose carriers, context and named functionals here.
++    Their result remains non-gating; it is a diagnostic summary, not a mixture
++    or an admitted posterior law for downstream stochastic computation.
++    """
+     normalized = tuple(envelopes)
+     if not normalized:
+         raise ValueError("combine_envelopes requires at least one envelope")
+--- a/policy-engine/tests/unit/ir/test_posterior_summary.py
++++ b/policy-engine/tests/unit/ir/test_posterior_summary.py
+@@ -339,7 +339,9 @@
+         record.model_dump(include={"artifact_id", "kind", "media_type"})
+     )
+     assert store.verify(record).ok
+-    # Exact old decode loses the raw type and leaves the same functional/hash.
+-    assert load_uncertainty_envelope(store, ref).distribution_payload == env.distribution_payload
++    # The common DTO inlet now guards raw Profile2 before either public loader
++    # can erase its raw type; literal Profile1/unprofiled replay is separate.
++    with pytest.raises(ValueError, match="real non-bool"):
++        load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+     with pytest.raises(ValueError, match="real non-bool"):
+         load_posterior_summary_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+--- /dev/null
++++ b/policy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py
+@@ -0,0 +1,252 @@
++"""Public raw Profile2 admission and non-mixture join boundaries on real CAS."""
++
++from __future__ import annotations
++
++from copy import deepcopy
++from fractions import Fraction
++
++import pytest
++
++from polisyos.core import artifacts as core_artifacts
++from polisyos.core import canon as core_canon
++from polisyos.foundry.uncertainty import summarize_bayesian_calibration_posterior
++from polisyos.ir.analytics import load_posterior_summary_envelope, read_posterior_summary_profile
++from polisyos.ir.analytics.uncertainty import (
++    UncertaintyCompatibilityError,
++    UncertaintyEnvelope,
++    combine_envelopes,
++    compress_envelope,
++    join_envelopes,
++    load_uncertainty_envelope,
++    persist_uncertainty_envelope,
++    pull_back_envelope,
++    push_forward_envelope,
++)
++from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
++
++
++def _source(samples=(0.0, 1.0), *, weights=None):
++    return summarize_bayesian_calibration_posterior(
++        {"x": samples},
++        weights=weights,
++        draw_ids=[f"actual-row:{i}" for i in range(len(samples))],
++        sample_axis="actual-chain:draw",
++    ).parameter_envelopes["x"]
++
++
++def _raw_ref(tmp_path, raw):
++    store = core_artifacts.FileSystemCAS(tmp_path)
++    record = store.put_json(
++        raw,
++        core_artifacts.PutOptions(
++            kind="ir.uncertainty_envelope",
++            media_type="application/json",
++            schema=core_artifacts.SchemaInfo(name="ir.uncertainty_envelope", version="1.1"),
++        ),
++        canon_spec=core_canon.CanonSpec(forbid_floats=False),
++    )
++    assert store.verify(record).ok
++    ref = UncertaintyEnvelopeRef.model_validate(
++        record.model_dump(include={"artifact_id", "kind", "media_type"})
++    )
++    return ref
++
++
++def _load_raw(tmp_path, raw, inlet):
++    if inlet == "model":
++        return UncertaintyEnvelope.model_validate(raw)
++    ref = _raw_ref(tmp_path, raw)
++    return load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
++
++
++def _compose(envelope, operation, calls):
++    def mapper(value):
++        calls.append(value)
++        return value + 1.0
++
++    if operation == "push":
++        return push_forward_envelope(mapper, envelope)
++    if operation == "compress":
++        return compress_envelope(envelope, target="particles")
++    return pull_back_envelope(mapper, envelope, upstream_particles=(0.0, 1.0))
++
++
++def _load_compose_publish(tmp_path, raw, inlet, operation, calls, outputs):
++    envelope = _load_raw(tmp_path / "input", raw, inlet)
++    derived = _compose(envelope, operation, calls)
++    outputs.append(
++        persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path / "output"), derived)
++    )
++
++
++@pytest.mark.parametrize("raw_value", [True, "1.0"])
++@pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
++@pytest.mark.parametrize("operation", ["push", "compress", "pull"])
++def test_raw_profile2_type_refuses_before_public_callback_or_publication(
++    tmp_path, raw_value, inlet, operation
++):
++    raw = _source().model_dump(mode="json")
++    raw["distribution_payload"]["samples"][1] = raw_value
++    calls = []
++    outputs = []
++    with pytest.raises(ValueError, match="finite real non-bool"):
++        _load_compose_publish(tmp_path, raw, inlet, operation, calls, outputs)
++    assert calls == []
++    assert outputs == []
++    assert not (tmp_path / "output").exists()
++
++
++@pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
++@pytest.mark.parametrize(
++    "mutation",
++    ["missing", "non_mapping", "unsupported", "bad_version", "context", "carrier", "joint"],
++)
++@pytest.mark.parametrize("operation", ["push", "compress", "pull"])
++def test_declared_profile2_malformed_context_or_digest_cannot_downgrade(
++    tmp_path, inlet, mutation, operation
++):
++    raw = _source().model_dump(mode="json")
++    profile = raw["metadata"]["posterior_summary_profile"]
++    if mutation == "missing":
++        del raw["metadata"]["posterior_summary_profile"]
++    elif mutation == "non_mapping":
++        raw["metadata"]["posterior_summary_profile"] = True
++    elif mutation == "unsupported":
++        profile["profile_id"] = "urn:policyos:ir:bayesian-posterior-summary-profile:3"
++    elif mutation == "bad_version":
++        profile["profile_version"] = "2.1"
++    elif mutation == "context":
++        profile["context"]["purpose"] = "unbound-purpose"
++    elif mutation == "carrier":
++        profile["carrier_content_hash"] = "sha256:" + "0" * 64
++    else:
++        profile["joint_law_sha256"] = "0" * 64
++        raw["metadata"]["joint_law_sha256"] = raw["metadata"]["joint_sample_id"] = "0" * 64
++    calls = []
++    outputs = []
++    with pytest.raises(ValueError):
++        _load_compose_publish(tmp_path, raw, inlet, operation, calls, outputs)
++    assert calls == []
++    assert outputs == []
++    assert not (tmp_path / "output").exists()
++
++
++@pytest.mark.parametrize(
++    "declaration",
++    [
++        "posterior_summary_profile_required",
++        "posterior_summary_profile_id",
++        "posterior_summary_profile_version",
++    ],
++)
++@pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
++def test_partial_profile_declaration_refuses_at_raw_inlet(tmp_path, declaration, inlet):
++    raw = _source().model_dump(mode="json")
++    raw["metadata"] = {declaration: raw["metadata"][declaration]}
++    with pytest.raises(ValueError, match="profile is missing"):
++        _load_raw(tmp_path, raw, inlet)
++
++
++def test_strict_profile2_to_push_to_fresh_cas_preserves_actual_law(tmp_path):
++    source = _source((1.0, 3.0))
++    source_ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), source)
++    admitted = load_posterior_summary_envelope(core_artifacts.FileSystemCAS(tmp_path), source_ref)
++    calls = []
++    mapped = push_forward_envelope(lambda value: calls.append(value) or value * 2.0, admitted)
++    ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), mapped)
++    fresh = load_posterior_summary_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
++    assert calls == [1.0, 3.0]
++    assert fresh.distribution_payload.samples == (2.0, 6.0)
++    assert read_posterior_summary_profile(fresh).posterior_mean == float(
++        (Fraction(2) + Fraction(6)) / 2
++    )
++    assert not fresh.gate_eligible
++
++
++def _profile1_raw():
++    raw = _source().model_dump(mode="json")
++    profile = raw["metadata"]["posterior_summary_profile"]
++    profile.update(
++        profile_id="urn:policyos:ir:bayesian-posterior-summary-profile:1", profile_version="1.0"
++    )
++    del profile["probability_convention"]
++    del profile["sampling_approximation"]
++    raw["metadata"]["posterior_summary_profile_id"] = profile["profile_id"]
++    raw["metadata"]["posterior_summary_profile_version"] = "1.0"
++    return raw
++
++
++def test_profile1_literal_cas_replay_keeps_original_bytes(tmp_path):
++    raw = _profile1_raw()
++    ref = _raw_ref(tmp_path, raw)
++    before = core_artifacts.FileSystemCAS(tmp_path).get_bytes(ref.artifact_id)
++    fresh = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
++    assert fresh.model_dump(mode="json") == raw
++    assert read_posterior_summary_profile(fresh).profile_version == "1.0"
++    reopened = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), fresh)
++    assert core_artifacts.FileSystemCAS(tmp_path).get_bytes(reopened.artifact_id) == before
++
++
++@pytest.mark.parametrize("raw_value", [True, "1.0"])
++@pytest.mark.parametrize("profile", ["profile1", "generic"])
++@pytest.mark.parametrize("inlet", ["legacy_cas", "model"])
++def test_profile1_and_unprofiled_v11_keep_legacy_raw_coercion(tmp_path, raw_value, profile, inlet):
++    raw = _profile1_raw()
++    if profile == "generic":
++        raw["metadata"] = {}
++    raw["distribution_payload"]["samples"][1] = raw_value
++    fresh = _load_raw(tmp_path, raw, inlet)
++    assert fresh.distribution_payload.samples == (0.0, 1.0)
++    if profile == "profile1":
++        assert read_posterior_summary_profile(fresh).profile_version == "1.0"
++    else:
++        assert read_posterior_summary_profile(fresh) is None
++
++
++def _join_publish(tmp_path, pair):
++    result = join_envelopes(pair)
++    return persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), result)
++
++
++@pytest.mark.parametrize("order", ["profile_first", "profile_last"])
++@pytest.mark.parametrize("sibling", ["profile2", "generic"])
++def test_profile2_multi_join_refuses_before_generic_lowering(tmp_path, order, sibling):
++    left = _source((2.0,))
++    right = _source((10.0, 14.0))
++    assert sum(left.distribution_payload.weights) == 0.5
++    assert sum(right.distribution_payload.weights) == 1.0
++    if sibling == "generic":
++        right = right.model_copy(update={"metadata": {}})
++    pair = (left, right) if order == "profile_first" else (right, left)
++    with pytest.raises(UncertaintyCompatibilityError, match=r"Profile2.*mixture"):
++        _join_publish(tmp_path, pair)
++    assert not tmp_path.exists() or not any(tmp_path.iterdir())
++
++
++def test_profile2_single_join_preserves_identity_and_content():
++    source = _source()
++    assert join_envelopes([source]) is source
++
++
++@pytest.mark.parametrize("profile", ["generic", "profile1"])
++def test_non_profile2_joins_keep_generic_concatenation(tmp_path, profile):
++    raw = _profile1_raw()
++    if profile == "generic":
++        raw["metadata"] = {}
++    left = UncertaintyEnvelope.model_validate(raw)
++    right = UncertaintyEnvelope.model_validate(deepcopy(raw))
++    joined = join_envelopes([left, right])
++    assert joined.distribution_payload.samples == (0.0, 1.0, 0.0, 1.0)
++    ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), joined)
++    fresh = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
++    assert fresh == joined
++    assert read_posterior_summary_profile(fresh) is None
++
++
++def test_combine_profile2_remains_non_gating_lossy_summary_on_fresh_read(tmp_path):
++    combined = combine_envelopes([_source((2.0,)), _source((10.0, 14.0))])
++    ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), combined)
++    fresh = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
++    assert fresh.distribution_payload is None
++    assert read_posterior_summary_profile(fresh) is None
++    assert not fresh.gate_eligible

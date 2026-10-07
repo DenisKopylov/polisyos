@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "git",
+    "apply",
+    "--check",
+    "/tmp/e02-E-forecast-packet-thirteenth-20261007/A332-status-reason-carry.patch.txt"
+  ],
+  "cwd": "/tmp/e02-E-forecast-packet-thirteenth-20261007/ignored-patch-check-input",
+  "exit": 0,
+  "patch_applied": false,
+  "patch_bytes": 2456,
+  "patch_sha256": "52e5e0ea89c013bb139fdeba75f429f2b09b8ce79c8276404f8e698838f2ca34",
+  "product_runtime_outcome": "UNRUN",
+  "scope": "read-only patch context applicability, not behavioral proof",
+  "source": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+  "source_blob": "e3c369a8a40db0849db4bb08ca732fd7c5761fa7",
+  "source_sha256": "abc8728d73670ec97dd1bc25f9a17580629d65bea812d417ff01fb48f273f15c",
+  "stderr": "",
+  "stdout": ""
+}

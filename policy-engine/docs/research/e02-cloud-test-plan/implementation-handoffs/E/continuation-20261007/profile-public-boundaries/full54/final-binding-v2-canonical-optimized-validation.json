@@ -1,0 +1,102 @@
+{
+  "schema": "e02.E.original54.final-binding-validation.v1",
+  "scope": "Author receipt/source/XML association recomputation, not independent scientific review.",
+  "packet": {
+    "path": "/tmp/e02-E-full54-thirteenth-20261007/all54-final-source4-verification-binding-v2.json",
+    "bytes": 10951,
+    "sha256": "2fdb3b574f5e7bbdf71fefbd5a7f7e44094d794f9b579197ef86e14283c3fe0a"
+  },
+  "active_builder": {
+    "path": "/tmp/e02-E-full54-thirteenth-20261007/bind_final_source4.py",
+    "bytes": 21214,
+    "sha256": "094f59dd079e7612a145e53d08fbe8e1d046663c032bc881822517e56d0ee918"
+  },
+  "executed_python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+  "source": "8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c",
+  "tree": "192e584c646ee6df303b8793e7b92aa741dcaebb",
+  "positive_control": "Exact source, footprint, immutable reviews, all XML195+3 cases, three type source bodies and117 dependencies reconciled.",
+  "corrupt_field_controls": [
+    {
+      "control": "wrong_final_source",
+      "result": "refused",
+      "reason": "final immutable source/tree identity"
+    },
+    {
+      "control": "omit_companion_footprint",
+      "result": "refused",
+      "reason": "complete seven-path footprint"
+    },
+    {
+      "control": "forge_input_receipt_digest",
+      "result": "refused",
+      "reason": "recomputed immutable input identity defining"
+    },
+    {
+      "control": "hide_native_failure",
+      "result": "refused",
+      "reason": "summary cannot invent/drop case outcomes defining"
+    },
+    {
+      "control": "inflate_native_PASS_count",
+      "result": "refused",
+      "reason": "summary cannot invent/drop case outcomes defining"
+    },
+    {
+      "control": "claim_source4_type_rerun",
+      "result": "refused",
+      "reason": "unchanged type inputs do not become a source4 rerun"
+    },
+    {
+      "control": "promote_scoped_type_to_whole_gate",
+      "result": "refused",
+      "reason": "scoped type check is not whole typing gate"
+    },
+    {
+      "control": "promote_controls_to_whole_architecture",
+      "result": "refused",
+      "reason": "maintained architecture controls do not become whole gate"
+    },
+    {
+      "control": "A_source_review_as_native_PASS",
+      "result": "refused",
+      "reason": "A source review is not current-A native behavior"
+    },
+    {
+      "control": "native_mean_as_gate_authority",
+      "result": "refused",
+      "reason": "bounded law receipt grants no gate authority"
+    },
+    {
+      "control": "fixture_as_actual_served_input",
+      "result": "refused",
+      "reason": "actual served/source/fit inputs remain missing"
+    },
+    {
+      "control": "drop_missing_A_reason_gap",
+      "result": "refused",
+      "reason": "existing A consumer reason-carry gap is still limited"
+    },
+    {
+      "control": "double_count_FRC_observations",
+      "result": "refused",
+      "reason": "two FRC findings share eight unique observations"
+    },
+    {
+      "control": "promote_formal_G_acceptance",
+      "result": "refused",
+      "reason": "historical/E proposal/G-intake layers unchanged"
+    },
+    {
+      "control": "omit_original_dependency",
+      "result": "refused",
+      "reason": "all117 original source dependency reconciliation"
+    },
+    {
+      "control": "type_errors_relabelled_as_test_PASS",
+      "result": "refused",
+      "reason": "type diagnostic errors/warnings are not passed/failed tests"
+    }
+  ],
+  "result": "PASS"
+}

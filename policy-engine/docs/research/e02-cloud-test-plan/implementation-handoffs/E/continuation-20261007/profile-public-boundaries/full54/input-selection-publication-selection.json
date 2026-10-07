@@ -1,0 +1,148 @@
+{
+  "schema": "e02.E.full54.delta.publication-selection.v1",
+  "source_candidate": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+  "source_tree": "9263d367d41359f1f1a2758419fbc1c8f1eace0f",
+  "destination_recommendation": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries/full54-delta/",
+  "selected_moderate_files": [
+    {
+      "name": "README.md",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/README.md",
+      "bytes": 3769,
+      "sha256": "448301345f81e77568a10401182d4a6154ee8dad2bba4cdf8196ececc9e6b0d8"
+    },
+    {
+      "name": "all54-delta-associations-v2-source11082.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/all54-delta-associations-v2-source11082.json",
+      "bytes": 243560,
+      "sha256": "f840b7082a3a6b4e5edb0563b47d197960de2ca728e83813096e7f152236c8fe"
+    },
+    {
+      "name": "all54-delta-associations-v2-source11082.validation.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/all54-delta-associations-v2-source11082.validation.json",
+      "bytes": 5865,
+      "sha256": "3099ec7eb52b9437156a5bce67ddf3776a0b9f5974f4f2ec007c4fc0edaf37f6"
+    },
+    {
+      "name": "all54-v2-optimized-validation.validation.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/all54-v2-optimized-validation.validation.json",
+      "bytes": 5865,
+      "sha256": "3099ec7eb52b9437156a5bce67ddf3776a0b9f5974f4f2ec007c4fc0edaf37f6"
+    },
+    {
+      "name": "baseline-relevant-cells.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/baseline-relevant-cells.json",
+      "bytes": 57175,
+      "sha256": "930a3bc24abb000ff3c72780dccc65c09ee70e9536398e3215c9a7f9fc913eb1"
+    },
+    {
+      "name": "build_delta_packet.py",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/build_delta_packet.py",
+      "bytes": 35053,
+      "sha256": "363ed2bf0e38400baf48dcac6ae034bb62daf119779c1e8799902deb7483f52c"
+    },
+    {
+      "name": "association-normal-v2.stdout.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/association-normal-v2.stdout.json",
+      "bytes": 368,
+      "sha256": "7707b08945f4883d46df24cde4a50a9495a4c1bf84456884498edccbb809735c"
+    },
+    {
+      "name": "association-normal-v2.stderr.txt",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/association-normal-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "association-optimized-v2.stdout.json",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/association-optimized-v2.stdout.json",
+      "bytes": 368,
+      "sha256": "7707b08945f4883d46df24cde4a50a9495a4c1bf84456884498edccbb809735c"
+    },
+    {
+      "name": "association-optimized-v2.stderr.txt",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/association-optimized-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "packet-builder-ruff.stdout.txt",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/packet-builder-ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "name": "packet-builder-ruff.stderr.txt",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/packet-builder-ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "packet-builder-format.stdout.txt",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/packet-builder-format.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "name": "packet-builder-format.stderr.txt",
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/packet-builder-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "bytes": 352067,
+  "retain_temp_only": [
+    "baseline-B188.json",
+    "baseline-B192.json",
+    "baseline-B199.json",
+    "copied G E54/other source-read documents",
+    "all54-delta-associations-b305-original-request.json",
+    "all54-delta-associations-b305-pre-review.json",
+    "all54-delta-associations.json"
+  ],
+  "historical_requested_identity": {
+    "bytes": 242433,
+    "sha256": "1e84886beba906c6238c6c45bea3a458b5877010645ae26d8597148e95fa4a51",
+    "preserved_temp_path": "/tmp/e02-E-full54-thirteenth-20261007/all54-delta-associations-b305-original-request.json"
+  },
+  "all54_review_target": {
+    "path": "/tmp/e02-E-full54-thirteenth-20261007/all54-delta-associations-v2-source11082.json",
+    "sha256": "f840b7082a3a6b4e5edb0563b47d197960de2ca728e83813096e7f152236c8fe"
+  },
+  "normal_and_optimized_validation": {
+    "commands": [
+      [
+        "python3",
+        "/tmp/e02-E-full54-thirteenth-20261007/build_delta_packet.py",
+        "--candidate",
+        "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+        "--output-stem",
+        "all54-delta-associations-v2-source11082"
+      ],
+      [
+        "python3",
+        "-O",
+        "/tmp/e02-E-full54-thirteenth-20261007/build_delta_packet.py",
+        "--verify",
+        "/tmp/e02-E-full54-thirteenth-20261007/all54-delta-associations-v2-source11082.json",
+        "--output-stem",
+        "all54-v2-optimized-validation"
+      ]
+    ],
+    "exit_codes": [
+      0,
+      0
+    ],
+    "scope": "association validation only;16 corrupt-field controls each; no new numerical/backend/consumer execution"
+  },
+  "helper_environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "git": "git version 2.47.3",
+    "cwd": "/workspace/e02-E-continuation-20261006"
+  },
+  "future_self_SHA": false,
+  "independent_review": "pending; author validation is not independent review",
+  "deciding_product_wave": "pending; exact source-bound receipt will be additive and must not rewrite reviewed all54 bytes",
+  "source_and_repo_writes_by_agent": false
+}

@@ -1,0 +1,1772 @@
+{
+  "schema": "e02.E.independent-original54-delta-review.v2",
+  "reviewer": "/root/fit_packet",
+  "author": "/root/full54",
+  "disposition": "GO",
+  "scope": "Original54 association/status/custody delta only. Prior individual math/producers reviews are reused via exact Git source; no new full54 numeric run, source3 completion, scientific acceptance, code intake or G closure.",
+  "packet": {
+    "path": "/tmp/e02-E-full54-thirteenth-20261007/all54-delta-associations-v2-source11082.json",
+    "bytes": 243560,
+    "sha256": "f840b7082a3a6b4e5edb0563b47d197960de2ca728e83813096e7f152236c8fe"
+  },
+  "candidate": {
+    "commit": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+    "tree": "9263d367d41359f1f1a2758419fbc1c8f1eace0f"
+  },
+  "input_pins": [
+    {
+      "revision": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final54-current-and-independent-joins/003/current-all-54-b2-final-v4-normal.json",
+      "bytes": 1144158,
+      "sha256": "7551efc7e03fdd0cca1160a2fe79ba27e891625c73181ac5460d8aa56e313e8b"
+    },
+    {
+      "revision": "2abc17f46a033a7879663486ff9946a95786601f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E54-current-decisions.json",
+      "bytes": 119161,
+      "sha256": "3dfb3431c3e11d64d1790350f697de93929bbb06ab8b662c5bdaee628b336b5c"
+    },
+    {
+      "revision": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/preparation/current-case-index.json",
+      "bytes": 447667,
+      "sha256": "baf191f64beb6b9d45a58eb1c7e2fa401c569c8cb8e75f9b93fe3def0f3931f5"
+    },
+    {
+      "revision": "2abc17f46a033a7879663486ff9946a95786601f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-to-A-reason-carry.json",
+      "bytes": 7130,
+      "sha256": "601c0c0b9b5eea1965daddbfc0a9d003608f6df5bc1365fd7895da7fa8815abe"
+    },
+    {
+      "revision": "2abc17f46a033a7879663486ff9946a95786601f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-native-diagnostics.md",
+      "bytes": 4309,
+      "sha256": "3a60c03b9010611afcecb3ad24a60adb2d008d2c96b45564c460e7add438d8e8"
+    },
+    {
+      "revision": "2abc17f46a033a7879663486ff9946a95786601f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-API.md",
+      "bytes": 7746,
+      "sha256": "c12bbc7d3b283d71dea2b0f905ca4825ccd9298b7ded5e4d508d54846f7ce97b"
+    },
+    {
+      "revision": "2abc17f46a033a7879663486ff9946a95786601f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-fit-inlet.md",
+      "bytes": 6897,
+      "sha256": "afbcc57ddd18e509bd9ac04f0be6c208a33c24a5b5dfd5d1ab870b8390d55c9e"
+    }
+  ],
+  "original_source_pins": [
+    {
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "bytes": 9504,
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722"
+    },
+    {
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "bytes": 12413,
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75"
+    },
+    {
+      "bundle_id": "BKT-01",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-01.md",
+      "bytes": 16141,
+      "sha256": "c76f38ce7aca6293c316ce907f94ca3fd4d4116d61dc30aac914aebb7177d82b"
+    },
+    {
+      "bundle_id": "BKT-02",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-02.md",
+      "bytes": 18633,
+      "sha256": "2cc34165f61681fcb2f1023dbdbfcfa106f6cf8820ad7320028d87b891e8aa7e"
+    },
+    {
+      "bundle_id": "BKT-03",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-03.md",
+      "bytes": 11599,
+      "sha256": "43aa433c3d5eac777cd0faa5ed1b3750c52736722b34b9126b7295a55a930927"
+    },
+    {
+      "bundle_id": "BKT-04",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/BKT-04.md",
+      "bytes": 11670,
+      "sha256": "86af1ed996f8559cafb44bcf23b0c788d23fc7dabf9b67e3fe0bf55b43b3aa7b"
+    },
+    {
+      "bundle_id": "CAL-01",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-01.md",
+      "bytes": 16603,
+      "sha256": "9d3822691086ba6ffa1197eb372cd4cc4eeadc05c7573097f85fa7edceec8a2c"
+    },
+    {
+      "bundle_id": "CAL-02",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-02.md",
+      "bytes": 18194,
+      "sha256": "0fbe3f83c4133db4bdaed0dc8e3b58c375e7fdbb18c16c0c7a35c49b77c241d4"
+    },
+    {
+      "bundle_id": "CAL-03",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-03.md",
+      "bytes": 12435,
+      "sha256": "acd14aa7268335498e80c80de546ba45818b73ff8ab6270edb30337338852bee"
+    },
+    {
+      "bundle_id": "CAL-04",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-04.md",
+      "bytes": 16147,
+      "sha256": "ff37afe78ab90e8963660412e38bc92b8094f2bc90532500be115fdf34877c37"
+    },
+    {
+      "bundle_id": "CAL-05",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-05.md",
+      "bytes": 8483,
+      "sha256": "da87f868baf7c76653f12519ab36da5510703e2b07b4377043ff96865941278f"
+    },
+    {
+      "bundle_id": "CAL-06",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAL-06.md",
+      "bytes": 12126,
+      "sha256": "b4f37731da45d3605f24e81c3763dddc0d351d0fcffdca91b38bf0c5e1ba5a12"
+    },
+    {
+      "bundle_id": "DDM-01",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DDM-01.md",
+      "bytes": 20646,
+      "sha256": "0578a277129749948d051f331b92fe3e8670e321ae4c93cc212e7ab199c17a33"
+    },
+    {
+      "bundle_id": "DDM-02",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DDM-02.md",
+      "bytes": 35954,
+      "sha256": "02fc4f7f19d1e668b35edf2d4ef547cc85c4ae1c4411e3e4182a9f2aaa48db98"
+    },
+    {
+      "bundle_id": "DOE-01",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-01.md",
+      "bytes": 15045,
+      "sha256": "50f7d9acd0a0b44c97c9899d6ff29fc921ed2d8f6a1ba4a9bc33ffbce144dc78"
+    },
+    {
+      "bundle_id": "DOE-02",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-02.md",
+      "bytes": 11143,
+      "sha256": "363b590d944a8a9cc1bb076de15c784d2824ea1c57aa9a9b5a533474b1d1ad50"
+    },
+    {
+      "bundle_id": "DOE-03",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-03.md",
+      "bytes": 18100,
+      "sha256": "1761291fa68845ee9281161466d1fbea9a448ad093e591869fc2712d32d6eb0c"
+    },
+    {
+      "bundle_id": "FRC-01",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-01.md",
+      "bytes": 20737,
+      "sha256": "a2468ee3188ab13bd145b746bd0836c239fa20b9526b7545e887460eb418c5ee"
+    },
+    {
+      "bundle_id": "FRC-02",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-02.md",
+      "bytes": 19111,
+      "sha256": "95ae741769251f9e6f986f287a5fa48673689e57ea75219b7ef18b8a27ec36f6"
+    },
+    {
+      "bundle_id": "PCL-01",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/PCL-01.md",
+      "bytes": 25021,
+      "sha256": "3d36d370ac353f97551d1df132fded4671812a4c37af9368d35644a0c89ff7b7"
+    },
+    {
+      "bundle_id": "UQP-01",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-01.md",
+      "bytes": 17548,
+      "sha256": "58c62ceb3fe995a42f495536403fe569dfb25bddca12d6ef6d507fd8b87596e9"
+    },
+    {
+      "bundle_id": "UQP-02",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-02.md",
+      "bytes": 14877,
+      "sha256": "7ae1f146ad90056b33cd0532da4104103cbd5a60ff47d7eff7d313c2a6739adf"
+    },
+    {
+      "bundle_id": "UQP-03",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-03.md",
+      "bytes": 12480,
+      "sha256": "73e8a48332fd1b21a89348b92fc3c0ad62fc843588290853a64a4cef4f539811"
+    },
+    {
+      "bundle_id": "UQS-01",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQS-01.md",
+      "bytes": 20683,
+      "sha256": "14c375c5bfcb8175abd51fe7ff71c54016e2801282fcd4bda73af753365f5a14"
+    }
+  ],
+  "original_criterion_fragments": [
+    {
+      "finding_id": "B32",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        607,
+        620
+      ],
+      "sha256": "68a3acb0a34e8ebfce5217cdc99785a851a21368ea2d552795f68272e7140d6c",
+      "bytes": 2317
+    },
+    {
+      "finding_id": "B97",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        2630,
+        2641
+      ],
+      "sha256": "44f1e5ec026a302fe6c36444270e4b12b67cb0fe8b28b935961b1bbb0a50478b",
+      "bytes": 3466
+    },
+    {
+      "finding_id": "B98",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        2642,
+        2653
+      ],
+      "sha256": "ba66b01fed8fd36fcab549cbfa051f1486779a24a0bb52594410c6246baaa995",
+      "bytes": 3207
+    },
+    {
+      "finding_id": "B99",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        2654,
+        2665
+      ],
+      "sha256": "2dc54f2af8b706598329291977e522e77fe552dc9088092685dc95819d84f921",
+      "bytes": 3259
+    },
+    {
+      "finding_id": "B100",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        2666,
+        2677
+      ],
+      "sha256": "34825cfe459b3861a6461797f12e9e1983399355660131e224359e5d9984fd67",
+      "bytes": 3113
+    },
+    {
+      "finding_id": "B101",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        2678,
+        2689
+      ],
+      "sha256": "1245f7e21214f8264fc2921296954e64869c1758685cccde09eebef16fda2c66",
+      "bytes": 3191
+    },
+    {
+      "finding_id": "B102",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        2690,
+        2701
+      ],
+      "sha256": "4f7c1e54bd69c1bc75c22837fcbd9b7e771def59e0db46df8e566640b37a5879",
+      "bytes": 3340
+    },
+    {
+      "finding_id": "B103",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        2702,
+        2713
+      ],
+      "sha256": "54bce3d469a69faac32d8234957b6df186fff8eae664ee2f370b3c69c6e383e3",
+      "bytes": 3169
+    },
+    {
+      "finding_id": "B104",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        2714,
+        2725
+      ],
+      "sha256": "104a9e979d5aab702f6f437382d2a3bda2e803eeaa9eb440f948cff74504e438",
+      "bytes": 2866
+    },
+    {
+      "finding_id": "B105",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        2726,
+        2737
+      ],
+      "sha256": "07915c57716c654cac474a7302eeca0bd7b73219cfe00eeb9a4449e83084b343",
+      "bytes": 3326
+    },
+    {
+      "finding_id": "B166",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4316,
+        4327
+      ],
+      "sha256": "fca923e26ad0c81b5a1097f0c5b09b3a85434faf70826001b2e5d6c676e8a541",
+      "bytes": 4119
+    },
+    {
+      "finding_id": "B167",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4328,
+        4339
+      ],
+      "sha256": "986a6c0ed5231ea1c7722e750d6ebe11766ef43727f884ddfdc50f3cdaa622e5",
+      "bytes": 3651
+    },
+    {
+      "finding_id": "B168",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4340,
+        4351
+      ],
+      "sha256": "730ba6f2005332f11155a09f9c6267abec7833456d85b70dc944dccebd55cfb3",
+      "bytes": 3578
+    },
+    {
+      "finding_id": "B169",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4352,
+        4363
+      ],
+      "sha256": "8f7c03d7a40a2faa62a4b0c4bc41b43510c9f5c35941ca50ec1fb8dc88fae26b",
+      "bytes": 3419
+    },
+    {
+      "finding_id": "B170",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4364,
+        4375
+      ],
+      "sha256": "ebd468778c34a525226f1631f17dbb9eb3e040a6c9a5d96d038620576528181a",
+      "bytes": 3038
+    },
+    {
+      "finding_id": "B171",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4376,
+        4387
+      ],
+      "sha256": "e8224b95baa6a52045bc0a4dca7c1241e86570a02a061d18e6e622b6ea434dad",
+      "bytes": 3027
+    },
+    {
+      "finding_id": "B172",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4388,
+        4399
+      ],
+      "sha256": "272c388626bc25adcaf03e6f1114819ebcd5ca8a904dfb8556f64a161734b306",
+      "bytes": 3064
+    },
+    {
+      "finding_id": "B173",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4400,
+        4411
+      ],
+      "sha256": "9cc7587ea32e5a5dd582054acdd30aa10f82468d8cb9a41188c3d3a2468926f8",
+      "bytes": 3446
+    },
+    {
+      "finding_id": "B174",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4412,
+        4425
+      ],
+      "sha256": "a82f29a9dea77a5de495b6e71780394b8f5aa1df167e13ff717a079fac534664",
+      "bytes": 3545
+    },
+    {
+      "finding_id": "B175",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4426,
+        4437
+      ],
+      "sha256": "19a660b8a49a7076ae9973dca81480423bf53f26cd954cd69967bbc12131bfe4",
+      "bytes": 3287
+    },
+    {
+      "finding_id": "B176",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4525,
+        4534
+      ],
+      "sha256": "96268eb1d68c65e1c1e45e9264d75166c955a5474900b6c4f6639a857dab246a",
+      "bytes": 3848
+    },
+    {
+      "finding_id": "B177",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4535,
+        4544
+      ],
+      "sha256": "da1d53d7bc4a80d64aa3799fd371ccbd8ccbdfd1217c636d7f722a1de5a203b9",
+      "bytes": 3168
+    },
+    {
+      "finding_id": "B178",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4545,
+        4554
+      ],
+      "sha256": "f47d17cc309c8f24d13326f20a1dc74e6e4fb92adb59f111b40e6918e7a745f9",
+      "bytes": 3090
+    },
+    {
+      "finding_id": "B179",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4555,
+        4564
+      ],
+      "sha256": "76883f0cc8436c9b0266ddc6ae870564a46bc98a036bc88b7e89dfda922f1508",
+      "bytes": 3037
+    },
+    {
+      "finding_id": "B180",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4565,
+        4574
+      ],
+      "sha256": "a5f7bb210e914b99904a1f5fec819651cb2c5db4174c44d856af48ed6471c421",
+      "bytes": 3245
+    },
+    {
+      "finding_id": "B181",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4575,
+        4584
+      ],
+      "sha256": "0a790655318188a0d9ca96c0e73c28e3ffdb17859f42a911e35784b021f85552",
+      "bytes": 3107
+    },
+    {
+      "finding_id": "B182",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4585,
+        4594
+      ],
+      "sha256": "672d5e7ad45cad5f78609268028702f80d4802c59b1dc17487622e4da9d6f07d",
+      "bytes": 3159
+    },
+    {
+      "finding_id": "B183",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4595,
+        4604
+      ],
+      "sha256": "036471c121686d6b68a603fde76ce9c015a1a374d090d47465b79abcbbc00c44",
+      "bytes": 3146
+    },
+    {
+      "finding_id": "B184",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4605,
+        4614
+      ],
+      "sha256": "0fc68424f39da383b748d9c3b20446065ef16c39173fa8875b0a5b4852843a00",
+      "bytes": 3204
+    },
+    {
+      "finding_id": "B185",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4702,
+        4711
+      ],
+      "sha256": "784336950cf2e3f1d11e577a321235819c6660d9a8218210ec05620e492988bc",
+      "bytes": 3331
+    },
+    {
+      "finding_id": "B186",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4712,
+        4721
+      ],
+      "sha256": "9278fafc393d83f73e09a50cb1d74308961a627d63a775905c103e831bb8e6ea",
+      "bytes": 3001
+    },
+    {
+      "finding_id": "B187",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4722,
+        4731
+      ],
+      "sha256": "2b4d8ebdce33646e0610e74f827232b75cd324432972a7957ab5896c2765275b",
+      "bytes": 3194
+    },
+    {
+      "finding_id": "B188",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4732,
+        4741
+      ],
+      "sha256": "845944fcb63293d09ccc282370335bbe03a508973c704ac6a58175d019e86771",
+      "bytes": 3195
+    },
+    {
+      "finding_id": "B189",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4742,
+        4751
+      ],
+      "sha256": "d4807669b03d45438519948f53992d9b71fd88351e4df7dbf91230791d002c6a",
+      "bytes": 2723
+    },
+    {
+      "finding_id": "B190",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4752,
+        4761
+      ],
+      "sha256": "bb28f0e65d6317465c37bae99ed3a0bd89a03a3194f111e0f3faf24553724d53",
+      "bytes": 3211
+    },
+    {
+      "finding_id": "B191",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4762,
+        4771
+      ],
+      "sha256": "91e46d98b7af41ab8bda1facccae166d7348da11389426af576e2d48293769cd",
+      "bytes": 2720
+    },
+    {
+      "finding_id": "B192",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4772,
+        4781
+      ],
+      "sha256": "3ba8c9b9a37ba35d3d7e210af7d91ecdfaebbc6d642739172a988840a9c2ef34",
+      "bytes": 3024
+    },
+    {
+      "finding_id": "B193",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4782,
+        4791
+      ],
+      "sha256": "ad591257998b80b71a8a6337f202dce1dad9e02c934525527c310d8e336022bf",
+      "bytes": 3628
+    },
+    {
+      "finding_id": "B194",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4792,
+        4801
+      ],
+      "sha256": "47058d366d7ff7e11ed2348e96b2f56659a999f1f0839a02edc92804b295711e",
+      "bytes": 3653
+    },
+    {
+      "finding_id": "B195",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4894,
+        4907
+      ],
+      "sha256": "69b56d13bbee8d87f83987b09b991e08cf33eff2204302a3b938acef363de747",
+      "bytes": 4137
+    },
+    {
+      "finding_id": "B196",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4908,
+        4921
+      ],
+      "sha256": "e10dd58806c1c009f96344f117d7f7ecbb5f962191b966756a001fd388705fde",
+      "bytes": 3978
+    },
+    {
+      "finding_id": "B197",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4922,
+        4935
+      ],
+      "sha256": "2f5e64ff7238ff5a340224382fa2875b57ea9e960e0e50bfea7f349c6a83ff3d",
+      "bytes": 3558
+    },
+    {
+      "finding_id": "B198",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4936,
+        4949
+      ],
+      "sha256": "2cbd889b85b881ae22f7f99c28e68c82200022c7dfa01cbb150ecf895a30672b",
+      "bytes": 3378
+    },
+    {
+      "finding_id": "B199",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4950,
+        4963
+      ],
+      "sha256": "ef72002be021501dcd6755c48233dc54679f66a89fd8e363e08f5b506b018952",
+      "bytes": 3389
+    },
+    {
+      "finding_id": "B200",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4964,
+        4977
+      ],
+      "sha256": "721775dd6bad0fdd3c7392ef5030fcba3032c7f31094b189d99dce422ecc7b2d",
+      "bytes": 3959
+    },
+    {
+      "finding_id": "B201",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4978,
+        4991
+      ],
+      "sha256": "8069cd2dfd13bbfca1d2bbf02a7cc761d6614a5e967d7c11b1de299e64960474",
+      "bytes": 3633
+    },
+    {
+      "finding_id": "B202",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4992,
+        5005
+      ],
+      "sha256": "8d507abb668fd82e3a58b5b416e8d011d07927198cfae69949d218a6328a16ab",
+      "bytes": 3727
+    },
+    {
+      "finding_id": "B203",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5006,
+        5017
+      ],
+      "sha256": "d40176b9dfa62d140dc28251f63b63be54771ac3b145dd75ceaa4e51a63761ad",
+      "bytes": 3496
+    },
+    {
+      "finding_id": "LA-051",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        3712,
+        3746
+      ],
+      "sha256": "5d3fe7ce8b71d77c07f35e5a68fed244c0d40e0f24925714edbf7297c37ea616",
+      "bytes": 10167
+    },
+    {
+      "finding_id": "LA-051",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        3712,
+        3746
+      ],
+      "sha256": "5d3fe7ce8b71d77c07f35e5a68fed244c0d40e0f24925714edbf7297c37ea616",
+      "bytes": 10167
+    },
+    {
+      "finding_id": "LA-052",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        3747,
+        3792
+      ],
+      "sha256": "846f644e4daca7f4a4828a626a08dbf8e659d06028fc902b85878a690b3ac801",
+      "bytes": 9710
+    },
+    {
+      "finding_id": "LA-053",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        3793,
+        3815
+      ],
+      "sha256": "b8486db456080f21e07d1949996f18748785d02672e511ea8b57c273192d63a4",
+      "bytes": 5750
+    },
+    {
+      "finding_id": "LA-054",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        4053,
+        4107
+      ],
+      "sha256": "ffb93357b63c03313b11c4dedb3cce3153c2f14b30257aadd860ca09fda6d425",
+      "bytes": 12888
+    },
+    {
+      "finding_id": "LA-055",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        4108,
+        4140
+      ],
+      "sha256": "79f9809eacc0a1dbb11ff784ecc8b073da1ca23ef0c2212437a05094423e518f",
+      "bytes": 9932
+    },
+    {
+      "finding_id": "LA-056",
+      "revision": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        4141,
+        4171
+      ],
+      "sha256": "bde6e712dfd4323ae0dc44fc5f89fa5f38551babd77da22e9317b806344d0481",
+      "bytes": 8203
+    }
+  ],
+  "original_denominator": {
+    "full_E_finding_TSV_rows": 54,
+    "full_E_bundle_TSV_rows": 22,
+    "ID_to_bundle_links": 55,
+    "criterion_fragments": 55,
+    "unique_criterion_IDs": 54
+  },
+  "status_layers": {
+    "historical_ledger": {
+      "partial": 49,
+      "held": 4,
+      "closed": 1
+    },
+    "retained_E_author_proposals": {
+      "closed": 43,
+      "limited": 9,
+      "held": 2
+    },
+    "retained_E_individual_decisions": {
+      "accepted": 43,
+      "pending": 11
+    },
+    "formal_G_acceptance": 0,
+    "formal_ledger_change": false,
+    "B198": "Historical closed retained; no new defining-property falsifier established.",
+    "rule": "Proposal, historical ledger, check outcome, independent source recommendation and formal G intake are separate. New public-boundary completion requires its own evidence."
+  },
+  "individual_rows": [
+    {
+      "id": "B32",
+      "bundles": [
+        "FRC-01"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "limited",
+      "E_individual_decision": "pending",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "A",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B97",
+      "bundles": [
+        "DOE-01"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B98",
+      "bundles": [
+        "DOE-01"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B99",
+      "bundles": [
+        "DOE-01"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B100",
+      "bundles": [
+        "DOE-02"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B101",
+      "bundles": [
+        "DOE-02"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B102",
+      "bundles": [
+        "DOE-03"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B103",
+      "bundles": [
+        "DOE-03"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B104",
+      "bundles": [
+        "DOE-03"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B105",
+      "bundles": [
+        "DOE-03"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B166",
+      "bundles": [
+        "BKT-01"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B167",
+      "bundles": [
+        "BKT-02"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B168",
+      "bundles": [
+        "BKT-02"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B169",
+      "bundles": [
+        "BKT-01"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B170",
+      "bundles": [
+        "BKT-01"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B171",
+      "bundles": [
+        "BKT-02"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B172",
+      "bundles": [
+        "BKT-03"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "limited",
+      "E_individual_decision": "pending",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "Scientist accountable trust-purpose/profile owner",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B173",
+      "bundles": [
+        "BKT-03"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "limited",
+      "E_individual_decision": "pending",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "Scientist accountable trust-purpose/profile owner",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B174",
+      "bundles": [
+        "BKT-04"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B175",
+      "bundles": [
+        "BKT-04"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B176",
+      "bundles": [
+        "CAL-01"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B177",
+      "bundles": [
+        "CAL-01"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B178",
+      "bundles": [
+        "CAL-01"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B179",
+      "bundles": [
+        "CAL-02"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B180",
+      "bundles": [
+        "CAL-02"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B181",
+      "bundles": [
+        "CAL-02"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B182",
+      "bundles": [
+        "CAL-02"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B183",
+      "bundles": [
+        "CAL-03"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B184",
+      "bundles": [
+        "CAL-04"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B185",
+      "bundles": [
+        "CAL-05"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B186",
+      "bundles": [
+        "UQP-01"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B187",
+      "bundles": [
+        "UQP-02"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B188",
+      "bundles": [
+        "UQP-02"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E affected consumer verifier; then G formal intake",
+      "qualification": "joint kernel/settled exact-ratio math unchanged; public reader is an upstream dependency; rerun affected sibling consumers when boundary changes"
+    },
+    {
+      "id": "B189",
+      "bundles": [
+        "UQP-01"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B190",
+      "bundles": [
+        "UQP-01"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "limited",
+      "E_individual_decision": "pending",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "Scientist response/Jacobian/execution producer with E propagation adapter",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B191",
+      "bundles": [
+        "UQP-01"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B192",
+      "bundles": [
+        "UQP-02"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E affected consumer verifier; then G formal intake",
+      "qualification": "joint kernel/settled exact-ratio math unchanged; public reader is an upstream dependency; rerun affected sibling consumers when boundary changes"
+    },
+    {
+      "id": "B193",
+      "bundles": [
+        "UQP-03"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 4,
+      "next_owner": "G formal intake after current frozen-wave receipt reconciliation",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B194",
+      "bundles": [
+        "UQP-03"
+      ],
+      "historical": "held",
+      "retained_E_proposal": "held",
+      "E_individual_decision": "pending",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "Scientist served evaluator/domain owner and Foundry actual source-law/model issuer",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B195",
+      "bundles": [
+        "CAL-03"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B196",
+      "bundles": [
+        "CAL-04"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B197",
+      "bundles": [
+        "CAL-06"
+      ],
+      "historical": "held",
+      "retained_E_proposal": "held",
+      "E_individual_decision": "pending",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "Foundry actual Calibrator/source-fit/noise issuer and Scientist configured welfare consumer",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B198",
+      "bundles": [
+        "CAL-06"
+      ],
+      "historical": "closed",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E final new-source regression; reopen only if defining-property counterexample exists",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B199",
+      "bundles": [
+        "UQS-01"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E affected IR consumer verifier; then G formal intake",
+      "qualification": "duplicate-level/type criterion unchanged; multi-envelope Profile2 join refuses and combine remains diagnostic/non-gating loss, not posterior-law preservation"
+    },
+    {
+      "id": "B200",
+      "bundles": [
+        "UQS-01"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "limited",
+      "E_individual_decision": "pending",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "Foundry/Scientist information-relationship producer with E aggregator and IR contract owner",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "B201",
+      "bundles": [
+        "UQS-01"
+      ],
+      "historical": "held",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 5,
+      "next_owner": "E public Profile2 technical owner; independent reviewer; then G formal intake",
+      "qualification": "direct raw-Profile2 admission and unsupported multi-envelope join repair; historical proposal requires new immutable boundary proof"
+    },
+    {
+      "id": "B202",
+      "bundles": [
+        "UQS-01"
+      ],
+      "historical": "held",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 5,
+      "next_owner": "E public Profile2 technical owner; independent reviewer; then G formal intake",
+      "qualification": "direct raw-Profile2 admission and unsupported multi-envelope join repair; historical proposal requires new immutable boundary proof"
+    },
+    {
+      "id": "B203",
+      "bundles": [
+        "CAL-04"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "LA-051",
+      "bundles": [
+        "FRC-01",
+        "FRC-02"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "limited",
+      "E_individual_decision": "pending",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "A with E ForecastOwner supplier",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "LA-052",
+      "bundles": [
+        "PCL-01"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "LA-053",
+      "bundles": [
+        "PCL-01"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "limited",
+      "E_individual_decision": "pending",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "Calibration API owner and Scientist compatibility migration owner jointly",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "LA-054",
+      "bundles": [
+        "DDM-02"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "limited",
+      "E_individual_decision": "pending",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "DDM applicability/live-feed/deployment-purpose owners",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "LA-055",
+      "bundles": [
+        "DDM-02"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "limited",
+      "E_individual_decision": "pending",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "DDM deployment-purpose owner and identity-bound institutional R2 signoff issuer",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    },
+    {
+      "id": "LA-056",
+      "bundles": [
+        "DDM-01"
+      ],
+      "historical": "partial",
+      "retained_E_proposal": "closed",
+      "E_individual_decision": "accepted",
+      "G_formal": false,
+      "individual_evidence_ref_count": 2,
+      "next_owner": "E root accountable finding orchestrator records bounded individual acceptance; G formal ledger intake and code acceptance remain separate",
+      "qualification": "no new original-row source claim; prior individualized oracle/negative and current-bound dependency records reused by exact Git refs"
+    }
+  ],
+  "resolved_pointer_denominator": 289,
+  "resolved_pointer_index_sha256": "8c1a933f8cd2ea1412cbba9ac2ade753b228266e852009dfa41f740160998138",
+  "prior_dependency_denominator": 117,
+  "body_unchanged": 114,
+  "body_changed": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "base_sha256": "0ca1f285756508e86ccfadd1ceba011a777dafd91ac2defdc843172985bf3e05",
+      "candidate_sha256": "946e9160e69353b747b37de534f986e5b2d18eb0c6a070c6b65e3687f66692b1",
+      "body_equal": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "base_sha256": "5a28f2336e7903c9d67344e08f3b82176fb789e5ffaa307fc01d4341930b3c1d",
+      "candidate_sha256": "a11a7097dd462ec8c8da6ca457d9d6905f1773bb606797f5389a8effcc44a27d",
+      "body_equal": false
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "base_sha256": "9d1bd32281485debb044882b01b4d8be9209c9794a8686e76b0e140bf73244d9",
+      "candidate_sha256": "10e9ee45b42a6f0d902699678b995363f881ab1e4093578a460c0c94b8a29289",
+      "body_equal": false
+    }
+  ],
+  "full_current_footprint": [
+    "A\tpolicy-engine/release-fragments/unreleased/2026-10-07-posterior-profile2-raw-ingress.toml",
+    "M\tpolicy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+    "M\tpolicy-engine/src/polisyos/ir/analytics/README.md",
+    "M\tpolicy-engine/src/polisyos/ir/analytics/uncertainty.py",
+    "M\tpolicy-engine/tests/unit/ir/test_posterior_summary.py",
+    "A\tpolicy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py"
+  ],
+  "passive_evidence_paths": 894,
+  "new_test_note": "The added maintained ingress test is included in six-file footprint, not called one of117 prior historical dependencies.",
+  "shared_A_cases": {
+    "unique_observations": 8,
+    "finding_links": 16,
+    "same_eight_refs_both_IDs": true,
+    "old_b2_source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "A2605_observation_qualified": true,
+    "current_A_native": "UNRUN",
+    "existing_consumer": true,
+    "capability": "verification_missing",
+    "independent_A332_additive_packet_review": {
+      "path": "/tmp/e02-E-fit-packet-thirteenth-20261007/independent-forecast-review/review.json",
+      "bytes": 25403,
+      "sha256": "7e4057cfca28def6cb7bf3c5967bb0eeefcabede73950943f5b5031418af16a3"
+    }
+  },
+  "criterion_boundaries": {
+    "B99": "allow_large_run pre-evaluator refusal remains independent of already-repaired analyzer actual-work admission.",
+    "B100": "Original sampler/analyzer transform/support/quantile/truncation/fingerprint roundtrip separate from D Search edge; D is not a blocker.",
+    "B193_B194": "Approved independent pilot/fixed N/complete-net replicate estimator error distinct from per-draw support and missing factual served refs.",
+    "B172_B173": "Non-significance not equivalence/neutrality; versioned purpose/profile plus meaningful-bias margin where required remain owner inputs.",
+    "B201_B202": "Appointment/four tracked decisions exist; named point/interval and joint-law criteria remain distinct. Historical held coexists with E bounded proposals; public raw/join boundary current completion pending.",
+    "B198": "Historical closed retained absent new defining-property counterexample.",
+    "B200": "Content-bound information relationships required; copies not independent.",
+    "LA053_LA054_LA055": "Real compatibility window, live feed/freshness/invalidation and issuer-bound R2/purpose remain exact inputs rather than synthetic authority."
+  },
+  "new_boundary": {
+    "affected_original_ids": [
+      "B201",
+      "B202"
+    ],
+    "sibling_dependency_ids": [
+      "B188",
+      "B192"
+    ],
+    "diagnostic_aggregation_scope_id": "B199",
+    "mechanism_completed": false,
+    "source_and_receipt_binding": null,
+    "current_native_check": "UNRUN",
+    "raw_ingress_property": "Any declared Profile2 raw payload is validated at common public loading boundary before coercion, evaluator callback or publication; strict/legacy push, compress and pull siblings share the invariant.",
+    "join_contract": "Multi-envelope join containing a Profile2 declaration refuses before generic lowering; single-envelope identity and generic legacy joins retain compatibility. No implicit equal mixture or raw-weight-total normalization is admitted.",
+    "combine_claim": "Generic combination may be diagnostic and non-gating loss; it is not exact posterior-law preservation.",
+    "retained_compatibility": "Profile1 literal replay, unprofiled Envelope1.1 generic replay, distinct Profile1/Profile2 IDs, exact-ratio summary law and finite-mesh approximation remain separate.",
+    "required_controls": [
+      "raw bool",
+      "raw numeric string",
+      "malformed/unsupported declaration",
+      "context mismatch",
+      "digest mismatch",
+      "retained-marker guard removal",
+      "clean strict-to-push positive",
+      "legacy push/compress/pull sibling controls",
+      "Profile2 multi-join typed refusal",
+      "single identity",
+      "generic join replay"
+    ],
+    "gate_eligible": false,
+    "production_or_institutional_authority": "not_established",
+    "appointment_and_decisions": {
+      "E_appointment": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+      "initial_four_decisions": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+      "Profile2_technical_decision": "55422d4f179f56d796794938be66bcb0741b13ed",
+      "record": {
+        "input": "full54_b2",
+        "fragment": "#/tracked_four_semantic_decisions"
+      },
+      "rule": "Appointed E owner and tracked decisions already exist; this repair does not reopen settled math or require another institutional appointment."
+    }
+  },
+  "pure_document_validator": {
+    "script": {
+      "path": "/tmp/e02-E-full54-thirteenth-20261007/build_delta_packet.py",
+      "bytes": 35053,
+      "sha256": "363ed2bf0e38400baf48dcac6ae034bb62daf119779c1e8799902deb7483f52c"
+    },
+    "positive": "PASS",
+    "corrupt_field_controls": [
+      {
+        "control": "remove_original_row",
+        "observed": "refused",
+        "reason": "exact 54 original row identities/order"
+      },
+      {
+        "control": "remove_shared_LA051_bundle_link",
+        "observed": "refused",
+        "reason": "exact 55 ID-to-bundle associations"
+      },
+      {
+        "control": "promote_historical_partial",
+        "observed": "refused",
+        "reason": "historical ledger layer"
+      },
+      {
+        "control": "declare_G_acceptance_from_author_count",
+        "observed": "refused",
+        "reason": "formal G acceptance is separate"
+      },
+      {
+        "control": "overwrite_original_criterion",
+        "observed": "refused",
+        "reason": "exact original property B32"
+      },
+      {
+        "control": "forge_original_card_digest",
+        "observed": "refused",
+        "reason": "original full cards and owner TSV content identity"
+      },
+      {
+        "control": "delete_unavailable_served_input",
+        "observed": "refused",
+        "reason": "missing exact external input B194"
+      },
+      {
+        "control": "drop_five_A_failures",
+        "observed": "refused",
+        "reason": "eight unique historical A reason failures"
+      },
+      {
+        "control": "double_count_A_shared_failures",
+        "observed": "refused",
+        "reason": "eight unique historical A reason failures"
+      },
+      {
+        "control": "A_source_diagnostic_as_native_PASS",
+        "observed": "refused",
+        "reason": "A source-level review is not a current native run"
+      },
+      {
+        "control": "claim_existing_A_consumer_absent",
+        "observed": "refused",
+        "reason": "existing consumer cannot be claimed wholly absent"
+      },
+      {
+        "control": "move_b2_wave_to_future_candidate",
+        "observed": "refused",
+        "reason": "b2 wave does not belong to new candidate"
+      },
+      {
+        "control": "Profile2_ratio_law_grants_authority",
+        "observed": "refused",
+        "reason": "finite law does not confer gate authority"
+      },
+      {
+        "control": "generic_fixture_as_production_authority",
+        "observed": "refused",
+        "reason": "synthetic fixture not factual authority"
+      },
+      {
+        "control": "new_boundary_complete_without_review_receipts",
+        "observed": "refused",
+        "reason": "new mechanism requires immutable source/review/receipts"
+      },
+      {
+        "control": "false_unchanged_source_digest",
+        "observed": "refused",
+        "reason": "dependency bytes recomputed from exact Git source"
+      }
+    ],
+    "meaning": "16 recomputing association/source corruptions refused; not product presence controls or finding closure. Loaded in-memory, no author output written."
+  },
+  "limitations": [
+    "Source3 e4b adapter and deciding wave require separate additive source/receipt binding",
+    "Canonical owner API/generator leases not established",
+    "A332 current default/HTTP run remains UNRUN until owner composition",
+    "C/F adoption and institution/source inputs remain their owners",
+    "43 E proposals and decisions do not mean 43 G accepted findings"
+  ],
+  "predicate_basis": "independently_reconciled",
+  "product_mutation": false,
+  "Git_mutation": false,
+  "backend_rerun": false,
+  "leases": "source/env read leases closed"
+}

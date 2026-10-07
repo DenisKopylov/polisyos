@@ -1,0 +1,51 @@
+{
+  "schema": "policyos.e02.independent_owner_packet_review.v1",
+  "reviewer": "fit_packet, not API packet author",
+  "disposition": "CHANGE_REQUIRED",
+  "scope": "Owner-ready API companion packet and caller-class footprint, not runtime/generator/source acceptance",
+  "source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+  "tree": "6700da10bc8e13d7c6c1683b140e805546e5d084",
+  "packets": [
+    {
+      "path": "/tmp/e02-E-api-companions-thirteenth-20261007/canonical-ABI-public-companions.json",
+      "bytes": 7905,
+      "sha256": "3dec84bb90f406811d1c52d8846edb153619bc1172f1807e79cbf6f5fa62b412"
+    },
+    {
+      "path": "/tmp/e02-E-api-companions-thirteenth-20261007/canonical-owner-import-packets.json",
+      "bytes": 8597,
+      "sha256": "12183e433984637724be0966b5ee9de1a8f453d0de3e05b7577f43be0b389e58"
+    }
+  ],
+  "literal_full_source_readbacks": {
+    "path": "readback.json",
+    "bytes": 21940,
+    "sha256": "610ec4f05dbdc37330b5806cccd2f79e4347815fb1a134c8ad1675880fb9ff01"
+  },
+  "verified": {
+    "source_ref_occurrences": 18,
+    "unique_source_paths": 17,
+    "IR_all_names": 288,
+    "inventory_names": 284,
+    "profile_additions": 4,
+    "ABI_profile_registrations": 2,
+    "all_IR_snapshot_paths": 103,
+    "IR_JSON_snapshot_paths": 100,
+    "profile_outputs_and_manifest_entries_absent": true,
+    "unapplied_3_patch_combined_applicability": true,
+    "generators_typechecks_or_backend_tests_executed": false,
+    "current_native_gates": "UNRUN",
+    "finding_acceptance": "not_established"
+  },
+  "issue": {
+    "P40_class": "Same CanonSpec canonical-facade routing class sibling, not new codec/type law",
+    "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+    "source_ref": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+    "observation": "The same exact IR CanonSpec deep import exists in forecast_owner.py:72. The original typed owner alias packet routes only forecast_bridge.py and its caller footprint omits this sibling although the complete source census sees it. The owner-ready patch should cover both callers or explicitly retain it as a distinct bounded residual.",
+    "requested": "Expand only the unapplied exact-identity alias/caller packet to both E callers; do not apply owner source or claim class closure/lease."
+  },
+  "author_response": "API author confirmed complete census contains this sibling and will retain original bytes + publish packet-v2 and CanonSpec patch-v2 covering both callers.",
+  "protected_source_mutated": false,
+  "generated_outputs_mutated": false,
+  "predicate_basis": "recomputed"
+}

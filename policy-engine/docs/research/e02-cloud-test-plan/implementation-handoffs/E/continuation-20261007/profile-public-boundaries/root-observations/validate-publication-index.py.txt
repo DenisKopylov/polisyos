@@ -1,0 +1,63 @@
+"""One-time literal publication validator; negative inputs stay in memory."""
+
+import copy
+import hashlib
+import json
+import sys
+from pathlib import Path
+
+DEST = Path('/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/profile-public-boundaries')
+EXCLUDED = {'payload-index.json', 'copy-index.json', 'copy-validation-normal.json', 'copy-validation-optimized.json', 'independent-publication-custody-review.json'}
+
+
+def verify(index):
+    if index['source'] != '8d8e7b319e7eb6b57bc4ab3c4db5ca3070393f8c' or index['tree'] != '192e584c646ee6df303b8793e7b92aa741dcaebb':
+        raise ValueError('exact immutable product identity')
+    rows = index['assets']
+    paths = [r['path'] for r in rows]
+    if len(paths) != len(set(paths)):
+        raise ValueError('duplicate portable publication path')
+    actual_paths = {p.relative_to(DEST).as_posix() for p in DEST.rglob('*') if p.is_file() and p.relative_to(DEST).as_posix() not in EXCLUDED}
+    if actual_paths != set(paths):
+        raise ValueError('complete publication footprint')
+    for row in rows:
+        path = Path(row['path'])
+        if path.is_absolute() or '..' in path.parts:
+            raise ValueError('unsafe publication path')
+        data = (DEST / path).read_bytes()
+        if len(data) != row['bytes'] or hashlib.sha256(data).hexdigest() != row['sha256']:
+            raise ValueError('recomputed exact publication byte identity')
+    active = sorted(r['path'] for r in rows if r['path'].endswith('.py'))
+    if active != ['full54/bind_final_source4.py', 'full54/build_delta_packet.py']:
+        raise ValueError('truthful maintained utility denominator')
+    h = json.loads((DEST / 'implementation-handoff.json').read_text())
+    if h['candidate'] != {'commit': index['source'], 'tree': index['tree']} or h['no_future_self_SHA'] is not True:
+        raise ValueError('handoff source and no future self-SHA')
+    state = h['all54_dispositions']
+    if state['scope'] != {'bundles': 22, 'IDs': 54, 'links': 55} or state['historical_ledger'] != {'partial': 49, 'held': 4, 'closed': 1} or state['E_proposed_finding_verdicts'] != {'closed': 43, 'limited': 9, 'held': 2} or state['formal_G_intake'] != 0:
+        raise ValueError('finding/check/formal intake layers')
+    return {'files': len(rows), 'bytes': sum(r['bytes'] for r in rows), 'active_python_utilities': active}
+
+
+index = json.loads((DEST / 'payload-index.json').read_text())
+positive = verify(index)
+negatives = []
+for label, mutate in [
+    ('wrong_source', lambda p: p.__setitem__('source', '0' * 40)),
+    ('missing_footprint_row', lambda p: p['assets'].pop()),
+    ('forged_digest', lambda p: p['assets'][0].__setitem__('sha256', '0' * 64)),
+    ('forged_size', lambda p: p['assets'][0].__setitem__('bytes', p['assets'][0]['bytes'] + 1)),
+    ('duplicate_path', lambda p: p['assets'].append(copy.deepcopy(p['assets'][0]))),
+]:
+    bad = copy.deepcopy(index)
+    mutate(bad)
+    try:
+        verify(bad)
+    except ValueError as exc:
+        negatives.append({'control': label, 'outcome': 'refused', 'reason': str(exc)})
+    else:
+        raise ValueError(f'corrupt index admitted: {label}')
+mode = 'optimized' if sys.flags.optimize else 'normal'
+receipt = {'schema': 'policyos.e02.literal_copy_validation.v1', 'mode': mode, 'python': sys.version, 'argv': sys.argv, 'source': index['source'], 'tree': index['tree'], 'payload_index': {'bytes': (DEST / 'payload-index.json').stat().st_size, 'sha256': hashlib.sha256((DEST / 'payload-index.json').read_bytes()).hexdigest()}, 'positive': positive, 'negative_controls': negatives, 'check_outcome': 'PASS', 'scope': 'Recomputed literal copy/source/footprint/status custody only; does not confer scientific authority or finding closure'}
+(DEST / f'copy-validation-{mode}.json').write_text(json.dumps(receipt, indent=2) + '\n')
+print(json.dumps({'mode': mode, 'check_outcome': 'PASS', **positive, 'negative_controls': len(negatives)}))

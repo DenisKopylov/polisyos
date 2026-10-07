@@ -1,0 +1,31 @@
+{
+  "bounded_runtime_property_review": "GO, Source2 387+28 normal and optimized and15 scalar/rawCAS delta controls",
+  "candidate": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+  "independently_read_typecheck": {
+    "P41": "not_established",
+    "errors": 4,
+    "exit_code": 1,
+    "filesAnalyzed": 3,
+    "outcome": "FAIL",
+    "receipt": {
+      "bytes": 7159,
+      "path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-frozen-typecheck.receipt.json",
+      "sha256": "c4bfbd74749ec5112beab917a092e1cbb7e468712f0f2af78e4f7141bdb049cd"
+    },
+    "source_input_paths_bound": 3,
+    "stdout": {
+      "bytes": 2650,
+      "path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-frozen-typecheck.stdout.txt",
+      "sha256": "fda9d24a3ac49f57d80cc982b0cf576bf431ecf94827913a9a414163ce85a484"
+    },
+    "warnings": 0,
+    "whole_type_gate": "UNRUN"
+  },
+  "next_owner": "/root/ingress_author narrow adapter typing-only patch; Root append-only Source3; independent delta review + Root single affected wave after all GO",
+  "predicate_basis": "independently_reconciled",
+  "public_typed_source_readiness": "HOLD_pending_adapter_typing_only_corrective_source_and_current_typecheck",
+  "review_caption_scope": "review-final-11082 GO is bounded runtime mechanism and corrected raw forged test fixture, not full release/code intake while owned scoped typecheck remains FAIL. It does not certify unrelated/global gates.",
+  "schema": "policyos.e02.independent_review_qualification.v1",
+  "source_or_evidence_modified": false,
+  "tree": "9263d367d41359f1f1a2758419fbc1c8f1eace0f"
+}

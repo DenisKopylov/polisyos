@@ -1,0 +1,233 @@
+{
+  "schema": "policyos.e02.canonical_API_import_companions_handoff.v3",
+  "unit": "E",
+  "writer": "Read-only API/import/type helper /root/api_companions; Root E owns implementation/topic publication",
+  "source": "e4b97c15196d8e276745f55a4367da83586511d9",
+  "tree": "48af48c6462db76be9ba962dc6df07a9a1977963",
+  "base": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+  "branch": "codex/e02-E-continuation-20261006",
+  "worktree": "/workspace/e02-E-continuation-20261006",
+  "source_slice_full_footprint": [
+    "A\tpolicy-engine/release-fragments/unreleased/2026-10-07-posterior-profile2-raw-ingress.toml",
+    "M\tpolicy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+    "M\tpolicy-engine/src/polisyos/ir/analytics/README.md",
+    "M\tpolicy-engine/src/polisyos/ir/analytics/uncertainty.py",
+    "M\tpolicy-engine/tests/unit/ir/test_posterior_summary.py",
+    "A\tpolicy-engine/tests/unit/ir/test_uncertainty_profile_ingress.py"
+  ],
+  "authoritative_API_snapshot_source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+  "current_source_qualification": {
+    "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-source-qualification-v3.json",
+    "bytes": 31997,
+    "sha256": "8c38b9cfe8b2c2f645fd0fc3b68119f8855af09fc21d36a23f67cd7d1c13cfbe"
+  },
+  "current_complete_import_input_index": {
+    "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-complete-input-index-v3.json",
+    "bytes": 111325,
+    "sha256": "d4e3c1b2e473671936d4b6645dd196d52d48adf0fd946af3205c63be1c7530e2"
+  },
+  "complete_static_rows": {
+    "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-complete-static-rows-v3.json",
+    "bytes": 341063,
+    "sha256": "af29b30eca5c8b9712fecbe1c67b4084079dcf6f77bc2f22170ac274f8f06571"
+  },
+  "old_561KB_census_retained_as_exact_ignored_derived_output": {
+    "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-full-source-test-import-census.json",
+    "bytes": 561083,
+    "sha256": "85473f80ff185dc1a95539de2dd90f75c9e9244013aeab99bbccaeced666c365"
+  },
+  "old_census_reproducer_role": "build_packet.py.txt is literal historical executed-source receipt; not an active published utility. Current full input index + source pins and reconcile_current_inputs.py.txt reconstruct the current denominator.",
+  "API_ABI_packet": {
+    "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/canonical-ABI-public-companions.json",
+    "bytes": 7905,
+    "sha256": "3dec84bb90f406811d1c52d8846edb153619bc1172f1807e79cbf6f5fa62b412"
+  },
+  "canonical_import_owner_packet": {
+    "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/canonical-owner-import-packets-v2.json",
+    "bytes": 14725,
+    "sha256": "c380b3267a2b4b12c144bcb51771d65b3b331a00ce4500a7afad036c9b95c54e"
+  },
+  "current_complete_python_denominator": 379,
+  "current_writer_counts": {
+    "A": 2,
+    "B": 13,
+    "E": 350,
+    "G": 12,
+    "F": 2
+  },
+  "runtime_property_scope": "Import/schema companion contract and bounded current scoped typing. Source AST is not runtime invocation or scientific finding evidence. Native mechanism receipts remain Root-owned separate checks.",
+  "canonical_writers_and_next_results": [
+    {
+      "owner": "Canonical IR analytics facade owner via G",
+      "minimum": "Admit existing producer/reader alias packet, with export identity and authentic configured ForecastOwner CAS read; canonical inventory/reference companions",
+      "original_scope": [
+        "B32",
+        "LA-051"
+      ],
+      "state": "not_established"
+    },
+    {
+      "owner": "Canonical Foundry execute facade owner via G",
+      "minimum": "Admit existing state path/snapshot alias packet, actual state put→fresh read→native replay controls; optional backend remains lazy",
+      "original_scope": [
+        "B166",
+        "B169",
+        "B170"
+      ],
+      "state": "not_established"
+    },
+    {
+      "owner": "Canonical IR artifact/canon owner with Core reviewer via G",
+      "minimum": "Choose exact IR CanonSpec re-export rather than distinct Core sibling substitution; all3 E preexisting caller packet, native persistence/removal/type companions",
+      "state": "not_established"
+    },
+    {
+      "owner": "G canonical generated ABI/public inventory writer",
+      "minimum": "After accepted composed source freeze: gen-schema→public surface sync→gen-schema --check→architecture recomputation; four source exports/two registered profile snapshots and complete manifest",
+      "scope": [
+        "B201",
+        "B202"
+      ],
+      "state": "surface_missing"
+    },
+    {
+      "owner": "Canonical Scientist compute/input-materializer writer via G",
+      "minimum": "Apply independently reviewed exact finite-float/full-ref owner supplement + proposed companion; publish immutable source then E actual float HMC/NUTS→fresh CAS→Node controls",
+      "state": "bridge_missing"
+    }
+  ],
+  "current_source_scoped_typecheck": {
+    "receipt": {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck.receipt.json",
+      "bytes": 8048,
+      "sha256": "d1bb59a5a3993bc8964bb5bcc8946aa30dc25c5dce0e20a0fa84cde69cef3f91"
+    },
+    "actual_child_exit_saved_before_JSON_parse": {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck-child-before-parse.json",
+      "bytes": 1431,
+      "sha256": "95ae6ac929f7064061109db1ff91483e60309a3de93fe8b9b8725943286d57a9"
+    },
+    "actual_child_exit": 0,
+    "scoped_summary": {
+      "filesAnalyzed": 3,
+      "errorCount": 0,
+      "warningCount": 0,
+      "informationCount": 0,
+      "timeInSec": 3.379
+    },
+    "scoped_outcome": "PASS",
+    "baseline_freshness": "reported_outdated",
+    "full_native_preamble": "baseline file is outdated, run without `--baselinemode=discard` to update it. (went down by 1124)\n\n",
+    "canonical_baseline_and_config_unchanged": true,
+    "whole_type_gate": "UNRUN"
+  },
+  "preserved_typecheck_history": [
+    {
+      "source": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "selected_files": 2,
+      "diagnostic_observation": "0 errors/0 warnings; native child exit not retained before wrapper failure",
+      "custody_outcome": "ERROR",
+      "receipt": {
+        "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-scoped-typecheck.ERROR.json",
+        "bytes": 1389,
+        "sha256": "ebf6206c848bb0af94a7035245c91739a392d3a21fa95daacdccf1c238c9a9b3"
+      },
+      "correction": "Historical receipt native_outcome PASS was inferred from summary only; it is not a captured child outcome or clean gate PASS. Unsupported private project/baseline drafts remain UNRUN and are omitted from publication."
+    },
+    {
+      "source": "b305cef2fe2b6f7740d1fe8fd07c4a8901374252",
+      "selected_files": 3,
+      "actual_child_exit": 1,
+      "outcome": "FAIL",
+      "errors": 7,
+      "warnings": 1,
+      "receipt": {
+        "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/frozen-typecheck.receipt.json",
+        "bytes": 6906,
+        "sha256": "4dc685843058b885e60a1a6eda0cd3b189883a9ee6ac89f11139df2950db08fa"
+      }
+    },
+    {
+      "source": "11082e91d61ace2f3bd7016d408341fdd6ec1702",
+      "selected_files": 3,
+      "actual_child_exit": 1,
+      "outcome": "FAIL",
+      "errors": 4,
+      "warnings": 0,
+      "receipt": {
+        "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-frozen-typecheck.receipt.json",
+        "bytes": 7159,
+        "sha256": "c4bfbd74749ec5112beab917a092e1cbb7e468712f0f2af78e4f7141bdb049cd"
+      }
+    },
+    {
+      "source": "11082e91d61ace2f3bd7016d408341fdd6ec1702 plus Root working adapter-only patch",
+      "diagnostic_observation": "Root working stdout0/0 with outdated-baseline prelude; wrapper JSON parsing failed before child exit capture",
+      "custody_outcome": "ERROR",
+      "native_child_exit": "not_established",
+      "root_receipt": {
+        "source_path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/typing-working-preflight/wrapper-error-corrective-receipt.json",
+        "bytes": 1204,
+        "sha256": "eba591d33c1ed0dcf69cc188e54d065f27b1c4188597233002c9734954c9d166"
+      }
+    }
+  ],
+  "first_baseline_sideeffect_custody": {
+    "unexpected_unique_changed_bytes": {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/canonical-baseline-after-unexpected.json",
+      "bytes": 733805,
+      "sha256": "1ea9bf864600d6e12d2e7643c2d5a8033359a68e99bfaf7789e73e45c69186a4"
+    },
+    "preserved_before_bytes": {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/canonical-baseline-before-from-Git.json",
+      "bytes": 1006190,
+      "sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af"
+    },
+    "exact_original_baseline_git_blob": "c8fb66459e43d28bb64de12d4497a39f48705101",
+    "original_baseline_sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+    "root_exact_blob_restoration": {
+      "source_path": "/tmp/e02-E-pr38-thirteenth-continuation-20261007/baseline-sideeffect/restoration-receipt.json",
+      "bytes": 923,
+      "sha256": "aafcb120aa8821ac295f5e4a79a815a0c450f0024b8ef37b51410036b7b15efa"
+    },
+    "restoration_rule": "Root preserved unique mutated output then restored only exact Git blob bytes; no reset/checkout/rebase. Subsequent checks used supported read-only discard and hash guards."
+  },
+  "independent_fit_packet_review": {
+    "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/fit-owner-packet-independent-review.json",
+    "bytes": 8813,
+    "sha256": "0b58c374dace72b5e69a15e63894698fb34cf2869cb63c56f5174dfd5c698ae9"
+  },
+  "release_metadata": {
+    "historical_draft": {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/compatible-release-metadata.toml.txt",
+      "bytes": 1289,
+      "sha256": "63870e68d2e8b60c1693749158d9fb0cf6bb1a0858cc0c0bceb19d591d0fad15"
+    },
+    "actual_source_fragment": {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-profile2-raw-ingress.toml",
+      "source": "e4b97c15196d8e276745f55a4367da83586511d9",
+      "snapshot": {
+        "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-compatible-release-metadata.toml.txt",
+        "bytes": 1323,
+        "sha256": "82a80155636bf13db75170e46320daf4634d8cf51a39085735fb4159ad237223"
+      }
+    },
+    "generated_fragments_flags": "Existing public profile fragment inventory-reviewed flags remain false; helper does not flip them before canonical generation"
+  },
+  "architecture_selector_prerequisites": {
+    "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-architecture-prerequisites-v3.json",
+    "bytes": 2093,
+    "sha256": "61759c81681c71612e2b834c96f61f2d30a8a779b77698b43d3b2a5e3ce0fc42"
+  },
+  "formal_G_code_or_finding_acceptance": false,
+  "finding_outcomes": "Original 43 proposed-closed /9 limited /2 held and historical49partial/4held/1closed remain Root full54 owner queue; API/type checks do not ratify closure.",
+  "P41": "not_established",
+  "predicate_basis": "recomputed",
+  "source_mutated_by_helper": false,
+  "canonical_API_ABI_generated_outputs_mutated_by_helper": false,
+  "unintended_type_tool_tracked_baseline_mutation": true,
+  "baseline_mutation_scope": "Initial df525 native type tool automatic baseline writer changed one tracked baseline artifact; Root restored exact Git bytes after preserving unique output. Subsequent frozen runs were read-only with exact hash guards.",
+  "Git_mutated_by_helper": false,
+  "source_read_lease": "CLOSED",
+  "cleanup": "No deletion. All temporary repeatable test/check fixtures, before/after unique baseline bytes and source archives remain preserved; parent lists only genuinely inactive cleanup candidates."
+}

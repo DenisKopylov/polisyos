@@ -1,0 +1,71 @@
+"""Prepare isolated runtime property removals; never alter Root source/history.
+
+Invoke with the immutable Root source path and an isolated output directory.
+The resulting native test commands MUST return test failures, not collection
+errors. The separate independent reviewer decides whether the controls prove
+runtime property rather than authorial markers.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+from pathlib import Path
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--source", type=Path, required=True)
+parser.add_argument("--output", type=Path, required=True)
+args = parser.parse_args()
+source = args.source.read_text()
+args.output.mkdir(parents=True, exist_ok=False)
+
+raw_property = "                validate_raw_posterior_summary_envelope(raw_payload)"
+assert source.count(raw_property) == 1
+raw_removal = source.replace(
+    raw_property,
+    "                pass  # removed admission; validate_raw_posterior_summary_envelope(raw_payload)",
+)
+join_property = '''    if any(_ratio_composition_profile(envelope) is not None for envelope in normalized):
+        raise UncertaintyCompatibilityError(
+            "Profile2 multi-envelope join requires an explicit mixture contract"
+        )'''
+assert source.count(join_property) == 1
+join_removal = source.replace(
+    join_property,
+    '''    if any(_ratio_composition_profile(envelope) is not None for envelope in normalized):
+        pass  # removed refusal; Profile2 multi-envelope join requires an explicit mixture contract''',
+)
+rows = []
+for name, body, selector, expected_failures in (
+    ("raw-admission", raw_removal, "raw_profile2_type_refuses_before_public_callback_or_publication", 12),
+    ("multi-join", join_removal, "profile2_multi_join_refuses_before_generic_lowering", 4),
+):
+    path = args.output / (name + ".py")
+    path.write_text(body)
+    rows.append(
+        {
+            "name": name,
+            "source": str(path),
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+            "selected_test_name": selector,
+            "expected_test_failures": expected_failures,
+            "expected_collection_errors": 0,
+            "markers_retained": [
+                "posterior_summary_profile",
+                "validate_raw_posterior_summary_envelope",
+                "Profile2 multi-envelope join requires an explicit mixture contract",
+            ],
+            "semantic_expectation": "actual previously rejected runtime input is accepted after removal",
+        }
+    )
+print(
+    json.dumps(
+        {
+            "original_source": str(args.source),
+            "original_sha256": hashlib.sha256(args.source.read_bytes()).hexdigest(),
+            "controls": rows,
+            "claim": "prepared controls, UNRUN until independent/frozen execution",
+        },
+        indent=2,
+    )
+)

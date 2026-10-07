@@ -1,0 +1,386 @@
+{
+  "schema": "policyos.e02.moderate_publication_selection.v1",
+  "source": "e4b97c15196d8e276745f55a4367da83586511d9",
+  "tree": "48af48c6462db76be9ba962dc6df07a9a1977963",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/Foundry-owner-state-path-snapshot-aliases-and-E-caller.patch",
+      "bytes": 1390,
+      "sha256": "25cbb5c1b13e0f12868559dbf23691a571d5b6c44537b919288c07be725ac96a",
+      "portable_path": "Foundry-owner-state-path-snapshot-aliases-and-E-caller.patch",
+      "role": "source-derived unapplied owner patch, not canonical lease or runtime acceptance"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/IR-owner-CanonSpec-alias-and-E-caller.patch",
+      "bytes": 1015,
+      "sha256": "12f527d63ff94602e6edcb5010f4a145c3d89f6e04216a5a3879b4000975481d",
+      "portable_path": "IR-owner-CanonSpec-alias-and-E-caller.patch",
+      "role": "source-derived unapplied owner patch, not canonical lease or runtime acceptance"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/IR-owner-CanonSpec-alias-and-all-E-callers-v2.patch",
+      "bytes": 2142,
+      "sha256": "19a4bf7ca8c40864687aaf882bb43445210e5c78b9bdcacfb9bdd3a74b65d7ee",
+      "portable_path": "IR-owner-CanonSpec-alias-and-all-E-callers-v2.patch",
+      "role": "source-derived unapplied owner patch, not canonical lease or runtime acceptance"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/IR-owner-forecast-producer-reader-aliases-and-E-callers.patch",
+      "bytes": 1930,
+      "sha256": "7052a5120cf519b4ec0a41de55af11ca068edda91fc05f2e57f93f1832ec6162",
+      "portable_path": "IR-owner-forecast-producer-reader-aliases-and-E-callers.patch",
+      "role": "source-derived unapplied owner patch, not canonical lease or runtime acceptance"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/README.md",
+      "bytes": 2688,
+      "sha256": "2c98b61d6f6a4d97825745bfce0cc527a72d9ef9b2d0a19c8ac93454b15e0b90",
+      "portable_path": "README.md",
+      "role": "current packet navigation"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/affected-architecture-selector-and-controls.json",
+      "bytes": 6555,
+      "sha256": "c9b9861f73b3f9a2de81f9937c9165e2612927533ff02126518118875752553c",
+      "portable_path": "affected-architecture-selector-and-controls.json",
+      "role": "historical supported selector and maintained adversarial controls preparation"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/build_packet.py.txt",
+      "bytes": 21306,
+      "sha256": "ed8136ecffb2fa7c2b4bece6f234684d6ba1353cbafdec274792ab965da30c97",
+      "portable_path": "build_packet.py.txt",
+      "role": "literal historical executed-source snapshot/noninvocable document with original argv/path/input refs in companion receipt"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/canonical-ABI-public-companions.json",
+      "bytes": 7905,
+      "sha256": "3dec84bb90f406811d1c52d8846edb153619bc1172f1807e79cbf6f5fa62b412",
+      "portable_path": "canonical-ABI-public-companions.json",
+      "role": "immutable historical canonical source/API/ABI companion owner packet; unchanged current input qualifier provided"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/canonical-owner-import-packets-v2.json",
+      "bytes": 14725,
+      "sha256": "c380b3267a2b4b12c144bcb51771d65b3b331a00ce4500a7afad036c9b95c54e",
+      "portable_path": "canonical-owner-import-packets-v2.json",
+      "role": "current owner-ready full3 E CanonSpec caller packet, canonical leases unestablished"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/canonical-owner-import-packets.json",
+      "bytes": 8597,
+      "sha256": "12183e433984637724be0966b5ee9de1a8f453d0de3e05b7577f43be0b389e58",
+      "portable_path": "canonical-owner-import-packets.json",
+      "role": "retained original bounded owner packet; corrected by v2"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/compatible-release-metadata.toml.txt",
+      "bytes": 1289,
+      "sha256": "63870e68d2e8b60c1693749158d9fb0cf6bb1a0858cc0c0bceb19d591d0fad15",
+      "portable_path": "compatible-release-metadata.toml.txt",
+      "role": "historical reviewable release metadata draft, not actual source"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-architecture-prerequisites-v3.json",
+      "bytes": 2093,
+      "sha256": "61759c81681c71612e2b834c96f61f2d30a8a779b77698b43d3b2a5e3ce0fc42",
+      "portable_path": "current-architecture-prerequisites-v3.json",
+      "role": "additive current architecture owner prerequisites; no helper run claimed"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-compatible-release-metadata.toml.txt",
+      "bytes": 1323,
+      "sha256": "82a80155636bf13db75170e46320daf4634d8cf51a39085735fb4159ad237223",
+      "portable_path": "current-compatible-release-metadata.toml.txt",
+      "role": "literal current E source fragment snapshot, actual source Git path pinned"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-complete-input-index-v3.json",
+      "bytes": 111325,
+      "sha256": "d4e3c1b2e473671936d4b6645dd196d52d48adf0fd946af3205c63be1c7530e2",
+      "portable_path": "current-complete-input-index-v3.json",
+      "role": "complete changed Python ownership and exact source/test Git input index"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-complete-static-rows-v3.json",
+      "bytes": 341063,
+      "sha256": "af29b30eca5c8b9712fecbe1c67b4084079dcf6f77bc2f22170ac274f8f06571",
+      "portable_path": "current-complete-static-rows-v3.json",
+      "role": "complete source and test static import recomputation output"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-scoped-typecheck.ERROR.json",
+      "bytes": 1389,
+      "sha256": "ebf6206c848bb0af94a7035245c91739a392d3a21fa95daacdccf1c238c9a9b3",
+      "portable_path": "current-scoped-typecheck.ERROR.json",
+      "role": "unaltered first tool custody ERROR; summary-only native PASS field qualified in current handoff"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-scoped-typecheck.parsed.json",
+      "bytes": 219,
+      "sha256": "d196e05f3d04b6273e7d8113dc58b8ec67f768bbd8737ac40773e4d3a5bd2b92",
+      "portable_path": "current-scoped-typecheck.parsed.json",
+      "role": "first bounded native selected-file diagnostics, not captured child exit"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-scoped-typecheck.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "current-scoped-typecheck.stderr.txt",
+      "role": "complete first native stderr historical bytes"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-scoped-typecheck.stdout.txt",
+      "bytes": 347,
+      "sha256": "63352a97eb9aeb587612944d62c4927137541d2b56a938e6c9d602af99caf480",
+      "portable_path": "current-scoped-typecheck.stdout.txt",
+      "role": "complete first native stdout historical bytes"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-source-qualification-v3.json",
+      "bytes": 31997,
+      "sha256": "8c38b9cfe8b2c2f645fd0fc3b68119f8855af09fc21d36a23f67cd7d1c13cfbe",
+      "portable_path": "current-source-qualification-v3.json",
+      "role": "current complete source qualification and static import limitations"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-frozen-typecheck-environment.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "final-frozen-typecheck-environment.stderr.txt",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-frozen-typecheck-environment.stdout.json",
+      "bytes": 658,
+      "sha256": "e028bc00070660f3c5369890c77185a1e2e95687d760449f53c8799a5bf0cade",
+      "portable_path": "final-frozen-typecheck-environment.stdout.json",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-frozen-typecheck-preflight.json",
+      "bytes": 3586,
+      "sha256": "c1af726a19b7cc2ad9f574ff4f25ae9a6d666317d24b2fb612cc3bfa7eee8ba5",
+      "portable_path": "final-frozen-typecheck-preflight.json",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-frozen-typecheck.parsed.json",
+      "bytes": 2153,
+      "sha256": "d333a952caaaa68446435a262a27df6ae8be06e57b31676fef747cdaf0a52855",
+      "portable_path": "final-frozen-typecheck.parsed.json",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-frozen-typecheck.receipt.json",
+      "bytes": 7159,
+      "sha256": "c4bfbd74749ec5112beab917a092e1cbb7e468712f0f2af78e4f7141bdb049cd",
+      "portable_path": "final-frozen-typecheck.receipt.json",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-frozen-typecheck.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "final-frozen-typecheck.stderr.txt",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-frozen-typecheck.stdout.txt",
+      "bytes": 2650,
+      "sha256": "fda9d24a3ac49f57d80cc982b0cf576bf431ecf94827913a9a414163ce85a484",
+      "portable_path": "final-frozen-typecheck.stdout.txt",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck-child-before-parse.json",
+      "bytes": 1431,
+      "sha256": "95ae6ac929f7064061109db1ff91483e60309a3de93fe8b9b8725943286d57a9",
+      "portable_path": "final-v3-frozen-typecheck-child-before-parse.json",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck-environment.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "final-v3-frozen-typecheck-environment.stderr.txt",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck-environment.stdout.json",
+      "bytes": 658,
+      "sha256": "e028bc00070660f3c5369890c77185a1e2e95687d760449f53c8799a5bf0cade",
+      "portable_path": "final-v3-frozen-typecheck-environment.stdout.json",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck-preflight.json",
+      "bytes": 3586,
+      "sha256": "9b05a2d5f041158912fbaf3794e1491180a448dbad36d9bedf40a6ffe2848f7c",
+      "portable_path": "final-v3-frozen-typecheck-preflight.json",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck.parsed.json",
+      "bytes": 219,
+      "sha256": "bdb782fa9ff2f1e4eb8e859cfb5da5624dfd37611249710e5367b680cc93112b",
+      "portable_path": "final-v3-frozen-typecheck.parsed.json",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck.receipt.json",
+      "bytes": 8048,
+      "sha256": "d1bb59a5a3993bc8964bb5bcc8946aa30dc25c5dce0e20a0fa84cde69cef3f91",
+      "portable_path": "final-v3-frozen-typecheck.receipt.json",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "final-v3-frozen-typecheck.stderr.txt",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/final-v3-frozen-typecheck.stdout.txt",
+      "bytes": 348,
+      "sha256": "b6ef08556cdd5c253d7d9716a45eff2a1880ed11bd11aacc574f5c6c07d2224b",
+      "portable_path": "final-v3-frozen-typecheck.stdout.txt",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/fit-owner-packet-independent-review.json",
+      "bytes": 8813,
+      "sha256": "0b58c374dace72b5e69a15e63894698fb34cf2869cb63c56f5174dfd5c698ae9",
+      "portable_path": "fit-owner-packet-independent-review.json",
+      "role": "non-author bounded packet review with all input identities/corrupt-field control"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/frozen-typecheck-environment.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "frozen-typecheck-environment.stderr.txt",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/frozen-typecheck-environment.stdout.json",
+      "bytes": 658,
+      "sha256": "e028bc00070660f3c5369890c77185a1e2e95687d760449f53c8799a5bf0cade",
+      "portable_path": "frozen-typecheck-environment.stdout.json",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/frozen-typecheck-preflight.json",
+      "bytes": 3586,
+      "sha256": "e4c70b7a9ec5c4aaf22c96e217e69426e614167c5a2b0d0db0675bf9306d3494",
+      "portable_path": "frozen-typecheck-preflight.json",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/frozen-typecheck.parsed.json",
+      "bytes": 5605,
+      "sha256": "4c072e83682c101d1875208cad77a035a7c76df884b1cacf1443a117cdbb8bdd",
+      "portable_path": "frozen-typecheck.parsed.json",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/frozen-typecheck.receipt.json",
+      "bytes": 6906,
+      "sha256": "4dc685843058b885e60a1a6eda0cd3b189883a9ee6ac89f11139df2950db08fa",
+      "portable_path": "frozen-typecheck.receipt.json",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/frozen-typecheck.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "frozen-typecheck.stderr.txt",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/frozen-typecheck.stdout.txt",
+      "bytes": 6198,
+      "sha256": "41221e43e6d18424a7c47cfa0f2d629a9cda5b63d16cbe0009caec7a3d7e79fe",
+      "portable_path": "frozen-typecheck.stdout.txt",
+      "role": "complete exact native input/environment/child exit/output receipt; historical FAILs and current scoped result kept separate"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/implementation-owner-handoff-v3.json",
+      "bytes": 11806,
+      "sha256": "9a145a54ba3174bb6f8d951f58ee8836d5ceb51335779c607b1f1a15969fcb0b",
+      "portable_path": "implementation-owner-handoff-v3.json",
+      "role": "current owner handoff with exact immutable source/input/check custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/reconcile_current_inputs.py.txt",
+      "bytes": 8432,
+      "sha256": "074b3d45596e475b9c00f55f8eb459eb63cc820266138d3916a98c48271faec6",
+      "portable_path": "reconcile_current_inputs.py.txt",
+      "role": "literal historical executed-source snapshot/noninvocable document with original argv/path/input refs in companion receipt"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/reconcile_owner_packet_v2.py.txt",
+      "bytes": 5476,
+      "sha256": "4687a0e5f826ba9da23d05280927c42cc1f1c0ac86ed6ba6979c7de1915a039b",
+      "portable_path": "reconcile_owner_packet_v2.py.txt",
+      "role": "literal historical executed-source snapshot/noninvocable document with original argv/path/input refs in companion receipt"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/review_fit_packet.py.txt",
+      "bytes": 9279,
+      "sha256": "7ba976b46ae6256dbb9a7578f5fd92bda493d2da1fb9e9f79b1098dde15fd465",
+      "portable_path": "review_fit_packet.py.txt",
+      "role": "literal historical executed-source snapshot/noninvocable document with original argv/path/input refs in companion receipt"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/run_final_frozen_typecheck.py.txt",
+      "bytes": 5675,
+      "sha256": "29e553b2693badc3b62e2cc0ec08639af9f2e975f5768c5583e9d0bc5eb5968e",
+      "portable_path": "run_final_frozen_typecheck.py.txt",
+      "role": "literal historical executed-source snapshot/noninvocable document with original argv/path/input refs in companion receipt"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/run_final_v3_frozen_typecheck.py.txt",
+      "bytes": 6705,
+      "sha256": "3094aa23f742c5b47d427d09f622b702fc5bd16a02982eca2ba775292d006851",
+      "portable_path": "run_final_v3_frozen_typecheck.py.txt",
+      "role": "literal historical executed-source snapshot/noninvocable document with original argv/path/input refs in companion receipt"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/run_frozen_typecheck.py.txt",
+      "bytes": 5434,
+      "sha256": "361cc702f5f28998c843ddaab67f16a9654965b5ead61a6003ac0a7a24e01b20",
+      "portable_path": "run_frozen_typecheck.py.txt",
+      "role": "literal historical executed-source snapshot/noninvocable document with original argv/path/input refs in companion receipt"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/run_scoped_typecheck.py.txt",
+      "bytes": 3679,
+      "sha256": "d46ce57830c6369ba0c8cc813fb86bb281206e7d2e0e5059367c33898faac547",
+      "portable_path": "run_scoped_typecheck.py.txt",
+      "role": "literal historical executed-source snapshot/noninvocable document with original argv/path/input refs in companion receipt"
+    }
+  ],
+  "files": 51,
+  "bytes": 678046,
+  "omitted_raw_preserved": [
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/current-full-source-test-import-census.json",
+      "bytes": 561083,
+      "sha256": "85473f80ff185dc1a95539de2dd90f75c9e9244013aeab99bbccaeced666c365"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/canonical-baseline-after-unexpected.json",
+      "bytes": 733805,
+      "sha256": "1ea9bf864600d6e12d2e7643c2d5a8033359a68e99bfaf7789e73e45c69186a4"
+    },
+    {
+      "source_path": "/tmp/e02-E-api-companions-thirteenth-20261007/canonical-baseline-before-from-Git.json",
+      "bytes": 1006190,
+      "sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af"
+    }
+  ],
+  "omission_reason": "Old complete derived census is reproducible from exact pinned source/reproducer; complete current input/rows are published instead. Large baseline before/after unique tool bytes remain preserved in Root raw custody with exact deciding hashes and restoration receipt; no permanent deletion.",
+  "no_active_python_utility_in_publication": true,
+  "source_read_lease": "CLOSED"
+}

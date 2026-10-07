@@ -1,0 +1,14 @@
+{
+  "source": "e4b97c15196d8e276745f55a4367da83586511d9",
+  "tree": "48af48c6462db76be9ba962dc6df07a9a1977963",
+  "exact_default_copy_files": 24492,
+  "exact_default_copy_regular_bytes": 668063244,
+  "free_workspace": 1072214016,
+  "free_tmp": 1179832320,
+  "real_existing_offline_cache": "/workspace/.polisyos-environment/cache/uv",
+  "retained_new_workspace": "/workspace/e02-E-thirteenth-architecture-recompute-e4b97-20261007",
+  "workspace_absent": true,
+  "selected_storage_environment": "UV_LINK_MODE=hardlink, existing cache and private workspace on same filesystem to avoid duplicating packages; no CPU/process/thread/worker quotas",
+  "source_immutability": "canonical source/Git writers not invoked; required generators private isolated source only",
+  "cleanup": "new workspace retained; no permanent deletion/Trash unavailable"
+}

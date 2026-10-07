@@ -1,0 +1,135 @@
+"""Owner-ready unapplied tests for ordinary float CAS input and native refusal.
+
+The positive reuses the maintained integer-source suite's actual fresh CAS/Node
+oracle. This packet is not an executed backend witness.
+"""
+
+from __future__ import annotations
+
+import importlib.util
+from pathlib import Path
+
+import pytest
+
+from polisyos.core import artifacts, canon
+from polisyos.foundry.uncertainty import BayesianFitBinding
+from polisyos.scientist.compute import JobSpec, run_job
+from polisyos.scientist.compute.runner import MethodBackend
+
+
+@pytest.fixture(scope="module", params=["hmc", "nuts"])
+def real_float_fit(tmp_path_factory, request):
+    root = tmp_path_factory.mktemp("real-bayesian-float-fit")
+    store = artifacts.FileSystemCAS(root)
+    source = {
+        "features": [[-1.0], [0.0], [1.0], [-0.5], [0.5]],
+        "target": [-0.2, 0.1, 0.2, -0.1, 0.0],
+    }
+    refs = {
+        name: store.put_json(
+            data,
+            artifacts.PutOptions(kind="test.bayesian_source", media_type="application/json"),
+            canon_spec=canon.CanonSpec(forbid_floats=False),
+        )
+        for name, data in source.items()
+    }
+    params = {
+        "runtime_backend": "numpy",
+        "num_warmup": 32,
+        "num_samples": 32,
+        "num_chains": 2,
+        "step_size": 0.015,
+        "credible_mass": 0.9,
+    }
+    params["n_leapfrog" if request.param == "hmc" else "max_depth"] = (
+        8 if request.param == "hmc" else 3
+    )
+    method = f"bayesian.sampling.{request.param}@1.0.0"
+    result = run_job(
+        JobSpec(
+            job_kind="method", method_fqn=method, input_refs=refs, method_params=params, seed=321
+        ),
+        cas_root=root,
+    )
+    assert not result.issues, result.issues
+    assert result.method_result_ref is not None
+    assert result.method_evidence_ref is not None
+    binding = BayesianFitBinding(
+        method_fqn=method,
+        source_refs=refs,
+        seed=321,
+        effective_parameters={k: v for k, v in params.items() if k != "runtime_backend"},
+    )
+    raw = canon.from_canonical_bytes(store.get_bytes(result.method_result_ref))
+    evidence = canon.from_canonical_bytes(store.get_bytes(result.method_evidence_ref))
+    return root, store, result, binding, raw, evidence
+
+
+def test_real_float_configured_backend_fresh_node(real_float_fit, monkeypatch):
+    # Maintained sibling defines actual callback row Counter, Fraction oracles,
+    # fresh store, all output-ref lineage, and non-gating authority assertions.
+    path = Path(__file__).with_name("test_bayesian_fit_consumer.py")
+    spec = importlib.util.spec_from_file_location("float_fit_existing_oracle", path)
+    assert spec is not None
+    assert spec.loader is not None
+    oracle = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(oracle)
+    oracle.test_real_configured_backend_corpus_persists_and_fresh_node_consumes(
+        real_float_fit, monkeypatch
+    )
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        "malformed_float_hex_value",
+        "missing_float_hex_value",
+        "unsupported_tag",
+        "kind",
+        "media_type",
+        "missing_view",
+    ],
+)
+def test_invalid_native_float_input_refuses_before_backend_and_publication(tmp_path, case):
+    store = artifacts.FileSystemCAS(tmp_path)
+    options = artifacts.PutOptions(kind="test.bayesian_source", media_type="application/json")
+    tagged = {
+        "malformed_float_hex_value": b'[{"_type":"float_hex","value":"broken"}]',
+        "missing_float_hex_value": b'[{"_type":"float_hex"}]',
+        "unsupported_tag": b'[{"_type":"unsupported_numeric_tag","value":"1"}]',
+    }
+    ref = (
+        store.put_bytes(tagged[case], options)
+        if case in tagged
+        else store.put_json([1, 2], options)
+    )
+    if case == "kind":
+        ref = ref.model_copy(update={"kind": "forged.kind"})
+    elif case == "media_type":
+        ref = ref.model_copy(update={"media_type": "application/octet-stream"})
+    elif case == "missing_view":
+        ref = ref.model_copy(update={"manifest_profile_sha256": "sha256:" + "0" * 64})
+
+    class ForbiddenBackend(MethodBackend):
+        calls = 0
+
+        def run(self, **kwargs):
+            self.calls += 1
+            raise RuntimeError("backend_reached_despite_bad_native_input")
+
+    backend = ForbiddenBackend()
+    result = run_job(
+        JobSpec(
+            job_kind="method",
+            method_fqn="bayesian.sampling.hmc@1.0.0",
+            input_refs={"target": ref},
+            seed=321,
+        ),
+        cas_root=tmp_path,
+        backend=backend,
+    )
+    assert backend.calls == 0
+    assert result.issues
+    assert result.method_result_ref is None
+    assert result.method_evidence_ref is None
+    assert result.simulation_results_ref is None

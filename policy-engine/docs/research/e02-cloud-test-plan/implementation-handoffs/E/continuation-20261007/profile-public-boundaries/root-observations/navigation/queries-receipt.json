@@ -1,0 +1,245 @@
+{
+  "source_HEAD": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+  "verification_sha256": "26fcc44ff5094586402edf421cb04faf944578be3f628edd2577f5ed589d2c17",
+  "Python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "events": [
+    {
+      "selector": "importer",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 112,
+      "stdout_sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "stderr_bytes": 0
+    },
+    {
+      "selector": "E-first30",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--unit",
+        "E",
+        "--failures-only",
+        "--limit",
+        "30"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 10704,
+      "stdout_sha256": "8a460d9c71115e5b3fcbb8da0d2242e8a5fbae51f41b360321891a1a956d2916",
+      "stderr_bytes": 0
+    },
+    {
+      "selector": "B201",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B201",
+        "--details",
+        "--job-context",
+        "--limit",
+        "1000",
+        "--block-limit",
+        "1000"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 108548,
+      "stdout_sha256": "5cf7ef2762ba4699641fc9a169415bac06d72b236ff7b2fd2712cc34a3f49e4a",
+      "stderr_bytes": 0
+    },
+    {
+      "selector": "B202",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B202",
+        "--details",
+        "--job-context",
+        "--limit",
+        "1000",
+        "--block-limit",
+        "1000"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 108548,
+      "stdout_sha256": "405e5786557e624c12990ad135237437d8abe91435c3949eef8c5dd3a2f69ea6",
+      "stderr_bytes": 0
+    },
+    {
+      "selector": "B32",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B32",
+        "--details",
+        "--job-context",
+        "--limit",
+        "1000",
+        "--block-limit",
+        "1000"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 93702,
+      "stdout_sha256": "8aefc62c91012a26d9f41527e79ecbcada29733c485c9505e8b6304b5af32ec5",
+      "stderr_bytes": 0
+    },
+    {
+      "selector": "LA-051",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "LA-051",
+        "--details",
+        "--job-context",
+        "--limit",
+        "1000",
+        "--block-limit",
+        "1000"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 107380,
+      "stdout_sha256": "f6bffb435f30e13d7d080b53feef62d300b8ad4ee5d531bf5fd24b6dbc4ba075",
+      "stderr_bytes": 0
+    },
+    {
+      "selector": "B194",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B194",
+        "--details",
+        "--job-context",
+        "--limit",
+        "1000",
+        "--block-limit",
+        "1000"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 93616,
+      "stdout_sha256": "9b72865906e42b3cae7f2d6d883b107a2e1c447eecba6a02567192c44f800f78",
+      "stderr_bytes": 0
+    },
+    {
+      "selector": "B197",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B197",
+        "--details",
+        "--job-context",
+        "--limit",
+        "1000",
+        "--block-limit",
+        "1000"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 94345,
+      "stdout_sha256": "834cfddec690539a630d2c2793de8010a023e28eed3666b561bfdc047ab25f52",
+      "stderr_bytes": 0
+    },
+    {
+      "selector": "B190",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B190",
+        "--details",
+        "--job-context",
+        "--limit",
+        "1000",
+        "--block-limit",
+        "1000"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 123819,
+      "stdout_sha256": "8df58e2953eec5f0c173d52dddbe72bfade3a417a00b15d4c0c3e1512a085af5",
+      "stderr_bytes": 0
+    },
+    {
+      "selector": "B200",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B200",
+        "--details",
+        "--job-context",
+        "--limit",
+        "1000",
+        "--block-limit",
+        "1000"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 108578,
+      "stdout_sha256": "efae34dacaad30b25a64429396fee5c966e35cb32cdddbc4fb29932f4b0fc9c7",
+      "stderr_bytes": 0
+    },
+    {
+      "selector": "LA-053",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "LA-053",
+        "--details",
+        "--job-context",
+        "--limit",
+        "1000",
+        "--block-limit",
+        "1000"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 90274,
+      "stdout_sha256": "7f5bf2db0388f534526d1c1360e4fb1ae486f0bd2b73686bd02dabebce45112c",
+      "stderr_bytes": 0
+    },
+    {
+      "selector": "LA-054",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "LA-054",
+        "--details",
+        "--job-context",
+        "--limit",
+        "1000",
+        "--block-limit",
+        "1000"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 73571,
+      "stdout_sha256": "ff5e6a0a3ad16d766f0c80c80ea798cbeff3c49c0bd495719893cda70cd1a505",
+      "stderr_bytes": 0
+    },
+    {
+      "selector": "LA-055",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "LA-055",
+        "--details",
+        "--job-context",
+        "--limit",
+        "1000",
+        "--block-limit",
+        "1000"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 73571,
+      "stdout_sha256": "9e51771dbb21516a85d92ecfd037f647c1a44f37470f8e2cef53ec591e8c26b0",
+      "stderr_bytes": 0
+    }
+  ],
+  "evidence_scope": "navigation only"
+}

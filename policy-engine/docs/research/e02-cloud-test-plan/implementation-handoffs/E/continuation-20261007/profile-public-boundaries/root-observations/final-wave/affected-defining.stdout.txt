@@ -1,0 +1,209 @@
+........................................................................ [ 36%]
+.....................................FF................................. [ 73%]
+...................................................                      [100%]
+=================================== FAILURES ===================================
+__ test_law_losing_compression_clears_complete_profile_declaration[interval] ___
+
+tmp_path = PosixPath('/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave/affected-defining-fixtures/test_law_losing_compression_cl0')
+target = 'interval'
+
+    @pytest.mark.parametrize("target", ["interval", "moments"])
+    def test_law_losing_compression_clears_complete_profile_declaration(tmp_path, target):
+        source = _source([0.0] * 99 + [100.0])
+        result = _fresh(tmp_path, compress_envelope(source, target=target))
+        assert read_posterior_summary_profile(result) is None
+        assert all(
+            key not in result.metadata
+            for key in (
+                "posterior_summary_profile",
+                "posterior_summary_profile_required",
+                "posterior_summary_profile_id",
+                "posterior_summary_profile_version",
+                "point_functional",
+                "interval_functional",
+                "joint_parameter_order",
+                "joint_draw_ids",
+                "joint_law_sha256",
+                "joint_sample_id",
+            )
+        )
+        assert result.metadata["posterior_composition_limitation"]
+        if target == "moments":
+            assert result.point_estimate == 1.0
+            assert result.distribution_payload.parameters == {"mean": 1.0, "std": math.sqrt(99.0)}
+            assert result.confidence_interval != source.confidence_interval
+            assert result.ci_lower < 1.0 < result.ci_upper
+            assert result.composition_provenance.exactness is ExactnessKind.APPROXIMATION
+        forged = result.model_copy(update={"metadata": source.metadata})
+        with pytest.raises(ValueError, match="exact carrier"):
+>           read_posterior_summary_profile(_fresh(tmp_path / "stale", forged))
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_uncertainty_posterior_composition.py:236: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/ir/test_uncertainty_posterior_composition.py:46: in _fresh
+    fresh = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7fef8cb12f50>
+ref = UncertaintyEnvelopeRef(artifact_id=ArtifactID(root='sha256:a0303ceb2dedc657632c582cac1b95a5ded4fddc1ad5402ebfa45549f4ffc4a6'), kind='ir.uncertainty_envelope', media_type='application/json')
+
+    def load_uncertainty_envelope(
+        store: ArtifactStore,
+        ref: UncertaintyEnvelopeRef,
+    ) -> UncertaintyEnvelope:
+        """Load an uncertainty envelope from artifact storage."""
+        payload = get_json_artifact(store, ref.artifact_id)
+>       return UncertaintyEnvelope.model_validate(payload)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for UncertaintyEnvelope
+E         Value error, posterior summary raw carrier is missing [type=value_error, input_value={'composition_provenance'...'source': 'calibration'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+src/polisyos/ir/analytics/uncertainty.py:2403: ValidationError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave/affected-defining-fixtures/test_law_losing_compression_cl0')
+target = 'interval'
+
+    @pytest.mark.parametrize("target", ["interval", "moments"])
+    def test_law_losing_compression_clears_complete_profile_declaration(tmp_path, target):
+        source = _source([0.0] * 99 + [100.0])
+        result = _fresh(tmp_path, compress_envelope(source, target=target))
+        assert read_posterior_summary_profile(result) is None
+        assert all(
+            key not in result.metadata
+            for key in (
+                "posterior_summary_profile",
+                "posterior_summary_profile_required",
+                "posterior_summary_profile_id",
+                "posterior_summary_profile_version",
+                "point_functional",
+                "interval_functional",
+                "joint_parameter_order",
+                "joint_draw_ids",
+                "joint_law_sha256",
+                "joint_sample_id",
+            )
+        )
+        assert result.metadata["posterior_composition_limitation"]
+        if target == "moments":
+            assert result.point_estimate == 1.0
+            assert result.distribution_payload.parameters == {"mean": 1.0, "std": math.sqrt(99.0)}
+            assert result.confidence_interval != source.confidence_interval
+            assert result.ci_lower < 1.0 < result.ci_upper
+            assert result.composition_provenance.exactness is ExactnessKind.APPROXIMATION
+        forged = result.model_copy(update={"metadata": source.metadata})
+>       with pytest.raises(ValueError, match="exact carrier"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'exact carrier'
+E         Actual message: "1 validation error for UncertaintyEnvelope\n  Value error, posterior summary raw carrier is missing [type=value_error, input_value={'composition_provenance'...'source': 'calibration'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+
+tests/unit/ir/test_uncertainty_posterior_composition.py:235: AssertionError
+___ test_law_losing_compression_clears_complete_profile_declaration[moments] ___
+
+tmp_path = PosixPath('/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave/affected-defining-fixtures/test_law_losing_compression_cl1')
+target = 'moments'
+
+    @pytest.mark.parametrize("target", ["interval", "moments"])
+    def test_law_losing_compression_clears_complete_profile_declaration(tmp_path, target):
+        source = _source([0.0] * 99 + [100.0])
+        result = _fresh(tmp_path, compress_envelope(source, target=target))
+        assert read_posterior_summary_profile(result) is None
+        assert all(
+            key not in result.metadata
+            for key in (
+                "posterior_summary_profile",
+                "posterior_summary_profile_required",
+                "posterior_summary_profile_id",
+                "posterior_summary_profile_version",
+                "point_functional",
+                "interval_functional",
+                "joint_parameter_order",
+                "joint_draw_ids",
+                "joint_law_sha256",
+                "joint_sample_id",
+            )
+        )
+        assert result.metadata["posterior_composition_limitation"]
+        if target == "moments":
+            assert result.point_estimate == 1.0
+            assert result.distribution_payload.parameters == {"mean": 1.0, "std": math.sqrt(99.0)}
+            assert result.confidence_interval != source.confidence_interval
+            assert result.ci_lower < 1.0 < result.ci_upper
+            assert result.composition_provenance.exactness is ExactnessKind.APPROXIMATION
+        forged = result.model_copy(update={"metadata": source.metadata})
+        with pytest.raises(ValueError, match="exact carrier"):
+>           read_posterior_summary_profile(_fresh(tmp_path / "stale", forged))
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_uncertainty_posterior_composition.py:236: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/ir/test_uncertainty_posterior_composition.py:46: in _fresh
+    fresh = load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7fef8cb13450>
+ref = UncertaintyEnvelopeRef(artifact_id=ArtifactID(root='sha256:cb8a6a53c35da834582e17b68601b8e212f635f1109aa7ce91a901c6925a0587'), kind='ir.uncertainty_envelope', media_type='application/json')
+
+    def load_uncertainty_envelope(
+        store: ArtifactStore,
+        ref: UncertaintyEnvelopeRef,
+    ) -> UncertaintyEnvelope:
+        """Load an uncertainty envelope from artifact storage."""
+        payload = get_json_artifact(store, ref.artifact_id)
+>       return UncertaintyEnvelope.model_validate(payload)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for UncertaintyEnvelope
+E         Value error, posterior summary raw carrier is missing [type=value_error, input_value={'composition_provenance'...'source': 'calibration'}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+src/polisyos/ir/analytics/uncertainty.py:2403: ValidationError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/tmp/e02-E-pr38-thirteenth-continuation-20261007/final-wave/affected-defining-fixtures/test_law_losing_compression_cl1')
+target = 'moments'
+
+    @pytest.mark.parametrize("target", ["interval", "moments"])
+    def test_law_losing_compression_clears_complete_profile_declaration(tmp_path, target):
+        source = _source([0.0] * 99 + [100.0])
+        result = _fresh(tmp_path, compress_envelope(source, target=target))
+        assert read_posterior_summary_profile(result) is None
+        assert all(
+            key not in result.metadata
+            for key in (
+                "posterior_summary_profile",
+                "posterior_summary_profile_required",
+                "posterior_summary_profile_id",
+                "posterior_summary_profile_version",
+                "point_functional",
+                "interval_functional",
+                "joint_parameter_order",
+                "joint_draw_ids",
+                "joint_law_sha256",
+                "joint_sample_id",
+            )
+        )
+        assert result.metadata["posterior_composition_limitation"]
+        if target == "moments":
+            assert result.point_estimate == 1.0
+            assert result.distribution_payload.parameters == {"mean": 1.0, "std": math.sqrt(99.0)}
+            assert result.confidence_interval != source.confidence_interval
+            assert result.ci_lower < 1.0 < result.ci_upper
+            assert result.composition_provenance.exactness is ExactnessKind.APPROXIMATION
+        forged = result.model_copy(update={"metadata": source.metadata})
+>       with pytest.raises(ValueError, match="exact carrier"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'exact carrier'
+E         Actual message: "1 validation error for UncertaintyEnvelope\n  Value error, posterior summary raw carrier is missing [type=value_error, input_value={'composition_provenance'...'source': 'calibration'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+
+tests/unit/ir/test_uncertainty_posterior_composition.py:235: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/ir/test_uncertainty_posterior_composition.py::test_law_losing_compression_clears_complete_profile_declaration[interval]
+FAILED tests/unit/ir/test_uncertainty_posterior_composition.py::test_law_losing_compression_clears_complete_profile_declaration[moments]

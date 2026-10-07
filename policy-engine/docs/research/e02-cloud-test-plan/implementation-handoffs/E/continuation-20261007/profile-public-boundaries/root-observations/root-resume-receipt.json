@@ -1,0 +1,9 @@
+{
+  "command": "E02_TOPIC_BRANCH=codex/e02-E-continuation-20261006\nE02_WORKTREE_ROOT=/workspace/e02-E-continuation-20261006\n(cd policy-engine && uv run --no-sync polisyos-tools workspace doctor --worktree-admission resume --branch \"${E02_TOPIC_BRANCH:?set actual branch}\" --path \"${E02_WORKTREE_ROOT:?set absolute worktree root}\")",
+  "branch": "codex/e02-E-continuation-20261006",
+  "path": "/workspace/e02-E-continuation-20261006",
+  "exit_code": 0,
+  "stdout_bytes": 123265,
+  "stdout_sha256": "0aed708134e93c44a4e6a8759d640d1f2decbeacf8223f17e4f821432be1f817",
+  "time_utc": "2026-10-07T19:07:42.463076+00:00"
+}

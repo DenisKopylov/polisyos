@@ -1,0 +1,41 @@
+--- a/policy-engine/src/polisyos/ir/api.py
++++ b/policy-engine/src/polisyos/ir/api.py
+@@ -1013,6 +1013,14 @@
+         "polisyos.ir.analytics.forecasting_uncertainty",
+         "ForecastingUncertaintyBundleV2",
+     ),
++    "load_forecasting_uncertainty_bundle": (
++        "polisyos.ir.analytics.forecasting_uncertainty",
++        "load_forecasting_uncertainty_bundle",
++    ),
++    "persist_forecasting_uncertainty_bundle": (
++        "polisyos.ir.analytics.forecasting_uncertainty",
++        "persist_forecasting_uncertainty_bundle",
++    ),
+     "ForecastShiftTypeAssessment": (
+         "polisyos.ir.analytics.regime_shift_forecast",
+         "ForecastShiftTypeAssessment",
+--- a/policy-engine/src/polisyos/calibration/forecast_bridge.py
++++ b/policy-engine/src/polisyos/calibration/forecast_bridge.py
+@@ -992,9 +992,7 @@
+         raise ValueError("forecast candidate training/source/request binding mismatch")
+     if measurement is not None and training.get("measurement_binding") != measurement:
+         raise ValueError("forecast candidate training measurement binding mismatch")
+-    from polisyos.ir.analytics.forecasting_uncertainty import (
+-        load_forecasting_uncertainty_bundle,
+-    )
++    from polisyos.ir.analytics import load_forecasting_uncertainty_bundle
+     from polisyos.ir.registry.refs import ForecastingUncertaintyBundleRef
+ 
+     bundle_ref = ForecastingUncertaintyBundleRef.model_validate(
+--- a/policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py
++++ b/policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py
+@@ -55,7 +55,7 @@
+     load_backtest_report,
+ )
+ from polisyos.ir.analytics.calibration_diagnostics import CalibrationDiagnosticsReport
+-from polisyos.ir.analytics.forecasting_uncertainty import (
++from polisyos.ir.analytics import (
+     ForecastingUncertaintyBundle,
+     ForecastIntervalSemantics,
+     load_forecasting_uncertainty_bundle,

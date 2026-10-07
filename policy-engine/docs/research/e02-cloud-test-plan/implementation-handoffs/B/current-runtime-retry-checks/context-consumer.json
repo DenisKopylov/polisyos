@@ -1,0 +1,127 @@
+{
+  "schema": "policyos.e02.consumer_probe.v1",
+  "target_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+  "producer_identity": {
+    "policy-engine/src/polisyos/common/async_tools.py": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py": "79e0a1e01af4e8e46c760c00b33ca6f49e27c38e61b8c9dfd0e9a8a953dfa271"
+  },
+  "command": [
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/context-consumer.py",
+    "../_build/e02-current-runtime/context-consumer-final"
+  ],
+  "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "PYTHONPATH": "src:.",
+    "POLISYOS_METRICS_PORT": "0"
+  },
+  "input_closure": "Canonical Git source identity checked; actual reused one-worker fixture is deliberate reuse oracle, no process-wide quota; actual FileSystemCAS/RunContext/NodeSpec; admitted source tree e187 and installed environment receipt",
+  "rows": [
+    {
+      "route": "sync-thread",
+      "requested": "A",
+      "artifact_id": "sha256:772e9380473ee2f02a5b6d14ecc06d1fc0364e3b6e123f4040ed497584fdef91",
+      "consumed": {
+        "scope": "A",
+        "thread_id": 140001625392832
+      },
+      "caller_after": "A",
+      "pass": true
+    },
+    {
+      "route": "sync-thread",
+      "requested": "B",
+      "artifact_id": "sha256:0b8aaf74e5ce041a03fec3ccb6a85a5d65f72a667f46ebdc3120e7dc18466705",
+      "consumed": {
+        "scope": "B",
+        "thread_id": 140001625392832
+      },
+      "caller_after": "B",
+      "pass": true
+    },
+    {
+      "route": "sync-thread",
+      "requested": null,
+      "artifact_id": "sha256:692fe5bc6beb580db4ca48c40b396381d0e372e6c11cb9242876eb5caef7e60d",
+      "consumed": {
+        "scope": null,
+        "thread_id": 140001625392832
+      },
+      "caller_after": null,
+      "pass": true
+    },
+    {
+      "route": "async-thread",
+      "requested": "A",
+      "artifact_id": "sha256:772e9380473ee2f02a5b6d14ecc06d1fc0364e3b6e123f4040ed497584fdef91",
+      "consumed": {
+        "scope": "A",
+        "thread_id": 140001625392832
+      },
+      "caller_after": "A",
+      "pass": true
+    },
+    {
+      "route": "async-thread",
+      "requested": "B",
+      "artifact_id": "sha256:0b8aaf74e5ce041a03fec3ccb6a85a5d65f72a667f46ebdc3120e7dc18466705",
+      "consumed": {
+        "scope": "B",
+        "thread_id": 140001625392832
+      },
+      "caller_after": "B",
+      "pass": true
+    },
+    {
+      "route": "async-thread",
+      "requested": null,
+      "artifact_id": "sha256:692fe5bc6beb580db4ca48c40b396381d0e372e6c11cb9242876eb5caef7e60d",
+      "consumed": {
+        "scope": null,
+        "thread_id": 140001625392832
+      },
+      "caller_after": null,
+      "pass": true
+    },
+    {
+      "route": "async-sync-unbounded",
+      "requested": "A",
+      "artifact_id": "sha256:772e9380473ee2f02a5b6d14ecc06d1fc0364e3b6e123f4040ed497584fdef91",
+      "consumed": {
+        "scope": "A",
+        "thread_id": 140001625392832
+      },
+      "caller_after": "A",
+      "pass": true
+    },
+    {
+      "route": "async-sync-unbounded",
+      "requested": "B",
+      "artifact_id": "sha256:0b8aaf74e5ce041a03fec3ccb6a85a5d65f72a667f46ebdc3120e7dc18466705",
+      "consumed": {
+        "scope": "B",
+        "thread_id": 140001625392832
+      },
+      "caller_after": "B",
+      "pass": true
+    },
+    {
+      "route": "async-sync-unbounded",
+      "requested": null,
+      "artifact_id": "sha256:692fe5bc6beb580db4ca48c40b396381d0e372e6c11cb9242876eb5caef7e60d",
+      "consumed": {
+        "scope": null,
+        "thread_id": 140001625392832
+      },
+      "caller_after": null,
+      "pass": true
+    }
+  ],
+  "worker_scope_after": null,
+  "outcome": "9PASS; exact caller scope persisted and consumed; no old body-mutated worker context",
+  "limitations": [
+    "Caller ContextVar propagation and typed artifact values, not a tenant authorization or grant proof.",
+    "Thread capability deliberately selected, no native macOS/fork distribution claim."
+  ]
+}

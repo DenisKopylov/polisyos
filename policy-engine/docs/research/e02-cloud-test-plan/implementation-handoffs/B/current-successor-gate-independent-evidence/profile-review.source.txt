@@ -1,0 +1,245 @@
+"""Read terminal architecture/runtime/style evidence without executing product code."""
+
+from pathlib import Path
+from datetime import UTC, datetime
+import ast
+import hashlib
+import json
+import re
+import subprocess
+import sys
+import tomllib
+
+ROOT = Path('/workspace/e02-B-current-coordination')
+SHA = 'dd9584728bd96f204983615216efdbc58117e713'
+GENERATOR_SHA = '02ff9d0467423a99c2b4c737329da0c629e6b869'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'
+RAW = ROOT / '.polisyos/e02-B-current/raw/review'
+PROFILES = Path('/tmp/e02-B-successor-final/raw/review')
+OUT = Path('/tmp/e02-B-successor-gate-audit-exe/profile-review-v2')
+
+
+def digest(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def git(*words):
+    return subprocess.check_output(['/usr/bin/git', '--no-optional-locks', '-C', str(ROOT), *words])
+
+
+def snapshot():
+    return {'head':git('rev-parse','HEAD').decode().strip(),
+            'tree':git('rev-parse','HEAD^{tree}').decode().strip(),
+            'status':git('status','--porcelain=v1','--untracked-files=all').decode()}
+
+
+def source(path):
+    raw = git('show', SHA + ':' + path)
+    if (ROOT / path).read_bytes() != raw:
+        raise ValueError('Live source differs from supplied Git object: ' + path)
+    return raw
+
+
+before = snapshot()
+assert before['head'] == SHA and before['status'] == ''
+OUT.mkdir(exist_ok=False)
+refs = []
+
+
+def local(path, *, preserve=False):
+    raw = path.read_bytes()
+    row = {'path':str(path),'bytes':len(raw),'sha256':digest(raw),'complete_bytes_read':True}
+    if preserve:
+        output = OUT / path.name
+        with output.open('xb') as stream:
+            stream.write(raw)
+        assert output.read_bytes() == raw
+        row['preserved_complete_bytes'] = str(output)
+    refs.append(row)
+    return raw
+
+
+sources = [
+    'policy-engine/architecture/generated_artifacts.toml',
+    'policy-engine/tools/devx/architecture/guardrails.py',
+    'policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py',
+    'policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py',
+    'policy-engine/src/polisyos/runtime/http/app.py',
+    'policy-engine/src/polisyos/runtime/http/openapi_contract.py',
+    'policy-engine/src/polisyos/runtime/http/services/confidence_ledger_risk_spend_projection.py',
+    'policy-engine/src/polisyos/runtime/http/services/governed_projections.py',
+    'policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py',
+    'policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py',
+    'policy-engine/src/polisyos/scientist/orchestration/engine/executor.py',
+    'policy-engine/pyproject.toml',
+    'policy-engine/uv.lock',
+    PREFIX + 'final-root-evidence/run_successor.py',
+    PREFIX + 'final-root-evidence/capture_frozen.py',
+]
+source_refs = []
+for path in sources:
+    raw = source(path)
+    source_refs.append({'path':path,'source_sha':SHA,'git_blob':git('rev-parse',SHA+':'+path).decode().strip(),
+                        'bytes':len(raw),'sha256':digest(raw),'live_byte_equal':True})
+families = tomllib.loads(source(sources[0]).decode())['family']
+runtime_family = next(f for f in families if f['id']=='runtime-openapi-snapshot')
+trust_family = next(f for f in families if f['id']=='trust-claim-posture-register')
+required = [f['id'] for f in families if f.get('default_freshness_check')
+            or f.get('source_of_truth')=='schemas/runtime_api_v1.openapi.json']
+gate_rows = []
+for label in ['architecture','runtime-api','all-changed-format']:
+    tag = 'successor-final-' + label
+    wrapper = json.loads(local(RAW / (tag + '.json'), preserve=True))
+    profile = json.loads(local(PROFILES / (tag + '-profile.json'), preserve=True))
+    stdout = local(RAW / (tag + '.txt'), preserve=True)
+    assert wrapper['head']==wrapper['head_after']==profile['sha']==SHA
+    assert wrapper['tree']==profile['tree']==before['tree']
+    assert wrapper['command']==profile['argv'] and wrapper['cwd']==profile['cwd']
+    assert digest(stdout)==wrapper['output_sha256']
+    assert wrapper['exec_setup_error'] is None and wrapper['harness_state']=='EXECUTED'
+    assert profile['launcher_sha256']==digest(source(PREFIX+'final-root-evidence/run_successor.py'))
+    gate_rows.append({'tag':tag,'actual_outcome':'PASS' if wrapper['exit_code']==0 else 'FAIL',
+                      'wrapper':wrapper,'profile':profile,'complete_stdout_ref':refs[-1]})
+arch = (RAW / 'successor-final-architecture.txt').read_text()
+runtime = (RAW / 'successor-final-runtime-api.txt').read_text()
+fmt = (RAW / 'successor-final-all-changed-format.txt').read_text()
+assert 'Architecture guardrail check FAILED:' in arch
+assert 'Runtime API contract check passed (declared scope only).' in runtime
+assert not re.search(r'^- UNRUN ', arch, re.M)
+generated_messages = [line for line in arch.splitlines()
+                      if line.startswith('- runtime-openapi-snapshot')
+                      or line.startswith('- trust-claim-posture-register')]
+assert len(generated_messages)==2
+formatted = re.findall(r'^Would reformat: (.+)$', fmt, re.M)
+summary = re.search(r'(\d+) files would be reformatted, (\d+) files already formatted', fmt)
+assert summary and int(summary[1])==len(formatted)
+format_classes = {}
+for path in formatted:
+    scope = 'canonical_product' if path.startswith('src/') else 'native_tests' if path.startswith('tests/') else 'tools' if path.startswith('tools/') else 'research' if path.startswith('docs/research/') else 'other'
+    format_classes.setdefault(scope, []).append(path)
+assert format_classes.get('canonical_product') == ['src/polisyos/scientist/orchestration/engine/executor.py']
+
+generator_wrapper = json.loads(local(RAW/'successor-prefreeze-openapi-02ff.json', preserve=True))
+generator_stdout = local(RAW/'successor-prefreeze-openapi-02ff.txt', preserve=True)
+assert generator_wrapper['head']==generator_wrapper['head_after']==GENERATOR_SHA
+assert generator_wrapper['exit_code']==0 and generator_wrapper['harness_state']=='EXECUTED'
+assert digest(generator_stdout)==generator_wrapper['output_sha256']
+generated = local(Path('/tmp/e02-B-successor-openapi-02ff/after.json'))
+prior = local(Path('/tmp/e02-B-successor-openapi-02ff/before.json'))
+committed = source('policy-engine/schemas/runtime_api_v1.openapi.json')
+assert generated==committed and prior!=generated
+schema = json.loads(committed)
+example = schema['paths']['/api/v1/exports/governed-projections/confidence-ledger-risk-spend']['get']['responses']['200']['content']['application/json']['examples']['default']['value']
+validation = example['source']['validation']
+assert validation['bound_dependency_count']==1502
+
+profile_comparison = [
+    {'profile':'02ff canonical export',
+     'actual_command':generator_wrapper['command'],
+     'source_sha':GENERATOR_SHA,
+     'input_environment':generator_wrapper['source_environment'],
+     'source_kind':'Canonical root checkout; explicit new runtime CAS scratch.',
+     'environment_kind':'Root194 UV_NO_SYNC profile; full inherited effective env not inventoried by this wrapper.',
+     'observed_output':'Retained after.json byte-identical to committed DD OpenAPI.'},
+    {'profile':'DD direct runtime-api',
+     'actual_command':gate_rows[1]['wrapper']['command'],
+     'source_sha':SHA,
+     'input_environment':gate_rows[1]['profile']['environment'],
+     'source_kind':'Canonical root create_runtime_api_app(enable_security_middlewares=False), default CAS.',
+     'environment_kind':'Root194 UV_NO_SYNC profile.',
+     'observed_output':'OpenAPI byte drift + hardening invariants + generated client byte drift requested; actual declared-scope PASS.'},
+    {'profile':'DD registered architecture freshness probe',
+     'outer_command':gate_rows[0]['wrapper']['command'],
+     'source_sha':SHA,
+     'registered_recipe_argv':runtime_family['output_probe_command'],
+     'source_kind':'Isolated copied product source, no Git/.venv/production_data/_build/node_modules copy, origin preflight.',
+     'environment_kind':'Private uv venv, UV_FROZEN=1, uv sync --frozen; clears inherited UV_NO_SYNC and UV_PROJECT_ENVIRONMENT. Recipe sets PYTHONHASHSEED=0/JAX_PLATFORMS=cpu/PYTHONNOUSERSITE=1/PYTHONDONTWRITEBYTECODE=1/PYTHONPATH=src:.',
+     'observed_output':'Actual output mismatch reported after successful generator/output census; full generated probe bytes, per-worker map and private environment not retained by default temporary workspace.'},
+]
+scoped_changes = git('diff','--name-only',GENERATOR_SHA,SHA,'--',
+                    'policy-engine/src/polisyos/runtime/http',
+                    'policy-engine/src/polisyos/runtime/quality',
+                    'policy-engine/tools/ops_runners/runtime',
+                    'policy-engine/architecture/generated_artifacts.toml',
+                    'policy-engine/pyproject.toml','policy-engine/uv.lock',
+                    'policy-engine/schemas/runtime_api_v1.openapi.json').decode().splitlines()
+assert scoped_changes==['policy-engine/schemas/runtime_api_v1.openapi.json']
+after = snapshot()
+assert before==after
+packet = {
+    'schema':'policyos.e02.independent_gate_profile_review.v1',
+    'reviewer':'EXE /root/exe_state_writer; source/evidence execution audit only, no acceptance of own production mechanism',
+    'created_utc':datetime.now(UTC).isoformat(),
+    'target_source_sha':SHA,'target_tree_sha':before['tree'],
+    'status':'actual_architecture_FAIL_and_direct_runtime_api_PASS_reconciled_profile_causality_not_established',
+    'predicate_basis':'independently_reconciled',
+    'per_quantity_basis':{'actual_terminal_output_and_exit':'independently_reconciled',
+                         'registered_recipe_and_context_difference':'recomputed',
+                         'reason_for_generated_byte_difference':'not_established',
+                         'full_1502_worker_mapping':'not_established',
+                         'architecture_probe_generated_payload_identity':'not_established'},
+    'checks':[{'tag':g['tag'],'actual_outcome':g['actual_outcome'],
+               'target_sha':SHA,'target_tree_sha':g['wrapper']['tree'],
+               'head_after':g['wrapper']['head_after'],
+               'exit_code':g['wrapper']['exit_code'],
+               'harness_state':g['wrapper']['harness_state'],
+               'wall_s':g['wrapper']['wall_s'],
+               'process_rusage_maxrss_kib':g['wrapper']['process_rusage_maxrss_kib'],
+               'actual_full_argv_and_environment':'Complete preserved wrapper/profile refs in evidence_refs; no truncated argv predicate.',
+               'wrapper_ref':next(r for r in refs if r['path']==str(RAW/(g['tag']+'.json'))),
+               'profile_ref':next(r for r in refs if r['path']==str(PROFILES/(g['tag']+'-profile.json'))),
+               'complete_stdout_ref':g['complete_stdout_ref']} for g in gate_rows],
+    'required_generated_freshness_denominator':required,
+    'architecture_full_output':{'bytes':len(arch.encode()),'lines':len(arch.splitlines()),
+                                'reported_new_deep_imports':len(re.findall(r'^- New deep-import creep detected:',arch,re.M)),
+                                'reported_generated_mismatches':generated_messages,
+                                'unrun_measurements_reported':False,
+                                'scope_notice':[line for line in arch.splitlines() if line.startswith('Standalone Atlas gate:')]},
+    'profile_comparison':profile_comparison,
+    'canonical_generation_binding':{'wrapper':generator_wrapper,'committed_output_path':'policy-engine/schemas/runtime_api_v1.openapi.json',
+                                     'committed_and_02ff_output_sha256':digest(committed),'bytes':len(committed),
+                                     'before_not_equal_after':True,'02ff_to_DD_scoped_changes':scoped_changes,
+                                     'runtime_source_Python_and_generator_profile_config_byte_unchanged_in_declared_scope':True},
+    'real_context_consumer':[
+        'app.py installs canonical runtime OpenAPI contract; check/export both call real app.openapi with sorted indent2 JSON.',
+        'openapi_contract._confidence_ledger_risk_spend_example uses actual ConfidenceLedgerRiskSpendProjectionService(root), captures strict owner-admitted DS17 packet and normalized sample times.',
+        'governed_projections._run_owner_validation launches actual worker with current sys.executable and inherited context plus real source PYTHONPATH, accepts complete dependency_bindings/aggregate consistency.',
+        'worker DependencyTracker records consulted repository file/directory/absence identities and repository-loaded modules; receipt aggregate/count and full worker receipt hash participate in public example identity.',
+        'A source Git SHA equality alone does not equate two private probe dependency maps or effective directory/import contexts.',
+    ],
+    'retained_committed_DS17_validation':{'bound_dependency_count':validation['bound_dependency_count'],
+                                        'bound_dependency_aggregate_identity':validation['bound_dependency_aggregate_identity'],
+                                        'worker_validation_receipt_hash':validation['worker_validation_receipt_hash'],
+                                        'validator_id':validation['validator_id'],'status':validation['status'],
+                                        'projection_hash':example['projection_hash'],
+                                        'full_dependency_bindings_retained_in_openapi':False},
+    'causal_boundaries':[
+        'No architecture generated JSON, effective private dependency inventory, worker request/response mapping or observed origin set was retained in this default temporary probe.',
+        'Registered hashseed/JAX/private env and different CAS/source directory contexts are exact source-derived profile differences, not independently controlled causes of this mismatch.',
+        'Do not claim optional dependency, PYTHONHASHSEED, CAS side effect, or a particular 1502 path caused the observed mismatch.',
+        'Direct runtime-api PASS does not satisfy registered isolated freshness; registered mismatch FAIL is retained.',
+        'No same-command slice-base replay/zero input overlap proof; inherited P41 attribution not established.',
+    ],
+    'format_actual':{'outcome':'FAIL','literal_input_count':int(summary[1])+int(summary[2]),
+                     'would_reformat':int(summary[1]),'already_formatted':int(summary[2]),
+                     'by_scope':{k:len(v) for k,v in format_classes.items()},
+                     'canonical_failed_paths':format_classes.get('canonical_product'),
+                     'canonical_next_owner':'EXE author; root must decide after current full source freeze ends. No concurrent formatting or code mutation by this reader.',
+                     'qualification':'Whole code-acceptance format gate remains actual FAIL; canonical executor.py is not research-only.'},
+    'registered_next_owners':[
+        {'family':runtime_family['id'],'owner':runtime_family['owner'],'approval_owner':runtime_family['approval_owner'],'version_owner':runtime_family['version_owner'],
+         'next_property':'Bind actual retained isolated generated payload/env/origins and full owner-worker dependency map to explain finite context drift; preserve registered fail predicate. Existing retained workspace/cache CLI can preserve private source/environment/outputs but does not itself record the worker map.'},
+        {'family':trust_family['id'],'owner':trust_family['owner'],'approval_owner':trust_family['approval_owner'],
+         'next_property':'Separate actual generated trust register mismatch remains FAIL; no cause adjudicated here.'},
+    ],
+    'source_refs':source_refs,'evidence_refs':refs,
+    'driver':{'path':str(Path(__file__)),'bytes':Path(__file__).stat().st_size,'sha256':digest(Path(__file__).read_bytes()),
+              'command':[sys.executable,str(Path(__file__))],'kind':'Only stdlib/Git/retained output reads; no product import, native, collection, generator/gate execution, environment sync or source mutation.'},
+    'root_before':before,'root_after':after,
+    'closure_ids':[],
+}
+output = OUT / 'review.json'
+with output.open('x') as stream:
+    json.dump(packet,stream,indent=2);stream.write('\n')
+print(json.dumps({'packet':str(output),'bytes':output.stat().st_size,'sha256':digest(output.read_bytes()),
+                  'arch':'FAIL','runtime_api':'PASS','format':'FAIL','causality':'not_established','source_unchanged':True}))

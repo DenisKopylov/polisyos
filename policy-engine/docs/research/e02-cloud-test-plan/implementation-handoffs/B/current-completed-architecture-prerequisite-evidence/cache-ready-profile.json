@@ -1,0 +1,33 @@
+{
+  "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "argv": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+    "run",
+    "--no-sync",
+    "polisyos-tools",
+    "architecture",
+    "guardrails",
+    "check",
+    "--generated-freshness-workspace-root",
+    "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready",
+    "--generated-freshness-uv-cache-dir",
+    "/home/agent/.cache/uv"
+  ],
+  "actual_retained_workspace": "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready",
+  "same_canonical_gate_argv_except_fresh_retained_workspace": true,
+  "cache": "/home/agent/.cache/uv",
+  "cache_prerequisite_record": "/tmp/e02-B-architecture-cache-warm-record-1862c021df74",
+  "cache_prerequisite_profile_sha256": "2160e9a862d6d2f0e56ca8f9d063219d17741834dd7468be5dbe800e70fb24ce",
+  "retry_basis": "First actual offline required measurements UNRUN due missing locked Pillow/cache. Supported canonical exact UVlock default-group online preparation completed, then this full deciding gate retains original offline recipe; no source edits/skips/profile substitution/quota.",
+  "prior_attempt": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-architecture-1862c021df74.json",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+    "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/tmp/e02-B-opa-latest-preparation-1db95544/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+    "UV_NO_SYNC": "1",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+  },
+  "ambient_numeric_thread_caps_absent": true
+}

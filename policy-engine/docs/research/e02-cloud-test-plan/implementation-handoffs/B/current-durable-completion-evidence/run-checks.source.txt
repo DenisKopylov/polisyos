@@ -1,0 +1,66 @@
+"""Capture exact immutable lower-ledger consumers and property-removal controls."""
+from __future__ import annotations
+import argparse, hashlib, importlib, json, os, resource, subprocess, sys, time
+from pathlib import Path
+TARGET='9f2a31c8869525ecf55fa55d0f5b08027c09a988'
+ROOT=Path('/workspace/e02-B-current-durability')
+PRODUCT=ROOT/'policy-engine'
+FILES=[f'tests/unit/scientist/orchestration/engine/{name}' for name in ['test_budget.py','test_budget_middleware.py','test_budget_ledger_process.py','test_budget_ledger_settlement.py','test_budget_wire_consumer_oracle.py','test_budget_completion_obligations.py']]
+SOURCES=['src/polisyos/scientist/orchestration/engine/'+name for name in ['budget.py','budget_ledger.py','budget_middleware.py']]
+CAPS=['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS']
+def git(*argv: str)->str:
+ return subprocess.check_output(['git',*argv],cwd=ROOT,text=True).strip()
+def identities()->dict[str,str]:
+ values={}
+ for path in SOURCES+FILES:
+  raw=(PRODUCT/path).read_bytes(); frozen=subprocess.check_output(['git','show',f'{TARGET}:policy-engine/{path}'],cwd=ROOT)
+  assert raw==frozen, path
+  values[path]=hashlib.sha256(raw).hexdigest()
+ return values
+def child(mode: str,out: Path)->int:
+ import pytest
+ bindings={}
+ for name in ['budget','budget_ledger','budget_middleware']:
+  module=importlib.import_module('polisyos.scientist.orchestration.engine.'+name)
+  expected=PRODUCT/'src/polisyos/scientist/orchestration/engine'/f'{name}.py'
+  assert Path(module.__file__).resolve()==expected.resolve(), module.__file__
+  bindings[name]={'origin':module.__file__,'sha256':hashlib.sha256(expected.read_bytes()).hexdigest()}
+ print('ACTUAL_MODULE_BINDINGS '+json.dumps(bindings),flush=True)
+ args=['--noconftest','-c','/dev/null','-p','no:cacheprovider','-vv','-s',f'--basetemp={out}/fixtures',f'--junitxml={out}/native.xml']
+ if mode=='native': args+=FILES
+ else:
+  ledger=importlib.import_module('polisyos.scientist.orchestration.engine.budget_ledger')
+  if mode=='admission-removal':
+   ledger.FileBudgetLedger._assert_runtime_admission=lambda self,keys:None
+   ledger.FileBudgetLedger._intersecting_completions=staticmethod(lambda snapshot,keys,owner_epoch=None:())
+  elif mode=='ack-removal':
+   def id_only_ack(self, obligation_id, record_digest):
+    with self._completion_runtime_owner.lock:self._completion_runtime_owner.uncertain.pop(obligation_id,None)
+   ledger.FileBudgetLedger._acknowledge_completion_publication=id_only_ack
+  else:raise ValueError(mode)
+  print('IN_MEMORY_PROPERTY_REMOVAL '+mode+'; typed DTOs/record identities/markers and filesystem implementation retained',flush=True)
+  args+=[FILES[-1],'-k','test_intent_faults_never_lose_physical_admission_uncertainty']
+ return pytest.main(args)
+def capture(mode: str,out: Path)->None:
+ out.mkdir()
+ before=identities(); head=git('rev-parse','HEAD'); assert head==TARGET
+ env=os.environ.copy();removed={key:env.pop(key) for key in CAPS if key in env}
+ env.update(PYTHONPATH=f'{PRODUCT}/src:{PRODUCT}',PYTEST_DISABLE_PLUGIN_AUTOLOAD='1')
+ commands=([sys.executable,str(Path(__file__).resolve()),mode,str(out),'--child'],)
+ if mode=='quality':
+  owned=[SOURCES[1],SOURCES[2],FILES[3],FILES[5]]
+  commands=([sys.executable,'-m','ruff','check',*owned],[sys.executable,'-m','ruff','format','--check',*owned],[sys.executable,'-m','mypy','--follow-imports=silent',SOURCES[1],SOURCES[2]])
+ checks=[]
+ for index,argv in enumerate(commands):
+  path=out/('native.txt' if mode!='quality' else f'check-{index}.txt');start=time.monotonic()
+  with path.open('w') as output:result=subprocess.run(argv,cwd=PRODUCT,env=env,stdout=output,stderr=subprocess.STDOUT)
+  checks.append({'argv':argv,'exit_code':result.returncode,'wall_seconds':time.monotonic()-start,'output':str(path),'output_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'output_bytes':path.stat().st_size})
+ after=identities();end_head=git('rev-parse','HEAD')
+ wrapper={'target_sha':TARGET,'target_tree':git('rev-parse',TARGET+'^{tree}'),'mode':mode,'cwd':str(PRODUCT),'python':sys.executable,'python_version':sys.version,'PYTHONPATH':env['PYTHONPATH'],'PYTEST_DISABLE_PLUGIN_AUTOLOAD':'1','removed_numeric_caps':removed,'source_sha256_before':before,'source_sha256_after':after,'head_before':head,'head_after':end_head,'source_unchanged':before==after and head==end_head,'execution_overlay':'none' if mode in ['native','quality'] else 'in-memory method replacements printed by child; no file/source edits','checks':checks,'max_rss_kib':resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss,'filesystem_fixture':'task-isolated /tmp tmpfs; process interruption/atomic publication, not disk power-loss attestation'}
+ (out/'wrapper.json').write_text(json.dumps(wrapper,indent=2)+'\n')
+ print(json.dumps({'out':str(out),'checks':checks,'unchanged':wrapper['source_unchanged'],'rss_kib':wrapper['max_rss_kib']}))
+ assert wrapper['source_unchanged']
+if __name__=='__main__':
+ parser=argparse.ArgumentParser();parser.add_argument('mode');parser.add_argument('out',type=Path);parser.add_argument('--child',action='store_true');args=parser.parse_args()
+ if args.child:raise SystemExit(child(args.mode,args.out))
+ capture(args.mode,args.out)

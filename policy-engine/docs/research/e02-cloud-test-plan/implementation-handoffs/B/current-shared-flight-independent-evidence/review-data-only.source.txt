@@ -1,0 +1,55 @@
+from pathlib import Path
+from decimal import Decimal
+import hashlib,json,re,subprocess,xml.etree.ElementTree as ET
+ROOT=Path('/workspace/e02-B-current-runtime')
+RAW=Path('/tmp/e02-B-shared-flight-b138-independent-native')
+SOURCE='b138b0d10237d4704c1cf59dec502be4b745b3a1'
+INPUT='09cba87ce184adbaa9a66b4a37f7a93be8bc74ca'
+TEST='policy-engine/tests/unit/scientist/orchestration/llm/test_shared_flight_completion_independent_e02.py'
+wrapper=json.loads((RAW/'wrapper.json').read_text())
+context=json.loads((RAW/'source-context.json').read_text())
+assert wrapper['source_and_test_unchanged'] and wrapper['exit']==0
+assert wrapper['runtime_source_sha']==SOURCE and wrapper['own_test_implementation_sha']==INPUT
+assert (ROOT/TEST).read_bytes()==subprocess.check_output(['git','show',f'{INPUT}:{TEST}'],cwd=ROOT)
+origins=context['all_loaded_polisyos_origins']
+for row in origins:
+ data=subprocess.check_output(['git','show',f'{SOURCE}:{row["path"]}'],cwd=ROOT)
+ assert len(data)==row['bytes'] and hashlib.sha256(data).hexdigest()==row['sha256']
+xml=ET.parse(RAW/'native.xml')
+cases=xml.findall('.//testcase')
+assert len(cases)==7 and all(c.find('failure') is None and c.find('error') is None and c.find('skipped') is None for c in cases)
+log=(RAW/'native.txt').read_text()
+first=[json.loads(line.split('INDEPENDENT_FLIGHT ',1)[1]) for line in log.splitlines() if 'INDEPENDENT_FLIGHT ' in line]
+assert len(first)==7
+for row in first:
+ assert len(row['requests'])==len(row['completions'])==1
+proof=[json.loads(line.split('INDEPENDENT_WRONG_PROOF ',1)[1]) for line in log.splitlines() if 'INDEPENDENT_WRONG_PROOF ' in line]
+assert proof==[['owner','request_digest','scope_key','receiver_attempt_id','producer_attempt_id']]
+quantities=[]
+for directory in sorted((RAW/'pytest-tmp').iterdir()):
+ if directory.is_symlink() or not directory.is_dir():continue
+ ledger=json.loads((directory/'ledger.json').read_text())
+ req=[json.loads(x) for x in (directory/'provider-requests.jsonl').read_text().splitlines()]
+ comp=[json.loads(x) for x in (directory/'provider-completions.jsonl').read_text().splitlines()]
+ state=ledger['state']; pending=ledger['completion_obligations'];receipts=ledger['spend_receipts']
+ if directory.name.startswith('test_shared_unknown'):
+  assert len(req)==len(comp)==1 and comp[0]['unknown_usage']
+  assert state['spent'].get('run','0')=='0' and len(receipts)==0
+  assert len(pending)==1
+  record=next(iter(pending.values()))
+  assert record['phase']=='cost_unknown' and record['event_payload']['amount'] is None
+  assert Decimal(state['reserved']['run'])==Decimal(record['reserved_amounts']['run'])>0
+ elif directory.name.startswith('test_wrong_genuine'):
+  assert len(req)==len(comp)==len(receipts)==1
+  assert Decimal(state['spent']['run'])==Decimal('.02') and Decimal(state['reserved']['run'])==0 and not pending
+ else:
+  assert len(req)==len(comp)==len(receipts)==2
+  assert Decimal(state['spent']['run'])==Decimal('.04') and Decimal(state['reserved']['run'])==0 and not pending
+  if directory.name.startswith('test_traced_preflight'):
+   callback=[json.loads(x) for x in (directory/'mandatory-events.jsonl').read_text().splitlines()]
+   assert len(callback)==2 and len({e['event_identity'] for e in callback})==2
+   assert all(e['required_accounting_status']=='pending' if 'required_accounting_status' in e else True for e in callback)
+ quantities.append({'fixture':directory.name,'physical_requests':len(req),'physical_completions':len(comp),'receipt_count':len(receipts),'spent':state['spent'].get('run','0'),'reserved':state['reserved']['run'],'unresolved_completion_records':len(pending)})
+assert len(quantities)==7
+files=[p for p in RAW.rglob('*') if p.is_file() and not p.is_symlink()]
+print(json.dumps({'outcome':'PASS_DATA_ONLY_AUDIT','native_case_denominator':len(cases),'actual_native_PASS':len(cases),'all_loaded_concrete_polisyos_module_denominator':len(origins),'all_origins_exact_target_git_bytes':True,'runtime_regular_file_denominator':len(files),'runtime_regular_bytes':sum(p.stat().st_size for p in files),'final_physical_fixture_quantities':quantities,'wrong_genuine_proof_fields':proof[0],'runtime_by_reviewer':'Only the one exact seven-case whole-file run recorded in wrapper; this audit performs no native or collection invocation','authority_qualification':'Reported synthetic .02 is supplied fixture data; real local operations and ledger quantities are recomputed. Configured emitter trust remains a finite composition premise, not external billing/institutional authority.'},indent=2))

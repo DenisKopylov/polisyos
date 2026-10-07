@@ -1,0 +1,45 @@
+{
+  "target_sha": "9092080c0bd78165b0a94e6c613a1b94e0bf2d0a",
+  "base_tree": "3983f414cda21fcf33c4a97b9d3da7863eee7a97",
+  "cwd": "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/admission-base-input/policy-engine",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "mypy",
+    "--follow-imports=silent",
+    "src/polisyos/core/artifacts/store.py",
+    "src/polisyos/core/artifacts/_transfer_ops.py",
+    "src/polisyos/core/artifacts/backends/caching_store.py"
+  ],
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "python_version": "3.14.2",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "PYTHONPATH": "src",
+  "source_archive": {
+    "sha256": "3743595a07ad21578a265be66e98b0615bce3fba0f9b0f22ef7e0dcb71513fc6",
+    "bytes": 92344320,
+    "paths": [
+      "policy-engine/src",
+      "policy-engine/tests",
+      "policy-engine/pytest.ini",
+      "policy-engine/pyproject.toml",
+      "policy-engine/uv.lock"
+    ]
+  },
+  "overlay": [
+    {
+      "ref": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py@129ace949fe452959c965134fb37cffc4f8b4c94",
+      "sha256": "44b8e5d352da4ada1cc4a66b9f824776e38582d28424c408474769a6c0bb14a3"
+    },
+    {
+      "ref": "policy-engine/tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py@129ace949fe452959c965134fb37cffc4f8b4c94",
+      "sha256": "2cf4a16829b342bd9b35a69fc28fcbfff845e3e8b56166d0a0cf207429038dda"
+    }
+  ],
+  "returncode": 1,
+  "wall_s": 24.168184997994103,
+  "max_rss_kib": 609500,
+  "runner_quota": null,
+  "custody_boundary": "Fresh tracked source projection inside the root-admitted CAS lane ignored scratch; no new Git checkout/worktree or retrospective admission claim.",
+  "rusage_boundary": "os.wait4 exact subprocess PID; kernel child and descendant accounting, not VM peak"
+}

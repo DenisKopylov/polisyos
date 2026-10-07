@@ -1,0 +1,86 @@
+{
+  "status": "SOURCE_ONLY_PREPARATION_FINAL_ROOT_BINDING_PENDING",
+  "contracts": [
+    {
+      "id": "B-to-C-restored-capacity-frontier",
+      "criterion_ids": [
+        "B82",
+        "B84",
+        "B85"
+      ],
+      "owner": "C; B provides pool/CAS/async bridge contract only",
+      "input": "Actual three JSONL event rows: event-1@0,event-2@1,event-3@5; chunk2,SESSION gap2,size60; cap3 persists pending two rows and contributor raw-CAS refs. Reopen same cursor/CAS with cap1.",
+      "required_boundary": "C must reconcile restored operator capacity before any recovery poll, flush, or cursor/output commit; reject with an explicit typed compatible refusal or establish C-owned supported capacity/spill contract. B does not choose that policy or close its C-owned criteria.",
+      "negative": "Default PAUSE cannot make restored2rows fit cap1; source rewind before operator restore may itself poll. Preserve committed checkpoint/operator/contributor bytes and lease accounting on refusal.",
+      "positive": "Cap3 retry emits [1,2] then[3] exactly once with actual contributor refs; a third fresh restart emits no duplicate windows. No forced premature SESSION flush to obtain smaller memory.",
+      "historical": "current-pool-stream-contract.json actual466 two cases1PASS1FAIL; literal native rerun remains pending final root packet."
+    },
+    {
+      "id": "B-to-C-disconnect-owner-retention",
+      "criterion_ids": [
+        "B87"
+      ],
+      "owner": "C process/session consumer; B pool/registry physical cleanup mechanism",
+      "input": "Actual EventStreamConnector-derived real file provider. First process cleanup disconnect refuses once, canonical pool retains unconfirmed physical handle.",
+      "required_boundary": "Retain a production-reachable cleanup owner until disconnect confirmation, preserve primary exception, release each successful acquisition once. Repeated close/retry must reach that same physical obligation; available semaphore capacity is a separate quantity.",
+      "negative": "After process_stream_dataset returns cleanup failure, production registry shutdown/retry and fresh session must not lose the pending old pool/physical handle. Observer-only pool.close after measurements is rescue, not owner proof; do not invent B authority to mutate C.",
+      "positive": "Healthy/subscribe/checkpoint/rewind/caller-cancel/startup-fault and explicitly retained-session second close remain distinct controls. File connector /proc FD0 does not prove no real network handle leakage.",
+      "historical": "current-stream-cleanup-consumer-portable.json actual205 source/724 fixture7PASS1FAIL; no current/future consumer PASS inherited."
+    },
+    {
+      "id": "B-to-A-G-partial-simulation-result",
+      "criterion_ids": [
+        "B13"
+      ],
+      "owner": "A alone generation/lifecycle consumers; G local acquired runtime/catalog profile",
+      "input": "Actual native Trinity/registry/DataSnapshot global.tax_rate0.1 with5agents2firms; earlier successful run_simulation -> CAS result/state/report, later explicit failure, dependent upstream_failed skip, independent sibling success.",
+      "required_boundary": "Serve the intact simulation as a content-bound non-authoritative candidate with valid run/node/scope/ref/schema/error binding even though later work fails; invalidate only dependent conclusions when their common basis is false.",
+      "negative": "Fifteen named binding/scope/ref/schema/integrity refusals from canonical whole test remain unrun after cloud startup stop, never made acceptable by CAS artifact presence alone.",
+      "cloud_stop": "TestClient.__enter__ ValueError catalog_fetch_source_unreadable before HTTP route. Full local production catalog and configured acquisition overlay remain read-only/local; no empty catalog substitution.",
+      "historical": "actual061 whole1FAIL, successful real producer prefix and054 readback only. Existing six selected blob/manifest fixtures carry no selected profile; no invented served provenance."
+    },
+    {
+      "id": "B-to-A-G-optional-monetary-knowledge",
+      "criterion_ids": [
+        "B65",
+        "B66"
+      ],
+      "owner": "A response_shapes/nl_pipeline projection and admission policy; B producer preserves known/missing/invalid separately",
+      "input": "One real filesystem provider request percase -> actual Traced optional observer -> actual A _sum_call_events, unknown usage=None/no cost versus reported0.02 and reported0.0 with tokens7/3.",
+      "required_boundary": "Unknown physical cost None/cost_origin unknown cannot gain known-zero spend/admission meaning from arithmetic aggregation. Explicit reported zero remains legitimate; A/G chooses its supported unknown projection/admission contract.",
+      "negative": "A _sum_call_events(event.cost_usd or0.0), _delta_usage numeric cost and nl_pipeline run_budget_spent +=float(variant.cost_usd or0.0) lose knowledge; only _sum_call_events ran in historical counterexample. Actual second variant/job/served-budget behavior remains unrun.",
+      "positive": "Reported.02 and reported0 helper controls passed historical a2. Cache current reuse charge0 requires actual producer/cache issuer provenance, not provider raw marker or constructor defaults; expiry is a new physical event.",
+      "historical": "97d canonical forward-property receipt preserves actual a2 1FAIL2PASS and full filesystem/event/origin outputs. New selected a697 source is read only here, not replayed."
+    },
+    {
+      "id": "B-checkpoint-completion-budget-consumer",
+      "criterion_ids": [
+        "B14",
+        "B52",
+        "B73"
+      ],
+      "owner": "B EXE canonical checkpoint/CAS bridge; A may consume typed workflow outcome but cannot turn uncertainty into ACK",
+      "input": "Original absolute workflow budget/owner cancellation propagates through canonical hook/artifact/head/GC; legacy fixed-signature hooks preserve original ContextVar by delegation.",
+      "required_boundary": "Before-entry cancellation refuses not_admitted; entered blocking IO may still complete physically and must report unknown without ACK or fabricated rollback. Once head os.replace enters, required canonical fsync/history completion may finish unbudgeted; GC guards actual read-to-write boundary.",
+      "negative": "No fresh default30s reset across phases or resumed suppressed cancellation; retain physical worker/reservation ownership until delegate exits; arbitrary external nondelegating hooks are outside demonstrated propagation.",
+      "historical": "Existing independent df07 packet actual6af long1PASS/short6PASS +4 removal materialFAIL; later84/bc source qualified separately. No native outcome rerun by this source-only packet."
+    },
+    {
+      "id": "B-mandatory-accounting-consumer-premise",
+      "criterion_ids": [
+        "B65",
+        "B66"
+      ],
+      "owner": "B typed issuer/enforcer/FileBudgetLedger; A served run must explicitly admit a supported mandatory profile if relying on it",
+      "input": "FileLedger strict1.2 completion DTO binds obligation/eventdigest/run/PID owner epoch/all budget keys/reserved amounts/phase/known receipt IDs/action; initialized producer intent precedes physical work.",
+      "required_boundary": "Known explicit0 is distinct from None; unresolved cost/receipt/protected audit obligations block dependent expenses/reuse according to actual bound owner and independently verified receipts. Optional call_observer factory route alone is not initialized mandatory enforcement.",
+      "negative": "Reopened/new PID owner cannot declare old physical request unentered or erase unknown with0; malformed/foreign receipt or fabricated provider raw cache marker cannot certify settled work.",
+      "historical": "Lower9f/selected uppera697 source contracts only in this packet; separate owner/independent native receipts and future integrated root wave remain distinct."
+    }
+  ],
+  "authority": "No B edit to protected A/C source, owner law or policy decision. Criterion references express acceptance boundaries, never permission/publication grants.",
+  "final_literal_test_input_sha": null,
+  "final_native_case_outcomes": null,
+  "final_root_source_sha": null,
+  "final_root_source_tree": null
+}

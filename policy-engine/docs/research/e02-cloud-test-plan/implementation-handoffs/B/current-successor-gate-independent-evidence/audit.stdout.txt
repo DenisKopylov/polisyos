@@ -1,0 +1,2 @@
+{"report": "/tmp/e02-B-successor-gate-audit-exe/audit.json", "gate_counts": {"FAIL": 7, "PASS": 1}}
+{"dispatch_tags": ["successor-final-B-cohort", "successor-final-all-changed-format", "successor-final-all-changed-ruff", "successor-final-architecture", "successor-final-parity-uncapped", "successor-final-production-invocation", "successor-final-runtime-api", "successor-final-verify-uncapped"], "instrument_output": "/tmp/e02-B-successor-gate-audit-exe/execution.json", "state": "EXECUTED_READ_ONLY_ACCOUNTING"}

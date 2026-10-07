@@ -1,0 +1,95 @@
+diff --git a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py
+index 576058d10..bfe725d72 100644
+--- a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py
+@@ -336,9 +336,29 @@ def _partition(args: argparse.Namespace) -> Record:
+         cases.append(_case(item, report_indexes[nodeid], reports, ids[nodeid] != 1))
+     case_counts = dict.fromkeys(_STATES, 0)
+     case_counts.update(Counter(row["state"] for row in cases))
+-    by_file: dict[str, Counter[str]] = defaultdict(Counter)
+-    for case in cases:
+-        by_file[case["location"][0]][case["state"]] += 1
++    by_collection_file: dict[str, Counter[str]] = defaultdict(Counter)
++    by_definition_path: dict[str, Counter[str]] = defaultdict(Counter)
++    file_relations: Counter[tuple[str, str]] = Counter()
++    mismatching_case_indices = []
++    rootpath = Path(inventory["rootpath"])
++    for index, case in enumerate(cases):
++        collection, definition = case["path"], case["location"][0]
++        by_collection_file[collection][case["state"]] += 1
++        by_definition_path[definition][case["state"]] += 1
++        file_relations[collection, definition] += 1
++        collection_path, definition_path = Path(collection), Path(definition)
++        if not collection_path.is_absolute():
++            collection_path = rootpath / collection_path
++        if not definition_path.is_absolute():
++            definition_path = rootpath / definition_path
++        same_lexical_path = os.path.normpath(str(collection_path)) == os.path.normpath(
++            str(definition_path)
++        )
++        case["collection_file"] = collection
++        case["definition_path"] = definition
++        case["same_lexical_collection_and_definition_path"] = same_lexical_path
++        if not same_lexical_path:
++            mismatching_case_indices.append(index)
+     checks = {
+         "pytest_source_profile": inventory["pytest_version"] == "9.0.2",
+         "plain_single_process_observation": inventory["worker_id"] is None
+@@ -368,6 +388,10 @@ def _partition(args: argparse.Namespace) -> Record:
+         == selectors["candidate_whole_file_count"],
+         "case_identity_unique": all(n == 1 for n in ids.values()),
+         "case_partition_total": sum(case_counts.values()) == len(ids),
++        "case_file_groupings_complete": sum(sum(v.values()) for v in by_collection_file.values())
++        == sum(sum(v.values()) for v in by_definition_path.values())
++        == sum(file_relations.values())
++        == len(cases),
+         "all_reports_have_admitted_nodeid": all(row["nodeid"] in ids for row in reports),
+         "same_junit_path": Path(inventory["junit_path"]).resolve() == args.junit.resolve(),
+     }
+@@ -425,10 +449,20 @@ def _partition(args: argparse.Namespace) -> Record:
+             "requested_whole_files": len(selectors["test_paths"]),
+             "session_item_entries": len(items),
+             "unique_nodeids": len(ids),
+-            "item_file_types": dict(
++            "collection_file_types_item_entries": dict(
+                 Counter(Path(row["path"]).suffix or "extensionless" for row in items)
+             ),
+-            "distinct_item_files": len(by_file),
++            "definition_path_file_types_item_entries": dict(
++                Counter(Path(row["location"][0]).suffix or "extensionless" for row in items)
++            ),
++            "distinct_collection_files": len(by_collection_file),
++            "distinct_definition_paths": len(by_definition_path),
++            "distinct_collection_file_types": dict(
++                Counter(Path(path).suffix or "extensionless" for path in by_collection_file)
++            ),
++            "distinct_definition_path_file_types": dict(
++                Counter(Path(path).suffix or "extensionless" for path in by_definition_path)
++            ),
+             "phase_reports": len(reports),
+             "collection_reports": len(collectors),
+             "deselected_item_entries": len(inventory["deselected_items"]),
+@@ -436,7 +470,22 @@ def _partition(args: argparse.Namespace) -> Record:
+         },
+         "case_counts": case_counts,
+         "cases": cases,
+-        "case_counts_by_actual_file": {key: dict(value) for key, value in sorted(by_file.items())},
++        "case_counts_by_collection_file": {
++            key: dict(value) for key, value in sorted(by_collection_file.items())
++        },
++        "case_counts_by_definition_path": {
++            key: dict(value) for key, value in sorted(by_definition_path.items())
++        },
++        "collection_definition_relation": {
++            "normalization": "Root-relative lexical normpath; not symlink/inode/read-set proof.",
++            "same_lexical_path_cases": len(cases) - len(mismatching_case_indices),
++            "different_declared_path_cases": len(mismatching_case_indices),
++            "mismatching_case_indices": mismatching_case_indices,
++            "pair_counts": [
++                {"collection_file": collection, "definition_path": definition, "cases": count}
++                for (collection, definition), count in sorted(file_relations.items())
++            ],
++        },
+         "duplicate_session_nodeids": {key: value for key, value in ids.items() if value != 1},
+         "orphan_runtime_report_indexes": [
+             i for i, row in enumerate(reports) if row["nodeid"] not in ids

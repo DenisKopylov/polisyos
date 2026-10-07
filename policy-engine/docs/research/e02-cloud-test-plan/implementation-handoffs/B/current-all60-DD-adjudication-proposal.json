@@ -1,0 +1,3563 @@
+{
+  "schema": "policyos.e02.independent_adjudication_proposal.v1",
+  "unit": "B",
+  "reviewer": "dur_probe",
+  "mode": "manual_full_criterion_proposal_from_observed_DD_and_separately_pinned_negative_packets",
+  "closure_ids": [],
+  "authority": "Root/G alone decide finding closure and source acceptance. Author does not accept own DUR implementation. This packet proposes finite criteria decisions; all formal_closure fields remain false.",
+  "source_cuts": {
+    "DD": {
+      "sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+      "actual_native_state": "FAIL",
+      "case_counts": {
+        "PASS": 2880,
+        "FAIL": 140,
+        "ERROR": 600,
+        "XFAIL": 0,
+        "SKIP": 2,
+        "UNRUN": 0
+      },
+      "actual_case_count": 3622,
+      "input_profile_refs": [
+        "dd_wrapper",
+        "dd_profile",
+        "dd_xml",
+        "dd_stdout",
+        "dd_interpretation"
+      ]
+    },
+    "canonical_cards": {
+      "sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path_template": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/{bundle_id}.md",
+      "hash_convention": "Literal regex capture including whitespace between SOURCE_BEGIN marker and SOURCE_END; criterion body-only hashes intentionally differ."
+    },
+    "new_lower_candidate": {
+      "sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "tree": "038b0012692a7fc12ca58aea91724f3a85c83b6e",
+      "runtime": "Own lower-only172PASS and two property removals are separately pinned in lower_candidate; composed upper consumer still UNRUN here. Foreign source-only review is not root mechanism acceptance."
+    }
+  },
+  "denominator": {
+    "finding_count": 60,
+    "bundle_count": 25,
+    "route_rows": 561,
+    "unique_baseline_cells": 189,
+    "finding_source": {
+      "commit": "fcd9fe50e504582736f9a012a145587d69b1dadf",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "bytes": 9504,
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722"
+    },
+    "routes_source": {
+      "commit": "fcd9fe50e504582736f9a012a145587d69b1dadf",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv",
+      "bytes": 280085,
+      "sha256": "30755ddca05267c4aeec56154c1c9282ee985c3414b76991aecb99d0ecf59da2"
+    },
+    "baseline_cells_source": {
+      "commit": "fcd9fe50e504582736f9a012a145587d69b1dadf",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv",
+      "bytes": 451094,
+      "sha256": "afbf14fc428d89e20e409cd7f18db0a52bf17e2c0ecde1a2a5e33626c8b49152"
+    },
+    "baseline_context_source": {
+      "commit": "fcd9fe50e504582736f9a012a145587d69b1dadf",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/sources.json",
+      "bytes": 4860,
+      "sha256": "a08b728541bf0c424e985969760131e553873c3be91aa9b4d6e96a50e9556edb"
+    },
+    "baseline_role": "All candidate_unverified source-reported navigation; no imported baseline PASS establishes a new fix. Exact cell source_sha/path/status comes from cells.tsv; environment/input closure must be read in query.py --finding ID --details --job-context --limit 1000 --block-limit 1000 and transferred job source. Raw archives missing.",
+    "per_row_baseline_resolution": "Use row.finding_id as exact equality key in pinned routes.tsv, then cell_id as exact key in pinned cells.tsv; query --finding ID --details --job-context --limit 1000 --block-limit 1000. Derived189 cells/561route records are not duplicated here; exact old source/environment/closure stays source-reported navigation only."
+  },
+  "evidence_index": {
+    "dd_xml": {
+      "commit": "c58112d64bd6684120dc7dba5df07b1906402152",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.junit.xml",
+      "bytes": 3168754,
+      "sha256": "c61a02426c844ea6e3de05d0853fa939e1ce6cad9b5d31e1b8c5e8a65fa78cf7"
+    },
+    "dd_stdout": {
+      "commit": "c58112d64bd6684120dc7dba5df07b1906402152",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.stdout.txt",
+      "bytes": 3267622,
+      "sha256": "3d3ac32f7a36c9af45e2fcb0605641977794dbad4b9146143baf4fcb0c52b30e"
+    },
+    "dd_wrapper": {
+      "commit": "c58112d64bd6684120dc7dba5df07b1906402152",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.execution.json",
+      "bytes": 2866,
+      "sha256": "bec139fa5bfc2c15a12e4deac7bb3c8bc7eb414fe1ed1bb71d7a093e429bf111"
+    },
+    "dd_profile": {
+      "commit": "c58112d64bd6684120dc7dba5df07b1906402152",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.profile.json",
+      "bytes": 20483,
+      "sha256": "4efb2a6adb5f2d4c51c3598f831f1b8edc71fc4d9f10211b0d5b75a3f3bede83"
+    },
+    "dd_interpretation": {
+      "commit": "c58112d64bd6684120dc7dba5df07b1906402152",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/interpretation.json",
+      "bytes": 734389,
+      "sha256": "0ece56091ba5a2af9f85f1f29960a4a02a748aebfc898e1b3e49f99f1bec41b4"
+    },
+    "dd_custody": {
+      "commit": "c58112d64bd6684120dc7dba5df07b1906402152",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/custody-index.json",
+      "bytes": 4264,
+      "sha256": "289826c636e571840750d16221f0496d73ed23911ae8645b736f51d1c0763362"
+    },
+    "canonical_map": {
+      "commit": "21cf3f92a8bf3f09e6a02a9d22835bacc3983dbd",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-canonical-selector-equivalence.json",
+      "bytes": 59810,
+      "sha256": "417c24140a01edf2a8bff88df2d336415e4ac8373d0785e4357e59b98feeb870"
+    },
+    "source_only_map": {
+      "commit": "5569fb060a42f7858cf353530363cfa1118ccf92",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-source-only-candidate-map.json",
+      "bytes": 83577,
+      "sha256": "750b6d3a87c334d67225f29ce1877d21c1b014387fbb5aa5fe0fe7f50cf6c15b"
+    },
+    "prior_compact": {
+      "commit": "69592e5ca095011bfd724a01da1e1f44cfb9f9d4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-adjudication.json",
+      "bytes": 108445,
+      "sha256": "57824974c599414a246810f39724a7cb4e4386ae8ade514e6721737b177a3a28"
+    },
+    "exe15": {
+      "commit": "37e16cbb9fa3bc914a76882c28abfb4f01c612bc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all15-execution-state.json",
+      "bytes": 284620,
+      "sha256": "186761143590191aaa4057700c50c1f90a04bf467d60194cd17854f6e9a9a7f0"
+    },
+    "sta_review": {
+      "commit": "42b777ef381f14794bbb91ad1905a07ada768577",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/review-final.json",
+      "bytes": 36860,
+      "sha256": "1faeda016479552d42d99e563d0deea79a4e5131aed1e403dcb00457bb438991"
+    },
+    "cmp_final": {
+      "commit": "41fd9c0479606c4e1b461489b55190a1c43e03e7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final.json",
+      "bytes": 101878,
+      "sha256": "85093d04bd4c027093ef476c2d107cc152eac8af9bcf7408c305947eef44b7e0"
+    },
+    "cas_dd_review": {
+      "commit": "79f4f9fec4004766afd5981fa28de73356d210b6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-successor-native-consumer-audit.json",
+      "bytes": 206389,
+      "sha256": "05c9760fd100c9cb895787a816d815cf9efeb7a5ec903ee247c41c9d6e3771e7"
+    },
+    "b65_red": {
+      "commit": "6432daa0c17d9085b87b2117f5f24cd5251ea4fc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-settlement-independent.json",
+      "bytes": 68096,
+      "sha256": "1a422a6480ac2de47cc5a5513d84836263110b5e7ed11107f8533bfd72033bad"
+    },
+    "b65_future13": {
+      "commit": "87423d885455fd159d0fb9da62e48d6b52cc3a59",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-preparation.json",
+      "bytes": 25260,
+      "sha256": "f95ab74208e8d0683e45c08b6308f7ac02805f82aab91aeb29debbce99480d79"
+    },
+    "b66_red": {
+      "commit": "28b581626fb1567699e55fe3fc983732fb768c07",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-unknown-cost-red.json",
+      "bytes": 12083,
+      "sha256": "904b3a02724411b2f8898d44a30e979d287b69061bed80889f185b21e57888e0"
+    },
+    "b66_semantic": {
+      "commit": "23e6fa3ead0f740a5549ec1d1e97e330d39c3a0c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b66-dd-semantic-followup.json",
+      "bytes": 12057,
+      "sha256": "7de8c7a1db35f64fa724e2b4716dc779d5e94945de352ab498286234fc7a148f"
+    },
+    "lower_candidate": {
+      "commit": "fcd9fe50e504582736f9a012a145587d69b1dadf",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-obligations.json",
+      "bytes": 35016,
+      "sha256": "f7e1e64f9144dd5a331214c28a36698f35aa537ff0e6a28dd90f69be6a720788"
+    },
+    "lower_foreign_source_review": {
+      "commit": "787be3666a582673d0f74654be382ff0a4421c0d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-llm-completion-source-independent-review.json",
+      "bytes": 18466,
+      "sha256": "8754722689e07ef33301b774627a75ff2e0559af375325a493a74bc7b8d399ee"
+    },
+    "pg_native": {
+      "commit": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing.json",
+      "bytes": 57308,
+      "sha256": "5747f53e143080c10e065cc10f4ab40227917decbea85f9b035f0727dd0e5ae3"
+    },
+    "pg_foreign_review": {
+      "commit": "bbdbecfaec8349a9c26af6baae4b18833be2328d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review.json",
+      "bytes": 22380,
+      "sha256": "d1d7d3c16a6bd5fd391689639e92a42d5c91e6db86a64b40cb1d1259e1e35e87"
+    },
+    "wheel_native": {
+      "commit": "63713129022dc6c4b0103c1e77ee533b4d38a3e6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-runtime-independent.json",
+      "bytes": 47601,
+      "sha256": "e93f0947ff3849d06076a39b86783a25601c0d5d3c828bb8a9dec4e001a2dd4c"
+    },
+    "wheel_foreign_review": {
+      "commit": "b0a19b8be23bf74ed505a5bc7bae9f036c0d018b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-actual-independent-review/review.json",
+      "bytes": 65481,
+      "sha256": "ca5112c68b470dd7fcb4d9e0de85220ef9a99180712cc48fe425b0c6941067ec"
+    },
+    "stream_portable": {
+      "commit": "c0259ced95d65e5ae76ece2e1fc3ce3d49af0723",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-consumer-portable.json",
+      "bytes": 17494,
+      "sha256": "13ca21897bbb2f01efe6efdf896d74d8c988a509a8d9c86b2b258d198c8afca9"
+    },
+    "stream_foreign_review": {
+      "commit": "7cbde21de57765c37af5384cb80b85267119a4f5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/review-portable.json",
+      "bytes": 23301,
+      "sha256": "0ca107b29782b1cd536674571110c9fdae0a54cb6647334bb34c7e671b195e3f"
+    },
+    "wire_native": {
+      "commit": "48580635d00911c95c54cabb92227d0c482be89d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer.json",
+      "bytes": 46697,
+      "sha256": "2fe3c84264bae3e12b6239a9b5045151cfe5657f73c45d4c517e6318257bf62d"
+    },
+    "checkpoint_native": {
+      "commit": "03e52adb2a8a84f0339108fea7a1f5a10e041132",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget.json",
+      "bytes": 79078,
+      "sha256": "5e6c7415a26c69667e406e401d46c6a0ace5d33e496676b4c78996d827756f09"
+    },
+    "checkpoint_foreign_review": {
+      "commit": "76028eda766d00b0b952b4927f72d07b0a477be1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-cancellation-independent-review/review.json",
+      "bytes": 35284,
+      "sha256": "f6ac4ba4235ad5ce7ff2cb7e8e2e2dae897a419ecb1b99810310eb953862e353"
+    },
+    "b73_native": {
+      "commit": "df5622065679d66b6d6685ecdd9948552cbd8e55",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-parallel-tier-compensation-independent.json",
+      "bytes": 13522,
+      "sha256": "c320c94f4b2a64a17f923ef060be72254030f4adb50ccc6e62d49a28a9af5367"
+    },
+    "b65_recovery13_red": {
+      "commit": "9b4167a1d481aa06b49794f01896df954917a4a8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red.json",
+      "bytes": 116624,
+      "sha256": "c6160ecdf365199d0d0af7bbfd19d2d96b0f7f1f56f816c1e6ea1582be756004"
+    }
+  },
+  "test_input_index": {
+    "T29": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/remediation/test_res_03.py",
+      "bytes": 8082,
+      "sha256": "8a53733d6ecfb84e68eb222c99926c0794b28d33b61c947ca97a3bf0b965e32d"
+    },
+    "T47": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "bytes": 79749,
+      "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139"
+    },
+    "T36": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+      "bytes": 16904,
+      "sha256": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc"
+    },
+    "T37": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "bytes": 13682,
+      "sha256": "aca02227a7c9d3a5ac6740cb9a7428785e324d97fc09d36fa036e6c8a6c965f4"
+    },
+    "T38": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+      "bytes": 5302,
+      "sha256": "3da9f7887b520884b1d4b3a320965452f95ec1aafa519118bed5aca096811e73"
+    },
+    "T24": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/remediation/test_dur_02_process.py",
+      "bytes": 27256,
+      "sha256": "35f48eb3182363408dbb02e4c57b4cdb01b37b6f6df4391f3753bdf975426b48"
+    },
+    "T33": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+      "bytes": 16407,
+      "sha256": "45b86848e80180bd702988e9c712d2eedd9eafe4faeb315949e4f7549ec06f80"
+    },
+    "T31": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+      "bytes": 14399,
+      "sha256": "037753a3c4200bef8492b65e7e0ee0a96dd1aa09940e1e6e6b8e5b798ead835c"
+    },
+    "T40": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+      "bytes": 7565,
+      "sha256": "05623df2c82e8538591a262daca17bd0bd27f196c106a8a8552b95c8de9fbd58"
+    },
+    "T41": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+      "bytes": 20042,
+      "sha256": "3db521987208d8c01f2931a7b40f5c4da6746e0ad16b33c228bc35d84c984994"
+    },
+    "T42": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+      "bytes": 11173,
+      "sha256": "b9e2005611669331441083aac3740f506bc6415f8b02bb01fb2d8310b5a7a57a"
+    },
+    "T21": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "bytes": 9897,
+      "sha256": "1430274f7228fccb77a5c29832d31d65b30e22740f9b622ef6553f63efe59a16"
+    },
+    "T16": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/foundry/methods/test_compiler_e02.py",
+      "bytes": 11608,
+      "sha256": "75673416c70a2f82ca72194c015a8a1c1e5d0372ffeeb103c4658667121ba462"
+    },
+    "T22": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_02.py",
+      "bytes": 9386,
+      "sha256": "368417feeb5bd2a64280de1a3e1d6071356c886e412209a4675062532974d74e"
+    },
+    "T14": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/foundry/methods/components/test_composition_e02.py",
+      "bytes": 12213,
+      "sha256": "059bde6f9f3550b2f77f82039cf4d258cdac28262c2b53d092228d4cdfea91cc"
+    },
+    "T23": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_03.py",
+      "bytes": 8449,
+      "sha256": "79b396b1c7766377baf471c51b215a921409fbaa4541685073a25be215967f4a"
+    },
+    "T15": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/foundry/methods/test_compiler.py",
+      "bytes": 34246,
+      "sha256": "a015d14b41eb7bce0ab0b9ed96e79663be29e71aebd1f19f1f7801e646a5805f"
+    },
+    "T25": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/remediation/test_jit_01.py",
+      "bytes": 24311,
+      "sha256": "c7e68d8b29bd4d61b7cd5ec9c1e3b49c42cf410d38c456730171d63d0c6daa0a"
+    },
+    "T17": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+      "bytes": 8277,
+      "sha256": "75afc999a46ea3e4697b79dbecbe0678e4946cd89e360754543a32a0ea15812f"
+    },
+    "T35": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "bytes": 20275,
+      "sha256": "e798e0546ac1b461e603ea43e7d9feb9de5526c45e90362a96a17faf1c4cb972"
+    },
+    "T39": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+      "bytes": 6681,
+      "sha256": "08f7d895f640625f74090ec1bf5c959b539e98974c7f92b41f793a630cceae9a"
+    },
+    "T43": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+      "bytes": 19724,
+      "sha256": "df6d564625a63469388d1f5da63c6d0db7f35e4173b86f21aa19ca529adcbe18"
+    },
+    "T44": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+      "bytes": 32478,
+      "sha256": "8caba8a940ecd756bbd47f7fb97e7695c8e45fc3cd258c392170b0ae2cdfd53c"
+    },
+    "T49": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "bytes": 15169,
+      "sha256": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648"
+    },
+    "T48": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "bytes": 8098,
+      "sha256": "4b2cffae6377f20558002a5895d91a6a3812c427f8c348284c6c5cf753a1fa65"
+    },
+    "T34": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+      "bytes": 21415,
+      "sha256": "daaacc64978a18d4e76af2eb120b0f0146ea4779a4a3aa19683319a5a84de93c"
+    },
+    "T45": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+      "bytes": 5301,
+      "sha256": "fba2beb39298c54788516a69fa8a5ba8bdabc47fdf6f51a772825f866110366e"
+    },
+    "T27": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/remediation/test_res_01.py",
+      "bytes": 17834,
+      "sha256": "e8913b401a0101c2301671962e876c97e86afed696536407f0c86e8c2acec93b"
+    },
+    "T26": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "bytes": 8263,
+      "sha256": "b247897d69ec0c990aeb94700db0d471a46890e77ea6f181190e3eaa40d7b5de"
+    },
+    "T50": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "bytes": 41666,
+      "sha256": "acf11eee561f833de25be229e4de1086aef6a7e6f625148f765a8e687adf3682"
+    },
+    "T02": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "bytes": 15730,
+      "sha256": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5"
+    },
+    "T46": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+      "bytes": 13231,
+      "sha256": "cc96bdff760c0cdab55f8b6f3b388610c32e1ead363325cefbeebd4cc624dcd8"
+    },
+    "T28": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/remediation/test_res_02.py",
+      "bytes": 14175,
+      "sha256": "1a8d8c7d305fe66bd8fcf261ec7423be61b37df27354e752152b001ef729d0aa"
+    },
+    "T00": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "bytes": 68820,
+      "sha256": "c94e36b922f539c2256eefe1ad653b2c99c9fc73895c598b05c8034cdaf3bea2"
+    },
+    "T01": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+      "bytes": 12237,
+      "sha256": "6e51e94a9c352d2452e2c79b5ab71001cbf98f1d78154ac8e9e759e97144f4b7"
+    },
+    "T11": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+      "bytes": 33264,
+      "sha256": "23f3a815adb38d2b18ef9f68b320300788941a45e4d32bac2e9e2cfe734d13fd"
+    },
+    "T30": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "bytes": 15865,
+      "sha256": "d6ea1299420903c72a42e8c6b07b506ed6aaa1dc5d0366a7bcdf144aec4838b0"
+    },
+    "T13": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+      "bytes": 30912,
+      "sha256": "70818a2e1b8c4e94f930823693ef7f0d232ff7c92f987decbf97d0c39ef18449"
+    },
+    "T12": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "bytes": 13742,
+      "sha256": "025f395d25306b5a94d392489d1eea5ed9a1a0649cc0b28607b860b8d259385f"
+    },
+    "T10": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+      "bytes": 12269,
+      "sha256": "57a93345d81860b0de51fcd4fc494c82f7b4f2ef845f9253659b6e41d54bc6f9"
+    },
+    "T06": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+      "bytes": 10635,
+      "sha256": "a9ec798fc3e2e36c2e99c171526c3fa7a00027947f3f8776513de8b717bb11bf"
+    },
+    "T07": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "bytes": 63686,
+      "sha256": "f37a87d195dbf8a09d8d98d9f8307c9ea4026d562797c9e8846c4220cfa2b598"
+    },
+    "T08": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+      "bytes": 29464,
+      "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73"
+    },
+    "T09": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+      "bytes": 6312,
+      "sha256": "20d6d959e58d65e676945766f3be4ceb32c5c5bc5d134659138e55c64a813049"
+    },
+    "T32": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/remediation/test_wire_01.py",
+      "bytes": 12091,
+      "sha256": "20a9f68b15462ca6e20a2ffa602828a1b64354a2457f2cc18cb8fed70430e507"
+    },
+    "T19": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/remediation/test_cas_02.py",
+      "bytes": 24197,
+      "sha256": "d64c46bb4055cb6cd65fcff05067ef6c89941b5af316a63931088fbebaa98771"
+    },
+    "T18": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/remediation/test_cas_01.py",
+      "bytes": 48119,
+      "sha256": "2f5e579c9522fac98b8b1e727a12f3b3f3ab89fab6dd2827fd44d67bce8d94df"
+    },
+    "T04": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+      "bytes": 9989,
+      "sha256": "16f2ac386885257997a58d97fabc78fe632c328fa6bca2780fcb35825c95fb32"
+    },
+    "T05": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py",
+      "bytes": 5578,
+      "sha256": "d6ff2c719331efdb453b9051ff6c75c6cf3e3c67276cd7eb488f8476a0569dcc"
+    },
+    "T20": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/remediation/test_cas_03.py",
+      "bytes": 31421,
+      "sha256": "19636b58cf687da7ec3eb9c3ded9ef9cb0ed6c24f0b3bcb6aa10e31eda9db9b9"
+    },
+    "T03": {
+      "commit": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+      "bytes": 4870,
+      "sha256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+    }
+  },
+  "scope_profiles": {
+    "RUN-01": "Canonical shared executor/common3.14 plus direct/thread/fork/genuine-async timeout/context/cancel paths; accepted logical publication and retained entered physical ownership are distinct.",
+    "RUN-02": "Linux real fork/Pipe/framed transport and owned descendant lifecycle; native platform properties remain separately named, no imported platform success.",
+    "RUN-03": "Canonical category/code classification across exception and returned NodeOutcome, isolated native state attempts and known typed expense settlement.",
+    "DUR-01": "Actual FileBudgetLedger filesystem publication plus real child/reopened BudgetMiddleware; exact legal wire, concurrent read/write and injected filesystem/process cuts.",
+    "DUR-02": "Actual bound source-job store transaction fence and SQLite public worker/restart/status-event consumers; actual dispatched primary has typed unknown until external reconciliation law exists.",
+    "CMP-01": "MethodRegistry registered ordinary two-node/multi-occurrence chains and declared required edges, native sync/async/checkpoint/JIT materialization with declared parameters.",
+    "CMP-02": "Strict scalar target and declared occurrence semantics; visible WARN candidate is not execution authority.",
+    "CMP-03": "Supported typed slot/unit/shape/contract/semantic inputs, full incoming DAG acceptance and exact finite max-cardinality/max-utility matching/ambiguity.",
+    "JIT-01": "Supported real JAX specialization and canonical synchronous compiler single-flight; logical leader terminal/error/publication and actual follower/healthy numerical retry.",
+    "EXE-01": "AsyncWorkflowExecutor concrete verified FileSystemCAS, explicit read/run budgets and named functional read policy; no external permission/source-owner law invented.",
+    "EXE-02": "Declared safe DAG dependencies/state read-write sets; actual independent successor scheduling and preserved inputs/seed/full artifact lineage.",
+    "STA-01": "Ordinary declared JSON dict/list state graph, live nested aliases/reparent/held views, versioned actual operations, fail isolation and guarded write scope.",
+    "STA-02": "Actual adaptive bundle/CAS selection and declared parameter normalization/presence keys; SKG immutable consumed snapshot authority is a separate held contract.",
+    "RES-01": "Concrete exact ArtifactRef trace/checkpoint/legacy result inlet, actual cached outcomes/state operations and output-aware resume dependency consumer.",
+    "RES-02": "Native skip/fail/ok frontier, parallel fail-fast compensation/continue commit set, actual retained CAS output and fresh-store public resume.",
+    "RES-03": "Actual simulation artifact survives prefix failure; served HTTP consumer must be reached with required readonly acquisition/catalog inputs.",
+    "RES-04": "Finite inspectable Python source graph/declared refs and JSON/NumPy immutable generation; native producer/history/context/readback exact identity, not constructor names.",
+    "LLM-01": "Actual provider adapter, producer flight, Traced hooks, enforcer and initialized durable ledger; known typed event and ACK are distinct from unknown external billing authority.",
+    "LLM-02": "Actual exact scoped reuse/single-flight with declared principal/purpose/epoch fixture; production institutional permission is not inferred from readability.",
+    "NET-01": "Real canonical pool physical handles plus real file EventStreamConnector/C session/process/CursorStore; fault-stage ownership measured, no pool/marker substitution.",
+    "NET-02": "Actual rate/circuit decorator leases and exact-key bounded registries; fake clock is explicit fixture input, not external rate law.",
+    "WIRE-01": "Canonical worker serialization native and stdlib JSON backends with independent bare/framed-v1 legacy and current-v2 emitters/readers.",
+    "CAS-01": "Real FileSystemCAS first-writer selected profiles, physical existing bytes/size, scoped views and bounded local lock lifetime.",
+    "CAS-02": "Real verified private transfer staging, normalized final output entries and atomic directory/archive generation publication; scoped ownership law separate.",
+    "CAS-03": "Concrete FileSystemCAS byte/manifest snapshot, actual signatures/trust/revocation/report/capture reader and finite iterator batch producer; A governed publisher separate."
+  },
+  "custody_qualification": {
+    "full_partition_ignored": {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-dd958-case-partition.json",
+      "bytes": 6962493,
+      "sha256": "63976f5553e797394c94c8ac10462762cc4b350ec6e44c5f9844112a3c31a06b"
+    },
+    "G_raw_availability": "Full inventory/selector lineage/phase partition were not transferred. Full deciding moderate XML/stdout/profile/wrapper are committed at c581 and row junit indexes are independently reconciled. Any admission depending on unavailable raw requires exact rerun, not this proposal.",
+    "derived_nav": "Ignored navv2/join-v3 are recomputable workproducts, not retained original evidence. No derived catalogue duplicate is committed.",
+    "admission": "Original root-provided writer lanes have admission; prior self-created oracle4 and adapters2/CAS base36 qualifications remain precreation_custody_not_established as pinned existing source-only map/evidence. No blanket all-checkouts-admitted claim.",
+    "junit_case_locator": "Each row has zero-based document-order testcase indexes into complete committed dd_xml. Their literal outcomes are independently reconciled to phase partition. Exact body file identity comes from test_input_refs. XML+stdout are deciding transferred bytes; full raw-phase custody is separately qualified unavailable for G.",
+    "new_lower_surface_companion": "Root reports existing inventory makes new completion internals internal; root alone writes corrected engine README/release companion. Until exact commit is supplied, this remains pending source companion, not a future-SHA public API claim."
+  },
+  "global_code_acceptance": {
+    "state": "RED",
+    "DD_gates": "Runtime API PASS; six other required gates actual FAIL. P41 inherited attribution not_established without slice-base exact replay plus zero input intersection. These gates neither auto-close nor automatically change an otherwise bounded criterion decision.",
+    "successor_scope": "New upper/lower class repair and nearest README/public surface companions require affected consumers and source checks on exact composed successor; DD positives are not transplanted."
+  },
+  "all60_manual_rows": [
+    {
+      "finding_id": "B13",
+      "bundle_id": "RES-03",
+      "canonical_criterion": {
+        "line_begin": 51,
+        "line_end": 66,
+        "source_block_sha256": "8714cb99089ae3acaf3b6bad7954b4ea29bb018e3128bccb5c937d21aa43ad49",
+        "statement": "Real simulation survives later failure and is correctly consumed through served route."
+      },
+      "proposal": {
+        "finding_status": "limited",
+        "formal_closure": false,
+        "technical_property": "bounded_property_with_explicit_remaining"
+      },
+      "defining_quantity": "Actual simulation artifact, preserved scoped partial result and later-stage reason must reach served consumer; these Foundry peers alone do not decide the A route.",
+      "actual_observation": "Actual independent Foundry A output survives sibling B failure with exact error/scope; DD three additional partial-level controls PASS. This is not served simulation result readback.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          1106
+        ],
+        "literal_states": {
+          "PASS": 1
+        },
+        "test_input_refs": [
+          "T29"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cmp_final"
+      ],
+      "P38": "CAS object presence can remain true while served failed-job projection omits its admissible scope or error.",
+      "next_owner": "A owns generation_cycle/run_lifecycle; G supplies exact local readonly catalog/history and replays served partial-result route.",
+      "cross_unit_contract": "A alone owns generation_cycle.py/run_lifecycle.py bridge; readonly catalog/acquisition/served HTTP consumer requires actual reachable input, no producer-only closure.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "A real lifecycle/HTTP simulation-result consumer still requires readonly catalog/acquisition inputs; missing inputs prevent the canonical user-visible recovery path."
+    },
+    {
+      "finding_id": "B14",
+      "bundle_id": "RUN-01",
+      "canonical_criterion": {
+        "line_begin": 53,
+        "line_end": 66,
+        "source_block_sha256": "6751a4ad3fac17a99f232f0c277b7df5b9a7911393ed10edf4013c8e60f71b0f",
+        "statement": "Timeout/cancellation stops owned work or revokes late current-state publication; delivery success is distinguished from compute failure."
+      },
+      "proposal": {
+        "finding_status": "limited",
+        "formal_closure": false,
+        "technical_property": "bounded_property_with_explicit_remaining"
+      },
+      "defining_quantity": "After refusal owned current writes are revoked and actual owned process tree is stopped; delivery completion and physical thread continuation are separate quantities.",
+      "actual_observation": "Actual timeout revokes owned state/publication writes; canonical Linux supervisor cleans real descendants; completed delivery controls preserve small/large results.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          3331,
+          3353,
+          3354
+        ],
+        "literal_states": {
+          "PASS": 3
+        },
+        "test_input_refs": [
+          "T47"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact"
+      ],
+      "P38": "Timed-out uncooperative thread writes an unowned external file after caller refusal: Future.cancel success does not prove physical stop.",
+      "next_owner": "RUN executor/effect owner and G native platform profile; root may accept only declared owned-write/process contour.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Already-entered arbitrary thread/cooperative-suppressed work can continue raw external effects. Owned mutation fencing is verified; universal physical stop is not supplied."
+    },
+    {
+      "finding_id": "B24",
+      "bundle_id": "RUN-02",
+      "canonical_criterion": {
+        "line_begin": 48,
+        "line_end": 63,
+        "source_block_sha256": "07a88c84d0c6ba90c263ae4eac6963f2a204362af642aa95d60a00792aa7ece0",
+        "statement": "Small/1MiB process results drain while producer lives; compute and delivery failures never publish false success."
+      },
+      "proposal": {
+        "finding_status": "limited",
+        "formal_closure": false,
+        "technical_property": "bounded_property_with_explicit_remaining"
+      },
+      "defining_quantity": "Small and1MiB real framed results return while worker lives; partial-send/crash cannot issue successful receipt and owned cleanup is observed.",
+      "actual_observation": "Real fork/Pipe delivery returns small and 1MiB sync/async results; actual partial frame never blocks the loop; worker-send failure refuses success.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          3344,
+          3345,
+          3346,
+          3347,
+          3348,
+          3363
+        ],
+        "literal_states": {
+          "PASS": 6
+        },
+        "test_input_refs": [
+          "T47"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact"
+      ],
+      "P38": "A compute-finished child can still block on a large framed send; join-before-drain incorrectly kills a valid result.",
+      "next_owner": "RUN/G platform executor consumer, using same final candidate and native platform rather than a Linux PASS transplant.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Owned Linux supervisor/procfs/pidfd/subreaper profile verified. Native macOS process transport and non-Linux adopted-child recovery remain verification_missing."
+    },
+    {
+      "finding_id": "B37",
+      "bundle_id": "DUR-01",
+      "canonical_criterion": {
+        "line_begin": 49,
+        "line_end": 68,
+        "source_block_sha256": "c555fb1ccd7afd60ee4c21887f0da19bb1d95885fd7b3a736cd84872814db01e",
+        "statement": "Concurrent ledger reads and interrupted publication yield complete old/new or typed recovery, never implicit unlimited; sparse wire is refused before defaults."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Child middleware and fresh reopen preserve complete old/new or typed recovery, never unlimited from missing/corrupt/sparse wire; same retained event retry charges once.",
+      "actual_observation": "DD real processes preserve concurrent spend/exhausted cap, bootstrap refuses cold record_spend, fsync/replace/SIGKILL cuts reopen old/new complete or typed recovery. Independent fixed emitted-wire omission consumers PASS and preserve bytes. Exact settled event retry does not charge twice.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          2988,
+          3009,
+          3010,
+          3011,
+          3012,
+          3013,
+          3014,
+          3015,
+          3016,
+          3017,
+          3018,
+          3019,
+          3020,
+          3082,
+          3083,
+          3084,
+          3085,
+          3086,
+          3087,
+          3088,
+          3089,
+          3090,
+          3091,
+          3092,
+          3093,
+          3094,
+          3095,
+          3096,
+          3097,
+          3098,
+          3099,
+          3100,
+          3101,
+          3102,
+          3103,
+          3104,
+          3105
+        ],
+        "literal_states": {
+          "PASS": 37
+        },
+        "test_input_refs": [
+          "T36",
+          "T37",
+          "T38"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "lower_candidate",
+        "lower_foreign_source_review"
+      ],
+      "P38": "Existing empty/sparse accounting file must refuse typed recovery; treating it as missing bootstrap creates unlimited budget.",
+      "next_owner": "Root/G independently accept new lower9f + composed consumer; DUR remains canonical ledger writer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Bounded cooperative filesystem/process interruption criterion met at DD. New lower1.2 obligations require affected-budget consumer rejoin/root acceptance; own172PASS and foreign EXE source review are separate, not self acceptance. Power loss/multihost/cryptographic ledger attestation are outside this criterion."
+    },
+    {
+      "finding_id": "B38",
+      "bundle_id": "DUR-02",
+      "canonical_criterion": {
+        "line_begin": 54,
+        "line_end": 73,
+        "source_block_sha256": "d37d987dae1f7e9c87bb88d46bbbdb91c30f0a7208e28c12bdcd21ab46b73258",
+        "statement": "Actual bound stale worker cannot publish terminal/progress/event/history/outbox after owner/attempt/expiry takeover; current owner completes coherently."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Real stale source-owner/attempt/expiry blocks all13 protected mutation inlets before row effects; actual current worker and transactional terminal/event fault controls decide the finite store law.",
+      "actual_observation": "Actual stale bound handler cannot mutate any table/sibling inlet after takeover; current attempt completes. Terminal event/outbox statement fault rolls all rows back. Same-transaction renewal is admitted. DD real PostgreSQL8 and standalone8 (plus test-only4 SQL-fault successor) agree with SQLite.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          1045,
+          1048,
+          1049,
+          1052,
+          1564,
+          1565,
+          1566,
+          1567,
+          1568,
+          1569,
+          1570,
+          1571
+        ],
+        "literal_states": {
+          "PASS": 12
+        },
+        "test_input_refs": [
+          "T24",
+          "T33"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "pg_native",
+        "pg_foreign_review"
+      ],
+      "P38": "Stale public upsert/append_event/enqueue_outbox can mutate rows even if complete_job alone is fenced; current guard binds source-job generation inside every transaction.",
+      "next_owner": "Root/G criterion acceptance; DUR store/worker source owner; external effect owner for distinct B78 contract.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Declared bound source-job publication fence and coherent terminal transaction met in actual SQLite/PostgreSQL consumers. Unbound admin authority and external exactly-once are separate, not missing requirements for B38. New lower budget API does not establish external handler law."
+    },
+    {
+      "finding_id": "B39",
+      "bundle_id": "RUN-03",
+      "canonical_criterion": {
+        "line_begin": 48,
+        "line_end": 65,
+        "source_block_sha256": "f2546edff7c1593a0c052e825aff9229abba6c4a98bf2f9a215698aafb27a7e2",
+        "statement": "Same permanent returned/raised defect has same retry count; allowed transient faults retry within policy; unknown external outcome does not blind-retry."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Return/raise with same permanent category has same producer count; permitted transient retry is bounded and postdispatch unknown is never new blind producer permission.",
+      "actual_observation": "Real return/raise permanent error produces equal attempts; allowed typed transient permits bounded retry; persisted primary effect with lost reply remains typed unknown rather than local reissue.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          1055,
+          1056,
+          1129,
+          1130,
+          1133
+        ],
+        "literal_states": {
+          "PASS": 5
+        },
+        "test_input_refs": [
+          "T24",
+          "T31"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact"
+      ],
+      "P38": "Raised ValueError bypasses retry_on although returned equivalent defect does not; classification now precedes both paths.",
+      "next_owner": "Root/G combined acceptance; backend owner supplies any external status/idempotency law.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Finite canonical error categories/codes and supported direct/thread/fork/async carriers met. Unsupported arbitrary exception serialization refuses instead of inventing identity."
+    },
+    {
+      "finding_id": "B40",
+      "bundle_id": "RUN-01",
+      "canonical_criterion": {
+        "line_begin": 72,
+        "line_end": 91,
+        "source_block_sha256": "0f1f3de7c6168147385cad77e0eb9c8e974e6b51c28dd7bf6cc1533f5f655ed9",
+        "statement": "One visible effective deadline covers queue/startup/retry/I/O/publication across sync/async forms and rejects late current writes."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "One original absolute owner deadline covers queue/startup/retry/artifact/head/GC; healthy35s within60 must survive hidden30, short expiry forbids new admission/accepted late current frontier.",
+      "actual_observation": "DD actual35-second atomic head completes within original60-second workflow. Shared absolute budget reaches artifact/head/GC; short expiry/caller cancel stops next phase and late head ACK, while entered commit finishes coherent history with typed unknown. Retry queue/backoff use same deadline.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          3137,
+          3158,
+          3159,
+          3160,
+          3161,
+          3162,
+          3163,
+          3164,
+          3165,
+          3166,
+          3167,
+          3168,
+          3169,
+          3170,
+          3171,
+          3172,
+          3173,
+          3174,
+          3175,
+          3176,
+          3177,
+          3178,
+          3179,
+          3180,
+          3181,
+          3182,
+          3183,
+          3184,
+          3185,
+          3186,
+          3407,
+          3408,
+          3409,
+          3410,
+          3411
+        ],
+        "literal_states": {
+          "PASS": 35
+        },
+        "test_input_refs": [
+          "T40",
+          "T41",
+          "T42",
+          "T47"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "checkpoint_native",
+        "checkpoint_foreign_review"
+      ],
+      "P38": "Healthy real head35 within owner60 fails at helper default30 and later publishes; this was actual baseline456 RED, not a legitimate owner timeout.",
+      "next_owner": "Root/G final affected-consumer acceptance; EXE owns checkpoint/async source and RUN owns common/retry.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Supported native checkpoint/retry owner budget criterion met. Entered unpreemptible I/O completion is explicitly unknown, not rollback or hidden renewed30 deadline. New LLM/lower repair must be rejoined separately."
+    },
+    {
+      "finding_id": "B42",
+      "bundle_id": "CMP-01",
+      "canonical_criterion": {
+        "line_begin": 56,
+        "line_end": 73,
+        "source_block_sha256": "434fc93d5f183004fa3dea62a3802632618b7a5a640c7a29a94b218cc09bbc77",
+        "statement": "Both fresh import orders execute real built two-node registry chain through common async wrapper; missing required dependency is diagnostic."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Two fresh import orders execute actual built two-node chain through common wrapper; unavailable required dependency is addressable refusal.",
+      "actual_observation": "Two actual fresh import orders execute registered two-node composition through wrapper; native current compiled required-edge consumers also execute.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          1012
+        ],
+        "literal_states": {
+          "PASS": 1
+        },
+        "test_input_refs": [
+          "T21"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cmp_final"
+      ],
+      "P38": "Both modules import successfully yet wrapper holds an early None executor; real MethodComposer.build→execute distinguishes this from import-only green.",
+      "next_owner": "CMP/root/G effective-plan acceptance.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Supported installed dependency profile and deferred internal import path met; genuinely absent required dependency remains an explicit missing dependency, not permanent blanket unavailability."
+    },
+    {
+      "finding_id": "B43",
+      "bundle_id": "CMP-01",
+      "canonical_criterion": {
+        "line_begin": 79,
+        "line_end": 96,
+        "source_block_sha256": "10b7eabc7d65e7ee68eff8d1b3ee523ce960f00f696c34edf1aae65cdd67a8c9",
+        "statement": "Build/freeze/execute consumes ordering-only requires in one effective graph, preserves independent parallelism and refuses cycle."
+      },
+      "proposal": {
+        "finding_status": "limited",
+        "formal_closure": false,
+        "technical_property": "bounded_property_with_explicit_remaining"
+      },
+      "defining_quantity": "Built/frozen graph preserves ordering-only requires, independent parallel sibling, serialization and cycle-before-body refusal across actual consumer modes.",
+      "actual_observation": "DD built/frozen effective requires graph orders A before B in native modes, retains independent sibling and refuses cycle before execution; required compiled alias consumes actual producer output.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          850,
+          851,
+          1013,
+          1014
+        ],
+        "literal_states": {
+          "PASS": 4
+        },
+        "test_input_refs": [
+          "T16",
+          "T21"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cmp_final"
+      ],
+      "P38": "Data-flow-only serialized plan can put B.requires(A) at same level as A despite a correct in-memory execution_order.",
+      "next_owner": "CMP/root/G locate existing serialization consumer or add small real serialized plan readback; no full dataset needed.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "build→freeze→execute clause met. An actual serialize/reopen effective-plan consumer retaining ordering-only edges has not been identified in deciding native inputs; verification_missing rather than claimed source defect."
+    },
+    {
+      "finding_id": "B44",
+      "bundle_id": "CMP-01",
+      "canonical_criterion": {
+        "line_begin": 102,
+        "line_end": 119,
+        "source_block_sha256": "0c36b2d0d5304b425dde05fe8679dc2adab49d9ae67925a4533cdb1f912be5ae",
+        "statement": "Static→dynamic→per-call override payload is identical in sequential/async/checkpoint and native compiled consumers."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Actual nondefault static/dynamic/override payload and numerical output agree without redundant params_map; unknown parameter refuses rather than silently defaulting.",
+      "actual_observation": "Actual sequential/async/checkpoint payload parity retains static→dynamic→override values and native required consumer arithmetic; unknown parameter stays refused.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          848,
+          849,
+          1015
+        ],
+        "literal_states": {
+          "PASS": 3
+        },
+        "test_input_refs": [
+          "T16",
+          "T21"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cmp_final"
+      ],
+      "P38": "Supplying every static parameter again via params_map masks the original async omission; current control omits that duplicate override.",
+      "next_owner": "CMP/root/G merged executor consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Declared parameter precedence, seeds and supported numerical consumer met. No inference of scientific validity from DTO/payload identity."
+    },
+    {
+      "finding_id": "B45",
+      "bundle_id": "CMP-02",
+      "canonical_criterion": {
+        "line_begin": 57,
+        "line_end": 74,
+        "source_block_sha256": "164b0ecacd454c386662aac54c271c7298c3348b34de661816f015eaddc2e186",
+        "statement": "Duplicate scalar target producers cannot silently last-win by UUID; distinct targets and explicit merge preserve meaning."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Same scalar target refuses silent UUID last-win; different targets and explicit numeric merge remain valid; WARN visibility is not execution authority.",
+      "actual_observation": "Two sources cannot silently last-win one scalar target under strict acceptance. WARN records remain candidate; exact merge owns both inputs and gives reproducible arithmetic independent of UUID.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          1016,
+          1017,
+          1019
+        ],
+        "literal_states": {
+          "PASS": 3
+        },
+        "test_input_refs": [
+          "T22"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cmp_final"
+      ],
+      "P38": "Pairwise compatible edges can still jointly overwrite one target; validate full incoming producer set before bodies.",
+      "next_owner": "CMP/root/G composition acceptance.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Canonical single-target whole-chain admission and explicit merge profile met; WARN is not final authority."
+    },
+    {
+      "finding_id": "B46",
+      "bundle_id": "CMP-02",
+      "canonical_criterion": {
+        "line_begin": 80,
+        "line_end": 97,
+        "source_block_sha256": "662a1a626240391877225f0ba32d12c2977f1acfba0290386b4bdff0d317b580",
+        "statement": "Ordering uses concrete occurrences, accepting valid repeated prerequisite and rejecting unsupported early dependent."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Concrete repeated occurrences, actual31 arithmetic and early-dependent refusal decide order; FQN-last-index and ambiguous future do not confer admission.",
+      "actual_observation": "Early estimate occurrence remains valid before sensitivity and later estimate; early sensitivity cannot be rescued by later estimate. Explicit predecessor/nearest prior occurrence and ambiguous-future refusal execute in all named levels.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          760,
+          761,
+          762,
+          1020,
+          1021,
+          1022,
+          1023
+        ],
+        "literal_states": {
+          "PASS": 7
+        },
+        "test_input_refs": [
+          "T14",
+          "T22"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cmp_final"
+      ],
+      "P38": "Last-FQN dictionary loses an earlier prerequisite or hides an earlier invalid dependent; native occurrence controls distinguish both directions.",
+      "next_owner": "CMP/root/G; semantic source owner for substantive tag rules.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Occurrence mechanics met; tag-rule scientific authority remains a supplied operational premise, not a new universal law."
+    },
+    {
+      "finding_id": "B47",
+      "bundle_id": "CMP-03",
+      "canonical_criterion": {
+        "line_begin": 56,
+        "line_end": 73,
+        "source_block_sha256": "db0a46a8373da1087edb08b827fd8e925dc9c731492d6147ee683dc284a1dfa9",
+        "statement": "Typed compatibility matching maximizes cardinality then existing utility; meaningful equivalent optima require explicit mapping, never lexical choice."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Canonical matching has maximum compatible cardinality then existing utility; genuine equal-optimal meaning requires explicit mapping, neutral names do not decide numeric711/1107 semantics.",
+      "actual_observation": "Native real typed matching finds complete augmenting assignments under neutral renames, refuses equally optimal ambiguous numeric2010/1020, and exact explicit711/1107 controls pass. Independent brute-force512 finite3x3 graphs reconciles cardinality/utility/ambiguity.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          767,
+          768,
+          769,
+          1024,
+          1025,
+          1026
+        ],
+        "literal_states": {
+          "PASS": 6
+        },
+        "test_input_refs": [
+          "T14",
+          "T23"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cmp_final"
+      ],
+      "P38": "Greedy local exact-name preference misses a valid complete assignment; maximum utility alone also permits two different meaningful optima.",
+      "next_owner": "CMP/root/G final supported composition consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Finite supported typed slot matching criterion met; automatic equal-optimum ambiguity requires explicit mapping. Not a global method search capability."
+    },
+    {
+      "finding_id": "B48",
+      "bundle_id": "CMP-03",
+      "canonical_criterion": {
+        "line_begin": 79,
+        "line_end": 96,
+        "source_block_sha256": "f92d8823d473df1af96de2bc15940fe284bdb8ad0eb9e7d757478069c448007c",
+        "statement": "Manual/automatic pair acceptance uses same mandatory type/unit/shape/contract/semantic rules; final whole incoming DAG enforces completeness."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Both routes apply same mandatory pair predicates and whole incoming union completeness at build; explicit approved connect+build oracle boundary retains no-body refusal.",
+      "actual_observation": "Same unit/shape/contract/semantic predicate applies to auto and manual. Real two-source complete DAG consumes both values; incomplete final build refuses before producer bodies under OFF/WARN/STRICT.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          753,
+          754,
+          755,
+          756,
+          757,
+          1028
+        ],
+        "literal_states": {
+          "PASS": 6
+        },
+        "test_input_refs": [
+          "T14",
+          "T23"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cmp_final"
+      ],
+      "P38": "Per-edge compatibility can admit a structurally incomplete union, or auto can bypass manual semantic refusal; both require shared final admission.",
+      "next_owner": "CMP/root/G; semantic owner supplies actual transformation law.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Final whole incoming DAG is acceptance boundary; edge assembly may remain partial while building. Supplied semantic oracle is an operational premise, not institutional methodology."
+    },
+    {
+      "finding_id": "B49",
+      "bundle_id": "JIT-01",
+      "canonical_criterion": {
+        "line_begin": 50,
+        "line_end": 67,
+        "source_block_sha256": "e581a88f4245b540e42b3ac60bc78a278bbe890e6ce2149031305d4235188ab6",
+        "statement": "Warm current dynamic defaults match cold, old handle stays unchanged and dynamic-only change reuses same actual kernel."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Old handle20/current30 and cold parity share actual kernel for dynamic-only change; actual source/ABI/static/shape/dtype/backend change is identity-bearing.",
+      "actual_observation": "Real JAX current dynamic defaults match cold; old handle preserves previous result; same-FQN/helper source replacement changes actual new result and keeps old handle. Native static numeric and materialized dtype controls PASS.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          833,
+          836,
+          837,
+          841,
+          842,
+          846,
+          847,
+          1071
+        ],
+        "literal_states": {
+          "PASS": 8
+        },
+        "test_input_refs": [
+          "T15",
+          "T16",
+          "T25"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cmp_final"
+      ],
+      "P38": "Same specialization key can hold a handle closed over old dynamic default; identical cache count alone misses changed actual arithmetic.",
+      "next_owner": "CMP/root/G supported real compiler consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Finite supported JAX/compiler specialization/default binding met; build counter is wrapper construction, not asserted physical XLA compilation count. Foreign external backend profiles are not claimed."
+    },
+    {
+      "finding_id": "B50",
+      "bundle_id": "JIT-01",
+      "canonical_criterion": {
+        "line_begin": 73,
+        "line_end": 90,
+        "source_block_sha256": "0aa3d14bac0b9f19c3362889bf0f13fdc54326453536084a4be68d1e295ed3bf",
+        "statement": "Terminal value/error publishes before follower wakeup and shared cache generation/miss-claim recheck avoids duplicate useful compile."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "One useful generation compile and terminal value/error publishes before joined follower wake; logical CancelledError/SystemExit/publication failure retires flight and healthy retry computes; physicalXLA kill is not criterion.",
+      "actual_observation": "Actual shared compiler single-flight publishes before follower wake; invalidation retry is coherent. Barrier-established logical CancelledError/SystemExit/publication failure releases followers and fresh native compile retries.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          852,
+          853,
+          854,
+          1072,
+          1073,
+          1074,
+          1075,
+          1076
+        ],
+        "literal_states": {
+          "PASS": 8
+        },
+        "test_input_refs": [
+          "T17",
+          "T25"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cmp_final"
+      ],
+      "P38": "Completed follower notification before cache publication creates new miss/follower hang; exception-only guard misses BaseException leader termination.",
+      "next_owner": "CMP/root/G compiler integration.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Canonical logical leader terminal semantics met. Physical XLA kill is not this criterion; public cancel_event remains follower wait cancellation."
+    },
+    {
+      "finding_id": "B51",
+      "bundle_id": "EXE-01",
+      "canonical_criterion": {
+        "line_begin": 50,
+        "line_end": 67,
+        "source_block_sha256": "8be3876e053d7fa9b13fafcf7d74ae50aae980a6949966dcbf5962344bd7aafd",
+        "statement": "Authorized bounded cache read may reuse paid result after compute exhaustion; miss/permission/corruption cannot bypass budget."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Actual ready verified hit with exhausted compute spends no new producer budget; miss refuses compute, read denial/integrity/current permission remain enforced with distinct diagnostic.",
+      "actual_observation": "Actual run/read exhausted budgets show ready verified warm hit replays operations without new producer compute; read-budget refusal happens before CAS read and preserves state with exact read diagnostic. Miss/integrity/full selected-view negatives remain refused.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          2947,
+          2948,
+          2949,
+          2950,
+          2958,
+          2959,
+          2960,
+          3106,
+          3107,
+          3108,
+          3109,
+          3110
+        ],
+        "literal_states": {
+          "PASS": 12
+        },
+        "test_input_refs": [
+          "T35",
+          "T39"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "exe15",
+        "sta_review"
+      ],
+      "P38": "Pre-checking old compute before a verified reusable hit refuses admissible reuse; bypassing read budget instead authorizes invalid consumption.",
+      "next_owner": "Root/G new affected consumer rejoin after LLM/budget repair; EXE owns native cache inlet.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Native AsyncWorkflowExecutor + FileSystemCAS declared read/compute budget criterion met. B61/B67 institutional source/permission owner law remains held separately, not assumed by this functional read policy."
+    },
+    {
+      "finding_id": "B52",
+      "bundle_id": "EXE-01",
+      "canonical_criterion": {
+        "line_begin": 73,
+        "line_end": 90,
+        "source_block_sha256": "e4af31d50bb9263c6744fd0aef0e1fe452faa29181bb42294e0c1e0d4c441885",
+        "statement": "Real cache read/write/recovery leaves independent coroutine responsive, shares absolute deadline and quarantines late cancelled cache publication."
+      },
+      "proposal": {
+        "finding_status": "limited",
+        "formal_closure": false,
+        "technical_property": "bounded_property_with_explicit_remaining"
+      },
+      "defining_quantity": "Real synchronous CAS trace/cache/artifact/head/GC work preserves independent ready task progress and one deadline; cancellation prevents late private cache/frontier ACK while entered physical IO stays unknown.",
+      "actual_observation": "Real cold synchronous CAS read runs off-loop with preserved context and ready coroutine ticks; deadline/cancel prevents late private cache publication. Verified cache publication/reopen and shared artifact/head/GC budget controls PASS.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          2940,
+          2941,
+          2942,
+          2943,
+          2944,
+          2945,
+          2951,
+          2952,
+          2953,
+          2954,
+          2955,
+          2956,
+          2957,
+          2958,
+          2959,
+          2960,
+          3158,
+          3159,
+          3160,
+          3161,
+          3162,
+          3163,
+          3164,
+          3165,
+          3166,
+          3167,
+          3168,
+          3169,
+          3170,
+          3171,
+          3172,
+          3173,
+          3174,
+          3175,
+          3176,
+          3177,
+          3178,
+          3179,
+          3180,
+          3181,
+          3182,
+          3183,
+          3184,
+          3185,
+          3186
+        ],
+        "literal_states": {
+          "PASS": 45
+        },
+        "test_input_refs": [
+          "T35",
+          "T41",
+          "T42"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "exe15",
+        "sta_review",
+        "checkpoint_native",
+        "checkpoint_foreign_review"
+      ],
+      "P38": "Off-loop marker can be true while readiness remains blocked, or correct cache hit-rate hides tail latency; actual ticks prove responsiveness but do not provide p95/p99.",
+      "next_owner": "EXE/root/G small measured neighbour-latency/cache-volume profile on exact successor, no production dataset requirement for this generic discriminator.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Mechanism clauses met, including hidden30 repair. Canonical p95/p99 neighbour wait, serialization volume and hit-cost measurements are not established by Event/tick controls; finite measurement verification_missing. Already-entered backend I/O remains typed unknown."
+    },
+    {
+      "finding_id": "B53",
+      "bundle_id": "JIT-01",
+      "canonical_criterion": {
+        "line_begin": 96,
+        "line_end": 113,
+        "source_block_sha256": "7593081b5107446ae188b695b89f6b84599a3dfbb0da218002d9c2e69fef8b12",
+        "statement": "Known shape preparation performs no scientific body work; actual execution uses correct occurrence inputs and unknown shapes are never invented."
+      },
+      "proposal": {
+        "finding_status": "limited",
+        "formal_closure": false,
+        "technical_property": "bounded_property_with_explicit_remaining"
+      },
+      "defining_quantity": "Known-shape preparation runs no substantive producer, actual executor runs required methods once; unknown data shape is typed refusal, not invented shape, tracing/warmup remain separate.",
+      "actual_observation": "Declared known shapes avoid pure-step preparation; unknown data-dependent shape refuses; actual required compiled alias consumes true producer output once and materialized dtype reconciles.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          850,
+          851,
+          1077,
+          1078
+        ],
+        "literal_states": {
+          "PASS": 4
+        },
+        "test_input_refs": [
+          "T16",
+          "T25"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cmp_final"
+      ],
+      "P38": "infer_shapes=False or a guessed shape can make preparation count0 while missing actual required producer/independent repetition semantics.",
+      "next_owner": "CMP/root/G locate real stochastic/warmup consumer and bind count/seed/scope; small fixture is sufficient.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Known-shape/no-preparation runtime clause met. Explicit warmup versus independent stochastic repetition separation has not been established by these defining cases; verification_missing, no new source defect inferred."
+    },
+    {
+      "finding_id": "B55",
+      "bundle_id": "EXE-01",
+      "canonical_criterion": {
+        "line_begin": 96,
+        "line_end": 111,
+        "source_block_sha256": "8191ea528e4cb3823ee245a3c5ff0d7a66aef73cd44e4a4bcb57ac1c4c2409da",
+        "statement": "Fail-fast rechecks after semaphore acquire, frees every slot on error/cancellation and preserves continue/completed outcomes."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Saturated queued fail_fast/caller cancel refuses new bodies, preserves actual completed prefix and releases all slots, continue runs allowed bodies and metric failure cannot bypass release.",
+      "actual_observation": "Saturated native semaphore fail_fast/cancel does not start queued bodies; continue executes allowed siblings; metric failures do not bypass release. Actual head contains only completed seed/prefix and all slots/waiters return.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          3240,
+          3241,
+          3242
+        ],
+        "literal_states": {
+          "PASS": 3
+        },
+        "test_input_refs": [
+          "T43"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "exe15",
+        "sta_review"
+      ],
+      "P38": "A waiter can acquire after fail_fast and run despite prior refusal, or metric exception can leak acquired slot; exact producer counts and reopened head decide.",
+      "next_owner": "EXE/root/G affected native scheduler consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Native admission/release/completed-result criterion met; no permission guessed from semaphore count alone."
+    },
+    {
+      "finding_id": "B57",
+      "bundle_id": "STA-01",
+      "canonical_criterion": {
+        "line_begin": 52,
+        "line_end": 69,
+        "source_block_sha256": "989c4b3d91329d24324c501149ed1325207d8755c3de0cb749b7ad79f339702a",
+        "statement": "Replay applies actual assignments including same-value writes to current base without resurrecting unrelated/removed fields."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Current warm replay applies only versioned actual operations, preserving unrelated update/deletion and explicit same-value/null/False/0 intent; real graph alias/reparent lifetime cannot lose or resurrect writes.",
+      "actual_observation": "Versioned real operations preserve current unrelated values/deletions and same-value writes. DD48 native list/alias/reparent/held-view/typedFalse0 cases and native fresh trace readback pass; old1.0/1.1 list semantics refuse safe replay while legal scalar history remains readable.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          2946,
+          3249,
+          3250,
+          3251,
+          3252,
+          3253,
+          3254,
+          3255,
+          3256,
+          3257,
+          3258,
+          3259,
+          3260,
+          3261,
+          3262,
+          3263,
+          3264,
+          3265,
+          3266,
+          3267,
+          3268,
+          3269,
+          3270,
+          3271,
+          3272,
+          3273,
+          3274,
+          3275,
+          3276,
+          3277,
+          3278,
+          3279,
+          3280,
+          3281,
+          3282,
+          3283,
+          3284,
+          3285,
+          3286,
+          3287,
+          3288,
+          3289,
+          3290,
+          3291,
+          3292,
+          3293,
+          3294,
+          3295,
+          3296,
+          3469,
+          3470,
+          3471,
+          3472,
+          3473,
+          3474,
+          3475,
+          3476,
+          3477,
+          3478,
+          3479,
+          3480,
+          3481,
+          3482,
+          3483,
+          3484,
+          3485,
+          3486,
+          3487,
+          3488,
+          3489,
+          3490,
+          3491,
+          3492,
+          3493
+        ],
+        "literal_states": {
+          "PASS": 74
+        },
+        "test_input_refs": [
+          "T35",
+          "T44",
+          "T49"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "exe15",
+        "sta_review"
+      ],
+      "P38": "Diffing old poststate against current base resurrects deleted/unrelated data; grouped False==0 or alias lifetime can silently lose actual operations despite same marker fields.",
+      "next_owner": "EXE/root/G native state/cache consumer acceptance; RUN foreign graph reviewer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Ordinary declared JSON graph operation law met. Unsupported cycles/custom mutables refuse. Earlier initial-alias false premise remains qualified P37 not_established, not inherited bug evidence. New lower wire needs separate rejoin."
+    },
+    {
+      "finding_id": "B58",
+      "bundle_id": "STA-01",
+      "canonical_criterion": {
+        "line_begin": 75,
+        "line_end": 90,
+        "source_block_sha256": "f033cf80f557c6d0182c48122321772bc26ce47dff30de0b0cca1baf1279285a",
+        "statement": "Delete/null/no-write replay preserves allowed deletion and refuses protected-index removal with explicit conflict semantics."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Direct/parallel/cached params delete remains delete, distinct from null/no-op; protected indices refuse physical delete and parent-child/conflict/absent-delete semantics are exercised.",
+      "actual_observation": "Direct/parallel/cached delete removes allowed params, preserves null/no-op distinction, keeps parent-child operation order and protected index refusals; incompatible list/container/overlap refuses before base mutation.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          3249,
+          3250,
+          3251,
+          3252,
+          3253,
+          3254,
+          3255,
+          3256,
+          3257,
+          3258,
+          3259,
+          3260,
+          3261,
+          3262,
+          3263,
+          3264,
+          3265,
+          3266,
+          3267,
+          3268,
+          3269,
+          3270,
+          3271,
+          3272,
+          3273,
+          3274,
+          3275,
+          3276,
+          3277,
+          3278,
+          3279,
+          3280,
+          3281,
+          3282,
+          3283,
+          3284,
+          3285,
+          3286,
+          3287,
+          3288,
+          3289,
+          3290,
+          3291,
+          3292,
+          3293,
+          3294,
+          3295,
+          3296,
+          3469,
+          3470,
+          3471,
+          3472,
+          3473,
+          3474,
+          3475,
+          3476,
+          3477,
+          3478,
+          3479,
+          3480,
+          3481,
+          3482,
+          3483,
+          3484,
+          3485,
+          3486,
+          3487,
+          3488,
+          3489,
+          3490,
+          3491,
+          3492,
+          3493
+        ],
+        "literal_states": {
+          "PASS": 73
+        },
+        "test_input_refs": [
+          "T44",
+          "T49"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "exe15",
+        "sta_review"
+      ],
+      "P38": "Union of present keys cannot represent absent delete, while treating null as delete destroys a valid explicit null operation.",
+      "next_owner": "EXE/root/G actual merge/consumer acceptance.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Finite ordinary JSON mutation/merge law and declared conflict policy met; not universal arbitrary-object edit semantics."
+    },
+    {
+      "finding_id": "B59",
+      "bundle_id": "STA-01",
+      "canonical_criterion": {
+        "line_begin": 96,
+        "line_end": 111,
+        "source_block_sha256": "2c0c22b628ad881f863d35c1ee9e05976d4e9cd281f4ab540820ae555bf50295",
+        "statement": "Declared nested mutable subtree isolates base/neighbor before commit and failed branch leaves no nested trace; unrelated immutable subtree may stay shared."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Live nested declared subtree mutations remain isolated from base/neighbor until commit; failed branch leaves no effect, unrelated immutable large region remains shared.",
+      "actual_observation": "Actual nested branch failure and neighbor controls leave live base unchanged; declared write guards inherit original producer scope including real remote child, alias/reparent and forbidden neighbor/root cases.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          3248,
+          3280,
+          3288,
+          3289,
+          3290,
+          3291,
+          3461,
+          3462,
+          3463,
+          3464,
+          3465,
+          3466,
+          3467,
+          3468
+        ],
+        "literal_states": {
+          "PASS": 14
+        },
+        "test_input_refs": [
+          "T43",
+          "T44",
+          "T48"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "exe15",
+        "sta_review"
+      ],
+      "P38": "Shallow copy or inherited alias writes through into basis before commit; merely retaining deepcopy text does not isolate held descendant/reparent views.",
+      "next_owner": "EXE/root/G original producer and branch consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Ordinary JSON graph isolation and immutable sharing criterion met. Cycles/custom mutable types fail typed before mutation. Historical closure is bounded, not assumed from deep-copy marker."
+    },
+    {
+      "finding_id": "B60",
+      "bundle_id": "STA-02",
+      "canonical_criterion": {
+        "line_begin": 51,
+        "line_end": 66,
+        "source_block_sha256": "2064253937c5fc51352981eef9dada91cd145e1a85afd788b33cd72866ee7635",
+        "statement": "Existing adaptive bundle is loaded and checked for actual context/graph/required parameters; inaccessible ref never gives presence-only ok."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Real bound same request reuses without selector; changed context/graph/required list causes necessary selection and full lineage, unreadable actualCAS ref cannot authorizeOK by presence.",
+      "actual_observation": "Reopened bound same bundle reuses without selector. Graph/required-list changes reject cache fastpath then perform actual selection with full current graph lineage; fresh CAS without producer bundle cannot authorize ok and leaves state unchanged.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          2822,
+          2823,
+          2824,
+          2825,
+          2826,
+          2827,
+          2828,
+          2829,
+          2830
+        ],
+        "literal_states": {
+          "PASS": 9
+        },
+        "test_input_refs": [
+          "T34"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "exe15",
+        "sta_review"
+      ],
+      "P38": "Existing bundle-ref field remains present while actual selected bytes are unavailable or current graph/list changed; actual selector/CAS read decides.",
+      "next_owner": "EXE/root/G affected ResolveParametersNode; causal source owner for B61.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Actual request-bound adaptive selection criterion met at DD; substantive consumed SKG law remains B61 held. Unknown external bundles need actual valid bases, not URI presence."
+    },
+    {
+      "finding_id": "B61",
+      "bundle_id": "STA-02",
+      "canonical_criterion": {
+        "line_begin": 72,
+        "line_end": 87,
+        "source_block_sha256": "6c229b5194b7ece8cf32e5c774c9dc2d06092fb0e5eb592b60b956c9bf38baff",
+        "statement": "Cache key and actual SKG read bind same immutable/versioned consumed snapshot; changed live source is never silently reused."
+      },
+      "proposal": {
+        "finding_status": "held",
+        "formal_closure": false,
+        "technical_property": "owner_law_not_established"
+      },
+      "defining_quantity": "Immutable actually-consumed SKG snapshot/version and its source-owner binding must jointly identify key and read; unchanged pathname or local constructor is not owner law.",
+      "actual_observation": "Operational supplied SKG-source fixture reselects changed bound bundle and refuses missing source, but does not ratify production consumed snapshot epoch/immutability.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          2825
+        ],
+        "literal_states": {
+          "PASS": 1
+        },
+        "test_input_refs": [
+          "T34"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "exe15",
+        "sta_review"
+      ],
+      "P38": "Adding unrelated unconsumed SKG metadata can invalidate everything, or changed actually consumed source can leave key identical; metadata presence alone cannot decide.",
+      "next_owner": "Causal/SKG owner + G ratify actual consumed snapshot law and producer→artifact→consumer; EXE consumes it.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Semantic owner law missing: exact actually consumed SKG version, permissions and run immutability/reissue contract."
+    },
+    {
+      "finding_id": "B62",
+      "bundle_id": "STA-02",
+      "canonical_criterion": {
+        "line_begin": 93,
+        "line_end": 108,
+        "source_block_sha256": "1cae96d29d981d9650032e044e8fda65b6165702f2ff6aa9ca7640b1d6444ac2",
+        "statement": "Declared method input key preserves missing/null/0/False/empty distinctions, safe cache-version compatibility and meaningful current-base replay."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Native cold/warm reopened producer distinguishes missing/null/False/0/empty and absent-container; canonical versioned key preserves semantics, old bytes retain historical meaning.",
+      "actual_observation": "Actual reopened native producer distinguishes missing/null/False/0/empty and intermediate absence, producing five different verified artifacts and exact warm replays preserving unrelated state.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          3297
+        ],
+        "literal_states": {
+          "PASS": 1
+        },
+        "test_input_refs": [
+          "T45"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "exe15",
+        "sta_review"
+      ],
+      "P38": "Mapping missing to None or Python False==0 collapses semantically different read inputs despite deterministic serialized keys.",
+      "next_owner": "EXE/root/G native cache consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Declared read normalization/presence key law met, including JSON-type-sensitive grouped operation comparison. No requirement to key all irrelevant state."
+    },
+    {
+      "finding_id": "B63",
+      "bundle_id": "RES-01",
+      "canonical_criterion": {
+        "line_begin": 53,
+        "line_end": 68,
+        "source_block_sha256": "7bccf9e6d563e9575f5da7d0c320fcdb6ec07175920c088106cb690c0bac9c28",
+        "statement": "Successful exact ArtifactRef trace/checkpoint duplicates are read once; failed/conflicting/profile/tenant refs never become admitted hits."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Trace/checkpoint exact successful full-ref duplicate avoids repeated large IO; failed load retries and distinct conflicting selected view/outcome/epoch/run still verifies/refuses with equal admissible index.",
+      "actual_observation": "Exact full-ref100A+1B reads two distinct entries; failed load retries, conflicting key content never silently merges, selected foreign view/legacy outcome refuses rather than default-fallback. Restored admissible index matches native readback.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          1087,
+          1088,
+          3106,
+          3107,
+          3108,
+          3109,
+          3110
+        ],
+        "literal_states": {
+          "PASS": 7
+        },
+        "test_input_refs": [
+          "T27",
+          "T39"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "exe15",
+        "sta_review"
+      ],
+      "P38": "Dedupe by artifact_id skips valid distinct selected manifest view or marks a failed read seen; cheap unique count can hide missing admissible entry.",
+      "next_owner": "EXE/root/G successor affected cache recovery consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Finite declared trace/checkpoint/legacy cache inlet dedupe/custody criterion met. Counts are actual read observations; whole production latency distribution is not claimed."
+    },
+    {
+      "finding_id": "B64",
+      "bundle_id": "LLM-01",
+      "canonical_criterion": {
+        "line_begin": 53,
+        "line_end": 74,
+        "source_block_sha256": "8b937eee0a8702760af6f5bc4cccec275c9d06f350456ba6c124cbdc55953487",
+        "statement": "Supported named prompt reaches provider once; user/system/messages preserve meaning and incompatible forms refuse before external action."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Supported named prompt reaches provider exactly once, user/system/messages preserve actual meaning, conflicting forms refuse before external call.",
+      "actual_observation": "Supported named prompt normalization physically supplies one provider argument; user/system/messages preserve supported meaning; conflicting forms refuse before provider call.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          1079,
+          1080,
+          1081
+        ],
+        "literal_states": {
+          "PASS": 3
+        },
+        "test_input_refs": [
+          "T26"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact"
+      ],
+      "P38": "Removing duplicate kwargs by arbitrary pop can eliminate TypeError while changing provider prompt semantics; actual received argument and refusal decide.",
+      "next_owner": "ADAPTER/root/G actual canonical client consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Declared actual provider prompt adapter criterion met, no conversion of incompatible input into guessed meaning."
+    },
+    {
+      "finding_id": "B65",
+      "bundle_id": "LLM-01",
+      "canonical_criterion": {
+        "line_begin": 80,
+        "line_end": 101,
+        "source_block_sha256": "90e562abc3c5f0f27d186df9b75f70a800407315b44b6bc92dd4a2d69469d4b9",
+        "statement": "Optional metrics/tracing failure preserves obtained provider response; mandatory accounting failure retains unknown event and blocks uncontrolled new spend."
+      },
+      "proposal": {
+        "finding_status": "open",
+        "formal_closure": false,
+        "technical_property": "actual_consumer_counterexample"
+      },
+      "defining_quantity": "Only optional metrics failure preserves provider result/no second call and exact diagnostic; required accounting keeps received-response/unknown distinction and blocks new spend until reconciliation. Legacy audit-after-ACK candidate is source-only.",
+      "actual_observation": "DD optional metrics and required callback controls PASS, but independent actual protected COMMITTED directory append failure occurs after known.02 ACK; subsequent call physically issues provider2 and ledger.04. Baseline qualified4 cases2PASS2FAIL, not financial charge uncertainty. Separately pinned original and corrected actor-input13-case native runs on a391/lower9f are both FAIL; their source/premise qualification stays in b65_recovery13_red, not relabeled DD.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          1082,
+          1084,
+          3589
+        ],
+        "literal_states": {
+          "PASS": 3
+        },
+        "test_input_refs": [
+          "T26",
+          "T50"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "b65_red",
+        "b65_future13",
+        "lower_candidate",
+        "lower_foreign_source_review",
+        "b65_recovery13_red"
+      ],
+      "P38": "A known charge receipt exists but required audit append fails; treating ledger ACK as full completion permits new provider spend before mandatory act reconciliation.",
+      "next_owner": "ADAPTER sole LLM/enforcer writer; DUR sole ledger/middleware writer; RUN independent audit oracle; EXE/CMP foreign source reviewers; root/G composed acceptance.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Same completion-obligation admission class now widened to protected RESERVED/CHECK/RELEASED/COMMITTED and restart/sibling ownership. New lower9f172PASS/source review does not prove composed upper repair; original prepared13 were UNRUN; later qualified13-case recovery runs are actual FAIL at separately pinned a391/lower9f, awaiting upper repair."
+    },
+    {
+      "finding_id": "B66",
+      "bundle_id": "LLM-01",
+      "canonical_criterion": {
+        "line_begin": 107,
+        "line_end": 128,
+        "source_block_sha256": "ef9b4c4d8d959e699bfc06780c1d7e6e4abb4c44b1f6386a78bf6d08d193610e",
+        "statement": "Miss/hits/followers keep one actual provider cost event, separate reuse identity and durable idempotent producer settlement surviving caller cancellation."
+      },
+      "proposal": {
+        "finding_status": "open",
+        "formal_closure": false,
+        "technical_property": "actual_consumer_counterexample"
+      },
+      "defining_quantity": "Known real reported.02 event charged once across hits and initiator cancellation with reopened actualledger ACK; expiry new producer charges again. Missing/invalid/estimated0 SDK amount is separate pending oracle, rawNone with knowncost is not missingcost proof.",
+      "actual_observation": "DD known.02 miss/hit/cancel/reopen consumers distinguish provider versus reuse, yet actual SDK missing/invalid cost emits ACK0/cache1 in six successful responses; None controls can ACK0 then raise. Independent16 cases8PASS8FAIL retain exact costs/reservations/events.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          1085,
+          1086,
+          3579,
+          3580,
+          3581,
+          3582
+        ],
+        "literal_states": {
+          "PASS": 6
+        },
+        "test_input_refs": [
+          "T26",
+          "T50"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "b66_red",
+        "b66_semantic",
+        "lower_candidate",
+        "lower_foreign_source_review"
+      ],
+      "P38": "raw absent or usage missing/invalid can be estimated/clamped0 despite one real provider effect; costNone must remain unknown, distinct from genuinely reported/free known0.",
+      "next_owner": "ADAPTER gateway/settlement/enforcer writer + DUR ledger/middleware; CAS independent real fault consumer; root/G successor consumer join.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Known real-cost profile is not deployment-wide billing evidence. Producer preintent + durable pending index and unknown amount guard need actual composed consumer/freshowner/removal proof. Two production enforcer constructors use raw BudgetState, not initialized durable ledger."
+    },
+    {
+      "finding_id": "B67",
+      "bundle_id": "LLM-02",
+      "canonical_criterion": {
+        "line_begin": 50,
+        "line_end": 71,
+        "source_block_sha256": "b05c118cdc26e84579548072dcb2c766cfd5e75946b3cabe13ae3d021c62fdd4",
+        "statement": "Reuse authorization binds actual principal/scope/purpose/epoch and exact verified evidence/model/request at every read/publication."
+      },
+      "proposal": {
+        "finding_status": "held",
+        "formal_closure": false,
+        "technical_property": "owner_law_not_established"
+      },
+      "defining_quantity": "Operational supplied exactCAS/local owner grant exercises current read and revoked epoch, but production institutional permission/epoch atomicity remains owner-supplied held law.",
+      "actual_observation": "Exact operational owner/CAS fixtures check model/params/principal/purpose/epoch and revoked waiter; canonical factory reads actual supplied decision.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          3585,
+          3586,
+          3587
+        ],
+        "literal_states": {
+          "PASS": 3
+        },
+        "test_input_refs": [
+          "T50"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact"
+      ],
+      "P38": "Readable immutable CAS snapshot may still be revoked for principal/purpose; field/hash presence is not permission.",
+      "next_owner": "Institutional evidence/source owner and G ratify typed current-use authorization; ADAPTER integrates.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Institutional permission/epoch atomicity and permitted evidence reuse owner contract missing; actual readability or agent cacheable flag is not authority."
+    },
+    {
+      "finding_id": "B68",
+      "bundle_id": "LLM-02",
+      "canonical_criterion": {
+        "line_begin": 77,
+        "line_end": 98,
+        "source_block_sha256": "e4ed51ed64211794192a8f19d6cceeeff1f29df468bf3b40109650658a7b2675",
+        "statement": "Permitted exact scoped identical misses have one producer event; follower cancellation, error, deadline and distinct intentional repetitions preserve ownership."
+      },
+      "proposal": {
+        "finding_status": "held",
+        "formal_closure": false,
+        "technical_property": "owner_law_not_established"
+      },
+      "defining_quantity": "Four preauthorized same-scope waiters share one event, caller cancel preserves producer and owner deadline; changed seed/version/scope separate. Production admission depends on heldB67.",
+      "actual_observation": "Four preauthorized same-scope real ledger consumers share one physical producer and preserve others after initiator cancel; late suppressed producer settles without late cache/result; changed seed/scope stays separate.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          3582,
+          3595,
+          3596,
+          3597
+        ],
+        "literal_states": {
+          "PASS": 4
+        },
+        "test_input_refs": [
+          "T50"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact"
+      ],
+      "P38": "Identical bytes/temperature0 do not establish two intended independent experiments may be coalesced or foreign principal may consume shared result.",
+      "next_owner": "Institutional reuse owner/B67 + ADAPTER/DUR bridge; root/G final scoped admission.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Production admissibility depends on unresolved B67 owner permission/epoch law. New B65/B66 pending uncertainty repair also requires actual consumer rejoin."
+    },
+    {
+      "finding_id": "B69",
+      "bundle_id": "RUN-01",
+      "canonical_criterion": {
+        "line_begin": 97,
+        "line_end": 118,
+        "source_block_sha256": "f3c09fefcef97725af61bccc6480d59034302012b9413815c6944474d632bb3e",
+        "statement": "Shared executor rejects saturated reentry or admits bounded useful work; callbacks/queued cancellation/shutdown cannot create hidden occupied capacity."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Actually saturated canonical pool refuses unsupported reentry before cyclic wait; actual spare handles allowed nested body/callback, queued cancellation and shutdown lock order unblock waiters.",
+      "actual_observation": "Actual full executor refuses nested body/callback before circular wait, spare worker executes42 on a distinct thread, physical reservation persists through callback, shutdown cancellation callback terminates without lock cycle.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          24,
+          25,
+          26,
+          31
+        ],
+        "literal_states": {
+          "PASS": 4
+        },
+        "test_input_refs": [
+          "T02"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact"
+      ],
+      "P38": "Future.done alone can release reservation while its callback still occupies physical worker; nested callback then waits on nonexistent spare capacity.",
+      "next_owner": "RUN/root/G common executor consumers.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Canonical shared-executor reentrancy and queue cleanup criterion met. Foreign arbitrary executors are outside declared path."
+    },
+    {
+      "finding_id": "B70",
+      "bundle_id": "RES-01",
+      "canonical_criterion": {
+        "line_begin": 74,
+        "line_end": 91,
+        "source_block_sha256": "bcf7738eb29ed6a0676ca42fdd999c14a680494038333aa8d557a605dc2047cb",
+        "statement": "Original functional fingerprint survives two real interrupted resumes and complete reopen without reexecuting successfulA/B; changed request refuses."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Real A stop→B stop→C resume preserves original graph fingerprint/history, A/B never rerun and complete reopen works; changed functional request remains incompatible.",
+      "actual_observation": "Actual A first stop→B second stop→C resume preserves origin fingerprint/history; A onlyonce, B/C failed retries exact, complete reopen stays compatible, genuine changed functional request refuses.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          1091,
+          1092,
+          1095
+        ],
+        "literal_states": {
+          "PASS": 3
+        },
+        "test_input_refs": [
+          "T27"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "exe15",
+        "sta_review"
+      ],
+      "P38": "Second resume fingerprints shortened residual graph as a new request and rejects or reruns valid original prefix despite unchanged true inputs.",
+      "next_owner": "EXE/root/G concrete restore consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Native multi-stop logical workflow identity criterion met; permission/source owner B61 remains distinct."
+    },
+    {
+      "finding_id": "B71",
+      "bundle_id": "RES-01",
+      "canonical_criterion": {
+        "line_begin": 97,
+        "line_end": 114,
+        "source_block_sha256": "f68a12b118f6d8105fc247896d765126ba087d740747a069abbb36ffc4bbc2cd",
+        "statement": "Sufficient checkpoint state needs no irrelevant cache-count seed; truly required selected external output is verified/repaired or refused before suffix."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Actual full snapshot plus required downstream actualblobs suffices without needless cache seed; missingrequired refuses/repairs before dependent producer, duplicatedrefs never count coverage.",
+      "actual_observation": "Available exact required producer blob admits real dependent reader with producer0; missing/corrupt/foreign selected profile refuses before producer/reader/CAS effects. allow_replay explicitly repairs then reader consumes actual bytes; duplicate refs do not create coverage.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          1096,
+          3298,
+          3299,
+          3300,
+          3301,
+          3303
+        ],
+        "literal_states": {
+          "PASS": 6
+        },
+        "test_input_refs": [
+          "T27",
+          "T46"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "exe15",
+        "sta_review"
+      ],
+      "P38": "Cache-ref membership or duplicate count can be true while required residual input blob is absent; live downstream read/typed refusal decides sufficiency.",
+      "next_owner": "EXE/root/G supported native protected resume consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Existing OutputAware required contract/resolved ArtifactRef verification criterion met. Optional reads/arbitrary JSON and unratified B61 source authority are not inferred."
+    },
+    {
+      "finding_id": "B72",
+      "bundle_id": "RES-02",
+      "canonical_criterion": {
+        "line_begin": 51,
+        "line_end": 68,
+        "source_block_sha256": "c2c20881bd0e439dfde5c4c59873754fd09a8eb20f6e5e30dc26563fd0a506ce",
+        "statement": "Native skip is not silently successful producer; single/parallel widths and later checkpoints preserve same completed frontier meaning."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Native skip/ok/fail and actual reopened frontier preserve meaning when independent neighbor added; skip is never successful completed evidence.",
+      "actual_observation": "Native skip in narrow/wide tier retains same frontier/resume meaning; ok completion persists and fail/skip is not fabricated ok. Existing no-hook parallel tier still executes.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          1098,
+          3246,
+          3247
+        ],
+        "literal_states": {
+          "PASS": 3
+        },
+        "test_input_refs": [
+          "T28",
+          "T43"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "exe15",
+        "sta_review"
+      ],
+      "P38": "Tier width changes skip into completed prefix even though tested producer did not execute; use native status and actual resumed behavior.",
+      "next_owner": "EXE/root/G native checkpoint consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Native status contract and width metamorphism criterion met jointly with real B70/B73 resume controls."
+    },
+    {
+      "finding_id": "B73",
+      "bundle_id": "RES-02",
+      "canonical_criterion": {
+        "line_begin": 74,
+        "line_end": 93,
+        "source_block_sha256": "5d7c44528f1e1d6845265d8bf932cf121cd2959bf2d144348d6b404066f8d8f4",
+        "statement": "Checkpoint state, completed frontier and cache refs describe same committed generation; fail-fast rollback/continue and retained result are coherent."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Stopped actual head/history firstpublication reads old or fulltier state+complete-set/cache/seedrefs; Aok/Bfail fail_fast compensation once/no tierhead vs continueA-only commit, freshstore resume reruns failedB only.",
+      "actual_observation": "Actual process cut at first tier publication reopens coherent old/full state+complete-set, retained output and seed refs; resumed independent increments occur once. Real fail_fast compensation once leaves no tier commit, continue commits A only then fresh resume failedB.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          9,
+          11,
+          12
+        ],
+        "literal_states": {
+          "PASS": 3
+        },
+        "test_input_refs": [
+          "T00",
+          "T01"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "exe15",
+        "sta_review",
+        "b73_native"
+      ],
+      "P38": "Published state may contain A/B effects while complete-set misses A, causing restored increments twice; simply moving append can omit compensation/cache/ref semantics.",
+      "next_owner": "EXE/root/G complete checkpoint consumer; DUR independent real two-policy oracle.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Canonical process interruption/frontier/output/compensation criterion met. SIGKILL is process interruption, not physical powerloss. No invented requirement for literal n++ when actual peer_calls0 proves no rerun."
+    },
+    {
+      "finding_id": "B74",
+      "bundle_id": "RES-04",
+      "canonical_criterion": {
+        "line_begin": 56,
+        "line_end": 71,
+        "source_block_sha256": "fe5c80be8769dc007957fe5125cff3110cc02a77208d29f3b7523f0b267bc181",
+        "statement": "Checkpoint strict admission binds effective plan/input/seed/occurrences, actual supported implementation graph and exact scoped supplied refs to same generation."
+      },
+      "proposal": {
+        "finding_status": "limited",
+        "formal_closure": false,
+        "technical_property": "bounded_property_with_explicit_remaining"
+      },
+      "defining_quantity": "Exact effective inputs/params/seed/ref profile/tenant/source/deps/selected method closure identify Foundry checkpoint; pinned source precedes producer replacement; invalid prefix/mutable unknown refuses before bodies.",
+      "actual_observation": "Real selected CAS profile/tenant/input/config/origin/cache/deps and supported Python class helper/source graph change refuse before producer; registered actual class is pinned before producer mutates registry; invalid prefix refuses.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          672,
+          694,
+          695,
+          696,
+          697,
+          704,
+          1118
+        ],
+        "literal_states": {
+          "PASS": 7
+        },
+        "test_input_refs": [
+          "T11",
+          "T30"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cmp_final"
+      ],
+      "P38": "Same FQN/class entrypoint text can hide a changed actual helper/global module capture; current supported helper graph catches it, but version/name markers alone do not close external mutable graph.",
+      "next_owner": "CMP/root/G supported Foundry source/declared-ref profile; source/dependency owner supplies missing immutable runtime capture contract.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Finite source-capture profile only: versioned imported modules/builtins/record methods/external mutable data and context=None are explicitly bounded; no actual A served route/governed artifact ownership claim."
+    },
+    {
+      "finding_id": "B75",
+      "bundle_id": "RES-04",
+      "canonical_criterion": {
+        "line_begin": 77,
+        "line_end": 94,
+        "source_block_sha256": "bfa81a7d72085f1f37d2623263dff2cc2d52e19d297f8144a557d76875e443e6",
+        "statement": "Per-node history restores original output/seed/runtime/warnings; legacy missing records remain explicitly incomplete and cannot supply absent bound predecessor."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Fresh resume preserves actual nodeA6/nodeB7 and original seed/runtime/version history; legacy absent per-node history stays typed absent, finalstate remains available; no new independent experiment fabricated.",
+      "actual_observation": "Native reopened history restores A6/B7 outputs/seeds, required bound slot reads actual original row, legacy missing/false/unknown header and original warning remain incomplete; missing/foreign bound history refuses.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          731,
+          737,
+          744,
+          745,
+          746,
+          747,
+          748,
+          749,
+          1112
+        ],
+        "literal_states": {
+          "PASS": 9
+        },
+        "test_input_refs": [
+          "T13",
+          "T30"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cmp_final"
+      ],
+      "P38": "All row fields present can coexist with incomplete original history; resetting header/warning to complete manufactures provenance.",
+      "next_owner": "CMP/root/G Foundry history consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Foundry per-node original provenance criterion met; absent historical values are not manufactured and replay is not new independent experiment. Scientist journal is a separate owner."
+    },
+    {
+      "finding_id": "B76",
+      "bundle_id": "RES-04",
+      "canonical_criterion": {
+        "line_begin": 100,
+        "line_end": 117,
+        "source_block_sha256": "18fbe02ddd13babe4e4df26b023de3655025e27309ae780ac8c7e1a24fc7995a",
+        "statement": "All JSON/NumPy checkpoint sidecars belong to one immutable generation; path collision, fault, concurrent writer or process stop never mix acknowledged old/new."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Actual flatunderscore/nested NumPy arrays stay distinct; concurrent/sidecar/JSON fault leaves fullold/new generation, exactshape/dtype/content/path checks refuse missing/corrupt/symlink; GC removes only unreachable generations.",
+      "actual_observation": "Actual JSON/NumPy generation separates flat/nested array roots; locked multiple writers/restart cuts select coherent state/frontier/history; sidecar absent/corrupt/symlink/ref-escape refuses; postreplace fsync uncertainty preserves visible full generation.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          709,
+          738,
+          750,
+          751,
+          1123,
+          1124,
+          1125
+        ],
+        "literal_states": {
+          "PASS": 7
+        },
+        "test_input_refs": [
+          "T12",
+          "T13",
+          "T30"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cmp_final"
+      ],
+      "P38": "Pointer/hash field can be valid while sidecar encoding collision or rollback removes peer generation; exact arrays/reopened whole generation distinguish.",
+      "next_owner": "CMP/root/G supported native save/load consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Cooperative local filesystem finitecodec criterion met. Powerloss/hostile actor/new GC are not this acceptance target and do not invent extra blocking law."
+    },
+    {
+      "finding_id": "B77",
+      "bundle_id": "EXE-02",
+      "canonical_criterion": {
+        "line_begin": 48,
+        "line_end": 63,
+        "source_block_sha256": "a83c4caf19814d7cf068b5e1a24d095f44228f905d50acb4f8931e3818a6ca86",
+        "statement": "Declared independent successor starts when its own predecessors complete; realB dependency/read-write overlap retains barrier and scientific inputs/seed remain unchanged."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Actual independent C starts afterA before slowB with unchanged inputs/seeds/method counts/artifact lineage; actual dependencyB restores wait and unsafe declared read/write profile keeps tier boundary.",
+      "actual_observation": "Real C starts and produces verified artifact from A while B held; actual B dependency restores wait. Original input/seed/methodcounts/full source-ref lineage remain exact; unsafe overlap keeps native conflict/tier behavior.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          1104,
+          3243,
+          3244,
+          3245
+        ],
+        "literal_states": {
+          "PASS": 4
+        },
+        "test_input_refs": [
+          "T28",
+          "T43"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "exe15",
+        "sta_review"
+      ],
+      "P38": "Removing tier wait improves wall but can change C input/seed/artifact parent or erase B dependency; exact actual state/lineage and Event ordering decide.",
+      "next_owner": "EXE/root/G supported native DAG scheduler consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Declared safe graph/read-write readiness criterion met. No global throughput gain or hidden scientific dependency is inferred from total wall."
+    },
+    {
+      "finding_id": "B78",
+      "bundle_id": "DUR-02",
+      "canonical_criterion": {
+        "line_begin": 79,
+        "line_end": 96,
+        "source_block_sha256": "5b3639630d2e7af82b90281906e6ed658c5f45687c3d3904dc2f177c07258dd0",
+        "statement": "Pre-dispatch fallback is authorized separately; post-dispatch lost response reconciles actual external status/idempotency instead of duplicating effect."
+      },
+      "proposal": {
+        "finding_status": "held",
+        "formal_closure": false,
+        "technical_property": "owner_law_not_established"
+      },
+      "defining_quantity": "One persistedprimary effect+lostresponse becomes typedPrimaryExecutionOutcomeUnknownError without localproducer2; permitted actualpredispatch fallback works, authoritative external status/idempotency/reconcile remains held.",
+      "actual_observation": "Healthy primary1 and supported predispatched local1 controls PASS; persisted primary external effect then lost response stays PrimaryExecutionOutcomeUnknownError with local0, preserving original cause.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          1055,
+          1056,
+          1057,
+          1058,
+          1059
+        ],
+        "literal_states": {
+          "PASS": 5
+        },
+        "test_input_refs": [
+          "T24"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact"
+      ],
+      "P38": "Connection error after actual effect is not permission for a second local action; external status cannot be reconstructed from exception shape.",
+      "next_owner": "Primary backend institutional executor/status owner and G; DUR fallback bridge consumes contract.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Actual external execution status/idempotency/reconciliation contract missing. No fabricated external action ID, probe boolean or exactly-once authority."
+    },
+    {
+      "finding_id": "B87",
+      "bundle_id": "NET-01",
+      "canonical_criterion": {
+        "line_begin": 49,
+        "line_end": 62,
+        "source_block_sha256": "9c6e17b748643693b07a5fefefd6943e2ada4415b4b29c7a3e3aaa70d3846781",
+        "statement": "Stream subscribe/checkpoint/rewind/close/cancel transfers pending physical cleanup ownership and leaves no permanently occupied pool slot."
+      },
+      "proposal": {
+        "finding_status": "open",
+        "formal_closure": false,
+        "technical_property": "actual_consumer_counterexample"
+      },
+      "defining_quantity": "Realfile subscribe/checkpoint-read/rewind/close/cancel/directsecondclose guards observe actualcleanup owner; processfinal once-disconnect refusal leaves samependingphysicalowner with productionretryowner0, not slotcapacity/OSFD claim; separate restoredcap1 failure remains distinct.",
+      "actual_observation": "Real EventStreamConnector/C StreamingSourceSession/process and CursorStore faults healthy/subscribe/read/rewind/cancel/startup retry controls PASS. process disconnect failure retains same unresolved old physical cleanup handle after coroutine exits; registry retry/fresh handle/observer cleanup do not transfer its owner. DD8 cases7PASS1FAIL.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          597,
+          598,
+          599,
+          600,
+          601,
+          602,
+          603,
+          604
+        ],
+        "literal_states": {
+          "PASS": 7,
+          "FAIL": 1
+        },
+        "test_input_refs": [
+          "T10"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "stream_portable",
+        "stream_foreign_review"
+      ],
+      "P38": "One failed process-final close does not transfer retained cleanup owner for later retry, although fresh acquisition succeeds; available permit is not completed ownership.",
+      "next_owner": "C owns streaming.py/session/process cleanup; B supplies pool contract/test; G runs exact local stream consumer.",
+      "cross_unit_contract": "C alone owns streaming.py cleanup-transfer consumer. Real EventStreamConnector old handle pending with no production retryowner is not an occupied-permit/OS-FD assertion. Independent observer cleanup does not repair exited production path; separate restored-frontier cap1 failure is a distinct B→C budget contract.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Actual C/G process-final cleanup ownership transfer missing. Pool permit can already be available1: this is unresolved disconnect owner, not an invented occupied-slot/FD leak. Separate cap1 restored-budget divergence remains a different consumer negative."
+    },
+    {
+      "finding_id": "B89",
+      "bundle_id": "NET-01",
+      "canonical_criterion": {
+        "line_begin": 68,
+        "line_end": 83,
+        "source_block_sha256": "5c543b225505ffd632e3ffb90bee0ac51d0473a19a0dfe2a93c0be2aaf6380c4",
+        "statement": "Permit/handle is transferred or retired exactly once under lock/connect/health/disconnect cancellation and closed-pool release."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Permit obtained/transfer/retire is exactlyonce under lock/connect/health/disconnectcancel and closedpool; pending physicalcleanup retains an actual owner, no replacement over capacity.",
+      "actual_observation": "Real pool cancellation/validation/disconnect/close/repeated-release controls retain one permit/physical owner; cancelled waiter cannot retire another handle; concurrent release returns once and close_all waits for pending owner.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          448,
+          452,
+          456,
+          506,
+          507,
+          510
+        ],
+        "literal_states": {
+          "PASS": 6
+        },
+        "test_input_refs": [
+          "T06",
+          "T07"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact"
+      ],
+      "P38": "Cancellation releases token while physical disconnect still pending, permitting resource oversubscription; pending owner and actual final permit accounting decide.",
+      "next_owner": "ADAPTER/root/G pool consumers; C handles application ownership transfer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Canonical pool accounting/isolated pending owner criterion met; C process-final owner transfer remains separate open B87."
+    },
+    {
+      "finding_id": "B90",
+      "bundle_id": "NET-01",
+      "canonical_criterion": {
+        "line_begin": 89,
+        "line_end": 106,
+        "source_block_sha256": "8b1e63a16da14bf95ef0104b412bbd1da0b8ce0b4bb093026d80d50253bc94ab",
+        "statement": "Network work is outside metadata lock; independent release proceeds and one absolute acquisition deadline/epoch gates atomic late publication."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Network is outside metadata lock; independent release proceeds, original acquire budget covers lock/network and sourcegeneration/deadline gates finalatomic publication with no postpublishawait.",
+      "actual_observation": "Actual metadata lock wait, connect and health share one absolute acquire deadline; independent release progresses/concurrent allowed connect run; suppressed late/cancelled handle never becomes current registered in-use object.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          444,
+          445,
+          446,
+          447,
+          450,
+          457,
+          458
+        ],
+        "literal_states": {
+          "PASS": 7
+        },
+        "test_input_refs": [
+          "T06"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact"
+      ],
+      "P38": "wait_for connect timeout can be suppressed and late handle published after original expiry; final owner admission must atomically recheck original budget.",
+      "next_owner": "ADAPTER/root/G real pool acquire consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Canonical actual pool admission/publication/deadline criterion met, not a universal speed percentage."
+    },
+    {
+      "finding_id": "B91",
+      "bundle_id": "NET-02",
+      "canonical_criterion": {
+        "line_begin": 49,
+        "line_end": 64,
+        "source_block_sha256": "0f2ed6f8615e478a4110ac1658fba923e87255d0810a6ace9c78144b8fd7e541",
+        "statement": "Unit capacity remains separate from fractional rate; impossible/nonfinite weights refuse before wait/provider and cooldown/cancel preserve law."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Actual unitcapacity supports.1/.2/1/>1 refill without roundingrate; weighted impossible/nonfinite refusal occurs before wait/provider, cooldown and callercancel preserve source law.",
+      "actual_observation": "Actual service rate0.1/0.2/1/>1 cold and long-term pacing, weighted request/cooldown/cancel plus invalid finite quantities refuse atomically before provider; fractional refill remains observable.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          551,
+          552,
+          553,
+          554,
+          555,
+          557,
+          570,
+          571,
+          572,
+          573,
+          574,
+          575,
+          576,
+          577,
+          594
+        ],
+        "literal_states": {
+          "PASS": 15
+        },
+        "test_input_refs": [
+          "T08",
+          "T09"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact"
+      ],
+      "P38": "capacity=min(rate,1) makes legal unit request impossible at0.2 despite correct refill; tested physical request/pacing distinguishes no-exception proxy.",
+      "next_owner": "ADAPTER/root/G configured source regulator consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Supported declared rate mechanism criterion met; external source rate law is a supplied owner premise rather than guessed from tested clock."
+    },
+    {
+      "finding_id": "B92",
+      "bundle_id": "NET-02",
+      "canonical_criterion": {
+        "line_begin": 70,
+        "line_end": 85,
+        "source_block_sha256": "eb9d5ebf88004fea69fff0eef6961700a7fa3fddf27ba044b317b4dcad90b5d4",
+        "statement": "Finalization belongs to admitted circuit generation; old success/failure preserves provider outcome without voting on new half-open generation."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Actual oldCLOSEDsuccess/error/oldHALF_OPEN token preserves sourceoutcome but cannot vote on newgeneration; currentprobe, cancellation and duplicatefinalization have precise lease identity.",
+      "actual_observation": "Actual old CLOSED success/failure and stale HALF_OPEN token cannot mutate new generation or claim its permit; current probe/cancel/repeated finalization controls preserve exact underlying error/state.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          544,
+          558,
+          559,
+          560
+        ],
+        "literal_states": {
+          "PASS": 4
+        },
+        "test_input_refs": [
+          "T08"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact"
+      ],
+      "P38": "state currentlyHALF_OPEN plus old token is insufficient authority to close new generation; exact lease identity decides.",
+      "next_owner": "ADAPTER/root/G source decorator consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Canonical breaker lease generation criterion met with controlled event/clock inputs. No external HTTP effect authority claim."
+    },
+    {
+      "finding_id": "B93",
+      "bundle_id": "NET-02",
+      "canonical_criterion": {
+        "line_begin": 91,
+        "line_end": 106,
+        "source_block_sha256": "87741d3b2986ece596a60a5ae476e33558b94b6dceb92afd4b85598bfedc750d",
+        "statement": "TTL/pressure never evicts active/cooldown/balance history into a second independent regulator; safe quiescent eviction remains bounded."
+      },
+      "proposal": {
+        "finding_status": "held",
+        "formal_closure": false,
+        "technical_property": "owner_law_not_established"
+      },
+      "defining_quantity": "ActualTTL/pressure/cooldown/half-open/live lease retains one samekey regulator or protected state; activehistory isn't optionalcache, mapping between historical finding and immutablecanonical criterion remains heldowner decision.",
+      "actual_observation": "Actual registry memory/TTL pressure and same-key live owners preserve protected limiter/breaker generation, with explicit bounded resource refusal.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          564,
+          565,
+          569
+        ],
+        "literal_states": {
+          "PASS": 3
+        },
+        "test_input_refs": [
+          "T09"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact"
+      ],
+      "P38": "Two equal lexical keys may refer to different protection scopes, or aliases may need same state; correct registry memory policy cannot invent that mapping.",
+      "next_owner": "Source/provider rate and breaker semantic owner + G; ADAPTER registry consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Canonical key→provider/protection state mapping owner law remains unresolved; actual operational keys/pressure controls do not ratify cross-client institutional equivalence."
+    },
+    {
+      "finding_id": "B94",
+      "bundle_id": "WIRE-01",
+      "canonical_criterion": {
+        "line_begin": 50,
+        "line_end": 67,
+        "source_block_sha256": "42eed64bf083f227b7f0fb37cf13d60117e5521d8e06bc982bbb6b5e42a87aa5",
+        "statement": "Versioned typed wire preserves Decimal/budget/union/nested/ref/outcome values and rejects nonfinite/unsupported/digest corruption consistently under both backends."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Actualnative/stdlib fulltype+value Decimal union/nested/budgets/ArtifactRef/ArtifactID/outputaware roundtrip; independent bare/v1 and currentv2 readers preserve identity, unsupported/nonfinite/digestcorrupt refuse.",
+      "actual_observation": "Actual Decimal/union/nested budgets/ref/outcome round-trip preserves type+value on native/stdlib; independent bare/v1 legacy and currentv2 ArtifactRef/ArtifactID6 profiles PASS. Unsupported/nonfinite/digest corruption refuse; tag-reader property removal6FAIL.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          1135,
+          1136,
+          1137,
+          1138,
+          1139,
+          1140,
+          1177,
+          1178,
+          1180,
+          1181,
+          1182,
+          1183,
+          1184,
+          1185,
+          1186,
+          1187
+        ],
+        "literal_states": {
+          "PASS": 16
+        },
+        "test_input_refs": [
+          "T32"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "wire_native"
+      ],
+      "P38": "A tag string/envelope digest may remain correct while reader drops model identity or value; actual independent emitter→reader typed object controls decide.",
+      "next_owner": "ADAPTER/root/G actual worker/envelope consumers.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Canonical worker wire/backends current/legacy reader criterion met; Ray/Temporal execution not required or inferred by serializer acceptance."
+    },
+    {
+      "finding_id": "B95",
+      "bundle_id": "RUN-01",
+      "canonical_criterion": {
+        "line_begin": 124,
+        "line_end": 139,
+        "source_block_sha256": "e20a5f278e861f80727aa69e770584595eacef1d7b2aeb9d22ff9bf6aaade341",
+        "statement": "Each actual task submission captures current context; repeated A/B/empty work in same worker never leaks prior context or invents permissions."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Declared direct/thread/fork/genuineasync transport captures each currentContextVar peractualsubmission/manifestconsumer, repeatedA/B/empty never leak oldcontext or invent permission.",
+      "actual_observation": "Actual canonical direct/thread/fork/async attempt files and same worker A/B/empty reuse preserve current ContextVar identity with no leakage; installed wheel context bridge also passes.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          17,
+          3372,
+          3373,
+          3374,
+          3375,
+          3376,
+          3377,
+          3378,
+          3379,
+          3380,
+          3381,
+          3382,
+          3383,
+          3384,
+          3385,
+          3386,
+          3387,
+          3388,
+          3389,
+          3390,
+          3391,
+          3392,
+          3393,
+          3394,
+          3395,
+          3396,
+          3397,
+          3398,
+          3399,
+          3400,
+          3401,
+          3402,
+          3403,
+          3404,
+          3405,
+          3406
+        ],
+        "literal_states": {
+          "PASS": 36
+        },
+        "test_input_refs": [
+          "T02",
+          "T47"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact"
+      ],
+      "P38": "copy_context marker alone does not prove context installed on actual reused worker; read actual producer file per request.",
+      "next_owner": "RUN/root/G actual scope consumer; institutional owner authorizes the scope separately.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Supported context propagation criterion met; scope values do not create actor/tenant permission."
+    },
+    {
+      "finding_id": "B96",
+      "bundle_id": "RUN-03",
+      "canonical_criterion": {
+        "line_begin": 71,
+        "line_end": 86,
+        "source_block_sha256": "e715c9c7e265cdca1b906cdce523be2a4a4728b354aa25a334d27082f0f1c73b",
+        "statement": "Each retry starts from same isolated baseline; successful result matches cold while failed history and actual known typed expenses are retained once."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Native mutatefail/retry/cancel starts freshlogicalbaseline and successfulcoldparity; failedhistory and actualknowntyped expense persist once, unknownexternal effect is not memoryrollback.",
+      "actual_observation": "Real sync/async isolated retry attempts start one logical baseline after mutation/failure; successful cold result agrees, known completed failure spend settles once while ordinary failed writes stay absent. Actual histories/cost/deadletter preserve failedattempts.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          1127,
+          1128,
+          3430,
+          3431,
+          3432,
+          3433,
+          3434,
+          3435,
+          3436,
+          3437,
+          3438,
+          3439,
+          3440,
+          3441,
+          3442,
+          3443,
+          3444,
+          3445
+        ],
+        "literal_states": {
+          "PASS": 18
+        },
+        "test_input_refs": [
+          "T31",
+          "T47"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact"
+      ],
+      "P38": "Resetting all state erases real spend, while retaining failed ordinary mutations causes repeated increment; distinguish protected accounting from normal branch operations.",
+      "next_owner": "RUN/root/G native retry state/expense consumer and external effect owner.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Known typed budget/state retry criterion met; external effects are not rolled back and unknown external amount remains separate open B66."
+    },
+    {
+      "finding_id": "B148",
+      "bundle_id": "CAS-02",
+      "canonical_criterion": {
+        "line_begin": 55,
+        "line_end": 68,
+        "source_block_sha256": "7737ebff60bc5812b79091bfcc2859cd7a9415c47f4327f271e82641b076fe34",
+        "statement": "Verified private staging/admission preserves oldCAS on bad/conflicting/truncated/concurrent import; owner decides scoped same-view retry law before publication."
+      },
+      "proposal": {
+        "finding_status": "held",
+        "formal_closure": false,
+        "technical_property": "owner_law_not_established"
+      },
+      "defining_quantity": "Real privateverified staging rejects bad/truncated/conflicting/concurrent import beforepublication; sameboundview retry no-op, unbound/crosstenant ownership law is held; qualifiedbadpremise retained.",
+      "actual_observation": "Real verified staging and conflict/private publication preserve prior readable generation; corrupted/pending generation refuses and exact recovery works. Actual unbound/scoped compatibility correction remains explicitly held.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          978,
+          979,
+          995
+        ],
+        "literal_states": {
+          "PASS": 3
+        },
+        "test_input_refs": [
+          "T19"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cas_dd_review"
+      ],
+      "P38": "Verified content hash can remain true while wrong tenant/origin publication law is applied; integrity is not ownership authority.",
+      "next_owner": "CAS ownership/security source owner + G; CAS implements verified staging contract.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Cross-tenant/first_for_tenant import owner authority and binding policy is not ratified; no scoped ownership inference from manifest shape or readable bytes."
+    },
+    {
+      "finding_id": "B149",
+      "bundle_id": "CAS-02",
+      "canonical_criterion": {
+        "line_begin": 74,
+        "line_end": 87,
+        "source_block_sha256": "911157062b91d21961884fc59c818a40ec8075917ef74f9e585510c9e611534f",
+        "statement": "Replacement export has exact new inventory; A→B/options/fault/path entry changes preserve previous complete generation without staleA members."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "ActualLinux atomicgeneration A→B replacement has exactB inventory, optionchange and fault preserve priorcomplete; oldgeneration staysseparate. No invented allplatform acceptance condition.",
+      "actual_observation": "Actual logical output A→B exports exact B inventory with no A residue; failed second directory/archive publication preserves prior complete generation, normalized final alias/FIFO/socket refuses; real local lock/process controls pass.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          980,
+          981
+        ],
+        "literal_states": {
+          "PASS": 2
+        },
+        "test_input_refs": [
+          "T19"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cas_dd_review"
+      ],
+      "P38": "Directory exists and manifest is valid while stale A files survive B; output inventory/content and failure generation readback decide.",
+      "next_owner": "CAS/root/G supported transfer consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Finite supported Linux atomic generation/export criterion met. No invented allplatform or physicalpowerloss guarantee; prior generation lineage remains distinct."
+    },
+    {
+      "finding_id": "B150",
+      "bundle_id": "CAS-01",
+      "canonical_criterion": {
+        "line_begin": 56,
+        "line_end": 69,
+        "source_block_sha256": "135dfde8a0bb25422fa6a9972ccb662ede9706af55cf81c481c86dd1be843672",
+        "statement": "Returned ref and selected persisted manifest profile match actual first-writer view; equalbytes different provenance retains separate meaningful views."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Actualref names persistedfirstwriter profile/view and equalbytes distinctmeaningful provenance remains separate; sameprofile retry no extraobject or historicmanifestrewrite.",
+      "actual_observation": "Same physical blob has truthful per-profile refs/manifests; same profile preserves first writer lineage; concurrent writers/scoped views each return actual persisted profile without duplicateblob.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          960,
+          961,
+          970
+        ],
+        "literal_states": {
+          "PASS": 3
+        },
+        "test_input_refs": [
+          "T18"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cas_dd_review"
+      ],
+      "P38": "Identical content ID does not bind provenance/type/profile; caller metadata in returned ref can disagree with persisted first manifest.",
+      "next_owner": "CAS/root/G actual profile consumers.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Canonical first-writer ABI + selected manifest profile semantics met, including actual byte readback/ref coordinates."
+    },
+    {
+      "finding_id": "B151",
+      "bundle_id": "CAS-01",
+      "canonical_criterion": {
+        "line_begin": 75,
+        "line_end": 88,
+        "source_block_sha256": "b7883805cfa726a3d09a814b00e5894c860ce9b4f4314ef1e78e818cb75af25a",
+        "statement": "Public duplicateput never confirms corrupt existing blob/wrong selected byte_size; legitimate missing-sidecar repair yields immediately readable verified result."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Physicalcorruptblob/wrongselectedsize refuses publicputbefore downstream; missinglegal sidecar repair returns immediately readableverified result, oldreadtamper checks stay active.",
+      "actual_observation": "Actual corrupted existing blob retry refuses before downstream and does not emit success; allowed verified repair restores exact object. DD distinct native and independent corruption consumers pass.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          969
+        ],
+        "literal_states": {
+          "PASS": 1
+        },
+        "test_input_refs": [
+          "T18"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cas_dd_review"
+      ],
+      "P38": "Existing path and matching content-name are not proof existing bytes have that hash; cheap existence skip confirms corrupt storage.",
+      "next_owner": "CAS/root/G actual write/retry downstream consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Physical reused blob integrity/size validation criterion met; read-time fail-closed preserved."
+    },
+    {
+      "finding_id": "B152",
+      "bundle_id": "CAS-03",
+      "canonical_criterion": {
+        "line_begin": 55,
+        "line_end": 68,
+        "source_block_sha256": "1bf037809d7d4612858d37aae8198d5314bfb170d827c75126876df705bec85d",
+        "statement": "Size/hash/signature/report consume same independently computed immutable byte+manifest snapshot while trust/revocation/current access remain enforced."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "One computed immutablebytes+manifest snapshot supplies size/hash/report/exactsignature/trust/revocation/currentaccess; realfailure reports retain measuredquantity and publiccapture chronology rejects falsebinding.",
+      "actual_observation": "One actual bytes/manifest snapshot feeds size/hash/signature/report. True same-size/wrong-size/tampered/foreign-profile/nonregular path negatives refuse; public failure captures preserve observed quantities/reason and owner index consumes them. DD24 selected casesPASS including actual14 repaired failure readers.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          218,
+          219,
+          220,
+          221,
+          222,
+          223,
+          224,
+          225,
+          226,
+          227,
+          228,
+          229,
+          230,
+          231,
+          232,
+          233,
+          234,
+          235,
+          236,
+          237,
+          238,
+          239,
+          240,
+          996
+        ],
+        "literal_states": {
+          "PASS": 24
+        },
+        "test_input_refs": [
+          "T04",
+          "T05",
+          "T20"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cas_dd_review"
+      ],
+      "P38": "Second manifest/blob read after operator repair can make report appear healthy or lose original failure measurements despite prior verify refusal.",
+      "next_owner": "CAS/root/G native snapshot/report/chronology consumer acceptance.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Concrete FileSystemCAS/report/tools/signature snapshot criterion met; generic optional backend interface is not allbackend conformance. Later CAS mypy-only source qualifiers not runtime transplant."
+    },
+    {
+      "finding_id": "B153",
+      "bundle_id": "CAS-01",
+      "canonical_criterion": {
+        "line_begin": 94,
+        "line_end": 107,
+        "source_block_sha256": "adc89fe0916a2dfc26efa1b77d98c34550c9c75e2532424401c6f927093506aa",
+        "statement": "Resident local lock ownership is bounded without evicting active same-key holder/waiter or losing scoped-view mutual exclusion."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Residentlocallocks bounded acrossIDs without splitting activeholder/waiter samekey/scopedviews; actualexception releases and firstwriter mutualexclusion remains, no distributedlock invented.",
+      "actual_observation": "Actual bounded lock stripes preserve concurrent same-key writer/waiter across scoped views and exceptions; collision on distinct IDs keeps both independent bytes/manifests exact.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          971,
+          972,
+          973
+        ],
+        "literal_states": {
+          "PASS": 3
+        },
+        "test_input_refs": [
+          "T18"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cas_dd_review"
+      ],
+      "P38": "Removing old lock by LRU while waiter holds it creates two locks for same ID; actual shared waiters/exception publication decides.",
+      "next_owner": "CAS/root/G local long-lived store consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Canonical lock lifetime/bounded registry criterion met; intentional finite stripe serialization is not eviction of live locks."
+    },
+    {
+      "finding_id": "B154",
+      "bundle_id": "CAS-03",
+      "canonical_criterion": {
+        "line_begin": 74,
+        "line_end": 87,
+        "source_block_sha256": "4238b2c281dcc1a9c504c40351b70039945a0e99b14e450cc571b7e3c3307b9f",
+        "statement": "Typed per-item complete/aborted batch preserves local/global/cancel results; all-confirmations publisher requires exact full valid report before publication."
+      },
+      "proposal": {
+        "finding_status": "limited",
+        "formal_closure": false,
+        "technical_property": "bounded_property_with_explicit_remaining"
+      },
+      "defining_quantity": "Typedcomplete/localerror/aborted batch preserves actualperitem identities and reports; realA allconfirmation publisher is absent, require_complete_valid API alone is not the protectedconsumer.",
+      "actual_observation": "Actual signature batch local failure preserves independent complete rows; normal/aborted/cancelled inventory and actualCLI/import/report consumers preserve exact completion state and element error.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          998,
+          1004
+        ],
+        "literal_states": {
+          "PASS": 2
+        },
+        "test_input_refs": [
+          "T20"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cas_dd_review"
+      ],
+      "P38": "Report has valid signatures/count yet one required local row failed or inventory aborted; publishing solely from nonempty verified rows violates all-required law.",
+      "next_owner": "A publisher/lifecycle owner + G signature admission; CAS supplies complete/aborted report contract.",
+      "cross_unit_contract": "A alone owns real all-confirmations generation/publisher consumer; report method/constructor and exposure cell None cannot close actual governed publication.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "All-confirmations A governed publisher consumer_missing. Technical partial report cannot grant protected publication requiring all signatures. Exact typed A/G publisher contract already handed off."
+    },
+    {
+      "finding_id": "B155",
+      "bundle_id": "CAS-03",
+      "canonical_criterion": {
+        "line_begin": 93,
+        "line_end": 106,
+        "source_block_sha256": "85ce1ecb40bf521ab7ef979d26f376fad77248c267b8d16eb87de42b3cacb2b9",
+        "statement": "Producer advancement and pending window are bounded together; cancellation/deadline stop new intake while exact admitted result identities remain complete."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Actualgenerator advancement andpendingwindow boundedtogether, cancellation/deadline stops newintake and admittedidentities remaincomplete; entereduncooperative next/IO nothardpreempted and finaldetails/seenO(N) explicit.",
+      "actual_observation": "Actual pending window remains bounded on large lazy inventory; cancellation stops new submission/next calls and preserves identity/partial rows/source failure. O(N) final detailed report is explicit contract, not hidden extra materialization.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          1003,
+          1005,
+          1006
+        ],
+        "literal_states": {
+          "PASS": 3
+        },
+        "test_input_refs": [
+          "T20"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "cas_dd_review"
+      ],
+      "P38": "Bounded worker count can coexist with eager list(N)/all futures; actual pending and lazy inventory observations distinguish admission memory.",
+      "next_owner": "CAS/root/G bounded iterator batch consumer.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Finite cooperative inventory/entered uninterruptible next boundary met; no hard thread kill or whole-operation constant memory claim. Accepted bytes/window remains declared configuration."
+    },
+    {
+      "finding_id": "LA-057",
+      "bundle_id": "RUN-01",
+      "canonical_criterion": {
+        "line_begin": 145,
+        "line_end": 178,
+        "source_block_sha256": "2afe404aaaa4e0abb4dce006674af34f61ca3269d1e0b9e516b788bb42c8ac57",
+        "statement": "Only incidental moduleT/TypeVar cleanup preserves four local generic identities, imports/context/cancel/bridge and supported consumers/tooling/package compatibility."
+      },
+      "proposal": {
+        "finding_status": "closed",
+        "formal_closure": false,
+        "technical_property": "bounded_DD_runtime_verified"
+      },
+      "defining_quantity": "Actual3.14 installedwheel direct/alias/facade/star and ownlocalT/get_type_hints4 plus direct/loop/context/timeout/cancel8 children passunderstrongorigin/site/wheel/Git guards; normalrootouter1 result awaited separately.",
+      "actual_observation": "Full tracked consumer census + ordinary common typed/reflection/context/cancel controls PASS. Exact DD-built installed wheel resolves direct/star/facade/get_type_hints fourlocalT with real site==wheel==Git origins, supported3.14 and actual direct/inside-loop/context/cancel8childPASS; ownouter1 and DDordinaryouter1 are separate.",
+      "DD_deciding_cases": {
+        "source_cut": "DD",
+        "junit_indexes": [
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34
+        ],
+        "literal_states": {
+          "PASS": 21
+        },
+        "test_input_refs": [
+          "T02",
+          "T03"
+        ]
+      },
+      "additional_deciding_refs": [
+        "source_only_map",
+        "prior_compact",
+        "wheel_native",
+        "wheel_foreign_review"
+      ],
+      "P38": "Source import PASS can hide checkout path contamination or undeclared moduleT alias in installed distribution; isolated-I-B child and exact wheel member origin guards decide.",
+      "next_owner": "RUN/root/G final canonical common/package acceptance; external consumer owner if an actual nonzero compatibility dependency is found.",
+      "predicate_basis": "independently_reconciled",
+      "remaining_capability_or_verification": "Bounded supported wheel/package consumer and declared T cleanup criterion met; no new deletion claimed because198 already removed it. Opaque unregistered external computed imports are not silently asserted absent."
+    }
+  ],
+  "proposal_status_counts": {
+    "limited": 8,
+    "closed": 43,
+    "held": 6,
+    "open": 3
+  },
+  "reproduction": "Adjacency/case/source/canonical hash verification only: current-all60-DD-adjudication-evidence/reconcile.source.txt. No pytest/gates/source imports were run by this review.",
+  "per_quantity_P37": {
+    "reported_case_and_source_bytes": {
+      "label": "independently_reconciled",
+      "scope": "XML/stdout/body/Git bytes read; this reviewer ran no native/gates."
+    },
+    "fixture_assumptions": {
+      "label": "consumer_asserted",
+      "scope": "Declared operational premises; never sufficient for institutional admission."
+    },
+    "institutional_law_for_six_held": {
+      "label": "not_established",
+      "scope": "Exact owner law unresolved; six finding proposals stay held."
+    },
+    "formal_closure_authority": {
+      "label": "not_established",
+      "scope": "Root/G decide after independent full source/cohort review; closure_ids empty."
+    },
+    "own_DUR_source": {
+      "label": "not_established",
+      "scope": "Reviewer does not independently accept own implementation. RootDD actual runtime and named foreign source review are distinct; lower9f needs composed consumer join."
+    },
+    "registered_labels": [
+      "recomputed",
+      "independently_reconciled",
+      "consumer_asserted",
+      "institutionally_supplied",
+      "not_established"
+    ]
+  },
+  "P40_buckets": {
+    "B65/B66": "same completion-obligation admission class widened through producer preintent, durable pending index, same live-owner/fresh-owner/PID/receipt/audit/cost uncertainty; successor tests pending",
+    "other_rows": "Criterion-specific finite mechanism, verification_missing, consumer_missing or held owner contract as explicitly stated per row. P38 names smallest distinguishing case; no instance-count stop rule."
+  }
+}

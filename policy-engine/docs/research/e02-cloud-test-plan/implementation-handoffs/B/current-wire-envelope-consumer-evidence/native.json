@@ -1,0 +1,33 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/workspace/e02-B-current-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+    "--repo",
+    "/workspace/e02-B-current-adapters",
+    "--output",
+    "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/wire-envelope-a4",
+    "--mode",
+    "native",
+    "--child"
+  ],
+  "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+  "target_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+  "target_tree": "b45fe8b1b19001b3250bca171abc5fdc86a74106",
+  "head_after": "a4dd3b25c369be19c80727395c689a121950fc64",
+  "mode": "native",
+  "actual_child_exit": 0,
+  "wall_s": 16.57170449401019,
+  "maxrss_kib": 655920,
+  "stdout": {
+    "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/wire-envelope-a4/native.txt",
+    "sha256": "1dabd8011436c8dce2b59168be502b34b806b28e294e89d77cac6243979df15c",
+    "bytes": 18996
+  },
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache"
+  },
+  "profile": "native pytest.main -vv, isolated filesystem fixtures/cache; no marker exclusions or process/worker/thread quotas",
+  "input_overlay": "none"
+}

@@ -1,0 +1,22 @@
+{
+  "actual_runtime_point": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+  "lower_source_point": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+  "all_runs": {
+    "original-actor-premise": {
+      "test_sha256": "d65655f0f1fea395d02342646a067f2cda71cd2b2a811f7ca60ddfb7327bfc21",
+      "input_sha": "f1656b36dc438611bba0c3e14adab48c4bb47f51",
+      "source_context": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/source-context.json",
+      "command_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/original-actor-premise/wrapper.json"
+    },
+    "corrected-actor-premise": {
+      "test_sha256": "59db554912cdc450b91fa14edc7450f3de75d7e3650d3792f00bd1c413f5e273",
+      "input_sha": "31003278961d27b84603d28c26dc38bd44f0a84d",
+      "source_context": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/source-context.json",
+      "command_wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-audit-recovery-red-evidence/corrected-actor-premise/wrapper.json"
+    }
+  },
+  "driver_execution": "The frozen captured runner was executed twice with explicit --source-sha/--input-sha/--source-root/--output. No source checkout/copy fallback; same-child all concrete loaded polisyos modules match actual Git bytes and target origins.",
+  "historical_preparation": "5290/7e/fcaf/b0ab preparation inputs were UNRUN, first physical setup target establishedf165; historical bytes not rewritten.",
+  "actor_test_premise_error": "Originalf165 actor.id accessor nonexistent; actual AuditActor.identity is corrected310.",
+  "public_API_only_except_observation": "Fault log delegates actual ChainedAuditLog append. Sink subclass only observes actual failed entry while running unchanged backend. Trusted resolver uses public LocalJsonlBackend.write/ChainVerifier; no effect mock."
+}

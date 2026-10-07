@@ -1,0 +1,286 @@
+{
+  "kind": "independent foreign source-contract review and published-data inspection",
+  "reviewer": "/root/exe_state_writer",
+  "writer": "/root/adapters_probe",
+  "source_base": "90d2e869ae1e78b06932f8b2349848d41588def8",
+  "source_target": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+  "source_tree": "81a1399d2c167044e6127c8b4201f1276f85370d",
+  "verdict": "NONBLOCKING finite initialized-owner worker profile; reviewer runtime UNRUN",
+  "full_changed_path_count": 7,
+  "complete_changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-policy-worker-accounting.toml",
+    "policy-engine/src/polisyos/scientist/policy_design/README.md",
+    "policy-engine/src/polisyos/scientist/policy_design/_llm_accounting.py",
+    "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+    "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+    "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+    "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py"
+  ],
+  "reviewed_source_scope": [
+    "Full seven-path delta, complete helper, complete adversary and translator modules, complete new admission test and release/README companions.",
+    "Canonical BudgetMiddleware owner/state reload, FileBudgetLedger initialized owner identity, enforcer actual intent admission, full factory and real builtin translation/search consumers; exact input blobs are in census."
+  ],
+  "contract_findings": [
+    {
+      "premise": "One initialized durable middleware contour",
+      "assessment": "Constructor and every owned sync/async entry read actual settlement owner and current state before factory. Missing/corrupt ledger refuses without worker bootstrap. Raw-only and raw+middleware including same object refuse rather than replacing limits or manufacturing a settlement owner."
+    },
+    {
+      "premise": "Accounting failure and scientific fallback",
+      "assessment": "Both obtained LLMAccountingError handlers bare re-raise before generic scientific fallback; enforcer construction is outside fallback try. Seven canonical entry checks, two preserved-identity error handlers. No invented zero receipt, invoice authority or new BudgetState/wire field."
+    },
+    {
+      "premise": "Compatibility and real consumers",
+      "assessment": "Neither accounting input retains explicitly unbudgeted non-durable contour. Existing builtin translator bundle has no raw BudgetState; caller may inject an owner-aware search worker. Active event-loop sync branch checks accounting contour first then preserves its deterministic fallback; this does not prove it executes an LLM call."
+    },
+    {
+      "premise": "Owner read versus provider admission",
+      "assessment": "Owner identity read alone does not establish every pending phase or institutional permission. Canonical enforcer performs actual atomic intent/reservation admission later. Middleware and ledger are constructor supplied; worker does not choose storage path or limits."
+    },
+    {
+      "premise": "External independent test projection",
+      "assessment": "Release-listed boundary test absent from author4b is present at separate exact5902 test checkpoint. DUR packet binds actual product4b/test5902, not a claim that fourteen cases are in author4b tree."
+    }
+  ],
+  "source_recomputed_quantities": {
+    "admission_calls": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+        "line": 118
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+        "line": 127
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+        "line": 193
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+        "line": 192
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+        "line": 195
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+        "line": 248
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+        "line": 275
+      }
+    ],
+    "bare_accounting_error_handlers": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+        "line": 179
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+        "line": 240
+      }
+    ],
+    "translator_input_wire_class_ast_equal": true,
+    "all8_dependencies_byteequal_base": true
+  },
+  "published_foreign_runtime_data_inspection": {
+    "packet": {
+      "source_sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-independent.json",
+      "bytes": 32317,
+      "sha256": "e9b62d7c792ad5925d39c90800efe49d47edf43fa81b6768e54e3899777b6ccd",
+      "git_blob": "c42cf51b50473a84a3392a9c19187b1bea73432e"
+    },
+    "independent_test": {
+      "source_sha": "5902db2744b518cdde223901904c1bbf928481f3",
+      "path": "policy-engine/tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py",
+      "bytes": 13669,
+      "sha256": "bb171bf9a96bc0780eb27be2e229e8c986ef18fdae5ca10fc6b950b42ee34aa6",
+      "git_blob": "61c8bfe60148100accaac114ca744e3bef814fde"
+    },
+    "actual_checks": [
+      {
+        "id": "native",
+        "declared_outcome": "PASS",
+        "recomputed_junit": {
+          "cases": 14,
+          "failures": 0,
+          "errors": 0,
+          "skips": 0
+        },
+        "stdout": {
+          "source_sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/native.txt",
+          "bytes": 137301,
+          "sha256": "6a9151b4e7a43cfa4d28126738d748f6a358f9ef5ece734daa4f5e53951b7d74",
+          "git_blob": "6ad966b39b0772f6fbcad4a227f1152d3fb53642"
+        },
+        "junit": {
+          "source_sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/native/native.xml",
+          "bytes": 2182,
+          "sha256": "7a62a7ca067bd5aed4de7bddd6d904d1adef617d9d4e8c23b2e06998a87314f5",
+          "git_blob": "6b4ed4b4614169e54e2bec2aa033e7fdfcec3173"
+        },
+        "role": "Read published foreign bytes only; no reviewer runtime execution"
+      },
+      {
+        "id": "remove-admission",
+        "declared_outcome": "FAIL",
+        "recomputed_junit": {
+          "cases": 2,
+          "failures": 2,
+          "errors": 0,
+          "skips": 0
+        },
+        "stdout": {
+          "source_sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/native.txt",
+          "bytes": 54870,
+          "sha256": "07fb92d9def8e9870624c80794a0544e049fef5ead81752da5ecb5bef285ea16",
+          "git_blob": "597e67ff82db787f1e177d6a569364a01116dea1"
+        },
+        "junit": {
+          "source_sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-admission/native.xml",
+          "bytes": 31056,
+          "sha256": "9deafbbfadfcd0d8642f0a04c79d330a82675532c174dd085ce5508d18a647b0",
+          "git_blob": "2020e7494a29c24ad2269dace879c2e4c91d6292"
+        },
+        "role": "Read published foreign bytes only; no reviewer runtime execution"
+      },
+      {
+        "id": "remove-propagation",
+        "declared_outcome": "FAIL",
+        "recomputed_junit": {
+          "cases": 2,
+          "failures": 2,
+          "errors": 0,
+          "skips": 0
+        },
+        "stdout": {
+          "source_sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/native.txt",
+          "bytes": 57283,
+          "sha256": "e218c8ec3181ad2a09ba4170a761f831d1914bec4d92f8eb2d5dd9aef3a523bc",
+          "git_blob": "577b4d875e79e35ee9acfd0f48c096e9c2f9070b"
+        },
+        "junit": {
+          "source_sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-worker-accounting-repair-evidence/remove-propagation/native.xml",
+          "bytes": 31390,
+          "sha256": "b99053406197f80c546182da668802575ba9d9bdf9e9248aad43f93ef985584e",
+          "git_blob": "daf4759fc00425218cdf50706b58ea73762fa249"
+        },
+        "role": "Read published foreign bytes only; no reviewer runtime execution"
+      }
+    ],
+    "qualification": "Complete published receipt and each complete stdout/JUnit read via Git and hash/count reconciled by stdlib. No reviewer native replay, project imports or mechanism acceptance. Native14PASS and removal2FAIL/2FAIL remain DUR executed source4b/test5902 profile."
+  },
+  "author_type_data_inspection": {
+    "current_command": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "mypy",
+      "--follow-imports=silent",
+      "--ignore-missing-imports",
+      "--cache-dir",
+      "/dev/shm/e02-B-worker-static/mypy-cache",
+      "src/polisyos/scientist/policy_design/_llm_accounting.py",
+      "src/polisyos/scientist/policy_design/adversary.py",
+      "src/polisyos/scientist/policy_design/translator.py"
+    ],
+    "current_literal_exit": 1,
+    "current_diagnostics": "13 errors in 4 files; checked3 source files",
+    "source_equivalent_control": {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "mypy",
+        "--follow-imports=silent",
+        "--ignore-missing-imports",
+        "--cache-dir",
+        "/dev/shm/e02-B-worker-static/mypy-cache",
+        "/dev/shm/e02-B-worker-static/base-source/polisyos/scientist/policy_design/adversary.py",
+        "/dev/shm/e02-B-worker-static/base-source/polisyos/scientist/policy_design/translator.py"
+      ],
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "target_source_sha": "82f7656a3848225c615dfef8c363e914dafe7e3e",
+      "source_files": [
+        {
+          "source_ref": "82f7656a3848225c615dfef8c363e914dafe7e3e:policy-engine/src/polisyos/__init__.py",
+          "materialized_path": "/dev/shm/e02-B-worker-static/base-source/polisyos/__init__.py",
+          "bytes": 24,
+          "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+        },
+        {
+          "source_ref": "82f7656a3848225c615dfef8c363e914dafe7e3e:policy-engine/src/polisyos/scientist/__init__.py",
+          "materialized_path": "/dev/shm/e02-B-worker-static/base-source/polisyos/scientist/__init__.py",
+          "bytes": 7829,
+          "sha256": "ab721e4a2e6da23e8786a1f1af1f7cc8a4a7b90d02384882b21de70b1cbb3e90"
+        },
+        {
+          "source_ref": "82f7656a3848225c615dfef8c363e914dafe7e3e:policy-engine/src/polisyos/scientist/policy_design/__init__.py",
+          "materialized_path": "/dev/shm/e02-B-worker-static/base-source/polisyos/scientist/policy_design/__init__.py",
+          "bytes": 8526,
+          "sha256": "18bfb35730f0148d4542decc052e18f7e29fcb4f49360f379f1fe629d54cb82c"
+        },
+        {
+          "source_ref": "82f7656a3848225c615dfef8c363e914dafe7e3e:policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+          "materialized_path": "/dev/shm/e02-B-worker-static/base-source/polisyos/scientist/policy_design/adversary.py",
+          "bytes": 15332,
+          "sha256": "e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7"
+        },
+        {
+          "source_ref": "82f7656a3848225c615dfef8c363e914dafe7e3e:policy-engine/src/polisyos/scientist/policy_design/translator.py",
+          "materialized_path": "/dev/shm/e02-B-worker-static/base-source/polisyos/scientist/policy_design/translator.py",
+          "bytes": 15582,
+          "sha256": "a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1"
+        }
+      ],
+      "explicit_environment": {
+        "MYPYPATH": "/workspace/e02-B-current-adapters/policy-engine/src"
+      },
+      "input_closure": "Exact two predecessor worker source files and namespace init files exported read-only; unchanged transitive dependencies resolved from current admitted source. Helper did not exist in predecessor and is not a baseline target. This is source-equivalent typing control, not a full predecessor runtime/worktree.",
+      "actual_exit": 1,
+      "wall_seconds": 3.3274225929926615,
+      "max_rss_kib": 580796,
+      "output": {
+        "path": "/dev/shm/e02-B-worker-static/base-control.txt",
+        "sha256": "f5a520e7fb0025d01af356790ba963e133ecd2619b8d9c27322cee33326a1402",
+        "bytes": 3686
+      }
+    },
+    "qualification": "Full retained outputs read. Two predecessor worker source files+namespace init exported from82f with current transitive source, helper absent and not a baseline target. Literal same13 diagnostics is a finite typing control, not a clean old tree/all-input baseline. Current helper and changed imports intersect gate denominator; no inherited P41 waiver, no type PASS."
+  },
+  "author_runtime_report_not_independently_inspected": {
+    "source": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd",
+    "reported_whole2file_cases": 19,
+    "reported_pass": 18,
+    "reported_fail": 1,
+    "qualification": "ADAPTER report only pending immutable author receipt. Scientific vulnerabilities assertion remains actual FAIL; it is not waived and no scientific fixture law was changed by this reviewer."
+  },
+  "negative_controls_source_reviewed_not_executed": [
+    "Raw-only/mixed/same-state/ledgerless actual-owner inputs refuse before gateway factory; test observes real factory delegate and physical ledger state.",
+    "Missing/corrupt persisted owner after construction refuses without replacement bootstrap; current bytes preserved or missing file remains missing.",
+    "Obtained LLMAccountingError identity propagates before generic fallback; published external removal contrast distinguishes admission from error propagation.",
+    "Neither input stays non-durable; constructor signature or a marker alone cannot prove provider accounting."
+  ],
+  "limitations": [
+    "No reviewer provider/native/collection/style/mypy/gate/generator execution. Source-only nonblocking is not final all-consumer acceptance or finding closure.",
+    "No external billing/cost-unknown resolver authority, powerloss/multihost guarantee or institutional permission inferred.",
+    "Final root composed source and proper-import fifteen-target quality gate remain UNRUN; historical DD outcomes not promoted."
+  ],
+  "predicate_basis": "independently_reconciled",
+  "predicate_qualifications": {
+    "source_contract": "independently_reconciled",
+    "AST/input/XML/hash_data": "recomputed",
+    "author19_case_report": "institutionally_supplied",
+    "reviewer_runtime": "not_established",
+    "future_final_cohort": "not_established"
+  },
+  "closure_ids": []
+}

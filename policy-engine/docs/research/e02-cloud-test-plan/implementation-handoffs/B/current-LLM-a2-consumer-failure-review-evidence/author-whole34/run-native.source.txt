@@ -1,0 +1,80 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import subprocess
+import sys
+import time
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+ROOT = Path("/workspace/e02-B-current-adapters")
+OWN = Path("/workspace/e02-B-current-adapters")
+RAW = Path('/tmp/e02-B-llm-affected-a2-k98z3tu9')
+SHA = "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9"
+TEST_SHA = "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9"
+PYTHON = Path("/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python")
+TEST = OWN / "policy-engine/tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py"
+
+
+def head(root: Path) -> str:
+    return subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
+
+
+assert head(ROOT) == SHA
+assert head(OWN) == TEST_SHA
+test_bytes = TEST.read_bytes()
+assert test_bytes == subprocess.check_output(
+    ["git", "-C", str(OWN), "show", f"{TEST_SHA}:{TEST.relative_to(OWN)}"]
+)
+env = dict(os.environ)
+for key in ("PYTEST_PLUGINS", "E02_B_COHORT_INVENTORY_PATH"):
+    env.pop(key, None)
+explicit_env = {
+    "PYTHONPATH": f"{ROOT}/policy-engine/src:{ROOT}/policy-engine",
+    "E02_B66_TARGET_ROOT": str(ROOT),
+    "E02_B66_TARGET_SHA": SHA,
+    "E02_B65_CONTEXT": str(RAW / "source-context.json"),
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+}
+env.pop("PYTEST_DISABLE_PLUGIN_AUTOLOAD", None)
+env.update(explicit_env)
+command = [
+    str(PYTHON), str(RAW / "child.source.txt"), *[str(OWN / "policy-engine" / selector) for selector in json.loads((RAW / "selectors.json").read_text())["whole_files"]],
+    "--import-mode=importlib", "-p", "no:cacheprovider", "-q", "-s", "--tb=short",
+    "--basetemp", str(RAW / "fixtures"), "--junitxml", str(RAW / "native.xml"),
+]
+start = time.monotonic()
+with (RAW / "native.txt").open("wb") as stream:
+    proc = subprocess.Popen(command, cwd=OWN / "policy-engine", env=env, stdout=stream, stderr=subprocess.STDOUT)
+    _, status, usage = os.wait4(proc.pid, 0)
+    exit_code = os.waitstatus_to_exitcode(status)
+    proc.returncode = exit_code
+wall = time.monotonic() - start
+assert head(ROOT) == SHA
+assert head(OWN) == TEST_SHA
+cases = []
+if (RAW / "native.xml").is_file():
+    for case in ET.parse(RAW / "native.xml").iter("testcase"):
+        outcome = "ERROR" if case.find("error") is not None else "FAIL" if case.find("failure") is not None else "SKIP" if case.find("skipped") is not None else "PASS"
+        cases.append({"classname": case.get("classname"), "name": case.get("name"), "outcome": outcome})
+outputs = []
+for path in (RAW / "native.txt", RAW / "native.xml", RAW / "source-context.json"):
+    if path.is_file():
+        data = path.read_bytes()
+        outputs.append({"path": str(path), "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()})
+record = {
+    "schema": "policyos.e02.llm-affected-native.v1", "harness_state": "EXECUTED",
+    "target_source_sha": SHA, "test_sha": TEST_SHA, "test_path": str(TEST),
+    "test_sha256": hashlib.sha256(test_bytes).hexdigest(), "whole_test_input": json.loads((RAW / "selectors.json").read_text()), "argv": command,
+    "cwd": str(OWN / "policy-engine"), "explicit_environment": explicit_env,
+    "fixture_profile": "Unique actual /tmp filesystem/provider/ledger; no live TCP/API/external financial authority. No numerical/process/thread/CPU quota added.",
+    "actual_exit": exit_code, "wall_seconds": wall, "max_rss_kib": usage.ru_maxrss,
+    "source_head_before_after": SHA, "test_head_before_after": TEST_SHA,
+    "actual_cases": cases, "outcomes": {k: sum(c["outcome"] == k for c in cases) for k in ("PASS", "FAIL", "ERROR", "SKIP")},
+    "outputs": outputs, "closure_ids": [],
+}
+(RAW / "native.json").write_text(json.dumps(record, ensure_ascii=False, indent=2) + "\n")
+print(json.dumps({"actual_exit": exit_code, "wall_seconds": wall, "max_rss_kib": usage.ru_maxrss, "outcomes": record["outcomes"], "wrapper": str(RAW / "native.json"), "outputs": outputs}, ensure_ascii=False))
+sys.exit(0)

@@ -1,0 +1,55 @@
+{
+  "harness_state": "EXECUTED",
+  "setup_failure": null,
+  "actual_child_pid": 616106,
+  "waited_pid": 616106,
+  "wait_status": 0,
+  "actual_exit_code": 0,
+  "signal": null,
+  "wall_s": 172.18007543199928,
+  "max_rss_kib": 905064,
+  "user_s": 164.766641,
+  "system_s": 7.673796,
+  "source_before": {
+    "head": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "tracked_status": "",
+    "matched_expected_clean": true
+  },
+  "source_after": {
+    "head": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "tracked_status": "",
+    "matched_expected_clean": true
+  },
+  "original_parent_cap_env": {
+    "XLA_FLAGS": null,
+    "JAX_NUM_THREADS": null,
+    "TF_NUM_INTEROP_THREADS": null,
+    "TF_NUM_INTRAOP_THREADS": null,
+    "NUMBA_NUM_THREADS": null,
+    "LOKY_MAX_CPU_COUNT": null,
+    "PYTEST_XDIST_AUTO_NUM_WORKERS": null
+  },
+  "caps_removed_not_replaced": [
+    "XLA_FLAGS",
+    "JAX_NUM_THREADS",
+    "TF_NUM_INTEROP_THREADS",
+    "TF_NUM_INTRAOP_THREADS",
+    "NUMBA_NUM_THREADS",
+    "LOKY_MAX_CPU_COUNT",
+    "PYTEST_XDIST_AUTO_NUM_WORKERS"
+  ],
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "/dev/shm/e02-B-final-pg1862-20261006/capture_pg.source.txt",
+    "--child"
+  ],
+  "native_stdout": {
+    "path": "/dev/shm/e02-B-final-pg1862-20261006/native.txt",
+    "bytes": 5586,
+    "sha256": "490ccf2d188492b8d921151a06d25cc999408fa6d25f6bd5a98d7a865ef18535",
+    "secret_literal_scan_pass": true
+  },
+  "driver_sha256": "6e551e8ed672105dad8344ccd2e740898f55aa3b468fbd6a85846182b63b35dd"
+}

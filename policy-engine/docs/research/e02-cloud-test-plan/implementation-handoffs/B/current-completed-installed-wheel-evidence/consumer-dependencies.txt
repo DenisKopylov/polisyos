@@ -1,0 +1,11 @@
+Using Python 3.14.2 environment at: installed-env
+Resolved 5 packages in 778ms
+Downloading pygments (1.2MiB)
+ Downloaded pygments
+Prepared 4 packages in 1.28s
+Installed 5 packages in 3ms
+ + iniconfig==2.3.0
+ + packaging==25.0
+ + pluggy==1.6.0
+ + pygments==2.19.2
+ + pytest==9.0.2

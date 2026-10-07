@@ -1,0 +1,27 @@
+{"argv": ["/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python", "-m", "pytest", "-vv", "-p", "origin_guard", "tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py", "--basetemp", "/tmp/e02-B-completion-consumer-a391-f838d5837d24/pytest", "-o", "cache_dir=/tmp/e02-B-completion-consumer-a391-f838d5837d24/cache", "--junitxml=/tmp/e02-B-completion-consumer-a391-f838d5837d24/native.xml"], "cwd": "/workspace/e02-B-current-cas-generation/policy-engine", "source": {"head": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d", "tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e", "status": ""}, "test": {"head": "619e3834cb56a8109460d07cd5d18fcde1fedc49", "tree": "9fa61d024b3231b598416b89148f621640650a09", "status": ""}}
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python
+cachedir: /tmp/e02-B-completion-consumer-a391-f838d5837d24/cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-B-current-cas-generation/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-B-current-cas-generation/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, hypothesis-6.151.2, anyio-4.12.0, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, jaxtyping-0.3.4
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 11 items
+
+tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py::test_preprovider_atomic_intent_publication_fault_means_no_physical_call[file_fsync-invoke] PASSED [  9%]
+tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py::test_preprovider_atomic_intent_publication_fault_means_no_physical_call[file_fsync-generate] PASSED [ 18%]
+tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py::test_preprovider_atomic_intent_publication_fault_means_no_physical_call[replace_before-invoke] PASSED [ 27%]
+tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py::test_preprovider_atomic_intent_publication_fault_means_no_physical_call[replace_before-generate] PASSED [ 36%]
+tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py::test_posteffect_completion_publication_fault_blocks_live_and_fresh_consumers[file_fsync-invoke] PASSED [ 45%]
+tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py::test_posteffect_completion_publication_fault_blocks_live_and_fresh_consumers[file_fsync-generate] PASSED [ 54%]
+tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py::test_posteffect_completion_publication_fault_blocks_live_and_fresh_consumers[replace_before-invoke] PASSED [ 63%]
+tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py::test_posteffect_completion_publication_fault_blocks_live_and_fresh_consumers[replace_before-generate] PASSED [ 72%]
+tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py::test_genuine_known_zero_completion_allows_a_fresh_physical_call[invoke] PASSED [ 81%]
+tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py::test_genuine_known_zero_completion_allows_a_fresh_physical_call[generate] PASSED [ 90%]
+tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py::test_same_live_owner_can_finish_two_genuinely_concurrent_physical_calls PASSED [100%]
+
+- generated xml file: /tmp/e02-B-completion-consumer-a391-f838d5837d24/native.xml -
+============================= 11 passed in 10.25s ==============================

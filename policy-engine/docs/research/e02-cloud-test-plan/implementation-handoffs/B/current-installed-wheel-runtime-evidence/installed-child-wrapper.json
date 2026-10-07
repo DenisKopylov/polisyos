@@ -1,0 +1,78 @@
+{
+  "observation": "installed-wheel-child-dispatch",
+  "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "source_root": "/workspace/e02-B-current-coordination/policy-engine",
+  "python": "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/bin/python",
+  "site": "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/lib/python3.14/site-packages",
+  "wheel": "/tmp/e02-B-la057-final-dd9584728bd9/wheels/policy_engine-0.1.0-py3-none-any.whl",
+  "consumer_sha256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+  "outer_sha256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702",
+  "command": [
+    "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/bin/python",
+    "-I",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-s",
+    "--noconftest",
+    "--import-mode=importlib",
+    "-c",
+    "/dev/null",
+    "-o",
+    "addopts=",
+    "-o",
+    "pythonpath=",
+    "-o",
+    "cache_dir=/tmp/e02-B-la057-final-dd9584728bd9/pytest-scratch/test_installed_wheel_consumers0/cache",
+    "--basetemp",
+    "/tmp/e02-B-la057-final-dd9584728bd9/pytest-scratch/test_installed_wheel_consumers0/child-scratch",
+    "--junitxml",
+    "/tmp/e02-B-la057-final-dd9584728bd9/pytest-scratch/test_installed_wheel_consumers0/installed-child.xml",
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py"
+  ],
+  "exit": 0,
+  "wall_s": 1.21495588599646,
+  "child_maxrss_platform_units": 50012,
+  "maxrss_unit": "KiB on Linux; bytes on macOS",
+  "stdout": "/tmp/e02-B-la057-final-dd9584728bd9/pytest-scratch/test_installed_wheel_consumers0/installed-child.txt",
+  "stdout_sha256": "534904b2e39dfb5df65129846e8c250686d0aea7bde64ebfaa2f7d385290d8fb",
+  "xml": "/tmp/e02-B-la057-final-dd9584728bd9/pytest-scratch/test_installed_wheel_consumers0/installed-child.xml",
+  "xml_sha256": "bf1678e9b1ff5ff6d11c463fba79d42ab8b68a7296f2a5aaeabeed7e72e92156",
+  "actual_consumer_cases": [
+    {
+      "name": "test_installed_generic_identities[direct]",
+      "outcome": "passed"
+    },
+    {
+      "name": "test_installed_generic_identities[alias]",
+      "outcome": "passed"
+    },
+    {
+      "name": "test_installed_generic_identities[facade]",
+      "outcome": "passed"
+    },
+    {
+      "name": "test_installed_generic_identities[star_reflection]",
+      "outcome": "passed"
+    },
+    {
+      "name": "test_installed_direct_and_running_loop_context",
+      "outcome": "passed"
+    },
+    {
+      "name": "test_installed_timeout_cleans_real_pending_tasks",
+      "outcome": "passed"
+    },
+    {
+      "name": "test_installed_cancel_reaches_awaitable_finally[False]",
+      "outcome": "passed"
+    },
+    {
+      "name": "test_installed_cancel_reaches_awaitable_finally[True]",
+      "outcome": "passed"
+    }
+  ],
+  "module_origin_profile": "Complete actual child stdout, source/installed/wheel binding fixture.",
+  "count_scope": "One outer case and eight child consumer cases are separate denominators."
+}

@@ -1,0 +1,2825 @@
+{
+  "schema": "policyos.e02.case_partition.v1",
+  "parse_state": "COMPLETE",
+  "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+  "source_tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+  "input_identities": {
+    "inventory": {
+      "path": "/tmp/braw-e02-B/x7",
+      "bytes": 20097609,
+      "sha256": "9d8ab52071bb88523755aa80c55a954223ceca47e693a1626dca2b2750b0faa4"
+    },
+    "wrapper": {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.json",
+      "bytes": 2977,
+      "sha256": "5d1bb970219aed1ab7119e9141a08548d07fbad505f7ff54583edbb6490e5349"
+    },
+    "profile": {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-profile.json",
+      "bytes": 18280,
+      "sha256": "31a9a4d2953c5206d2cbca516164d6a1f66ad8bc67385246e325e66feea39dba"
+    },
+    "selectors": {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/terminal-final-selector.json",
+      "bytes": 669809,
+      "sha256": "dd66cd003b0bc7b2c98c78d96e47a901109c2dd2b09635231c86f58dd7b3d34c"
+    },
+    "junit": {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.xml",
+      "bytes": 3583926,
+      "sha256": "f1ddd4788163d030277242ac7233312da78a68f6aaee27a511b0b3cb7f2cef5b"
+    },
+    "stdout": {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.txt",
+      "bytes": 3611397,
+      "sha256": "675ebace8ab28945f3b97f4fb37374f1ae3832f15e0475cad58e392fed54abf5"
+    }
+  },
+  "reconciliation_checks": {
+    "pytest_source_profile": true,
+    "plain_single_process_observation": true,
+    "phase_annotations_present": true,
+    "session_count_binding": true,
+    "wrapper_source": true,
+    "profile_source": true,
+    "same_source_tree": true,
+    "observer_start_source": true,
+    "observer_finish_source": true,
+    "observer_source_tree": true,
+    "same_command": true,
+    "same_cwd": true,
+    "stdout_binding": true,
+    "selector_hash_binding": true,
+    "selector_list_binding": true,
+    "selector_denominator": true,
+    "case_identity_unique": true,
+    "case_partition_total": true,
+    "case_file_groupings_complete": true,
+    "all_reports_have_admitted_nodeid": true,
+    "same_junit_path": true,
+    "native_xml_case_projection": true,
+    "native_junit_source_profile": true,
+    "native_xml_collector_projection": true,
+    "origins_recorded_denominators": true,
+    "instrument_byte_match": true,
+    "every_xml_representation_assigned": true
+  },
+  "session": {
+    "observer_state": "session_finished",
+    "observed_sessionfinish_exitstatus_argument": 1,
+    "actual_wait4_exit_code": 1,
+    "hook_argument_matches_wait4": true,
+    "session_testsfailed_report_count": 1399,
+    "session_testscollected": 3578,
+    "wall_seconds": 2686.7558818729885,
+    "process_rusage_maxrss_kib": 1817684,
+    "exit_boundary": "Hook argument is not guaranteed final exit; actual wait4 code is independent deciding status."
+  },
+  "denominators": {
+    "requested_whole_files": 229,
+    "session_item_entries": 3578,
+    "unique_nodeids": 3578,
+    "collection_file_types_item_entries": {
+      ".py": 3578
+    },
+    "definition_path_file_types_item_entries": {
+      ".py": 3578
+    },
+    "distinct_collection_files": 229,
+    "distinct_definition_paths": 229,
+    "distinct_collection_file_types": {
+      ".py": 229
+    },
+    "distinct_definition_path_file_types": {
+      ".py": 229
+    },
+    "phase_reports": 9420,
+    "collection_reports": 385,
+    "deselected_item_entries": 0,
+    "junit_representations": 3578
+  },
+  "case_counts": {
+    "PASS": 2177,
+    "FAIL": 85,
+    "ERROR": 1314,
+    "XFAIL": 0,
+    "SKIP": 2,
+    "UNRUN": 0
+  },
+  "case_counts_by_collection_file": {
+    "/workspace/e02-B-current-coordination/policy-engine/tests/integration/scientist/test_checkpoint_resume.py": {
+      "PASS": 11
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py": {
+      "FAIL": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/common/test_async_tools.py": {
+      "PASS": 20
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py": {
+      "PASS": 28
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_artifact_id_serialization_contract.py": {
+      "PASS": 12
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py": {
+      "PASS": 11
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_async_store.py": {
+      "PASS": 3
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py": {
+      "PASS": 20
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py": {
+      "PASS": 4
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py": {
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py": {
+      "PASS": 34
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py": {
+      "PASS": 11
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_manifest_serialization_schema.py": {
+      "PASS": 6
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_multi_tenant_shared_cas.py": {
+      "PASS": 12
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_put_consumer_oracle.py": {
+      "PASS": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py": {
+      "PASS": 5
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_signed_evidence.py": {
+      "PASS": 6
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py": {
+      "PASS": 3
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py": {
+      "PASS": 25
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py": {
+      "PASS": 14
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py": {
+      "PASS": 9
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_artifact_export_import.py": {
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_artifact_graph.py": {
+      "PASS": 4
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_artifact_store.py": {
+      "PASS": 11
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_audit_export_verify.py": {
+      "PASS": 6
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_audit_manifest_compat.py": {
+      "PASS": 3
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_canon_json.py": {
+      "PASS": 5
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_cli.py": {
+      "PASS": 8
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_cli_resume.py": {
+      "PASS": 3
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_cli_signing.py": {
+      "PASS": 5
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_decorators.py": {
+      "PASS": 7
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_environment_manifest.py": {
+      "PASS": 20
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_logs.py": {
+      "PASS": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_metric_validation_cli.py": {
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_metrics.py": {
+      "PASS": 8
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_observability.py": {
+      "PASS": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_phase0_quality_validation_contract.py": {
+      "PASS": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_propagation.py": {
+      "PASS": 4
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_provenance_contract_shims.py": {
+      "PASS": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_registry_bundle.py": {
+      "PASS": 4
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_run_context.py": {
+      "PASS": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_signing.py": {
+      "PASS": 11
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_store_signing.py": {
+      "PASS": 21
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_tracer.py": {
+      "PASS": 11
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_workspace_commands.py": {
+      "PASS": 6
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_worktree_admission.py": {
+      "PASS": 23
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/test_llm_core.py": {
+      "PASS": 5
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py": {
+      "PASS": 26
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/connectors/test_pool_e02.py": {
+      "PASS": 16
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/connectors/test_registry.py": {
+      "PASS": 74
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/connectors/test_resilience.py": {
+      "PASS": 30
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py": {
+      "PASS": 31
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py": {
+      "FAIL": 1,
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py": {
+      "PASS": 7,
+      "FAIL": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py": {
+      "PASS": 50
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py": {
+      "PASS": 14
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py": {
+      "PASS": 39
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py": {
+      "PASS": 19
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py": {
+      "PASS": 26
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/components/test_composition_e02.py": {
+      "PASS": 17
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/test_artifacts.py": {
+      "PASS": 24
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/test_compiler.py": {
+      "PASS": 47
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/test_compiler_e02.py": {
+      "PASS": 11
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/test_composer.py": {
+      "PASS": 25
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/test_composer_hardening.py": {
+      "PASS": 9
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/test_linker.py": {
+      "PASS": 52
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/test_semantic_validator.py": {
+      "PASS": 18
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/mirror_contracts/test_specialization.py": {
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_cas_01.py": {
+      "PASS": 18
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_cas_02.py": {
+      "PASS": 18
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_cas_03.py": {
+      "PASS": 16
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_cmp_01.py": {
+      "PASS": 4
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_cmp_02.py": {
+      "PASS": 8
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_cmp_03.py": {
+      "PASS": 13
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_dur_02.py": {
+      "PASS": 5
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_dur_02_process.py": {
+      "PASS": 20
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_exe_02.py": {
+      "PASS": 8
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_jit_01.py": {
+      "PASS": 9
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_llm_01.py": {
+      "PASS": 8
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_res_01.py": {
+      "PASS": 11
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_res_02.py": {
+      "PASS": 8
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_res_03.py": {
+      "PASS": 4
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_res_04.py": {
+      "PASS": 16
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_run_03.py": {
+      "PASS": 9
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_wire_01.py": {
+      "PASS": 55
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/services/test__control_contracts.py": {
+      "PASS": 4
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/services/test_evaluation_safety.py": {
+      "FAIL": 1,
+      "PASS": 14
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/services/test_lex_pipeline.py": {
+      "PASS": 3
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_acquisition_admission_artifact_facade.py": {
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_acquisition_authority_deployment.py": {
+      "PASS": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py": {
+      "PASS": 7
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_acquisition_human_source.py": {
+      "PASS": 6
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_acquisition_route_authority_sink.py": {
+      "PASS": 7
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_acquisition_routes_api.py": {
+      "ERROR": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_acquisition_surface_projection.py": {
+      "PASS": 7
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_analysis_api.py": {
+      "FAIL": 3
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_api_maturity.py": {
+      "ERROR": 6,
+      "PASS": 2,
+      "FAIL": 3
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_architecture_boundaries.py": {
+      "PASS": 7,
+      "FAIL": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_artifact_inspector_api.py": {
+      "ERROR": 4
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_artifact_inspector_service.py": {
+      "PASS": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_artifact_surface_safety.py": {
+      "FAIL": 4
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_auth_api.py": {
+      "ERROR": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_authority_values.py": {
+      "PASS": 7,
+      "ERROR": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_authorization_audience_denials.py": {
+      "ERROR": 7
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_b88_served_replay.py": {
+      "ERROR": 5
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_bureaucratic_rendering_api.py": {
+      "ERROR": 8
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_capability_discovery_api.py": {
+      "ERROR": 7,
+      "PASS": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_case_inspection_api.py": {
+      "ERROR": 6
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_confidence_ledger_risk_spend_api.py": {
+      "ERROR": 3
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_confidence_ledger_risk_spend_contracts.py": {
+      "PASS": 15
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_confidence_ledger_risk_spend_projection.py": {
+      "PASS": 9
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_api.py": {
+      "PASS": 1,
+      "ERROR": 66,
+      "FAIL": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_hardening.py": {
+      "PASS": 6,
+      "FAIL": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_import_boundary.py": {
+      "PASS": 3
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_job_core_attempts.py": {
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py": {
+      "PASS": 29,
+      "ERROR": 1,
+      "FAIL": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_plane_store.py": {
+      "PASS": 59
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_service_di.py": {
+      "PASS": 34,
+      "FAIL": 5,
+      "ERROR": 4
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_worker_custody.py": {
+      "PASS": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_worker_maintenance.py": {
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_core_only_runs_api.py": {
+      "ERROR": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_curated_dir_resolution.py": {
+      "PASS": 4
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_cycle_board_historical_availability.py": {
+      "PASS": 8
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_cycle_board_movement.py": {
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_cycle_board_projection_access_replay.py": {
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_cycle_board_projection_fact_algebra.py": {
+      "PASS": 6
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_cycle_board_projection_fact_owners.py": {
+      "FAIL": 1,
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_cycle_board_projection_loading.py": {
+      "PASS": 11
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_cycle_board_projection_service.py": {
+      "PASS": 5
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py": {
+      "PASS": 5
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_debug_api.py": {
+      "ERROR": 6
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_decision_validity_api.py": {
+      "PASS": 4,
+      "ERROR": 7,
+      "FAIL": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_depth_n_route_projection_artifact.py": {
+      "PASS": 5
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_ds20_authorization_binding_followups.py": {
+      "ERROR": 2,
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_ds20_seeded_negatives.py": {
+      "ERROR": 15,
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_e2e_ingestion.py": {
+      "ERROR": 16
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_epoch_custody_container.py": {
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_epoch_issuance_composition.py": {
+      "FAIL": 3,
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_error_semantics.py": {
+      "PASS": 4
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_fabric_integration_routes.py": {
+      "ERROR": 4
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_fixture_runtime_api_loader.py": {
+      "PASS": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_governed_projection_api.py": {
+      "ERROR": 9,
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_governed_projection_service.py": {
+      "PASS": 79,
+      "FAIL": 1,
+      "SKIP": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_governed_projection_validation_worker.py": {
+      "PASS": 24,
+      "SKIP": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_human_decision_api.py": {
+      "PASS": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_human_decision_guarded_custody.py": {
+      "PASS": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_human_decision_guarded_timeout.py": {
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_human_decision_mutation_binding.py": {
+      "PASS": 5
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_human_decision_service.py": {
+      "PASS": 76,
+      "FAIL": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_insights_api.py": {
+      "ERROR": 3
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_lineage_api.py": {
+      "ERROR": 6
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_lineage_routes.py": {
+      "ERROR": 3
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_mobility_api.py": {
+      "FAIL": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py": {
+      "PASS": 27,
+      "FAIL": 24
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_non_data_acquisition_projection.py": {
+      "PASS": 8
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_normative_evidence_intake.py": {
+      "ERROR": 14
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py": {
+      "ERROR": 23,
+      "PASS": 4,
+      "FAIL": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_public_decision_verification.py": {
+      "PASS": 55
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_public_decision_verification_configuration.py": {
+      "PASS": 15
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_public_decision_verification_routes.py": {
+      "FAIL": 3,
+      "ERROR": 4
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_public_decision_verification_schema.py": {
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_public_export.py": {
+      "FAIL": 15
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_r13_ingestion_tenant_custody.py": {
+      "ERROR": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_resilience_guards.py": {
+      "PASS": 8
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_review_collaboration_api.py": {
+      "ERROR": 5
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_review_collaboration_service.py": {
+      "PASS": 4
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_review_effectiveness_projection.py": {
+      "ERROR": 3,
+      "PASS": 5
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_run_compare_api.py": {
+      "ERROR": 4
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_run_evidence_context_promotions.py": {
+      "ERROR": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_run_paper_api.py": {
+      "PASS": 46,
+      "ERROR": 11,
+      "FAIL": 7
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runs_api.py": {
+      "ERROR": 38,
+      "PASS": 8
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py": {
+      "ERROR": 175
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py": {
+      "ERROR": 39
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_api_no_legacy_sources.py": {
+      "ERROR": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_api_observability.py": {
+      "ERROR": 13
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_api_write_path_hardening.py": {
+      "ERROR": 7
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_authorization_access_audit.py": {
+      "ERROR": 32
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_deployment_security.py": {
+      "ERROR": 54
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_fixture_identity_prohibition.py": {
+      "ERROR": 14
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_permission_vocabulary.py": {
+      "ERROR": 12
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_postgres_linearizability.py": {
+      "ERROR": 6
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_rego_authorization_parity.py": {
+      "ERROR": 24
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_security_compliance.py": {
+      "ERROR": 4
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_service_container.py": {
+      "ERROR": 8
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_step_up_authz.py": {
+      "ERROR": 65
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_sae_spatial_route.py": {
+      "ERROR": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_scenarios_api.py": {
+      "ERROR": 11
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_served_unknown_target_scope.py": {
+      "ERROR": 6
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_temporal_api.py": {
+      "ERROR": 16
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_temporal_routes.py": {
+      "ERROR": 13
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_timeline_api.py": {
+      "ERROR": 7
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_workspace_loop_transition.py": {
+      "ERROR": 28
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/quality/test_chronology_proof.py": {
+      "ERROR": 38,
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py": {
+      "ERROR": 9
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/mirror_contracts/test_budget_ledger.py": {
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/mirror_contracts/test_local_runner.py": {
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py": {
+      "ERROR": 8
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py": {
+      "PASS": 5,
+      "ERROR": 10
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py": {
+      "PASS": 20
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py": {
+      "PASS": 23,
+      "ERROR": 9
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py": {
+      "PASS": 30,
+      "ERROR": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py": {
+      "ERROR": 21
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py": {
+      "PASS": 9,
+      "ERROR": 6
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py": {
+      "PASS": 12
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py": {
+      "ERROR": 32
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py": {
+      "ERROR": 29,
+      "PASS": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py": {
+      "PASS": 23,
+      "ERROR": 9
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py": {
+      "ERROR": 24
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py": {
+      "ERROR": 5
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py": {
+      "PASS": 2,
+      "ERROR": 24
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py": {
+      "PASS": 10,
+      "ERROR": 10
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_circuit_breaker.py": {
+      "PASS": 21
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py": {
+      "ERROR": 6
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py": {
+      "ERROR": 26
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py": {
+      "ERROR": 9
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py": {
+      "ERROR": 46,
+      "PASS": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py": {
+      "ERROR": 1
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py": {
+      "ERROR": 8
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py": {
+      "PASS": 57,
+      "ERROR": 91
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py": {
+      "PASS": 5,
+      "ERROR": 2
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py": {
+      "PASS": 8
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py": {
+      "PASS": 25
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py": {
+      "ERROR": 17
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py": {
+      "PASS": 16
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py": {
+      "PASS": 13
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/llm/test_factory.py": {
+      "PASS": 12
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py": {
+      "PASS": 24
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py": {
+      "PASS": 8,
+      "ERROR": 34
+    },
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py": {
+      "PASS": 4
+    }
+  },
+  "case_counts_by_definition_path": {
+    "tests/integration/scientist/test_checkpoint_resume.py": {
+      "PASS": 11
+    },
+    "tests/integration/scientist/test_res_03_real_simulation_route.py": {
+      "FAIL": 1
+    },
+    "tests/unit/common/test_async_tools.py": {
+      "PASS": 20
+    },
+    "tests/unit/core/artifacts/backends/test_caching_store.py": {
+      "PASS": 28
+    },
+    "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py": {
+      "PASS": 12
+    },
+    "tests/unit/core/artifacts/test_artifact_store_protocol.py": {
+      "PASS": 11
+    },
+    "tests/unit/core/artifacts/test_async_store.py": {
+      "PASS": 3
+    },
+    "tests/unit/core/artifacts/test_batch_completion_admission.py": {
+      "PASS": 20
+    },
+    "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py": {
+      "PASS": 4
+    },
+    "tests/unit/core/artifacts/test_cas_integrity_report.py": {
+      "PASS": 1
+    },
+    "tests/unit/core/artifacts/test_import_admission_noop.py": {
+      "PASS": 34
+    },
+    "tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py": {
+      "PASS": 11
+    },
+    "tests/unit/core/artifacts/test_manifest_serialization_schema.py": {
+      "PASS": 6
+    },
+    "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py": {
+      "PASS": 12
+    },
+    "tests/unit/core/artifacts/test_put_consumer_oracle.py": {
+      "PASS": 2
+    },
+    "tests/unit/core/artifacts/test_put_integrity_retry.py": {
+      "PASS": 5
+    },
+    "tests/unit/core/artifacts/test_signed_evidence.py": {
+      "PASS": 6
+    },
+    "tests/unit/core/artifacts/test_storage_protocol_boundaries.py": {
+      "PASS": 3
+    },
+    "tests/unit/core/artifacts/test_transfer_generation_publication.py": {
+      "PASS": 25
+    },
+    "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py": {
+      "PASS": 14
+    },
+    "tests/unit/core/artifacts/test_verification_snapshot_report.py": {
+      "PASS": 9
+    },
+    "tests/unit/core/phase0/test_artifact_export_import.py": {
+      "PASS": 1
+    },
+    "tests/unit/core/phase0/test_artifact_graph.py": {
+      "PASS": 4
+    },
+    "tests/unit/core/phase0/test_artifact_store.py": {
+      "PASS": 11
+    },
+    "tests/unit/core/phase0/test_audit_export_verify.py": {
+      "PASS": 6
+    },
+    "tests/unit/core/phase0/test_audit_manifest_compat.py": {
+      "PASS": 3
+    },
+    "tests/unit/core/phase0/test_canon_json.py": {
+      "PASS": 5
+    },
+    "tests/unit/core/phase0/test_cli.py": {
+      "PASS": 8
+    },
+    "tests/unit/core/phase0/test_cli_resume.py": {
+      "PASS": 3
+    },
+    "tests/unit/core/phase0/test_cli_signing.py": {
+      "PASS": 5
+    },
+    "tests/unit/core/phase0/test_decorators.py": {
+      "PASS": 7
+    },
+    "tests/unit/core/phase0/test_environment_manifest.py": {
+      "PASS": 20
+    },
+    "tests/unit/core/phase0/test_logs.py": {
+      "PASS": 2
+    },
+    "tests/unit/core/phase0/test_metric_validation_cli.py": {
+      "PASS": 1
+    },
+    "tests/unit/core/phase0/test_metrics.py": {
+      "PASS": 8
+    },
+    "tests/unit/core/phase0/test_observability.py": {
+      "PASS": 2
+    },
+    "tests/unit/core/phase0/test_phase0_quality_validation_contract.py": {
+      "PASS": 2
+    },
+    "tests/unit/core/phase0/test_propagation.py": {
+      "PASS": 4
+    },
+    "tests/unit/core/phase0/test_provenance_contract_shims.py": {
+      "PASS": 2
+    },
+    "tests/unit/core/phase0/test_registry_bundle.py": {
+      "PASS": 4
+    },
+    "tests/unit/core/phase0/test_run_context.py": {
+      "PASS": 2
+    },
+    "tests/unit/core/phase0/test_signing.py": {
+      "PASS": 11
+    },
+    "tests/unit/core/phase0/test_store_signing.py": {
+      "PASS": 21
+    },
+    "tests/unit/core/phase0/test_tracer.py": {
+      "PASS": 11
+    },
+    "tests/unit/core/phase0/test_workspace_commands.py": {
+      "PASS": 6
+    },
+    "tests/unit/core/phase0/test_worktree_admission.py": {
+      "PASS": 23
+    },
+    "tests/unit/core/test_llm_core.py": {
+      "PASS": 5
+    },
+    "tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py": {
+      "PASS": 26
+    },
+    "tests/unit/fabric/connectors/test_pool_e02.py": {
+      "PASS": 16
+    },
+    "tests/unit/fabric/connectors/test_registry.py": {
+      "PASS": 74
+    },
+    "tests/unit/fabric/connectors/test_resilience.py": {
+      "PASS": 30
+    },
+    "tests/unit/fabric/connectors/test_resilience_e02.py": {
+      "PASS": 31
+    },
+    "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py": {
+      "FAIL": 1,
+      "PASS": 1
+    },
+    "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py": {
+      "PASS": 7,
+      "FAIL": 1
+    },
+    "tests/unit/fabric/data_plane/test_streaming_runtime.py": {
+      "PASS": 50
+    },
+    "tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py": {
+      "PASS": 14
+    },
+    "tests/unit/foundry/methods/backends/test_checkpoint_identity.py": {
+      "PASS": 39
+    },
+    "tests/unit/foundry/methods/backends/test_checkpointing.py": {
+      "PASS": 19
+    },
+    "tests/unit/foundry/methods/backends/test_checkpointing_execution.py": {
+      "PASS": 26
+    },
+    "tests/unit/foundry/methods/components/test_composition_e02.py": {
+      "PASS": 17
+    },
+    "tests/unit/foundry/methods/test_artifacts.py": {
+      "PASS": 24
+    },
+    "tests/unit/foundry/methods/test_compiler.py": {
+      "PASS": 47
+    },
+    "tests/unit/foundry/methods/test_compiler_e02.py": {
+      "PASS": 11
+    },
+    "tests/unit/foundry/methods/test_composer.py": {
+      "PASS": 25
+    },
+    "tests/unit/foundry/methods/test_composer_hardening.py": {
+      "PASS": 9
+    },
+    "tests/unit/foundry/methods/test_linker.py": {
+      "PASS": 52
+    },
+    "tests/unit/foundry/methods/test_semantic_validator.py": {
+      "PASS": 18
+    },
+    "tests/unit/foundry/mirror_contracts/test_specialization.py": {
+      "PASS": 1
+    },
+    "tests/unit/remediation/test_cas_01.py": {
+      "PASS": 18
+    },
+    "tests/unit/remediation/test_cas_02.py": {
+      "PASS": 18
+    },
+    "tests/unit/remediation/test_cas_03.py": {
+      "PASS": 16
+    },
+    "tests/unit/remediation/test_cmp_01.py": {
+      "PASS": 4
+    },
+    "tests/unit/remediation/test_cmp_02.py": {
+      "PASS": 8
+    },
+    "tests/unit/remediation/test_cmp_03.py": {
+      "PASS": 13
+    },
+    "tests/unit/remediation/test_dur_02.py": {
+      "PASS": 5
+    },
+    "tests/unit/remediation/test_dur_02_process.py": {
+      "PASS": 20
+    },
+    "tests/unit/remediation/test_exe_02.py": {
+      "PASS": 8
+    },
+    "tests/unit/remediation/test_jit_01.py": {
+      "PASS": 9
+    },
+    "tests/unit/remediation/test_llm_01.py": {
+      "PASS": 8
+    },
+    "tests/unit/remediation/test_res_01.py": {
+      "PASS": 11
+    },
+    "tests/unit/remediation/test_res_02.py": {
+      "PASS": 8
+    },
+    "tests/unit/remediation/test_res_03.py": {
+      "PASS": 4
+    },
+    "tests/unit/remediation/test_res_04.py": {
+      "PASS": 16
+    },
+    "tests/unit/remediation/test_run_03.py": {
+      "PASS": 9
+    },
+    "tests/unit/remediation/test_wire_01.py": {
+      "PASS": 55
+    },
+    "tests/unit/runtime/http/services/test__control_contracts.py": {
+      "PASS": 4
+    },
+    "tests/unit/runtime/http/services/test_evaluation_safety.py": {
+      "FAIL": 1,
+      "PASS": 14
+    },
+    "tests/unit/runtime/http/services/test_lex_pipeline.py": {
+      "PASS": 3
+    },
+    "tests/unit/runtime/http/test_acquisition_admission_artifact_facade.py": {
+      "PASS": 1
+    },
+    "tests/unit/runtime/http/test_acquisition_authority_deployment.py": {
+      "PASS": 2
+    },
+    "tests/unit/runtime/http/test_acquisition_control_worker.py": {
+      "PASS": 7
+    },
+    "tests/unit/runtime/http/test_acquisition_human_source.py": {
+      "PASS": 6
+    },
+    "tests/unit/runtime/http/test_acquisition_route_authority_sink.py": {
+      "PASS": 7
+    },
+    "tests/unit/runtime/http/test_acquisition_routes_api.py": {
+      "ERROR": 2
+    },
+    "tests/unit/runtime/http/test_acquisition_surface_projection.py": {
+      "PASS": 7
+    },
+    "tests/unit/runtime/http/test_analysis_api.py": {
+      "FAIL": 3
+    },
+    "tests/unit/runtime/http/test_api_maturity.py": {
+      "ERROR": 6,
+      "PASS": 2,
+      "FAIL": 3
+    },
+    "tests/unit/runtime/http/test_architecture_boundaries.py": {
+      "PASS": 7,
+      "FAIL": 2
+    },
+    "tests/unit/runtime/http/test_artifact_inspector_api.py": {
+      "ERROR": 4
+    },
+    "tests/unit/runtime/http/test_artifact_inspector_service.py": {
+      "PASS": 2
+    },
+    "tests/unit/runtime/http/test_artifact_surface_safety.py": {
+      "FAIL": 4
+    },
+    "tests/unit/runtime/http/test_auth_api.py": {
+      "ERROR": 1
+    },
+    "tests/unit/runtime/http/test_authority_values.py": {
+      "PASS": 7,
+      "ERROR": 1
+    },
+    "tests/unit/runtime/http/test_authorization_audience_denials.py": {
+      "ERROR": 7
+    },
+    "tests/unit/runtime/http/test_b88_served_replay.py": {
+      "ERROR": 5
+    },
+    "tests/unit/runtime/http/test_bureaucratic_rendering_api.py": {
+      "ERROR": 8
+    },
+    "tests/unit/runtime/http/test_capability_discovery_api.py": {
+      "ERROR": 7,
+      "PASS": 2
+    },
+    "tests/unit/runtime/http/test_case_inspection_api.py": {
+      "ERROR": 6
+    },
+    "tests/unit/runtime/http/test_confidence_ledger_risk_spend_api.py": {
+      "ERROR": 3
+    },
+    "tests/unit/runtime/http/test_confidence_ledger_risk_spend_contracts.py": {
+      "PASS": 15
+    },
+    "tests/unit/runtime/http/test_confidence_ledger_risk_spend_projection.py": {
+      "PASS": 9
+    },
+    "tests/unit/runtime/http/test_control_api.py": {
+      "PASS": 1,
+      "ERROR": 66,
+      "FAIL": 1
+    },
+    "tests/unit/runtime/http/test_control_hardening.py": {
+      "PASS": 6,
+      "FAIL": 2
+    },
+    "tests/unit/runtime/http/test_control_import_boundary.py": {
+      "PASS": 3
+    },
+    "tests/unit/runtime/http/test_control_job_core_attempts.py": {
+      "PASS": 1
+    },
+    "tests/unit/runtime/http/test_control_job_execution_intent.py": {
+      "PASS": 29,
+      "ERROR": 1,
+      "FAIL": 1
+    },
+    "tests/unit/runtime/http/test_control_plane_store.py": {
+      "PASS": 59
+    },
+    "tests/unit/runtime/http/test_control_service_di.py": {
+      "PASS": 34,
+      "FAIL": 5,
+      "ERROR": 4
+    },
+    "tests/unit/runtime/http/test_control_worker_custody.py": {
+      "PASS": 2
+    },
+    "tests/unit/runtime/http/test_control_worker_maintenance.py": {
+      "PASS": 1
+    },
+    "tests/unit/runtime/http/test_core_only_runs_api.py": {
+      "ERROR": 2
+    },
+    "tests/unit/runtime/http/test_curated_dir_resolution.py": {
+      "PASS": 4
+    },
+    "tests/unit/runtime/http/test_cycle_board_historical_availability.py": {
+      "PASS": 8
+    },
+    "tests/unit/runtime/http/test_cycle_board_movement.py": {
+      "PASS": 1
+    },
+    "tests/unit/runtime/http/test_cycle_board_projection_access_replay.py": {
+      "PASS": 1
+    },
+    "tests/unit/runtime/http/test_cycle_board_projection_fact_algebra.py": {
+      "PASS": 6
+    },
+    "tests/unit/runtime/http/test_cycle_board_projection_fact_owners.py": {
+      "FAIL": 1,
+      "PASS": 1
+    },
+    "tests/unit/runtime/http/test_cycle_board_projection_loading.py": {
+      "PASS": 11
+    },
+    "tests/unit/runtime/http/test_cycle_board_projection_service.py": {
+      "PASS": 5
+    },
+    "tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py": {
+      "PASS": 5
+    },
+    "tests/unit/runtime/http/test_debug_api.py": {
+      "ERROR": 6
+    },
+    "tests/unit/runtime/http/test_decision_validity_api.py": {
+      "PASS": 4,
+      "ERROR": 7,
+      "FAIL": 1
+    },
+    "tests/unit/runtime/http/test_depth_n_route_projection_artifact.py": {
+      "PASS": 5
+    },
+    "tests/unit/runtime/http/test_ds20_authorization_binding_followups.py": {
+      "ERROR": 2,
+      "PASS": 1
+    },
+    "tests/unit/runtime/http/test_ds20_seeded_negatives.py": {
+      "ERROR": 15,
+      "PASS": 1
+    },
+    "tests/unit/runtime/http/test_e2e_ingestion.py": {
+      "ERROR": 16
+    },
+    "tests/unit/runtime/http/test_epoch_custody_container.py": {
+      "PASS": 1
+    },
+    "tests/unit/runtime/http/test_epoch_issuance_composition.py": {
+      "FAIL": 3,
+      "PASS": 1
+    },
+    "tests/unit/runtime/http/test_error_semantics.py": {
+      "PASS": 4
+    },
+    "tests/unit/runtime/http/test_fabric_integration_routes.py": {
+      "ERROR": 4
+    },
+    "tests/unit/runtime/http/test_fixture_runtime_api_loader.py": {
+      "PASS": 2
+    },
+    "tests/unit/runtime/http/test_governed_projection_api.py": {
+      "ERROR": 9,
+      "PASS": 1
+    },
+    "tests/unit/runtime/http/test_governed_projection_service.py": {
+      "PASS": 79,
+      "FAIL": 1,
+      "SKIP": 1
+    },
+    "tests/unit/runtime/http/test_governed_projection_validation_worker.py": {
+      "PASS": 24,
+      "SKIP": 1
+    },
+    "tests/unit/runtime/http/test_human_decision_api.py": {
+      "PASS": 2
+    },
+    "tests/unit/runtime/http/test_human_decision_guarded_custody.py": {
+      "PASS": 2
+    },
+    "tests/unit/runtime/http/test_human_decision_guarded_timeout.py": {
+      "PASS": 1
+    },
+    "tests/unit/runtime/http/test_human_decision_mutation_binding.py": {
+      "PASS": 5
+    },
+    "tests/unit/runtime/http/test_human_decision_service.py": {
+      "PASS": 76,
+      "FAIL": 2
+    },
+    "tests/unit/runtime/http/test_insights_api.py": {
+      "ERROR": 3
+    },
+    "tests/unit/runtime/http/test_lineage_api.py": {
+      "ERROR": 6
+    },
+    "tests/unit/runtime/http/test_lineage_routes.py": {
+      "ERROR": 3
+    },
+    "tests/unit/runtime/http/test_mobility_api.py": {
+      "FAIL": 2
+    },
+    "tests/unit/runtime/http/test_nl_pipeline_materialization.py": {
+      "PASS": 27,
+      "FAIL": 24
+    },
+    "tests/unit/runtime/http/test_non_data_acquisition_projection.py": {
+      "PASS": 8
+    },
+    "tests/unit/runtime/http/test_normative_evidence_intake.py": {
+      "ERROR": 14
+    },
+    "tests/unit/runtime/http/test_normative_generation_bridge.py": {
+      "ERROR": 23,
+      "PASS": 4,
+      "FAIL": 1
+    },
+    "tests/unit/runtime/http/test_public_decision_verification.py": {
+      "PASS": 55
+    },
+    "tests/unit/runtime/http/test_public_decision_verification_configuration.py": {
+      "PASS": 15
+    },
+    "tests/unit/runtime/http/test_public_decision_verification_routes.py": {
+      "FAIL": 3,
+      "ERROR": 4
+    },
+    "tests/unit/runtime/http/test_public_decision_verification_schema.py": {
+      "PASS": 1
+    },
+    "tests/unit/runtime/http/test_public_export.py": {
+      "FAIL": 15
+    },
+    "tests/unit/runtime/http/test_r13_ingestion_tenant_custody.py": {
+      "ERROR": 2
+    },
+    "tests/unit/runtime/http/test_resilience_guards.py": {
+      "PASS": 8
+    },
+    "tests/unit/runtime/http/test_review_collaboration_api.py": {
+      "ERROR": 5
+    },
+    "tests/unit/runtime/http/test_review_collaboration_service.py": {
+      "PASS": 4
+    },
+    "tests/unit/runtime/http/test_review_effectiveness_projection.py": {
+      "ERROR": 3,
+      "PASS": 5
+    },
+    "tests/unit/runtime/http/test_run_compare_api.py": {
+      "ERROR": 4
+    },
+    "tests/unit/runtime/http/test_run_evidence_context_promotions.py": {
+      "ERROR": 2
+    },
+    "tests/unit/runtime/http/test_run_paper_api.py": {
+      "PASS": 46,
+      "ERROR": 11,
+      "FAIL": 7
+    },
+    "tests/unit/runtime/http/test_runs_api.py": {
+      "ERROR": 38,
+      "PASS": 8
+    },
+    "tests/unit/runtime/http/test_runtime_api_authz.py": {
+      "ERROR": 175
+    },
+    "tests/unit/runtime/http/test_runtime_api_contract_hardening.py": {
+      "ERROR": 39
+    },
+    "tests/unit/runtime/http/test_runtime_api_no_legacy_sources.py": {
+      "ERROR": 2
+    },
+    "tests/unit/runtime/http/test_runtime_api_observability.py": {
+      "ERROR": 13
+    },
+    "tests/unit/runtime/http/test_runtime_api_write_path_hardening.py": {
+      "ERROR": 7
+    },
+    "tests/unit/runtime/http/test_runtime_authorization_access_audit.py": {
+      "ERROR": 32
+    },
+    "tests/unit/runtime/http/test_runtime_deployment_security.py": {
+      "ERROR": 54
+    },
+    "tests/unit/runtime/http/test_runtime_fixture_identity_prohibition.py": {
+      "ERROR": 14
+    },
+    "tests/unit/runtime/http/test_runtime_permission_vocabulary.py": {
+      "ERROR": 12
+    },
+    "tests/unit/runtime/http/test_runtime_postgres_linearizability.py": {
+      "ERROR": 6
+    },
+    "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py": {
+      "ERROR": 24
+    },
+    "tests/unit/runtime/http/test_runtime_security_compliance.py": {
+      "ERROR": 4
+    },
+    "tests/unit/runtime/http/test_runtime_service_container.py": {
+      "ERROR": 8
+    },
+    "tests/unit/runtime/http/test_runtime_step_up_authz.py": {
+      "ERROR": 65
+    },
+    "tests/unit/runtime/http/test_sae_spatial_route.py": {
+      "ERROR": 2
+    },
+    "tests/unit/runtime/http/test_scenarios_api.py": {
+      "ERROR": 11
+    },
+    "tests/unit/runtime/http/test_served_unknown_target_scope.py": {
+      "ERROR": 6
+    },
+    "tests/unit/runtime/http/test_temporal_api.py": {
+      "ERROR": 16
+    },
+    "tests/unit/runtime/http/test_temporal_routes.py": {
+      "ERROR": 13
+    },
+    "tests/unit/runtime/http/test_timeline_api.py": {
+      "ERROR": 7
+    },
+    "tests/unit/runtime/http/test_workspace_loop_transition.py": {
+      "ERROR": 28
+    },
+    "tests/unit/runtime/quality/test_chronology_proof.py": {
+      "ERROR": 38,
+      "PASS": 1
+    },
+    "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py": {
+      "ERROR": 9
+    },
+    "tests/unit/scientist/mirror_contracts/test_budget_ledger.py": {
+      "PASS": 1
+    },
+    "tests/unit/scientist/mirror_contracts/test_local_runner.py": {
+      "PASS": 1
+    },
+    "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py": {
+      "ERROR": 8
+    },
+    "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py": {
+      "PASS": 5,
+      "ERROR": 10
+    },
+    "tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py": {
+      "PASS": 20
+    },
+    "tests/unit/scientist/orchestration/engine/runner/test_serialization.py": {
+      "PASS": 23,
+      "ERROR": 9
+    },
+    "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py": {
+      "PASS": 30,
+      "ERROR": 2
+    },
+    "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py": {
+      "ERROR": 21
+    },
+    "tests/unit/scientist/orchestration/engine/test_async_executor.py": {
+      "PASS": 9,
+      "ERROR": 6
+    },
+    "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py": {
+      "PASS": 12
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py": {
+      "ERROR": 32
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py": {
+      "ERROR": 29,
+      "PASS": 1
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py": {
+      "PASS": 23,
+      "ERROR": 9
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py": {
+      "ERROR": 24
+    },
+    "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py": {
+      "ERROR": 5
+    },
+    "tests/unit/scientist/orchestration/engine/test_checkpoint.py": {
+      "PASS": 2,
+      "ERROR": 24
+    },
+    "tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py": {
+      "PASS": 10,
+      "ERROR": 10
+    },
+    "tests/unit/scientist/orchestration/engine/test_circuit_breaker.py": {
+      "PASS": 21
+    },
+    "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py": {
+      "ERROR": 6
+    },
+    "tests/unit/scientist/orchestration/engine/test_idempotency.py": {
+      "ERROR": 26
+    },
+    "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py": {
+      "ERROR": 9
+    },
+    "tests/unit/scientist/orchestration/engine/test_native_list_journal.py": {
+      "ERROR": 46,
+      "PASS": 2
+    },
+    "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py": {
+      "ERROR": 1
+    },
+    "tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py": {
+      "ERROR": 8
+    },
+    "tests/unit/scientist/orchestration/engine/test_retry.py": {
+      "PASS": 57,
+      "ERROR": 91
+    },
+    "tests/unit/scientist/orchestration/engine/test_retry_integration.py": {
+      "PASS": 5,
+      "ERROR": 2
+    },
+    "tests/unit/scientist/orchestration/engine/test_state_branching.py": {
+      "PASS": 8
+    },
+    "tests/unit/scientist/orchestration/engine/test_state_merge.py": {
+      "PASS": 25
+    },
+    "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py": {
+      "ERROR": 17
+    },
+    "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py": {
+      "PASS": 16
+    },
+    "tests/unit/scientist/orchestration/llm/test_cost_metrics.py": {
+      "PASS": 13
+    },
+    "tests/unit/scientist/orchestration/llm/test_factory.py": {
+      "PASS": 12
+    },
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache.py": {
+      "PASS": 24
+    },
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py": {
+      "PASS": 8,
+      "ERROR": 34
+    },
+    "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py": {
+      "PASS": 4
+    }
+  },
+  "collection_definition_relation": {
+    "normalization": "Root-relative lexical normpath; not symlink/inode/read-set proof.",
+    "same_lexical_path_cases": 3578,
+    "different_declared_path_cases": 0,
+    "mismatching_case_indices": [],
+    "pair_counts": [
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+        "definition_path": "tests/integration/scientist/test_checkpoint_resume.py",
+        "cases": 11
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+        "definition_path": "tests/integration/scientist/test_res_03_real_simulation_route.py",
+        "cases": 1
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/common/test_async_tools.py",
+        "definition_path": "tests/unit/common/test_async_tools.py",
+        "cases": 20
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py",
+        "definition_path": "tests/unit/core/artifacts/backends/test_caching_store.py",
+        "cases": 28
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        "definition_path": "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        "cases": 12
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+        "definition_path": "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+        "cases": 11
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_async_store.py",
+        "definition_path": "tests/unit/core/artifacts/test_async_store.py",
+        "cases": 3
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py",
+        "definition_path": "tests/unit/core/artifacts/test_batch_completion_admission.py",
+        "cases": 20
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py",
+        "definition_path": "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py",
+        "cases": 4
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "definition_path": "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "cases": 1
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+        "definition_path": "tests/unit/core/artifacts/test_import_admission_noop.py",
+        "cases": 34
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py",
+        "definition_path": "tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py",
+        "cases": 11
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_manifest_serialization_schema.py",
+        "definition_path": "tests/unit/core/artifacts/test_manifest_serialization_schema.py",
+        "cases": 6
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "definition_path": "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "cases": 12
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_put_consumer_oracle.py",
+        "definition_path": "tests/unit/core/artifacts/test_put_consumer_oracle.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "definition_path": "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "cases": 5
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_signed_evidence.py",
+        "definition_path": "tests/unit/core/artifacts/test_signed_evidence.py",
+        "cases": 6
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+        "definition_path": "tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+        "cases": 3
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_transfer_generation_publication.py",
+        "definition_path": "tests/unit/core/artifacts/test_transfer_generation_publication.py",
+        "cases": 25
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+        "definition_path": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+        "cases": 14
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py",
+        "definition_path": "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+        "cases": 9
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_artifact_export_import.py",
+        "definition_path": "tests/unit/core/phase0/test_artifact_export_import.py",
+        "cases": 1
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_artifact_graph.py",
+        "definition_path": "tests/unit/core/phase0/test_artifact_graph.py",
+        "cases": 4
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_artifact_store.py",
+        "definition_path": "tests/unit/core/phase0/test_artifact_store.py",
+        "cases": 11
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_audit_export_verify.py",
+        "definition_path": "tests/unit/core/phase0/test_audit_export_verify.py",
+        "cases": 6
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_audit_manifest_compat.py",
+        "definition_path": "tests/unit/core/phase0/test_audit_manifest_compat.py",
+        "cases": 3
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_canon_json.py",
+        "definition_path": "tests/unit/core/phase0/test_canon_json.py",
+        "cases": 5
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_cli.py",
+        "definition_path": "tests/unit/core/phase0/test_cli.py",
+        "cases": 8
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_cli_resume.py",
+        "definition_path": "tests/unit/core/phase0/test_cli_resume.py",
+        "cases": 3
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_cli_signing.py",
+        "definition_path": "tests/unit/core/phase0/test_cli_signing.py",
+        "cases": 5
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_decorators.py",
+        "definition_path": "tests/unit/core/phase0/test_decorators.py",
+        "cases": 7
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_environment_manifest.py",
+        "definition_path": "tests/unit/core/phase0/test_environment_manifest.py",
+        "cases": 20
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_logs.py",
+        "definition_path": "tests/unit/core/phase0/test_logs.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_metric_validation_cli.py",
+        "definition_path": "tests/unit/core/phase0/test_metric_validation_cli.py",
+        "cases": 1
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_metrics.py",
+        "definition_path": "tests/unit/core/phase0/test_metrics.py",
+        "cases": 8
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_observability.py",
+        "definition_path": "tests/unit/core/phase0/test_observability.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_phase0_quality_validation_contract.py",
+        "definition_path": "tests/unit/core/phase0/test_phase0_quality_validation_contract.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_propagation.py",
+        "definition_path": "tests/unit/core/phase0/test_propagation.py",
+        "cases": 4
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_provenance_contract_shims.py",
+        "definition_path": "tests/unit/core/phase0/test_provenance_contract_shims.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_registry_bundle.py",
+        "definition_path": "tests/unit/core/phase0/test_registry_bundle.py",
+        "cases": 4
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_run_context.py",
+        "definition_path": "tests/unit/core/phase0/test_run_context.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_signing.py",
+        "definition_path": "tests/unit/core/phase0/test_signing.py",
+        "cases": 11
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_store_signing.py",
+        "definition_path": "tests/unit/core/phase0/test_store_signing.py",
+        "cases": 21
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_tracer.py",
+        "definition_path": "tests/unit/core/phase0/test_tracer.py",
+        "cases": 11
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_workspace_commands.py",
+        "definition_path": "tests/unit/core/phase0/test_workspace_commands.py",
+        "cases": 6
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/phase0/test_worktree_admission.py",
+        "definition_path": "tests/unit/core/phase0/test_worktree_admission.py",
+        "cases": 23
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/core/test_llm_core.py",
+        "definition_path": "tests/unit/core/test_llm_core.py",
+        "cases": 5
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py",
+        "definition_path": "tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py",
+        "cases": 26
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+        "definition_path": "tests/unit/fabric/connectors/test_pool_e02.py",
+        "cases": 16
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/connectors/test_registry.py",
+        "definition_path": "tests/unit/fabric/connectors/test_registry.py",
+        "cases": 74
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "definition_path": "tests/unit/fabric/connectors/test_resilience.py",
+        "cases": 30
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+        "definition_path": "tests/unit/fabric/connectors/test_resilience_e02.py",
+        "cases": 31
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+        "definition_path": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+        "definition_path": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+        "cases": 8
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "definition_path": "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "cases": 50
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py",
+        "definition_path": "tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py",
+        "cases": 14
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "definition_path": "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "cases": 39
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "definition_path": "tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "cases": 19
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "definition_path": "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "cases": 26
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/components/test_composition_e02.py",
+        "definition_path": "tests/unit/foundry/methods/components/test_composition_e02.py",
+        "cases": 17
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/test_artifacts.py",
+        "definition_path": "tests/unit/foundry/methods/test_artifacts.py",
+        "cases": 24
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/test_compiler.py",
+        "definition_path": "tests/unit/foundry/methods/test_compiler.py",
+        "cases": 47
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/test_compiler_e02.py",
+        "definition_path": "tests/unit/foundry/methods/test_compiler_e02.py",
+        "cases": 11
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/test_composer.py",
+        "definition_path": "tests/unit/foundry/methods/test_composer.py",
+        "cases": 25
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/test_composer_hardening.py",
+        "definition_path": "tests/unit/foundry/methods/test_composer_hardening.py",
+        "cases": 9
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/test_linker.py",
+        "definition_path": "tests/unit/foundry/methods/test_linker.py",
+        "cases": 52
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/methods/test_semantic_validator.py",
+        "definition_path": "tests/unit/foundry/methods/test_semantic_validator.py",
+        "cases": 18
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/foundry/mirror_contracts/test_specialization.py",
+        "definition_path": "tests/unit/foundry/mirror_contracts/test_specialization.py",
+        "cases": 1
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_cas_01.py",
+        "definition_path": "tests/unit/remediation/test_cas_01.py",
+        "cases": 18
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_cas_02.py",
+        "definition_path": "tests/unit/remediation/test_cas_02.py",
+        "cases": 18
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_cas_03.py",
+        "definition_path": "tests/unit/remediation/test_cas_03.py",
+        "cases": 16
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_cmp_01.py",
+        "definition_path": "tests/unit/remediation/test_cmp_01.py",
+        "cases": 4
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_cmp_02.py",
+        "definition_path": "tests/unit/remediation/test_cmp_02.py",
+        "cases": 8
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_cmp_03.py",
+        "definition_path": "tests/unit/remediation/test_cmp_03.py",
+        "cases": 13
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_dur_02.py",
+        "definition_path": "tests/unit/remediation/test_dur_02.py",
+        "cases": 5
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_dur_02_process.py",
+        "definition_path": "tests/unit/remediation/test_dur_02_process.py",
+        "cases": 20
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_exe_02.py",
+        "definition_path": "tests/unit/remediation/test_exe_02.py",
+        "cases": 8
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_jit_01.py",
+        "definition_path": "tests/unit/remediation/test_jit_01.py",
+        "cases": 9
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_llm_01.py",
+        "definition_path": "tests/unit/remediation/test_llm_01.py",
+        "cases": 8
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_res_01.py",
+        "definition_path": "tests/unit/remediation/test_res_01.py",
+        "cases": 11
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_res_02.py",
+        "definition_path": "tests/unit/remediation/test_res_02.py",
+        "cases": 8
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_res_03.py",
+        "definition_path": "tests/unit/remediation/test_res_03.py",
+        "cases": 4
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_res_04.py",
+        "definition_path": "tests/unit/remediation/test_res_04.py",
+        "cases": 16
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_run_03.py",
+        "definition_path": "tests/unit/remediation/test_run_03.py",
+        "cases": 9
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/remediation/test_wire_01.py",
+        "definition_path": "tests/unit/remediation/test_wire_01.py",
+        "cases": 55
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/services/test__control_contracts.py",
+        "definition_path": "tests/unit/runtime/http/services/test__control_contracts.py",
+        "cases": 4
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/services/test_evaluation_safety.py",
+        "definition_path": "tests/unit/runtime/http/services/test_evaluation_safety.py",
+        "cases": 15
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/services/test_lex_pipeline.py",
+        "definition_path": "tests/unit/runtime/http/services/test_lex_pipeline.py",
+        "cases": 3
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_acquisition_admission_artifact_facade.py",
+        "definition_path": "tests/unit/runtime/http/test_acquisition_admission_artifact_facade.py",
+        "cases": 1
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_acquisition_authority_deployment.py",
+        "definition_path": "tests/unit/runtime/http/test_acquisition_authority_deployment.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py",
+        "definition_path": "tests/unit/runtime/http/test_acquisition_control_worker.py",
+        "cases": 7
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_acquisition_human_source.py",
+        "definition_path": "tests/unit/runtime/http/test_acquisition_human_source.py",
+        "cases": 6
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_acquisition_route_authority_sink.py",
+        "definition_path": "tests/unit/runtime/http/test_acquisition_route_authority_sink.py",
+        "cases": 7
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_acquisition_routes_api.py",
+        "definition_path": "tests/unit/runtime/http/test_acquisition_routes_api.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_acquisition_surface_projection.py",
+        "definition_path": "tests/unit/runtime/http/test_acquisition_surface_projection.py",
+        "cases": 7
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_analysis_api.py",
+        "definition_path": "tests/unit/runtime/http/test_analysis_api.py",
+        "cases": 3
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_api_maturity.py",
+        "definition_path": "tests/unit/runtime/http/test_api_maturity.py",
+        "cases": 11
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_architecture_boundaries.py",
+        "definition_path": "tests/unit/runtime/http/test_architecture_boundaries.py",
+        "cases": 9
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_artifact_inspector_api.py",
+        "definition_path": "tests/unit/runtime/http/test_artifact_inspector_api.py",
+        "cases": 4
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_artifact_inspector_service.py",
+        "definition_path": "tests/unit/runtime/http/test_artifact_inspector_service.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_artifact_surface_safety.py",
+        "definition_path": "tests/unit/runtime/http/test_artifact_surface_safety.py",
+        "cases": 4
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_auth_api.py",
+        "definition_path": "tests/unit/runtime/http/test_auth_api.py",
+        "cases": 1
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_authority_values.py",
+        "definition_path": "tests/unit/runtime/http/test_authority_values.py",
+        "cases": 8
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_authorization_audience_denials.py",
+        "definition_path": "tests/unit/runtime/http/test_authorization_audience_denials.py",
+        "cases": 7
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_b88_served_replay.py",
+        "definition_path": "tests/unit/runtime/http/test_b88_served_replay.py",
+        "cases": 5
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_bureaucratic_rendering_api.py",
+        "definition_path": "tests/unit/runtime/http/test_bureaucratic_rendering_api.py",
+        "cases": 8
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_capability_discovery_api.py",
+        "definition_path": "tests/unit/runtime/http/test_capability_discovery_api.py",
+        "cases": 9
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_case_inspection_api.py",
+        "definition_path": "tests/unit/runtime/http/test_case_inspection_api.py",
+        "cases": 6
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_confidence_ledger_risk_spend_api.py",
+        "definition_path": "tests/unit/runtime/http/test_confidence_ledger_risk_spend_api.py",
+        "cases": 3
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_confidence_ledger_risk_spend_contracts.py",
+        "definition_path": "tests/unit/runtime/http/test_confidence_ledger_risk_spend_contracts.py",
+        "cases": 15
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_confidence_ledger_risk_spend_projection.py",
+        "definition_path": "tests/unit/runtime/http/test_confidence_ledger_risk_spend_projection.py",
+        "cases": 9
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_api.py",
+        "definition_path": "tests/unit/runtime/http/test_control_api.py",
+        "cases": 68
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_hardening.py",
+        "definition_path": "tests/unit/runtime/http/test_control_hardening.py",
+        "cases": 8
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_import_boundary.py",
+        "definition_path": "tests/unit/runtime/http/test_control_import_boundary.py",
+        "cases": 3
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_job_core_attempts.py",
+        "definition_path": "tests/unit/runtime/http/test_control_job_core_attempts.py",
+        "cases": 1
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py",
+        "definition_path": "tests/unit/runtime/http/test_control_job_execution_intent.py",
+        "cases": 31
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+        "definition_path": "tests/unit/runtime/http/test_control_plane_store.py",
+        "cases": 59
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+        "definition_path": "tests/unit/runtime/http/test_control_service_di.py",
+        "cases": 43
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_worker_custody.py",
+        "definition_path": "tests/unit/runtime/http/test_control_worker_custody.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_control_worker_maintenance.py",
+        "definition_path": "tests/unit/runtime/http/test_control_worker_maintenance.py",
+        "cases": 1
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_core_only_runs_api.py",
+        "definition_path": "tests/unit/runtime/http/test_core_only_runs_api.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_curated_dir_resolution.py",
+        "definition_path": "tests/unit/runtime/http/test_curated_dir_resolution.py",
+        "cases": 4
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_cycle_board_historical_availability.py",
+        "definition_path": "tests/unit/runtime/http/test_cycle_board_historical_availability.py",
+        "cases": 8
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_cycle_board_movement.py",
+        "definition_path": "tests/unit/runtime/http/test_cycle_board_movement.py",
+        "cases": 1
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_cycle_board_projection_access_replay.py",
+        "definition_path": "tests/unit/runtime/http/test_cycle_board_projection_access_replay.py",
+        "cases": 1
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_cycle_board_projection_fact_algebra.py",
+        "definition_path": "tests/unit/runtime/http/test_cycle_board_projection_fact_algebra.py",
+        "cases": 6
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_cycle_board_projection_fact_owners.py",
+        "definition_path": "tests/unit/runtime/http/test_cycle_board_projection_fact_owners.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_cycle_board_projection_loading.py",
+        "definition_path": "tests/unit/runtime/http/test_cycle_board_projection_loading.py",
+        "cases": 11
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_cycle_board_projection_service.py",
+        "definition_path": "tests/unit/runtime/http/test_cycle_board_projection_service.py",
+        "cases": 5
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py",
+        "definition_path": "tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py",
+        "cases": 5
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_debug_api.py",
+        "definition_path": "tests/unit/runtime/http/test_debug_api.py",
+        "cases": 6
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_decision_validity_api.py",
+        "definition_path": "tests/unit/runtime/http/test_decision_validity_api.py",
+        "cases": 12
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_depth_n_route_projection_artifact.py",
+        "definition_path": "tests/unit/runtime/http/test_depth_n_route_projection_artifact.py",
+        "cases": 5
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_ds20_authorization_binding_followups.py",
+        "definition_path": "tests/unit/runtime/http/test_ds20_authorization_binding_followups.py",
+        "cases": 3
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_ds20_seeded_negatives.py",
+        "definition_path": "tests/unit/runtime/http/test_ds20_seeded_negatives.py",
+        "cases": 16
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_e2e_ingestion.py",
+        "definition_path": "tests/unit/runtime/http/test_e2e_ingestion.py",
+        "cases": 16
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_epoch_custody_container.py",
+        "definition_path": "tests/unit/runtime/http/test_epoch_custody_container.py",
+        "cases": 1
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_epoch_issuance_composition.py",
+        "definition_path": "tests/unit/runtime/http/test_epoch_issuance_composition.py",
+        "cases": 4
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_error_semantics.py",
+        "definition_path": "tests/unit/runtime/http/test_error_semantics.py",
+        "cases": 4
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_fabric_integration_routes.py",
+        "definition_path": "tests/unit/runtime/http/test_fabric_integration_routes.py",
+        "cases": 4
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_fixture_runtime_api_loader.py",
+        "definition_path": "tests/unit/runtime/http/test_fixture_runtime_api_loader.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_governed_projection_api.py",
+        "definition_path": "tests/unit/runtime/http/test_governed_projection_api.py",
+        "cases": 10
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_governed_projection_service.py",
+        "definition_path": "tests/unit/runtime/http/test_governed_projection_service.py",
+        "cases": 81
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_governed_projection_validation_worker.py",
+        "definition_path": "tests/unit/runtime/http/test_governed_projection_validation_worker.py",
+        "cases": 25
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_human_decision_api.py",
+        "definition_path": "tests/unit/runtime/http/test_human_decision_api.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_human_decision_guarded_custody.py",
+        "definition_path": "tests/unit/runtime/http/test_human_decision_guarded_custody.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_human_decision_guarded_timeout.py",
+        "definition_path": "tests/unit/runtime/http/test_human_decision_guarded_timeout.py",
+        "cases": 1
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_human_decision_mutation_binding.py",
+        "definition_path": "tests/unit/runtime/http/test_human_decision_mutation_binding.py",
+        "cases": 5
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_human_decision_service.py",
+        "definition_path": "tests/unit/runtime/http/test_human_decision_service.py",
+        "cases": 78
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_insights_api.py",
+        "definition_path": "tests/unit/runtime/http/test_insights_api.py",
+        "cases": 3
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_lineage_api.py",
+        "definition_path": "tests/unit/runtime/http/test_lineage_api.py",
+        "cases": 6
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_lineage_routes.py",
+        "definition_path": "tests/unit/runtime/http/test_lineage_routes.py",
+        "cases": 3
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_mobility_api.py",
+        "definition_path": "tests/unit/runtime/http/test_mobility_api.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+        "definition_path": "tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+        "cases": 51
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_non_data_acquisition_projection.py",
+        "definition_path": "tests/unit/runtime/http/test_non_data_acquisition_projection.py",
+        "cases": 8
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_normative_evidence_intake.py",
+        "definition_path": "tests/unit/runtime/http/test_normative_evidence_intake.py",
+        "cases": 14
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py",
+        "definition_path": "tests/unit/runtime/http/test_normative_generation_bridge.py",
+        "cases": 28
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_public_decision_verification.py",
+        "definition_path": "tests/unit/runtime/http/test_public_decision_verification.py",
+        "cases": 55
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_public_decision_verification_configuration.py",
+        "definition_path": "tests/unit/runtime/http/test_public_decision_verification_configuration.py",
+        "cases": 15
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_public_decision_verification_routes.py",
+        "definition_path": "tests/unit/runtime/http/test_public_decision_verification_routes.py",
+        "cases": 7
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_public_decision_verification_schema.py",
+        "definition_path": "tests/unit/runtime/http/test_public_decision_verification_schema.py",
+        "cases": 1
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_public_export.py",
+        "definition_path": "tests/unit/runtime/http/test_public_export.py",
+        "cases": 15
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_r13_ingestion_tenant_custody.py",
+        "definition_path": "tests/unit/runtime/http/test_r13_ingestion_tenant_custody.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_resilience_guards.py",
+        "definition_path": "tests/unit/runtime/http/test_resilience_guards.py",
+        "cases": 8
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_review_collaboration_api.py",
+        "definition_path": "tests/unit/runtime/http/test_review_collaboration_api.py",
+        "cases": 5
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_review_collaboration_service.py",
+        "definition_path": "tests/unit/runtime/http/test_review_collaboration_service.py",
+        "cases": 4
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_review_effectiveness_projection.py",
+        "definition_path": "tests/unit/runtime/http/test_review_effectiveness_projection.py",
+        "cases": 8
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_run_compare_api.py",
+        "definition_path": "tests/unit/runtime/http/test_run_compare_api.py",
+        "cases": 4
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_run_evidence_context_promotions.py",
+        "definition_path": "tests/unit/runtime/http/test_run_evidence_context_promotions.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_run_paper_api.py",
+        "definition_path": "tests/unit/runtime/http/test_run_paper_api.py",
+        "cases": 64
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runs_api.py",
+        "definition_path": "tests/unit/runtime/http/test_runs_api.py",
+        "cases": 46
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py",
+        "definition_path": "tests/unit/runtime/http/test_runtime_api_authz.py",
+        "cases": 175
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+        "definition_path": "tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+        "cases": 39
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_api_no_legacy_sources.py",
+        "definition_path": "tests/unit/runtime/http/test_runtime_api_no_legacy_sources.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_api_observability.py",
+        "definition_path": "tests/unit/runtime/http/test_runtime_api_observability.py",
+        "cases": 13
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_api_write_path_hardening.py",
+        "definition_path": "tests/unit/runtime/http/test_runtime_api_write_path_hardening.py",
+        "cases": 7
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_authorization_access_audit.py",
+        "definition_path": "tests/unit/runtime/http/test_runtime_authorization_access_audit.py",
+        "cases": 32
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_deployment_security.py",
+        "definition_path": "tests/unit/runtime/http/test_runtime_deployment_security.py",
+        "cases": 54
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_fixture_identity_prohibition.py",
+        "definition_path": "tests/unit/runtime/http/test_runtime_fixture_identity_prohibition.py",
+        "cases": 14
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_permission_vocabulary.py",
+        "definition_path": "tests/unit/runtime/http/test_runtime_permission_vocabulary.py",
+        "cases": 12
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_postgres_linearizability.py",
+        "definition_path": "tests/unit/runtime/http/test_runtime_postgres_linearizability.py",
+        "cases": 6
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_rego_authorization_parity.py",
+        "definition_path": "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py",
+        "cases": 24
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_security_compliance.py",
+        "definition_path": "tests/unit/runtime/http/test_runtime_security_compliance.py",
+        "cases": 4
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_service_container.py",
+        "definition_path": "tests/unit/runtime/http/test_runtime_service_container.py",
+        "cases": 8
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_runtime_step_up_authz.py",
+        "definition_path": "tests/unit/runtime/http/test_runtime_step_up_authz.py",
+        "cases": 65
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_sae_spatial_route.py",
+        "definition_path": "tests/unit/runtime/http/test_sae_spatial_route.py",
+        "cases": 2
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_scenarios_api.py",
+        "definition_path": "tests/unit/runtime/http/test_scenarios_api.py",
+        "cases": 11
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_served_unknown_target_scope.py",
+        "definition_path": "tests/unit/runtime/http/test_served_unknown_target_scope.py",
+        "cases": 6
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_temporal_api.py",
+        "definition_path": "tests/unit/runtime/http/test_temporal_api.py",
+        "cases": 16
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_temporal_routes.py",
+        "definition_path": "tests/unit/runtime/http/test_temporal_routes.py",
+        "cases": 13
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_timeline_api.py",
+        "definition_path": "tests/unit/runtime/http/test_timeline_api.py",
+        "cases": 7
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/http/test_workspace_loop_transition.py",
+        "definition_path": "tests/unit/runtime/http/test_workspace_loop_transition.py",
+        "cases": 28
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/runtime/quality/test_chronology_proof.py",
+        "definition_path": "tests/unit/runtime/quality/test_chronology_proof.py",
+        "cases": 39
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+        "definition_path": "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+        "cases": 9
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+        "definition_path": "tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+        "cases": 1
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/mirror_contracts/test_local_runner.py",
+        "definition_path": "tests/unit/scientist/mirror_contracts/test_local_runner.py",
+        "cases": 1
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+        "definition_path": "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+        "cases": 8
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "cases": 15
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+        "cases": 20
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "cases": 32
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "cases": 32
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "cases": 21
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "cases": 15
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "cases": 12
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+        "cases": 32
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "cases": 30
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "cases": 32
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+        "cases": 24
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "cases": 5
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+        "cases": 26
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py",
+        "cases": 20
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_circuit_breaker.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_circuit_breaker.py",
+        "cases": 21
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "cases": 6
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+        "cases": 26
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+        "cases": 9
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+        "cases": 48
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+        "cases": 1
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+        "cases": 8
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_retry.py",
+        "cases": 148
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+        "cases": 7
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+        "cases": 8
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_state_merge.py",
+        "cases": 25
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+        "definition_path": "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+        "cases": 17
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "definition_path": "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "cases": 16
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+        "definition_path": "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+        "cases": 13
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/llm/test_factory.py",
+        "definition_path": "tests/unit/scientist/orchestration/llm/test_factory.py",
+        "cases": 12
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "definition_path": "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "cases": 24
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+        "definition_path": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+        "cases": 42
+      },
+      {
+        "collection_file": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+        "definition_path": "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+        "cases": 4
+      }
+    ]
+  },
+  "phase_event_counts": {
+    "setup/passed/passed": 2264,
+    "call/passed/passed": 2177,
+    "teardown/passed/passed": 3578,
+    "call/failed/failed": 85,
+    "setup/failed/failed": 1314,
+    "call/skipped/skipped": 2
+  },
+  "collection_event_counts": {
+    "passed": 385
+  },
+  "nonpassed_collection_report_indexes": [],
+  "duplicate_session_nodeids": {},
+  "orphan_runtime_report_indexes": [],
+  "deselected_nodeids": [],
+  "junit_projection_agreement": {
+    "case_projection_mismatches": [],
+    "collector_projection_mismatches": [],
+    "all_native_case_projections_match": true,
+    "all_native_collector_projections_match": true
+  },
+  "module_origin_summary": {
+    "native_junit_file_backend_indexes": [
+      63
+    ],
+    "native_junit_source_expected_sha256": "d71198950cf33bd1c7dc782167986ee130427fc57e221046e6455dc7a5b63d5a",
+    "native_junit_source_matches_expected": true,
+    "module_entry_denominator": 5759,
+    "distinct_file_backend_denominator": 5537,
+    "recorded_denominator_match": true,
+    "module_states": {
+      "file_backed_module": 5610,
+      "fileless_module": 148,
+      "non_module_entry": 1
+    },
+    "file_scopes": {
+      "standard_library_file": 294,
+      "repository_untracked_or_ignored_file": 2858,
+      "repository_tracked_file": 2385
+    },
+    "file_backends": {
+      "file_backed_loader_origin": 5281,
+      "extension_module_file": 256
+    },
+    "file_types": {
+      ".py": 5281,
+      ".so": 256
+    },
+    "read_states": {
+      "read": 5537
+    },
+    "git_byte_match": {
+      "None": 3152,
+      "True": 2385
+    },
+    "nonmatching_or_unreadable_file_indexes": [],
+    "loaded_instrument_source_git_byte_match": true,
+    "boundary": "Hook-time declared origins/backing bytes only; no loader read-set, after-finalization, child, transient or resource/service census."
+  },
+  "unresolved_by_construction": [
+    "No closures: criterion adequacy, semantic owner permission and production data remain separately owned.",
+    "File/case presence is not property proof; uncollected files have unknown case cardinality.",
+    "Collector ERROR/SKIP, deselection and synthetic XML cells are separate from admitted cases.",
+    "Repeated identity/phase and custom/subtest/xdist profiles require physical-attempt evidence.",
+    "Raw inventories/JUnit/stdout are separately hash-bound; only hook-time backing-file census is observed."
+  ],
+  "global_xpass_counts": {
+    "strict": 0,
+    "nonstrict": 0
+  },
+  "unassigned_or_ambiguous_actual_cases": 0,
+  "full_unique_case_partition": {
+    "path": "policy-engine/_build/e02-B-current-adapters/raw/terminal-final-root-case-partition-3cd.json",
+    "bytes": 6907511,
+    "sha256": "5f648ded17057e7c8339aaf045faa1334351d82bef5da033f2a638ba1868aee4"
+  },
+  "native_junit_suite_attributes": [
+    {
+      "name": "pytest",
+      "errors": "1314",
+      "failures": "85",
+      "skipped": "2",
+      "tests": "3578",
+      "time": "2648.771",
+      "timestamp": "2026-10-06T16:31:34.386663+00:00",
+      "hostname": "b878f4efbdfc"
+    }
+  ],
+  "native_junit_mapping_counts": {
+    "case": 3578
+  }
+}

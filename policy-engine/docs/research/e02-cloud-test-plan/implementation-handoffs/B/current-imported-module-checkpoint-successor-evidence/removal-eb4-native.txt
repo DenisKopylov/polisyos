@@ -1,0 +1,56 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python
+cachedir: /tmp/e02-B-cas-b74-20261007/removal-eb4/cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-B-current-cas-generation/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-B-current-cas-generation/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, hypothesis-6.151.2, anyio-4.12.0, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, jaxtyping-0.3.4
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 1 item
+
+tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py::test_same_version_imported_member_change_refuses_before_replacement_effect 2026-10-07 07:52:54 [info     ] method_registered              backend=numpy fqn=tests.imported_checkpoint.multiply@1.0.0 lazy=False namespace=tests.imported_checkpoint override=False tags=[] version=1.0.0
+2026-10-07 07:52:54 [info     ] method_registered              backend=numpy fqn=tests.imported_checkpoint.imported_increment@1.0.0 lazy=False namespace=tests.imported_checkpoint override=False tags=[] version=1.0.0
+2026-10-07 07:52:54 [debug    ] method_dispatch_start          backend=numpy fqn=tests.imported_checkpoint.multiply@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 07:52:54 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.85 fqn=tests.imported_checkpoint.multiply@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 07:52:54 [debug    ] method_dispatch_start          backend=numpy fqn=tests.imported_checkpoint.imported_increment@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 07:52:54 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.63 fqn=tests.imported_checkpoint.imported_increment@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 07:52:54 [debug    ] method_dispatch_start          backend=numpy fqn=tests.imported_checkpoint.imported_increment@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 07:52:54 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=10.66 fqn=tests.imported_checkpoint.imported_increment@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+WRONGLY_RESUMED_TOTAL 107
+REPLACEMENT_EFFECTS ['original', 'replacement']
+FAILED
+
+=================================== FAILURES ===================================
+__ test_same_version_imported_member_change_refuses_before_replacement_effect __
+
+tmp_path = PosixPath('/tmp/e02-B-cas-b74-20261007/removal-eb4/pytest/test_same_version_imported_mem0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7efc30d828b0>
+
+    def test_same_version_imported_member_change_refuses_before_replacement_effect(
+        tmp_path, monkeypatch
+    ):
+        monkeypatch.setattr(math, "_e02_b74_checkpoint_helper", _original_increment, raising=False)
+        effects = tmp_path / "effects.txt"
+        original, chain, params, context, checkpoint, path, reopened = _saved_prefix(
+            tmp_path, _ImportedConsumer, effects
+        )
+        assert original.final_state["total"] == 7
+        pointer = path.read_bytes()
+        original_effects = effects.read_bytes()
+        original_name = math.__name__
+        # Keep the actual imported module and runtime version. Change only the
+        # callable member which the not-yet-completed consumer actually resolves.
+        monkeypatch.setattr(math, "_e02_b74_checkpoint_helper", _replacement_increment)
+        assert math.__name__ == original_name
+        try:
+>           with pytest.raises((CheckpointDigestMismatchError, CheckpointIdentityError)):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE any of (<class 'polisyos.foundry.methods.backends.checkpointing.CheckpointDigestMismatchError'>, <class 'polisyos.foundry.methods.backends.checkpointing.CheckpointIdentityError'>)
+
+tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py:216: Failed
+---- generated xml file: /tmp/e02-B-cas-b74-20261007/removal-eb4/native.xml ----
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py::test_same_version_imported_member_change_refuses_before_replacement_effect
+============================== 1 failed in 0.42s ===============================

@@ -1,0 +1,187 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-cloud-readiness",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CMP-01",
+    "JIT-01",
+    "EXE-01",
+    "EXE-02",
+    "WIRE-01"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "99af508a5282854f3e609c5a94bc19ac55893dde"
+  ],
+  "candidate_tree_sha": "6781c0bae95eb108bcffff382abf3a50f0bd6734",
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/chromium-readiness-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/doctor-playwright-before.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/doctor-playwright-before.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/browser-identity.cjs",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/browser-identity-before.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/chromium-install.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/chromium-install.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/doctor-playwright-after.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/doctor-playwright-after.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/chromium-dom-probe.cjs",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/chromium-dom-after.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/chromium-dom-after.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/browser-identity-after.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/current99-isolated-contributor-docs-environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/current99-isolated-contributor-docs-environment.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/current99-isolated-contributor-docs-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/current888-composition-ambiguity054.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/current888-composition-ambiguity054.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/composition-ambiguity-original054.py.txt"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/chromium-readiness-receipt.json",
+      "target_sha": "99af508a5282854f3e609c5a94bc19ac55893dde",
+      "environment": "Node22.22.0/pnpm10.33.2/Playwright and actual inner core1.59.1",
+      "input_closure": "Full browser receipt +12 preserved moderate companions;2 larger ignored manifests exactpath@SHA",
+      "outcome": "PASS",
+      "output": "Native identical doctor smoke missingheadless1217 FAIL before pinned official Chromium installation, PASS after; actual Chromium147.0.7727.15 DOM/version PASS."
+    },
+    {
+      "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/current99-isolated-contributor-docs-environment.json",
+      "target_sha": "99af508a5282854f3e609c5a94bc19ac55893dde",
+      "environment": "CPython3.14.2/uv0.9.21 official isolated UV_PROJECT_ENVIRONMENT=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+      "input_closure": "Tracked pyproject/uv.lock frozen; exact installed194 distributions profile records original174 identical versions+20 docs additions; research17 missing",
+      "outcome": "PASS",
+      "output": "uv sync --frozen lint/test/runtime/ml/docs PASS12.415941s; existing shared environment untouched. Setup only, no product gate PASS."
+    },
+    {
+      "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/current888-composition-ambiguity054.json",
+      "target_sha": "054db3c913b0daf29cf503672a5ecfee7903fb7c",
+      "orchestrator_sha": "8886f198f2e031277448f762cdf19d157ea4ce1b",
+      "environment": "Original shared174 profile/ownCMP source imports pin3 actualmodulebytes to054",
+      "input_closure": "Verbatim original0a8d58254126bddfae7dc3794386ed19a2af51276b55203800d34a4b4808f8ac consumer witness;2 neutral output-value permutations, actual2node registry/ComposerSTRICT/SlotLinkerSTRICT/arithmetic consumer",
+      "outcome": "FAIL",
+      "output": "Two equivalent full assignments both autoaccepted and execute bodies, consumer2010 versus1020. Canonical ambiguity property violated; successor54ef independent solver/publicconsumer receipt now tracked separately."
+    }
+  ],
+  "property": {
+    "statement": "Provide real environment inputs for final gates and preserve root-owned actual ambiguous-composition counterexample. Setup success is not a product or finding closure.",
+    "runtime_path": [
+      "uv frozen contributor environment",
+      "doctor real native Chromium launch",
+      "MethodRegistry→Composer→compilededge→real arithmetic consumer"
+    ],
+    "proxy_divergence": "Module/executable availability did not imply nativeChromium launch. Complete slot coverage and warning did not resolve equivalent semantic assignments; neutral permutations changed real output2010/1020.",
+    "negative_controls": [
+      "Exact doctor before installation missingheadless1217",
+      "Real ambiguous compound matching054 counterexample"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "environment_ready_bounded; prior_composition_counterexample_retained; final_cohort_pending",
+  "companion_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/chromium-readiness-receipt.json",
+      "sha256": "318ecbf6c0ca6eb09ae82dd13333c367da408aad4ba43aa91251abe6c7a53987",
+      "bytes": 13693
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/doctor-playwright-before.txt",
+      "sha256": "2f26717dbc2af156559c1f49ee29feaafb0b80fc5ed0969093ed36e100a60850",
+      "bytes": 1862
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/doctor-playwright-before.json",
+      "sha256": "1dbe0862d3ceee308c5bf6880a5765cb9c8b8e72daedc031915aeff693c3dafe",
+      "bytes": 3316
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/browser-identity.cjs",
+      "sha256": "003a39d26933756081c915201b1bf79190a3e051e0802d07a780a614566e6d8f",
+      "bytes": 1066
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/browser-identity-before.txt",
+      "sha256": "92a8aeb3ffce4ef81cbf9d1d7c6c7f497221d5464444f9d5799df76911308af4",
+      "bytes": 2115
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/chromium-install.txt",
+      "sha256": "1975334f43865588ee29e87fa598e4b8e5427872c0046404c4dcb6c89ce65417",
+      "bytes": 6813
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/chromium-install.json",
+      "sha256": "4c3b5a9e61f1237f177efa3b2925101b49e93d5a332a61eceb0341c9aa495fad",
+      "bytes": 806
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/doctor-playwright-after.txt",
+      "sha256": "873d8f74ef1e7eaef354aa8eb59ecd5ee97b2c12733242f7b4dd2ee4486ff82b",
+      "bytes": 514
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/doctor-playwright-after.json",
+      "sha256": "6347db3f31241f7917ac86adac3b9a9a13b670d83dc940ccceaac28f24c6419f",
+      "bytes": 1337
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/chromium-dom-probe.cjs",
+      "sha256": "d9f09a9aa27b29f486cde6ece12e6fa1099249c1b856fc31d718b6d5ae264763",
+      "bytes": 733
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/chromium-dom-after.txt",
+      "sha256": "eeb363d2e3faad2d75530bf66210cd845cb1b0652bf7433253b8dba9e87deda8",
+      "bytes": 307
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/chromium-dom-after.json",
+      "sha256": "fe1646e61b70fd384b20a4ec06d9d36db1f42684824eb711651245ecce29603f",
+      "bytes": 1792
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/browser-identity-after.txt",
+      "sha256": "74bae2a8b4ad96af8bdfba97d5ade80a05a1bfb799f381da834c529e7f85fb94",
+      "bytes": 2114
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/current99-isolated-contributor-docs-environment.json",
+      "sha256": "67f75d892ef87606ce6c27138daa3825f139c24dd0c35a9e90456566d921ad79",
+      "bytes": 1652
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/current99-isolated-contributor-docs-environment.txt",
+      "sha256": "e2b10ac635d17f296fb17e9fac00274c85b2ddda2b933fcae3f51603e3282004",
+      "bytes": 6458
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/current99-isolated-contributor-docs-profile.json",
+      "sha256": "728a06094b62277e5226340ad825e05936d576b8df65efff5b0890cdd69281db",
+      "bytes": 12369
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/current888-composition-ambiguity054.json",
+      "sha256": "f2bcf2203b7e24a03345da36374297799701897cf8d6d291fe95f424d9856f23",
+      "bytes": 1480
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/current888-composition-ambiguity054.txt",
+      "sha256": "52fb8e4537c0b0321d8d38bcd274bd38f26344e6a56f13e2c0df209520e38bf0",
+      "bytes": 4500
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cloud-readiness-evidence/composition-ambiguity-original054.py.txt",
+      "sha256": "0a8d58254126bddfae7dc3794386ed19a2af51276b55203800d34a4b4808f8ac",
+      "bytes": 3067
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Root final gates use official UV_PROJECT_ENVIRONMENT isolated194 plus UV_NO_SYNC=1, no imposed numerical/process/worker caps; research17 missing explicitly.",
+    "Browser zip bytes not retained; no checksum/archive-conformance claim beyond actualpinned content and observed nativeconsumer.",
+    "FullrootBcohort and requiredgates remain pending; all60 rootadjudication separate.",
+    "Native Trash absent: preserve workspaces/data; exactreusable cleanupcandidates in finalhandoff, no permanent removal."
+  ]
+}

@@ -1,0 +1,2527 @@
+{
+  "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+  "inputs": {
+    "inventory": {
+      "path": "/tmp/braw-e02-B/x7",
+      "bytes": 20097609,
+      "sha256": "9d8ab52071bb88523755aa80c55a954223ceca47e693a1626dca2b2750b0faa4"
+    },
+    "wrapper": {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.json",
+      "bytes": 2977,
+      "sha256": "5d1bb970219aed1ab7119e9141a08548d07fbad505f7ff54583edbb6490e5349"
+    },
+    "profile": {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-profile.json",
+      "bytes": 18280,
+      "sha256": "31a9a4d2953c5206d2cbca516164d6a1f66ad8bc67385246e325e66feea39dba"
+    },
+    "selectors": {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/terminal-final-selector.json",
+      "bytes": 669809,
+      "sha256": "dd66cd003b0bc7b2c98c78d96e47a901109c2dd2b09635231c86f58dd7b3d34c"
+    },
+    "junit": {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.xml",
+      "bytes": 3583926,
+      "sha256": "f1ddd4788163d030277242ac7233312da78a68f6aaee27a511b0b3cb7f2cef5b"
+    },
+    "stdout": {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort.txt",
+      "bytes": 3611397,
+      "sha256": "675ebace8ab28945f3b97f4fb37374f1ae3832f15e0475cad58e392fed54abf5"
+    }
+  },
+  "unique_selected_nonpassed_cases": 32,
+  "records": [
+    {
+      "partition_case_index": 2902,
+      "nodeid": "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py::test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[stdlib]",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 7794,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py::test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[stdlib]",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+              103,
+              "test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[stdlib]"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1112,
+            "longrepr_sha256": "17a9f52c3e5b9c80abd91cd8faab459f767444e40af44a3b609cf7d565902a16",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.015090330998646095,
+            "start": 1791306927.6336286,
+            "stop": 1791306927.6487186,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 7795,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py::test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[stdlib]",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+              103,
+              "test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[stdlib]"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00018714199541136622,
+            "start": 1791306927.6647604,
+            "stop": 1791306927.6649477,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 2902,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+            "name": "test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[stdlib]",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_real_worker_process_consu in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Function test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[stdlib]>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_real_worker_process_consu in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 2903,
+      "nodeid": "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py::test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[orjson]",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 7796,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py::test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[orjson]",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+              103,
+              "test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[orjson]"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1112,
+            "longrepr_sha256": "6acaf9d59c0001dcb35de265b2d1592169171a95bb93e6da5ff3fb202f2c3331",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.015187234006589279,
+            "start": 1791306927.6652393,
+            "stop": 1791306927.6804266,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 7797,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py::test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[orjson]",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+              103,
+              "test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[orjson]"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00015692500164732337,
+            "start": 1791306927.6966748,
+            "stop": 1791306927.6968322,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 2903,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.engine.runner.test_serialization_e02",
+            "name": "test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[orjson]",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_real_worker_process_consu in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Function test_real_worker_process_consumes_state_and_emits_exact_typed_outcome[orjson]>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_real_worker_process_consu in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3535,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_cancelled_initiator_settles_actual_ledger_before_cache_publication",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9325,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_cancelled_initiator_settles_actual_ledger_before_cache_publication",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              179,
+              "test_cancelled_initiator_settles_actual_ledger_before_cache_publication"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1648,
+            "longrepr_sha256": "15f167eca44d14c5f701f7550e8324b7360af241cd97d8aac46b1e4e18b32835",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.01567274499393534,
+            "start": 1791306942.083693,
+            "stop": 1791306942.0993657,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9326,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_cancelled_initiator_settles_actual_ledger_before_cache_publication",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              179,
+              "test_cancelled_initiator_settles_actual_ledger_before_cache_publication"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00010301399743184447,
+            "start": 1791306942.1165395,
+            "stop": 1791306942.1166425,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3535,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_cancelled_initiator_settles_actual_ledger_before_cache_publication",
+            "time": "0.016"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_cancelled_initiator_settl in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_cancelled_initiator_settles_actual_ledger_before_cache_publication>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_cancelled_initiator_settles_actual_ledger_before_cache_publication>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_cancelled_initiator_settl in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3536,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_lost_actual_ack_is_unknown_and_blocks_reuse_until_reconciled",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9327,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_lost_actual_ack_is_unknown_and_blocks_reuse_until_reconciled",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              217,
+              "test_lost_actual_ack_is_unknown_and_blocks_reuse_until_reconciled"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1636,
+            "longrepr_sha256": "13677defeaff3ba8da1f9f71fea5ea7594bc89b18b089a5dae486b431392d457",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.015150243998505175,
+            "start": 1791306942.1169002,
+            "stop": 1791306942.1320505,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9328,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_lost_actual_ack_is_unknown_and_blocks_reuse_until_reconciled",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              217,
+              "test_lost_actual_ack_is_unknown_and_blocks_reuse_until_reconciled"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00010956599726341665,
+            "start": 1791306942.1470315,
+            "stop": 1791306942.1471415,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3536,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_lost_actual_ack_is_unknown_and_blocks_reuse_until_reconciled",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_lost_actual_ack_is_unknow in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_lost_actual_ack_is_unknown_and_blocks_reuse_until_reconciled>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_lost_actual_ack_is_unknown_and_blocks_reuse_until_reconciled>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_lost_actual_ack_is_unknow in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3537,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_absent_ack_retry_requires_retained_actual_producer_and_never_reissues_provider",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9329,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_absent_ack_retry_requires_retained_actual_producer_and_never_reissues_provider",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              255,
+              "test_absent_ack_retry_requires_retained_actual_producer_and_never_reissues_provider"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1672,
+            "longrepr_sha256": "9cab93b6a23b2ff918ff06b76386cf05fd9de6de1a25f806bde8b2adfac59cbc",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.0149098120018607,
+            "start": 1791306942.1473484,
+            "stop": 1791306942.162258,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9330,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_absent_ack_retry_requires_retained_actual_producer_and_never_reissues_provider",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              255,
+              "test_absent_ack_retry_requires_retained_actual_producer_and_never_reissues_provider"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00010446598753333092,
+            "start": 1791306942.1766098,
+            "stop": 1791306942.1767144,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3537,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_absent_ack_retry_requires_retained_actual_producer_and_never_reissues_provider",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_absent_ack_retry_requires in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_absent_ack_retry_requires_retained_actual_producer_and_never_reissues_provider>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_absent_ack_retry_requires_retained_actual_producer_and_never_reissues_provider>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_absent_ack_retry_requires in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3538,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_four_actual_budget_consumers_share_one_settled_producer_after_initiator_cancel",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9331,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_four_actual_budget_consumers_share_one_settled_producer_after_initiator_cancel",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              281,
+              "test_four_actual_budget_consumers_share_one_settled_producer_after_initiator_cancel"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1672,
+            "longrepr_sha256": "691b31cf58811499823eb8942b4dce716322561d102371236d506a5854f62e5a",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.014822608995018527,
+            "start": 1791306942.176966,
+            "stop": 1791306942.1917882,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9332,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_four_actual_budget_consumers_share_one_settled_producer_after_initiator_cancel",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              281,
+              "test_four_actual_budget_consumers_share_one_settled_producer_after_initiator_cancel"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00010433599527459592,
+            "start": 1791306942.2061214,
+            "stop": 1791306942.206226,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3538,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_four_actual_budget_consumers_share_one_settled_producer_after_initiator_cancel",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_four_actual_budget_consum in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_four_actual_budget_consumers_share_one_settled_producer_after_initiator_cancel>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_four_actual_budget_consumers_share_one_settled_producer_after_initiator_cancel>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_four_actual_budget_consum in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3539,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_cache_publication_requires_resolvable_exact_durable_receipt",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9333,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_cache_publication_requires_resolvable_exact_durable_receipt",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              320,
+              "test_actual_cache_publication_requires_resolvable_exact_durable_receipt"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1648,
+            "longrepr_sha256": "1082ae94743e393d3fc66dc37115b5448c613360707717cf5a23d0eff30ad5d8",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.01478684099856764,
+            "start": 1791306942.2064383,
+            "stop": 1791306942.221225,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9334,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_cache_publication_requires_resolvable_exact_durable_receipt",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              320,
+              "test_actual_cache_publication_requires_resolvable_exact_durable_receipt"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00011645900667645037,
+            "start": 1791306942.2354786,
+            "stop": 1791306942.2355952,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3539,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_actual_cache_publication_requires_resolvable_exact_durable_receipt",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_actual_cache_publication_ in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_actual_cache_publication_requires_resolvable_exact_durable_receipt>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_actual_cache_publication_requires_resolvable_exact_durable_receipt>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_actual_cache_publication_ in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3540,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_different_actual_budget_owners_cannot_join_first_owners_flight",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9335,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_different_actual_budget_owners_cannot_join_first_owners_flight",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              345,
+              "test_different_actual_budget_owners_cannot_join_first_owners_flight"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1640,
+            "longrepr_sha256": "63bbec58741614c8951f81f59b42aa64e52a575154c760dd0597982033702eba",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.015114116002223454,
+            "start": 1791306942.2358077,
+            "stop": 1791306942.250922,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9336,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_different_actual_budget_owners_cannot_join_first_owners_flight",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              345,
+              "test_different_actual_budget_owners_cannot_join_first_owners_flight"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00010527799895498902,
+            "start": 1791306942.2653363,
+            "stop": 1791306942.265442,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3540,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_different_actual_budget_owners_cannot_join_first_owners_flight",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_different_actual_budget_o in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_different_actual_budget_owners_cannot_join_first_owners_flight>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_different_actual_budget_owners_cannot_join_first_owners_flight>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_different_actual_budget_o in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3541,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_owner_permission_rechecked_actor_epoch_and_exact_cas_ref",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9337,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_owner_permission_rechecked_actor_epoch_and_exact_cas_ref",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              443,
+              "test_actual_owner_permission_rechecked_actor_epoch_and_exact_cas_ref"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1642,
+            "longrepr_sha256": "32d8b2d1f0f0ce049adc6e4b3929398d927bdd6d9656dec6567592c54d59a690",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.014695840000058524,
+            "start": 1791306942.2656486,
+            "stop": 1791306942.2803445,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9338,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_owner_permission_rechecked_actor_epoch_and_exact_cas_ref",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              443,
+              "test_actual_owner_permission_rechecked_actor_epoch_and_exact_cas_ref"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00010496799950487912,
+            "start": 1791306942.294492,
+            "stop": 1791306942.2945971,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3541,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_actual_owner_permission_rechecked_actor_epoch_and_exact_cas_ref",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_actual_owner_permission_r in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_actual_owner_permission_rechecked_actor_epoch_and_exact_cas_ref>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_actual_owner_permission_rechecked_actor_epoch_and_exact_cas_ref>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_actual_owner_permission_r in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3542,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_owner_revocation_while_follower_waits_prevents_shared_consumption",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9339,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_owner_revocation_while_follower_waits_prevents_shared_consumption",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              470,
+              "test_owner_revocation_while_follower_waits_prevents_shared_consumption"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1646,
+            "longrepr_sha256": "bbecf93e69f31d000cd16ce075de70d852502ba09330b875c3c8629b355c79ab",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.014679098007036373,
+            "start": 1791306942.2947996,
+            "stop": 1791306942.3094783,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9340,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_owner_revocation_while_follower_waits_prevents_shared_consumption",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              470,
+              "test_owner_revocation_while_follower_waits_prevents_shared_consumption"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00010153099719900638,
+            "start": 1791306942.3235836,
+            "stop": 1791306942.3236854,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3542,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_owner_revocation_while_follower_waits_prevents_shared_consumption",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_owner_revocation_while_fo in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_owner_revocation_while_follower_waits_prevents_shared_consumption>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_owner_revocation_while_follower_waits_prevents_shared_consumption>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_owner_revocation_while_fo in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3543,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_canonical_factory_consumes_actual_owner_decision",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9341,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_canonical_factory_consumes_actual_owner_decision",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              494,
+              "test_canonical_factory_consumes_actual_owner_decision"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1612,
+            "longrepr_sha256": "3b3e485bc48fce4d22f8b034031fc5566407d4791677e6d12074948257e72099",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.015029195987153798,
+            "start": 1791306942.3239326,
+            "stop": 1791306942.3389616,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9342,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_canonical_factory_consumes_actual_owner_decision",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              494,
+              "test_canonical_factory_consumes_actual_owner_decision"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.0001541399979032576,
+            "start": 1791306942.355225,
+            "stop": 1791306942.3553834,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3543,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_canonical_factory_consumes_actual_owner_decision",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_canonical_factory_consume in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_canonical_factory_consumes_actual_owner_decision>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_canonical_factory_consumes_actual_owner_decision>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_canonical_factory_consume in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3544,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_ainvoke_cancellation_and_sync_invoke_use_exact_durable_owner",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9343,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_ainvoke_cancellation_and_sync_invoke_use_exact_durable_owner",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              523,
+              "test_ainvoke_cancellation_and_sync_invoke_use_exact_durable_owner"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1636,
+            "longrepr_sha256": "875d11d268b26521a15f947a783b3f33ac40407b315f269b5443b2ee38995da0",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.01514225899882149,
+            "start": 1791306942.3556485,
+            "stop": 1791306942.3707907,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9344,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_ainvoke_cancellation_and_sync_invoke_use_exact_durable_owner",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              523,
+              "test_ainvoke_cancellation_and_sync_invoke_use_exact_durable_owner"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00015104400517884642,
+            "start": 1791306942.3857303,
+            "stop": 1791306942.3858817,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3544,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_ainvoke_cancellation_and_sync_invoke_use_exact_durable_owner",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_ainvoke_cancellation_and_ in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_ainvoke_cancellation_and_sync_invoke_use_exact_durable_owner>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_ainvoke_cancellation_and_sync_invoke_use_exact_durable_owner>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_ainvoke_cancellation_and_ in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3551,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_expired_suppressed_producer_settles_without_result_or_cache_and_retry_is_fresh",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9358,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_expired_suppressed_producer_settles_without_result_or_cache_and_retry_is_fresh",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              621,
+              "test_expired_suppressed_producer_settles_without_result_or_cache_and_retry_is_fresh"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1672,
+            "longrepr_sha256": "e491deb6cdb2eaf6a6a8e1713cfbdc379133a420719abf160228410f8bea7aec",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.014551539003150538,
+            "start": 1791306942.535608,
+            "stop": 1791306942.5501595,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9359,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_expired_suppressed_producer_settles_without_result_or_cache_and_retry_is_fresh",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              621,
+              "test_expired_suppressed_producer_settles_without_result_or_cache_and_retry_is_fresh"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 9.948700608219951e-05,
+            "start": 1791306942.5645552,
+            "stop": 1791306942.5646548,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3551,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_expired_suppressed_producer_settles_without_result_or_cache_and_retry_is_fresh",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_expired_suppressed_produc in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_expired_suppressed_producer_settles_without_result_or_cache_and_retry_is_fresh>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_expired_suppressed_producer_settles_without_result_or_cache_and_retry_is_fresh>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_expired_suppressed_produc in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3552,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_deadline_covers_mandatory_completion_and_actual_cache_lock[completion]",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9360,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_deadline_covers_mandatory_completion_and_actual_cache_lock[completion]",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              672,
+              "test_deadline_covers_mandatory_completion_and_actual_cache_lock[completion]"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1656,
+            "longrepr_sha256": "5a7ab3a24100ebfec15fef436526971f13e9f6405e0ace8566525a96db1f1cf8",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.014576105008018203,
+            "start": 1791306942.5649269,
+            "stop": 1791306942.5795028,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9361,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_deadline_covers_mandatory_completion_and_actual_cache_lock[completion]",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              672,
+              "test_deadline_covers_mandatory_completion_and_actual_cache_lock[completion]"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00014370999997481704,
+            "start": 1791306942.593753,
+            "stop": 1791306942.5938969,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3552,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_deadline_covers_mandatory_completion_and_actual_cache_lock[completion]",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_deadline_covers_mandatory in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_deadline_covers_mandatory_completion_and_actual_cache_lock[completion]>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_deadline_covers_mandatory_completion_and_actual_cache_lock[completion]>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_deadline_covers_mandatory in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3553,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_deadline_covers_mandatory_completion_and_actual_cache_lock[publication]",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9362,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_deadline_covers_mandatory_completion_and_actual_cache_lock[publication]",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              672,
+              "test_deadline_covers_mandatory_completion_and_actual_cache_lock[publication]"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1658,
+            "longrepr_sha256": "9f5db3072d694922a442ec8f7f0a89ee62081a58f6ce6f16db89e25cf9bf7597",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.014604588999645784,
+            "start": 1791306942.5941186,
+            "stop": 1791306942.608723,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9363,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_deadline_covers_mandatory_completion_and_actual_cache_lock[publication]",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              672,
+              "test_deadline_covers_mandatory_completion_and_actual_cache_lock[publication]"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.0001058490015566349,
+            "start": 1791306942.6230109,
+            "stop": 1791306942.6231203,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3553,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_deadline_covers_mandatory_completion_and_actual_cache_lock[publication]",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_deadline_covers_mandatory in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_deadline_covers_mandatory_completion_and_actual_cache_lock[publication]>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_deadline_covers_mandatory_completion_and_actual_cache_lock[publication]>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_deadline_covers_mandatory in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3554,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_cached_emission_rechecks_actual_owner_after_cache_read",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9364,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_cached_emission_rechecks_actual_owner_after_cache_read",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              729,
+              "test_cached_emission_rechecks_actual_owner_after_cache_read"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1624,
+            "longrepr_sha256": "f91a9c4a9c3f664eedb043d9294be23988f814d414ec8d17d6019cb209db4dfb",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.014656856990768574,
+            "start": 1791306942.6233313,
+            "stop": 1791306942.637988,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9365,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_cached_emission_rechecks_actual_owner_after_cache_read",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              729,
+              "test_cached_emission_rechecks_actual_owner_after_cache_read"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00010491799912415445,
+            "start": 1791306942.652165,
+            "stop": 1791306942.6522744,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3554,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_cached_emission_rechecks_actual_owner_after_cache_read",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_cached_emission_rechecks_ in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_cached_emission_rechecks_actual_owner_after_cache_read>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_cached_emission_rechecks_actual_owner_after_cache_read>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_cached_emission_rechecks_ in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3556,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_expired_response_unknown_ack_remains_primary_and_retains_actual_event",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9369,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_expired_response_unknown_ack_remains_primary_and_retains_actual_event",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              770,
+              "test_expired_response_unknown_ack_remains_primary_and_retains_actual_event"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1654,
+            "longrepr_sha256": "860854af79ad01f12b3db4fb9a9ef494b64b98a0c7a35a0930750e3bb549b9a3",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.01485151200904511,
+            "start": 1791306942.6541202,
+            "stop": 1791306942.6689713,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9370,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_expired_response_unknown_ack_remains_primary_and_retains_actual_event",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              770,
+              "test_expired_response_unknown_ack_remains_primary_and_retains_actual_event"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.0001491699949838221,
+            "start": 1791306942.6838324,
+            "stop": 1791306942.6839848,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3556,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_expired_response_unknown_ack_remains_primary_and_retains_actual_event",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_expired_response_unknown_ in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_expired_response_unknown_ack_remains_primary_and_retains_actual_event>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_expired_response_unknown_ack_remains_primary_and_retains_actual_event>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_expired_response_unknown_ in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3559,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-class-name]",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9377,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-class-name]",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              832,
+              "test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-class-name]"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1680,
+            "longrepr_sha256": "798ed9157f99916f977785d4e0cd4d44d46d9234184236299ece2458479c024d",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.014669259995571338,
+            "start": 1791306942.7086394,
+            "stop": 1791306942.7233086,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9378,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-class-name]",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              832,
+              "test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-class-name]"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00010468700202181935,
+            "start": 1791306942.7377017,
+            "stop": 1791306942.7378097,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3559,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-class-name]",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_provider_cannot_claim_cac in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-class-name]>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-class-name]>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_provider_cannot_claim_cac in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3560,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-mapping]",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9379,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-mapping]",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              832,
+              "test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-mapping]"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1674,
+            "longrepr_sha256": "f32fd017f91c830a327144f047fd509d366a6929bc63c61fa7aa784da2b6ceb1",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.014609678008127958,
+            "start": 1791306942.7380674,
+            "stop": 1791306942.752677,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9380,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-mapping]",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              832,
+              "test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-mapping]"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00010848400415852666,
+            "start": 1791306942.7669237,
+            "stop": 1791306942.7670326,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3560,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-mapping]",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_provider_cannot_claim_cac in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-mapping]>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-mapping]>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_provider_cannot_claim_cac in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3561,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-wrong-seal]",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9381,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-wrong-seal]",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              832,
+              "test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-wrong-seal]"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1680,
+            "longrepr_sha256": "8d0c243af5e8be0069f650b90a27a36eb0800b7847f0a2fffd4bddd211f70b5a",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.014686431997688487,
+            "start": 1791306942.767251,
+            "stop": 1791306942.7819371,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9382,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-wrong-seal]",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              832,
+              "test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-wrong-seal]"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00010713099618442357,
+            "start": 1791306942.7960799,
+            "stop": 1791306942.7961872,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3561,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-wrong-seal]",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_provider_cannot_claim_cac in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-wrong-seal]>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[True-wrong-seal]>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_provider_cannot_claim_cac in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3562,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-class-name]",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9383,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-class-name]",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              832,
+              "test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-class-name]"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1682,
+            "longrepr_sha256": "f315cc6b2595d51df664dc8c0fa4db5393d62f8036e522fa9b93331886890832",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.014891667990013957,
+            "start": 1791306942.7963924,
+            "stop": 1791306942.8112833,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9384,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-class-name]",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              832,
+              "test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-class-name]"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00012517500726971775,
+            "start": 1791306942.8265746,
+            "stop": 1791306942.8267035,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3562,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-class-name]",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_provider_cannot_claim_cac in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-class-name]>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-class-name]>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_provider_cannot_claim_cac in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3563,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-mapping]",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9385,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-mapping]",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              832,
+              "test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-mapping]"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1676,
+            "longrepr_sha256": "b123ef7488991a783980782b09750579029ba5394c6304470b79eb22e864f007",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.015076284995302558,
+            "start": 1791306942.8269792,
+            "stop": 1791306942.8420553,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9386,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-mapping]",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              832,
+              "test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-mapping]"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.0001140850072260946,
+            "start": 1791306942.8566833,
+            "stop": 1791306942.8567977,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3563,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-mapping]",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_provider_cannot_claim_cac in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-mapping]>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-mapping]>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_provider_cannot_claim_cac in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3564,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-wrong-seal]",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9387,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-wrong-seal]",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              832,
+              "test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-wrong-seal]"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1682,
+            "longrepr_sha256": "10091c4223a52a6fed32cb4e0b2e048db29c66b48623a7403d492bfbc6314983",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.014986677007982507,
+            "start": 1791306942.857073,
+            "stop": 1791306942.8720596,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9388,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-wrong-seal]",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              832,
+              "test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-wrong-seal]"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00010586800635792315,
+            "start": 1791306942.8863368,
+            "stop": 1791306942.8864474,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3564,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-wrong-seal]",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_provider_cannot_claim_cac in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-wrong-seal]>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability[False-wrong-seal]>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_provider_cannot_claim_cac in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3565,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_physical_completion_cannot_borrow_authentic_reuse_capability[False]",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9389,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_physical_completion_cannot_borrow_authentic_reuse_capability[False]",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              890,
+              "test_actual_physical_completion_cannot_borrow_authentic_reuse_capability[False]"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1664,
+            "longrepr_sha256": "313332ad70e8d9208e9b362b403fefaccc2e1da5557e767f680c184314c2654c",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.014708895003423095,
+            "start": 1791306942.8866742,
+            "stop": 1791306942.901383,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9390,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_physical_completion_cannot_borrow_authentic_reuse_capability[False]",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              890,
+              "test_actual_physical_completion_cannot_borrow_authentic_reuse_capability[False]"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00010874400322791189,
+            "start": 1791306942.9155533,
+            "stop": 1791306942.9156656,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3565,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_actual_physical_completion_cannot_borrow_authentic_reuse_capability[False]",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_actual_physical_completio in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_actual_physical_completion_cannot_borrow_authentic_reuse_capability[False]>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_actual_physical_completion_cannot_borrow_authentic_reuse_capability[False]>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_actual_physical_completio in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3566,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_physical_completion_cannot_borrow_authentic_reuse_capability[True]",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9391,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_physical_completion_cannot_borrow_authentic_reuse_capability[True]",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              890,
+              "test_actual_physical_completion_cannot_borrow_authentic_reuse_capability[True]"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1662,
+            "longrepr_sha256": "caaae4a1e965210066495dde44e1d38195ed25ed3f6b72949c76f2f70eaae473",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.014863344011246227,
+            "start": 1791306942.9159267,
+            "stop": 1791306942.93079,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9392,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_actual_physical_completion_cannot_borrow_authentic_reuse_capability[True]",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              890,
+              "test_actual_physical_completion_cannot_borrow_authentic_reuse_capability[True]"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.0001560640084790066,
+            "start": 1791306942.9450436,
+            "stop": 1791306942.9452033,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3566,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_actual_physical_completion_cannot_borrow_authentic_reuse_capability[True]",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_actual_physical_completio in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_actual_physical_completion_cannot_borrow_authentic_reuse_capability[True]>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_actual_physical_completion_cannot_borrow_authentic_reuse_capability[True]>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_actual_physical_completio in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3567,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_receiver_binds_cache_issuer_and_exact_consumption[new-issuer]",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9393,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_receiver_binds_cache_issuer_and_exact_consumption[new-issuer]",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              937,
+              "test_receiver_binds_cache_issuer_and_exact_consumption[new-issuer]"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1638,
+            "longrepr_sha256": "7815fc33638fbfd8521b7047669020bf51f3506dc20107be5ff4e47384371885",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.0147579170006793,
+            "start": 1791306942.9454384,
+            "stop": 1791306942.960196,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9394,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_receiver_binds_cache_issuer_and_exact_consumption[new-issuer]",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              937,
+              "test_receiver_binds_cache_issuer_and_exact_consumption[new-issuer]"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00010703100997488946,
+            "start": 1791306942.9753458,
+            "stop": 1791306942.975453,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3567,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_receiver_binds_cache_issuer_and_exact_consumption[new-issuer]",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_receiver_binds_cache_issu in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_receiver_binds_cache_issuer_and_exact_consumption[new-issuer]>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_receiver_binds_cache_issuer_and_exact_consumption[new-issuer]>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_receiver_binds_cache_issu in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3568,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_receiver_binds_cache_issuer_and_exact_consumption[other-cache-issuer]",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9395,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_receiver_binds_cache_issuer_and_exact_consumption[other-cache-issuer]",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              937,
+              "test_receiver_binds_cache_issuer_and_exact_consumption[other-cache-issuer]"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1654,
+            "longrepr_sha256": "ced59d70885c7154264fc4399bd4db1f9d3b3da3e36ac05aae5ab31e7f92d49a",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.014772442998946644,
+            "start": 1791306942.975663,
+            "stop": 1791306942.9904354,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9396,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_receiver_binds_cache_issuer_and_exact_consumption[other-cache-issuer]",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              937,
+              "test_receiver_binds_cache_issuer_and_exact_consumption[other-cache-issuer]"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00014152600488159806,
+            "start": 1791306943.0047493,
+            "stop": 1791306943.004894,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3568,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_receiver_binds_cache_issuer_and_exact_consumption[other-cache-issuer]",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_receiver_binds_cache_issu in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_receiver_binds_cache_issuer_and_exact_consumption[other-cache-issuer]>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_receiver_binds_cache_issuer_and_exact_consumption[other-cache-issuer]>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_receiver_binds_cache_issu in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3569,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_receiver_binds_cache_issuer_and_exact_consumption[wrong-request]",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9397,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_receiver_binds_cache_issuer_and_exact_consumption[wrong-request]",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              937,
+              "test_receiver_binds_cache_issuer_and_exact_consumption[wrong-request]"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1644,
+            "longrepr_sha256": "a5489613d182fd413a1d854333a74a66f755acf848b7596cee027ded0061bcc7",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.014759038007468916,
+            "start": 1791306943.005167,
+            "stop": 1791306943.0199263,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9398,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_receiver_binds_cache_issuer_and_exact_consumption[wrong-request]",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              937,
+              "test_receiver_binds_cache_issuer_and_exact_consumption[wrong-request]"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00011306199303362519,
+            "start": 1791306943.0343063,
+            "stop": 1791306943.0344236,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3569,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_receiver_binds_cache_issuer_and_exact_consumption[wrong-request]",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_receiver_binds_cache_issu in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_receiver_binds_cache_issuer_and_exact_consumption[wrong-request]>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_receiver_binds_cache_issuer_and_exact_consumption[wrong-request]>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_receiver_binds_cache_issu in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3570,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_receiver_binds_cache_issuer_and_exact_consumption[wrong-key]",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9399,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_receiver_binds_cache_issuer_and_exact_consumption[wrong-key]",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              937,
+              "test_receiver_binds_cache_issuer_and_exact_consumption[wrong-key]"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1636,
+            "longrepr_sha256": "ce925f43ba55ec4e9433096e9d7a6ea9653e52f49700145a753b8fb837609635",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.014791139008593746,
+            "start": 1791306943.034635,
+            "stop": 1791306943.0494258,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9400,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_receiver_binds_cache_issuer_and_exact_consumption[wrong-key]",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              937,
+              "test_receiver_binds_cache_issuer_and_exact_consumption[wrong-key]"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00011076800001319498,
+            "start": 1791306943.0640411,
+            "stop": 1791306943.0641558,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3570,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_receiver_binds_cache_issuer_and_exact_consumption[wrong-key]",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_receiver_binds_cache_issu in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_receiver_binds_cache_issuer_and_exact_consumption[wrong-key]>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_receiver_binds_cache_issuer_and_exact_consumption[wrong-key]>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_receiver_binds_cache_issu in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3571,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_receiver_binds_cache_issuer_and_exact_consumption[caller-kwargs]",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9401,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_receiver_binds_cache_issuer_and_exact_consumption[caller-kwargs]",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              937,
+              "test_receiver_binds_cache_issuer_and_exact_consumption[caller-kwargs]"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1644,
+            "longrepr_sha256": "6c89c4877160cb3adf9fc3f69ba21ea3eefcad26dd4a20a1309a4921e269c1d6",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.014938786000129767,
+            "start": 1791306943.06436,
+            "stop": 1791306943.0792985,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9402,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_receiver_binds_cache_issuer_and_exact_consumption[caller-kwargs]",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              937,
+              "test_receiver_binds_cache_issuer_and_exact_consumption[caller-kwargs]"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.00010267300240229815,
+            "start": 1791306943.093639,
+            "stop": 1791306943.0937455,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3571,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_receiver_binds_cache_issuer_and_exact_consumption[caller-kwargs]",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_receiver_binds_cache_issu in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_receiver_binds_cache_issuer_and_exact_consumption[caller-kwargs]>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_receiver_binds_cache_issuer_and_exact_consumption[caller-kwargs]>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_receiver_binds_cache_issu in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 3572,
+      "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_unconfigured_receiver_bills_self_appointed_actual_provider",
+      "state": "ERROR",
+      "phase_reports": [
+        {
+          "phase_report_index": 9403,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_unconfigured_receiver_bills_self_appointed_actual_provider",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              994,
+              "test_unconfigured_receiver_bills_self_appointed_actual_provider"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 1632,
+            "longrepr_sha256": "1495e9d29282c0eb9e55b1d83fd0677c86dfaf4a9facaf493e2fc5c538d019e8",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.014657106992672198,
+            "start": 1791306943.0939987,
+            "stop": 1791306943.108656,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 9404,
+          "report": {
+            "nodeid": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_unconfigured_receiver_bills_self_appointed_actual_provider",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+              994,
+              "test_unconfigured_receiver_bills_self_appointed_actual_provider"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.0001433200086466968,
+            "start": 1791306943.1232207,
+            "stop": 1791306943.1233683,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 3572,
+          "attributes": {
+            "classname": "tests.unit.scientist.orchestration.llm.test_prompt_cache_e02",
+            "name": "test_unconfigured_receiver_bills_self_appointed_actual_provider",
+            "time": "0.015"
+          },
+          "result_elements": [
+            {
+              "tag": "error",
+              "attributes": {
+                "message": "failed on setup with \"OSError: could not create numbered dir with prefix test_unconfigured_receiver_bil in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\""
+              },
+              "text": "self = <Coroutine test_unconfigured_receiver_bills_self_appointed_actual_provider>\n\n    def setup(self) -> None:\n        runner_fixture_id = f\"_{self._loop_scope}_scoped_runner\"\n        if runner_fixture_id not in self.fixturenames:\n            self.fixturenames.append(runner_fixture_id)\n>       return super().setup()\n               ^^^^^^^^^^^^^^^\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:458: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nfixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Coroutine test_unconfigured_receiver_bills_self_appointed_actual_provider>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\nE               OSError: could not create numbered dir with prefix test_unconfigured_receiver_bil in /workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest after 10 tries\n\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: OSError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual setup ERROR has no call event; consumer property entrant is not established. Complete native diagnostic preserved; no product-defect inference from label alone."
+    },
+    {
+      "partition_case_index": 592,
+      "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+      "state": "FAIL",
+      "phase_reports": [
+        {
+          "phase_report_index": 1776,
+          "report": {
+            "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+              110,
+              "test_restored_frontier_above_new_cap_refuses_before_consumer_effects"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "setup",
+            "duration": 0.0013267350004753098,
+            "start": 1791304433.5239165,
+            "stop": 1791304433.525243,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        },
+        {
+          "phase_report_index": 1777,
+          "report": {
+            "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+            "outcome": "failed",
+            "location": [
+              "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+              110,
+              "test_restored_frontier_above_new_cap_refuses_before_consumer_effects"
+            ],
+            "longrepr_type": "ExceptionChainRepr",
+            "longrepr_utf8_bytes": 3297,
+            "longrepr_sha256": "31d1dd5b544c124952387bfeb072b7dc85ef08f836ad3f881f31f4d84ad12555",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "call",
+            "duration": 0.49809200399613474,
+            "start": 1791304433.5253332,
+            "stop": 1791304434.0234246,
+            "classification": "failed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": true
+          }
+        },
+        {
+          "phase_report_index": 1778,
+          "report": {
+            "nodeid": "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+            "outcome": "passed",
+            "location": [
+              "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+              110,
+              "test_restored_frontier_above_new_cap_refuses_before_consumer_effects"
+            ],
+            "longrepr_type": "NoneType",
+            "longrepr_utf8_bytes": 0,
+            "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "diagnostic_text": "not_copied; complete diagnostics remain in native stdout/JUnit",
+            "when": "teardown",
+            "duration": 0.0003271349996794015,
+            "start": 1791304434.0291831,
+            "stop": 1791304434.029511,
+            "classification": "passed",
+            "has_wasxfail": false,
+            "evaluated_xfail": false,
+            "evaluated_xfail_strict": null,
+            "call_had_exception": false
+          }
+        }
+      ],
+      "junit_full_deciding_result_elements": [
+        {
+          "junit_representation_index": 592,
+          "attributes": {
+            "classname": "tests.unit.fabric.data_plane.test_pool_stream_budget_oracle",
+            "name": "test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+            "time": "0.500"
+          },
+          "result_elements": [
+            {
+              "tag": "failure",
+              "attributes": {
+                "message": "AssertionError: [\"acquire\", \"release\", \"acquire\", \"poll\", \"poll\", \"poll\", \"commit\", \"poll\", \"flush\", \"commit\", \"release\"]\nassert not {'commit', 'flush', 'poll'}\n +  where {'commit', 'flush', 'poll'} = <built-in method intersection of set object at 0x7f2304103060>(['acquire', 'release', 'acquire', 'poll', 'poll', 'poll', ...])\n +    where <built-in method intersection of set object at 0x7f2304103060> = {'commit', 'flush', 'poll'}.intersection"
+              },
+              "text": "tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/terminal-final-B-cohort-pytest/test_restored_frontier_above_n0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f22d71f58d0>\n\n    @pytest.mark.asyncio\n    async def test_restored_frontier_above_new_cap_refuses_before_consumer_effects(\n        tmp_path: Path, monkeypatch: pytest.MonkeyPatch\n    ) -> None:\n        registry, store, checkpoint = await _pending_checkpoint(tmp_path, monkeypatch)\n        events: list[str] = []\n        acquisitions: list[tuple[int, str]] = []\n        releases: list[tuple[int, str]] = []\n        acquire = ConnectionPool.acquire_with_connector\n        release = ConnectionPool.release\n        poll = streaming.StreamingSourceSession.poll\n        flush = streaming.StreamWindowAccumulator.flush_with_refs\n        commit = streaming._commit_stream_frontier\n    \n        async def observed_acquire(pool):\n            result = await acquire(pool)\n            events.append(\"acquire\")\n            acquisitions.append((id(pool), result[1].session_id))\n            return result\n    \n        async def observed_release(pool, handle):\n            result = await release(pool, handle)\n            releases.append((id(pool), handle.session_id))\n            events.append(\"release\")\n            return result\n    \n        async def observed_poll(session):\n            events.append(\"poll\")\n            return await poll(session)\n    \n        def observed_flush(accumulator):\n            events.append(\"flush\")\n            return flush(accumulator)\n    \n        async def observed_commit(**kwargs):\n            events.append(\"commit\")\n            return await commit(**kwargs)\n    \n        monkeypatch.setattr(ConnectionPool, \"acquire_with_connector\", observed_acquire)\n        monkeypatch.setattr(ConnectionPool, \"release\", observed_release)\n        monkeypatch.setattr(streaming.StreamingSourceSession, \"poll\", observed_poll)\n        monkeypatch.setattr(streaming.StreamWindowAccumulator, \"flush_with_refs\", observed_flush)\n        monkeypatch.setattr(streaming, \"_commit_stream_frontier\", observed_commit)\n        reopened = FileSystemCAS(store.root)\n        failure = None\n        try:\n            await streaming.process_stream_dataset(\n                connector_id=\"stream.jsonl\",\n                dataset_id=\"budget-oracle\",\n                store=reopened,\n                cursor_store=CursorStore(reopened),\n                sanitize_rows=_rows,\n                runtime_options=_options(1),\n                registry=registry,\n            )\n        except (RuntimeError, ValueError) as exc:\n            failure = exc\n>       assert not {\"poll\", \"flush\", \"commit\"}.intersection(events), json.dumps(events)\nE       AssertionError: [\"acquire\", \"release\", \"acquire\", \"poll\", \"poll\", \"poll\", \"commit\", \"poll\", \"flush\", \"commit\", \"release\"]\nE       assert not {'commit', 'flush', 'poll'}\nE        +  where {'commit', 'flush', 'poll'} = <built-in method intersection of set object at 0x7f2304103060>(['acquire', 'release', 'acquire', 'poll', 'poll', 'poll', ...])\nE        +    where <built-in method intersection of set object at 0x7f2304103060> = {'commit', 'flush', 'poll'}.intersection\n\ntests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py:168: AssertionError"
+            }
+          ]
+        }
+      ],
+      "assessment": "Actual call FAIL on restored cap3→cap1 consumer; all setup/teardown passed. C source consumer owner/root independently adjudicates; no fixture-mask or B source-closure inference."
+    }
+  ]
+}

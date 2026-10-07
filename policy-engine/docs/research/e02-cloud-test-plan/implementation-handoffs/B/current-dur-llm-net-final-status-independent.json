@@ -1,0 +1,1577 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-dur-llm-net-final-status-independent",
+  "closure_ids": [],
+  "bundle_ids": [
+    "DUR-01",
+    "DUR-02",
+    "LLM-01",
+    "LLM-02",
+    "NET-01",
+    "NET-02"
+  ],
+  "finding_ids": [
+    "B37",
+    "B38",
+    "B64",
+    "B65",
+    "B66",
+    "B67",
+    "B68",
+    "B78",
+    "B87",
+    "B89",
+    "B90",
+    "B91",
+    "B92",
+    "B93"
+  ],
+  "slice_base_sha": "d6339c7bfd87963b3d6e57bcaf1dc19c0e826149",
+  "implementation_commits": [
+    "ef03f3aa42fa7e190e3bc6480e9be4a540cfe023"
+  ],
+  "candidate_tree_sha": "92dc747e754404426648822c7c6a405257740065",
+  "branch": "codex/e02-B-current-composition",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/45",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent-evidence/custody-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent-evidence/custody-audit.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent-evidence/review.json"
+  ],
+  "baseline_cells": {
+    "B37": [
+      {
+        "cell_id": "F01-P139",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F01.txt:256",
+        "semantic_adequacy": "not_established"
+      }
+    ],
+    "B38": [
+      {
+        "cell_id": "F01-P057",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F01.txt:174",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F02-P012",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F02.txt:140",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F03-P109",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/remediation/test_dur_02.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F03.txt:239",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F03-P111",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F03.txt:241",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F05-P070",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_ref": "e02_execution_base",
+        "path": "policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F05.txt:480",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F05-P081",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_ref": "e02_execution_base",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F05.txt:491",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F06-P025",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_ref": "e02_execution_base",
+        "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F06.txt:209",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F07-P011",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F07.txt:17",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F08-P028",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F08.txt:151",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F08-P062",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F08.txt:185",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F08-P078",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/remediation/test_dur_02.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F08.txt:201",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F11-P018",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_ref": "main",
+        "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F11.txt:147",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F11-P069",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_ref": "main",
+        "path": "policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F11.txt:198",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F12-P064",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_ref": "main",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F12.txt:649",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F14-P130",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F14.txt:480",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F15-P014",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F15.txt:169",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F15-P070",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F15.txt:225",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F15-P128",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/remediation/test_dur_02.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F15.txt:283",
+        "semantic_adequacy": "not_established"
+      }
+    ],
+    "B64": [
+      {
+        "cell_id": "F01-P026",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F01.txt:143",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F03-P066",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F03.txt:196",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F03-P091",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F03.txt:221",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F05-P047",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_ref": "e02_execution_base",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F05.txt:457",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F07-P027",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F07.txt:33",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F07-P084",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F07.txt:90",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F10-P031",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_ref": "main",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F10.txt:151",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F13-P104",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F13.txt:231",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F15-P032",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F15.txt:187",
+        "semantic_adequacy": "not_established"
+      }
+    ],
+    "B65": [
+      {
+        "cell_id": "F01-P026",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F01.txt:143",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F03-P066",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F03.txt:196",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F03-P091",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F03.txt:221",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F05-P047",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_ref": "e02_execution_base",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F05.txt:457",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F07-P027",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F07.txt:33",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F07-P084",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F07.txt:90",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F10-P031",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_ref": "main",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F10.txt:151",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F13-P104",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F13.txt:231",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F15-P032",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F15.txt:187",
+        "semantic_adequacy": "not_established"
+      }
+    ],
+    "B66": [
+      {
+        "cell_id": "F01-P026",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F01.txt:143",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F03-P066",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F03.txt:196",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F03-P091",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F03.txt:221",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F05-P047",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_ref": "e02_execution_base",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F05.txt:457",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F07-P027",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F07.txt:33",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F07-P084",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F07.txt:90",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F10-P031",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_ref": "main",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F10.txt:151",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F13-P104",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F13.txt:231",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F15-P032",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F15.txt:187",
+        "semantic_adequacy": "not_established"
+      }
+    ],
+    "B67": [
+      {
+        "cell_id": "F01-P026",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F01.txt:143",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F05-P047",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_ref": "e02_execution_base",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F05.txt:457",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F07-P027",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F07.txt:33",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F10-P031",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_ref": "main",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F10.txt:151",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F15-P032",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F15.txt:187",
+        "semantic_adequacy": "not_established"
+      }
+    ],
+    "B68": [
+      {
+        "cell_id": "F01-P026",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F01.txt:143",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F05-P047",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_ref": "e02_execution_base",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F05.txt:457",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F07-P027",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F07.txt:33",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F10-P031",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_ref": "main",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F10.txt:151",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F15-P032",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F15.txt:187",
+        "semantic_adequacy": "not_established"
+      }
+    ],
+    "B78": [
+      {
+        "cell_id": "F01-P057",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F01.txt:174",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F02-P012",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F02.txt:140",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F03-P109",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/remediation/test_dur_02.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F03.txt:239",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F03-P111",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F03.txt:241",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F05-P070",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_ref": "e02_execution_base",
+        "path": "policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F05.txt:480",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F05-P081",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_ref": "e02_execution_base",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F05.txt:491",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F06-P025",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_ref": "e02_execution_base",
+        "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F06.txt:209",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F07-P011",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F07.txt:17",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F08-P028",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F08.txt:151",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F08-P062",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F08.txt:185",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F08-P078",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/remediation/test_dur_02.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F08.txt:201",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F11-P018",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_ref": "main",
+        "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F11.txt:147",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F11-P069",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_ref": "main",
+        "path": "policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F11.txt:198",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F12-P064",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_ref": "main",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F12.txt:649",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F14-P130",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/runtime/http/test_acquisition_control_worker.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F14.txt:480",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F15-P014",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F15.txt:169",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F15-P070",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F15.txt:225",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F15-P128",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/remediation/test_dur_02.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F15.txt:283",
+        "semantic_adequacy": "not_established"
+      }
+    ],
+    "B87": [
+      {
+        "cell_id": "F02-P004",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F02.txt:132",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F04-P009",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F04.txt:219",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F06-P010",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_ref": "e02_execution_base",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F06.txt:194",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F06-P020",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_ref": "e02_execution_base",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F06.txt:204",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F07-P008",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F07.txt:14",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F08-P010",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F08.txt:133",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F11-P015",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_ref": "main",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F11.txt:144",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F12-P008",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_ref": "main",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F12.txt:593",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F13-P010",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F13.txt:137",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F15-P004",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F15.txt:159",
+        "semantic_adequacy": "not_established"
+      }
+    ],
+    "B89": [
+      {
+        "cell_id": "F02-P004",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F02.txt:132",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F04-P009",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F04.txt:219",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F06-P010",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_ref": "e02_execution_base",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F06.txt:194",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F06-P020",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_ref": "e02_execution_base",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F06.txt:204",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F07-P008",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F07.txt:14",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F08-P010",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F08.txt:133",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F11-P015",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_ref": "main",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F11.txt:144",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F12-P008",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_ref": "main",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F12.txt:593",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F13-P010",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F13.txt:137",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F15-P004",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F15.txt:159",
+        "semantic_adequacy": "not_established"
+      }
+    ],
+    "B90": [
+      {
+        "cell_id": "F02-P004",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F02.txt:132",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F04-P009",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F04.txt:219",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F06-P010",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_ref": "e02_execution_base",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F06.txt:194",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F06-P020",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_ref": "e02_execution_base",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F06.txt:204",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F07-P008",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F07.txt:14",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F08-P010",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F08.txt:133",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F11-P015",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_ref": "main",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F11.txt:144",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F12-P008",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_ref": "main",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F12.txt:593",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F13-P010",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F13.txt:137",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F15-P004",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F15.txt:159",
+        "semantic_adequacy": "not_established"
+      }
+    ],
+    "B91": [
+      {
+        "cell_id": "F04-P021",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F04.txt:231",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F06-P037",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_ref": "e02_execution_base",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F06.txt:221",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F08-P029",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F08.txt:152",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F10-P024",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_ref": "main",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F10.txt:144",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F13-P024",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F13.txt:151",
+        "semantic_adequacy": "not_established"
+      }
+    ],
+    "B92": [
+      {
+        "cell_id": "F04-P021",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F04.txt:231",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F06-P037",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_ref": "e02_execution_base",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F06.txt:221",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F08-P029",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F08.txt:152",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F10-P024",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_ref": "main",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F10.txt:144",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F13-P024",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F13.txt:151",
+        "semantic_adequacy": "not_established"
+      }
+    ],
+    "B93": [
+      {
+        "cell_id": "F04-P021",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F04.txt:231",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F06-P037",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "source_ref": "e02_execution_base",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F06.txt:221",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F08-P029",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F08.txt:152",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F10-P024",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "source_ref": "main",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F10.txt:144",
+        "semantic_adequacy": "not_established"
+      },
+      {
+        "cell_id": "F13-P024",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "source_status": "partial",
+        "source_reported_state": "PASS",
+        "source_locator": "received/F13.txt:151",
+        "semantic_adequacy": "not_established"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "foreign14-immutable-source-output-proposal-identity",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent-evidence/custody-audit.source.txt",
+        "--git-root",
+        "/workspace/e02-B-current-coordination",
+        "--review",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent-evidence/review.json"
+      ],
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python_version": "3.14.2",
+        "git_version": "2.52.0",
+        "PYTHONPATH": null,
+        "POLISYOS_METRICS_PORT": null,
+        "mode": "stdlib data-only; no polisyos imports, native, collection, gates or cohort-parser execution",
+        "observed_root_head_before": "9d7b2529d5e7662323882ddb92d7429283740ee1",
+        "observed_root_head_after": "9d7b2529d5e7662323882ddb92d7429283740ee1"
+      },
+      "input_closure": {
+        "literal_instrument": {
+          "commit": "ef03f3aa42fa7e190e3bc6480e9be4a540cfe023",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent-evidence/custody-audit.source.txt",
+          "bytes": 11468,
+          "sha256": "5df281c6bc85d3612ae5f593c0d9e91af5741064fde6db834749cd28714f8e81"
+        },
+        "manual_review": {
+          "commit": "ef03f3aa42fa7e190e3bc6480e9be4a540cfe023",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent-evidence/review.json",
+          "bytes": 95483,
+          "sha256": "61d47ea742a55b46df79e27ca4912d6677b91a009fdb4e4c432d71f5e9aee436"
+        },
+        "proposal": {
+          "state": "immutable Git input; independent foreign14 status guard only, no own-mechanism adjudication",
+          "implementation_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+          "implementation_tree": "098dabce914551eab464c15c229bbeb018dcfb2b",
+          "proposal_ref": {
+            "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+            "bytes": 199636,
+            "sha256": "30b689d59c28e5173d6957a70ca1403a87ecc2406383f36060e8fc9ebe2c28c1"
+          },
+          "separate_handoff_ref": {
+            "git_sha": "b6c4d27a23d78feb8c081be9e9024051805a647b",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-handoff.json",
+            "bytes": 14720,
+            "sha256": "fd035385e40413458c15203dc8066e3d6102791bd108942faeb50ca270dc118d"
+          },
+          "handoff_tree": "0681860f9735abc06a3b73cbce17e294763c935e",
+          "formal_closure_ids": []
+        },
+        "all73_exact_Git_input_refs": "review.json#/reference_index",
+        "baseline_source_environments_and_input_metadata": "review.json#/baseline_jobs",
+        "source": {
+          "sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+          "source_role": "All checked production remains1862; later author/root commits are metadata unless explicitly qualified."
+        },
+        "source_graph_boundary": "Named canonical sources and exact published deciding outputs are read; not a universal loader/resource/network/child-module readset"
+      },
+      "outcome": "PASS",
+      "outcome_details": {
+        "data_identity_reconciliation": "PASS",
+        "new_native_or_gates": "UNRUN",
+        "foreign_formal_closure": "not_established; recommendations only",
+        "exact_reference_count": 73,
+        "exact_bundle_count": 6,
+        "exact_finding_count": 14,
+        "baseline_unique_cells": 43,
+        "baseline_jobs": 14,
+        "B93_qualified_native": {
+          "PASS": 3,
+          "loaded_source_files": 229
+        },
+        "B93_matched_protection_removal": {
+          "FAIL": 1,
+          "loaded_source_files": 229
+        },
+        "native35_actual_execution_sha": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+        "native35_content_projection_entries": 6246,
+        "native35_narrow_supplemental_PASS": {
+          "B37": 9,
+          "B38": 15,
+          "B78": 10
+        }
+      },
+      "output": {
+        "commit": "ef03f3aa42fa7e190e3bc6480e9be4a540cfe023",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent-evidence/custody-audit.json",
+        "bytes": 109122,
+        "sha256": "1323427abedf23fc63f382fef6b9c7a992b5992614be2ae73daa35bd1355fd46"
+      }
+    }
+  ],
+  "property": {
+    "statement": "Each of the14 foreign DUR/LLM/NET proposed states follows its whole canonical criterion, exact source/environment/input closure, actual producer-to-consumer evidence and unresolved owner boundaries; a baseline summary, identity hash or successful neighboring cohort cannot become formal closure.",
+    "runtime_path": [
+      "FileBudgetLedger and actual cold/process/fault/reopen middleware",
+      "Bound source-job worker -> actual SQLite/PostgreSQL transactions -> terminal/event/history/outbox",
+      "Real provider -> GatewayUsage/Traced -> actual cache/enforcer/durable ledger and required-audit owner",
+      "Actual pool/registry/circuit/rate -> genuine stream process cleanup consumer",
+      "Read-only published output/source -> independent proposal guard -> ROOT/G formal adjudication"
+    ],
+    "proxy_divergence": "Ledger charge ACK can coexist with unknown required audit; readable CAS is not permitted reuse; unknown amountNone is not measured0; free pool permit1 can coexist with orphaned physical cleanup owner1 and second real handle; a bounded map can create a second regulator when true active HALF_OPEN protection is removed. Actual A1FAIL/C2FAIL, typed-unknown external authority and full3882 interruption remain separate.",
+    "negative_controls": [
+      "Existing empty/corrupt/sparse ledger versus absent explicit bootstrap and legal unlimited",
+      "Actual stale worker18 protected PG mutators/11 tables and real event/outbox SQL-trigger rollback",
+      "Known.02 charge with COMMITTED append fault, same/fresh/sibling admissions and exact trusted resolver",
+      "True missing/invalid cost without admissible usage/pricing versus reported0/known.02/disclosed operational estimate",
+      "Real physical effect then lost confirmation -> typedPrimaryExecutionOutcomeUnknownError, local fallback0",
+      "Actual C process-final disconnect failure retaining physical owner without production retryowner",
+      "True HALF_OPEN token/provider Event before TTL/capacity pressure; matched postentry predicate removal actual provider2/peak2"
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": {
+    "review_verdict": "NONBLOCKING finite foreign14 semantic recommendations; ROOT/G alone ratify findings",
+    "counts": {
+      "closed": 9,
+      "limited": 2,
+      "held": 2,
+      "open": 1
+    },
+    "per_id": {
+      "B37": {
+        "proposed_status": "closed",
+        "formal_closure": false,
+        "remaining_clause": "No physical power-loss, multi-host, or cryptographic ledger attestation claim.",
+        "smallest_real_falsifier": "Cold missing file spend refuses BootstrapRequired; existing empty/corrupt/sparse wire refuses unchanged rather than default-unlimited; explicit unlimited bootstrap is a healthy control.",
+        "predicate_basis": "independently_reconciled"
+      },
+      "B38": {
+        "proposed_status": "closed",
+        "formal_closure": false,
+        "remaining_clause": "No external exactly-once or unbound administrative authority is established.",
+        "smallest_real_falsifier": "Stale A mutator after persisted expiry and fresh B takeover must leave all11 tables unchanged; trigger failure between terminal and event/outbox must rollback the whole transaction.",
+        "predicate_basis": "independently_reconciled"
+      },
+      "B64": {
+        "proposed_status": "closed",
+        "formal_closure": false,
+        "remaining_clause": "Only supported forms are admitted; incompatible meanings cannot be guessed from removal of duplicate kwargs.",
+        "smallest_real_falsifier": "Passing both incompatible prompt forms must refuse before provider entry; merely removing a duplicate key may silently change the received prompt.",
+        "predicate_basis": "independently_reconciled"
+      },
+      "B65": {
+        "proposed_status": "closed",
+        "formal_closure": false,
+        "remaining_clause": "Constructor-bound physical resolver/ledger owner is an operational premise; verified invoice/institutional audit truth is not created by receipt DTO or caller flag. Unbudgeted profile remains explicitly non-durable.",
+        "smallest_real_falsifier": "Required COMMITTED append failure after known .02 charge keeps actual ledger ACK and pending exact audit obligation; same/fresh/sibling attempt cannot cause provider2 until trusted exact resolution; optional hook failure preserves obtained response.",
+        "predicate_basis": "independently_reconciled"
+      },
+      "B66": {
+        "proposed_status": "limited",
+        "formal_closure": false,
+        "remaining_clause": "Actual A response_shapes._sum_call_events changes unknown None to0.0 (historical real1FAIL2PASS). Full served NL route/later admission UNRUN; A/G own the consumer correction. Legitimate disclosed operational estimate is not invoice authority.",
+        "smallest_real_falsifier": "Keep real provider work/Traced unknown event and compare unknown None, reported .02 and reported0 through actual A helper; unknown aggregate must stay unknown rather than measured0.",
+        "predicate_basis": "independently_reconciled"
+      },
+      "B67": {
+        "proposed_status": "held",
+        "formal_closure": false,
+        "remaining_clause": "Institutional current-use permission/epoch atomicity and evidence-reuse law remains not_established; source/evidence owner plus G must ratify.",
+        "smallest_real_falsifier": "Leave CAS bytes/ref readable while revoking the supplied principal/purpose/epoch; readability/hash/cacheable flag alone must not grant reuse.",
+        "predicate_basis": "independently_reconciled"
+      },
+      "B68": {
+        "proposed_status": "held",
+        "formal_closure": false,
+        "remaining_clause": "B67 permission law must authorize coalescing and intentional repetitions before production admission; identical bytes or temperature0 is insufficient.",
+        "smallest_real_falsifier": "Two scientifically intentional independent repetitions or different principal/seed/scope must not become one shared provider solely because request bytes match.",
+        "predicate_basis": "independently_reconciled"
+      },
+      "B78": {
+        "proposed_status": "closed",
+        "formal_closure": false,
+        "remaining_clause": "Authoritative operated Ray/Temporal/external status/idempotency reconciliation is a HELD extension. Do not fabricate external operation ID/status or claim whole handover/exactly-once from local fixture. Full250whole terminal join remains incomplete; actual current affected35 defining subset10PASS on10e, with exact1862 content projection, is recorded separately.",
+        "smallest_real_falsifier": "Primary writes one real local witness then raises lost-confirmation error: fallback must not perform a second effect. A preparation network error cannot grant arbitrary tenant/configuration fallback.",
+        "predicate_basis": "independently_reconciled"
+      },
+      "B87": {
+        "proposed_status": "open",
+        "formal_closure": false,
+        "remaining_clause": "C alone owns streaming/session/process cleanup transfer. Late observer rescue is not production recovery; physical handle/owner failure is not an occupied-permit or /proc-FD claim. Separate cap3->restartcap1 failure belongs C budget criteria.",
+        "smallest_real_falsifier": "Fail real process-final disconnect once, exit and registry shutdown: retained old physical owner must have a production retry owner before another unconfirmed production handle is created.",
+        "predicate_basis": "independently_reconciled"
+      },
+      "B89": {
+        "proposed_status": "limited",
+        "formal_closure": false,
+        "remaining_clause": "Single-pool accounting does not establish whole process/registry physical capacity. Same C cleanup-transfer countercase as B87 remains; C/G must close the orchestration bridge.",
+        "smallest_real_falsifier": "Preserve pending_permitFalse/free1 while disconnect is unknown and open a genuine second production session; per-pool free capacity cannot stand in for completed cleanup ownership.",
+        "predicate_basis": "independently_reconciled"
+      },
+      "B90": {
+        "proposed_status": "closed",
+        "formal_closure": false,
+        "remaining_clause": "Final-root807 lacks the NET native files and full3882 run is interrupted: no current terminal NET rejoin claimed. Uncooperative physical cleanup is retained ownership, not universal cancellation or latency. B87/B89 remain separate actual residuals.",
+        "smallest_real_falsifier": "Connector suppresses timeout or cancellation, or genuine later metadata-lock waiter holds the lock: no stale/late handle may be published; independent release progresses while network work waits.",
+        "predicate_basis": "independently_reconciled"
+      },
+      "B91": {
+        "proposed_status": "closed",
+        "formal_closure": false,
+        "remaining_clause": "Source-specific external initial burst/rate permission is supplied, not inferred from fake clock or absence of exception. No final-root terminal NET rejoin claimed.",
+        "smallest_real_falsifier": "Original default capacity=rate_rps gives .2 bucket for legal unit request: refusing forever is divergent from five-second pacing. Rounding rate to1 or dropping impossible-weight rejection must fail the physical pacing/refusal controls.",
+        "predicate_basis": "independently_reconciled"
+      },
+      "B92": {
+        "proposed_status": "closed",
+        "formal_closure": false,
+        "remaining_clause": "Controlled clock/state-transition carrier is a declared fixture; no actual external HTTP authority or final-root terminal NET rejoin claimed.",
+        "smallest_real_falsifier": "Complete a genuine old attempt after CLOSED->OPEN->HALF_OPEN: its answer/error must survive while current generation remains unchanged; foreign/duplicate token must still diagnose ownership.",
+        "predicate_basis": "independently_reconciled"
+      },
+      "B93": {
+        "proposed_status": "closed",
+        "formal_closure": false,
+        "remaining_clause": "Controlled monotonic clock and ordinary local provider body are declared fixtures, as canonical NET02 accepts. No real HTTP/vendor source SLA, 257-source load or institutional permission grant. Initial premature removal remains nondeciding; technical mapping correction does not grant whole B/global acceptance.",
+        "smallest_real_falsifier": "Remove protection only after genuine HALF_OPEN issued token/provider Event while preserving dictionary/decorator/lease bookkeeping: actual extra same-key/new-key provider must violate the oracle before old probe settles; observed peak pending2 proves the divergent boundary.",
+        "predicate_basis": "independently_reconciled"
+      }
+    },
+    "P41_inherited_red": "not_established",
+    "global_code_acceptance": "RED; full3882 native incomplete; actual807 scientific FAIL and actual C/A failures preserved; no whole B closure"
+  },
+  "limitations_and_next_owner": [
+    "ROOT/G accept or reject exact per-clause recommendations; this leaf independently reviews foreign mechanisms and does not accept its own CMP/RES/JIT production. All closure_ids remain empty.",
+    "B66 LIMITED: actual A helper projects unknownNone to0; full served NL later-admission route requires A/G. Protected A/C source is unchanged198-to1862; B cannot alter it.",
+    "B87 OPEN and B89 LIMITED: real C process-final disconnect loses production cleanup retryowner despite free permit; C/G owns actual consumer correction. Restoredcap3->cap1 is a separate C budget negative.",
+    "B67/B68 HELD: source/evidence owner and G must supply production institutional permission/epoch/coalescing law. B78 local safe typedUnknown is recommended CLOSED; operated external status/idempotency reconciliation remains separately HELD.",
+    "Current native35 executed10e812 (712PASS), not1862; full6246 src/tests/product byte projection is custody, not execution restamping. Only narrow B37/B38/B78 supplemental9/15/10 cases are used here.",
+    "NET B90/B91/B92 source and complete historical actual controls are qualified explicitly; no final-root NET terminal rejoin or P41 inherited-red waiver is claimed.",
+    "No universal powerloss/multihost, native physical interruption, invoice/vendor SLA or institutional authority. Baseline43 cells are source-reported navigation, raw archives absent; source_statuspartial is never new proof.",
+    "No native/gates were executed by this reviewer. Large cloud origin/module inventories are not universally G-transferable; committed moderate exact deciding outputs and named source are the accepted finite input."
+  ],
+  "source_runtime_candidate": {
+    "sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "source_role": "All checked production remains1862; later author/root commits are metadata unless explicitly qualified."
+  },
+  "proposal_input": {
+    "state": "immutable Git input; independent foreign14 status guard only, no own-mechanism adjudication",
+    "implementation_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+    "implementation_tree": "098dabce914551eab464c15c229bbeb018dcfb2b",
+    "proposal_ref": {
+      "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+      "bytes": 199636,
+      "sha256": "30b689d59c28e5173d6957a70ca1403a87ecc2406383f36060e8fc9ebe2c28c1"
+    },
+    "separate_handoff_ref": {
+      "git_sha": "b6c4d27a23d78feb8c081be9e9024051805a647b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-handoff.json",
+      "bytes": 14720,
+      "sha256": "fd035385e40413458c15203dc8066e3d6102791bd108942faeb50ca270dc118d"
+    },
+    "handoff_tree": "0681860f9735abc06a3b73cbce17e294763c935e",
+    "formal_closure_ids": []
+  },
+  "review": {
+    "commit": "ef03f3aa42fa7e190e3bc6480e9be4a540cfe023",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent-evidence/review.json",
+    "bytes": 95483,
+    "sha256": "61d47ea742a55b46df79e27ca4912d6677b91a009fdb4e4c432d71f5e9aee436"
+  },
+  "deciding_output": {
+    "commit": "ef03f3aa42fa7e190e3bc6480e9be4a540cfe023",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent-evidence/custody-audit.json",
+    "bytes": 109122,
+    "sha256": "1323427abedf23fc63f382fef6b9c7a992b5992614be2ae73daa35bd1355fd46"
+  },
+  "P37": [
+    {
+      "predicate": "Full raw criterion, completed outputs, actual producer/consumer source and residual status",
+      "basis": "independently_reconciled",
+      "boundary": "Manual finite recommendation, not formal closure or a native run by this reviewer."
+    },
+    {
+      "predicate": "Exact Git bytes/hashes, owner scope, marker-interior hashes, baseline join and published B93 actual-source/physical-row identity",
+      "basis": "recomputed",
+      "boundary": "Literal read-only custody audit; identities and counts do not auto-adjudicate semantics."
+    },
+    {
+      "predicate": "Baseline reported PASS semantic adequacy/new-fix proof",
+      "basis": "not_established",
+      "boundary": "Source-reported compact text; raw baseline archives absent."
+    },
+    {
+      "predicate": "External permission/epoch law, invoice truth, vendor quota/SLA and operated external status authority",
+      "basis": "not_established",
+      "boundary": "No authority promotion; B67/B68 held, B78 external extension held; declared operational fixtures remain finite."
+    },
+    {
+      "predicate": "Future native/gate success or interrupted whole-cohort terminal case grade",
+      "basis": "not_established",
+      "boundary": "No future PASS; full3882 SIGKILL lacks terminal XML."
+    }
+  ],
+  "P38": "Native exits, source equality, capacity1 and receipt metadata are distinct from real effect, cleanup ownership, billing knowledge and institutional permission. Each finding states an actual divergent input or precise remaining falsifier.",
+  "P41": "not_established for inherited-red attribution; no exact slice-base replay and zero full-input-intersection claim",
+  "publication_footprint": {
+    "implementation_only": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent-evidence/custody-audit.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent-evidence/custody-audit.source.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent-evidence/review.json"
+    ],
+    "separate_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dur-llm-net-final-status-independent.json",
+    "source_test_py_changes": 0,
+    "receipt_self_excluded": true
+  }
+}

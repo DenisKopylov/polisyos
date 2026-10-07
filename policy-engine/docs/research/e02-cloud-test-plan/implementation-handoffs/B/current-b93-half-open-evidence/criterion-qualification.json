@@ -1,0 +1,34 @@
+{
+  "criterion": {
+    "source": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/NET-02.md",
+      "commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "blob": "57f1cbef61fd1fa16f7da5c6b4308709056fad5e",
+      "sha256": "cacfe59ec5056d76596aeb36ea2dfa9e43925042b5bc1e77c7cbeedcbd2b240b",
+      "bytes": 16805
+    },
+    "finding_id": "B93",
+    "source_marker": "SOURCE_BEGIN B:B93..SOURCE_END B:B93",
+    "criterion_capture_sha256": "87741d3b2986ece596a60a5ae476e33558b94b6dceb92afd4b85598bfedc750d",
+    "criterion_capture_bytes": 4183,
+    "digest_convention": "raw regex re.S group1; excludes markers, preserves leading and trailing LF; same convention as canonical denominator.py",
+    "source_original": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "bytes": 1336380
+    },
+    "source_original_lines": [
+      2463,
+      2476
+    ]
+  },
+  "correction": {
+    "scope": "Technical bounded regulator ownership, not an institutional mapping law",
+    "historical_claim_corrected": "Historical B93 held labels based on a missing canonical institutional/source-key mapping law were wrong for NET-02 B93. Exact complete canonical paragraph asks bounded runtime state retention through TTL/pressure/wait/cooldown/HALF_OPEN and typed finite admission refusal. Old records remain historical bytes; this forward packet supersedes that predicate only for B93.",
+    "changed_foreign_records": false,
+    "next_owner": "Root/G: update effective all60 B93 adjudication to technical bounded criterion; preserve historical wrong-law labels with this correction pointer. No proposed change to genuinely held institutional findings.",
+    "stale_residual_qualification": "The retained residual_ledger.rows/B93 residual and proposed typed_protocol_predicate lookalike identity concern a different predicate class and are not the complete NET-02 B93 source criterion. The same row p_triage engineering owner/next_step explicitly names bounded active regulator protection. Exact old row is preserved in baseline-context; this review resolves criterion from full original B93 paragraph rather than stale residual prose."
+  }
+}

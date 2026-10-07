@@ -1,0 +1,67 @@
+{"PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src", "canonical_path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/fallback_runner.py", "execution_overlay_sha256": "88093f98522f80bbcd37716adc366d0f631317ae52b4bcaf93d8c07ca449ec62", "input_closure": "actual admitted source checkout, own isolated SQLite/FileSystemCAS fixtures and concrete typed primary backend; no external reconciliation/idempotency authority or production data", "kind": "B78", "mode": "removal", "original_source_sha256": "08a6a33767eb69c875f8ba4391c7ab8e53858f830f9e1467c073148319683668", "overlay": "only bound publication admission or post-dispatch no-replay property removed; markers and all other canonical source remain", "pytest_command": ["-o", "addopts=", "-q", "/workspace/e02-B-current-durability/policy-engine/tests/unit/remediation/test_dur_02_process.py", "-k", "persisted_primary_effect_lost_response", "--basetemp=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/B78-removal-73"], "python": "/workspace/polisyos/policy-engine/.venv/bin/python", "start_utc": "2026-10-06T10:52:52.297643+00:00", "target_sha": "73a055e033dad61590d3ef03b9ff44aaef2c0990", "target_tree": "e53602b3b7ed0c638cd196f2dc019628bcbe7cd6"}
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_persisted_primary_effect_lost_response_is_unknown_without_real_local_replay[error0] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/B78-removal-73/test_persisted_primary_effect_0')
+error = RuntimeError('lost response after effect')
+
+    @pytest.mark.parametrize(
+        "error", [RuntimeError("lost response after effect"), OSError("lost transport acknowledgment")]
+    )
+    def test_persisted_primary_effect_lost_response_is_unknown_without_real_local_replay(
+        tmp_path: Path,
+        error: BaseException,
+    ) -> None:
+        workflow, state, ctx, registry, database, cas = _handover_inputs(tmp_path)
+        primary = _FixturePrimary(execution_error=error)
+        assert isinstance(primary, WorkflowRunnerBackend)
+        runner = FallbackWorkflowRunner(primary, health_ttl_s=0)
+>       with pytest.raises(PrimaryExecutionOutcomeUnknownError) as caught:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.scientist.orchestration.engine.runner.fallback_runner.PrimaryExecutionOutcomeUnknownError'>
+
+policy-engine/tests/unit/remediation/test_dur_02_process.py:589: Failed
+------------------------------ Captured log call -------------------------------
+WARNING  polisyos.scientist.orchestration.engine.runner.fallback_runner:error_semantics.py:119 Degraded path component=engine.runner.fallback operation=execute_primary reason=primary_execution_outcome_unknown envelope={'component': 'engine.runner.fallback', 'operation': 'execute_primary', 'reason': 'primary_execution_outcome_unknown', 'error_type': 'RuntimeError', 'message': 'lost response after effect', 'retryable': False, 'degraded': True, 'details': {'backend': 'fixture-primary', 'message': '', 'exception_type': 'RuntimeError'}}
+WARNING  polisyos.core.observability._metrics_registry_base:_metrics_registry_base.py:263 Prometheus metrics exporter disabled after bootstrap failure: [Errno 98] Address already in use
+_ test_persisted_primary_effect_lost_response_is_unknown_without_real_local_replay[error1] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/B78-removal-73/test_persisted_primary_effect_1')
+error = OSError('lost transport acknowledgment')
+
+    @pytest.mark.parametrize(
+        "error", [RuntimeError("lost response after effect"), OSError("lost transport acknowledgment")]
+    )
+    def test_persisted_primary_effect_lost_response_is_unknown_without_real_local_replay(
+        tmp_path: Path,
+        error: BaseException,
+    ) -> None:
+        workflow, state, ctx, registry, database, cas = _handover_inputs(tmp_path)
+        primary = _FixturePrimary(execution_error=error)
+        assert isinstance(primary, WorkflowRunnerBackend)
+        runner = FallbackWorkflowRunner(primary, health_ttl_s=0)
+>       with pytest.raises(PrimaryExecutionOutcomeUnknownError) as caught:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.scientist.orchestration.engine.runner.fallback_runner.PrimaryExecutionOutcomeUnknownError'>
+
+policy-engine/tests/unit/remediation/test_dur_02_process.py:589: Failed
+------------------------------ Captured log call -------------------------------
+WARNING  polisyos.scientist.orchestration.engine.runner.fallback_runner:error_semantics.py:119 Degraded path component=engine.runner.fallback operation=execute_primary reason=primary_execution_outcome_unknown envelope={'component': 'engine.runner.fallback', 'operation': 'execute_primary', 'reason': 'primary_execution_outcome_unknown', 'error_type': 'OSError', 'message': 'lost transport acknowledgment', 'retryable': False, 'degraded': True, 'details': {'backend': 'fixture-primary', 'message': '', 'exception_type': 'OSError'}}
+=============================== warnings summary ===============================
+../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/remediation/test_dur_02_process.py::test_persisted_primary_effect_lost_response_is_unknown_without_real_local_replay[error0]
+FAILED policy-engine/tests/unit/remediation/test_dur_02_process.py::test_persisted_primary_effect_lost_response_is_unknown_without_real_local_replay[error1]
+2 failed, 18 deselected, 1 warning in 13.87s
+{"actual_cas_payload": {"backend": "primary", "operation_id": "fixture-operation-1"}, "backend": "primary", "database": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/B78-removal-73/test_persisted_primary_effect_0/effects.sqlite3", "operation_id": "fixture-operation-1"}
+{"actual_cas_payload": {"backend": "local", "operation_id": "fixture-operation-1"}, "backend": "local", "database": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/B78-removal-73/test_persisted_primary_effect_0/effects.sqlite3", "operation_id": "fixture-operation-1"}
+{"database": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/B78-removal-73/test_persisted_primary_effect_0/effects.sqlite3", "logical_operation_ids": ["fixture-operation-1"], "persisted_effect_count": 2}
+{"actual_cas_payload": {"backend": "primary", "operation_id": "fixture-operation-1"}, "backend": "primary", "database": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/B78-removal-73/test_persisted_primary_effect_1/effects.sqlite3", "operation_id": "fixture-operation-1"}
+{"actual_cas_payload": {"backend": "local", "operation_id": "fixture-operation-1"}, "backend": "local", "database": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/B78-removal-73/test_persisted_primary_effect_1/effects.sqlite3", "operation_id": "fixture-operation-1"}
+{"database": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/tmp/B78-removal-73/test_persisted_primary_effect_1/effects.sqlite3", "logical_operation_ids": ["fixture-operation-1"], "persisted_effect_count": 2}
+{"end_utc": "2026-10-06T10:53:09.393571+00:00", "grouped_B38_later_assertions": null, "pytest_exit_code": 1, "status_after": ""}

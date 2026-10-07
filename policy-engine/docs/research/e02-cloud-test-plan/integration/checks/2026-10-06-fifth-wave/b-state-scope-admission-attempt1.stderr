@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/results/b-all15-state-probe-3eb.py", line 282, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/results/b-all15-state-probe-3eb.py", line 130, in main
+    expected_size = sum(
+        int(record.split(b' ', 3)[3])
+        for record in git('ls-tree', '-r', '-l', '-z', CANDIDATE, '--', 'policy-engine/src').split(b'\0')
+        if record
+    )
+  File "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/results/b-all15-state-probe-3eb.py", line 131, in <genexpr>
+    int(record.split(b' ', 3)[3])
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: invalid literal for int() with base 10: b'    519\tpolicy-engine/src/README.md'

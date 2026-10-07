@@ -1,0 +1,11 @@
+{
+  "semantic_candidate": "5494f7d056ddc251107f416299db76400a96efce",
+  "path": "policy-engine/tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+  "before_sha256": "7fba6477f92cbf052386ea4e601f8d8e3bb1e0c710e8d23937eac9ba344a630a",
+  "after_sha256": "ea350b993f693b6421ea0bab58c01e0acbf6f6a7e7c8152c7c3043d856d7f3e4",
+  "whole_module_ast": "MATCH",
+  "stdout": "1 file reformatted\n",
+  "stderr": "",
+  "exit_code": 0,
+  "qualification": "Formatting only; every AST node including all assertions unchanged."
+}

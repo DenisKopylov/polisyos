@@ -1,0 +1,19 @@
+{"target_sha": "a2717e3833f582725acf54d480113f9792f017f3", "driver_sha256": "175fcffce1cb7aca07efb9d6ed52e8c2bf03fb75b4a74812d4d1e36580600a1a", "module_file": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/settlement.py", "module_sha256": "b003fce3fdc0a9ba6671488d1fc20f925e152aeecee54c04a43b933cab1b94f5", "fixture_sha256": "7bb003c7cb17dcb43b5781becbf0e6c063de69dfd3e7301b17381335b0b00f3c"}
+{"physical_provider_calls": 1, "actual_cache_clients_in_provider_route": 0, "spent": "0", "event_kind": "reuse", "ack_status": "committed", "receipt_count": 0, "provider_metrics_events": 0}
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/unbound-owner-probe.py", line 35, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/unbound-owner-probe.py", line 34, in main
+    assert value["spent"]=="0.02" and value["event_kind"]=="provider" and value["receipt_count"]==1, "a self-appointed typed owner is not an admitted cache emitter"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: a self-appointed typed owner is not an admitted cache emitter

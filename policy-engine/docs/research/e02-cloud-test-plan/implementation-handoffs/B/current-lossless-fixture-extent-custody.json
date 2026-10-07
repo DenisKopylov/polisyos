@@ -1,0 +1,69 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-lossless-fixture-extent-custody",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "681687e6f77b4b8da202864ce791a6db0db0456a",
+  "implementation_commits": [
+    "f043481a6023c1238460a2e72f57ec4f1ed29291",
+    "4f2b5da42fbd7149b628a547be63cc51228c8f7e"
+  ],
+  "candidate_tree_sha": "2aea6ce5b2276abf4ceeab5e8eee618f20e18a7a",
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-lossless-fixture-extent-evidence/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-lossless-fixture-extent-evidence/additional-closed-root-catalog-extents.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-lossless-fixture-extent-evidence/additional-result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-lossless-fixture-extent-evidence/closed-native-catalog-extents.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-lossless-fixture-extent-evidence/custody-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-lossless-fixture-extent-evidence/one-file.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-lossless-fixture-extent-evidence/result.json"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "For each exact path enumerated in closed-native-catalog-extents.jsonl and additional-closed-root-catalog-extents.jsonl: read full SHA-256; run [fallocate, --dig-holes, --, exact path]; reread full SHA-256, inode and size. Only completed owned runtime-http-cache/catalog-graphs/catalog.duckdb fixture files selected; no symlink traversal.",
+      "target_sha": "681687e6f77b4b8da202864ce791a6db0db0456a",
+      "environment": "cloud Linux overlay/tmpfs; euid1000; system fallocate; Python3 hashlib/os/stat/subprocess",
+      "input_closure": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-lossless-fixture-extent-evidence/closed-native-catalog-extents.jsonl",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-lossless-fixture-extent-evidence/additional-closed-root-catalog-extents.jsonl",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-lossless-fixture-extent-evidence/one-file.json"
+      ],
+      "outcome": "PASS",
+      "output": "First one-file witness: 6303744 logical bytes and same inode retained, SHA2569b0e760e4550858edd52a6fc2aeac95ce9ba383c2873e019c86e5b13f96f62b6 unchanged, allocated6303744→888832. Complete batches1306 operations: all exit0,0 byte/inode/size mismatch; first1074 batch saved5812981760 bytes in34.50578448100714s, second232 saved1256259584 in19.04447157299728s; total batch saved7069241344 bytes. Full per-file operations committed; no fixture deletion or move."
+    },
+    {
+      "command": "git show HEAD:<each exact indexed file>; SHA256 and byte length compare custody-index original identities",
+      "target_sha": "4f2b5da42fbd7149b628a547be63cc51228c8f7e",
+      "environment": "read-only Git cloud attached B branch",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-lossless-fixture-extent-evidence/custody-index.json",
+      "outcome": "PASS",
+      "output": "All five deciding JSON/JSONL original files present in actual Git with matching lengths and SHA-256. Two moderate JSONL logs added in separate append-only implementation commit because global *.jsonl ignore excluded them; no rewritten history."
+    }
+  ],
+  "property": {
+    "statement": "Recover physical storage from retained zero-filled extents without changing any logical evidence bytes, file paths, sizes or inode identity.",
+    "runtime_path": [
+      "closed native test DuckDB fixtures",
+      "full original byte hash",
+      "Linux fallocate zero-extent deallocation",
+      "full fresh byte/inode/size hash reconciliation",
+      "committed full custody logs"
+    ],
+    "proxy_divergence": "Free-space increase alone can result from lost evidence; actual before/after full SHA-256 plus same inode/size verifies logical preservation for every operated file. Native historical RSS/allocation measurements are not retroactively changed or promoted.",
+    "negative_controls": [
+      "Only closed ROOT native fixture forests and completed DD native fixture forest selected; production/PG/code/environments untouched.",
+      "Non-owned files, symlinks and paths outside exact runtime HTTP fixture catalog pattern excluded; mismatch would stop immediately."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "operational_byte_custody_only_no_finding_closure",
+  "limitations_and_next_owner": [
+    "Physical extent allocation changes; all logical bytes/directories remain. This is not cleanup by deletion or move and provides no new B mechanism proof.",
+    "Native Trash unavailable; exact cleanup candidates remain retained for final G handoff. Never purge Trash or permanently remove files.",
+    "Final native cohort must use a fresh scratch path with actual available resources; this operation does not certify future cohort success."
+  ]
+}

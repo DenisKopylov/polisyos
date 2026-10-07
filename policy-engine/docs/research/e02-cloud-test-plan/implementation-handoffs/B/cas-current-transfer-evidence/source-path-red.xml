@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="5" time="4.269" timestamp="2026-10-06T10:10:37.270247+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_import_archive_binds_the_supplied_regular_path_before_streaming[regular_symlink]" time="0.440"><failure message="AssertionError: {'message': 'nonregular input was admitted', 'substituted': False, 'type': 'published'}&#10;assert 'published' == 'ValueError'&#10;  &#10;  - ValueError&#10;  + published">tests/unit/core/artifacts/test_transfer_generation_publication.py:510: in test_import_archive_binds_the_supplied_regular_path_before_streaming
+    assert result["type"] == "ValueError", result
+E   AssertionError: {'message': 'nonregular input was admitted', 'substituted': False, 'type': 'published'}
+E   assert 'published' == 'ValueError'
+E     
+E     - ValueError
+E     + published</failure></testcase><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_import_archive_binds_the_supplied_regular_path_before_streaming[dangling_symlink]" time="0.394"><failure message="AssertionError: {'message': &quot;[Errno 2] No such file or directory: '/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-.../source-path-red-tmp/test_import_archive_binds_the_1/input.tar.gz'&quot;, 'substituted': False, 'type': 'FileNotFoundError'}&#10;assert 'FileNotFoundError' == 'ValueError'&#10;  &#10;  - ValueError&#10;  + FileNotFoundError">tests/unit/core/artifacts/test_transfer_generation_publication.py:510: in test_import_archive_binds_the_supplied_regular_path_before_streaming
+    assert result["type"] == "ValueError", result
+E   AssertionError: {'message': "[Errno 2] No such file or directory: '/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-.../source-path-red-tmp/test_import_archive_binds_the_1/input.tar.gz'", 'substituted': False, 'type': 'FileNotFoundError'}
+E   assert 'FileNotFoundError' == 'ValueError'
+E     
+E     - ValueError
+E     + FileNotFoundError</failure></testcase><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_import_archive_binds_the_supplied_regular_path_before_streaming[fifo]" time="0.462" /><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_import_archive_binds_the_supplied_regular_path_before_streaming[socket]" time="0.458" /><testcase classname="tests.unit.core.artifacts.test_transfer_generation_publication" name="test_import_archive_binds_the_supplied_regular_path_before_streaming[fifo_at_open]" time="2.396"><failure message="AssertionError: import opened a nonregular archive and blocked&#10;assert False&#10; +  where False = poll(2)&#10; +    where poll = &lt;multiprocessing.connection.Connection object at 0x7f6ba6217450&gt;.poll">tests/unit/core/artifacts/test_transfer_generation_publication.py:508: in test_import_archive_binds_the_supplied_regular_path_before_streaming
+    assert parent.poll(2), "import opened a nonregular archive and blocked"
+E   AssertionError: import opened a nonregular archive and blocked
+E   assert False
+E    +  where False = poll(2)
+E    +    where poll = &lt;multiprocessing.connection.Connection object at 0x7f6ba6217450&gt;.poll</failure></testcase></testsuite></testsuites>

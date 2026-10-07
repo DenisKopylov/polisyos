@@ -1,0 +1,52 @@
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-execution-state/_build/current-execution-state/run-review-3f/setup_probe.py", line 41, in <module>
+  File "/workspace/e02-B-current-execution-state/_build/current-execution-state/run-review-3f/retry_pinned.py", line 1424, in _execute_with_timeout_process
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/context.py", line 92, in Event
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 755, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 892, in get_code
+  File "<frozen importlib._bootstrap_external>", line 950, in get_data
+OSError: [Errno 24] Too many open files: '/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/synchronize.py'
+{
+  "source_sha": "3f4455f11600f6a5c94e3a5dfbcd519d46ac6c6f",
+  "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+  "source_sha256": "57a1ea6a58c8287935eed7d17679d229970c00c09be12cb3028cd808526014ba",
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "POLISYOS_METRICS_PORT": "0"
+  },
+  "mode": "sync",
+  "body_entered": false,
+  "fd_before": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "RLIMIT_NOFILE_soft_fault": 7,
+  "exception": {
+    "type": "OSError",
+    "message": "[Errno 24] Too many open files: '/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/synchronize.py'"
+  },
+  "fd_after_while_exception_retained": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "new_fds": [
+    5,
+    6
+  ],
+  "new_fd_targets": {
+    "5": "pipe:[426503]",
+    "6": "pipe:[426503]"
+  }
+}

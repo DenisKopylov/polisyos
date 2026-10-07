@@ -1,0 +1,52 @@
+{
+  "source": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+  "gates": [
+    {
+      "name": "verify",
+      "outcome": "FAIL",
+      "planned": 15,
+      "executed": 1,
+      "UNRUN": 14,
+      "doctor_status": [
+        "[PASS] python: Python 3.14.2 via /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "[PASS] node: Node v22.22.0",
+        "[PASS] uv: uv 0.9.21 at /workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "[PASS] playwright: Chromium browser is launchable",
+        "[PASS] uv.lock: uv.lock is up to date",
+        "[FAIL] pnpm-lock: pnpm-lock.yaml is stale or inconsistent (Command '['corepack', 'pnpm', 'install', '--frozen-lockfile', '--lockfile-only', '--ignore-scripts']' returned non-zero exit status 228.)",
+        "[PASS] optional-surfaces: No optional surfaces selected",
+        "doctor failed with 1 issue(s)."
+      ],
+      "schema_drift": []
+    },
+    {
+      "name": "parity",
+      "outcome": "FAIL",
+      "planned": 35,
+      "executed": 1,
+      "UNRUN": 34,
+      "doctor_status": [
+        "[PASS] python: Python 3.14.2 via /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "[PASS] node: Node v22.22.0",
+        "[PASS] uv: uv 0.9.21 at /workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "[PASS] playwright: Chromium browser is launchable",
+        "[PASS] uv.lock: uv.lock is up to date",
+        "[FAIL] pnpm-lock: pnpm-lock.yaml is stale or inconsistent (Command '['corepack', 'pnpm', 'install', '--frozen-lockfile', '--lockfile-only', '--ignore-scripts']' returned non-zero exit status 228.)",
+        "[FAIL] schemas: Generated contract check failed (Command '['/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv', 'run', '--extra', 'ml', 'python', 'tools/quality/diagnostics/gen_schema.py', '--check']' returned non-zero exit status 1.)",
+        "[FAIL] runtime-openapi: Generated contract check failed (Command '['/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv', 'run', '--extra', 'runtime', '--extra', 'ml', 'python', 'tools/ops_runners/runtime/check_runtime_api_contract.py']' returned non-zero exit status 137.)",
+        "[PASS] frontend-contracts: fresh",
+        "[PASS] optional-surfaces: No optional surfaces selected",
+        "doctor failed with 3 issue(s)."
+      ],
+      "schema_drift": [
+        "- snapshot out of date: /workspace/e02-B-current-coordination/policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json",
+        "- snapshot out of date: /workspace/e02-B-current-coordination/policy-engine/schemas/snapshots/ir/_manifest.json"
+      ]
+    }
+  ],
+  "audit_errors": [],
+  "output": "/tmp/e02-B-cas-output-audit-20261007/external-audit.json",
+  "bytes": 25444,
+  "sha256": "f97597daf8bbb403172eb6341d4b81b3728da9e2b7d3e9f46bba3f3f45e4be0e"
+}

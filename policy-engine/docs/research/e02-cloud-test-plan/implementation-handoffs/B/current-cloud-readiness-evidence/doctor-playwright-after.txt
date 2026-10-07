@@ -1,0 +1,2 @@
+{"doctor_file": "/workspace/e02-B-current-coordination/policy-engine/tools/devx/workspace/doctor.py", "frontend_root": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard", "smoke": "const { chromium } = require(\"playwright\");\n(async () => {\n  const browser = await chromium.launch({ headless: true });\n  await browser.close();\n})().catch((error) => {\n  console.error(error);\n  process.exit(1);\n});"}
+{"name": "playwright", "ok": true, "message": "Chromium browser is launchable"}

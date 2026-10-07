@@ -1,0 +1,235 @@
+{
+  "outcome": "PASS",
+  "errors": [],
+  "headers": {
+    "main": {
+      "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+      "parents": [
+        "1ddcd7b3905e52c0d19db091823a64830139fa64"
+      ],
+      "subject": "docs(e02): publish six owner continuation prompts from main checkpoint"
+    },
+    "slice_base": {
+      "sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+      "tree": "a07dc5b12a14ce004746cb43f7fbe609e8e0ff50",
+      "parents": [
+        "c683ab749f470249565ecaf377e5a24cd74e47bc",
+        "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7"
+      ],
+      "subject": "Merge fetched G checkpoint 13 as B continuation dependency"
+    },
+    "implementation": {
+      "sha": "af03a9d9693ed73b5dd1fd5b8fe8ad06dcb19cc8",
+      "tree": "bd77335cf86ea2f1c65714cd54d3b5e9540d2a83",
+      "parents": [
+        "b371fce793afddbe15e18ee2eadec3c7b9d51e52"
+      ],
+      "subject": "Preserve complete frozen B observations, bounded JIT repair and all60 decisions"
+    },
+    "published_B": {
+      "sha": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+      "tree": "dc4ebd99afba72d13c60a46e77cd8fc99a002e60",
+      "parents": [
+        "af03a9d9693ed73b5dd1fd5b8fe8ad06dcb19cc8"
+      ],
+      "subject": "Add separate exact-source final B continuation handoff for G"
+    },
+    "published_G": {
+      "sha": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+      "tree": "2e228785406834ba128bb7b4dd9c636a6a2a1cb5",
+      "parents": [
+        "76746fececd1a183a516c48f07ce2835baa8a2d1"
+      ],
+      "subject": "docs(e02): publish B/F continuation and exact consumer feedback"
+    },
+    "historical_G": {
+      "sha": "76746fececd1a183a516c48f07ce2835baa8a2d1",
+      "tree": "51929dd44a3650c7842bf77aedcdeba6ecd1a755",
+      "parents": [
+        "ebae80eaa25482d84bc6ad2e78721bc318bc0228"
+      ],
+      "subject": "docs(e02): publish delta admission decisions and independent G numeric receipts"
+    },
+    "common_base": {
+      "sha": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+      "tree": "f27a36aa7eae9d6e329e0602ea40b6169a5bcf35",
+      "parents": [
+        "172db850d398d6c656a818c1f36fa6b673284dec"
+      ],
+      "subject": "docs(e02): record native Trash cleanup after checkpoint 13"
+    },
+    "reconciled_root": {
+      "sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+      "tree": "e6ec2e4bb34f84f946341004f1e5c8374fb29010",
+      "parents": [
+        "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "855cb26a7a2c9fea60356663cf81e7d01e20c738"
+      ],
+      "subject": "Merge commit '855cb26a7a2c9fea60356663cf81e7d01e20c738' into codex/e02-B-current-coordination"
+    }
+  },
+  "ancestry": {
+    "merge_base": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+    "B_descends_from_current_G": false,
+    "G_descends_from_current_B": false,
+    "root_descends_from_B": true,
+    "root_descends_from_G": true,
+    "forbidden_a3_membership": {
+      "published_B": false,
+      "published_G": false,
+      "reconciled_root": false
+    },
+    "full_history_commit_counts": {
+      "published_B": 5682,
+      "published_G": 4801,
+      "reconciled_root": 5689
+    }
+  },
+  "slice_projection": {
+    "path_count": 948,
+    "statuses": {
+      "A": 943,
+      "M": 5
+    },
+    "categories": {
+      "release": 2,
+      "research": 936,
+      "source": 4,
+      "tests": 6
+    },
+    "extensions": {
+      ".args": 1,
+      ".bin": 62,
+      ".blob": 10,
+      ".json": 533,
+      ".jsonl": 63,
+      ".lock": 1,
+      ".md": 12,
+      ".py": 11,
+      ".toml": 2,
+      ".txt": 224,
+      ".xml": 29
+    },
+    "candidate_bytes": 48756801
+  },
+  "whole_main_projection": {
+    "path_count": 5242,
+    "statuses": {
+      "M": 117,
+      "A": 5125
+    },
+    "categories": {
+      "other": 13,
+      "release": 36,
+      "research": 5032,
+      "source": 73,
+      "tests": 88
+    },
+    "extensions": {
+      ".args": 3,
+      ".bin": 62,
+      ".blob": 129,
+      ".cjs": 2,
+      ".diff": 12,
+      ".json": 2441,
+      ".jsonl": 294,
+      ".lock": 251,
+      ".log": 49,
+      ".md": 191,
+      ".patch": 1,
+      ".py": 282,
+      ".pyi": 4,
+      ".sha256": 1,
+      ".stderr": 13,
+      ".stdout": 12,
+      ".toml": 37,
+      ".txt": 1169,
+      ".xml": 289
+    },
+    "candidate_bytes": 168694626
+  },
+  "root_reconciliation": {
+    "path_count": 79,
+    "statuses": {
+      "M": 5,
+      "A": 74
+    },
+    "categories": {
+      "research": 79
+    },
+    "extensions": {
+      ".json": 19,
+      ".md": 43,
+      ".py": 4,
+      ".txt": 11,
+      ".xml": 1,
+      "<none>": 1
+    },
+    "candidate_bytes": 738740
+  },
+  "source_test_B_G_difference_count": 148,
+  "source_test_main_B_difference_count": 161,
+  "protected_owner_paths": [
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "blobs": {
+        "main": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6",
+        "published_B": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6",
+        "published_G": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6",
+        "reconciled_root": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6"
+      },
+      "root_equal_B": true,
+      "B_equal_main": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "blobs": {
+        "main": "29459ff167cad1e011a2de626a627b30d0336a01",
+        "published_B": "29459ff167cad1e011a2de626a627b30d0336a01",
+        "published_G": "29459ff167cad1e011a2de626a627b30d0336a01",
+        "reconciled_root": "29459ff167cad1e011a2de626a627b30d0336a01"
+      },
+      "root_equal_B": true,
+      "B_equal_main": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "blobs": {
+        "main": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+        "published_B": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+        "published_G": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+        "reconciled_root": "85d24cf2c2233a570ccf1274c6436df7c5aaa218"
+      },
+      "root_equal_B": true,
+      "B_equal_main": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "blobs": {
+        "main": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+        "published_B": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+        "published_G": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+        "reconciled_root": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33"
+      },
+      "root_equal_B": true,
+      "B_equal_main": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/streaming.py",
+      "blobs": {
+        "main": "94c9290497ad479ea453c5cd7aa18d3765cb17c0",
+        "published_B": "94c9290497ad479ea453c5cd7aa18d3765cb17c0",
+        "published_G": "94c9290497ad479ea453c5cd7aa18d3765cb17c0",
+        "reconciled_root": "94c9290497ad479ea453c5cd7aa18d3765cb17c0"
+      },
+      "root_equal_B": true,
+      "B_equal_main": true
+    }
+  ],
+  "complete_output": {
+    "path": "/tmp/e02-B-cas-tenth-wave-review-20261007/ancestry-audit.json",
+    "bytes": 196851,
+    "sha256": "f0c1afed972bec61be5607d35a25c832efc67daba3905eb7f31d408534874b3f"
+  }
+}

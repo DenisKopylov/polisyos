@@ -1,0 +1,30 @@
+{
+  "schema": "policyos.e02.artifact_index.v1",
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-map-independent-review/README.md",
+      "bytes": 1251,
+      "sha256": "44483358e230c58915d56e77c25c5a744e5d1dfbcdb095d917468ad1ddc17d10"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-map-independent-review/audit-full-stdout.json",
+      "bytes": 135014,
+      "sha256": "bb88bab6d4174d1c3a11b98837d82841db90191a012ef1f9752273532fc87ed1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-map-independent-review/audit-instrument.source.txt",
+      "bytes": 5688,
+      "sha256": "4b7e8c457d5f14efd7f7da4f4601c00be6a31cf574d484d17a912ce803e79604"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-map-independent-review/audit-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-map-independent-review/review.json",
+      "bytes": 19433,
+      "sha256": "a439f540ea19afb1a266217c445f7578ca9b20715178beb01d39f7c053218b56"
+    }
+  ]
+}

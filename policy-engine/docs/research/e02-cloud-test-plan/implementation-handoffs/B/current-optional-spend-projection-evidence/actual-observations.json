@@ -1,0 +1,278 @@
+{
+  "source_sha": "a2fedcccb26b09bceeca7bf65a8f4c42053bb8b9",
+  "cases": [
+    {
+      "name": "test_optional_projection_preserves_physical_spend_knowledge[unknown]",
+      "outcome": "FAIL"
+    },
+    {
+      "name": "test_optional_projection_preserves_physical_spend_knowledge[reported-02]",
+      "outcome": "PASS"
+    },
+    {
+      "name": "test_optional_projection_preserves_physical_spend_knowledge[reported-zero]",
+      "outcome": "PASS"
+    }
+  ],
+  "physical_inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/physical-inputs/test_optional_projection_prese0/physical-provider.jsonl",
+      "bytes": 46,
+      "sha256": "67c7084e43814274120b6ca6221aaabce1e48012a080344cac6b7cabc21ef1d4",
+      "json_rows": [
+        {
+          "user": "one actual optional-spend request"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/physical-inputs/test_optional_projection_prese1/physical-provider.jsonl",
+      "bytes": 46,
+      "sha256": "67c7084e43814274120b6ca6221aaabce1e48012a080344cac6b7cabc21ef1d4",
+      "json_rows": [
+        {
+          "user": "one actual optional-spend request"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/physical-inputs/test_optional_projection_prese2/physical-provider.jsonl",
+      "bytes": 46,
+      "sha256": "67c7084e43814274120b6ca6221aaabce1e48012a080344cac6b7cabc21ef1d4",
+      "json_rows": [
+        {
+          "user": "one actual optional-spend request"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/physical-inputs/test_optional_projection_presecurrent/physical-provider.jsonl",
+      "bytes": 46,
+      "sha256": "67c7084e43814274120b6ca6221aaabce1e48012a080344cac6b7cabc21ef1d4",
+      "json_rows": [
+        {
+          "user": "one actual optional-spend request"
+        }
+      ]
+    }
+  ],
+  "observations": [
+    {
+      "actual_observer_events": [
+        {
+          "cache_hit": false,
+          "cache_key": null,
+          "completion_tokens": 0,
+          "cost_delta_usd": null,
+          "cost_origin": "unknown",
+          "cost_status": "missing",
+          "cost_usd": null,
+          "estimated_cost_usd": 0.0,
+          "event_identity": "llm-producer:ec65b8f80ead4538a0991e7b14455352",
+          "latency_ms": 3,
+          "metrics_status": "recorded",
+          "model": "gpt-4o",
+          "model_variant_id": null,
+          "origin_completion_tokens": 0,
+          "origin_cost_usd": null,
+          "origin_prompt_tokens": 0,
+          "origin_total_tokens": 0,
+          "payload_digest": "sha256:28001b3fe89ebe3b710c746fd98f8ecdcdec3bbc735c8b9508d2654148519eb3",
+          "producer_event_id": "llm-producer:ec65b8f80ead4538a0991e7b14455352",
+          "prompt_tokens": 0,
+          "provider": "physical-optional-spend-oracle",
+          "provider_call": true,
+          "request_id": null,
+          "reuse_event_id": null,
+          "run_id": "optional-spend-boundary",
+          "settlement_status": "unmanaged",
+          "status": "success",
+          "total_tokens": 0,
+          "usage_origin": "provider",
+          "usage_status": "missing"
+        }
+      ],
+      "actual_runtime_projection": {
+        "completion_tokens": 0.0,
+        "cost_delta_usd": 0.0,
+        "cost_usd": 0.0,
+        "estimated_cost_usd": 0.0,
+        "latency_ms": 3.0,
+        "prompt_tokens": 0.0
+      },
+      "physical_provider_requests": [
+        {
+          "user": "one actual optional-spend request"
+        }
+      ],
+      "reported_cost": null,
+      "source_origins": [
+        {
+          "module": "polisyos.core.llm.response",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/response.py",
+          "sha256": "9964c5183108f47143cec32b0beb8b65aa4de6df706757b3a1f02be1c77b0581"
+        },
+        {
+          "module": "polisyos.core.llm.settlement",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/settlement.py",
+          "sha256": "598361a061d382fcd5788bbb393cb0cd0c9387c462d6bf4f76bba5ee6f78a0b9"
+        },
+        {
+          "module": "polisyos.core.llm.traced_client",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/traced_client.py",
+          "sha256": "fcd09cee45b49a42be8cc4e86c0b9e9ec34033a6903adf4d8e4cf30731a2f01b"
+        },
+        {
+          "module": "polisyos.runtime.http.services.control.response_shapes",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py",
+          "sha256": "b129c35c13a7bb021497f667979a0c8604f6c49a8b13a2e3dd44f668034f678b"
+        }
+      ]
+    },
+    {
+      "actual_observer_events": [
+        {
+          "cache_hit": false,
+          "cache_key": null,
+          "completion_tokens": 3,
+          "cost_delta_usd": 0.0199525,
+          "cost_origin": "reported",
+          "cost_status": "known",
+          "cost_usd": 0.02,
+          "estimated_cost_usd": 4.75e-05,
+          "event_identity": "llm-producer:bfe28f55fb9e4c309051ed637114e1f5",
+          "latency_ms": 1,
+          "metrics_status": "recorded",
+          "model": "gpt-4o",
+          "model_variant_id": null,
+          "origin_completion_tokens": 3,
+          "origin_cost_usd": 0.02,
+          "origin_prompt_tokens": 7,
+          "origin_total_tokens": 10,
+          "payload_digest": "sha256:8af663ad5c9e59362a0cd100b3d88b255ad90fedbb41f16bbbc7b4e7f8b1ac2a",
+          "producer_event_id": "llm-producer:bfe28f55fb9e4c309051ed637114e1f5",
+          "prompt_tokens": 7,
+          "provider": "physical-optional-spend-oracle",
+          "provider_call": true,
+          "request_id": null,
+          "reuse_event_id": null,
+          "run_id": "optional-spend-boundary",
+          "settlement_status": "unmanaged",
+          "status": "success",
+          "total_tokens": 10,
+          "usage_origin": "provider",
+          "usage_status": "known"
+        }
+      ],
+      "actual_runtime_projection": {
+        "completion_tokens": 3.0,
+        "cost_delta_usd": 0.0199525,
+        "cost_usd": 0.02,
+        "estimated_cost_usd": 4.75e-05,
+        "latency_ms": 1.0,
+        "prompt_tokens": 7.0
+      },
+      "physical_provider_requests": [
+        {
+          "user": "one actual optional-spend request"
+        }
+      ],
+      "reported_cost": 0.02,
+      "source_origins": [
+        {
+          "module": "polisyos.core.llm.response",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/response.py",
+          "sha256": "9964c5183108f47143cec32b0beb8b65aa4de6df706757b3a1f02be1c77b0581"
+        },
+        {
+          "module": "polisyos.core.llm.settlement",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/settlement.py",
+          "sha256": "598361a061d382fcd5788bbb393cb0cd0c9387c462d6bf4f76bba5ee6f78a0b9"
+        },
+        {
+          "module": "polisyos.core.llm.traced_client",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/traced_client.py",
+          "sha256": "fcd09cee45b49a42be8cc4e86c0b9e9ec34033a6903adf4d8e4cf30731a2f01b"
+        },
+        {
+          "module": "polisyos.runtime.http.services.control.response_shapes",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py",
+          "sha256": "b129c35c13a7bb021497f667979a0c8604f6c49a8b13a2e3dd44f668034f678b"
+        }
+      ]
+    },
+    {
+      "actual_observer_events": [
+        {
+          "cache_hit": false,
+          "cache_key": null,
+          "completion_tokens": 3,
+          "cost_delta_usd": -4.75e-05,
+          "cost_origin": "reported",
+          "cost_status": "known",
+          "cost_usd": 0.0,
+          "estimated_cost_usd": 4.75e-05,
+          "event_identity": "llm-producer:73726c66a1f241aebfa7e90f39a45cfb",
+          "latency_ms": 1,
+          "metrics_status": "recorded",
+          "model": "gpt-4o",
+          "model_variant_id": null,
+          "origin_completion_tokens": 3,
+          "origin_cost_usd": 0.0,
+          "origin_prompt_tokens": 7,
+          "origin_total_tokens": 10,
+          "payload_digest": "sha256:0b1228e03cbe7e57bcc2e9ee18a5c67c45e78f54cd4e41a0d89c977ff429365f",
+          "producer_event_id": "llm-producer:73726c66a1f241aebfa7e90f39a45cfb",
+          "prompt_tokens": 7,
+          "provider": "physical-optional-spend-oracle",
+          "provider_call": true,
+          "request_id": null,
+          "reuse_event_id": null,
+          "run_id": "optional-spend-boundary",
+          "settlement_status": "unmanaged",
+          "status": "success",
+          "total_tokens": 10,
+          "usage_origin": "provider",
+          "usage_status": "known"
+        }
+      ],
+      "actual_runtime_projection": {
+        "completion_tokens": 3.0,
+        "cost_delta_usd": -4.75e-05,
+        "cost_usd": 0.0,
+        "estimated_cost_usd": 4.75e-05,
+        "latency_ms": 1.0,
+        "prompt_tokens": 7.0
+      },
+      "physical_provider_requests": [
+        {
+          "user": "one actual optional-spend request"
+        }
+      ],
+      "reported_cost": 0.0,
+      "source_origins": [
+        {
+          "module": "polisyos.core.llm.response",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/response.py",
+          "sha256": "9964c5183108f47143cec32b0beb8b65aa4de6df706757b3a1f02be1c77b0581"
+        },
+        {
+          "module": "polisyos.core.llm.settlement",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/settlement.py",
+          "sha256": "598361a061d382fcd5788bbb393cb0cd0c9387c462d6bf4f76bba5ee6f78a0b9"
+        },
+        {
+          "module": "polisyos.core.llm.traced_client",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/traced_client.py",
+          "sha256": "fcd09cee45b49a42be8cc4e86c0b9e9ec34033a6903adf4d8e4cf30731a2f01b"
+        },
+        {
+          "module": "polisyos.runtime.http.services.control.response_shapes",
+          "path": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py",
+          "sha256": "b129c35c13a7bb021497f667979a0c8604f6c49a8b13a2e3dd44f668034f678b"
+        }
+      ]
+    }
+  ],
+  "predicate_basis": "independently_reconciled"
+}

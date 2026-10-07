@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-B-cas-tenth-wave-review-20261007/ancestry-audit.source.txt", line 177, in <module>
+    selected_sources[path] = {name: {**trees[name][path], **blobmeta[trees[name][path]['git_blob_sha1']]}
+                                       ~~~~~~~~~~~^^^^^^
+KeyError: 'policy-engine/src/polisyos/scientist/orchestration/runner/_activity_worker.py'

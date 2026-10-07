@@ -1,0 +1,1141 @@
+........................................................................ [ 32%]
+........................................................................ [ 64%]
+.....................FFF.FFFF........................................... [ 96%]
+.......FF                                                                [100%]
+=================================== FAILURES ===================================
+________ test_cache_seed_does_not_mix_different_content_under_same_key _________
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_cache_seed_does_not_mix_d0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f55a694aba0>
+
+    def test_cache_seed_does_not_mix_different_content_under_same_key(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        store = FileSystemCAS(tmp_path)
+        run_id = "R_res_01_conflict"
+        key = "b" * 64
+        first = NodeResultCache(store, run_id=run_id).put(
+            key,
+            node_id="scientist.node_res_seed@1.0.0",
+            outcome=_journaled_outcome(run_id, "first"),
+        )
+        second = NodeResultCache(store, run_id=run_id).put(
+            key,
+            node_id="scientist.node_res_seed@1.0.0",
+            outcome=_journaled_outcome(run_id, "second"),
+        )
+    
+        reads: list[str] = []
+        original_get_bytes = store.get_bytes
+    
+        def counted_get_bytes(artifact_id):
+            reads.append(str(artifact_id))
+            return original_get_bytes(artifact_id)
+    
+        monkeypatch.setattr(store, "get_bytes", counted_get_bytes)
+        replay = NodeResultCache(store, run_id=run_id)
+        assert replay.seed_from_entry_refs([first, second]) == 1
+>       assert str(first.artifact_id) in reads
+E       assert 'sha256:9f3abb71c1454bb50f14f372bf6805a578594e284b251f71ff12f8ce2cc06a03' in ["artifact_id=ArtifactID(root='sha256:9f3abb71c1454bb50f14f372bf6805a578594e284b251f71ff12f8ce2cc06a03') kind='scienti...ce71853409322452a3aa51') kind='scientist.node_cache_entry' media_type='application/json' manifest_profile_sha256=None"]
+E        +  where 'sha256:9f3abb71c1454bb50f14f372bf6805a578594e284b251f71ff12f8ce2cc06a03' = str(ArtifactID(root='sha256:9f3abb71c1454bb50f14f372bf6805a578594e284b251f71ff12f8ce2cc06a03'))
+E        +    where ArtifactID(root='sha256:9f3abb71c1454bb50f14f372bf6805a578594e284b251f71ff12f8ce2cc06a03') = ArtifactRef(artifact_id=ArtifactID(root='sha256:9f3abb71c1454bb50f14f372bf6805a578594e284b251f71ff12f8ce2cc06a03'), kind='scientist.node_cache_entry', media_type='application/json', manifest_profile_sha256=None).artifact_id
+
+policy-engine/tests/unit/remediation/test_res_01.py:106: AssertionError
+_ test_cache_seed_revalidates_full_ref_identity[kind-scientist.other_cache_entry] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_cache_seed_revalidates_fu0')
+field = 'kind', value = 'scientist.other_cache_entry'
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [("kind", "scientist.other_cache_entry"), ("media_type", "text/plain")],
+    )
+    def test_cache_seed_revalidates_full_ref_identity(
+        tmp_path: Path,
+        field: str,
+        value: str,
+    ) -> None:
+        store = FileSystemCAS(tmp_path)
+        run_id = "R_res_01_ref_identity"
+        key = "d" * 64
+        cache = NodeResultCache(store, run_id=run_id)
+        entry_ref = cache.put(
+            key,
+            node_id="scientist.node_res_seed@1.0.0",
+            outcome=_journaled_outcome(run_id, "identity"),
+        )
+    
+        replay = NodeResultCache(store, run_id=run_id)
+        assert replay.load_entry(entry_ref) is True
+        altered_ref = entry_ref.model_copy(update={field: value})
+        with pytest.raises(ValueError, match="immutable_epoch_mismatch"):
+>           replay.load_entry(altered_ref)
+
+policy-engine/tests/unit/remediation/test_res_01.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py:712: in load_entry
+    entry, _decoded, proof_valid = self._read_entry(
+policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py:451: in _read_entry
+    payload = from_canonical_bytes(self._store.get_bytes(entry_ref))
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:392: in wrapped
+    result = method(self, artifact_id, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:1286: in get_bytes
+    data = self._read_verified_blob(aid, blob, manifest_ref=ref)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:4007: in _read_verified_blob
+    return _read_verified_blob(
+policy-engine/src/polisyos/core/artifacts/_integrity_ops.py:108: in read_verified_blob
+    manifest = load_manifest(artifact_id)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:4010: in <lambda>
+    load_manifest=lambda selected_id: self.get_manifest(manifest_ref or selected_id),
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:392: in wrapped
+    result = method(self, artifact_id, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f55b1e67350>
+artifact_id = ArtifactRef(artifact_id=ArtifactID(root='sha256:ee77d89f2f2c4a33500f3795390a5cb6a833e9659db00a3ad1863898bcb60a86'), kind='scientist.other_cache_entry', media_type='application/json', manifest_profile_sha256=None)
+
+    @_transactional_read()
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef | str) -> ArtifactManifest:
+        """Load and validate the default or explicitly selected manifest view.
+    
+        Raises:
+            FileNotFoundError: If the manifest file is missing.
+            ValueError: If the manifest JSON does not match `ArtifactManifest`.
+        """
+        aid, profile_sha256, ref = _artifact_reference(artifact_id)
+        if profile_sha256 is not None:
+            self._require_manifest_view_owner(
+                aid,
+                profile_sha256,
+                operation="read_manifest",
+                ref=ref,
+            )
+        else:
+            self._require_default_manifest_access(
+                aid,
+                operation="read_manifest",
+                ref=ref,
+            )
+        manp = self._manifest_path_for_ref(aid, profile_sha256)
+        manifest = self._manifests.read(manp)
+        try:
+            _validate_manifest_identity(aid, manifest)
+            if profile_sha256 is not None:
+                actual_profile = self._manifests.profile_sha256(manifest)
+                if actual_profile != profile_sha256:
+                    raise ArtifactIntegrityError(
+                        f"Selected manifest profile mismatch for {aid}"
+                    )
+            if ref is not None and (
+                ref.kind != manifest.kind or ref.media_type != manifest.media_type
+            ):
+>               raise ArtifactIntegrityError(
+                    f"Artifact reference type does not match selected manifest for {aid}"
+                )
+E               polisyos.core.artifacts._integrity_ops.ArtifactIntegrityError: Artifact reference type does not match selected manifest for sha256:ee77d89f2f2c4a33500f3795390a5cb6a833e9659db00a3ad1863898bcb60a86
+
+policy-engine/src/polisyos/core/artifacts/store.py:1454: ArtifactIntegrityError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_cache_seed_revalidates_fu0')
+field = 'kind', value = 'scientist.other_cache_entry'
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [("kind", "scientist.other_cache_entry"), ("media_type", "text/plain")],
+    )
+    def test_cache_seed_revalidates_full_ref_identity(
+        tmp_path: Path,
+        field: str,
+        value: str,
+    ) -> None:
+        store = FileSystemCAS(tmp_path)
+        run_id = "R_res_01_ref_identity"
+        key = "d" * 64
+        cache = NodeResultCache(store, run_id=run_id)
+        entry_ref = cache.put(
+            key,
+            node_id="scientist.node_res_seed@1.0.0",
+            outcome=_journaled_outcome(run_id, "identity"),
+        )
+    
+        replay = NodeResultCache(store, run_id=run_id)
+        assert replay.load_entry(entry_ref) is True
+        altered_ref = entry_ref.model_copy(update={field: value})
+>       with pytest.raises(ValueError, match="immutable_epoch_mismatch"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'immutable_epoch_mismatch'
+E         Actual message: 'Artifact reference type does not match selected manifest for sha256:ee77d89f2f2c4a33500f3795390a5cb6a833e9659db00a3ad1863898bcb60a86'
+
+policy-engine/tests/unit/remediation/test_res_01.py:135: AssertionError
+_____ test_cache_seed_revalidates_full_ref_identity[media_type-text/plain] _____
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_cache_seed_revalidates_fu1')
+field = 'media_type', value = 'text/plain'
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [("kind", "scientist.other_cache_entry"), ("media_type", "text/plain")],
+    )
+    def test_cache_seed_revalidates_full_ref_identity(
+        tmp_path: Path,
+        field: str,
+        value: str,
+    ) -> None:
+        store = FileSystemCAS(tmp_path)
+        run_id = "R_res_01_ref_identity"
+        key = "d" * 64
+        cache = NodeResultCache(store, run_id=run_id)
+        entry_ref = cache.put(
+            key,
+            node_id="scientist.node_res_seed@1.0.0",
+            outcome=_journaled_outcome(run_id, "identity"),
+        )
+    
+        replay = NodeResultCache(store, run_id=run_id)
+        assert replay.load_entry(entry_ref) is True
+        altered_ref = entry_ref.model_copy(update={field: value})
+        with pytest.raises(ValueError, match="immutable_epoch_mismatch"):
+>           replay.load_entry(altered_ref)
+
+policy-engine/tests/unit/remediation/test_res_01.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py:712: in load_entry
+    entry, _decoded, proof_valid = self._read_entry(
+policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py:451: in _read_entry
+    payload = from_canonical_bytes(self._store.get_bytes(entry_ref))
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:392: in wrapped
+    result = method(self, artifact_id, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:1286: in get_bytes
+    data = self._read_verified_blob(aid, blob, manifest_ref=ref)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:4007: in _read_verified_blob
+    return _read_verified_blob(
+policy-engine/src/polisyos/core/artifacts/_integrity_ops.py:108: in read_verified_blob
+    manifest = load_manifest(artifact_id)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:4010: in <lambda>
+    load_manifest=lambda selected_id: self.get_manifest(manifest_ref or selected_id),
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+policy-engine/src/polisyos/core/artifacts/store.py:392: in wrapped
+    result = method(self, artifact_id, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f55b1e67b50>
+artifact_id = ArtifactRef(artifact_id=ArtifactID(root='sha256:ee77d89f2f2c4a33500f3795390a5cb6a833e9659db00a3ad1863898bcb60a86'), kind='scientist.node_cache_entry', media_type='text/plain', manifest_profile_sha256=None)
+
+    @_transactional_read()
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef | str) -> ArtifactManifest:
+        """Load and validate the default or explicitly selected manifest view.
+    
+        Raises:
+            FileNotFoundError: If the manifest file is missing.
+            ValueError: If the manifest JSON does not match `ArtifactManifest`.
+        """
+        aid, profile_sha256, ref = _artifact_reference(artifact_id)
+        if profile_sha256 is not None:
+            self._require_manifest_view_owner(
+                aid,
+                profile_sha256,
+                operation="read_manifest",
+                ref=ref,
+            )
+        else:
+            self._require_default_manifest_access(
+                aid,
+                operation="read_manifest",
+                ref=ref,
+            )
+        manp = self._manifest_path_for_ref(aid, profile_sha256)
+        manifest = self._manifests.read(manp)
+        try:
+            _validate_manifest_identity(aid, manifest)
+            if profile_sha256 is not None:
+                actual_profile = self._manifests.profile_sha256(manifest)
+                if actual_profile != profile_sha256:
+                    raise ArtifactIntegrityError(
+                        f"Selected manifest profile mismatch for {aid}"
+                    )
+            if ref is not None and (
+                ref.kind != manifest.kind or ref.media_type != manifest.media_type
+            ):
+>               raise ArtifactIntegrityError(
+                    f"Artifact reference type does not match selected manifest for {aid}"
+                )
+E               polisyos.core.artifacts._integrity_ops.ArtifactIntegrityError: Artifact reference type does not match selected manifest for sha256:ee77d89f2f2c4a33500f3795390a5cb6a833e9659db00a3ad1863898bcb60a86
+
+policy-engine/src/polisyos/core/artifacts/store.py:1454: ArtifactIntegrityError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_cache_seed_revalidates_fu1')
+field = 'media_type', value = 'text/plain'
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [("kind", "scientist.other_cache_entry"), ("media_type", "text/plain")],
+    )
+    def test_cache_seed_revalidates_full_ref_identity(
+        tmp_path: Path,
+        field: str,
+        value: str,
+    ) -> None:
+        store = FileSystemCAS(tmp_path)
+        run_id = "R_res_01_ref_identity"
+        key = "d" * 64
+        cache = NodeResultCache(store, run_id=run_id)
+        entry_ref = cache.put(
+            key,
+            node_id="scientist.node_res_seed@1.0.0",
+            outcome=_journaled_outcome(run_id, "identity"),
+        )
+    
+        replay = NodeResultCache(store, run_id=run_id)
+        assert replay.load_entry(entry_ref) is True
+        altered_ref = entry_ref.model_copy(update={field: value})
+>       with pytest.raises(ValueError, match="immutable_epoch_mismatch"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'immutable_epoch_mismatch'
+E         Actual message: 'Artifact reference type does not match selected manifest for sha256:ee77d89f2f2c4a33500f3795390a5cb6a833e9659db00a3ad1863898bcb60a86'
+
+policy-engine/tests/unit/remediation/test_res_01.py:135: AssertionError
+_________ test_full_valid_state_resumes_without_unnecessary_cache_seed _________
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_full_valid_state_resumes_0')
+
+    def test_full_valid_state_resumes_without_unnecessary_cache_seed(tmp_path: Path) -> None:
+        store = FileSystemCAS(tmp_path)
+        workflow = _resume_workflow()
+        registry = _resume_registry()
+        registry.get(ComponentId.parse("scientist.node_res_c@1.0.0")).fail_once = False
+        run_id = "R_res_01_full_state"
+        state = ExperimentState(
+            run_id=run_id,
+            params={"a": 1, "b": 2},
+        )
+        created = create_checkpoint(
+            store,
+            run_id=run_id,
+            state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+            sequence_number=1,
+            completed_node_alias="b",
+            completed_node_id="scientist.node_res_b@1.0.0",
+            completed_nodes=["a", "b"],
+            workflow_id=workflow.workflow_id,
+            workflow_fingerprint=compute_workflow_fingerprint(workflow),
+            fsm_phase="EXECUTE",
+            cache_entry_refs=[],
+        )
+        update_checkpoint_head(
+            tmp_path / "runs" / run_id,
+            run_id=run_id,
+            checkpoint_ref=created.checkpoint_ref,
+            sequence_number=1,
+            node_alias="b",
+            writer_pid=123,
+            writer_hostname="localhost",
+        )
+    
+        ctx, bundle_ref = _context(store, run_id)
+        del ctx
+>       resumed = resume_from_checkpoint(
+            store,
+            run_id,
+            workflow=workflow,
+            registry=registry,
+            registry_bundle_ref=bundle_ref,
+        )
+
+policy-engine/tests/unit/remediation/test_res_01.py:330: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f55f4cecf50>
+run_id = 'R_res_01_full_state'
+
+    def resume_from_checkpoint(
+        store: ArtifactStore,
+        run_id: str | CheckpointResumeRequest,
+        *,
+        workflow: WorkflowSpec | None = None,
+        registry: CheckpointRegistry | None = None,
+        registry_bundle_ref: ArtifactRef | None = None,
+        checkpoint_policy: CheckpointPolicy = "strict",
+        resume_strategy: CheckpointResumeStrategy = "require_cache_seed",
+        force_lock: bool = False,
+        run_dir: Path | None = None,
+    ) -> Any:
+        # Local imports avoid circular dependency at module import time.
+        """Resume a run from its latest checkpoint after lock, schema, and workflow checks."""
+        from polisyos.scientist.nodes.builtins.state_keys import INPUT_REGISTRY_BUNDLE_REF
+        from polisyos.scientist.orchestration.engine.executor import (
+            WorkflowExecutionResult,
+            WorkflowExecutionStatus,
+            WorkflowReport,
+        )
+        from polisyos.scientist.orchestration.engine.runner.config import (
+            WorkflowRunnerConfig,
+            build_workflow_runner,
+        )
+        from polisyos.scientist.orchestration.workflows.builder import (
+            build_default_registry,
+            build_execution_context,
+            build_registry_with_builtin_nodes,
+        )
+        from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
+    
+        if isinstance(run_id, CheckpointResumeRequest):
+            request = run_id
+            run_id = request.run_id
+            workflow = request.workflow
+            registry = request.registry
+            registry_bundle_ref = request.registry_bundle_ref
+            checkpoint_policy = request.checkpoint_policy
+            resume_strategy = request.resume_strategy
+            force_lock = request.force_lock
+            run_dir = request.run_dir
+    
+        policy = normalize_checkpoint_policy(checkpoint_policy)
+        checkpoint_resume_strategy = normalize_checkpoint_resume_strategy(resume_strategy)
+        active_scope = _active_checkpoint_scope()
+        run_dir = _resolve_run_dir(store=store, run_id=run_id, run_dir=run_dir)
+        lock = acquire_run_lock(run_dir, run_id=run_id, mode="resume", force=force_lock)
+        try:
+            resolved = resolve_latest_checkpoint(
+                store,
+                run_id,
+                run_dir=run_dir,
+                expected_scope=active_scope,
+            )
+            if resolved is None:
+                raise CheckpointNotFoundError(f"no checkpoint found for run_id={run_id}")
+            head, checkpoint = resolved
+    
+            _validate_checkpoint_schema(
+                checkpoint.metadata.schema_version,
+                CHECKPOINT_SCHEMA_VERSION,
+            )
+            if (
+                checkpoint.metadata.completed_nodes
+                and checkpoint.metadata.completed_node_status_contract
+                != COMPLETED_NODE_STATUS_CONTRACT
+            ):
+>               raise CheckpointStatusNotEstablishedError(
+                    "checkpoint_completed_node_status_not_established"
+                )
+E               polisyos.scientist.orchestration.engine.checkpoint.CheckpointStatusNotEstablishedError: checkpoint_completed_node_status_not_established
+
+policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py:2134: CheckpointStatusNotEstablishedError
+_________ test_resume_rejects_missing_state_written_by_completed_node __________
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_resume_rejects_missing_st0')
+
+    def test_resume_rejects_missing_state_written_by_completed_node(tmp_path: Path) -> None:
+        store = FileSystemCAS(tmp_path)
+        workflow = _resume_workflow()
+        registry = _resume_registry()
+        run_id = "R_res_01_missing_state"
+        state = ExperimentState(run_id=run_id, params={"a": 1})
+        created = create_checkpoint(
+            store,
+            run_id=run_id,
+            state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+            sequence_number=1,
+            completed_node_alias="b",
+            completed_node_id="scientist.node_res_b@1.0.0",
+            completed_nodes=["a", "b"],
+            workflow_id=workflow.workflow_id,
+            workflow_fingerprint=compute_workflow_fingerprint(workflow),
+            fsm_phase="EXECUTE",
+            cache_entry_refs=[],
+        )
+        update_checkpoint_head(
+            tmp_path / "runs" / run_id,
+            run_id=run_id,
+            checkpoint_ref=created.checkpoint_ref,
+            sequence_number=1,
+            node_alias="b",
+            writer_pid=123,
+            writer_hostname="localhost",
+        )
+    
+        with pytest.raises(CheckpointCorruptedError, match="params.b"):
+>           resume_from_checkpoint(
+                store,
+                run_id,
+                workflow=workflow,
+                registry=registry,
+            )
+
+policy-engine/tests/unit/remediation/test_res_01.py:372: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f55f4ced250>
+run_id = 'R_res_01_missing_state'
+
+    def resume_from_checkpoint(
+        store: ArtifactStore,
+        run_id: str | CheckpointResumeRequest,
+        *,
+        workflow: WorkflowSpec | None = None,
+        registry: CheckpointRegistry | None = None,
+        registry_bundle_ref: ArtifactRef | None = None,
+        checkpoint_policy: CheckpointPolicy = "strict",
+        resume_strategy: CheckpointResumeStrategy = "require_cache_seed",
+        force_lock: bool = False,
+        run_dir: Path | None = None,
+    ) -> Any:
+        # Local imports avoid circular dependency at module import time.
+        """Resume a run from its latest checkpoint after lock, schema, and workflow checks."""
+        from polisyos.scientist.nodes.builtins.state_keys import INPUT_REGISTRY_BUNDLE_REF
+        from polisyos.scientist.orchestration.engine.executor import (
+            WorkflowExecutionResult,
+            WorkflowExecutionStatus,
+            WorkflowReport,
+        )
+        from polisyos.scientist.orchestration.engine.runner.config import (
+            WorkflowRunnerConfig,
+            build_workflow_runner,
+        )
+        from polisyos.scientist.orchestration.workflows.builder import (
+            build_default_registry,
+            build_execution_context,
+            build_registry_with_builtin_nodes,
+        )
+        from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
+    
+        if isinstance(run_id, CheckpointResumeRequest):
+            request = run_id
+            run_id = request.run_id
+            workflow = request.workflow
+            registry = request.registry
+            registry_bundle_ref = request.registry_bundle_ref
+            checkpoint_policy = request.checkpoint_policy
+            resume_strategy = request.resume_strategy
+            force_lock = request.force_lock
+            run_dir = request.run_dir
+    
+        policy = normalize_checkpoint_policy(checkpoint_policy)
+        checkpoint_resume_strategy = normalize_checkpoint_resume_strategy(resume_strategy)
+        active_scope = _active_checkpoint_scope()
+        run_dir = _resolve_run_dir(store=store, run_id=run_id, run_dir=run_dir)
+        lock = acquire_run_lock(run_dir, run_id=run_id, mode="resume", force=force_lock)
+        try:
+            resolved = resolve_latest_checkpoint(
+                store,
+                run_id,
+                run_dir=run_dir,
+                expected_scope=active_scope,
+            )
+            if resolved is None:
+                raise CheckpointNotFoundError(f"no checkpoint found for run_id={run_id}")
+            head, checkpoint = resolved
+    
+            _validate_checkpoint_schema(
+                checkpoint.metadata.schema_version,
+                CHECKPOINT_SCHEMA_VERSION,
+            )
+            if (
+                checkpoint.metadata.completed_nodes
+                and checkpoint.metadata.completed_node_status_contract
+                != COMPLETED_NODE_STATUS_CONTRACT
+            ):
+>               raise CheckpointStatusNotEstablishedError(
+                    "checkpoint_completed_node_status_not_established"
+                )
+E               polisyos.scientist.orchestration.engine.checkpoint.CheckpointStatusNotEstablishedError: checkpoint_completed_node_status_not_established
+
+policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py:2134: CheckpointStatusNotEstablishedError
+_________ test_allow_replay_rebuilds_completed_nodes_for_missing_state _________
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_allow_replay_rebuilds_com0')
+
+    def test_allow_replay_rebuilds_completed_nodes_for_missing_state(tmp_path: Path) -> None:
+        store = FileSystemCAS(tmp_path)
+        workflow = _resume_workflow()
+        registry = _resume_registry()
+        registry.get(ComponentId.parse("scientist.node_res_b@1.0.0")).fail_once = False
+        registry.get(ComponentId.parse("scientist.node_res_c@1.0.0")).fail_once = False
+        run_id = "R_res_01_allow_replay"
+        state = ExperimentState(run_id=run_id, params={"a": 1})
+        created = create_checkpoint(
+            store,
+            run_id=run_id,
+            state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+            sequence_number=1,
+            completed_node_alias="b",
+            completed_node_id="scientist.node_res_b@1.0.0",
+            completed_nodes=["a", "b"],
+            workflow_id=workflow.workflow_id,
+            workflow_fingerprint=compute_workflow_fingerprint(workflow),
+            fsm_phase="EXECUTE",
+            cache_entry_refs=[],
+        )
+        update_checkpoint_head(
+            tmp_path / "runs" / run_id,
+            run_id=run_id,
+            checkpoint_ref=created.checkpoint_ref,
+            sequence_number=1,
+            node_alias="b",
+            writer_pid=123,
+            writer_hostname="localhost",
+        )
+    
+        ctx, bundle_ref = _context(store, run_id)
+        del ctx
+>       resumed = resume_from_checkpoint(
+            store,
+            run_id,
+            workflow=workflow,
+            registry=registry,
+            registry_bundle_ref=bundle_ref,
+            resume_strategy="allow_replay",
+        )
+
+policy-engine/tests/unit/remediation/test_res_01.py:414: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f55f4cedf50>
+run_id = 'R_res_01_allow_replay'
+
+    def resume_from_checkpoint(
+        store: ArtifactStore,
+        run_id: str | CheckpointResumeRequest,
+        *,
+        workflow: WorkflowSpec | None = None,
+        registry: CheckpointRegistry | None = None,
+        registry_bundle_ref: ArtifactRef | None = None,
+        checkpoint_policy: CheckpointPolicy = "strict",
+        resume_strategy: CheckpointResumeStrategy = "require_cache_seed",
+        force_lock: bool = False,
+        run_dir: Path | None = None,
+    ) -> Any:
+        # Local imports avoid circular dependency at module import time.
+        """Resume a run from its latest checkpoint after lock, schema, and workflow checks."""
+        from polisyos.scientist.nodes.builtins.state_keys import INPUT_REGISTRY_BUNDLE_REF
+        from polisyos.scientist.orchestration.engine.executor import (
+            WorkflowExecutionResult,
+            WorkflowExecutionStatus,
+            WorkflowReport,
+        )
+        from polisyos.scientist.orchestration.engine.runner.config import (
+            WorkflowRunnerConfig,
+            build_workflow_runner,
+        )
+        from polisyos.scientist.orchestration.workflows.builder import (
+            build_default_registry,
+            build_execution_context,
+            build_registry_with_builtin_nodes,
+        )
+        from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
+    
+        if isinstance(run_id, CheckpointResumeRequest):
+            request = run_id
+            run_id = request.run_id
+            workflow = request.workflow
+            registry = request.registry
+            registry_bundle_ref = request.registry_bundle_ref
+            checkpoint_policy = request.checkpoint_policy
+            resume_strategy = request.resume_strategy
+            force_lock = request.force_lock
+            run_dir = request.run_dir
+    
+        policy = normalize_checkpoint_policy(checkpoint_policy)
+        checkpoint_resume_strategy = normalize_checkpoint_resume_strategy(resume_strategy)
+        active_scope = _active_checkpoint_scope()
+        run_dir = _resolve_run_dir(store=store, run_id=run_id, run_dir=run_dir)
+        lock = acquire_run_lock(run_dir, run_id=run_id, mode="resume", force=force_lock)
+        try:
+            resolved = resolve_latest_checkpoint(
+                store,
+                run_id,
+                run_dir=run_dir,
+                expected_scope=active_scope,
+            )
+            if resolved is None:
+                raise CheckpointNotFoundError(f"no checkpoint found for run_id={run_id}")
+            head, checkpoint = resolved
+    
+            _validate_checkpoint_schema(
+                checkpoint.metadata.schema_version,
+                CHECKPOINT_SCHEMA_VERSION,
+            )
+            if (
+                checkpoint.metadata.completed_nodes
+                and checkpoint.metadata.completed_node_status_contract
+                != COMPLETED_NODE_STATUS_CONTRACT
+            ):
+>               raise CheckpointStatusNotEstablishedError(
+                    "checkpoint_completed_node_status_not_established"
+                )
+E               polisyos.scientist.orchestration.engine.checkpoint.CheckpointStatusNotEstablishedError: checkpoint_completed_node_status_not_established
+
+policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py:2134: CheckpointStatusNotEstablishedError
+______ test_changed_functional_input_remains_incompatible_with_checkpoint ______
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_changed_functional_input_0')
+
+    def test_changed_functional_input_remains_incompatible_with_checkpoint(tmp_path: Path) -> None:
+        store = FileSystemCAS(tmp_path)
+        workflow = _resume_workflow().model_copy(
+            update={
+                "nodes": [
+                    _resume_workflow().nodes[0].model_copy(update={"params": {"mode": "v1"}}),
+                    *_resume_workflow().nodes[1:],
+                ]
+            }
+        )
+        run_id = "R_res_01_changed_input"
+        state = ExperimentState(run_id=run_id)
+        created = create_checkpoint(
+            store,
+            run_id=run_id,
+            state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+            sequence_number=0,
+            completed_node_alias="a",
+            completed_node_id="scientist.node_res_a@1.0.0",
+            completed_nodes=["a"],
+            workflow_id=workflow.workflow_id,
+            workflow_fingerprint=compute_workflow_fingerprint(workflow),
+            fsm_phase="EXECUTE",
+            cache_entry_refs=[],
+        )
+        update_checkpoint_head(
+            tmp_path / "runs" / run_id,
+            run_id=run_id,
+            checkpoint_ref=created.checkpoint_ref,
+            sequence_number=0,
+            node_alias="a",
+            writer_pid=123,
+            writer_hostname="localhost",
+        )
+        changed = workflow.model_copy(
+            update={
+                "nodes": [
+                    workflow.nodes[0].model_copy(update={"params": {"mode": "v2"}}),
+                    *workflow.nodes[1:],
+                ]
+            }
+        )
+        with pytest.raises(WorkflowMismatchError):
+>           resume_from_checkpoint(store, run_id, workflow=changed, registry=_resume_registry())
+
+policy-engine/tests/unit/remediation/test_res_01.py:470: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f55f4cee350>
+run_id = 'R_res_01_changed_input'
+
+    def resume_from_checkpoint(
+        store: ArtifactStore,
+        run_id: str | CheckpointResumeRequest,
+        *,
+        workflow: WorkflowSpec | None = None,
+        registry: CheckpointRegistry | None = None,
+        registry_bundle_ref: ArtifactRef | None = None,
+        checkpoint_policy: CheckpointPolicy = "strict",
+        resume_strategy: CheckpointResumeStrategy = "require_cache_seed",
+        force_lock: bool = False,
+        run_dir: Path | None = None,
+    ) -> Any:
+        # Local imports avoid circular dependency at module import time.
+        """Resume a run from its latest checkpoint after lock, schema, and workflow checks."""
+        from polisyos.scientist.nodes.builtins.state_keys import INPUT_REGISTRY_BUNDLE_REF
+        from polisyos.scientist.orchestration.engine.executor import (
+            WorkflowExecutionResult,
+            WorkflowExecutionStatus,
+            WorkflowReport,
+        )
+        from polisyos.scientist.orchestration.engine.runner.config import (
+            WorkflowRunnerConfig,
+            build_workflow_runner,
+        )
+        from polisyos.scientist.orchestration.workflows.builder import (
+            build_default_registry,
+            build_execution_context,
+            build_registry_with_builtin_nodes,
+        )
+        from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
+    
+        if isinstance(run_id, CheckpointResumeRequest):
+            request = run_id
+            run_id = request.run_id
+            workflow = request.workflow
+            registry = request.registry
+            registry_bundle_ref = request.registry_bundle_ref
+            checkpoint_policy = request.checkpoint_policy
+            resume_strategy = request.resume_strategy
+            force_lock = request.force_lock
+            run_dir = request.run_dir
+    
+        policy = normalize_checkpoint_policy(checkpoint_policy)
+        checkpoint_resume_strategy = normalize_checkpoint_resume_strategy(resume_strategy)
+        active_scope = _active_checkpoint_scope()
+        run_dir = _resolve_run_dir(store=store, run_id=run_id, run_dir=run_dir)
+        lock = acquire_run_lock(run_dir, run_id=run_id, mode="resume", force=force_lock)
+        try:
+            resolved = resolve_latest_checkpoint(
+                store,
+                run_id,
+                run_dir=run_dir,
+                expected_scope=active_scope,
+            )
+            if resolved is None:
+                raise CheckpointNotFoundError(f"no checkpoint found for run_id={run_id}")
+            head, checkpoint = resolved
+    
+            _validate_checkpoint_schema(
+                checkpoint.metadata.schema_version,
+                CHECKPOINT_SCHEMA_VERSION,
+            )
+            if (
+                checkpoint.metadata.completed_nodes
+                and checkpoint.metadata.completed_node_status_contract
+                != COMPLETED_NODE_STATUS_CONTRACT
+            ):
+>               raise CheckpointStatusNotEstablishedError(
+                    "checkpoint_completed_node_status_not_established"
+                )
+E               polisyos.scientist.orchestration.engine.checkpoint.CheckpointStatusNotEstablishedError: checkpoint_completed_node_status_not_established
+
+policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py:2134: CheckpointStatusNotEstablishedError
+___ test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier ____
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_seeded_checkpoint_publica0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f55f5202890>
+
+    def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """A fresh reader follows only the atomic head's committed tier frontier."""
+        monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
+        monkeypatch.setenv("POLISYOS_RUNNER_MAX_PARALLELISM", "2")
+        process_context = multiprocessing.get_context("spawn")
+        for cut in ("after_artifact_before_head", "after_head_before_history"):
+            store = FileSystemCAS(tmp_path / cut)
+            workflow = _seeded_parallel_workflow()
+            run_id = f"R_b73_seeded_publication_cut_{cut}"
+            _, bundle_ref, _ = _seed_parallel_checkpoint(store, run_id=run_id, workflow=workflow)
+            run_dir = Path(store.root) / "runs" / run_id
+            seed_head = load_checkpoint_head(run_dir)
+            assert seed_head is not None
+            seed_checkpoint = load_checkpoint(store, seed_head.checkpoint_ref)
+            seed_completed_nodes = list(seed_checkpoint.metadata.completed_nodes)
+            assert seed_completed_nodes == ["seed"]
+            expected_origin_fingerprint = compute_workflow_fingerprint(workflow)
+            expected_residual_fingerprint = compute_workflow_fingerprint(
+                _build_resume_workflow_spec(
+                    workflow,
+                    completed_nodes=seed_completed_nodes,
+                )
+            )
+            phase_queue = process_context.Queue()
+            release_event = process_context.Event()
+            writer = process_context.Process(
+                target=_b73_pause_writer_at_owner_phase,
+                args=(
+                    str(store.root),
+                    run_id,
+                    bundle_ref.model_dump(mode="json"),
+                    cut,
+                    os.environ.get("POLISYOS_B73_REMOVE_LEFT_FRONTIER") == "1"
+                    and cut == "after_artifact_before_head",
+                    phase_queue,
+                    release_event,
+                ),
+            )
+            try:
+                writer.start()
+                observed = phase_queue.get(timeout=60)
+                assert observed["phase"] == cut
+                remove_left_for_cut = (
+                    os.environ.get("POLISYOS_B73_REMOVE_LEFT_FRONTIER") == "1"
+                    and cut == "after_artifact_before_head"
+                )
+                if remove_left_for_cut:
+                    assert observed["mutation_receipt"] == {
+                        "source_sha256": (
+                            "df4857a73b177854553f244612779a43ca377dabbff986c2feda4db576220c45"
+                        ),
+                        "method": "AsyncWorkflowExecutor.execute",
+                        "original_expression": "completed_nodes.extend(tier_completed)",
+                        "mutated_expression": (
+                            "completed_nodes.extend(("
+                            "b73_frontier_alias for b73_frontier_alias "
+                            "in tier_completed if b73_frontier_alias != 'left'))"
+                        ),
+                        "mutant_installed": True,
+                    }
+                else:
+                    assert observed["mutation_receipt"] is None
+                assert observed["left_calls"] == 1
+                assert observed["right_calls"] == 1
+                assert observed["final_calls"] == 0
+    
+                observed_ref = ArtifactRef.model_validate(observed["checkpoint_ref"])
+                history = load_checkpoint_history(run_dir)
+                history_refs = (
+                    []
+                    if history is None
+                    else [str(entry.checkpoint_ref.artifact_id) for entry in history.entries]
+                )
+                if cut == "after_artifact_before_head":
+                    current_head = load_checkpoint_head(run_dir)
+                    assert current_head == seed_head
+                    assert str(observed_ref.artifact_id) not in history_refs
+                    uncommitted = load_checkpoint(store, observed_ref)
+                    uncommitted_state = materialize_checkpoint_state(store, observed_ref)
+                    assert (
+                        uncommitted.metadata.completed_node_status_contract
+                        == "native_node_outcome_v1"
+                    )
+                    assert uncommitted_state["params"] == {
+                        "seed": 29,
+                        "step1": 1,
+                        "left": 1,
+                        "right": 2,
+                    }
+                    _assert_tier_cache_entries_bind_node_identity_and_content(
+                        store,
+                        run_id=run_id,
+                        workflow=workflow,
+                        completed_nodes=["seed", "left", "right"],
+                        checkpoint_state=uncommitted_state,
+                        cache_entry_refs=uncommitted.metadata.cache_entry_refs,
+                    )
+                    assert uncommitted.metadata.completed_nodes == ["seed", "left", "right"]
+                    expected_before_resume = ["seed"]
+                    expected_peer_calls = [1, 1]
+                else:
+                    current_head = load_checkpoint_head(run_dir)
+                    assert current_head is not None
+                    assert current_head.checkpoint_ref == observed_ref
+                    assert current_head.sequence_number == observed["sequence_number"]
+                    assert str(observed_ref.artifact_id) not in history_refs
+                    expected_before_resume = ["seed", "left", "right"]
+                    expected_peer_calls = [0, 0]
+    
+                writer.terminate()
+                writer.join(timeout=5)
+                assert not writer.is_alive()
+                assert writer.exitcode != 0
+            finally:
+                if writer.is_alive():
+                    writer.terminate()
+                    writer.join(timeout=5)
+                phase_queue.close()
+    
+            result_queue = process_context.Queue()
+            reader = process_context.Process(
+                target=_b73_fresh_reader_then_resume,
+                args=(
+                    str(store.root),
+                    run_id,
+                    bundle_ref.model_dump(mode="json"),
+                    result_queue,
+                ),
+            )
+            try:
+                reader.start()
+                reader.join(timeout=60)
+                result = result_queue.get(timeout=5)
+                assert reader.exitcode == 0, result
+            finally:
+                if reader.is_alive():
+                    reader.terminate()
+                    reader.join(timeout=5)
+                result_queue.close()
+    
+            assert result["pid"] != os.getpid()
+            assert result["before_resume"]["origin_workflow_fingerprint"] == (
+                expected_origin_fingerprint
+            )
+            expected_current_fingerprint = (
+                expected_origin_fingerprint
+                if cut == "after_artifact_before_head"
+                else expected_residual_fingerprint
+            )
+            assert result["before_resume"]["workflow_fingerprint"] == (
+                expected_current_fingerprint
+            )
+            assert result["before_resume"]["completed_nodes"] == expected_before_resume
+            if cut == "after_head_before_history":
+                assert result["before_resume"]["params"] == {
+                    "seed": 29,
+                    "step1": 1,
+                    "left": 1,
+                    "right": 2,
+                }
+                assert result["before_resume"]["cache_aliases"] == ["left", "right"]
+            else:
+                assert result["before_resume"]["params"] == {"seed": 29, "step1": 1}
+                assert result["before_resume"]["cache_entry_refs"] == []
+                assert result["before_resume"]["cache_aliases"] == []
+            assert result["report_status"] == "ok"
+            assert result["resumed_params"] == {
+                "seed": 29,
+                "step1": 1,
+                "left": 1,
+                "right": 2,
+                "final": True,
+            }
+>           assert result["peer_calls"] == expected_peer_calls
+E           assert [0, 0] == [1, 1]
+E             
+E             At index 0 diff: 0 != 1
+E             Use -v to get more diff
+
+policy-engine/tests/integration/scientist/test_checkpoint_resume.py:1546: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Prometheus metrics exporter disabled after bootstrap failure: [Errno 98] Address already in use
+Prometheus metrics exporter disabled after bootstrap failure: [Errno 98] Address already in use
+2026-10-06 10:09:18.734 | INFO     | polisyos.common.logger:_call:120 - Recovered 2 cached node outcomes
+_ test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successful_peer _
+
+tmp_path = PosixPath('/workspace/e02-B-current-execution-state/_build/current-execution-state/frozen-cache-consumers/tmp/test_parallel_resume_fail_fast0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f55f5038210>
+
+    def test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successful_peer(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Fresh readers retry only the peers absent from the durable frontier."""
+        monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
+        monkeypatch.setenv("POLISYOS_RUNNER_MAX_PARALLELISM", "2")
+        process_context = multiprocessing.get_context("spawn")
+    
+        error_policies: tuple[Literal["fail_fast", "continue"], ...] = ("fail_fast", "continue")
+        for error_policy in error_policies:
+            store = FileSystemCAS(tmp_path / error_policy)
+            workflow = _seeded_parallel_workflow(error_policy=error_policy)
+            run_id = f"R_b73_failure_policy_{error_policy}"
+            _, bundle_ref, _ = _seed_parallel_checkpoint(store, run_id=run_id, workflow=workflow)
+            seed = resolve_latest_checkpoint(store, run_id)
+            assert seed is not None
+            _, seed_checkpoint = seed
+            assert seed_checkpoint.state is not None
+            expected_origin_fingerprint = compute_workflow_fingerprint(workflow)
+            expected_residual_fingerprint = compute_workflow_fingerprint(
+                _build_resume_workflow_spec(
+                    workflow,
+                    completed_nodes=list(seed_checkpoint.metadata.completed_nodes),
+                )
+            )
+            expected_current_fingerprint = (
+                expected_origin_fingerprint
+                if error_policy == "fail_fast"
+                else expected_residual_fingerprint
+            )
+    
+            writer_queue = process_context.Queue()
+            writer = process_context.Process(
+                target=_b73_failure_policy_writer,
+                args=(
+                    str(store.root),
+                    run_id,
+                    bundle_ref.model_dump(mode="json"),
+                    error_policy,
+                    writer_queue,
+                ),
+            )
+            try:
+                writer.start()
+                writer.join(timeout=60)
+                assert writer.exitcode == 0
+                first = writer_queue.get(timeout=5)
+            finally:
+                if writer.is_alive():
+                    writer.terminate()
+                    writer.join(timeout=5)
+                writer_queue.close()
+    
+            assert first["pid"] != os.getpid()
+            assert first["report_status"] == "fail"
+            assert first["peer_calls"] == [1, 1]
+            if error_policy == "fail_fast":
+                assert first["completed_nodes"] == ["seed"]
+                assert first["params"] == {"seed": 29, "step1": 1}
+                assert first["cache_entry_refs"] == []
+            else:
+                assert first["completed_nodes"] == ["seed", "left"]
+                assert first["params"] == {"seed": 29, "step1": 1, "left": 1}
+                assert len(first["cache_entry_refs"]) == 1
+    
+            reader_queue = process_context.Queue()
+            reader = process_context.Process(
+                target=_b73_failure_policy_fresh_reader,
+                args=(
+                    str(store.root),
+                    run_id,
+                    bundle_ref.model_dump(mode="json"),
+                    error_policy,
+                    expected_current_fingerprint,
+                    False,
+                    reader_queue,
+                ),
+            )
+            try:
+                reader.start()
+                reader.join(timeout=60)
+                assert reader.exitcode == 0
+                retried = reader_queue.get(timeout=5)
+            finally:
+                if reader.is_alive():
+                    reader.terminate()
+                    reader.join(timeout=5)
+                reader_queue.close()
+    
+            assert retried["pid"] != first["pid"]
+            before = retried["before_resume"]
+            assert before["origin_workflow_fingerprint"] == expected_origin_fingerprint
+            assert before["workflow_fingerprint"] == expected_current_fingerprint
+            assert retried["report_status"] == "ok"
+            assert retried["resumed_params"] == {
+                "seed": 29,
+                "step1": 1,
+                "left": 1,
+                "right": 2,
+                "final": True,
+            }
+>           assert retried["peer_calls"] == (
+                [1, 1] if error_policy == "fail_fast" else [0, 1]
+            )
+E           assert [0, 1] == [1, 1]
+E             
+E             At index 0 diff: 0 != 1
+E             Use -v to get more diff
+
+policy-engine/tests/integration/scientist/test_checkpoint_resume.py:1782: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Prometheus metrics exporter disabled after bootstrap failure: [Errno 98] Address already in use
+Prometheus metrics exporter disabled after bootstrap failure: [Errno 98] Address already in use
+2026-10-06 10:09:36.227 | INFO     | polisyos.common.logger:_call:120 - Recovered 1 cached node outcomes
+=============================== warnings summary ===============================
+tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py::TestWorkflowTimeout::test_workflow_timeout_raises
+  /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/multiprocessing/popen_fork.py:70: DeprecationWarning: This process (pid=103062) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED policy-engine/tests/unit/remediation/test_res_01.py::test_cache_seed_does_not_mix_different_content_under_same_key
+FAILED policy-engine/tests/unit/remediation/test_res_01.py::test_cache_seed_revalidates_full_ref_identity[kind-scientist.other_cache_entry]
+FAILED policy-engine/tests/unit/remediation/test_res_01.py::test_cache_seed_revalidates_full_ref_identity[media_type-text/plain]
+FAILED policy-engine/tests/unit/remediation/test_res_01.py::test_full_valid_state_resumes_without_unnecessary_cache_seed
+FAILED policy-engine/tests/unit/remediation/test_res_01.py::test_resume_rejects_missing_state_written_by_completed_node
+FAILED policy-engine/tests/unit/remediation/test_res_01.py::test_allow_replay_rebuilds_completed_nodes_for_missing_state
+FAILED policy-engine/tests/unit/remediation/test_res_01.py::test_changed_functional_input_remains_incompatible_with_checkpoint
+FAILED policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier
+FAILED policy-engine/tests/integration/scientist/test_checkpoint_resume.py::test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successful_peer

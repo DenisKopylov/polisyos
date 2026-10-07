@@ -1,0 +1,28 @@
+{
+  "source_commit": "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+  "source_tree": "0280403e6837c5b220ac748a7674f4e5830ba0ab",
+  "source_parent_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "selected_source_bytes": 50390,
+  "package_markers": "three empty __init__.py isolation stubs; not repository source",
+  "source_records": [
+    {
+      "repo_path": "policy-engine/src/polisyos/berl/adapters/conditional_shapley.py",
+      "git_blob_oid": "741b3d4ac17fbf5d4325ad1e4e14a577c9372f06",
+      "sha256": "78611ed4de5662c9994d648e6654be4df89176ef02e3f698cb5060a3b55168e4",
+      "bytes": 44253
+    },
+    {
+      "repo_path": "policy-engine/src/polisyos/berl/adapters/_coalition.py",
+      "git_blob_oid": "b155d96622f8e85d5d88237a41cd9fd4a874a0d6",
+      "sha256": "931416a01a4fc3e8870c79c86c9fece0002f58aa2a6d931757061c83dfa08f67",
+      "bytes": 1712
+    },
+    {
+      "repo_path": "policy-engine/src/polisyos/berl/adapters/protocol.py",
+      "git_blob_oid": "5b2dbb832e5149b48804299bc14fa912891e838a",
+      "sha256": "4117e55ba77d3466090fb18ae52c6301f876b2129617086eafa5334a003525ec",
+      "bytes": 4425
+    }
+  ],
+  "qualification": "three real Git implementation modules plus three empty namespace init stubs; not normal package/public adapter/Runtime/CAS/Phase5 verification"
+}

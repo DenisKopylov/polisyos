@@ -1,0 +1,84 @@
+[
+  {
+    "command": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "src/polisyos/core/llm/response.py",
+      "src/polisyos/core/llm/settlement.py",
+      "src/polisyos/core/llm/traced_client.py",
+      "src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+      "tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py"
+    ],
+    "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+    "target_sha": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+    "actual_exit": 0,
+    "wall_seconds": 0.05146109699853696,
+    "max_rss_kib": 31668,
+    "output": {
+      "path": "/dev/shm/e02-B-flight-static-final-31d613/check-0.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  },
+  {
+    "command": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "ruff",
+      "format",
+      "--check",
+      "src/polisyos/core/llm/response.py",
+      "src/polisyos/core/llm/settlement.py",
+      "src/polisyos/core/llm/traced_client.py",
+      "src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+      "tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py"
+    ],
+    "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+    "target_sha": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+    "actual_exit": 0,
+    "wall_seconds": 0.03820349200395867,
+    "max_rss_kib": 22704,
+    "output": {
+      "path": "/dev/shm/e02-B-flight-static-final-31d613/check-1.txt",
+      "bytes": 26,
+      "sha256": "2ce9758b9f8abd876ec3e76c589e099e8b05377b1e7ea2331e81ee80f07bdff8"
+    }
+  },
+  {
+    "command": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "mypy",
+      "--follow-imports=silent",
+      "--ignore-missing-imports",
+      "--cache-dir",
+      "/dev/shm/e02-B-flight-static-final-31d613/mypy-cache",
+      "src/polisyos/core/llm/response.py",
+      "src/polisyos/core/llm/settlement.py",
+      "src/polisyos/core/llm/traced_client.py",
+      "src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "src/polisyos/scientist/orchestration/llm/gateway_client.py"
+    ],
+    "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+    "target_sha": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+    "actual_exit": 1,
+    "wall_seconds": 22.37775395299832,
+    "max_rss_kib": 623676,
+    "output": {
+      "path": "/dev/shm/e02-B-flight-static-final-31d613/check-2.txt",
+      "bytes": 233,
+      "sha256": "02e7ddbd5309052ff5d05c4dcd56bddce6f269591b90abe613abed49d86c532c"
+    }
+  }
+]

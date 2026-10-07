@@ -1,0 +1,73 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/initial-source-audit.source.txt",
+      "bytes": 6269,
+      "sha256": "d3ead1ed03171f8c36414600fc7040ac41ca31c01dc97f74229dbc710a82df49"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/initial-source-audit.json",
+      "bytes": 33117,
+      "sha256": "0c1dab234f71332012ef58ee4a077e2a3691a32caae705155f7536c620f7617f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/initial-source-audit-stdout.txt",
+      "bytes": 13471,
+      "sha256": "e671ab9a077021c387603abb59423be788ec7c8f05d87155decb7e90aa01c6a7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/source-audit.source.txt",
+      "bytes": 6913,
+      "sha256": "6fa882ed650343a1032786bc7e51be7a8c348a79a62be12b0bb4c43f7f343beb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/source-audit.json",
+      "bytes": 8486,
+      "sha256": "a5feb5ecc9c7c7bb4bada8908be876e2b246024117fe72ba4987fd29f323064b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/source-audit-stdout.txt",
+      "bytes": 803,
+      "sha256": "8d2a510d21b0b2968b51ffd10525d650f24c963207abe78d213346f059124a47"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/peer-audit.source.txt",
+      "bytes": 6904,
+      "sha256": "7837ceaa7a84a42d6d3ad2beb81c9a580ea998c0900b8153fb01be39838bd3ef"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/peer-audit.json",
+      "bytes": 9497,
+      "sha256": "4b5b016d944276bceda51c587823a3fbb4a49b9905d21bd51478100fec73d137"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/peer-audit-stdout.txt",
+      "bytes": 3610,
+      "sha256": "30d631dc73f573daa5694f8d94abaa4074eff4b2612941e6587f085572d7e288"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/author-audit.source.txt",
+      "bytes": 8385,
+      "sha256": "b62f37cf0dc95b68925aa0c9bd8f5cf260a84c40a68ba4c39c25e4e334a16d9f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/author-audit.json",
+      "bytes": 13087,
+      "sha256": "1ed04f252d1d75e5c2495e1a54fa728101d79d800b5c73980d25bd20911580ae"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/author-audit-stdout.txt",
+      "bytes": 8343,
+      "sha256": "6a2c7df71e009df2dca991df5e49f48d8c9a2fa54d4318a86f1146396ae04ccd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-lexical-source-review-evidence/source-review.json",
+      "bytes": 6157,
+      "sha256": "dc7a9c0f685f945fc6eadd8b8d95c88489073095906c8200b8cd1e8269903a3c"
+    }
+  ],
+  "denominator": 13,
+  "bytes": 125042,
+  "qualification": "Metadata source/input/data review only; no own native, copied peer native logs or universal closure."
+}

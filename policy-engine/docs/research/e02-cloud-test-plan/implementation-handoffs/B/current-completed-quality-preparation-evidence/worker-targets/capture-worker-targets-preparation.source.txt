@@ -1,0 +1,91 @@
+import ast
+import hashlib
+import json
+import shutil
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+repo = Path('/workspace/e02-B-current-runtime')
+sha = '107a8e18f6678db837f0b95300d177405b8e960f'
+old = 'c8a1fede484644f40e5ef9dd3c8ceafaf083686a'
+folder = Path('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B')
+rel = folder / 'final-root-evidence/run_completed_quality.py'
+out = repo / folder / 'current-completed-quality-preparation-evidence/worker-targets'
+out.mkdir()
+python = '/workspace/polisyos/policy-engine/.venv/bin/python'
+
+def git(*words):
+    return subprocess.check_output(['/usr/bin/git', '-C', str(repo), *words])
+
+assert git('rev-parse', 'HEAD').decode().strip() == sha
+assert git('status', '--porcelain') == b''
+raw = git('show', sha + ':' + str(rel))
+before = git('show', old + ':' + str(rel))
+assert raw == (repo / rel).read_bytes()
+compile(raw, str(rel), 'exec')
+new_tree, old_tree = ast.parse(raw), ast.parse(before)
+
+def without_groups(tree):
+    return [ast.dump(node, include_attributes=False) for node in tree.body
+            if not (isinstance(node, ast.Assign) and any(isinstance(target, ast.Name)
+                and target.id == 'MYPY_GROUPS' for target in node.targets))]
+
+def groups(tree):
+    return ast.literal_eval(next(node.value for node in tree.body if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == 'MYPY_GROUPS' for target in node.targets)))
+
+assert without_groups(new_tree) == without_groups(old_tree)
+prior_groups, new_groups = groups(old_tree), groups(new_tree)
+expected = ('scientist/policy_design/_llm_accounting.py',
+            'scientist/policy_design/adversary.py', 'scientist/policy_design/translator.py')
+assert {key: value for key, value in new_groups.items() if key != 'policy_design_workers'} == prior_groups
+assert new_groups['policy_design_workers'] == expected
+assert sum(map(len, prior_groups.values())) == 12
+assert sum(map(len, new_groups.values())) == 15
+checks = []
+for name, argv in [
+    ('ruff', [python, '-m', 'ruff', 'check', '--no-cache', str(rel.relative_to('policy-engine'))]),
+    ('format', [python, '-m', 'ruff', 'format', '--check', str(rel.relative_to('policy-engine'))]),
+    ('help', [python, '-B', str(repo / rel), '--help']),
+]:
+    started = time.monotonic()
+    proc = subprocess.run(argv, cwd=repo / 'policy-engine', stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    (out / (name + '.txt')).write_bytes(proc.stdout)
+    checks.append({'id': name, 'argv': argv, 'cwd': str(repo / 'policy-engine'), 'target_sha': sha,
+        'exit_code': proc.returncode, 'wall_seconds': time.monotonic() - started,
+        'output_sha256': hashlib.sha256(proc.stdout).hexdigest(), 'bytes': len(proc.stdout),
+        'grade': 'Frozen instrument style or argparse help only; no root gate'})
+    assert proc.returncode == 0
+
+config = repo / 'policy-engine/pyproject.toml'
+config_raw = config.read_bytes()
+assert config_raw == git('show', sha + ':policy-engine/pyproject.toml')
+exe = Path(python).resolve(strict=True)
+record = {'schema': 'policyos.e02.completed_quality_worker_targets_preparation.v1',
+    'target_sha': sha, 'target_tree': git('rev-parse', sha + '^{tree}').decode().strip(),
+    'source_bytes': len(raw), 'source_sha256': hashlib.sha256(raw).hexdigest(),
+    'prior_source_sha': old, 'prior_source_sha256': hashlib.sha256(before).hexdigest(),
+    'added_targets': list(expected), 'prior_target_count': 12, 'target_count': 15,
+    'all_other_top_level_ast_identical': True, 'checks': checks,
+    'all_eight_gates': 'UNRUN', 'installed_wheel': 'UNRUN',
+    'historical_worker_type_failures': 'Preserved by author/root; no inherited waiver or new actual mypy execution in this preparation',
+    'target_presence': 'Bound against actual future frozen root by existing tracked_read; no author/root current-presence assertion',
+    'environment': {'interpreter_lexical': python, 'interpreter_actual': str(exe),
+        'interpreter_sha256': hashlib.sha256(exe.read_bytes()).hexdigest(),
+        'python_version': sys.version, 'pyproject_source_ref': sha + ':policy-engine/pyproject.toml',
+        'pyproject_git_blob': git('rev-parse', sha + ':policy-engine/pyproject.toml').decode().strip(),
+        'pyproject_bytes': len(config_raw), 'pyproject_sha256': hashlib.sha256(config_raw).hexdigest()},
+    'source_status_after': git('status', '--porcelain').decode(),
+    'limitations': ['Complete selected AST/literal comparison and actual CLI help are not final-gate execution',
+        'Supplied interpreter/config are author inputs; final root independently binds its actual complete inputs']}
+(out / 'wrapper.json').write_text(json.dumps(record, indent=2) + '\n')
+shutil.copyfile(__file__, out / 'capture-worker-targets-preparation.source.txt')
+items = []
+for path in sorted(out.iterdir()):
+    data = path.read_bytes()
+    items.append({'path': path.relative_to(repo).as_posix(), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
+(out / 'index.json').write_text(json.dumps({'files': items, 'count': len(items),
+    'bytes': sum(item['bytes'] for item in items), 'scope': 'Whole source-only worker-targets preparation, no gate/native/build'}, indent=2) + '\n')
+print(json.dumps(record, indent=2))

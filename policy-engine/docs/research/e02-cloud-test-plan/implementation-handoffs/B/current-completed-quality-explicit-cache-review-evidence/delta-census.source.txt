@@ -1,0 +1,58 @@
+import ast
+import hashlib
+import json
+import subprocess
+
+BASE = "73ad9cfaf882660e742d41ebca41376d53e8c369"
+TARGET = "be836dd71d7dff6dbdb070a48bf7c12c4f557df6"
+STOCK = "a942342a6724d200bde8b8cfddbe4bb88260815f"
+PREFIX = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/"
+LAUNCHER = PREFIX + "run_completed_quality.py"
+
+
+def git(*argv):
+    return subprocess.check_output(["git", *argv])
+
+
+def dump(node):
+    return ast.dump(node, include_attributes=False)
+
+
+def funcs(sha):
+    return {node.name: node for node in ast.parse(git("show", sha + ":" + LAUNCHER)).body
+            if isinstance(node, ast.FunctionDef)}
+
+
+old, new = funcs(BASE), funcs(TARGET)
+branches = [node for node in old["make_command"].body if isinstance(node, ast.If)]
+new_branches = [node for node in new["make_command"].body if isinstance(node, ast.If)]
+assert len(branches) == len(new_branches) == 5
+comparison = [{"test": ast.unparse(before.test), "AST_byte_independent_equal": dump(before) == dump(after)}
+              for before, after in zip(branches, new_branches)]
+assert [row["AST_byte_independent_equal"] for row in comparison] == [True, True, True, True, True]
+old_tail = old["make_command"].body[6:]
+new_tail = new["make_command"].body[6:]
+assert [dump(node) for node in old_tail] == [dump(node) for node in new_tail]
+unchanged = [name for name in old if name not in {"make_command", "main", "retained_architecture_inputs"}]
+assert all(dump(old[name]) == dump(new[name]) for name in unchanged)
+rows = []
+for sha, path in [(BASE, LAUNCHER), (TARGET, LAUNCHER),
+                  (TARGET, PREFIX + "completed-quality-README.md"),
+                  (STOCK, "policy-engine/tools/devx/architecture/guardrails.py")]:
+    body = git("show", sha + ":" + path)
+    rows.append({"source_sha": sha, "path": path, "bytes": len(body),
+                 "sha256": hashlib.sha256(body).hexdigest(),
+                 "git_blob": git("rev-parse", sha + ":" + path).decode().strip()})
+parent = git("rev-parse", TARGET + "^").decode().strip()
+assert dump(ast.parse(git("show", parent + ":" + LAUNCHER))) == dump(ast.parse(git("show", TARGET + ":" + LAUNCHER)))
+diff = git("diff", BASE, TARGET, "--", LAUNCHER, PREFIX + "completed-quality-README.md")
+print(json.dumps({"base": BASE, "target": TARGET,
+                  "target_tree": git("rev-parse", TARGET + "^{tree}").decode().strip(),
+                  "full_delta_paths": git("diff", "--name-only", BASE, TARGET).decode().splitlines(),
+                  "full_delta_bytes": len(diff), "full_delta_sha256": hashlib.sha256(diff).hexdigest(),
+                  "source_inputs": rows, "branches": comparison,
+                  "all_8_gate_command_branches_AST_equal_to_73": True,
+                  "format_only_parent": parent, "format_parent_full_launcher_AST_equal": True,
+                  "verify_parity_tail_AST_equal": True, "unchanged_function_ASTs": unchanged,
+                  "new_functions": sorted(set(new) - set(old)),
+                  "execution": "Git reads plus stdlib AST only. No launcher/helper/canonical owner/project import/uv/cache query/collection/native/gate/generator executed."}, indent=2))

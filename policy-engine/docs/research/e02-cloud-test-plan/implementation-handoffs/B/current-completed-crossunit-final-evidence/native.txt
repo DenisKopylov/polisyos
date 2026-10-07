@@ -1,0 +1,282 @@
+CROSSUNIT_FINAL_NATIVE_ENV {"root": "/workspace/e02-B-current-coordination", "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6", "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python", "prefix": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment", "pytest": "9.0.2"}
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python
+cachedir: /dev/shm/e02-B-crossunit-final-1862/actual-iacgffbo/cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-B-current-coordination/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-B-current-coordination/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, hypothesis-6.151.2, anyio-4.12.0, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, jaxtyping-0.3.4
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 10 items
+
+tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects FAILED
+tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_admitted_recovery_emits_two_sessions_once_with_original_lineage PASSED
+tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[healthy] STREAM_CLEANUP_OBSERVATION {"after_fresh": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["9d3b9faf-5e3f-49d4-9432-477f70be309e", "1820843c-5fd2-4741-88c3-c00316323d4f"], "disconnect_calls": ["9d3b9faf-5e3f-49d4-9432-477f70be309e", "1820843c-5fd2-4741-88c3-c00316323d4f"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.195, "created_at": "2026-10-06 23:00:46.091968+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "after_registry_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["9d3b9faf-5e3f-49d4-9432-477f70be309e"], "disconnect_calls": ["9d3b9faf-5e3f-49d4-9432-477f70be309e"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.195, "created_at": "2026-10-06 23:00:46.091968+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "before_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["9d3b9faf-5e3f-49d4-9432-477f70be309e"], "disconnect_calls": ["9d3b9faf-5e3f-49d4-9432-477f70be309e"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.195, "created_at": "2026-10-06 23:00:46.091968+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "during_fresh": {"actual_handles_without_disconnect_confirmation": ["1820843c-5fd2-4741-88c3-c00316323d4f"], "available_permits": 1, "confirmed_disconnects": ["9d3b9faf-5e3f-49d4-9432-477f70be309e"], "disconnect_calls": ["9d3b9faf-5e3f-49d4-9432-477f70be309e"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.195, "created_at": "2026-10-06 23:00:46.091968+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "fresh_real_file_rows": 2, "initial_rows": 2, "observer_final_cleanup": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["9d3b9faf-5e3f-49d4-9432-477f70be309e", "1820843c-5fd2-4741-88c3-c00316323d4f"], "disconnect_calls": ["9d3b9faf-5e3f-49d4-9432-477f70be309e", "1820843c-5fd2-4741-88c3-c00316323d4f"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.195, "created_at": "2026-10-06 23:00:46.091968+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "primary_exception_is_injected": false, "primary_exception_type": null, "primary_notes": [], "same_pool_acquire": "PoolClosedError", "stage": "healthy"}
+PASSED
+tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[subscribe-failure] STREAM_CLEANUP_OBSERVATION {"after_fresh": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["2ae36b6a-22d8-4f32-aa34-39bc806c6a7f", "5c2e9e57-7930-48d9-8c74-c5c13491fbea"], "disconnect_calls": ["2ae36b6a-22d8-4f32-aa34-39bc806c6a7f", "5c2e9e57-7930-48d9-8c74-c5c13491fbea"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.166, "created_at": "2026-10-06 23:00:46.233375+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 0}}, "after_registry_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["2ae36b6a-22d8-4f32-aa34-39bc806c6a7f"], "disconnect_calls": ["2ae36b6a-22d8-4f32-aa34-39bc806c6a7f"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.166, "created_at": "2026-10-06 23:00:46.233375+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 0}}, "before_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["2ae36b6a-22d8-4f32-aa34-39bc806c6a7f"], "disconnect_calls": ["2ae36b6a-22d8-4f32-aa34-39bc806c6a7f"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.166, "created_at": "2026-10-06 23:00:46.233375+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 0}}, "during_fresh": {"actual_handles_without_disconnect_confirmation": ["5c2e9e57-7930-48d9-8c74-c5c13491fbea"], "available_permits": 1, "confirmed_disconnects": ["2ae36b6a-22d8-4f32-aa34-39bc806c6a7f"], "disconnect_calls": ["2ae36b6a-22d8-4f32-aa34-39bc806c6a7f"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.166, "created_at": "2026-10-06 23:00:46.233375+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 0}}, "fresh_real_file_rows": 2, "initial_rows": null, "observer_final_cleanup": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["2ae36b6a-22d8-4f32-aa34-39bc806c6a7f", "5c2e9e57-7930-48d9-8c74-c5c13491fbea"], "disconnect_calls": ["2ae36b6a-22d8-4f32-aa34-39bc806c6a7f", "5c2e9e57-7930-48d9-8c74-c5c13491fbea"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.166, "created_at": "2026-10-06 23:00:46.233375+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 0}}, "primary_exception_is_injected": true, "primary_exception_type": "ConnectorStageError", "primary_notes": [], "same_pool_acquire": "PoolClosedError", "stage": "subscribe-failure"}
+PASSED
+tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[checkpoint-read-failure] STREAM_CLEANUP_OBSERVATION {"after_fresh": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["7f8e39cf-148a-471a-be10-5184cd030c83", "c71f6e97-f9e7-4cea-88a3-d489c2e51655"], "disconnect_calls": ["7f8e39cf-148a-471a-be10-5184cd030c83", "c71f6e97-f9e7-4cea-88a3-d489c2e51655"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.217, "created_at": "2026-10-06 23:00:46.327607+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "after_registry_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["7f8e39cf-148a-471a-be10-5184cd030c83"], "disconnect_calls": ["7f8e39cf-148a-471a-be10-5184cd030c83"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.217, "created_at": "2026-10-06 23:00:46.327607+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "before_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["7f8e39cf-148a-471a-be10-5184cd030c83"], "disconnect_calls": ["7f8e39cf-148a-471a-be10-5184cd030c83"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.217, "created_at": "2026-10-06 23:00:46.327607+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "during_fresh": {"actual_handles_without_disconnect_confirmation": ["c71f6e97-f9e7-4cea-88a3-d489c2e51655"], "available_permits": 1, "confirmed_disconnects": ["7f8e39cf-148a-471a-be10-5184cd030c83"], "disconnect_calls": ["7f8e39cf-148a-471a-be10-5184cd030c83"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.217, "created_at": "2026-10-06 23:00:46.327607+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "fresh_real_file_rows": 2, "initial_rows": null, "observer_final_cleanup": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["7f8e39cf-148a-471a-be10-5184cd030c83", "c71f6e97-f9e7-4cea-88a3-d489c2e51655"], "disconnect_calls": ["7f8e39cf-148a-471a-be10-5184cd030c83", "c71f6e97-f9e7-4cea-88a3-d489c2e51655"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.217, "created_at": "2026-10-06 23:00:46.327607+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "primary_exception_is_injected": false, "primary_exception_type": "CursorStoreError", "primary_notes": [], "same_pool_acquire": "PoolClosedError", "stage": "checkpoint-read-failure"}
+PASSED
+tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[rewind-failure] STREAM_CLEANUP_OBSERVATION {"after_fresh": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["01be6946-c6df-4a27-b90d-051f13ca2186", "3ba69b6c-c2d6-487f-a1c4-387e581a648e"], "disconnect_calls": ["01be6946-c6df-4a27-b90d-051f13ca2186", "3ba69b6c-c2d6-487f-a1c4-387e581a648e"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.231, "created_at": "2026-10-06 23:00:46.424715+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 2, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "after_registry_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["01be6946-c6df-4a27-b90d-051f13ca2186"], "disconnect_calls": ["01be6946-c6df-4a27-b90d-051f13ca2186"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.231, "created_at": "2026-10-06 23:00:46.424715+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 2, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "before_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["01be6946-c6df-4a27-b90d-051f13ca2186"], "disconnect_calls": ["01be6946-c6df-4a27-b90d-051f13ca2186"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.231, "created_at": "2026-10-06 23:00:46.424715+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 2, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "during_fresh": {"actual_handles_without_disconnect_confirmation": ["3ba69b6c-c2d6-487f-a1c4-387e581a648e"], "available_permits": 1, "confirmed_disconnects": ["01be6946-c6df-4a27-b90d-051f13ca2186"], "disconnect_calls": ["01be6946-c6df-4a27-b90d-051f13ca2186"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.231, "created_at": "2026-10-06 23:00:46.424715+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 2, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "fresh_real_file_rows": 2, "initial_rows": null, "observer_final_cleanup": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["01be6946-c6df-4a27-b90d-051f13ca2186", "3ba69b6c-c2d6-487f-a1c4-387e581a648e"], "disconnect_calls": ["01be6946-c6df-4a27-b90d-051f13ca2186", "3ba69b6c-c2d6-487f-a1c4-387e581a648e"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.231, "created_at": "2026-10-06 23:00:46.424715+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 2, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "primary_exception_is_injected": true, "primary_exception_type": "ConnectorStageError", "primary_notes": [], "same_pool_acquire": "PoolClosedError", "stage": "rewind-failure"}
+PASSED
+tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[caller-cancel] STREAM_CLEANUP_OBSERVATION {"after_fresh": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["7b4944f0-d7ba-4b61-95bb-1fb3debd0a33", "9ae44860-1b0d-4195-863d-e7f0b2781b10"], "disconnect_calls": ["7b4944f0-d7ba-4b61-95bb-1fb3debd0a33", "9ae44860-1b0d-4195-863d-e7f0b2781b10"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.157, "created_at": "2026-10-06 23:00:46.519462+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "after_registry_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["7b4944f0-d7ba-4b61-95bb-1fb3debd0a33"], "disconnect_calls": ["7b4944f0-d7ba-4b61-95bb-1fb3debd0a33"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.157, "created_at": "2026-10-06 23:00:46.519462+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "before_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["7b4944f0-d7ba-4b61-95bb-1fb3debd0a33"], "disconnect_calls": ["7b4944f0-d7ba-4b61-95bb-1fb3debd0a33"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.157, "created_at": "2026-10-06 23:00:46.519462+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "during_fresh": {"actual_handles_without_disconnect_confirmation": ["9ae44860-1b0d-4195-863d-e7f0b2781b10"], "available_permits": 1, "confirmed_disconnects": ["7b4944f0-d7ba-4b61-95bb-1fb3debd0a33"], "disconnect_calls": ["7b4944f0-d7ba-4b61-95bb-1fb3debd0a33"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.157, "created_at": "2026-10-06 23:00:46.519462+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "fresh_real_file_rows": 2, "initial_rows": null, "observer_final_cleanup": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["7b4944f0-d7ba-4b61-95bb-1fb3debd0a33", "9ae44860-1b0d-4195-863d-e7f0b2781b10"], "disconnect_calls": ["7b4944f0-d7ba-4b61-95bb-1fb3debd0a33", "9ae44860-1b0d-4195-863d-e7f0b2781b10"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.157, "created_at": "2026-10-06 23:00:46.519462+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "primary_exception_is_injected": false, "primary_exception_type": "CancelledError", "primary_notes": [], "same_pool_acquire": "PoolClosedError", "stage": "caller-cancel"}
+PASSED
+tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[startup-owner-retry] STREAM_CLEANUP_OBSERVATION {"after_fresh": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["08ec9094-c3a7-4fa7-8f96-15d8b8e73173", "88856ae8-035e-4ece-b57b-36ff02762a61"], "disconnect_calls": ["08ec9094-c3a7-4fa7-8f96-15d8b8e73173", "08ec9094-c3a7-4fa7-8f96-15d8b8e73173", "08ec9094-c3a7-4fa7-8f96-15d8b8e73173", "08ec9094-c3a7-4fa7-8f96-15d8b8e73173", "88856ae8-035e-4ece-b57b-36ff02762a61"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.154, "created_at": "2026-10-06 23:00:46.611455+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 0}}, "after_registry_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["08ec9094-c3a7-4fa7-8f96-15d8b8e73173"], "disconnect_calls": ["08ec9094-c3a7-4fa7-8f96-15d8b8e73173", "08ec9094-c3a7-4fa7-8f96-15d8b8e73173", "08ec9094-c3a7-4fa7-8f96-15d8b8e73173", "08ec9094-c3a7-4fa7-8f96-15d8b8e73173"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.154, "created_at": "2026-10-06 23:00:46.611455+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 0}}, "before_retry": {"actual_handles_without_disconnect_confirmation": ["08ec9094-c3a7-4fa7-8f96-15d8b8e73173"], "available_permits": 0, "confirmed_disconnects": [], "disconnect_calls": ["08ec9094-c3a7-4fa7-8f96-15d8b8e73173", "08ec9094-c3a7-4fa7-8f96-15d8b8e73173", "08ec9094-c3a7-4fa7-8f96-15d8b8e73173"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {"08ec9094-c3a7-4fa7-8f96-15d8b8e73173": {"closed": false, "pending_permit": true, "task_done": null}}, "pool_closed": true, "registry_pending_owner_count": 1, "stats": {"acquire_wait_time_total_ms": 0.154, "created_at": "2026-10-06 23:00:46.611455+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 0, "total_connections": 1, "total_creates": 1, "total_health_checks": 1, "total_releases": 0}}, "during_fresh": {"actual_handles_without_disconnect_confirmation": ["88856ae8-035e-4ece-b57b-36ff02762a61"], "available_permits": 1, "confirmed_disconnects": ["08ec9094-c3a7-4fa7-8f96-15d8b8e73173"], "disconnect_calls": ["08ec9094-c3a7-4fa7-8f96-15d8b8e73173", "08ec9094-c3a7-4fa7-8f96-15d8b8e73173", "08ec9094-c3a7-4fa7-8f96-15d8b8e73173", "08ec9094-c3a7-4fa7-8f96-15d8b8e73173"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.154, "created_at": "2026-10-06 23:00:46.611455+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 0}}, "fresh_real_file_rows": 2, "initial_rows": null, "observer_final_cleanup": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["08ec9094-c3a7-4fa7-8f96-15d8b8e73173", "88856ae8-035e-4ece-b57b-36ff02762a61"], "disconnect_calls": ["08ec9094-c3a7-4fa7-8f96-15d8b8e73173", "08ec9094-c3a7-4fa7-8f96-15d8b8e73173", "08ec9094-c3a7-4fa7-8f96-15d8b8e73173", "08ec9094-c3a7-4fa7-8f96-15d8b8e73173", "88856ae8-035e-4ece-b57b-36ff02762a61"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.154, "created_at": "2026-10-06 23:00:46.611455+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 0}}, "primary_exception_is_injected": true, "primary_exception_type": "ConnectorStageError", "primary_notes": ["stream subscription pool close failed: RuntimeError('Connection cleanup remains pending for the closed pool')", "stream subscription release failed: RuntimeError('Connection cleanup is pending for the released owner')", "stream session startup cleanup remains pending after retry: RuntimeError('Connection cleanup is pending for the released owner')"], "same_pool_acquire": "PoolClosedError", "stage": "startup-owner-retry"}
+PASSED
+tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[process-disconnect-failure] STREAM_CLEANUP_OBSERVATION {"after_fresh": {"actual_handles_without_disconnect_confirmation": ["2c2c3313-cde4-4bd6-abaf-887996061b3c"], "available_permits": 1, "confirmed_disconnects": ["6c4b1967-4089-480e-ae66-6975d3727c30"], "disconnect_calls": ["2c2c3313-cde4-4bd6-abaf-887996061b3c", "6c4b1967-4089-480e-ae66-6975d3727c30"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {"2c2c3313-cde4-4bd6-abaf-887996061b3c": {"closed": false, "pending_permit": false, "task_done": null}}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.16699999999999998, "created_at": "2026-10-06 23:00:46.704394+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 0, "total_connections": 1, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "after_registry_retry": {"actual_handles_without_disconnect_confirmation": ["2c2c3313-cde4-4bd6-abaf-887996061b3c"], "available_permits": 1, "confirmed_disconnects": [], "disconnect_calls": ["2c2c3313-cde4-4bd6-abaf-887996061b3c"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {"2c2c3313-cde4-4bd6-abaf-887996061b3c": {"closed": false, "pending_permit": false, "task_done": null}}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.16699999999999998, "created_at": "2026-10-06 23:00:46.704394+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 0, "total_connections": 1, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "before_retry": {"actual_handles_without_disconnect_confirmation": ["2c2c3313-cde4-4bd6-abaf-887996061b3c"], "available_permits": 1, "confirmed_disconnects": [], "disconnect_calls": ["2c2c3313-cde4-4bd6-abaf-887996061b3c"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {"2c2c3313-cde4-4bd6-abaf-887996061b3c": {"closed": false, "pending_permit": false, "task_done": null}}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.16699999999999998, "created_at": "2026-10-06 23:00:46.704394+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 0, "total_connections": 1, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "during_fresh": {"actual_handles_without_disconnect_confirmation": ["2c2c3313-cde4-4bd6-abaf-887996061b3c", "6c4b1967-4089-480e-ae66-6975d3727c30"], "available_permits": 1, "confirmed_disconnects": [], "disconnect_calls": ["2c2c3313-cde4-4bd6-abaf-887996061b3c"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {"2c2c3313-cde4-4bd6-abaf-887996061b3c": {"closed": false, "pending_permit": false, "task_done": null}}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.16699999999999998, "created_at": "2026-10-06 23:00:46.704394+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 0, "total_connections": 1, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "fresh_real_file_rows": 2, "initial_rows": null, "observer_final_cleanup": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["6c4b1967-4089-480e-ae66-6975d3727c30", "2c2c3313-cde4-4bd6-abaf-887996061b3c"], "disconnect_calls": ["2c2c3313-cde4-4bd6-abaf-887996061b3c", "6c4b1967-4089-480e-ae66-6975d3727c30", "2c2c3313-cde4-4bd6-abaf-887996061b3c"], "jsonl_fd_observation": "observed", "jsonl_open_fds": [], "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.16699999999999998, "created_at": "2026-10-06 23:00:46.704394+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "primary_exception_is_injected": false, "primary_exception_type": "RuntimeError", "primary_notes": [], "same_pool_acquire": "PoolClosedError", "stage": "process-disconnect-failure"}
+FAILED
+tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_direct_file_session_second_close_finishes_pending_cleanup STREAM_DIRECT_RETRY {"after": {"active": [], "pending": [], "permits": 1, "session_closed": true}, "before": {"active": ["820fe618-3954-46a2-a2b3-c2a249d2a867"], "pending": ["820fe618-3954-46a2-a2b3-c2a249d2a867"], "session_closed": false}}
+PASSED
+
+=================================== FAILURES ===================================
+_____ test_restored_frontier_above_new_cap_refuses_before_consumer_effects _____
+
+tmp_path = PosixPath('/dev/shm/e02-B-crossunit-final-1862/actual-iacgffbo/pytest/test_restored_frontier_above_n0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8fefb24050>
+
+    @pytest.mark.asyncio
+    async def test_restored_frontier_above_new_cap_refuses_before_consumer_effects(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        registry, store, checkpoint = await _pending_checkpoint(tmp_path, monkeypatch)
+        events: list[str] = []
+        acquisitions: list[tuple[int, str]] = []
+        releases: list[tuple[int, str]] = []
+        acquire = ConnectionPool.acquire_with_connector
+        release = ConnectionPool.release
+        poll = streaming.StreamingSourceSession.poll
+        flush = streaming.StreamWindowAccumulator.flush_with_refs
+        commit = streaming._commit_stream_frontier
+    
+        async def observed_acquire(pool):
+            result = await acquire(pool)
+            events.append("acquire")
+            acquisitions.append((id(pool), result[1].session_id))
+            return result
+    
+        async def observed_release(pool, handle):
+            result = await release(pool, handle)
+            releases.append((id(pool), handle.session_id))
+            events.append("release")
+            return result
+    
+        async def observed_poll(session):
+            events.append("poll")
+            return await poll(session)
+    
+        def observed_flush(accumulator):
+            events.append("flush")
+            return flush(accumulator)
+    
+        async def observed_commit(**kwargs):
+            events.append("commit")
+            return await commit(**kwargs)
+    
+        monkeypatch.setattr(ConnectionPool, "acquire_with_connector", observed_acquire)
+        monkeypatch.setattr(ConnectionPool, "release", observed_release)
+        monkeypatch.setattr(streaming.StreamingSourceSession, "poll", observed_poll)
+        monkeypatch.setattr(streaming.StreamWindowAccumulator, "flush_with_refs", observed_flush)
+        monkeypatch.setattr(streaming, "_commit_stream_frontier", observed_commit)
+        reopened = FileSystemCAS(store.root)
+        failure = None
+        try:
+            await streaming.process_stream_dataset(
+                connector_id="stream.jsonl",
+                dataset_id="budget-oracle",
+                store=reopened,
+                cursor_store=CursorStore(reopened),
+                sanitize_rows=_rows,
+                runtime_options=_options(1),
+                registry=registry,
+            )
+        except (RuntimeError, ValueError) as exc:
+            failure = exc
+>       assert not {"poll", "flush", "commit"}.intersection(events), json.dumps(events)
+E       AssertionError: ["acquire", "release", "acquire", "poll", "poll", "poll", "commit", "poll", "flush", "commit", "release"]
+E       assert not {'flush', 'commit', 'poll'}
+E        +  where {'flush', 'commit', 'poll'} = <built-in method intersection of set object at 0x7f8fefa2b760>(['acquire', 'release', 'acquire', 'poll', 'poll', 'poll', 'commit', 'poll', 'flush', 'commit', 'release'])
+E        +    where <built-in method intersection of set object at 0x7f8fefa2b760> = {'commit', 'flush', 'poll'}.intersection
+
+tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py:168: AssertionError
+____ test_process_file_stream_cleanup_ownership[process-disconnect-failure] ____
+
+tmp_path = PosixPath('/dev/shm/e02-B-crossunit-final-1862/actual-iacgffbo/pytest/test_process_file_stream_clean6')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8fefacacb0>
+stage = 'process-disconnect-failure'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "stage",
+        [
+            "healthy",
+            "subscribe-failure",
+            "checkpoint-read-failure",
+            "rewind-failure",
+            "caller-cancel",
+            "startup-owner-retry",
+            "process-disconnect-failure",
+        ],
+    )
+    async def test_process_file_stream_cleanup_ownership(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, stage: str
+    ) -> None:
+        """A finished process consumer must clean or transfer its acquired handle."""
+        path = tmp_path / "events.jsonl"
+        path.write_text('{"_message_id":"m1","value":1}\n{"_message_id":"m2","value":2}\n')
+        connector = ObservedFileConnector(stage)
+        config = ConnectionConfig(url=path.as_uri(), max_connections=1)
+        ConnectorRegistry.reset_instance()
+        registry = ConnectorRegistry.get_instance(bootstrap=False)
+        registry.register(EventStreamConnector, config=config, factory=lambda: connector)
+        captured: list[ConnectionPool[Any]] = []
+        real_pool = ConnectionPool
+    
+        def observe_real_pool(*args: Any, **kwargs: Any) -> ConnectionPool[Any]:
+            pool = real_pool(*args, **kwargs)
+            captured.append(pool)
+            return pool
+    
+        # Observation only: create still receives the canonical production pool.
+        monkeypatch.setattr(streaming_module, "ConnectionPool", observe_real_pool)
+        store = FileSystemCAS(tmp_path / "cas")
+        cursors = CursorStore(store)
+        if stage == "checkpoint-read-failure":
+            cursors._stream_index_path.write_text("{broken-json")
+        if stage == "rewind-failure":
+            cursors.save_stream_checkpoint(
+                StreamCheckpoint(
+                    checkpoint_id="stream.jsonl:events:default:0",
+                    stream_id="stream.jsonl:events:default",
+                    connector_id="stream.jsonl",
+                    dataset_id="events",
+                    offset=0,
+                    created_at=datetime.now(UTC),
+                )
+            )
+    
+        task = asyncio.create_task(
+            process_stream_dataset(
+                connector_id="stream.jsonl",
+                dataset_id="events",
+                store=store,
+                cursor_store=cursors,
+                sanitize_rows=_valid_rows,
+                registry=registry,
+            )
+        )
+        if stage == "caller-cancel":
+            await asyncio.wait_for(connector.poll_entered.wait(), 2)
+            task.cancel()
+        caught: BaseException | None = None
+        result = None
+        try:
+            result = await task
+        except BaseException as exc:
+            caught = exc
+    
+        assert len(captured) == 1  # Actual C-created pool, not a substitute.
+        pool = captured[0]
+        before_retry = _snapshot(pool, connector, registry, path)
+        same_pool_acquire: str
+        try:
+            handle = await pool.acquire()
+        except PoolClosedError:
+            same_pool_acquire = "PoolClosedError"
+        else:
+            same_pool_acquire = "acquired"
+            await pool.release(handle)
+    
+        # Real registry retry establishes whether a production owner can finish it.
+        await registry.shutdown_async()
+        after_registry_retry = _snapshot(pool, connector, registry, path)
+        connector.stage = "healthy"
+        fresh = await StreamingSourceSession.create(
+            connector_id="stream.jsonl",
+            dataset_id="fresh",
+            registry=registry,
+        )
+        fresh_chunk = await fresh.poll()
+        during_fresh = _snapshot(pool, connector, registry, path)
+        await fresh.close()
+        after_fresh = _snapshot(pool, connector, registry, path)
+        # Test observer cleanup is outside the measured production retry. It cannot
+        # rescue the assertion or establish an owner for the finished consumer.
+        await pool.close_all()
+        final = _snapshot(pool, connector, registry, path)
+        observation = {
+            "stage": stage,
+            "primary_exception_type": type(caught).__name__ if caught else None,
+            "primary_exception_is_injected": caught is connector.primary_fault,
+            "primary_notes": getattr(caught, "__notes__", []),
+            "before_retry": before_retry,
+            "same_pool_acquire": same_pool_acquire,
+            "after_registry_retry": after_registry_retry,
+            "during_fresh": during_fresh,
+            "after_fresh": after_fresh,
+            "observer_final_cleanup": final,
+            "fresh_real_file_rows": fresh_chunk.row_count if fresh_chunk else None,
+            "initial_rows": result.rows_emitted if result else None,
+        }
+        print("STREAM_CLEANUP_OBSERVATION " + json.dumps(observation, default=str, sort_keys=True))
+        ConnectorRegistry.reset_instance()
+    
+        assert fresh_chunk is not None and fresh_chunk.row_count == 2
+        assert final["pending_cleanup"] == {} and final["available_permits"] == 1
+        assert final["actual_handles_without_disconnect_confirmation"] == []
+        if stage == "healthy":
+            assert caught is None and result is not None and result.rows_emitted == 2
+        elif stage == "checkpoint-read-failure":
+            assert isinstance(caught, CursorStoreError)
+        elif stage == "caller-cancel":
+            assert isinstance(caught, asyncio.CancelledError)
+        elif stage != "process-disconnect-failure":
+            assert caught is connector.primary_fault
+        else:
+            assert isinstance(caught, RuntimeError)
+        # No local observer may supply the absent production retry authority.
+>       assert after_registry_retry["pending_cleanup"] == {}, observation
+E       AssertionError: {'after_fresh': {'actual_handles_without_disconnect_confirmation': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], 'available_permits': 1, 'confirmed_disconnects': ['6c4b1967-4089-480e-ae66-6975d3727c30'], 'disconnect_calls': ['2c2c3313-cde4-4bd6-abaf-887996061b3c', '6c4b1967-4089-480e-ae66-6975d3727c30'], ...}, 'after_registry_retry': {'actual_handles_without_disconnect_confirmation': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], 'available_permits': 1, 'confirmed_disconnects': [], 'disconnect_calls': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], ...}, 'before_retry': {'actual_handles_without_disconnect_confirmation': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], 'available_permits': 1, 'confirmed_disconnects': [], 'disconnect_calls': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], ...}, 'during_fresh': {'actual_handles_without_disconnect_confirmation': ['2c2c3313-cde4-4bd6-abaf-887996061b3c', '6c4b1967-4089-480e-ae66-6975d3727c30'], 'available_permits': 1, 'confirmed_disconnects': [], 'disconnect_calls': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], ...}, ...}
+E       assert {'2c2c3313-cde4-4bd6-abaf-887996061b3c': {'pending_permit': False, 'closed': False, 'task_done': None}} == {}
+E         
+E         Left contains 1 more item:
+E         {'2c2c3313-cde4-4bd6-abaf-887996061b3c': {'closed': False,
+E                                                   'pending_permit': False,
+E                                                   'task_done': None}}
+E         
+E         Full diff:
+E         - {}
+E         + {
+E         +     '2c2c3313-cde4-4bd6-abaf-887996061b3c': {
+E         +         'closed': False,
+E         +         'pending_permit': False,
+E         +         'task_done': None,
+E         +     },
+E         + }
+
+tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py:271: AssertionError
+- generated xml file: /dev/shm/e02-B-crossunit-final-1862/actual-iacgffbo/native.xml -
+=========================== short test summary info ============================
+FAILED tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects - AssertionError: ["acquire", "release", "acquire", "poll", "poll", "poll", "commit", "poll", "flush", "commit", "release"]
+assert not {'flush', 'commit', 'poll'}
+ +  where {'flush', 'commit', 'poll'} = <built-in method intersection of set object at 0x7f8fefa2b760>(['acquire', 'release', 'acquire', 'poll', 'poll', 'poll', 'commit', 'poll', 'flush', 'commit', 'release'])
+ +    where <built-in method intersection of set object at 0x7f8fefa2b760> = {'commit', 'flush', 'poll'}.intersection
+FAILED tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[process-disconnect-failure] - AssertionError: {'after_fresh': {'actual_handles_without_disconnect_confirmation': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], 'available_permits': 1, 'confirmed_disconnects': ['6c4b1967-4089-480e-ae66-6975d3727c30'], 'disconnect_calls': ['2c2c3313-cde4-4bd6-abaf-887996061b3c', '6c4b1967-4089-480e-ae66-6975d3727c30'], ...}, 'after_registry_retry': {'actual_handles_without_disconnect_confirmation': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], 'available_permits': 1, 'confirmed_disconnects': [], 'disconnect_calls': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], ...}, 'before_retry': {'actual_handles_without_disconnect_confirmation': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], 'available_permits': 1, 'confirmed_disconnects': [], 'disconnect_calls': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], ...}, 'during_fresh': {'actual_handles_without_disconnect_confirmation': ['2c2c3313-cde4-4bd6-abaf-887996061b3c', '6c4b1967-4089-480e-ae66-6975d3727c30'], 'available_permits': 1, 'confirmed_disconnects': [], 'disconnect_calls': ['2c2c3313-cde4-4bd6-abaf-887996061b3c'], ...}, ...}
+assert {'2c2c3313-cde4-4bd6-abaf-887996061b3c': {'pending_permit': False, 'closed': False, 'task_done': None}} == {}
+  
+  Left contains 1 more item:
+  {'2c2c3313-cde4-4bd6-abaf-887996061b3c': {'closed': False,
+                                            'pending_permit': False,
+                                            'task_done': None}}
+  
+  Full diff:
+  - {}
+  + {
+  +     '2c2c3313-cde4-4bd6-abaf-887996061b3c': {
+  +         'closed': False,
+  +         'pending_permit': False,
+  +         'task_done': None,
+  +     },
+  + }
+========================= 2 failed, 8 passed in 3.39s ==========================

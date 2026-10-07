@@ -1,0 +1,629 @@
+{
+  "defining-f563": {
+    "cases": 17,
+    "pass": 11,
+    "fail": 6,
+    "error": 0,
+    "skip": 0,
+    "entries": [
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_real_cas_reopen_restores_payload_occurrences_and_executes[False]",
+        "outcome": "FAIL"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_real_cas_reopen_restores_payload_occurrences_and_executes[True]",
+        "outcome": "FAIL"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[required-edge]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[order]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[cycle]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[missing-node]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[sparse]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[foreign]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[bool-index]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_current_abi_drift_refuses_before_body",
+        "outcome": "FAIL"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_repeated_fqn_occurrences_reopen_with_nearest_earlier_requirement",
+        "outcome": "FAIL"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_selected_manifest_schema_is_consumed[foreign-plan]",
+        "outcome": "FAIL"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_selected_manifest_schema_is_consumed[polisyos.foundry.compiled_chain_plan]",
+        "outcome": "FAIL"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_non_json_payload_refused_at_real_producer[nan]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_non_json_payload_refused_at_real_producer[value1]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_non_json_payload_refused_at_real_producer[value2]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_non_json_payload_refused_at_real_producer[value3]",
+        "outcome": "PASS"
+      }
+    ]
+  },
+  "defining-e69": {
+    "cases": 19,
+    "pass": 18,
+    "fail": 1,
+    "error": 0,
+    "skip": 0,
+    "entries": [
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_real_cas_reopen_restores_payload_occurrences_and_executes[False]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_real_cas_reopen_restores_payload_occurrences_and_executes[True]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[required-edge]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[order]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[cycle]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[missing-node]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[sparse]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[foreign]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[bool-index]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_current_abi_drift_refuses_before_body",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_repeated_fqn_occurrences_reopen_with_nearest_earlier_requirement",
+        "outcome": "FAIL"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_selected_manifest_schema_is_consumed[foreign-plan]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_selected_manifest_schema_is_consumed[polisyos.foundry.compiled_chain_plan]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_non_json_payload_refused_at_real_producer[nan]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_non_json_payload_refused_at_real_producer[value1]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_non_json_payload_refused_at_real_producer[value2]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_non_json_payload_refused_at_real_producer[value3]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_cyclic_python_payload_refused_at_real_producer",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_unprofiled_reference_is_not_a_selected_plan",
+        "outcome": "PASS"
+      }
+    ]
+  },
+  "defining-9ce": {
+    "cases": 19,
+    "pass": 19,
+    "fail": 0,
+    "error": 0,
+    "skip": 0,
+    "entries": [
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_real_cas_reopen_restores_payload_occurrences_and_executes[False]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_real_cas_reopen_restores_payload_occurrences_and_executes[True]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[required-edge]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[order]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[cycle]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[missing-node]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[sparse]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[foreign]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_persisted_plan_mutation_refuses_before_body[bool-index]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_current_abi_drift_refuses_before_body",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_repeated_fqn_occurrences_reopen_with_nearest_earlier_requirement",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_selected_manifest_schema_is_consumed[foreign-plan]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_selected_manifest_schema_is_consumed[polisyos.foundry.compiled_chain_plan]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_non_json_payload_refused_at_real_producer[nan]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_non_json_payload_refused_at_real_producer[value1]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_non_json_payload_refused_at_real_producer[value2]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_non_json_payload_refused_at_real_producer[value3]",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_cyclic_python_payload_refused_at_real_producer",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.artifacts.test_compiled_chain_plan",
+        "name": "test_unprofiled_reference_is_not_a_selected_plan",
+        "outcome": "PASS"
+      }
+    ]
+  },
+  "affected-9ce": {
+    "cases": 62,
+    "pass": 62,
+    "fail": 0,
+    "error": 0,
+    "skip": 0,
+    "entries": [
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestComputeSourceHash",
+        "name": "test_returns_hash_for_regular_class",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestComputeSourceHash",
+        "name": "test_returns_fallback_for_builtin",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestComputeSourceHash",
+        "name": "test_custom_fallback_value",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestComputeSourceHash",
+        "name": "test_hash_changes_with_source",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestComputeSourceHash",
+        "name": "test_comment_changes_hash",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestComputeSourceHash",
+        "name": "test_hash_is_deterministic",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestComputeSourceHash",
+        "name": "test_source_fingerprint_strategy",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestMethodArtifact",
+        "name": "test_from_method_creates_valid_artifact",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestMethodArtifact",
+        "name": "test_deterministic_hashing_ignores_timestamps",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestMethodArtifact",
+        "name": "test_to_manifest_produces_valid_structure",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestMethodArtifact",
+        "name": "test_source_unavailable_flag",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestSlotBindingRecord",
+        "name": "test_to_dict",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestChainArtifact",
+        "name": "test_chain_hash_is_deterministic",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestChainArtifact",
+        "name": "test_different_topology_different_hash",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestChainArtifact",
+        "name": "test_to_manifest_includes_inputs",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestChainArtifact",
+        "name": "test_method_count_property",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestExecutionEvidence",
+        "name": "test_create_sets_all_fields",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestExecutionEvidence",
+        "name": "test_duration_seconds_computed",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestExecutionEvidence",
+        "name": "test_to_manifest_includes_chain_as_input",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestExecutionEvidence",
+        "name": "test_failed_execution",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestDeviceInfo",
+        "name": "test_to_dict",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestMethodTiming",
+        "name": "test_to_dict_without_jit_time",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestMethodTiming",
+        "name": "test_to_dict_with_jit_time",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_artifacts.TestArtifactIntegration",
+        "name": "test_full_artifact_chain",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestCompositionDAG",
+        "name": "test_add_node",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestCompositionDAG",
+        "name": "test_add_duplicate_node_raises",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestCompositionDAG",
+        "name": "test_add_edge",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestCompositionDAG",
+        "name": "test_cycle_detection",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestMethodComposerBasic",
+        "name": "test_add_method",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestMethodComposerBasic",
+        "name": "test_add_method_with_params",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestMethodComposerBasic",
+        "name": "test_add_unknown_method_raises",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestMethodComposerBasic",
+        "name": "test_add_unknown_param_raises",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestParameterSplitting",
+        "name": "test_static_params_separated",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestParameterSplitting",
+        "name": "test_default_static_params",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestMethodConnection",
+        "name": "test_connect_compatible_methods",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestMethodConnection",
+        "name": "test_connect_establishes_order",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestMultiInstanceBindings",
+        "name": "test_bindings_use_node_ids",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestRequirementValidation",
+        "name": "test_missing_requirement_detected",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestRequirementValidation",
+        "name": "test_requires_enforces_order",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestConflictDetection",
+        "name": "test_conflict_detected_in_validation",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestDeterministicOrdering",
+        "name": "test_commuting_nodes_canonical_order",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestDeterministicOrdering",
+        "name": "test_non_commuting_respects_insertion",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestImmutability",
+        "name": "test_node_params_are_frozen",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestImmutability",
+        "name": "test_chain_dag_is_frozen",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestImmutability",
+        "name": "test_execution_order_is_tuple",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestEdgeCases",
+        "name": "test_empty_composition",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestEdgeCases",
+        "name": "test_single_node_composition",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestEdgeCases",
+        "name": "test_disconnected_components",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer.TestEdgeCases",
+        "name": "test_multiple_instances_same_method",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer_hardening.TestSemanticValidationDefaultOn",
+        "name": "test_default_level_is_warn",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer_hardening.TestSemanticValidationDefaultOn",
+        "name": "test_bool_true_maps_to_strict",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer_hardening.TestSemanticValidationDefaultOn",
+        "name": "test_bool_false_maps_to_off",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer_hardening.TestMissingRequirementLevels",
+        "name": "test_missing_requirement_strict_raises",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer_hardening.TestMissingRequirementLevels",
+        "name": "test_missing_requirement_warn_does_not_raise",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer_hardening.TestMissingRequirementLevels",
+        "name": "test_missing_requirement_off_silent",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer_hardening.TestCompositionCacheKeys",
+        "name": "test_dag_node_key_includes_upstream",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer_hardening.TestCompositionCacheKeys",
+        "name": "test_isolated_node_cache_key_matches_params",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.test_composer_hardening.TestCompositionCacheKeys",
+        "name": "test_cache_keys_present_for_all_nodes",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_cmp_01",
+        "name": "test_async_wrapper_survives_both_fresh_import_orders",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_cmp_01",
+        "name": "test_frozen_effective_graph_keeps_requires_and_parallel_sibling",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_cmp_01",
+        "name": "test_requirement_cycle_is_rejected_before_execution",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "tests.unit.remediation.test_cmp_01",
+        "name": "test_async_payload_matches_sequential_static_dynamic_override",
+        "outcome": "PASS"
+      }
+    ]
+  },
+  "qualification": {
+    "first_f563_mutation_pass": "Seven mutated-wire cases refuse unprofiled ref before decode. Literal PASS retained, intended graph/ABI/cycle predicate NOT_ESTABLISHED for these rows. Four non-JSON producer cases do reach producer refusal.",
+    "e69_failure": "Repeated occurrence identities/effective requirement/order/arithmetic17 passed; last asserted unrelated sibling physical order unsupported by canonical level executor. Original FAIL kept; 9ce binds dependency-before-consumer without imposing serial sibling order.",
+    "native_source_closure": "Wrapper hashes actual named canonical files before/after and declares PYTHONPATH=src. No own exhaustive native sys.modules census claimed; independent CAS packet supplies its own genuine loaded-module origin/Git-byte closure.",
+    "first_mypy_attempt": "Initial ordinary import-traversing check started against f563 and later source changed to e69, then terminated PID521352 via SIGTERM. Output was tool-streamed/truncated; full bytes not retained. This attempt is not acceptance evidence and no diagnostic count or complete gate result is claimed. Separate e69 skip-import and 9ce typed imported checks have complete stdout and wrappers."
+  }
+}

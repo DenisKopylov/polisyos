@@ -1,0 +1,35 @@
+{
+  "target_sha": "14e909cf4f5e97473a19745d7e34026b66ce41c2",
+  "results": [
+    {
+      "label": "frozen-ruff",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py"
+      ],
+      "exit": 0,
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "output": "All checks passed!\n"
+    },
+    {
+      "label": "frozen-format",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py"
+      ],
+      "exit": 0,
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "output": "1 file already formatted\n"
+    }
+  ]
+}

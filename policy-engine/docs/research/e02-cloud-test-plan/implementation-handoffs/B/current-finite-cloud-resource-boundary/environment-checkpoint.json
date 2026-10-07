@@ -1,0 +1,41 @@
+{
+  "utc": "2026-10-06T23:03:30.505704+00:00",
+  "cgroup": {
+    "memory.max": "17179869184\n",
+    "memory.current": "16763715584\n",
+    "memory.peak": "17180602368\n",
+    "memory.events": "low 0\nhigh 0\nmax 221128\noom 7\noom_kill 5\noom_group_kill 0\n",
+    "memory.stat": "anon 411398144\nfile 14430777344\nkernel 1921175552\nkernel_stack 884736\npagetables 4763648\nsec_pagetables 0\npercpu 15232\nsock 4096\nvmalloc 0\nshmem 12336001024\nfile_mapped 209743872\nfile_dirty 3194880\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 16777216\nshmem_thp 0\ninactive_anon 5901840384\nactive_anon 6845251584\ninactive_file 157552640\nactive_file 1937227776\nunevictable 0\nslab_reclaimable 1477344680\nslab_unreclaimable 438134392\nslab 1915479072\nworkingset_refault_anon 0\nworkingset_refault_file 10454726\nworkingset_activate_anon 0\nworkingset_activate_file 2438186\nworkingset_restore_anon 0\nworkingset_restore_file 1337793\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 49606168\npgsteal 18509883\npswpin 0\npswpout 0\npgscan_kswapd 9980891\npgscan_direct 39625277\npgscan_khugepaged 0\npgscan_proactive 0\npgsteal_kswapd 9646274\npgsteal_direct 8863609\npgsteal_khugepaged 0\npgsteal_proactive 0\npgfault 748008530\npgmajfault 29311\npgrefill 11739039\npgactivate 15503001\npgdeactivate 10916998\npglazyfree 2296531\npglazyfreed 381\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 4\nthp_collapse_alloc 0\nthp_swpout 0\nthp_swpout_fallback 0\n",
+    "memory.swap.max": "max\n",
+    "memory.swap.current": "0\n"
+  },
+  "fs": {
+    "/workspace": {
+      "fsid": 4239674575097193000,
+      "allocated_bytes": 30501269504,
+      "available_bytes": 1534160896,
+      "physical_free_bytes": 3268923392,
+      "total_bytes": 33770192896
+    },
+    "/tmp": {
+      "fsid": 8231221146984765500,
+      "allocated_bytes": 6965108736,
+      "available_bytes": 2476240896,
+      "physical_free_bytes": 2476240896,
+      "total_bytes": 9441349632
+    },
+    "/dev/shm": {
+      "fsid": 5053483822830950985,
+      "allocated_bytes": 5344006144,
+      "available_bytes": 4097343488,
+      "physical_free_bytes": 4097343488,
+      "total_bytes": 9441349632
+    }
+  },
+  "root_git": {
+    "head": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "status": ""
+  },
+  "mountinfo": "52 37 0:27 / / rw,relatime shared:1 - overlay overlay rw,lowerdir=/run/kata-containers/erofs-multi-layer/b878f4efbdfc41929ded486eda6e6271/lower-0,upperdir=/run/kata-containers/erofs-multi-layer/b878f4efbdfc41929ded486eda6e6271/upper/upper,workdir=/run/kata-containers/erofs-multi-layer/b878f4efbdfc41929ded486eda6e6271/upper/work,index=off,metacopy=off\n53 52 0:30 / /proc rw,nosuid,nodev,noexec,relatime shared:2 - proc proc rw\n54 52 0:31 / /dev rw,nosuid shared:3 - tmpfs tmpfs rw,size=65536k,mode=755\n55 54 0:32 / /dev/pts rw,nosuid,noexec,relatime shared:4 - devpts devpts rw,gid=5,mode=620,ptmxmode=666\n56 54 0:26 / /dev/shm rw,relatime shared:5 - tmpfs shm rw\n57 54 0:25 / /dev/mqueue rw,nosuid,nodev,noexec,relatime shared:6 - mqueue mqueue rw\n58 52 0:20 / /sys rw,nosuid,nodev,noexec,relatime shared:7 - sysfs sysfs rw\n59 58 0:24 /.. /sys/fs/cgroup rw,nosuid,nodev,noexec,relatime shared:8 - cgroup2 cgroup2 rw,nsdelegate\n38 52 0:33 / /tmp rw,relatime shared:9 - tmpfs none rw\n"
+}

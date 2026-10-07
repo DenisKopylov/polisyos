@@ -1,0 +1,23 @@
+import pathlib,json,hashlib,shutil,subprocess,xml.etree.ElementTree as E
+root=pathlib.Path('/workspace/e02-B-current-composition'); raw=pathlib.Path('/dev/shm/e02-B-cmp-b43-freeze')
+dest=root/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence'
+dest.mkdir(exist_ok=False)
+names=['run_capture.py','generate_selected_stub.py','environment.json','query-B-failures.txt','baseline-B43-query.json']
+for run in ['stub','stub-corrected','defining-f563','defining-e69','defining-9ce','affected-9ce','mypy-e69','mypy-imported-9ce','ruff-9ce','format-9ce']:
+ names += [run+'.txt',run+'.json']
+ if (raw/(run+'.xml')).is_file(): names.append(run+'.xml')
+for name in names: shutil.copyfile(raw/name,dest/name)
+results={}
+for name in ['defining-f563','defining-e69','defining-9ce','affected-9ce']:
+ cases=list(E.parse(raw/(name+'.xml')).getroot().iter('testcase'))
+ results[name]={'cases':len(cases),'pass':sum(not any(c.find(x) is not None for x in ('failure','error','skipped')) for c in cases),'fail':sum(c.find('failure') is not None for c in cases),'error':sum(c.find('error') is not None for c in cases),'skip':sum(c.find('skipped') is not None for c in cases),'entries':[{'classname':c.attrib.get('classname'),'name':c.attrib['name'],'outcome':'FAIL' if c.find('failure') is not None else 'ERROR' if c.find('error') is not None else 'SKIP' if c.find('skipped') is not None else 'PASS'} for c in cases]}
+results['qualification']={'first_f563_mutation_pass':'Seven mutated-wire cases refuse unprofiled ref before decode. Literal PASS retained, intended graph/ABI/cycle predicate NOT_ESTABLISHED for these rows. Four non-JSON producer cases do reach producer refusal.','e69_failure':'Repeated occurrence identities/effective requirement/order/arithmetic17 passed; last asserted unrelated sibling physical order unsupported by canonical level executor. Original FAIL kept; 9ce binds dependency-before-consumer without imposing serial sibling order.','native_source_closure':'Wrapper hashes actual named canonical files before/after and declares PYTHONPATH=src. No own exhaustive native sys.modules census claimed; independent CAS packet supplies its own genuine loaded-module origin/Git-byte closure.','first_mypy_attempt':'Initial ordinary import-traversing check started against f563 and later source changed to e69, then terminated PID521352 via SIGTERM. Output was tool-streamed/truncated; full bytes not retained. This attempt is not acceptance evidence and no diagnostic count or complete gate result is claimed. Separate e69 skip-import and 9ce typed imported checks have complete stdout and wrappers.'}
+(dest/'case-results.json').write_text(json.dumps(results,indent=2)+'\n')
+card='policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-01.md'
+body=subprocess.check_output(['git','show','69780761ae091d8fcc6ab8778c7f5f7227eeef0b:'+card],cwd=root)
+(dest/'canonical-CMP-01.source.txt').write_bytes(body)
+query=json.loads((raw/'baseline-B43-query.json').read_text())
+(dest/'baseline-binding.json').write_text(json.dumps({'criterion_source':card+'@69780761ae091d8fcc6ab8778c7f5f7227eeef0b','criterion_source_sha256':hashlib.sha256(body).hexdigest(),'route_note':'Transferred summaries/cells and declared job contexts are navigation only. Original raw archives unavailable; no baseline PASS supports new persisted-plan closure.','query_keys':list(query),'all_query_bytes_retained':'baseline-B43-query.json','assignment':'B43 B/P12/CMP-01/B-W04; current source status partial remains historical context'},indent=2)+'\n')
+index={p.name:{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in sorted(dest.iterdir()) if p.is_file()}
+(dest/'evidence-index.json').write_text(json.dumps({'files':index,'total_bytes':sum(v['bytes'] for v in index.values()),'note':'Complete moderate files; self excluded. Independent peer packets are referenced separately at immutable Git SHAs, not copied.'},indent=2)+'\n')
+print(json.dumps({'path':str(dest),'files':len(index)+1,'bytes':sum(v['bytes'] for v in index.values())+(dest/'evidence-index.json').stat().st_size}))

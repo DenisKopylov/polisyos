@@ -1,0 +1,207 @@
+{
+  "schema": "policyos.e02.independent_source_review.v1",
+  "unit": "B",
+  "reviewer": "/root/dur_probe",
+  "author": "/root/cmp_res_probe",
+  "finding_ids": [
+    "B43"
+  ],
+  "bundle_ids": [
+    "CMP-01"
+  ],
+  "closure_ids": [],
+  "mode": "Independent immutable Git source/design review; reviewer native/mypy/gates UNRUN. Metadata reconciliation is separately labeled.",
+  "source": {
+    "base": "97d0684c1f2765fc67d40331a8a2602a08c1f2e0",
+    "first": "f563fde9238a08b55135f167ddf0d6fa154690c5",
+    "first_tree": "411e48ca75e101a34af8b0a5c10ec557e1a7e050",
+    "producer_stub_fix": "e69f25bf273758b10d5b205a28f9349804fdc7d1",
+    "producer_stub_fix_tree": "93312b69fcb9f2704a9e0b8407c7fe57b8e41500",
+    "candidate": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+    "candidate_tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318"
+  },
+  "canonical_criterion": {
+    "sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-01.md",
+    "lines": [
+      79,
+      96
+    ],
+    "raw_capture_sha256": "10b7eabc7d65e7ee68eff8d1b3ee523ce960f00f696c34edf1aae65cdd67a8c9",
+    "hash_convention": "Literal regex capture including whitespace between SOURCE_BEGIN B:B43 and SOURCE_END B:B43, not body-only or whole-card digest.",
+    "clauses": [
+      "Build→freeze→execute preserves ordering-only B.requires(A) without inventing data flow in actual modes.",
+      "Independent sibling remains available for parallelism.",
+      "Cycle is refused before scientific execution.",
+      "Actual plan serialization/readback and substantial edge change are verified."
+    ]
+  },
+  "baseline_navigation": {
+    "query": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --unit B --finding B43 --details --job-context --limit 50",
+    "source_cut": "348252b6f9057a4dad2cd12c0a3d3fc8dbdd1d1a",
+    "cells": [
+      {
+        "id": "F02-P117",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main"
+      },
+      {
+        "id": "F03-P010",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_ref": "research_main"
+      },
+      {
+        "id": "F08-P117",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "source_ref": "e02_head"
+      },
+      {
+        "id": "F15-P137",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "source_ref": "integration_head"
+      }
+    ],
+    "grade": "source_reported_compact_text_only; candidate_unverified routes; all4 literalPASS are not new implementation evidence",
+    "environment_input_closure": "Exact per-job dictionary/context locators remain in results/received/F02.txt,F03.txt,F08.txt,F15.txt and query job-context output at source_cut. Raw archives received=0. Their historical reported environment is not re-executed or promoted to this review environment. New review reads immutable Git objects only."
+  },
+  "scope": {
+    "payload": "Finite plain JSON scalar/list/string-keyed-object parameters under Core canonical encoding; canonical _type user key, nonfinite/custom/array/dtype/tuple/cyclic values refused. Wire1.0.0 is distinct from unchanged ChainArtifact1.0.0.",
+    "execution": "Fresh cold execution chooses current registry implementation. Registry remains stable across restore/execution as declared operational premise. Caller state, seed, permitted overrides, dispatcher/backend and permission are explicit inputs.",
+    "authority": "FQN, ABI, profile/content/cache-key hashes grant no historical-code, scientific, tenant/acquisition, execution, cached-result or checkpoint-prefix authority.",
+    "surface": "Internal artifact intake API with facade exports. Release public_surface_inventory_reviewed=false remains a pending source-companion review, not invented ratification."
+  },
+  "manual_source_flow": [
+    {
+      "property": "Actual producer and selected view",
+      "paths": [
+        "artifacts/parts.py:116-145"
+      ],
+      "conclusion": "Fixed writer calls real put_bytes, then guarded get_manifest(ref), then CAS-owned public artifact_manifest_profile_sha256(manifest) and validates a typed ArtifactRef. No path/private manifest read or fabricated profile string. Existing CAS default-profile None is explicitly repaired at this producer."
+    },
+    {
+      "property": "Actual reader type/schema/content boundary",
+      "paths": [
+        "artifacts/parts.py:149-181"
+      ],
+      "conclusion": "Loader requires typed kind/media/profile, passes exact ref to guarded get_manifest and get_bytes, verifies plan schema/name/version, then decodes and restores. Original strict loader AST is unchanged by producer repair; no bare-ID/default fallback."
+    },
+    {
+      "property": "Immutable wire and required inlet",
+      "paths": [
+        "artifacts/_chain.py:322-462"
+      ],
+      "conclusion": "Frozen dataclass owns immutable bytes. Strict extra-forbid versioned wire requires all node/edge/graph/order/cache fields before defaults. Canonical re-encoding detects noncanonical byte forms. Exact UUID sets, occurrence adjacency and topological order checked before runnable return."
+    },
+    {
+      "property": "Actual capture closure",
+      "paths": [
+        "artifacts/_chain.py:480-555"
+      ],
+      "conclusion": "Capture cross-checks predecessor/successor adjacency, concrete data-flow node/FQN/binding coordinates and flat bindings, then captures current ABI, static/dynamic values, occurrence/insertion order, effective parents and execution order. Old provenance recipe AST remains unchanged."
+    },
+    {
+      "property": "Canonical current rebuild",
+      "paths": [
+        "components/composer.py:501-548",
+        "artifacts/_chain.py:563-620"
+      ],
+      "conclusion": "from_nodes runs normal add to rederive parameter partitions/NodeKey/instance index/commutation, preserves UUID after equality checks. to_chain uses canonical connect and STRICT build; compares actual compatibility, returned ABI, complete effective parents/order/cache keys before return. It does not dispatch scientific method bodies."
+    },
+    {
+      "property": "Runtime bridge owner",
+      "paths": [
+        "backends/chain_executor.py:_collect_node_inputs",
+        "backends/async_chain_executor.py:_dispatch_node"
+      ],
+      "conclusion": "Returned object is real CompiledMethodChain consumed by unchanged existing executors, which use its effective DAG and static→dynamic→override builder. Runtime dispatch resolves current registry methods; stable registry premise is explicit rather than source-hash authority."
+    },
+    {
+      "property": "Companion types and generation",
+      "paths": [
+        "components/composer.pyi:MethodNode",
+        "tools/devx/foundry/generate_stubs.py:_run_stubgen"
+      ],
+      "conclusion": "First generated stub omitted _insertion_order used by new intake. Fixed canonical generator includes private fields only for components.composer; generated actual dataclass field matches restore constructor. Local successor annotation types empty-set inference without changing its value or graph algorithm."
+    }
+  ],
+  "negative_controls_source_review": [
+    {
+      "input": "Delete ordering-only required edge while retaining valid acyclic wire/order",
+      "expected_boundary": "to_chain rebuilds current requires and compares actual full predecessors; mismatch refused before returned chain/body.",
+      "runtime": "CAS independently executes; reviewer UNRUN."
+    },
+    {
+      "input": "Persist cycle or unknown concrete predecessor",
+      "expected_boundary": "_decode_plan checks all node IDs and TopologicalSorter, propagating typed cycle refusal before build/execution.",
+      "runtime": "CAS independently executes; reviewer UNRUN."
+    },
+    {
+      "input": "Change current ABI/requires, sparse node params, foreign fields, bool instance index, invalid schema or unprofiled ref",
+      "expected_boundary": "Strict inlet/current ABI/selected manifest guards refuse before runnable return.",
+      "runtime": "Author/CAS runtime has separate exact inputs; source guard presence is not outcome authority."
+    },
+    {
+      "input": "Remove original manifest-profile writer repair without changing loader/tests",
+      "expected_boundary": "Real writer returns profileNone and caller/reopen fails, as first actual17 wave records.",
+      "runtime": "Foreign first17 full stdout/wrapper/XML read; literal11PASS6FAIL. Publication locator pending author, not a reviewer rerun."
+    },
+    {
+      "input": "Same-FQN repeated occurrences with nearest earlier requires",
+      "expected_boundary": "UUID/index/execution_order/currentABI retained; no invented edge to later occurrence.",
+      "runtime": "Foreign e69 result reached arithmetic17 and graph/index/order assertions; final sibling-order assertion had an unpromised premise. Final9ce input changes only that premise."
+    }
+  ],
+  "source_verdict": {
+    "candidate": "NONBLOCKING for finite cold-plan structural/producer/reader profile after e69/9ce fixes",
+    "first_f563": "BLOCKED/not accepted by actual producer selected-ref gap plus generated internal-field mismatch. Earlier structural subproperty NONBLOCKING is not overall acceptance.",
+    "blocking_source_findings": [],
+    "runtime_acceptance": "PENDING independent CAS runtime and current root affected cohort/quality checks; no mechanism/full finding closure here."
+  },
+  "historical_actual_quantities": [
+    {
+      "source": "f563",
+      "foreign_runner": "CMP",
+      "literal_cases": {
+        "PASS": 11,
+        "FAIL": 6
+      },
+      "stdout_path": "/dev/shm/e02-B-cmp-b43-freeze/defining-f563.txt",
+      "stdout_sha256": "e413aa96ab75450826a69a4ccea0c9602d4c3767532041918409170029ac6675",
+      "qualification": "Seven mutation literalPASS cases all supplied an unprofiled raw CAS ref, so loader refused before decode. Those intended wire/graph predicates were NOT_ESTABLISHED; remaining4PASS are real unsupported-payload refusals. Real selected-ref producer gap is demonstrated by two positives and reopen/ABI/schema routes. Full moderatelogs belong to author publication; G availability currently not_established from these local paths."
+    },
+    {
+      "source": "e69",
+      "foreign_runner": "CMP",
+      "literal_cases": {
+        "PASS": 18,
+        "FAIL": 1
+      },
+      "stdout_path": "/dev/shm/e02-B-cmp-b43-freeze/defining-e69.txt",
+      "stdout_sha256": "618cc94bac64a250ffb297f4fb859e2d8242f6296c16333bd0fe946651c28851",
+      "qualification": "The one callFAIL is a last unpromised sibling ordering assertion after actual predecessor/UUID/index/original-order/arithmetic17 PASS. It remains literalFAIL, not replaced with19PASS. Wrapper source before/after is e69 clean. Native by reviewer UNRUN; publication locator pending."
+    }
+  ],
+  "P37": {
+    "immutable_bytes_AST_quantities": "recomputed by metadata check",
+    "manual_foreign_source_flow": "independently_reconciled",
+    "historical_foreign_literal_cases": "independently_reconciled after full stdout/wrapper/XML read, not own runtime",
+    "registry_stability_and_synthetic_numeric_inputs": "consumer_asserted operational premises",
+    "formal_closure_and_unread_runtime": "not_established"
+  },
+  "P38": "Initial negative tests could report PASS at earlier profile refusal and never exercise the claimed wire/graph boundary. Fix reaches the original intended inlet using actual public manifest projection; initial outputs remain historical.",
+  "P40": "Generic producer→artifact→reader selection invariant and typed dataclass inlet were widened together, not weakened via loader fallback or one test-name special case.",
+  "next_owners": [
+    "CMP publishes complete original/final native/checker evidence with exact source/ABI/runtime origins and retains all red traces.",
+    "CAS owns independent real serialized plan reopen/executor/parallelism/changed-edge negative oracle.",
+    "Root/G independently accept source integration and join fresh affected consumer/cohort; old all60/DD proposal remains historical.",
+    "Root verifies internal surface inventory/release companion. No A lifecycle or C streaming edits are in this slice."
+  ],
+  "review_environment": {
+    "cwd": "/workspace/e02-B-current-durability",
+    "source_access": "immutable Git show/diff objects in shared Git; own admitted existing attached lane; no new worktree/helper",
+    "native": "UNRUN",
+    "mypy": "UNRUN",
+    "gates": "UNRUN"
+  },
+  "reproduction": "Execute reconcile.source.txt in this directory with existing Python; exact complete metadata inputs and named unselected runtime boundaries print with output. It does not prove semantics by AST markers."
+}

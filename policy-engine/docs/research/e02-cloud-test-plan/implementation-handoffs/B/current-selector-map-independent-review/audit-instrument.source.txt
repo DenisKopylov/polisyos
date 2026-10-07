@@ -1,0 +1,53 @@
+import ast,datetime,hashlib,json,platform,subprocess,sys
+from pathlib import Path
+ROOT=Path('/workspace/e02-B-current-cas-generation')
+SOURCE='dd9584728bd96f204983615216efdbc58117e713'
+MAP='e50bcdc2913305ac52adc7b6313fd3cc502950cf'
+PATH='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json'
+OUT=ROOT/'.polisyos/e02-B-current/raw/selector-map-independent-review'
+def read(sha,path):return subprocess.check_output(['git','show',sha+':'+path],cwd=ROOT)
+def h(b):return hashlib.sha256(b).hexdigest()
+def ref(sha,path):
+ b=read(sha,path)
+ return {'source_sha':sha,'path':path,'git_blob':subprocess.check_output(['git','rev-parse',sha+':'+path],cwd=ROOT).decode().strip(),'bytes':len(b),'sha256':h(b)}
+old=json.loads(read(SOURCE,PATH));new=json.loads(read(MAP,PATH));changed=[k for k in new if new[k]!=old[k]]
+assert set(old)==set(new) and len(changed)==14
+ids={i for k in changed for c in new[k]['candidates'] for i in c['finding_ids']}
+assert len(ids)==31
+selectorpath=Path('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-selector.json')
+selector=json.loads(selectorpath.read_bytes());assert selector['root_snapshot_sha']==SOURCE
+manifestpath='policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json';manifest=json.loads(read(SOURCE,manifestpath));docs={s['id']:'policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/'+s['path'] for s in manifest['sources']}
+criteria=[];readings=[]
+for row in selector['finding_criterion_refs']:
+ if row['id'] not in ids|{'B61'}:continue
+ for cr in row['criterion_refs']:
+  p=docs[cr['document']];b=read(SOURCE,p);lo,hi=cr['lines'];piece=b.decode().splitlines(keepends=True)[lo-1:hi];text=''.join(piece);assert h(text.encode())==cr['sha256']
+  criteria.append({**row,'source':ref(SOURCE,p)});readings.append('CRITERION '+row['id']+'\n'+text)
+assert len(criteria)==32
+assert len({r['primary_bundle'] for r in criteria})==13
+cards=[]
+for c in selector['canonical_cards']:
+ if c['bundle_id'] not in {r['primary_bundle'] for r in criteria}:continue
+ r=ref(SOURCE,c['identity']['path']);assert all(r[k]==c['identity'][k] for k in ['git_blob','bytes','sha256']);cards.append({'bundle_id':c['bundle_id'],'source':r})
+functions={};entries=[]
+for key in changed:
+ missing=subprocess.run(['git','cat-file','-e',SOURCE+':policy-engine/'+key],cwd=ROOT,capture_output=True).returncode!=0
+ assert missing
+ rows=[]
+ for c in new[key]['candidates']:
+  sel=c['selector'];p,*chain=sel.split('::');gp='policy-engine/'+p
+  if sel not in functions:
+   b=read(SOURCE,gp);text=b.decode();module=ast.parse(text);node=module
+   for name in chain:
+    matches=[x for x in node.body if isinstance(x,(ast.ClassDef,ast.FunctionDef,ast.AsyncFunctionDef)) and x.name==name]
+    assert len(matches)==1,(sel,name,len(matches));node=matches[0]
+   assert isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef))
+   start=min([node.lineno]+[x.lineno for x in node.decorator_list]);end=node.end_lineno;block=''.join(text.splitlines(keepends=True)[start-1:end]);functions[sel]={'source':ref(SOURCE,gp),'line_begin':start,'line_end':end,'block_sha256':h(block.encode()),'ast_function':node.name}
+   readings.append('FUNCTION '+sel+' @'+SOURCE+'\n'+block)
+  rows.append({**c,'source_body':functions[sel]})
+ entries.append({'named_selector':key,'original_named_status':'UNRUN_absent_at_DD','candidates':rows,'residuals':new[key]['residuals']})
+absent=[r['named_selector'] for r in selector['absent_named_selectors']]
+assert set(changed)<=set(absent) and len(absent)==21
+result={'schema':'policyos.e02.selector_map_source_audit.v1','created_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'actual_own_head':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT).decode().strip(),'source_target':{'sha':SOURCE,'tree':subprocess.check_output(['git','rev-parse',SOURCE+'^{tree}'],cwd=ROOT).decode().strip()},'map_target':{'sha':MAP,'tree':subprocess.check_output(['git','rev-parse',MAP+'^{tree}'],cwd=ROOT).decode().strip()},'old_map':ref(SOURCE,PATH),'new_map':ref(MAP,PATH),'manifest':ref(SOURCE,manifestpath),'selector':{'path':str(selectorpath),'bytes':selectorpath.stat().st_size,'sha256':h(selectorpath.read_bytes())},'environment':{'executable':sys.executable,'python':sys.version,'platform':platform.platform()},'scope':{'keys':len(new),'changed_values':len(changed),'unchanged_values':[k for k in new if k not in changed],'candidate_ids_changed_only':sorted(ids),'candidate_id_count_changed_only':len(ids),'review_criteria_count_including_held_B61':len(criteria),'canonical_bundle_count':len(cards),'candidate_rows_changed_values':sum(len(r['candidates']) for r in entries),'distinct_literal_function_bodies':len(functions),'named_absent_changed':changed,'incidental_absent':[k for k in absent if k not in changed],'all_absent':len(absent)},'canonical_criteria':criteria,'canonical_cards':cards,'entries':entries,'claims':{'metadata_read_only':True,'native_execution':False,'collection':False,'gates':False,'product_edits':False,'root_changes':False,'static_case_count':None,'runtime_outcomes':None,'closure_ids':[]},'qualification':'Native DD source/selector uses original map2c916, reviewed map28cd is a separate immutable metadata correction. Source-only body correspondence never establishes runtime acceptance or new selector-set equality; CMP owns the finite actual SET comparison. CAS author is not independently accepting own CAS mechanics in this map review.'}
+(OUT/'readings.txt').write_text('\n\n'.join(readings))
+print(json.dumps(result,ensure_ascii=False,indent=2))

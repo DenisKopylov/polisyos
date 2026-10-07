@@ -1,0 +1,58 @@
+{
+  "schema": "policyos.e02.independent_source_review.v1",
+  "reviewer": "root/cas_probe",
+  "author": "root/adapters_probe",
+  "target_sha": "db88c2e2860d89c52477ce1bad61dc535b355440",
+  "target_tree": "ba795b99f11b1e51138682007e6b2e80dfae103c",
+  "base_sha": "a2717e3833f582725acf54d480113f9792f017f3",
+  "mode": "read-only immutable Git source review; no independent runtime rerun or source writes",
+  "source_points": [
+    {
+      "ref": "policy-engine/src/polisyos/core/llm/settlement.py@db88c2e2860d89c52477ce1bad61dc535b355440",
+      "sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b",
+      "bytes": 8687
+    },
+    {
+      "ref": "policy-engine/src/polisyos/core/llm/traced_client.py@db88c2e2860d89c52477ce1bad61dc535b355440",
+      "sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a",
+      "bytes": 35161
+    },
+    {
+      "ref": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py@db88c2e2860d89c52477ce1bad61dc535b355440",
+      "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68",
+      "bytes": 9508
+    },
+    {
+      "ref": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py@db88c2e2860d89c52477ce1bad61dc535b355440",
+      "sha256": "5a5e011522d661e6da34cab1c15c00e77b4cf9549da52240b77f64e8db779462",
+      "bytes": 37271
+    }
+  ],
+  "method": "Read full four production deltas, complete traced completion consumer, cache generate/_produce, factory composition and native witness diff126024b95 vsdb88. No summary/marker used as proof.",
+  "outcome": "bounded_source_PASS_no_new_blocker",
+  "reviewed_class": {
+    "receiver": "Constructor refuses issuer that does not own the exact configured client; defaultNone admits no cache provenance. Factory passes actual CachingLLMClient owner.",
+    "binding": "Issuer MAC authenticates cachekey, exact traced requestdigest and reuseevent; receiver ContextVar requires identity equality with admittedowner and current request, then HMAC equality. Request kwargs cannot configure authority.",
+    "physical_consumer": "Actual cache _produce calls completion.complete(response,True), using physical provider extraction even if authentic SAME-request provenance is copied. Provider event charged before result admission; cachehit/follower path issues authentic reuse context separately.",
+    "lifecycle": "Scoped context managers reset receiver/completion; owned tasks preserve prior cancellation/unknownACK/authorization and absolute deadline semantics. No serializer grants authority.",
+    "native_falsifier_ref": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py@126024b95fcac6400f5afc29a60596b88cdd5212::test_actual_physical_completion_cannot_borrow_authentic_reuse_capability[True]",
+    "falsifier": "After real paid first request and actual authentic cache reuse, clear actual cache and let same real provider return that authentic prior response for identical request. Actual physical completion must be a distinct charged provider event with durable ledger0.04, gatewaycalls2 and provider_events2."
+  },
+  "limitations": [
+    "Trusted same-process composition is an explicit premise; arbitrary code with access to admitted issuer secret/cache consumer can subvert process internals, not claimed protected.",
+    "Custom cache put signature capability is not backend atomic conformance. Existing bounded default cache behavior remains separate tested contract.",
+    "This source review does not independently attest author runtime123/124 counts or final receipts; root/G owns exact native consumer acceptance."
+  ],
+  "companion_sources": [
+    {
+      "ref": "policy-engine/src/polisyos/core/llm/README.md@db88c2e2860d89c52477ce1bad61dc535b355440",
+      "sha256": "06447dfdb0023cf0e8794da2c673fdac4571c662ef729b7b89f46410931e1d2d",
+      "bytes": 3466
+    },
+    {
+      "ref": "policy-engine/src/polisyos/scientist/orchestration/llm/README.md@db88c2e2860d89c52477ce1bad61dc535b355440",
+      "sha256": "37ca3c82ed258f655f7a6ccd219b693f57b86f8d5b8c4973a6b4c089956ca1ab",
+      "bytes": 3940
+    }
+  ]
+}

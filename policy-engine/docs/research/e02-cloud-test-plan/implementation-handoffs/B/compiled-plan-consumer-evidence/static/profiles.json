@@ -1,0 +1,58 @@
+[
+  {
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "policy-engine/tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py"
+    ],
+    "cwd": "/workspace/e02-B-current-cas-generation",
+    "name": "ruff",
+    "returncode": 0,
+    "source_head": "5a3f466b0457ed4afbda53381617762a34cb05ed",
+    "source_tree": "0100344d597dc0c4fa8b08270883de40d8b51abc",
+    "stdout_path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/plan-static/ruff-stdout.txt",
+    "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "test_path": "policy-engine/tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py",
+    "test_sha256": "46eefd6f29e0b417e96e746e4d0c0ac1ef8dffe6715b9361aa1b49284f75664c",
+    "time_utc": "2026-10-06T21:27:53.881380+00:00"
+  },
+  {
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "ruff",
+      "format",
+      "--check",
+      "policy-engine/tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py"
+    ],
+    "cwd": "/workspace/e02-B-current-cas-generation",
+    "name": "format",
+    "returncode": 0,
+    "source_head": "5a3f466b0457ed4afbda53381617762a34cb05ed",
+    "source_tree": "0100344d597dc0c4fa8b08270883de40d8b51abc",
+    "stdout_path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/plan-static/format-stdout.txt",
+    "stdout_sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+    "test_path": "policy-engine/tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py",
+    "test_sha256": "46eefd6f29e0b417e96e746e4d0c0ac1ef8dffe6715b9361aa1b49284f75664c",
+    "time_utc": "2026-10-06T21:27:53.928655+00:00"
+  },
+  {
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "cwd": "/workspace/e02-B-current-cas-generation",
+    "name": "diff",
+    "returncode": 0,
+    "source_head": "5a3f466b0457ed4afbda53381617762a34cb05ed",
+    "source_tree": "0100344d597dc0c4fa8b08270883de40d8b51abc",
+    "stdout_path": "/workspace/e02-B-current-cas-generation/.polisyos/compiled-preparation-consumer/plan-static/diff-stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "test_path": "policy-engine/tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py",
+    "test_sha256": "46eefd6f29e0b417e96e746e4d0c0ac1ef8dffe6715b9361aa1b49284f75664c",
+    "time_utc": "2026-10-06T21:27:53.947240+00:00"
+  }
+]

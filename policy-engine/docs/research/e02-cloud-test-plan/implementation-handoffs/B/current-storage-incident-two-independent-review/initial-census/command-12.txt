@@ -1,0 +1,2 @@
+8192	/var/lib/docker
+du: cannot read directory '/var/lib/docker': Permission denied

@@ -1,0 +1,60 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+  "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-source-independent-review-evidence/initial-instrument-qualification.json",
+      "bytes": 1306,
+      "sha256": "9196c1b431aac9c075a1af0ef7f1e26e48eaf35db6d2c05ed968eb0edc598b0a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-source-independent-review-evidence/inspect-final.py.txt",
+      "bytes": 7467,
+      "sha256": "016bfa17dc2bf22d0e0d8148c323fddc878717ed80287f2a8b7944aa22bb709e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-source-independent-review-evidence/inspect.py.txt",
+      "bytes": 7125,
+      "sha256": "5871c9e832e02d9be12abbbc0e9c1e9d3a4096885f7b9375dcf340accdc4d8bb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-source-independent-review-evidence/inspection-final-stdout.txt",
+      "bytes": 954,
+      "sha256": "3c44031b7e6575106ded692d9c3bfec93c8a05f3d757213d71f26f4f098fc5ec"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-source-independent-review-evidence/inspection-final.json",
+      "bytes": 9811,
+      "sha256": "6ba4c86c026850322d3edae6aecd171101645d681f9b608ea5e3066c2543c92f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-source-independent-review-evidence/inspection-stdout.txt",
+      "bytes": 165778,
+      "sha256": "716ec8ac99ec41f840ae4d77b006c28bb8bf780518aef97514e6067597e02b23"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-source-independent-review-evidence/peer-audit-stdout.txt",
+      "bytes": 3602,
+      "sha256": "c779ab4351b6a4b2feb66366170a172263ecb06b92040c7c05eb81bfc8eec4ff"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-source-independent-review-evidence/peer-audit.json",
+      "bytes": 8675,
+      "sha256": "9690e3cba91163db4c821390b47b134921366947bac2a49fa09b5c9ad8acfb22"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-source-independent-review-evidence/peer-audit.py.txt",
+      "bytes": 6848,
+      "sha256": "77cca99d4c8a4aff04d56d2c6c9175da7673e9fc839319a10a5572255c192258"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-getter-source-independent-review-evidence/source-review.json",
+      "bytes": 3562,
+      "sha256": "ecbf7f2f78a5c8d38f298e2482f5b9e2df39bcf0d8803db2e0ab49d331bd8a98"
+    }
+  ],
+  "denominator": 10,
+  "bytes": 215128,
+  "qualification": "Metadata/source-only ownoutputs. No copied peer native output or productsource; old parser fullstdout retained once. Large root outputs remain in original custody packets."
+}

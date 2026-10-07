@@ -1,0 +1,2122 @@
+FFFFFFFFFFFFF                                                            [100%]
+=================================== FAILURES ===================================
+_ test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[upsert] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/B38-red-20261006-2/test_actual_stale_bound_handle0')
+operation = 'upsert'
+
+    @pytest.mark.parametrize(
+        "operation",
+        [
+            "upsert",
+            "event",
+            "outbox",
+            "child_event",
+            "child_outbox",
+            "create",
+            "mark_running",
+            "lease_next",
+            "scenario",
+            "step_up",
+            "human_reservation",
+            "worker_heartbeat",
+            "worker_release",
+        ],
+    )
+    def test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets(
+        tmp_path: Path,
+        operation: str,
+    ) -> None:
+        database = tmp_path / "control.sqlite3"
+        store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(store, "dur02-current-job")
+        observed = []
+    
+        def handler(job: Any) -> None:
+            with sqlite3.connect(database) as connection:
+                connection.execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+                )
+            assert _worker_child(database, "takeover")["attempt"] == 2
+            admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+            _create_control_job(admin, "pending-child")
+            before = _database_rows(database)
+            instant = datetime.now(UTC)
+            operations = {
+                "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+                "event": lambda: store.append_event(
+                    job_id=job.job_id, event_type="stale", payload={"stale": True}
+                ),
+                "outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id=job.job_id
+                ),
+                "child_event": lambda: store.append_event(
+                    job_id="pending-child", event_type="stale", payload={"stale": True}
+                ),
+                "child_outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id="pending-child"
+                ),
+                "create": lambda: _create_control_job(store, "stale-created-child"),
+                "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+                "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+                "scenario": lambda: store.compare_and_set_scenario_head(
+                    scenario_id="stale",
+                    baseline_run_id="run",
+                    expected_revision=0,
+                    new_revision=1,
+                    artifact_ref="sha256:" + "a" * 64,
+                    manifest_hash="b" * 64,
+                ),
+                "step_up": lambda: store.consume_step_up_assertion(
+                    assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+                ),
+                "human_reservation": lambda: store.reserve_human_decision_action(
+                    tenant_id="fixture",
+                    governed_action_key="sha256:" + "a" * 64,
+                    reservation_id="stale",
+                    binding_sha256="sha256:" + "b" * 64,
+                    now=instant,
+                    lease_seconds=300,
+                    record_valid_until=instant + timedelta(hours=1),
+                ),
+                "worker_heartbeat": lambda: store.heartbeat_worker(
+                    worker_id="worker-A", state="running", lease_seconds=300
+                ),
+                "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+            }
+            with pytest.raises(ControlJobLeaseLostError):
+                operations[operation]()
+            assert _database_rows(database) == before
+            observed.append(operation)
+    
+        worker = ControlWorker(store=store, handler=handler, worker_id="worker-A", lease_seconds=300)
+>       assert worker.dispatch_once()
+               ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_dur_02_process.py:292: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_worker.py:159: in dispatch_once
+    self._run_with_lease_heartbeat(job)
+src/polisyos/runtime/http/services/control_worker.py:253: in _run_with_lease_heartbeat
+    self._handler(job)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+job = ControlJobRecord(job_id='dur02-current-job', kind='workflow_run', state='running', run_id='dur02-current-run', pipelin...ke_refs': [], 'producer_ref': 'runtime.control_plane_store', 'schema_version': 'policyos.evidence_spine_handoff.v1'}]})
+
+    def handler(job: Any) -> None:
+        with sqlite3.connect(database) as connection:
+            connection.execute(
+                "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+            )
+        assert _worker_child(database, "takeover")["attempt"] == 2
+        admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(admin, "pending-child")
+        before = _database_rows(database)
+        instant = datetime.now(UTC)
+        operations = {
+            "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+            "event": lambda: store.append_event(
+                job_id=job.job_id, event_type="stale", payload={"stale": True}
+            ),
+            "outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id=job.job_id
+            ),
+            "child_event": lambda: store.append_event(
+                job_id="pending-child", event_type="stale", payload={"stale": True}
+            ),
+            "child_outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id="pending-child"
+            ),
+            "create": lambda: _create_control_job(store, "stale-created-child"),
+            "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+            "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+            "scenario": lambda: store.compare_and_set_scenario_head(
+                scenario_id="stale",
+                baseline_run_id="run",
+                expected_revision=0,
+                new_revision=1,
+                artifact_ref="sha256:" + "a" * 64,
+                manifest_hash="b" * 64,
+            ),
+            "step_up": lambda: store.consume_step_up_assertion(
+                assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+            ),
+            "human_reservation": lambda: store.reserve_human_decision_action(
+                tenant_id="fixture",
+                governed_action_key="sha256:" + "a" * 64,
+                reservation_id="stale",
+                binding_sha256="sha256:" + "b" * 64,
+                now=instant,
+                lease_seconds=300,
+                record_valid_until=instant + timedelta(hours=1),
+            ),
+            "worker_heartbeat": lambda: store.heartbeat_worker(
+                worker_id="worker-A", state="running", lease_seconds=300
+            ),
+            "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+        }
+>       with pytest.raises(ControlJobLeaseLostError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError'>
+
+tests/unit/remediation/test_dur_02_process.py:286: Failed
+_ test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[event] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/B38-red-20261006-2/test_actual_stale_bound_handle1')
+operation = 'event'
+
+    @pytest.mark.parametrize(
+        "operation",
+        [
+            "upsert",
+            "event",
+            "outbox",
+            "child_event",
+            "child_outbox",
+            "create",
+            "mark_running",
+            "lease_next",
+            "scenario",
+            "step_up",
+            "human_reservation",
+            "worker_heartbeat",
+            "worker_release",
+        ],
+    )
+    def test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets(
+        tmp_path: Path,
+        operation: str,
+    ) -> None:
+        database = tmp_path / "control.sqlite3"
+        store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(store, "dur02-current-job")
+        observed = []
+    
+        def handler(job: Any) -> None:
+            with sqlite3.connect(database) as connection:
+                connection.execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+                )
+            assert _worker_child(database, "takeover")["attempt"] == 2
+            admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+            _create_control_job(admin, "pending-child")
+            before = _database_rows(database)
+            instant = datetime.now(UTC)
+            operations = {
+                "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+                "event": lambda: store.append_event(
+                    job_id=job.job_id, event_type="stale", payload={"stale": True}
+                ),
+                "outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id=job.job_id
+                ),
+                "child_event": lambda: store.append_event(
+                    job_id="pending-child", event_type="stale", payload={"stale": True}
+                ),
+                "child_outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id="pending-child"
+                ),
+                "create": lambda: _create_control_job(store, "stale-created-child"),
+                "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+                "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+                "scenario": lambda: store.compare_and_set_scenario_head(
+                    scenario_id="stale",
+                    baseline_run_id="run",
+                    expected_revision=0,
+                    new_revision=1,
+                    artifact_ref="sha256:" + "a" * 64,
+                    manifest_hash="b" * 64,
+                ),
+                "step_up": lambda: store.consume_step_up_assertion(
+                    assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+                ),
+                "human_reservation": lambda: store.reserve_human_decision_action(
+                    tenant_id="fixture",
+                    governed_action_key="sha256:" + "a" * 64,
+                    reservation_id="stale",
+                    binding_sha256="sha256:" + "b" * 64,
+                    now=instant,
+                    lease_seconds=300,
+                    record_valid_until=instant + timedelta(hours=1),
+                ),
+                "worker_heartbeat": lambda: store.heartbeat_worker(
+                    worker_id="worker-A", state="running", lease_seconds=300
+                ),
+                "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+            }
+            with pytest.raises(ControlJobLeaseLostError):
+                operations[operation]()
+            assert _database_rows(database) == before
+            observed.append(operation)
+    
+        worker = ControlWorker(store=store, handler=handler, worker_id="worker-A", lease_seconds=300)
+>       assert worker.dispatch_once()
+               ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_dur_02_process.py:292: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_worker.py:159: in dispatch_once
+    self._run_with_lease_heartbeat(job)
+src/polisyos/runtime/http/services/control_worker.py:253: in _run_with_lease_heartbeat
+    self._handler(job)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+job = ControlJobRecord(job_id='dur02-current-job', kind='workflow_run', state='running', run_id='dur02-current-run', pipelin...ke_refs': [], 'producer_ref': 'runtime.control_plane_store', 'schema_version': 'policyos.evidence_spine_handoff.v1'}]})
+
+    def handler(job: Any) -> None:
+        with sqlite3.connect(database) as connection:
+            connection.execute(
+                "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+            )
+        assert _worker_child(database, "takeover")["attempt"] == 2
+        admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(admin, "pending-child")
+        before = _database_rows(database)
+        instant = datetime.now(UTC)
+        operations = {
+            "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+            "event": lambda: store.append_event(
+                job_id=job.job_id, event_type="stale", payload={"stale": True}
+            ),
+            "outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id=job.job_id
+            ),
+            "child_event": lambda: store.append_event(
+                job_id="pending-child", event_type="stale", payload={"stale": True}
+            ),
+            "child_outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id="pending-child"
+            ),
+            "create": lambda: _create_control_job(store, "stale-created-child"),
+            "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+            "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+            "scenario": lambda: store.compare_and_set_scenario_head(
+                scenario_id="stale",
+                baseline_run_id="run",
+                expected_revision=0,
+                new_revision=1,
+                artifact_ref="sha256:" + "a" * 64,
+                manifest_hash="b" * 64,
+            ),
+            "step_up": lambda: store.consume_step_up_assertion(
+                assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+            ),
+            "human_reservation": lambda: store.reserve_human_decision_action(
+                tenant_id="fixture",
+                governed_action_key="sha256:" + "a" * 64,
+                reservation_id="stale",
+                binding_sha256="sha256:" + "b" * 64,
+                now=instant,
+                lease_seconds=300,
+                record_valid_until=instant + timedelta(hours=1),
+            ),
+            "worker_heartbeat": lambda: store.heartbeat_worker(
+                worker_id="worker-A", state="running", lease_seconds=300
+            ),
+            "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+        }
+>       with pytest.raises(ControlJobLeaseLostError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError'>
+
+tests/unit/remediation/test_dur_02_process.py:286: Failed
+_ test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[outbox] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/B38-red-20261006-2/test_actual_stale_bound_handle2')
+operation = 'outbox'
+
+    @pytest.mark.parametrize(
+        "operation",
+        [
+            "upsert",
+            "event",
+            "outbox",
+            "child_event",
+            "child_outbox",
+            "create",
+            "mark_running",
+            "lease_next",
+            "scenario",
+            "step_up",
+            "human_reservation",
+            "worker_heartbeat",
+            "worker_release",
+        ],
+    )
+    def test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets(
+        tmp_path: Path,
+        operation: str,
+    ) -> None:
+        database = tmp_path / "control.sqlite3"
+        store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(store, "dur02-current-job")
+        observed = []
+    
+        def handler(job: Any) -> None:
+            with sqlite3.connect(database) as connection:
+                connection.execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+                )
+            assert _worker_child(database, "takeover")["attempt"] == 2
+            admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+            _create_control_job(admin, "pending-child")
+            before = _database_rows(database)
+            instant = datetime.now(UTC)
+            operations = {
+                "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+                "event": lambda: store.append_event(
+                    job_id=job.job_id, event_type="stale", payload={"stale": True}
+                ),
+                "outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id=job.job_id
+                ),
+                "child_event": lambda: store.append_event(
+                    job_id="pending-child", event_type="stale", payload={"stale": True}
+                ),
+                "child_outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id="pending-child"
+                ),
+                "create": lambda: _create_control_job(store, "stale-created-child"),
+                "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+                "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+                "scenario": lambda: store.compare_and_set_scenario_head(
+                    scenario_id="stale",
+                    baseline_run_id="run",
+                    expected_revision=0,
+                    new_revision=1,
+                    artifact_ref="sha256:" + "a" * 64,
+                    manifest_hash="b" * 64,
+                ),
+                "step_up": lambda: store.consume_step_up_assertion(
+                    assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+                ),
+                "human_reservation": lambda: store.reserve_human_decision_action(
+                    tenant_id="fixture",
+                    governed_action_key="sha256:" + "a" * 64,
+                    reservation_id="stale",
+                    binding_sha256="sha256:" + "b" * 64,
+                    now=instant,
+                    lease_seconds=300,
+                    record_valid_until=instant + timedelta(hours=1),
+                ),
+                "worker_heartbeat": lambda: store.heartbeat_worker(
+                    worker_id="worker-A", state="running", lease_seconds=300
+                ),
+                "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+            }
+            with pytest.raises(ControlJobLeaseLostError):
+                operations[operation]()
+            assert _database_rows(database) == before
+            observed.append(operation)
+    
+        worker = ControlWorker(store=store, handler=handler, worker_id="worker-A", lease_seconds=300)
+>       assert worker.dispatch_once()
+               ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_dur_02_process.py:292: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_worker.py:159: in dispatch_once
+    self._run_with_lease_heartbeat(job)
+src/polisyos/runtime/http/services/control_worker.py:253: in _run_with_lease_heartbeat
+    self._handler(job)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+job = ControlJobRecord(job_id='dur02-current-job', kind='workflow_run', state='running', run_id='dur02-current-run', pipelin...ke_refs': [], 'producer_ref': 'runtime.control_plane_store', 'schema_version': 'policyos.evidence_spine_handoff.v1'}]})
+
+    def handler(job: Any) -> None:
+        with sqlite3.connect(database) as connection:
+            connection.execute(
+                "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+            )
+        assert _worker_child(database, "takeover")["attempt"] == 2
+        admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(admin, "pending-child")
+        before = _database_rows(database)
+        instant = datetime.now(UTC)
+        operations = {
+            "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+            "event": lambda: store.append_event(
+                job_id=job.job_id, event_type="stale", payload={"stale": True}
+            ),
+            "outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id=job.job_id
+            ),
+            "child_event": lambda: store.append_event(
+                job_id="pending-child", event_type="stale", payload={"stale": True}
+            ),
+            "child_outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id="pending-child"
+            ),
+            "create": lambda: _create_control_job(store, "stale-created-child"),
+            "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+            "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+            "scenario": lambda: store.compare_and_set_scenario_head(
+                scenario_id="stale",
+                baseline_run_id="run",
+                expected_revision=0,
+                new_revision=1,
+                artifact_ref="sha256:" + "a" * 64,
+                manifest_hash="b" * 64,
+            ),
+            "step_up": lambda: store.consume_step_up_assertion(
+                assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+            ),
+            "human_reservation": lambda: store.reserve_human_decision_action(
+                tenant_id="fixture",
+                governed_action_key="sha256:" + "a" * 64,
+                reservation_id="stale",
+                binding_sha256="sha256:" + "b" * 64,
+                now=instant,
+                lease_seconds=300,
+                record_valid_until=instant + timedelta(hours=1),
+            ),
+            "worker_heartbeat": lambda: store.heartbeat_worker(
+                worker_id="worker-A", state="running", lease_seconds=300
+            ),
+            "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+        }
+>       with pytest.raises(ControlJobLeaseLostError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError'>
+
+tests/unit/remediation/test_dur_02_process.py:286: Failed
+_ test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[child_event] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/B38-red-20261006-2/test_actual_stale_bound_handle3')
+operation = 'child_event'
+
+    @pytest.mark.parametrize(
+        "operation",
+        [
+            "upsert",
+            "event",
+            "outbox",
+            "child_event",
+            "child_outbox",
+            "create",
+            "mark_running",
+            "lease_next",
+            "scenario",
+            "step_up",
+            "human_reservation",
+            "worker_heartbeat",
+            "worker_release",
+        ],
+    )
+    def test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets(
+        tmp_path: Path,
+        operation: str,
+    ) -> None:
+        database = tmp_path / "control.sqlite3"
+        store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(store, "dur02-current-job")
+        observed = []
+    
+        def handler(job: Any) -> None:
+            with sqlite3.connect(database) as connection:
+                connection.execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+                )
+            assert _worker_child(database, "takeover")["attempt"] == 2
+            admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+            _create_control_job(admin, "pending-child")
+            before = _database_rows(database)
+            instant = datetime.now(UTC)
+            operations = {
+                "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+                "event": lambda: store.append_event(
+                    job_id=job.job_id, event_type="stale", payload={"stale": True}
+                ),
+                "outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id=job.job_id
+                ),
+                "child_event": lambda: store.append_event(
+                    job_id="pending-child", event_type="stale", payload={"stale": True}
+                ),
+                "child_outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id="pending-child"
+                ),
+                "create": lambda: _create_control_job(store, "stale-created-child"),
+                "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+                "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+                "scenario": lambda: store.compare_and_set_scenario_head(
+                    scenario_id="stale",
+                    baseline_run_id="run",
+                    expected_revision=0,
+                    new_revision=1,
+                    artifact_ref="sha256:" + "a" * 64,
+                    manifest_hash="b" * 64,
+                ),
+                "step_up": lambda: store.consume_step_up_assertion(
+                    assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+                ),
+                "human_reservation": lambda: store.reserve_human_decision_action(
+                    tenant_id="fixture",
+                    governed_action_key="sha256:" + "a" * 64,
+                    reservation_id="stale",
+                    binding_sha256="sha256:" + "b" * 64,
+                    now=instant,
+                    lease_seconds=300,
+                    record_valid_until=instant + timedelta(hours=1),
+                ),
+                "worker_heartbeat": lambda: store.heartbeat_worker(
+                    worker_id="worker-A", state="running", lease_seconds=300
+                ),
+                "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+            }
+            with pytest.raises(ControlJobLeaseLostError):
+                operations[operation]()
+            assert _database_rows(database) == before
+            observed.append(operation)
+    
+        worker = ControlWorker(store=store, handler=handler, worker_id="worker-A", lease_seconds=300)
+>       assert worker.dispatch_once()
+               ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_dur_02_process.py:292: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_worker.py:159: in dispatch_once
+    self._run_with_lease_heartbeat(job)
+src/polisyos/runtime/http/services/control_worker.py:253: in _run_with_lease_heartbeat
+    self._handler(job)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+job = ControlJobRecord(job_id='dur02-current-job', kind='workflow_run', state='running', run_id='dur02-current-run', pipelin...ke_refs': [], 'producer_ref': 'runtime.control_plane_store', 'schema_version': 'policyos.evidence_spine_handoff.v1'}]})
+
+    def handler(job: Any) -> None:
+        with sqlite3.connect(database) as connection:
+            connection.execute(
+                "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+            )
+        assert _worker_child(database, "takeover")["attempt"] == 2
+        admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(admin, "pending-child")
+        before = _database_rows(database)
+        instant = datetime.now(UTC)
+        operations = {
+            "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+            "event": lambda: store.append_event(
+                job_id=job.job_id, event_type="stale", payload={"stale": True}
+            ),
+            "outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id=job.job_id
+            ),
+            "child_event": lambda: store.append_event(
+                job_id="pending-child", event_type="stale", payload={"stale": True}
+            ),
+            "child_outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id="pending-child"
+            ),
+            "create": lambda: _create_control_job(store, "stale-created-child"),
+            "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+            "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+            "scenario": lambda: store.compare_and_set_scenario_head(
+                scenario_id="stale",
+                baseline_run_id="run",
+                expected_revision=0,
+                new_revision=1,
+                artifact_ref="sha256:" + "a" * 64,
+                manifest_hash="b" * 64,
+            ),
+            "step_up": lambda: store.consume_step_up_assertion(
+                assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+            ),
+            "human_reservation": lambda: store.reserve_human_decision_action(
+                tenant_id="fixture",
+                governed_action_key="sha256:" + "a" * 64,
+                reservation_id="stale",
+                binding_sha256="sha256:" + "b" * 64,
+                now=instant,
+                lease_seconds=300,
+                record_valid_until=instant + timedelta(hours=1),
+            ),
+            "worker_heartbeat": lambda: store.heartbeat_worker(
+                worker_id="worker-A", state="running", lease_seconds=300
+            ),
+            "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+        }
+>       with pytest.raises(ControlJobLeaseLostError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError'>
+
+tests/unit/remediation/test_dur_02_process.py:286: Failed
+_ test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[child_outbox] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/B38-red-20261006-2/test_actual_stale_bound_handle4')
+operation = 'child_outbox'
+
+    @pytest.mark.parametrize(
+        "operation",
+        [
+            "upsert",
+            "event",
+            "outbox",
+            "child_event",
+            "child_outbox",
+            "create",
+            "mark_running",
+            "lease_next",
+            "scenario",
+            "step_up",
+            "human_reservation",
+            "worker_heartbeat",
+            "worker_release",
+        ],
+    )
+    def test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets(
+        tmp_path: Path,
+        operation: str,
+    ) -> None:
+        database = tmp_path / "control.sqlite3"
+        store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(store, "dur02-current-job")
+        observed = []
+    
+        def handler(job: Any) -> None:
+            with sqlite3.connect(database) as connection:
+                connection.execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+                )
+            assert _worker_child(database, "takeover")["attempt"] == 2
+            admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+            _create_control_job(admin, "pending-child")
+            before = _database_rows(database)
+            instant = datetime.now(UTC)
+            operations = {
+                "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+                "event": lambda: store.append_event(
+                    job_id=job.job_id, event_type="stale", payload={"stale": True}
+                ),
+                "outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id=job.job_id
+                ),
+                "child_event": lambda: store.append_event(
+                    job_id="pending-child", event_type="stale", payload={"stale": True}
+                ),
+                "child_outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id="pending-child"
+                ),
+                "create": lambda: _create_control_job(store, "stale-created-child"),
+                "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+                "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+                "scenario": lambda: store.compare_and_set_scenario_head(
+                    scenario_id="stale",
+                    baseline_run_id="run",
+                    expected_revision=0,
+                    new_revision=1,
+                    artifact_ref="sha256:" + "a" * 64,
+                    manifest_hash="b" * 64,
+                ),
+                "step_up": lambda: store.consume_step_up_assertion(
+                    assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+                ),
+                "human_reservation": lambda: store.reserve_human_decision_action(
+                    tenant_id="fixture",
+                    governed_action_key="sha256:" + "a" * 64,
+                    reservation_id="stale",
+                    binding_sha256="sha256:" + "b" * 64,
+                    now=instant,
+                    lease_seconds=300,
+                    record_valid_until=instant + timedelta(hours=1),
+                ),
+                "worker_heartbeat": lambda: store.heartbeat_worker(
+                    worker_id="worker-A", state="running", lease_seconds=300
+                ),
+                "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+            }
+            with pytest.raises(ControlJobLeaseLostError):
+                operations[operation]()
+            assert _database_rows(database) == before
+            observed.append(operation)
+    
+        worker = ControlWorker(store=store, handler=handler, worker_id="worker-A", lease_seconds=300)
+>       assert worker.dispatch_once()
+               ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_dur_02_process.py:292: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_worker.py:159: in dispatch_once
+    self._run_with_lease_heartbeat(job)
+src/polisyos/runtime/http/services/control_worker.py:253: in _run_with_lease_heartbeat
+    self._handler(job)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+job = ControlJobRecord(job_id='dur02-current-job', kind='workflow_run', state='running', run_id='dur02-current-run', pipelin...ke_refs': [], 'producer_ref': 'runtime.control_plane_store', 'schema_version': 'policyos.evidence_spine_handoff.v1'}]})
+
+    def handler(job: Any) -> None:
+        with sqlite3.connect(database) as connection:
+            connection.execute(
+                "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+            )
+        assert _worker_child(database, "takeover")["attempt"] == 2
+        admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(admin, "pending-child")
+        before = _database_rows(database)
+        instant = datetime.now(UTC)
+        operations = {
+            "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+            "event": lambda: store.append_event(
+                job_id=job.job_id, event_type="stale", payload={"stale": True}
+            ),
+            "outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id=job.job_id
+            ),
+            "child_event": lambda: store.append_event(
+                job_id="pending-child", event_type="stale", payload={"stale": True}
+            ),
+            "child_outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id="pending-child"
+            ),
+            "create": lambda: _create_control_job(store, "stale-created-child"),
+            "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+            "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+            "scenario": lambda: store.compare_and_set_scenario_head(
+                scenario_id="stale",
+                baseline_run_id="run",
+                expected_revision=0,
+                new_revision=1,
+                artifact_ref="sha256:" + "a" * 64,
+                manifest_hash="b" * 64,
+            ),
+            "step_up": lambda: store.consume_step_up_assertion(
+                assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+            ),
+            "human_reservation": lambda: store.reserve_human_decision_action(
+                tenant_id="fixture",
+                governed_action_key="sha256:" + "a" * 64,
+                reservation_id="stale",
+                binding_sha256="sha256:" + "b" * 64,
+                now=instant,
+                lease_seconds=300,
+                record_valid_until=instant + timedelta(hours=1),
+            ),
+            "worker_heartbeat": lambda: store.heartbeat_worker(
+                worker_id="worker-A", state="running", lease_seconds=300
+            ),
+            "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+        }
+>       with pytest.raises(ControlJobLeaseLostError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError'>
+
+tests/unit/remediation/test_dur_02_process.py:286: Failed
+_ test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[create] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/B38-red-20261006-2/test_actual_stale_bound_handle5')
+operation = 'create'
+
+    @pytest.mark.parametrize(
+        "operation",
+        [
+            "upsert",
+            "event",
+            "outbox",
+            "child_event",
+            "child_outbox",
+            "create",
+            "mark_running",
+            "lease_next",
+            "scenario",
+            "step_up",
+            "human_reservation",
+            "worker_heartbeat",
+            "worker_release",
+        ],
+    )
+    def test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets(
+        tmp_path: Path,
+        operation: str,
+    ) -> None:
+        database = tmp_path / "control.sqlite3"
+        store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(store, "dur02-current-job")
+        observed = []
+    
+        def handler(job: Any) -> None:
+            with sqlite3.connect(database) as connection:
+                connection.execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+                )
+            assert _worker_child(database, "takeover")["attempt"] == 2
+            admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+            _create_control_job(admin, "pending-child")
+            before = _database_rows(database)
+            instant = datetime.now(UTC)
+            operations = {
+                "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+                "event": lambda: store.append_event(
+                    job_id=job.job_id, event_type="stale", payload={"stale": True}
+                ),
+                "outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id=job.job_id
+                ),
+                "child_event": lambda: store.append_event(
+                    job_id="pending-child", event_type="stale", payload={"stale": True}
+                ),
+                "child_outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id="pending-child"
+                ),
+                "create": lambda: _create_control_job(store, "stale-created-child"),
+                "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+                "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+                "scenario": lambda: store.compare_and_set_scenario_head(
+                    scenario_id="stale",
+                    baseline_run_id="run",
+                    expected_revision=0,
+                    new_revision=1,
+                    artifact_ref="sha256:" + "a" * 64,
+                    manifest_hash="b" * 64,
+                ),
+                "step_up": lambda: store.consume_step_up_assertion(
+                    assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+                ),
+                "human_reservation": lambda: store.reserve_human_decision_action(
+                    tenant_id="fixture",
+                    governed_action_key="sha256:" + "a" * 64,
+                    reservation_id="stale",
+                    binding_sha256="sha256:" + "b" * 64,
+                    now=instant,
+                    lease_seconds=300,
+                    record_valid_until=instant + timedelta(hours=1),
+                ),
+                "worker_heartbeat": lambda: store.heartbeat_worker(
+                    worker_id="worker-A", state="running", lease_seconds=300
+                ),
+                "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+            }
+            with pytest.raises(ControlJobLeaseLostError):
+                operations[operation]()
+            assert _database_rows(database) == before
+            observed.append(operation)
+    
+        worker = ControlWorker(store=store, handler=handler, worker_id="worker-A", lease_seconds=300)
+>       assert worker.dispatch_once()
+               ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_dur_02_process.py:292: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_worker.py:159: in dispatch_once
+    self._run_with_lease_heartbeat(job)
+src/polisyos/runtime/http/services/control_worker.py:253: in _run_with_lease_heartbeat
+    self._handler(job)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+job = ControlJobRecord(job_id='dur02-current-job', kind='workflow_run', state='running', run_id='dur02-current-run', pipelin...ke_refs': [], 'producer_ref': 'runtime.control_plane_store', 'schema_version': 'policyos.evidence_spine_handoff.v1'}]})
+
+    def handler(job: Any) -> None:
+        with sqlite3.connect(database) as connection:
+            connection.execute(
+                "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+            )
+        assert _worker_child(database, "takeover")["attempt"] == 2
+        admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(admin, "pending-child")
+        before = _database_rows(database)
+        instant = datetime.now(UTC)
+        operations = {
+            "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+            "event": lambda: store.append_event(
+                job_id=job.job_id, event_type="stale", payload={"stale": True}
+            ),
+            "outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id=job.job_id
+            ),
+            "child_event": lambda: store.append_event(
+                job_id="pending-child", event_type="stale", payload={"stale": True}
+            ),
+            "child_outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id="pending-child"
+            ),
+            "create": lambda: _create_control_job(store, "stale-created-child"),
+            "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+            "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+            "scenario": lambda: store.compare_and_set_scenario_head(
+                scenario_id="stale",
+                baseline_run_id="run",
+                expected_revision=0,
+                new_revision=1,
+                artifact_ref="sha256:" + "a" * 64,
+                manifest_hash="b" * 64,
+            ),
+            "step_up": lambda: store.consume_step_up_assertion(
+                assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+            ),
+            "human_reservation": lambda: store.reserve_human_decision_action(
+                tenant_id="fixture",
+                governed_action_key="sha256:" + "a" * 64,
+                reservation_id="stale",
+                binding_sha256="sha256:" + "b" * 64,
+                now=instant,
+                lease_seconds=300,
+                record_valid_until=instant + timedelta(hours=1),
+            ),
+            "worker_heartbeat": lambda: store.heartbeat_worker(
+                worker_id="worker-A", state="running", lease_seconds=300
+            ),
+            "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+        }
+>       with pytest.raises(ControlJobLeaseLostError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError'>
+
+tests/unit/remediation/test_dur_02_process.py:286: Failed
+_ test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[mark_running] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/B38-red-20261006-2/test_actual_stale_bound_handle6')
+operation = 'mark_running'
+
+    @pytest.mark.parametrize(
+        "operation",
+        [
+            "upsert",
+            "event",
+            "outbox",
+            "child_event",
+            "child_outbox",
+            "create",
+            "mark_running",
+            "lease_next",
+            "scenario",
+            "step_up",
+            "human_reservation",
+            "worker_heartbeat",
+            "worker_release",
+        ],
+    )
+    def test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets(
+        tmp_path: Path,
+        operation: str,
+    ) -> None:
+        database = tmp_path / "control.sqlite3"
+        store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(store, "dur02-current-job")
+        observed = []
+    
+        def handler(job: Any) -> None:
+            with sqlite3.connect(database) as connection:
+                connection.execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+                )
+            assert _worker_child(database, "takeover")["attempt"] == 2
+            admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+            _create_control_job(admin, "pending-child")
+            before = _database_rows(database)
+            instant = datetime.now(UTC)
+            operations = {
+                "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+                "event": lambda: store.append_event(
+                    job_id=job.job_id, event_type="stale", payload={"stale": True}
+                ),
+                "outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id=job.job_id
+                ),
+                "child_event": lambda: store.append_event(
+                    job_id="pending-child", event_type="stale", payload={"stale": True}
+                ),
+                "child_outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id="pending-child"
+                ),
+                "create": lambda: _create_control_job(store, "stale-created-child"),
+                "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+                "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+                "scenario": lambda: store.compare_and_set_scenario_head(
+                    scenario_id="stale",
+                    baseline_run_id="run",
+                    expected_revision=0,
+                    new_revision=1,
+                    artifact_ref="sha256:" + "a" * 64,
+                    manifest_hash="b" * 64,
+                ),
+                "step_up": lambda: store.consume_step_up_assertion(
+                    assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+                ),
+                "human_reservation": lambda: store.reserve_human_decision_action(
+                    tenant_id="fixture",
+                    governed_action_key="sha256:" + "a" * 64,
+                    reservation_id="stale",
+                    binding_sha256="sha256:" + "b" * 64,
+                    now=instant,
+                    lease_seconds=300,
+                    record_valid_until=instant + timedelta(hours=1),
+                ),
+                "worker_heartbeat": lambda: store.heartbeat_worker(
+                    worker_id="worker-A", state="running", lease_seconds=300
+                ),
+                "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+            }
+            with pytest.raises(ControlJobLeaseLostError):
+                operations[operation]()
+            assert _database_rows(database) == before
+            observed.append(operation)
+    
+        worker = ControlWorker(store=store, handler=handler, worker_id="worker-A", lease_seconds=300)
+>       assert worker.dispatch_once()
+               ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_dur_02_process.py:292: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_worker.py:159: in dispatch_once
+    self._run_with_lease_heartbeat(job)
+src/polisyos/runtime/http/services/control_worker.py:253: in _run_with_lease_heartbeat
+    self._handler(job)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+job = ControlJobRecord(job_id='dur02-current-job', kind='workflow_run', state='running', run_id='dur02-current-run', pipelin...ke_refs': [], 'producer_ref': 'runtime.control_plane_store', 'schema_version': 'policyos.evidence_spine_handoff.v1'}]})
+
+    def handler(job: Any) -> None:
+        with sqlite3.connect(database) as connection:
+            connection.execute(
+                "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+            )
+        assert _worker_child(database, "takeover")["attempt"] == 2
+        admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(admin, "pending-child")
+        before = _database_rows(database)
+        instant = datetime.now(UTC)
+        operations = {
+            "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+            "event": lambda: store.append_event(
+                job_id=job.job_id, event_type="stale", payload={"stale": True}
+            ),
+            "outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id=job.job_id
+            ),
+            "child_event": lambda: store.append_event(
+                job_id="pending-child", event_type="stale", payload={"stale": True}
+            ),
+            "child_outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id="pending-child"
+            ),
+            "create": lambda: _create_control_job(store, "stale-created-child"),
+            "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+            "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+            "scenario": lambda: store.compare_and_set_scenario_head(
+                scenario_id="stale",
+                baseline_run_id="run",
+                expected_revision=0,
+                new_revision=1,
+                artifact_ref="sha256:" + "a" * 64,
+                manifest_hash="b" * 64,
+            ),
+            "step_up": lambda: store.consume_step_up_assertion(
+                assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+            ),
+            "human_reservation": lambda: store.reserve_human_decision_action(
+                tenant_id="fixture",
+                governed_action_key="sha256:" + "a" * 64,
+                reservation_id="stale",
+                binding_sha256="sha256:" + "b" * 64,
+                now=instant,
+                lease_seconds=300,
+                record_valid_until=instant + timedelta(hours=1),
+            ),
+            "worker_heartbeat": lambda: store.heartbeat_worker(
+                worker_id="worker-A", state="running", lease_seconds=300
+            ),
+            "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+        }
+>       with pytest.raises(ControlJobLeaseLostError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError'>
+
+tests/unit/remediation/test_dur_02_process.py:286: Failed
+_ test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[lease_next] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/B38-red-20261006-2/test_actual_stale_bound_handle7')
+operation = 'lease_next'
+
+    @pytest.mark.parametrize(
+        "operation",
+        [
+            "upsert",
+            "event",
+            "outbox",
+            "child_event",
+            "child_outbox",
+            "create",
+            "mark_running",
+            "lease_next",
+            "scenario",
+            "step_up",
+            "human_reservation",
+            "worker_heartbeat",
+            "worker_release",
+        ],
+    )
+    def test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets(
+        tmp_path: Path,
+        operation: str,
+    ) -> None:
+        database = tmp_path / "control.sqlite3"
+        store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(store, "dur02-current-job")
+        observed = []
+    
+        def handler(job: Any) -> None:
+            with sqlite3.connect(database) as connection:
+                connection.execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+                )
+            assert _worker_child(database, "takeover")["attempt"] == 2
+            admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+            _create_control_job(admin, "pending-child")
+            before = _database_rows(database)
+            instant = datetime.now(UTC)
+            operations = {
+                "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+                "event": lambda: store.append_event(
+                    job_id=job.job_id, event_type="stale", payload={"stale": True}
+                ),
+                "outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id=job.job_id
+                ),
+                "child_event": lambda: store.append_event(
+                    job_id="pending-child", event_type="stale", payload={"stale": True}
+                ),
+                "child_outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id="pending-child"
+                ),
+                "create": lambda: _create_control_job(store, "stale-created-child"),
+                "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+                "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+                "scenario": lambda: store.compare_and_set_scenario_head(
+                    scenario_id="stale",
+                    baseline_run_id="run",
+                    expected_revision=0,
+                    new_revision=1,
+                    artifact_ref="sha256:" + "a" * 64,
+                    manifest_hash="b" * 64,
+                ),
+                "step_up": lambda: store.consume_step_up_assertion(
+                    assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+                ),
+                "human_reservation": lambda: store.reserve_human_decision_action(
+                    tenant_id="fixture",
+                    governed_action_key="sha256:" + "a" * 64,
+                    reservation_id="stale",
+                    binding_sha256="sha256:" + "b" * 64,
+                    now=instant,
+                    lease_seconds=300,
+                    record_valid_until=instant + timedelta(hours=1),
+                ),
+                "worker_heartbeat": lambda: store.heartbeat_worker(
+                    worker_id="worker-A", state="running", lease_seconds=300
+                ),
+                "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+            }
+            with pytest.raises(ControlJobLeaseLostError):
+                operations[operation]()
+            assert _database_rows(database) == before
+            observed.append(operation)
+    
+        worker = ControlWorker(store=store, handler=handler, worker_id="worker-A", lease_seconds=300)
+>       assert worker.dispatch_once()
+               ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_dur_02_process.py:292: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_worker.py:159: in dispatch_once
+    self._run_with_lease_heartbeat(job)
+src/polisyos/runtime/http/services/control_worker.py:253: in _run_with_lease_heartbeat
+    self._handler(job)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+job = ControlJobRecord(job_id='dur02-current-job', kind='workflow_run', state='running', run_id='dur02-current-run', pipelin...ke_refs': [], 'producer_ref': 'runtime.control_plane_store', 'schema_version': 'policyos.evidence_spine_handoff.v1'}]})
+
+    def handler(job: Any) -> None:
+        with sqlite3.connect(database) as connection:
+            connection.execute(
+                "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+            )
+        assert _worker_child(database, "takeover")["attempt"] == 2
+        admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(admin, "pending-child")
+        before = _database_rows(database)
+        instant = datetime.now(UTC)
+        operations = {
+            "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+            "event": lambda: store.append_event(
+                job_id=job.job_id, event_type="stale", payload={"stale": True}
+            ),
+            "outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id=job.job_id
+            ),
+            "child_event": lambda: store.append_event(
+                job_id="pending-child", event_type="stale", payload={"stale": True}
+            ),
+            "child_outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id="pending-child"
+            ),
+            "create": lambda: _create_control_job(store, "stale-created-child"),
+            "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+            "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+            "scenario": lambda: store.compare_and_set_scenario_head(
+                scenario_id="stale",
+                baseline_run_id="run",
+                expected_revision=0,
+                new_revision=1,
+                artifact_ref="sha256:" + "a" * 64,
+                manifest_hash="b" * 64,
+            ),
+            "step_up": lambda: store.consume_step_up_assertion(
+                assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+            ),
+            "human_reservation": lambda: store.reserve_human_decision_action(
+                tenant_id="fixture",
+                governed_action_key="sha256:" + "a" * 64,
+                reservation_id="stale",
+                binding_sha256="sha256:" + "b" * 64,
+                now=instant,
+                lease_seconds=300,
+                record_valid_until=instant + timedelta(hours=1),
+            ),
+            "worker_heartbeat": lambda: store.heartbeat_worker(
+                worker_id="worker-A", state="running", lease_seconds=300
+            ),
+            "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+        }
+>       with pytest.raises(ControlJobLeaseLostError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError'>
+
+tests/unit/remediation/test_dur_02_process.py:286: Failed
+_ test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[scenario] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/B38-red-20261006-2/test_actual_stale_bound_handle8')
+operation = 'scenario'
+
+    @pytest.mark.parametrize(
+        "operation",
+        [
+            "upsert",
+            "event",
+            "outbox",
+            "child_event",
+            "child_outbox",
+            "create",
+            "mark_running",
+            "lease_next",
+            "scenario",
+            "step_up",
+            "human_reservation",
+            "worker_heartbeat",
+            "worker_release",
+        ],
+    )
+    def test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets(
+        tmp_path: Path,
+        operation: str,
+    ) -> None:
+        database = tmp_path / "control.sqlite3"
+        store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(store, "dur02-current-job")
+        observed = []
+    
+        def handler(job: Any) -> None:
+            with sqlite3.connect(database) as connection:
+                connection.execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+                )
+            assert _worker_child(database, "takeover")["attempt"] == 2
+            admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+            _create_control_job(admin, "pending-child")
+            before = _database_rows(database)
+            instant = datetime.now(UTC)
+            operations = {
+                "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+                "event": lambda: store.append_event(
+                    job_id=job.job_id, event_type="stale", payload={"stale": True}
+                ),
+                "outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id=job.job_id
+                ),
+                "child_event": lambda: store.append_event(
+                    job_id="pending-child", event_type="stale", payload={"stale": True}
+                ),
+                "child_outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id="pending-child"
+                ),
+                "create": lambda: _create_control_job(store, "stale-created-child"),
+                "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+                "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+                "scenario": lambda: store.compare_and_set_scenario_head(
+                    scenario_id="stale",
+                    baseline_run_id="run",
+                    expected_revision=0,
+                    new_revision=1,
+                    artifact_ref="sha256:" + "a" * 64,
+                    manifest_hash="b" * 64,
+                ),
+                "step_up": lambda: store.consume_step_up_assertion(
+                    assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+                ),
+                "human_reservation": lambda: store.reserve_human_decision_action(
+                    tenant_id="fixture",
+                    governed_action_key="sha256:" + "a" * 64,
+                    reservation_id="stale",
+                    binding_sha256="sha256:" + "b" * 64,
+                    now=instant,
+                    lease_seconds=300,
+                    record_valid_until=instant + timedelta(hours=1),
+                ),
+                "worker_heartbeat": lambda: store.heartbeat_worker(
+                    worker_id="worker-A", state="running", lease_seconds=300
+                ),
+                "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+            }
+            with pytest.raises(ControlJobLeaseLostError):
+                operations[operation]()
+            assert _database_rows(database) == before
+            observed.append(operation)
+    
+        worker = ControlWorker(store=store, handler=handler, worker_id="worker-A", lease_seconds=300)
+>       assert worker.dispatch_once()
+               ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_dur_02_process.py:292: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_worker.py:159: in dispatch_once
+    self._run_with_lease_heartbeat(job)
+src/polisyos/runtime/http/services/control_worker.py:253: in _run_with_lease_heartbeat
+    self._handler(job)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+job = ControlJobRecord(job_id='dur02-current-job', kind='workflow_run', state='running', run_id='dur02-current-run', pipelin...ke_refs': [], 'producer_ref': 'runtime.control_plane_store', 'schema_version': 'policyos.evidence_spine_handoff.v1'}]})
+
+    def handler(job: Any) -> None:
+        with sqlite3.connect(database) as connection:
+            connection.execute(
+                "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+            )
+        assert _worker_child(database, "takeover")["attempt"] == 2
+        admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(admin, "pending-child")
+        before = _database_rows(database)
+        instant = datetime.now(UTC)
+        operations = {
+            "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+            "event": lambda: store.append_event(
+                job_id=job.job_id, event_type="stale", payload={"stale": True}
+            ),
+            "outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id=job.job_id
+            ),
+            "child_event": lambda: store.append_event(
+                job_id="pending-child", event_type="stale", payload={"stale": True}
+            ),
+            "child_outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id="pending-child"
+            ),
+            "create": lambda: _create_control_job(store, "stale-created-child"),
+            "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+            "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+            "scenario": lambda: store.compare_and_set_scenario_head(
+                scenario_id="stale",
+                baseline_run_id="run",
+                expected_revision=0,
+                new_revision=1,
+                artifact_ref="sha256:" + "a" * 64,
+                manifest_hash="b" * 64,
+            ),
+            "step_up": lambda: store.consume_step_up_assertion(
+                assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+            ),
+            "human_reservation": lambda: store.reserve_human_decision_action(
+                tenant_id="fixture",
+                governed_action_key="sha256:" + "a" * 64,
+                reservation_id="stale",
+                binding_sha256="sha256:" + "b" * 64,
+                now=instant,
+                lease_seconds=300,
+                record_valid_until=instant + timedelta(hours=1),
+            ),
+            "worker_heartbeat": lambda: store.heartbeat_worker(
+                worker_id="worker-A", state="running", lease_seconds=300
+            ),
+            "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+        }
+>       with pytest.raises(ControlJobLeaseLostError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError'>
+
+tests/unit/remediation/test_dur_02_process.py:286: Failed
+_ test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[step_up] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/B38-red-20261006-2/test_actual_stale_bound_handle9')
+operation = 'step_up'
+
+    @pytest.mark.parametrize(
+        "operation",
+        [
+            "upsert",
+            "event",
+            "outbox",
+            "child_event",
+            "child_outbox",
+            "create",
+            "mark_running",
+            "lease_next",
+            "scenario",
+            "step_up",
+            "human_reservation",
+            "worker_heartbeat",
+            "worker_release",
+        ],
+    )
+    def test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets(
+        tmp_path: Path,
+        operation: str,
+    ) -> None:
+        database = tmp_path / "control.sqlite3"
+        store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(store, "dur02-current-job")
+        observed = []
+    
+        def handler(job: Any) -> None:
+            with sqlite3.connect(database) as connection:
+                connection.execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+                )
+            assert _worker_child(database, "takeover")["attempt"] == 2
+            admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+            _create_control_job(admin, "pending-child")
+            before = _database_rows(database)
+            instant = datetime.now(UTC)
+            operations = {
+                "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+                "event": lambda: store.append_event(
+                    job_id=job.job_id, event_type="stale", payload={"stale": True}
+                ),
+                "outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id=job.job_id
+                ),
+                "child_event": lambda: store.append_event(
+                    job_id="pending-child", event_type="stale", payload={"stale": True}
+                ),
+                "child_outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id="pending-child"
+                ),
+                "create": lambda: _create_control_job(store, "stale-created-child"),
+                "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+                "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+                "scenario": lambda: store.compare_and_set_scenario_head(
+                    scenario_id="stale",
+                    baseline_run_id="run",
+                    expected_revision=0,
+                    new_revision=1,
+                    artifact_ref="sha256:" + "a" * 64,
+                    manifest_hash="b" * 64,
+                ),
+                "step_up": lambda: store.consume_step_up_assertion(
+                    assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+                ),
+                "human_reservation": lambda: store.reserve_human_decision_action(
+                    tenant_id="fixture",
+                    governed_action_key="sha256:" + "a" * 64,
+                    reservation_id="stale",
+                    binding_sha256="sha256:" + "b" * 64,
+                    now=instant,
+                    lease_seconds=300,
+                    record_valid_until=instant + timedelta(hours=1),
+                ),
+                "worker_heartbeat": lambda: store.heartbeat_worker(
+                    worker_id="worker-A", state="running", lease_seconds=300
+                ),
+                "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+            }
+            with pytest.raises(ControlJobLeaseLostError):
+                operations[operation]()
+            assert _database_rows(database) == before
+            observed.append(operation)
+    
+        worker = ControlWorker(store=store, handler=handler, worker_id="worker-A", lease_seconds=300)
+>       assert worker.dispatch_once()
+               ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_dur_02_process.py:292: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_worker.py:159: in dispatch_once
+    self._run_with_lease_heartbeat(job)
+src/polisyos/runtime/http/services/control_worker.py:253: in _run_with_lease_heartbeat
+    self._handler(job)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+job = ControlJobRecord(job_id='dur02-current-job', kind='workflow_run', state='running', run_id='dur02-current-run', pipelin...ke_refs': [], 'producer_ref': 'runtime.control_plane_store', 'schema_version': 'policyos.evidence_spine_handoff.v1'}]})
+
+    def handler(job: Any) -> None:
+        with sqlite3.connect(database) as connection:
+            connection.execute(
+                "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+            )
+        assert _worker_child(database, "takeover")["attempt"] == 2
+        admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(admin, "pending-child")
+        before = _database_rows(database)
+        instant = datetime.now(UTC)
+        operations = {
+            "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+            "event": lambda: store.append_event(
+                job_id=job.job_id, event_type="stale", payload={"stale": True}
+            ),
+            "outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id=job.job_id
+            ),
+            "child_event": lambda: store.append_event(
+                job_id="pending-child", event_type="stale", payload={"stale": True}
+            ),
+            "child_outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id="pending-child"
+            ),
+            "create": lambda: _create_control_job(store, "stale-created-child"),
+            "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+            "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+            "scenario": lambda: store.compare_and_set_scenario_head(
+                scenario_id="stale",
+                baseline_run_id="run",
+                expected_revision=0,
+                new_revision=1,
+                artifact_ref="sha256:" + "a" * 64,
+                manifest_hash="b" * 64,
+            ),
+            "step_up": lambda: store.consume_step_up_assertion(
+                assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+            ),
+            "human_reservation": lambda: store.reserve_human_decision_action(
+                tenant_id="fixture",
+                governed_action_key="sha256:" + "a" * 64,
+                reservation_id="stale",
+                binding_sha256="sha256:" + "b" * 64,
+                now=instant,
+                lease_seconds=300,
+                record_valid_until=instant + timedelta(hours=1),
+            ),
+            "worker_heartbeat": lambda: store.heartbeat_worker(
+                worker_id="worker-A", state="running", lease_seconds=300
+            ),
+            "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+        }
+>       with pytest.raises(ControlJobLeaseLostError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError'>
+
+tests/unit/remediation/test_dur_02_process.py:286: Failed
+_ test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[human_reservation] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/B38-red-20261006-2/test_actual_stale_bound_handle10')
+operation = 'human_reservation'
+
+    @pytest.mark.parametrize(
+        "operation",
+        [
+            "upsert",
+            "event",
+            "outbox",
+            "child_event",
+            "child_outbox",
+            "create",
+            "mark_running",
+            "lease_next",
+            "scenario",
+            "step_up",
+            "human_reservation",
+            "worker_heartbeat",
+            "worker_release",
+        ],
+    )
+    def test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets(
+        tmp_path: Path,
+        operation: str,
+    ) -> None:
+        database = tmp_path / "control.sqlite3"
+        store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(store, "dur02-current-job")
+        observed = []
+    
+        def handler(job: Any) -> None:
+            with sqlite3.connect(database) as connection:
+                connection.execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+                )
+            assert _worker_child(database, "takeover")["attempt"] == 2
+            admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+            _create_control_job(admin, "pending-child")
+            before = _database_rows(database)
+            instant = datetime.now(UTC)
+            operations = {
+                "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+                "event": lambda: store.append_event(
+                    job_id=job.job_id, event_type="stale", payload={"stale": True}
+                ),
+                "outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id=job.job_id
+                ),
+                "child_event": lambda: store.append_event(
+                    job_id="pending-child", event_type="stale", payload={"stale": True}
+                ),
+                "child_outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id="pending-child"
+                ),
+                "create": lambda: _create_control_job(store, "stale-created-child"),
+                "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+                "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+                "scenario": lambda: store.compare_and_set_scenario_head(
+                    scenario_id="stale",
+                    baseline_run_id="run",
+                    expected_revision=0,
+                    new_revision=1,
+                    artifact_ref="sha256:" + "a" * 64,
+                    manifest_hash="b" * 64,
+                ),
+                "step_up": lambda: store.consume_step_up_assertion(
+                    assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+                ),
+                "human_reservation": lambda: store.reserve_human_decision_action(
+                    tenant_id="fixture",
+                    governed_action_key="sha256:" + "a" * 64,
+                    reservation_id="stale",
+                    binding_sha256="sha256:" + "b" * 64,
+                    now=instant,
+                    lease_seconds=300,
+                    record_valid_until=instant + timedelta(hours=1),
+                ),
+                "worker_heartbeat": lambda: store.heartbeat_worker(
+                    worker_id="worker-A", state="running", lease_seconds=300
+                ),
+                "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+            }
+            with pytest.raises(ControlJobLeaseLostError):
+                operations[operation]()
+            assert _database_rows(database) == before
+            observed.append(operation)
+    
+        worker = ControlWorker(store=store, handler=handler, worker_id="worker-A", lease_seconds=300)
+>       assert worker.dispatch_once()
+               ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_dur_02_process.py:292: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_worker.py:159: in dispatch_once
+    self._run_with_lease_heartbeat(job)
+src/polisyos/runtime/http/services/control_worker.py:253: in _run_with_lease_heartbeat
+    self._handler(job)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+job = ControlJobRecord(job_id='dur02-current-job', kind='workflow_run', state='running', run_id='dur02-current-run', pipelin...ke_refs': [], 'producer_ref': 'runtime.control_plane_store', 'schema_version': 'policyos.evidence_spine_handoff.v1'}]})
+
+    def handler(job: Any) -> None:
+        with sqlite3.connect(database) as connection:
+            connection.execute(
+                "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+            )
+        assert _worker_child(database, "takeover")["attempt"] == 2
+        admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(admin, "pending-child")
+        before = _database_rows(database)
+        instant = datetime.now(UTC)
+        operations = {
+            "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+            "event": lambda: store.append_event(
+                job_id=job.job_id, event_type="stale", payload={"stale": True}
+            ),
+            "outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id=job.job_id
+            ),
+            "child_event": lambda: store.append_event(
+                job_id="pending-child", event_type="stale", payload={"stale": True}
+            ),
+            "child_outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id="pending-child"
+            ),
+            "create": lambda: _create_control_job(store, "stale-created-child"),
+            "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+            "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+            "scenario": lambda: store.compare_and_set_scenario_head(
+                scenario_id="stale",
+                baseline_run_id="run",
+                expected_revision=0,
+                new_revision=1,
+                artifact_ref="sha256:" + "a" * 64,
+                manifest_hash="b" * 64,
+            ),
+            "step_up": lambda: store.consume_step_up_assertion(
+                assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+            ),
+            "human_reservation": lambda: store.reserve_human_decision_action(
+                tenant_id="fixture",
+                governed_action_key="sha256:" + "a" * 64,
+                reservation_id="stale",
+                binding_sha256="sha256:" + "b" * 64,
+                now=instant,
+                lease_seconds=300,
+                record_valid_until=instant + timedelta(hours=1),
+            ),
+            "worker_heartbeat": lambda: store.heartbeat_worker(
+                worker_id="worker-A", state="running", lease_seconds=300
+            ),
+            "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+        }
+>       with pytest.raises(ControlJobLeaseLostError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError'>
+
+tests/unit/remediation/test_dur_02_process.py:286: Failed
+_ test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[worker_heartbeat] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/B38-red-20261006-2/test_actual_stale_bound_handle11')
+operation = 'worker_heartbeat'
+
+    @pytest.mark.parametrize(
+        "operation",
+        [
+            "upsert",
+            "event",
+            "outbox",
+            "child_event",
+            "child_outbox",
+            "create",
+            "mark_running",
+            "lease_next",
+            "scenario",
+            "step_up",
+            "human_reservation",
+            "worker_heartbeat",
+            "worker_release",
+        ],
+    )
+    def test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets(
+        tmp_path: Path,
+        operation: str,
+    ) -> None:
+        database = tmp_path / "control.sqlite3"
+        store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(store, "dur02-current-job")
+        observed = []
+    
+        def handler(job: Any) -> None:
+            with sqlite3.connect(database) as connection:
+                connection.execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+                )
+            assert _worker_child(database, "takeover")["attempt"] == 2
+            admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+            _create_control_job(admin, "pending-child")
+            before = _database_rows(database)
+            instant = datetime.now(UTC)
+            operations = {
+                "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+                "event": lambda: store.append_event(
+                    job_id=job.job_id, event_type="stale", payload={"stale": True}
+                ),
+                "outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id=job.job_id
+                ),
+                "child_event": lambda: store.append_event(
+                    job_id="pending-child", event_type="stale", payload={"stale": True}
+                ),
+                "child_outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id="pending-child"
+                ),
+                "create": lambda: _create_control_job(store, "stale-created-child"),
+                "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+                "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+                "scenario": lambda: store.compare_and_set_scenario_head(
+                    scenario_id="stale",
+                    baseline_run_id="run",
+                    expected_revision=0,
+                    new_revision=1,
+                    artifact_ref="sha256:" + "a" * 64,
+                    manifest_hash="b" * 64,
+                ),
+                "step_up": lambda: store.consume_step_up_assertion(
+                    assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+                ),
+                "human_reservation": lambda: store.reserve_human_decision_action(
+                    tenant_id="fixture",
+                    governed_action_key="sha256:" + "a" * 64,
+                    reservation_id="stale",
+                    binding_sha256="sha256:" + "b" * 64,
+                    now=instant,
+                    lease_seconds=300,
+                    record_valid_until=instant + timedelta(hours=1),
+                ),
+                "worker_heartbeat": lambda: store.heartbeat_worker(
+                    worker_id="worker-A", state="running", lease_seconds=300
+                ),
+                "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+            }
+            with pytest.raises(ControlJobLeaseLostError):
+                operations[operation]()
+            assert _database_rows(database) == before
+            observed.append(operation)
+    
+        worker = ControlWorker(store=store, handler=handler, worker_id="worker-A", lease_seconds=300)
+>       assert worker.dispatch_once()
+               ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_dur_02_process.py:292: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_worker.py:159: in dispatch_once
+    self._run_with_lease_heartbeat(job)
+src/polisyos/runtime/http/services/control_worker.py:253: in _run_with_lease_heartbeat
+    self._handler(job)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+job = ControlJobRecord(job_id='dur02-current-job', kind='workflow_run', state='running', run_id='dur02-current-run', pipelin...ke_refs': [], 'producer_ref': 'runtime.control_plane_store', 'schema_version': 'policyos.evidence_spine_handoff.v1'}]})
+
+    def handler(job: Any) -> None:
+        with sqlite3.connect(database) as connection:
+            connection.execute(
+                "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+            )
+        assert _worker_child(database, "takeover")["attempt"] == 2
+        admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(admin, "pending-child")
+        before = _database_rows(database)
+        instant = datetime.now(UTC)
+        operations = {
+            "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+            "event": lambda: store.append_event(
+                job_id=job.job_id, event_type="stale", payload={"stale": True}
+            ),
+            "outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id=job.job_id
+            ),
+            "child_event": lambda: store.append_event(
+                job_id="pending-child", event_type="stale", payload={"stale": True}
+            ),
+            "child_outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id="pending-child"
+            ),
+            "create": lambda: _create_control_job(store, "stale-created-child"),
+            "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+            "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+            "scenario": lambda: store.compare_and_set_scenario_head(
+                scenario_id="stale",
+                baseline_run_id="run",
+                expected_revision=0,
+                new_revision=1,
+                artifact_ref="sha256:" + "a" * 64,
+                manifest_hash="b" * 64,
+            ),
+            "step_up": lambda: store.consume_step_up_assertion(
+                assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+            ),
+            "human_reservation": lambda: store.reserve_human_decision_action(
+                tenant_id="fixture",
+                governed_action_key="sha256:" + "a" * 64,
+                reservation_id="stale",
+                binding_sha256="sha256:" + "b" * 64,
+                now=instant,
+                lease_seconds=300,
+                record_valid_until=instant + timedelta(hours=1),
+            ),
+            "worker_heartbeat": lambda: store.heartbeat_worker(
+                worker_id="worker-A", state="running", lease_seconds=300
+            ),
+            "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+        }
+>       with pytest.raises(ControlJobLeaseLostError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError'>
+
+tests/unit/remediation/test_dur_02_process.py:286: Failed
+_ test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[worker_release] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/B38-red-20261006-2/test_actual_stale_bound_handle12')
+operation = 'worker_release'
+
+    @pytest.mark.parametrize(
+        "operation",
+        [
+            "upsert",
+            "event",
+            "outbox",
+            "child_event",
+            "child_outbox",
+            "create",
+            "mark_running",
+            "lease_next",
+            "scenario",
+            "step_up",
+            "human_reservation",
+            "worker_heartbeat",
+            "worker_release",
+        ],
+    )
+    def test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets(
+        tmp_path: Path,
+        operation: str,
+    ) -> None:
+        database = tmp_path / "control.sqlite3"
+        store = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(store, "dur02-current-job")
+        observed = []
+    
+        def handler(job: Any) -> None:
+            with sqlite3.connect(database) as connection:
+                connection.execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+                )
+            assert _worker_child(database, "takeover")["attempt"] == 2
+            admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+            _create_control_job(admin, "pending-child")
+            before = _database_rows(database)
+            instant = datetime.now(UTC)
+            operations = {
+                "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+                "event": lambda: store.append_event(
+                    job_id=job.job_id, event_type="stale", payload={"stale": True}
+                ),
+                "outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id=job.job_id
+                ),
+                "child_event": lambda: store.append_event(
+                    job_id="pending-child", event_type="stale", payload={"stale": True}
+                ),
+                "child_outbox": lambda: store.enqueue_outbox_event(
+                    topic="stale", payload={"stale": True}, job_id="pending-child"
+                ),
+                "create": lambda: _create_control_job(store, "stale-created-child"),
+                "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+                "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+                "scenario": lambda: store.compare_and_set_scenario_head(
+                    scenario_id="stale",
+                    baseline_run_id="run",
+                    expected_revision=0,
+                    new_revision=1,
+                    artifact_ref="sha256:" + "a" * 64,
+                    manifest_hash="b" * 64,
+                ),
+                "step_up": lambda: store.consume_step_up_assertion(
+                    assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+                ),
+                "human_reservation": lambda: store.reserve_human_decision_action(
+                    tenant_id="fixture",
+                    governed_action_key="sha256:" + "a" * 64,
+                    reservation_id="stale",
+                    binding_sha256="sha256:" + "b" * 64,
+                    now=instant,
+                    lease_seconds=300,
+                    record_valid_until=instant + timedelta(hours=1),
+                ),
+                "worker_heartbeat": lambda: store.heartbeat_worker(
+                    worker_id="worker-A", state="running", lease_seconds=300
+                ),
+                "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+            }
+            with pytest.raises(ControlJobLeaseLostError):
+                operations[operation]()
+            assert _database_rows(database) == before
+            observed.append(operation)
+    
+        worker = ControlWorker(store=store, handler=handler, worker_id="worker-A", lease_seconds=300)
+>       assert worker.dispatch_once()
+               ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_dur_02_process.py:292: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/services/control_worker.py:159: in dispatch_once
+    self._run_with_lease_heartbeat(job)
+src/polisyos/runtime/http/services/control_worker.py:253: in _run_with_lease_heartbeat
+    self._handler(job)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+job = ControlJobRecord(job_id='dur02-current-job', kind='workflow_run', state='running', run_id='dur02-current-run', pipelin...ke_refs': [], 'producer_ref': 'runtime.control_plane_store', 'schema_version': 'policyos.evidence_spine_handoff.v1'}]})
+
+    def handler(job: Any) -> None:
+        with sqlite3.connect(database) as connection:
+            connection.execute(
+                "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                ((datetime.now(UTC) - timedelta(seconds=1)).isoformat(), job.job_id),
+            )
+        assert _worker_child(database, "takeover")["attempt"] == 2
+        admin = ControlPlaneStore(backend="sqlite", sqlite_path=database)
+        _create_control_job(admin, "pending-child")
+        before = _database_rows(database)
+        instant = datetime.now(UTC)
+        operations = {
+            "upsert": lambda: store.upsert_progress(job_id=job.job_id, progress={"stale": True}),
+            "event": lambda: store.append_event(
+                job_id=job.job_id, event_type="stale", payload={"stale": True}
+            ),
+            "outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id=job.job_id
+            ),
+            "child_event": lambda: store.append_event(
+                job_id="pending-child", event_type="stale", payload={"stale": True}
+            ),
+            "child_outbox": lambda: store.enqueue_outbox_event(
+                topic="stale", payload={"stale": True}, job_id="pending-child"
+            ),
+            "create": lambda: _create_control_job(store, "stale-created-child"),
+            "mark_running": lambda: store.mark_running(job_id=job.job_id, worker_id="worker-A"),
+            "lease_next": lambda: store.lease_next_job(worker_id="worker-A"),
+            "scenario": lambda: store.compare_and_set_scenario_head(
+                scenario_id="stale",
+                baseline_run_id="run",
+                expected_revision=0,
+                new_revision=1,
+                artifact_ref="sha256:" + "a" * 64,
+                manifest_hash="b" * 64,
+            ),
+            "step_up": lambda: store.consume_step_up_assertion(
+                assertion_id="stale-assertion", expires_at=int(instant.timestamp()) + 300
+            ),
+            "human_reservation": lambda: store.reserve_human_decision_action(
+                tenant_id="fixture",
+                governed_action_key="sha256:" + "a" * 64,
+                reservation_id="stale",
+                binding_sha256="sha256:" + "b" * 64,
+                now=instant,
+                lease_seconds=300,
+                record_valid_until=instant + timedelta(hours=1),
+            ),
+            "worker_heartbeat": lambda: store.heartbeat_worker(
+                worker_id="worker-A", state="running", lease_seconds=300
+            ),
+            "worker_release": lambda: store.release_worker(worker_id="worker-A"),
+        }
+>       with pytest.raises(ControlJobLeaseLostError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError'>
+
+tests/unit/remediation/test_dur_02_process.py:286: Failed
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_dur_02_process.py::test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[upsert]
+FAILED tests/unit/remediation/test_dur_02_process.py::test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[event]
+FAILED tests/unit/remediation/test_dur_02_process.py::test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[outbox]
+FAILED tests/unit/remediation/test_dur_02_process.py::test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[child_event]
+FAILED tests/unit/remediation/test_dur_02_process.py::test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[child_outbox]
+FAILED tests/unit/remediation/test_dur_02_process.py::test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[create]
+FAILED tests/unit/remediation/test_dur_02_process.py::test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[mark_running]
+FAILED tests/unit/remediation/test_dur_02_process.py::test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[lease_next]
+FAILED tests/unit/remediation/test_dur_02_process.py::test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[scenario]
+FAILED tests/unit/remediation/test_dur_02_process.py::test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[step_up]
+FAILED tests/unit/remediation/test_dur_02_process.py::test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[human_reservation]
+FAILED tests/unit/remediation/test_dur_02_process.py::test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[worker_heartbeat]
+FAILED tests/unit/remediation/test_dur_02_process.py::test_actual_stale_bound_handler_cannot_publish_through_sibling_mutation_inlets[worker_release]

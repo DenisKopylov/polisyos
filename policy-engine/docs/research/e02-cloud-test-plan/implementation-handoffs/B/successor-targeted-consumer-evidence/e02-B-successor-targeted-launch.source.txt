@@ -1,0 +1,36 @@
+from pathlib import Path
+import os,subprocess,json,hashlib
+root=Path('/workspace/e02-B-current-coordination');prod=root/'policy-engine';py=root/'.polisyos/e02-B-current/environment/bin/python';h=prod/'docs/research/e02-cloud-test-plan/implementation-handoffs/B'
+sha='0fdc39831bc95f059dd220c054494fd410bde9da'
+def git(*a):return subprocess.check_output(['git','-C',str(root),*a],text=True).strip()
+assert git('rev-parse','HEAD')==sha and git('status','--porcelain')==''
+raw=Path('/tmp/e02-B-successor-targeted-0fd');raw.mkdir(exist_ok=False)
+paths=[
+ 'tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py',
+ 'tests/unit/scientist/orchestration/engine/test_checkpoint.py',
+ 'tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py',
+ 'tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py',
+ 'tests/unit/scientist/orchestration/engine/test_async_executor.py',
+ 'tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py',
+ 'tests/integration/scientist/test_checkpoint_resume.py',
+ 'tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py',
+ 'tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py',
+ 'tests/integration/scientist/test_parallel_tier_compensation_oracle.py',
+ 'tests/unit/foundry/methods/test_compiler_leader_termination_e02.py',
+ 'tests/unit/core/artifacts/test_put_integrity_retry.py',
+ 'tests/unit/core/artifacts/test_import_admission_noop.py',
+ 'tests/unit/core/artifacts/test_transfer_generation_publication.py',
+ 'tests/unit/core/artifacts/test_verification_failure_snapshot_report.py',
+ 'tests/unit/core/artifacts/test_cas_integrity_report.py',
+ 'tests/unit/core/artifacts/test_artifact_store_protocol.py',
+ 'tests/unit/core/artifacts/test_multi_tenant_shared_cas.py']
+assert all((prod/p).is_file() for p in paths)
+env=dict(os.environ)
+for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS']:env.pop(k,None)
+env.update(PYTHONPATH=str(prod/'src')+':'+str(prod),POLISYOS_METRICS_PORT='0',UV_PROJECT_ENVIRONMENT=str(py.parent.parent),UV_NO_SYNC='1',TIKTOKEN_CACHE_DIR=str(root/'.polisyos/e02-B-current/tools/tokenizer-input/cache'),E02_ORACLE_PRODUCT_ROOT=str(prod))
+argv=[str(py),'-m','pytest','-vv',*paths,'--basetemp',str(raw/'pytest'),'-o','cache_dir='+str(raw/'cache'),'--junitxml',str(raw/'native.xml')]
+profile={'sha':sha,'tree':git('rev-parse','HEAD^{tree}'),'argv':argv,'files':paths,'file_count':len(paths),'environment':{k:env.get(k) for k in ['PYTHONPATH','UV_PROJECT_ENVIRONMENT','UV_NO_SYNC','POLISYOS_METRICS_PORT','TIKTOKEN_CACHE_DIR','E02_ORACLE_PRODUCT_ROOT']},'numeric_caps':{k:env.get(k) for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS']},'native_file_identities':[{'path':p,'sha256':hashlib.sha256((prod/p).read_bytes()).hexdigest()} for p in paths]}
+(raw/'profile.json').write_text(json.dumps(profile,indent=2)+'\n')
+result=subprocess.run([str(py),str(h/'final-root-evidence/capture_frozen.py'),'--repo',str(root),'--tag','successor-targeted-0fd','--',*argv],env=env,cwd=root)
+assert git('rev-parse','HEAD')==sha and git('status','--porcelain')==''
+raise SystemExit(result.returncode)

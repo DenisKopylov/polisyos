@@ -1,0 +1,6 @@
+{"source_file": "/workspace/e02-B-current-cas-generation/policy-engine/src/polisyos/core/artifacts/store.py", "source_sha256": "8aaa4936dc6581cee57b279dbe538ec94a303d29a1ba2e95bd691067e38ce1d3", "fixture_root": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/cas-duplicate-inventory-0jg7p177", "source_consumed": 64, "source_total": 64, "elapsed": 0.6399401539965766, "state": "aborted", "abort_reason": "deadline", "admitted": 1, "finished": 1, "inventory_exhausted": true, "statuses": ["unsigned", "error"]}
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/cas_duplicate_inventory_probe.py", line 22, in <module>
+    assert len(consumed)<64,'dedup must check absolute admission while traversing supplied duplicates'
+           ^^^^^^^^^^^^^^^^
+AssertionError: dedup must check absolute admission while traversing supplied duplicates

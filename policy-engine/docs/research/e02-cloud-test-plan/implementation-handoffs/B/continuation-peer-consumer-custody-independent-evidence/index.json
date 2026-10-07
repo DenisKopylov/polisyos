@@ -1,0 +1,48 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit-initial.source.txt",
+      "bytes": 14031,
+      "sha256": "470dcd9f43939202dc37be770ba37c7825440c389ed07c254bd73c4131f0fde4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit-initial-stdout.txt",
+      "bytes": 1737,
+      "sha256": "53c50cb9561b8ebc3af6ae9b64c8bbdaa31dd885588930adc44cf7d0e474cfca"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit-second.source.txt",
+      "bytes": 13941,
+      "sha256": "5c8cdcbf87eb50a89a0a0a55f1c99166f9fc93d3f88ca1e5454ae162632ed618"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit-second-stdout.txt",
+      "bytes": 253,
+      "sha256": "ab5f1d6ba9d06564d1cef881257d50c73bbbffce3a1a0948397ffbd26858962d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit.source.txt",
+      "bytes": 15446,
+      "sha256": "2afef11b66e867897487b7187aeb3e35e75e76d40aab970f73bf69e49b87d60d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit.json",
+      "bytes": 58251,
+      "sha256": "33c1cb27e056ae29c79130d3b9bf9ea46783c3977e7c45aadda9bec830f709ee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-audit-stdout.txt",
+      "bytes": 38032,
+      "sha256": "92f3e68bee3ae3979e571378721ce5b2cf4794b4c02af35760775b51935f6249"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-peer-consumer-custody-independent-evidence/peer-packet-review.json",
+      "bytes": 5632,
+      "sha256": "ab08890d833877edd4da0ecc8016eff89e8f0217b0af5996db2a3b7adf8fc52f"
+    }
+  ],
+  "payload_count": 8,
+  "qualification": "Complete independent Git-only metadata/output audit. Peer raw outputs remain once at their exact immutable refs; no native replay, source changes or output transplant.",
+  "payload_bytes": 147323
+}

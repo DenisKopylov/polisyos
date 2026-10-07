@@ -1,0 +1,93 @@
+{
+  "schema_version": "1.2",
+  "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+  "coordination_mode": "shared_posix_file_lock",
+  "ledger_id": "ledger:574e79fdc6ab0d2a",
+  "revision": 2,
+  "updated_at": "2026-10-06T22:12:28.388822Z",
+  "last_writer": {
+    "host_id": "b878f4efbdfc",
+    "writer_id": "b878f4efbdfc:567574:actual-worker-budget.json",
+    "pid": 567574
+  },
+  "recent_mutations": [
+    {
+      "revision": 0,
+      "operation": "bootstrap",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567574:actual-worker-budget.json",
+        "pid": 567574
+      },
+      "committed_at": "2026-10-06T22:12:28.375946Z"
+    },
+    {
+      "revision": 1,
+      "operation": "admit_provider_intent",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567574:actual-worker-budget.json",
+        "pid": 567574
+      },
+      "committed_at": "2026-10-06T22:12:28.382880Z"
+    },
+    {
+      "revision": 2,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:567574:actual-worker-budget.json",
+        "pid": 567574
+      },
+      "committed_at": "2026-10-06T22:12:28.388814Z"
+    }
+  ],
+  "state": {
+    "limits": {
+      "policy_translator": {
+        "key": "policy_translator",
+        "max_usd": "10"
+      },
+      "policy_briefing": {
+        "key": "policy_briefing",
+        "max_usd": "10"
+      }
+    },
+    "spent": {},
+    "provider_spent": {},
+    "reserved": {
+      "policy_translator": "0.06246",
+      "policy_briefing": "0.06246"
+    }
+  },
+  "spend_receipts": {},
+  "completion_obligations": {
+    "llm-producer:6adb39685e8041c5a1b439019f950846": {
+      "obligation_id": "llm-producer:6adb39685e8041c5a1b439019f950846",
+      "event_payload": {
+        "event_id": "llm-producer:6adb39685e8041c5a1b439019f950846",
+        "request_digest": "sha256:070717ddaca9bf4038ea3d43716ef047c6261c20f6d12900902b77bac5d365f0",
+        "response_digest": "sha256:5db37c22133d749b92c66cf66e8978b91ea3383b919d1cdbcf90e2fcb11664f8",
+        "model": "explicit-worker-oracle-model",
+        "provider": "actual-sdk-boundary-fixture",
+        "amount": null,
+        "cost_origin": "unknown",
+        "kind": "provider",
+        "origin_event_id": null
+      },
+      "event_digest": "sha256:0ed608f34396150a6441d740504344c7eacce6d3692738e89b55bcbe05f024ac",
+      "run_id": "same-actual-worker-run",
+      "owner_epoch": "567574:97c3cb6925284bfebddd8c3cfec428dc",
+      "budget_keys": [
+        "policy_translator",
+        "policy_briefing"
+      ],
+      "reserved_amounts": {
+        "policy_translator": "0.06246",
+        "policy_briefing": "0.06246"
+      },
+      "phase": "cost_unknown",
+      "known_receipt_ids": []
+    }
+  }
+}

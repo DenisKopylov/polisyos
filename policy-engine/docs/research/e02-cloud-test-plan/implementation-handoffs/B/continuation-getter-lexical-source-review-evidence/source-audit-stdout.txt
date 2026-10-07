@@ -1,0 +1,21 @@
+{
+  "source_sha": "7c05686dbd8427fa2e8bf217827046acef097058",
+  "source_tree": "1c705c31775935039c2823b0c70f9f1f090f1411",
+  "final_narrow_delta_paths": [
+    "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py"
+  ],
+  "prior_guard_function_ast_equal": {
+    "_instructions": true,
+    "_function_captures": true,
+    "_module_paths": true,
+    "_module_capture": true,
+    "_external_member_boundary": true,
+    "_unavailable": true,
+    "_version": true,
+    "implementation_identity_projection": true
+  },
+  "verdict": "NONBLOCKING within declared ordinary-function finite getter family",
+  "audit_errors": []
+}

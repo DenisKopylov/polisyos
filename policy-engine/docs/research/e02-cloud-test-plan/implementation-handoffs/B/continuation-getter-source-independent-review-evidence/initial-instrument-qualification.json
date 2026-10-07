@@ -1,0 +1,24 @@
+{
+  "schema": "policyos.e02.instrument_qualification.v1",
+  "outcome": "ERROR",
+  "actual_source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+  "original_command": [
+    "python3",
+    "/tmp/e02-B-cas-getter-review-20261007/inspect.py.txt",
+    "/tmp/e02-B-cas-getter-review-20261007/inspection.json"
+  ],
+  "original_full_output": {
+    "path": "inspection-stdout.txt",
+    "bytes": 165778,
+    "sha256": "716ec8ac99ec41f840ae4d77b006c28bb8bf780518aef97514e6067597e02b23"
+  },
+  "original_derived_metadata_ignored": {
+    "path": "/tmp/e02-B-cas-getter-review-20261007/inspection.json",
+    "bytes": 174366,
+    "sha256": "097e39828d329193492c4f6431a7ca63ba22916d96b34ed1b415eed9b7796c22",
+    "receiver_availability": "NOT_ESTABLISHED; literal instrument and complete stdout committed for replay"
+  },
+  "error": "Wrong unrestricted root6fa-to-foreignbranch lineage selected473 changed paths; not an authoredgetter four-path footprint. Source reads and eight AST equality checks were valid, but complete footprint predicate was ERROR.",
+  "correction": "Separate final inspector uses exact authoredslice e82ac5834ee481051f905edfe0bd68ba19dcc6ad→0903; selected root6fa bytes retain explicit projection scope; original instrument/output not overwritten.",
+  "root_source_or_runtime_defect": false
+}

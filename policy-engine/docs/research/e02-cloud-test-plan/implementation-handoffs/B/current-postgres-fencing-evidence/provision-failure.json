@@ -1,0 +1,46 @@
+{
+  "observed_utc": "2026-10-06T18:13:57.739432+00:00",
+  "provision_driver_exit": 1,
+  "docker_run_child_exit": "not_preserved_by_first_driver; failure stdout exact; conventional125 is not a receipt claim",
+  "readiness": "NOT_ESTABLISHED_RESOURCE",
+  "actions": "No container/database cleanup, no service restart, no global environment mutation",
+  "partial-container": {
+    "command": [
+      "/usr/local/bin/docker",
+      "--host",
+      "unix:///var/run/docker.sock",
+      "inspect",
+      "e02-b38-pg-20261006-143b68a"
+    ],
+    "exit_code": 1,
+    "output": "/tmp/e02-B38-pg-evidence/partial-container.txt"
+  },
+  "retained-volume": {
+    "command": [
+      "/usr/local/bin/docker",
+      "--host",
+      "unix:///var/run/docker.sock",
+      "volume",
+      "inspect",
+      "e02-b38-pg-20261006-143b68a-data"
+    ],
+    "exit_code": 0,
+    "output": "/tmp/e02-B38-pg-evidence/retained-volume.json"
+  },
+  "retained-image": {
+    "command": [
+      "/usr/local/bin/docker",
+      "--host",
+      "unix:///var/run/docker.sock",
+      "image",
+      "inspect",
+      "postgres:17-alpine"
+    ],
+    "exit_code": 0,
+    "output": "/tmp/e02-B38-pg-evidence/retained-image.json",
+    "RepoDigests": [
+      "postgres@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24"
+    ],
+    "Id": "sha256:79bd7c99e923138f136f8009d6bffa66e21e9d4fda5c0c561b00fc9c90cfe537"
+  }
+}

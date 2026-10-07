@@ -1,0 +1,24 @@
+{
+  "command": [
+    "/tmp/e02-B-la057-final-dd9584728bd9/installed-env/bin/python",
+    "-I",
+    "-B",
+    "-c",
+    "import importlib.metadata,json,sys;print(json.dumps({'python':sys.executable,'version':sys.version,'distributions':{d.metadata['Name']:d.version for d in importlib.metadata.distributions()}},sort_keys=True))"
+  ],
+  "cwd": "/tmp/e02-B-la057-final-dd9584728bd9",
+  "start_utc": "2026-10-06T19:09:08.164065+00:00",
+  "end_utc": "2026-10-06T19:09:08.415349+00:00",
+  "wall_s": 0.25129286698938813,
+  "child_maxrss_platform_units": 14568,
+  "maxrss_unit": "KiB on Linux; bytes on macOS",
+  "exit": 0,
+  "output": "/tmp/e02-B-la057-final-dd9584728bd9/consumer-environment.txt",
+  "output_bytes": 290,
+  "output_sha256": "405967b66929faa3715dadc1694319919f1ca6741818e496e57fcda3c953a06d",
+  "source": {
+    "head": "dd9584728bd96f204983615216efdbc58117e713",
+    "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+    "status": ""
+  }
+}

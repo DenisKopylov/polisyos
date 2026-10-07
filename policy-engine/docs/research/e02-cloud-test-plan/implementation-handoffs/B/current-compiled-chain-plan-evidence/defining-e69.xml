@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="19" time="0.572" timestamp="2026-10-06T21:22:35.529383+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.foundry.methods.artifacts.test_compiled_chain_plan" name="test_real_cas_reopen_restores_payload_occurrences_and_executes[False]" time="0.117" /><testcase classname="tests.unit.foundry.methods.artifacts.test_compiled_chain_plan" name="test_real_cas_reopen_restores_payload_occurrences_and_executes[True]" time="0.065" /><testcase classname="tests.unit.foundry.methods.artifacts.test_compiled_chain_plan" name="test_persisted_plan_mutation_refuses_before_body[required-edge]" time="0.019" /><testcase classname="tests.unit.foundry.methods.artifacts.test_compiled_chain_plan" name="test_persisted_plan_mutation_refuses_before_body[order]" time="0.016" /><testcase classname="tests.unit.foundry.methods.artifacts.test_compiled_chain_plan" name="test_persisted_plan_mutation_refuses_before_body[cycle]" time="0.016" /><testcase classname="tests.unit.foundry.methods.artifacts.test_compiled_chain_plan" name="test_persisted_plan_mutation_refuses_before_body[missing-node]" time="0.016" /><testcase classname="tests.unit.foundry.methods.artifacts.test_compiled_chain_plan" name="test_persisted_plan_mutation_refuses_before_body[sparse]" time="0.016" /><testcase classname="tests.unit.foundry.methods.artifacts.test_compiled_chain_plan" name="test_persisted_plan_mutation_refuses_before_body[foreign]" time="0.016" /><testcase classname="tests.unit.foundry.methods.artifacts.test_compiled_chain_plan" name="test_persisted_plan_mutation_refuses_before_body[bool-index]" time="0.017" /><testcase classname="tests.unit.foundry.methods.artifacts.test_compiled_chain_plan" name="test_current_abi_drift_refuses_before_body" time="0.017" /><testcase classname="tests.unit.foundry.methods.artifacts.test_compiled_chain_plan" name="test_repeated_fqn_occurrences_reopen_with_nearest_earlier_requirement" time="0.090"><failure message="AssertionError: assert ['produce', '...e', 'consume'] == ['produce', '...e', 'produce']&#10;  &#10;  At index 1 diff: 'produce' != 'consume'&#10;  Use -v to get more diff">tmp_path = PosixPath('/dev/shm/e02-B-cmp-b43-freeze/tmp-e69/test_repeated_fqn_occurrences_0')
+
+    def test_repeated_fqn_occurrences_reopen_with_nearest_earlier_requirement(tmp_path):
+        fixture = _chain()
+        composer = MethodComposer(registry=fixture.registry)
+        first = composer.add(fixture.classes[0].signature.fqn, factor=3)
+        dependent = composer.add(fixture.classes[1].signature.fqn, offset=5)
+        second = composer.add(fixture.classes[0].signature.fqn, factor=3)
+        original = composer.build()
+        cas = FileSystemCAS(tmp_path / "cas")
+        ref = store_compiled_chain_plan(cas, CompiledChainPlan.from_chain(original))
+        restored = load_compiled_chain_plan(
+            FileSystemCAS(tmp_path / "cas"), ref, registry=fixture.registry
+        )
+        assert restored.dag.predecessors[dependent.id] == frozenset({first.id})
+        assert restored.get_node(first.id).instance_index == 0
+        assert restored.get_node(second.id).instance_index == 1
+        assert restored.execution_order == original.execution_order
+        result = restored.execute_heterogeneous(state={"x": 4}, registry=fixture.registry)
+        assert result.final_state["total"] == 17
+&gt;       assert [name for name, _params in fixture.calls] == ["produce", "consume", "produce"]
+E       AssertionError: assert ['produce', '...e', 'consume'] == ['produce', '...e', 'produce']
+E         
+E         At index 1 diff: 'produce' != 'consume'
+E         Use -v to get more diff
+
+tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py:206: AssertionError</failure></testcase><testcase classname="tests.unit.foundry.methods.artifacts.test_compiled_chain_plan" name="test_selected_manifest_schema_is_consumed[foreign-plan]" time="0.016" /><testcase classname="tests.unit.foundry.methods.artifacts.test_compiled_chain_plan" name="test_selected_manifest_schema_is_consumed[polisyos.foundry.compiled_chain_plan]" time="0.015" /><testcase classname="tests.unit.foundry.methods.artifacts.test_compiled_chain_plan" name="test_non_json_payload_refused_at_real_producer[nan]" time="0.010" /><testcase classname="tests.unit.foundry.methods.artifacts.test_compiled_chain_plan" name="test_non_json_payload_refused_at_real_producer[value1]" time="0.011" /><testcase classname="tests.unit.foundry.methods.artifacts.test_compiled_chain_plan" name="test_non_json_payload_refused_at_real_producer[value2]" time="0.010" /><testcase classname="tests.unit.foundry.methods.artifacts.test_compiled_chain_plan" name="test_non_json_payload_refused_at_real_producer[value3]" time="0.010" /><testcase classname="tests.unit.foundry.methods.artifacts.test_compiled_chain_plan" name="test_cyclic_python_payload_refused_at_real_producer" time="0.011" /><testcase classname="tests.unit.foundry.methods.artifacts.test_compiled_chain_plan" name="test_unprofiled_reference_is_not_a_selected_plan" time="0.015" /></testsuite></testsuites>

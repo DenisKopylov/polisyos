@@ -1,0 +1,56 @@
+{
+  "target_sha": "6b0e799678e3538bb8940b8a4fd6374c6249a3f3",
+  "target_tree": "0cfe54f1264514e4d7a101c963ec64e71b66c66e",
+  "cwd": "/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-release-base-input/policy-engine",
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "--tb=short",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-ra",
+    "--benchmark-storage=file://./_cache/benchmarks",
+    "tests/unit/core/artifacts/test_batch_completion_admission.py",
+    "--basetemp=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-release-base-replay-tmp",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/batch-release-base-replay-cache",
+    "--junitxml=/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/raw/batch-release-base-replay.xml"
+  ],
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "python_version": "3.14.2",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "PYTHONPATH": "src",
+  "property_removal": null,
+  "returncode": 1,
+  "wall_s": 6.828591608995339,
+  "max_rss_kib": 108916,
+  "runner_quota": null,
+  "rusage_boundary": "os.wait4 exact child PID kernel child/descendant accounting; not VM peak",
+  "input_closure": {
+    "base_sha": "6b0e799678e3538bb8940b8a4fd6374c6249a3f3",
+    "archive": {
+      "paths": [
+        "policy-engine/src",
+        "policy-engine/tests",
+        "policy-engine/pytest.ini",
+        "policy-engine/pyproject.toml",
+        "policy-engine/uv.lock"
+      ],
+      "bytes": 92395520,
+      "sha256": "f42ecde94f784186ffd87eabcc788eb26dc084b26715163fa0936257dfcca3fc"
+    },
+    "overlay": {
+      "ref": "policy-engine/tests/unit/core/artifacts/test_batch_completion_admission.py@98cd038b56d08ab33567bce6e7211d77986df326",
+      "sha256": "2ba68f1c9b0524ea648aef179ae63bdb20d6633571064d533282eadb51599503"
+    },
+    "worker_overlay": {
+      "ref": "policy-engine/tests/unit/core/artifacts/batch_duplicate_worker.py@98cd038b56d08ab33567bce6e7211d77986df326",
+      "sha256": "085beef4feea22f7cc96fcb4fb5bff07d7ab29132008c03c37a7647f88224130"
+    },
+    "custody_boundary": "Tracked projection inside admitted CAS lane ignored scratch; no new Git worktree or precreation claim."
+  }
+}

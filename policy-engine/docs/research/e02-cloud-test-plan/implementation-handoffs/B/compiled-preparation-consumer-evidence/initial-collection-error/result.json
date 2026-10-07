@@ -1,0 +1,75 @@
+{
+  "artifacts": [
+    {
+      "bytes": 37,
+      "path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/cache/.gitignore",
+      "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd"
+    },
+    {
+      "bytes": 191,
+      "path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/cache/CACHEDIR.TAG",
+      "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4"
+    },
+    {
+      "bytes": 302,
+      "path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/cache/README.md",
+      "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad"
+    },
+    {
+      "bytes": 85,
+      "path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/cache/v/cache/lastfailed",
+      "sha256": "7e2101f9a18c561f1aba6951c7295a5f936b4c7ad09bf5431a76184324a07726"
+    },
+    {
+      "bytes": 110,
+      "path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/cache/v/cache/nodeids",
+      "sha256": "836c83f9a1914b2714f86af256cbb2b7237529d5340a2b294a83b8dcbb3b9863"
+    },
+    {
+      "bytes": 70161,
+      "path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/module-origins.jsonl",
+      "sha256": "c263cc58b1657df38ff3635de61566d01a0ccb4433baaf086a5fb1b0b3826016"
+    },
+    {
+      "bytes": 3172,
+      "path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/native-stdout.txt",
+      "sha256": "f0f496b2048f59e707fa075e4f620e7d50d89411ea3a964807307f9e0bc6bfdf"
+    },
+    {
+      "bytes": 1248,
+      "path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/native.xml",
+      "sha256": "d8c35e5c49d831db121b538f1c1d052eb150e364961450315640100f99aaf0d8"
+    },
+    {
+      "bytes": 15251,
+      "path": "/tmp/e02-B-compiled-preparation-358fee80e6e1/profile.json",
+      "sha256": "3bd99024a3b4b63c6db024c8f210df40269d7fd2212905069e8bce376db64582"
+    }
+  ],
+  "counts": {
+    "actual_cases": 1,
+    "error": 1,
+    "failed": 0,
+    "passed": 0,
+    "skipped": 0
+  },
+  "elapsed_seconds": 3.621298725003726,
+  "finished_utc": "2026-10-06T20:58:39Z",
+  "returncode": 2,
+  "rusage_exact_pytest_pid": {
+    "maxrss_kib": 236704,
+    "pid": 483682,
+    "system_seconds": 0.5980019999999999,
+    "user_seconds": 3.299502
+  },
+  "source_after": {
+    "head": "cd337675930d7c1822671a27102b83025e57e95a",
+    "status": "",
+    "tree": "53397ed853aa3cdb2cc491aa06f0912809148449"
+  },
+  "source_before": {
+    "head": "cd337675930d7c1822671a27102b83025e57e95a",
+    "status": "",
+    "tree": "53397ed853aa3cdb2cc491aa06f0912809148449"
+  }
+}

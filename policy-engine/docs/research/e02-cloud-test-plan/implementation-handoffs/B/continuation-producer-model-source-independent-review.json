@@ -1,0 +1,203 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "continuation-producer-model-source-independent-review",
+  "closure_ids": [],
+  "bundle_ids": [
+    "EXE-01",
+    "WIRE-01"
+  ],
+  "slice_base_sha": "d81e7c68a83850834bbe48c492c87975010e79ba",
+  "implementation_commits": [
+    "5b1bc6032edeb0f668293b36b4df74d6fc70955c"
+  ],
+  "candidate_tree_sha": "66c218b6c9904f3a6ddabcf6181ee0b450aefefa",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-source-independent-offline-evidence/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-source-independent-offline-evidence/git-readback.json"
+  ],
+  "baseline_cells": [],
+  "baseline_role": "No baseline cell or summary supplies proof of a new candidate. Source-only foreign mechanism review with exact committed source; inaccessible local deciding runtime/custody bytes are not promoted.",
+  "checks": [
+    {
+      "command": {
+        "method": "GitHub MCP GET",
+        "calls": [
+          "https://api.github.com/repos/DenisKopylov/polisyos/git/commits/d18fe09b5bc0367c966011144a5418f836b9a4b7",
+          "https://api.github.com/repos/DenisKopylov/polisyos/compare/2be5a49784403c875742588299d78639f5e8b6ef...d18fe09b5bc0367c966011144a5418f836b9a4b7",
+          "fetch_file(ref=d18fe09b5bc0367c966011144a5418f836b9a4b7): state_branching.py, nearest README, release fragment, exact owner test"
+        ]
+      },
+      "target_sha": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+      "environment": {
+        "access": "GitHub MCP read-only commit/compare/file reads and append-only Git object publication",
+        "repository": "DenisKopylov/polisyos",
+        "cloud_filesystem": "Unavailable during this compact MCP preparation; ROOT subsequently reported recovery, but old local raw/publisher completion has not been independently revalidated by this source-only packet.",
+        "candidate_imports": "none",
+        "candidate_runtime": "UNRUN",
+        "numeric_quotas_added": false,
+        "reviewer": "independent B CAS leaf reviewing EXE owner source",
+        "time_role": "Source-only MCP preparation during outage/recovery; no new root runtime"
+      },
+      "input_closure": {
+        "source_sha": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+        "source_tree": "d4faa64e884c863bdd8c4692432bff4bbd102c54",
+        "source_blob": "b15855c14c5bd6eb1e662ac3ff7c095ac4ab6c50",
+        "source_base_sha": "2be5a49784403c875742588299d78639f5e8b6ef",
+        "source_history_from_first_checkpoint": "3bd353d42e06c5c879c580b2a6c61a00226ee5a2",
+        "remote_git_identity": {
+          "git_sha": "5b1bc6032edeb0f668293b36b4df74d6fc70955c",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-source-independent-offline-evidence/git-readback.json",
+          "blob_sha": "2b8999895bc54da977bf58285e25d7e46df22aaf",
+          "utf8_bytes": 5441
+        }
+      },
+      "outcome": "PASS",
+      "output": {
+        "complete_concise_result": "Exact d18 tree/parent, all six source-history commits and four authorized changed paths confirmed remotely. Full source blob b15855c14c5bd6eb1e662ac3ff7c095ac4ab6c50 matches the prior complete source read. Source/README/release/test blobs and byte counts are retained in git-readback.json. Full initial owner source and successor deltas were independently read; finite source verdict NONBLOCKING with construction, validated-child, live-copy and root-deletion questions resolved in source. Runtime UNRUN.",
+        "committed_review": {
+          "git_sha": "5b1bc6032edeb0f668293b36b4df74d6fc70955c",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-source-independent-offline-evidence/review.json",
+          "blob_sha": "fc7c18e5030764cc0c07c7e876b0eb17e1c5f99b",
+          "utf8_bytes": 7760
+        },
+        "committed_readback": {
+          "git_sha": "5b1bc6032edeb0f668293b36b4df74d6fc70955c",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-source-independent-offline-evidence/git-readback.json",
+          "blob_sha": "2b8999895bc54da977bf58285e25d7e46df22aaf",
+          "utf8_bytes": 5441
+        }
+      },
+      "qualification": "A PASS for independent source/identity review, not executed producer effects or finding closure."
+    },
+    {
+      "command": {
+        "status": "NOT EXECUTED",
+        "required_future_argv": [
+          "<actual admitted integrated candidate environment>/bin/python",
+          "-m",
+          "pytest",
+          "-vv",
+          "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+          "tests/unit/scientist/orchestration/engine/test_producer_model_scope_oracle.py",
+          "--basetemp=<fresh retained isolated scratch>",
+          "--junitxml=<fresh complete output.xml>"
+        ],
+        "required_source_binding": "Final assembled root commit containing d18 owner source and immutable independent test; exact root SHA must be established before execution."
+      },
+      "target_sha": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+      "environment": {
+        "access": "GitHub MCP read-only commit/compare/file reads and append-only Git object publication",
+        "repository": "DenisKopylov/polisyos",
+        "cloud_filesystem": "Unavailable during this compact MCP preparation; ROOT subsequently reported recovery, but old local raw/publisher completion has not been independently revalidated by this source-only packet.",
+        "candidate_imports": "none",
+        "candidate_runtime": "UNRUN",
+        "numeric_quotas_added": false,
+        "reviewer": "independent B CAS leaf reviewing EXE owner source",
+        "time_role": "Source-only MCP preparation during outage/recovery; no new root runtime"
+      },
+      "input_closure": {
+        "source_sha": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+        "source_tree": "d4faa64e884c863bdd8c4692432bff4bbd102c54",
+        "source_blob": "b15855c14c5bd6eb1e662ac3ff7c095ac4ab6c50",
+        "source_base_sha": "2be5a49784403c875742588299d78639f5e8b6ef",
+        "source_history_from_first_checkpoint": "3bd353d42e06c5c879c580b2a6c61a00226ee5a2",
+        "remote_git_identity": {
+          "git_sha": "5b1bc6032edeb0f668293b36b4df74d6fc70955c",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-source-independent-offline-evidence/git-readback.json",
+          "blob_sha": "2b8999895bc54da977bf58285e25d7e46df22aaf",
+          "utf8_bytes": 5441
+        },
+        "independent_test_input": "CMP unique test producer_model_scope_oracle.py; exact integrated version must be pinned from the new root; no author/controller transport summary can replace that binding."
+      },
+      "outcome": "UNRUN",
+      "output": "No new candidate runtime, native/gate, property-removal or imports by this reviewer. Root reports the source projection/archive terminal status not established after official connectivity outage. No completion, phase count or failure cause is inferred.",
+      "qualification": "The command is an explicit future rerun requirement, not an executed command or a claimed current root native target."
+    },
+    {
+      "command": {
+        "status": "RECEIVER REPLAY NOT EXECUTED",
+        "historical_instrument": [
+          "python3",
+          "/tmp/e02-B-cas-tenth-wave-review-20261007/model-root-input-audit.source.txt"
+        ],
+        "required_action": "Recover the literal committed/retained historical instrument and original ec898 snapshot/archive bytes, then recompute the exact declared path_specs; if unavailable, build and record a fresh admitted integrated source projection without claiming the old custody replay."
+      },
+      "target_sha": "ec898674b0a062366af5e7134bf5d3416c0da726",
+      "environment": {
+        "access": "GitHub MCP read-only commit/compare/file reads and append-only Git object publication",
+        "repository": "DenisKopylov/polisyos",
+        "cloud_filesystem": "Unavailable during this compact MCP preparation; ROOT subsequently reported recovery, but old local raw/publisher completion has not been independently revalidated by this source-only packet.",
+        "candidate_imports": "none",
+        "candidate_runtime": "UNRUN",
+        "numeric_quotas_added": false,
+        "reviewer": "independent B CAS leaf reviewing EXE owner source",
+        "time_role": "Source-only MCP preparation during outage/recovery; no new root runtime"
+      },
+      "input_closure": {
+        "historical_tree": "c041ebd45d594345596c16a2d1fd680ea249d886",
+        "historical_archive_sha256": "2db11e4fd69cfcdb37dc2f49fd6d77690a43d3bb737d01e73aa8b9e72d11b197",
+        "historical_archive_path": "/tmp/e02-B-tenth-wave-20261007/frozen-source-native.tar",
+        "receiver_deciding_bytes": "not_established",
+        "initial_instrument_error": "Guessed uv.lock selector was not one of the declared path_specs; its actual initial FAIL is preserved only as a historical observation, not a product failure or current gate."
+      },
+      "outcome": "UNRUN",
+      "output": "Original local metadata outputs/publisher completion have not been revalidated after ROOT's cloud recovery notice. Historical corrected snapshot navigation reported 6800 files, but this compact source review does not deliver those deciding bytes or establish receiver replay. New fulltracked source6b87/archive custody is a separate requested audit and is not claimed here.",
+      "qualification": "Retains original metadata failure/corrected observation without replacing unavailable raw bytes with a new PASS."
+    }
+  ],
+  "property": {
+    "statement": "The canonical ordinary model producer graph has a structurally coherent single original-grant/lifetime admission boundary over supported declared fields, live aliases, validated descendants, copies and deletion; actual effect/replay acceptance is still pending.",
+    "runtime_path": [
+      "Producer entry in Sequential/Async executor or serialized worker",
+      "branch_state before isolation copying and supported ordinary model admission",
+      "Tracked model/container live graph -> replayable journal -> cache/consumer reconciliation",
+      "Executor-owned settled neutral completed state; original producer remains guarded"
+    ],
+    "proxy_divergence": "A typed ArtifactRef/DTO, unchanged journal markers or wire-isolated original caller can coexist with an undeclared ordinary field changing producer/publication bytes. A model_copy or unchanged type label cannot prove admission. Standard validated materialization must reconcile the actual stored child, and a raw root model deletion must not bypass the same originating grant.",
+    "negative_controls": [
+      "Require unchanged actual undeclared typed field/copy-update/root-delete defining assertions before producer/base/publication effects.",
+      "Require custom actual dispatcher hook refusal before construction/copy side effects and ordinary validated descendant/live-alias controls.",
+      "Require matched in-memory generic grant removal to exhibit actual mutation/replay/publication divergence while markers remain, rather than an import/type-only failure.",
+      "All new candidate negative executions in this reviewer packet remain UNRUN; old owner failures stay at their own original refs."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "per_premise_basis": {
+    "canonical_source_and_remote_Git_identity": "independently_reconciled",
+    "source_runtime_effects": "not_established; UNRUN",
+    "historical_local_raw_replay": "not_established after connectivity outage",
+    "owner_source_grade": "finite source-only NONBLOCKING; independent of EXE author",
+    "integrated_acceptance_finding_closure": "not_established; ROOT/G decision remains HELD"
+  },
+  "capability_state_or_finding_state": "NONBLOCKING finite foreign source review of d18; candidate runtime and historical local raw custody receiver replay UNRUN/not_established; closure_ids empty.",
+  "limitations_and_next_owner": [
+    "Only two new documentation evidence files plus this separate v1 handoff are published; no production/test edits, new checkout/helpers, deletions, VM restore, ref repair or numeric quotas.",
+    "Single supported ordinary declared-field BaseModel/RootModel and finite model/container graph; canonical hook identity is bounded before branch copying and wrapper construction.",
+    "Custom mutation/construction hooks/private/extra runtime state/cycles are refused; explicit base-class mutators/reflection/arbitrary custom objects and arbitrary validator effects are outside a Python sandbox claim.",
+    "No arbitrary model-class reconstruction from cache JSON, deployed multi-host worker, scientific/global data or production dataset acceptance.",
+    "Exact B/G transport ancestry is distinct from a normative authorization source. G merge success creates no alternative grant law.",
+    "Original baseline effect failures, metadata selector failure, incomplete projection/archive and gate failures remain historical at their actual source identities; no P41 inheritance waiver.",
+    "GitHub MCP source readback is available; the local large/raw artifacts are not claimed accessible to G. ROOT/G must run the stated fresh admitted integrated controls and preserve literal profiles/stdout/JUnit/negative outputs before acceptance.",
+    "EXE owns mechanism fixes, CMP owns independent ordinary model oracle, and ROOT/G alone determines integrated code and finding closure."
+  ],
+  "evidence_refs": [
+    {
+      "git_sha": "5b1bc6032edeb0f668293b36b4df74d6fc70955c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-source-independent-offline-evidence/review.json",
+      "blob_sha": "fc7c18e5030764cc0c07c7e876b0eb17e1c5f99b",
+      "utf8_bytes": 7760
+    },
+    {
+      "git_sha": "5b1bc6032edeb0f668293b36b4df74d6fc70955c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-model-source-independent-offline-evidence/git-readback.json",
+      "blob_sha": "2b8999895bc54da977bf58285e25d7e46df22aaf",
+      "utf8_bytes": 5441
+    }
+  ],
+  "reviewed_source_sha": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+  "reviewed_source_tree": "d4faa64e884c863bdd8c4692432bff4bbd102c54",
+  "delivery_mode": "append-only GitHub MCP on existing own topic; distinct new metadata commits, original source SHAs unchanged"
+}

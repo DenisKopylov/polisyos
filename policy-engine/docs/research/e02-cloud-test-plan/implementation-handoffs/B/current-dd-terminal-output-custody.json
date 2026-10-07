@@ -1,0 +1,641 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-dd-terminal-output-custody",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "scope_qualification": "Entire B cohort execution accounting; no bundle/finding technical closure by this receipt.",
+  "slice_base_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "slice_base_tree_sha": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+  "implementation_commits": [
+    "c58112d64bd6684120dc7dba5df07b1906402152"
+  ],
+  "candidate_sha": "c58112d64bd6684120dc7dba5df07b1906402152",
+  "candidate_tree_sha": "4b5b773df6481731722f61f4be1cb236bde71143",
+  "runtime_source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "runtime_source_tree_sha": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/case-partition.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/case-partition.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/custody-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/instrument.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/interpretation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/ruff.stdout.txt"
+  ],
+  "baseline_cells": [],
+  "baseline_cells_qualification": "Baseline observations do not decide this actual new source-bound execution accounting.",
+  "checks": [
+    {
+      "name": "native cohort",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-p",
+        "current_cohort_inventory",
+        "@/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort.args",
+        "--continue-on-collection-errors",
+        "--basetemp",
+        "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort-pytest",
+        "-o",
+        "cache_dir=/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort-cache",
+        "--junitxml=/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "target_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+      "environment": {
+        "profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.profile.json@c58112d64bd6684120dc7dba5df07b1906402152",
+        "qualified_scope": "Original actual per-command profiles retained; parser uses same explicit root Python194 profile; Ruff profile/complete wrapper is committed by EXE at6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272."
+      },
+      "input_closure": {
+        "runtime_source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "actual_wrapper_source": "dd9584728bd96f204983615216efdbc58117e713",
+        "raw_identities": [
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort-inventory.json",
+            "bytes": 21042751,
+            "sha256": "c7d05157e5cfa2adb720e24490ca88726fc930c36691eab7b358ea8201bef14d"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-selector.json",
+            "bytes": 1116312,
+            "sha256": "e5475e32e07fe0642a16a9c729ee5ba8c90b0355496e4434dfa0b86dffd123f0"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-selector-lineage.json",
+            "bytes": 47285567,
+            "sha256": "da51116a982d21ba4f79d1b62599d9a6411505f10edd20cdf254ccc3c7262e61"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-dd958-case-partition.json",
+            "bytes": 6962493,
+            "sha256": "63976f5553e797394c94c8ac10462762cc4b350ec6e44c5f9844112a3c31a06b"
+          }
+        ],
+        "limitations": "Hook-time origin census is bounded; not a complete filesystem/transient-child read set. No inherited-red premise established."
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 2923.339981056997,
+      "process_rusage_maxrss_kib": 3309280,
+      "output": {
+        "commit": "c58112d64bd6684120dc7dba5df07b1906402152",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.stdout.txt",
+        "bytes": 3267622,
+        "sha256": "3d3ac32f7a36c9af45e2fcb0605641977794dbad4b9146143baf4fcb0c52b30e"
+      }
+    },
+    {
+      "name": "independent case partition",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+        "--inventory",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort-inventory.json",
+        "--junit",
+        "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort.xml",
+        "--wrapper",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort.json",
+        "--stdout",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort.txt",
+        "--profile",
+        "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort-profile.json",
+        "--selectors",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-selector.json",
+        "--source-sha",
+        "dd9584728bd96f204983615216efdbc58117e713",
+        "--repo",
+        "/workspace/e02-B-current-coordination",
+        "--output",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-dd958-case-partition.json"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "target_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+      "environment": {
+        "profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.profile.json@c58112d64bd6684120dc7dba5df07b1906402152",
+        "qualified_scope": "Original actual per-command profiles retained; parser uses same explicit root Python194 profile; Ruff profile/complete wrapper is committed by EXE at6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272."
+      },
+      "input_closure": {
+        "runtime_source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "actual_wrapper_source": "dd9584728bd96f204983615216efdbc58117e713",
+        "raw_identities": [
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort-inventory.json",
+            "bytes": 21042751,
+            "sha256": "c7d05157e5cfa2adb720e24490ca88726fc930c36691eab7b358ea8201bef14d"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-selector.json",
+            "bytes": 1116312,
+            "sha256": "e5475e32e07fe0642a16a9c729ee5ba8c90b0355496e4434dfa0b86dffd123f0"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-selector-lineage.json",
+            "bytes": 47285567,
+            "sha256": "da51116a982d21ba4f79d1b62599d9a6411505f10edd20cdf254ccc3c7262e61"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-dd958-case-partition.json",
+            "bytes": 6962493,
+            "sha256": "63976f5553e797394c94c8ac10462762cc4b350ec6e44c5f9844112a3c31a06b"
+          }
+        ],
+        "limitations": "Hook-time origin census is bounded; not a complete filesystem/transient-child read set. No inherited-red premise established."
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.569410850002896,
+      "process_rusage_maxrss_kib": 92416,
+      "output": {
+        "commit": "c58112d64bd6684120dc7dba5df07b1906402152",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/case-partition.stdout.txt",
+        "bytes": 2149,
+        "sha256": "8a7871cde47ffedeb9e54c1b0888feed75a7458d20c78538965f2c6bfdd966ec"
+      }
+    },
+    {
+      "name": "all changed Ruff",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "docs/research/e02-cloud-test-plan/closure-decisions/validate_coverage.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch_delta.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch_delta_first.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-batch-evidence/run_batch_release.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-admission-evidence/replay_base.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-current-transfer-evidence/run_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-profile-seam-evidence/probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-snapshot-evidence/replay_base.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cache-type-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/derive-cohort-selector-audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/environment-capture.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/late-flight-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/property-removal-final.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/rate-finite-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/run-affected.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/run-final-llm-126.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/unbound-owner-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-evidence/adjudicate.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-evidence/audit_evidence.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-independent-evidence/denominator.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-batch-consumer-evidence/cas_duplicate_inventory_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline_navigation.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/derive_input_closure.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/read_b73_current.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_native.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/run_native_original.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cas-fixture-independent-review/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-consumer-independent-review/census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal_driver.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/entered-cancel-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-publication-budget-evidence/facade_identity.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-partition-independent-review/source-regex-discriminator.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/composition_environment.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/ruff_delta.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/run_checks.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/run_command.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-final-evidence/test_jit_late_arrival_oracle.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity_environment.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/run_checks.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/run_command.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/source_replacement_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/jit_environment.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/read_only_jit_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/run_checks.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-jit-evidence/run_command.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/local_res03_replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-res03-evidence/res03_artifact_custody.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/inspect-retained.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-deadline-cohort-investigation/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/draft-import-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b152-review/probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/import_worker.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/initial-import-worker.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/initial-test-acceptance.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver_bruteforce.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/solver_consumer.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/successor_test_acceptance.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/composition-acceptance-review/test_acceptance.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/dur02_property_removal.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/probe_bound_upsert.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/run_frozen.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/final/store_mutation_census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/artifact-readback.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/candidate-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/controls.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-exe-owner-independent-review/negative-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gate-execution-independent-audit/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-merged-consumer-review/capture.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-receiver-consumer-evidence/retain_llm_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/replay-previous-production.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume-evidence/run_native.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/read_b73_e56.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle-evidence/run_native.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/probe-extended.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/probe-settled.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe_fbc.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-run-process-independent-review/setup_probe_unrun.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/independent-setup-probe.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-checks/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup-checks/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/context-consumer.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/spend-replay.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-retry-checks/typevar-census.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/journal-candidate.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/journal-negative.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/legacy-ownership.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/presence-resume-candidate.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-independent-review/presence-resume-original.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/additive-current-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-invalid-proof.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-typed-intent-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-owner-attenuation-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/native-owner-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-owned-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/presence-resume-owned-review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/audit-portable.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stream-cleanup-independent-review/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-fixture-independent-review/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure_legacy.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_complete.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_final.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_check.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_native.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_native_legacy.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-gate-audit-preparation/audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/observe_pytest_options.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_frozen.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-directory-independent-review/review.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/normalize_origins.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/review_fix.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-selector-lineage-independent-review/trace.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/environment.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/ruff_selector_audit.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/snapshot.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py",
+        "src/polisyos/common/async_tools.py",
+        "src/polisyos/core/artifacts/__init__.py",
+        "src/polisyos/core/artifacts/_integrity_ops.py",
+        "src/polisyos/core/artifacts/_signature_ops.py",
+        "src/polisyos/core/artifacts/_transfer_ops.py",
+        "src/polisyos/core/artifacts/async_store.py",
+        "src/polisyos/core/artifacts/backends/caching_store.py",
+        "src/polisyos/core/artifacts/cas_integrity_report.py",
+        "src/polisyos/core/artifacts/ir_adapter.py",
+        "src/polisyos/core/artifacts/manifest_profile.py",
+        "src/polisyos/core/artifacts/protocol.py",
+        "src/polisyos/core/artifacts/signing.py",
+        "src/polisyos/core/artifacts/store.py",
+        "src/polisyos/core/components/_cli_crypto.py",
+        "src/polisyos/core/llm/response.py",
+        "src/polisyos/core/llm/settlement.py",
+        "src/polisyos/core/llm/traced_client.py",
+        "src/polisyos/fabric/connectors/pool.py",
+        "src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+        "src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+        "src/polisyos/foundry/methods/artifacts/__init__.py",
+        "src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+        "src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "src/polisyos/foundry/methods/backends/__init__.py",
+        "src/polisyos/foundry/methods/backends/async_chain_executor.py",
+        "src/polisyos/foundry/methods/backends/chain_executor.py",
+        "src/polisyos/foundry/methods/backends/checkpointing.py",
+        "src/polisyos/foundry/methods/compiler/__init__.py",
+        "src/polisyos/foundry/methods/compiler/specialization.py",
+        "src/polisyos/foundry/methods/components/composer.py",
+        "src/polisyos/foundry/methods/components/linker.py",
+        "src/polisyos/foundry/methods/exceptions.py",
+        "src/polisyos/runtime/http/services/control_plane_store.py",
+        "src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "src/polisyos/scientist/orchestration/engine/executor.py",
+        "src/polisyos/scientist/orchestration/engine/idempotency.py",
+        "src/polisyos/scientist/orchestration/engine/retry.py",
+        "src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+        "src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+        "src/polisyos/scientist/orchestration/engine/state_branching.py",
+        "src/polisyos/scientist/orchestration/engine/state_merge.py",
+        "src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "src/polisyos/scientist/orchestration/llm/factory.py",
+        "src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "tests/integration/scientist/test_checkpoint_resume.py",
+        "tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+        "tests/unit/common/installed_wheel_bridge_consumer.py",
+        "tests/unit/common/test_async_tools.py",
+        "tests/unit/common/test_async_tools_installed_wheel.py",
+        "tests/unit/core/artifacts/batch_duplicate_worker.py",
+        "tests/unit/core/artifacts/snapshot_special_path_worker.py",
+        "tests/unit/core/artifacts/test_batch_completion_admission.py",
+        "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py",
+        "tests/unit/core/artifacts/test_import_admission_noop.py",
+        "tests/unit/core/artifacts/test_ir_adapter.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "tests/unit/core/artifacts/test_put_consumer_oracle.py",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+        "tests/unit/core/artifacts/test_transfer_generation_publication.py",
+        "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+        "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+        "tests/unit/fabric/connectors/test_pool_e02.py",
+        "tests/unit/fabric/connectors/test_resilience_e02.py",
+        "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+        "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+        "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "tests/unit/foundry/methods/components/test_composition_e02.py",
+        "tests/unit/foundry/methods/test_compiler_e02.py",
+        "tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+        "tests/unit/foundry/methods/test_linker.py",
+        "tests/unit/remediation/test_cas_02.py",
+        "tests/unit/remediation/test_cas_03.py",
+        "tests/unit/remediation/test_dur_02_process.py",
+        "tests/unit/remediation/test_jit_01.py",
+        "tests/unit/remediation/test_llm_01.py",
+        "tests/unit/remediation/test_res_01.py",
+        "tests/unit/remediation/test_res_04.py",
+        "tests/unit/remediation/test_wire_01.py",
+        "tests/unit/runtime/http/test_control_plane_store.py",
+        "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py",
+        "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+        "tests/unit/scientist/orchestration/engine/_retry_setup_probe.py",
+        "tests/unit/scientist/orchestration/engine/fixtures/remote_scope_worker.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+        "tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+        "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+        "tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+        "tests/unit/scientist/orchestration/engine/test_retry.py",
+        "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+        "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "target_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+      "environment": {
+        "profile": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/native.profile.json@c58112d64bd6684120dc7dba5df07b1906402152",
+        "qualified_scope": "Original actual per-command profiles retained; parser uses same explicit root Python194 profile; Ruff profile/complete wrapper is committed by EXE at6dfa1b4d93019bd483a0b8c2ba3f8ba3ce8e6272."
+      },
+      "input_closure": {
+        "runtime_source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+        "actual_wrapper_source": "dd9584728bd96f204983615216efdbc58117e713",
+        "raw_identities": [
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort-inventory.json",
+            "bytes": 21042751,
+            "sha256": "c7d05157e5cfa2adb720e24490ca88726fc930c36691eab7b358ea8201bef14d"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-selector.json",
+            "bytes": 1116312,
+            "sha256": "e5475e32e07fe0642a16a9c729ee5ba8c90b0355496e4434dfa0b86dffd123f0"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-selector-lineage.json",
+            "bytes": 47285567,
+            "sha256": "da51116a982d21ba4f79d1b62599d9a6411505f10edd20cdf254ccc3c7262e61"
+          },
+          {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-dd958-case-partition.json",
+            "bytes": 6962493,
+            "sha256": "63976f5553e797394c94c8ac10462762cc4b350ec6e44c5f9844112a3c31a06b"
+          }
+        ],
+        "limitations": "Hook-time origin census is bounded; not a complete filesystem/transient-child read set. No inherited-red premise established."
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_s": 0.4645099699991988,
+      "process_rusage_maxrss_kib": 57296,
+      "output": {
+        "commit": "c58112d64bd6684120dc7dba5df07b1906402152",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-dd-terminal-evidence/ruff.stdout.txt",
+        "bytes": 2911509,
+        "sha256": "fbd0d530a76b9eed40e2908c5272f4489fc1c045e03efc3658128f2f9d74ad6b"
+      }
+    }
+  ],
+  "property": {
+    "statement": "Retain actual complete outputs and reconcile every admitted native case and phase before classifying execution; keep output custody and evidence-commit source distinct.",
+    "runtime_path": [
+      "immutable DD registered launcher",
+      "native pytest real whole-file cohort and real subprocess/ledger/CAS/PG consumers",
+      "actual XML/stdout/observer result capture",
+      "independent unchanged case parser27 exact source/input predicates",
+      "complete non-pass reason classification and Git custody"
+    ],
+    "proxy_divergence": "The case parser exits0 while the real cohort has140FAIL600ERROR2SKIP. Parser success proves bounded reconciliation and cannot stand in for runtime property success or finding closure. Future evidence/source HEAD also cannot stand in for actual runtime DD.",
+    "negative_controls": [
+      "All740 failed/error cases and2 real skips remain in complete original output; no test identity or phase is removed.",
+      "21 absent named selectors remain UNRUN; no fabricated passing bodies.",
+      "Both C real consumer refusals remain literal failures.",
+      "Missing OPA backend remains7 literal failures, not successful omitted backend.",
+      "No new mutation/removal native test is claimed by this evidence-only slice."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "per_premise_basis": {
+    "actual_source/output/identity/case/phase_binding": "independently_reconciled",
+    "introducing_commit_or_inherited_red_P41": "not_established",
+    "G_access_to_ignored_inventory_and_raw": "not_established",
+    "later_source_runtime_acceptance": "not_established"
+  },
+  "capability_state_or_finding_state": "Complete bounded native-output custody; native cohort and global code acceptance RED; finding_closure_ids empty.",
+  "observed_native_case_counts": {
+    "PASS": 2880,
+    "FAIL": 140,
+    "ERROR": 600,
+    "XFAIL": 0,
+    "SKIP": 2,
+    "UNRUN": 0
+  },
+  "observed_phase_counts": {
+    "setup/passed/passed": 3022,
+    "call/passed/passed": 2880,
+    "teardown/passed/passed": 3622,
+    "call/failed/failed": 140,
+    "setup/failed/failed": 600,
+    "call/skipped/skipped": 2
+  },
+  "observed_reason_counts": [
+    {
+      "state": "ERROR",
+      "reason_category": "catalog_fetch_source_unreadable",
+      "cases": 559
+    },
+    {
+      "state": "ERROR",
+      "reason_category": "l6_control_artifact_missing",
+      "cases": 41
+    },
+    {
+      "state": "FAIL",
+      "reason_category": "C_old_handle_cleanup_obligation_not_reconciled",
+      "cases": 1
+    },
+    {
+      "state": "FAIL",
+      "reason_category": "C_restored_cap_consumer_effects_before_refusal",
+      "cases": 1
+    },
+    {
+      "state": "FAIL",
+      "reason_category": "catalog_fetch_source_unreadable",
+      "cases": 110
+    },
+    {
+      "state": "FAIL",
+      "reason_category": "l6_control_artifact_missing",
+      "cases": 2
+    },
+    {
+      "state": "FAIL",
+      "reason_category": "other_call_failure_requires_exact_consumer_adjudication",
+      "cases": 19
+    },
+    {
+      "state": "FAIL",
+      "reason_category": "required_opa_backend_unavailable",
+      "cases": 7
+    },
+    {
+      "state": "SKIP",
+      "reason_category": "named_catalog_service_or_recompute_input_absent",
+      "cases": 2
+    }
+  ],
+  "observed_native_whole_file_count": 236,
+  "observed_case_denominator": 3622,
+  "quality_receipt": {
+    "commit": "6ff07b30498079a92c3cb0320bcde3503b25eede",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-successor-final-gate-independent-audit.json",
+    "all8tag_counts": {
+      "PASS": 1,
+      "FAIL": 7
+    },
+    "quality_only_counts": {
+      "PASS": 1,
+      "FAIL": 6
+    }
+  },
+  "raw_not_transferred": [
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort-inventory.json",
+      "bytes": 21042751,
+      "sha256": "c7d05157e5cfa2adb720e24490ca88726fc930c36691eab7b358ea8201bef14d"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-selector.json",
+      "bytes": 1116312,
+      "sha256": "e5475e32e07fe0642a16a9c729ee5ba8c90b0355496e4434dfa0b86dffd123f0"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-selector-lineage.json",
+      "bytes": 47285567,
+      "sha256": "da51116a982d21ba4f79d1b62599d9a6411505f10edd20cdf254ccc3c7262e61"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/successor-final-dd958-case-partition.json",
+      "bytes": 6962493,
+      "sha256": "63976f5553e797394c94c8ac10462762cc4b350ec6e44c5f9844112a3c31a06b"
+    }
+  ],
+  "limitations_and_next_owner": [
+    {
+      "boundary": "Future LLM/durable intent repair",
+      "next_owner": "B runtime writers/reviewers and G",
+      "action": "Replay affected real consumers on exact frozen new source. The DD full cohort remains historic source-bound evidence, never new candidate PASS."
+    },
+    {
+      "boundary": "C restored frontier and cleanup obligations",
+      "next_owner": "C/G",
+      "action": "Use full actual DD XML/input and producer contracts; B does not edit streaming.py."
+    },
+    {
+      "boundary": "Catalog/L6 data admission and A publisher consumers",
+      "next_owner": "A/G local read-only",
+      "action": "Resolve exact missing inputs or replay exact candidate locally; no wholesale production dataset transfer."
+    },
+    {
+      "boundary": "OPA required backend",
+      "next_owner": "G/runtime backend owner",
+      "action": "7 actual failures retain unavailable backend; no success until real backend executes."
+    },
+    {
+      "boundary": "Other19 call failures and all quality failures",
+      "next_owner": "Canonical consumer/architecture/DevX owners and G",
+      "action": "Use full deciding bytes and source/base complete input denominator; P41 inherited attribution remains not_established."
+    },
+    {
+      "boundary": "Ignored recomputable partitions/inventories and giant static graph",
+      "next_owner": "G independent reviewer",
+      "action": "Exact path@hash retained in cloud. Availability outside this VM is not_established; if deciding bytes unavailable rerun exact pinned command."
+    },
+    {
+      "boundary": "Postjob storage capacity/no native Trash",
+      "next_owner": "B/G cloud operator",
+      "action": "No directories, used environments, production or unique data removed or relocated; exact cleanup candidates retained."
+    }
+  ],
+  "cleanup_candidates": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+    "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort-pytest",
+    "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort-cache",
+    "/tmp/e02-B-successor-gate-audit-exe",
+    "/tmp/e02-B38-pg-profile",
+    "/tmp/e02-B-la057-final-dd9584728bd9"
+  ],
+  "cleanup_policy": "No native Trash available. Candidates only; preserve production data, useful source/docs and unique deciding evidence. Never empty Trash or remove permanently.",
+  "publication_state": "implementation committed and re-read locally; normal topic push/readback pending; no predicted future receipt SHA."
+}

@@ -1,0 +1,230 @@
+{
+  "objects": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/container-create.txt",
+      "bytes": 106,
+      "sha256": "81b14eb0635cdf9987b91e50c15c642fbf0aa80347f576284b5169fd55c4e50e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/custody.json",
+      "bytes": 6341,
+      "sha256": "72e4b3528626dd3470ad4cbc685d914128e761d76023a9d7a674ef69a3c24457"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/dependency-install.txt",
+      "bytes": 641,
+      "sha256": "4a9341228413bd9467cd9f15c3c0d92129547694a7d05da704e2833f7fbc05c7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/fetch-image.source.txt",
+      "bytes": 4401,
+      "sha256": "59a4ca56b7abd0914f5ab4f4183cf70eeceeb1e7fe03ba8a7ce50e8f3a514581"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/fetch-image.txt",
+      "bytes": 724,
+      "sha256": "c4b4ea89c9f1b2465dc3547709924513cd49ebbd66ffad1cd77c218a977fde8a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/format-414.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/format-85.txt",
+      "bytes": 115,
+      "sha256": "c8f1dae77430f3f9a814247546620c52c2ab58fdf8cccf2adba16814c7e5a8b8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/image-pull.txt",
+      "bytes": 1540,
+      "sha256": "23b49e47b8450a19a1d09e16d35f2c204ba0d48b94063f7e055dc1c506d0e101"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/image-save.json",
+      "bytes": 328,
+      "sha256": "13ededef3fe31d413fa817027123636c3cbb94a24f12acd1b1a532b3481f130b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/image-save.txt",
+      "bytes": 182,
+      "sha256": "1ff7dbb7fba4e42557793d02c16294a3c3300376c72ec7d1897563a0ca0af9fe"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/input-profile-85.json",
+      "bytes": 2219,
+      "sha256": "2a3a041a3adeb1b81ffd0d7a19f3c978cd8fd6c648e09c65e3d2ae825c285572"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-414-launcher.txt",
+      "bytes": 2102,
+      "sha256": "541482f262565a4afc662440eb5c176acee90ea373f8b5b3f9b346915f6390d7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-414.json",
+      "bytes": 2102,
+      "sha256": "541482f262565a4afc662440eb5c176acee90ea373f8b5b3f9b346915f6390d7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-414.txt",
+      "bytes": 1012,
+      "sha256": "a100cc7b8761ca6832eb43b20c871fba05a5e18af6651ba8462d9142697e4946"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-414.xml",
+      "bytes": 4644,
+      "sha256": "20fad1ecfb4da96b1ff9741ee425c155abbf93d49fa3017627f3e0d959c50d25"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-85-launcher.txt",
+      "bytes": 2036,
+      "sha256": "d9a8172f693a7a2ed27d6cfae08b24326854ba374628c9ed8fac8637acd82298"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-85.json",
+      "bytes": 2036,
+      "sha256": "d9a8172f693a7a2ed27d6cfae08b24326854ba374628c9ed8fac8637acd82298"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-85.txt",
+      "bytes": 2091,
+      "sha256": "1cf1dd845da41c4039561620a4b849f51f6f07bb0c9c51a44c2b8aed423a1a6c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-85.xml",
+      "bytes": 10099,
+      "sha256": "2b6bb177e417ceb09a6bcb9f357559abd4d4ee4d145e606351245f5bbdf7f93a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-driver.source.txt",
+      "bytes": 4050,
+      "sha256": "61cc5fe130f03baf0176e780facfed568e160a30c369ee9a98713a383103de9e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-initdb-v2.txt",
+      "bytes": 943,
+      "sha256": "ad23e7e9b8b273be6a5d7205ab09f0e3a364c15039e33c5199c1f55959668bfe"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-initdb.txt",
+      "bytes": 1037,
+      "sha256": "234a08cd71c8b22a59329e1c2993091f93ea2030b21bfb3e1a1829df725996a9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-provision-v2.json",
+      "bytes": 1050,
+      "sha256": "036e4dd92ff3435be057c5e0ff9d95205920a7a9067caf3b74f1b317abd57aa5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-provision.json",
+      "bytes": 1019,
+      "sha256": "005b56e5931cf78706bc1eb7d0b5cdc4b09767016a9a2696d49a0c1879a79997"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-server.json",
+      "bytes": 1077,
+      "sha256": "bce5f9aebbff80b0372397d4ad9435a7032244429beedd9704caee8a937221e5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-start-v2.source.txt",
+      "bytes": 3305,
+      "sha256": "3c58efb3676090a48d058466ae9c10fcc31a2b7f19569e7725328d2231c41856"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-start-v2.txt",
+      "bytes": 971,
+      "sha256": "a62d04186ecbed5b2576a3f787462b59a72680d6d464feb9c2712f91ed4c1823"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-start.source.txt",
+      "bytes": 3220,
+      "sha256": "e2c6f14ce8d0121757a7bcd63e230920b81b1c84cf29ae0bf7888d3cdda60706"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-start.txt",
+      "bytes": 1324,
+      "sha256": "823e5097bb90408328e44a624b9ffe9539b5286e05fabecbef4017796b279e8f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-successor-driver.source.txt",
+      "bytes": 4060,
+      "sha256": "259cdcf3b44044c6eed5338828eef71d6e46f1e3393876a6cd4843c68c6d1d60"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/native-versions.json",
+      "bytes": 2087,
+      "sha256": "af2781a88ea6782c4be61d7ad81ddc023aea0e4c2b0ffcb65071b05a321ff32f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/oci-fetch.json",
+      "bytes": 3167,
+      "sha256": "a42053b100942533a5267f9427751cbe641ad19e611cf87a934c1d95e932ed6b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/partial-container.txt",
+      "bytes": 54,
+      "sha256": "4801c3b02783f2597a763b72dd9318cf9a9277d882d4cd6da58a3a78a8c4af29"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/provision-failure.json",
+      "bytes": 1393,
+      "sha256": "b71bc5c75a10810e7d1045a9b6dad3f8ef55d3faad4c85a7c04f613532653551"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/provision.source.txt",
+      "bytes": 2224,
+      "sha256": "1f44f6f8706f04408cb0019fbb734e230bcaead03688c5716cb9e1ef6490648b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/readback.source.txt",
+      "bytes": 2755,
+      "sha256": "db37af9aa98a57e8d8333e3f3077aa63defb43b13894eb8adaf53c26393ef2a0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/readback.txt",
+      "bytes": 122,
+      "sha256": "0eb49ff2cb30fda00926edc3b7beb0f90320938c75fb389f617341a56ee3567f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/retained-image.json",
+      "bytes": 2686,
+      "sha256": "b98b392cc973615e7e0b6fe4df8b845347dc2beb1be24119a26b6e95454a4956"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/retained-tables-85.json",
+      "bytes": 101593,
+      "sha256": "e0b518f3616432c6d98708506dc2190368f714e9b4bd9d0a72042c7cd4b1b68d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/retained-volume.json",
+      "bytes": 391,
+      "sha256": "f10a262f06ad1e5f6572b22238ee03c60c960c2a28ad0030df589aa76902a182"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/ruff-414.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/ruff-85.txt",
+      "bytes": 1046,
+      "sha256": "18599a13d64dbf0e5ecb0393c3b24ddfbb5cef7c077fd88990e7e35f5f3d8298"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/style-414.json",
+      "bytes": 1073,
+      "sha256": "028d3bdbd6111f9d622ee49081e3aed0c825ff4ba2e56be1a5c805b389ca356e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/style-85.json",
+      "bytes": 1053,
+      "sha256": "9cbc9a267288d3a3ae129fd4862f496596de249709c1e64f6d419c5effd048a1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/workspace-resume.json",
+      "bytes": 135822,
+      "sha256": "7c81ed2c80197750138fc306c53d96889e76facc8262cc4827e74150c15e3198"
+    }
+  ],
+  "total_bytes": 320285
+}

@@ -1,0 +1,47 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/workspace/e02-B-current-durability/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/reconcile.source.txt"
+  ],
+  "mode": "stdlib/Git/AST metadata only; no product imports/native/gates",
+  "reviewed_source": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+  "reviewed_tree": "8909428c4fe4a03b6d481ed5e34f942b59f07318",
+  "reviewer_before": {
+    "head": "1eca0ade95e08330dfcd1ff35d35314e8a44d68d",
+    "tree": "66b1dd7d56a0cf1200b8c954cb64f71d155dc033",
+    "status": ""
+  },
+  "reviewer_after": {
+    "head": "1eca0ade95e08330dfcd1ff35d35314e8a44d68d",
+    "tree": "66b1dd7d56a0cf1200b8c954cb64f71d155dc033",
+    "status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/reconciliation-stderr.txt\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/reconciliation.json"
+  },
+  "start": "2026-10-06T21:28:13.930616+00:00",
+  "end": "2026-10-06T21:28:14.114359+00:00",
+  "exit_code": 0,
+  "wall_s": 0.1333206550043542,
+  "rss_kib": 14224,
+  "stdout": {
+    "path": "/workspace/e02-B-current-durability/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/reconciliation.json",
+    "bytes": 9733,
+    "sha256": "2f5adf7e097c40f86cdc071164b9a2831857c56763c642e4aa37435d0cd4d206"
+  },
+  "stderr": {
+    "path": "/workspace/e02-B-current-durability/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent-review/reconciliation-stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "cwd": "/workspace/e02-B-current-durability",
+    "PYTHONPATH": null,
+    "caps": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "BLIS_NUM_THREADS": null
+    }
+  }
+}

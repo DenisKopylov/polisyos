@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="6" time="0.378" timestamp="2026-10-06T11:50:39.802352+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.foundry.methods.test_compiler_e02" name="test_real_jax_same_fqn_source_replacement_matches_cold_preserves_old_handle" time="0.142"><failure message="AssertionError: assert 30.0 == 20.0&#10; +  where 30.0 = _value(CompiledMethod(method_fqn='tests.compiler_e02.scale@1.0.0', signature=MethodSignature(name='scale', namespace='tests.c...0x7f7eb45d38a0&gt;, dynamic_defaults=mappingproxy({'factor': 2.0}), lowered_hlo=None, compile_time_ms=0.14894999912939966))&#10; +  and   20.0 = _value(CompiledMethod(method_fqn='tests.compiler_e02.scale@1.0.0', signature=MethodSignature(name='scale', namespace='tests.c... 0x7f7eb45d3320&gt;, dynamic_defaults=mappingproxy({'factor': 2.0}), lowered_hlo=None, compile_time_ms=0.1439100014977157))">def test_real_jax_same_fqn_source_replacement_matches_cold_preserves_old_handle():
+        compiler, registry = _compiler()
+        old = _handle(compiler)
+        assert _value(old) == 20
+        registry.register(_Replacement, override=True)
+        warm = _handle(compiler)
+        cold = _handle(MethodCompiler(registry=registry, cache=CompilationCache()))
+&gt;       assert _value(cold) == _value(warm) == 30
+E       AssertionError: assert 30.0 == 20.0
+E        +  where 30.0 = _value(CompiledMethod(method_fqn='tests.compiler_e02.scale@1.0.0', signature=MethodSignature(name='scale', namespace='tests.c...0x7f7eb45d38a0&gt;, dynamic_defaults=mappingproxy({'factor': 2.0}), lowered_hlo=None, compile_time_ms=0.14894999912939966))
+E        +  and   20.0 = _value(CompiledMethod(method_fqn='tests.compiler_e02.scale@1.0.0', signature=MethodSignature(name='scale', namespace='tests.c... 0x7f7eb45d3320&gt;, dynamic_defaults=mappingproxy({'factor': 2.0}), lowered_hlo=None, compile_time_ms=0.1439100014977157))
+
+tests/unit/foundry/methods/test_compiler_e02.py:112: AssertionError</failure></testcase><testcase classname="tests.unit.foundry.methods.test_compiler_e02" name="test_real_jax_same_class_helper_replacement_matches_cold_preserves_old_handle" time="0.052"><failure message="AssertionError: assert 30.0 == 20.0&#10; +  where 30.0 = _value(CompiledMethod(method_fqn='tests.compiler_e02.scale@1.0.0', signature=MethodSignature(name='scale', namespace='tests.c... 0x7f7eb45fcf60&gt;, dynamic_defaults=mappingproxy({'factor': 2.0}), lowered_hlo=None, compile_time_ms=0.1630970073165372))&#10; +  and   20.0 = _value(CompiledMethod(method_fqn='tests.compiler_e02.scale@1.0.0', signature=MethodSignature(name='scale', namespace='tests.c...0x7f7eb45fca90&gt;, dynamic_defaults=mappingproxy({'factor': 2.0}), lowered_hlo=None, compile_time_ms=0.13846000365447253))">def test_real_jax_same_class_helper_replacement_matches_cold_preserves_old_handle():
+        compiler, registry = _compiler(_HelperSource)
+        old = _handle(compiler)
+        assert _value(old) == 20
+        original = vars(_HelperSource)["scale"]
+        try:
+            _HelperSource.scale = staticmethod(_changed_scale)
+            warm = _handle(compiler)
+            cold = _handle(MethodCompiler(registry=registry, cache=CompilationCache()))
+&gt;           assert _value(cold) == _value(warm) == 30
+E           AssertionError: assert 30.0 == 20.0
+E            +  where 30.0 = _value(CompiledMethod(method_fqn='tests.compiler_e02.scale@1.0.0', signature=MethodSignature(name='scale', namespace='tests.c... 0x7f7eb45fcf60&gt;, dynamic_defaults=mappingproxy({'factor': 2.0}), lowered_hlo=None, compile_time_ms=0.1630970073165372))
+E            +  and   20.0 = _value(CompiledMethod(method_fqn='tests.compiler_e02.scale@1.0.0', signature=MethodSignature(name='scale', namespace='tests.c...0x7f7eb45fca90&gt;, dynamic_defaults=mappingproxy({'factor': 2.0}), lowered_hlo=None, compile_time_ms=0.13846000365447253))
+
+tests/unit/foundry/methods/test_compiler_e02.py:126: AssertionError</failure></testcase><testcase classname="tests.unit.foundry.methods.test_compiler_e02" name="test_actual_miss_before_claim_rechecks_peer_terminal_publication" time="0.047"><failure message="assert 2 == 1&#10; +  where 2 = &lt;test_compiler_e02.test_actual_miss_before_claim_rechecks_peer_terminal_publication.&lt;locals&gt;.CountingCompiler object at 0x7f7eb4631010&gt;.builds">def test_actual_miss_before_claim_rechecks_peer_terminal_publication():
+        first_miss = threading.Event()
+        release_first = threading.Event()
+        build_lock = threading.Lock()
+    
+        class PausedCache(CompilationCache):
+            def get(self, *args, **kwargs):
+                result = super().get(*args, **kwargs)
+                if (
+                    result is None
+                    and threading.current_thread().name == "e02-first-compiler"
+                    and not first_miss.is_set()
+                ):
+                    first_miss.set()
+                    assert release_first.wait(5), "fixture peer did not publish"
+                return result
+    
+        class CountingCompiler(MethodCompiler):
+            builds = 0
+    
+            def _compile_method(self, *args, **kwargs):
+                with build_lock:
+                    self.builds += 1
+                return super()._compile_method(*args, **kwargs)
+    
+        cache = PausedCache()
+        _, registry = _compiler(cache=cache)
+        compiler = CountingCompiler(registry=registry, cache=cache)
+        first_handles, errors = [], []
+    
+        def first():
+            try:
+                first_handles.append(_handle(compiler))
+            except BaseException as exc:
+                errors.append(exc)
+    
+        thread = threading.Thread(target=first, name="e02-first-compiler")
+        thread.start()
+        try:
+            assert first_miss.wait(5), "fixture did not reach the real cache miss"
+            second = _handle(compiler)
+            assert _value(second) == 20
+        finally:
+            release_first.set()
+            thread.join(5)
+        assert not thread.is_alive(), "owned compiler did not drain"
+        assert not errors
+        assert _value(first_handles[0]) == 20
+&gt;       assert compiler.builds == 1
+E       assert 2 == 1
+E        +  where 2 = &lt;test_compiler_e02.test_actual_miss_before_claim_rechecks_peer_terminal_publication.&lt;locals&gt;.CountingCompiler object at 0x7f7eb4631010&gt;.builds
+
+tests/unit/foundry/methods/test_compiler_e02.py:181: AssertionError</failure></testcase><testcase classname="tests.unit.foundry.methods.test_compiler_e02" name="test_unestablished_mutable_code_capture_is_typed_compiler_boundary" time="0.007"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.exceptions.CompilationError'&gt;">def test_unestablished_mutable_code_capture_is_typed_compiler_boundary():
+        factors = [2]
+    
+        class Mutable:
+            signature: ClassVar = _SIGNATURE
+            metadata: ClassVar = _METADATA
+    
+            @staticmethod
+            def pure_step(state, params):
+                return state._replace(result=state.value * factors[0])
+    
+        compiler, _ = _compiler(Mutable)
+&gt;       with pytest.raises(CompilationError, match="source identity is unavailable for list"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.foundry.methods.exceptions.CompilationError'&gt;
+
+tests/unit/foundry/methods/test_compiler_e02.py:197: Failed</failure></testcase><testcase classname="tests.unit.foundry.methods.test_compiler_e02" name="test_real_required_compiled_alias_edge_has_no_numeric_preparation[False]" time="0.015"><failure message="KeyError: 'operand'">jit = False
+
+    @pytest.mark.parametrize("jit", [False, True])
+    def test_real_required_compiled_alias_edge_has_no_numeric_preparation(jit):
+        registry = MethodRegistry._create_fresh()
+        registry.register(_Producer)
+        registry.register(_Consumer)
+        composer = MethodComposer(registry=registry)
+        consumer = composer.add(_CONSUMER_SIGNATURE.fqn, increment=1.0)
+        producer = composer.add(_PRODUCER_SIGNATURE.fqn, factor=2.0)
+        composer.connect(producer, consumer, {"product": "operand"})
+        chain = composer.build()
+        compiler = MethodCompiler(registry=registry, cache=CompilationCache())
+        # Observe actual Python body entries outside their scientific closures.
+        # JIT tracing and numerical execution remain distinct observations.
+        code_names = {
+            _Producer.pure_step.__code__: "producer",
+            _Consumer.pure_step.__code__: "consumer",
+        }
+        calls = {"producer": 0, "consumer": 0}
+    
+        def observe(frame, event, arg):
+            del arg
+            if event == "call" and frame.f_code in code_names:
+                calls[code_names[frame.f_code]] += 1
+    
+        previous = sys.getprofile()
+        sys.setprofile(observe)
+        try:
+            cold = compiler.compile_chain(chain, {"value": jnp.asarray(3.0)}, jit=jit)
+            warm = compiler.compile_chain(chain, {"value": jnp.asarray(3.0)}, jit=jit)
+            assert calls == {"producer": 0, "consumer": 0}
+&gt;           shape = dict(cold.compiled_methods[1][1].specialization.input_shapes)["operand"]
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'operand'
+
+tests/unit/foundry/methods/test_compiler_e02.py:266: KeyError</failure></testcase><testcase classname="tests.unit.foundry.methods.test_compiler_e02" name="test_real_required_compiled_alias_edge_has_no_numeric_preparation[True]" time="0.012"><failure message="KeyError: 'operand'">jit = True
+
+    @pytest.mark.parametrize("jit", [False, True])
+    def test_real_required_compiled_alias_edge_has_no_numeric_preparation(jit):
+        registry = MethodRegistry._create_fresh()
+        registry.register(_Producer)
+        registry.register(_Consumer)
+        composer = MethodComposer(registry=registry)
+        consumer = composer.add(_CONSUMER_SIGNATURE.fqn, increment=1.0)
+        producer = composer.add(_PRODUCER_SIGNATURE.fqn, factor=2.0)
+        composer.connect(producer, consumer, {"product": "operand"})
+        chain = composer.build()
+        compiler = MethodCompiler(registry=registry, cache=CompilationCache())
+        # Observe actual Python body entries outside their scientific closures.
+        # JIT tracing and numerical execution remain distinct observations.
+        code_names = {
+            _Producer.pure_step.__code__: "producer",
+            _Consumer.pure_step.__code__: "consumer",
+        }
+        calls = {"producer": 0, "consumer": 0}
+    
+        def observe(frame, event, arg):
+            del arg
+            if event == "call" and frame.f_code in code_names:
+                calls[code_names[frame.f_code]] += 1
+    
+        previous = sys.getprofile()
+        sys.setprofile(observe)
+        try:
+            cold = compiler.compile_chain(chain, {"value": jnp.asarray(3.0)}, jit=jit)
+            warm = compiler.compile_chain(chain, {"value": jnp.asarray(3.0)}, jit=jit)
+            assert calls == {"producer": 0, "consumer": 0}
+&gt;           shape = dict(cold.compiled_methods[1][1].specialization.input_shapes)["operand"]
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'operand'
+
+tests/unit/foundry/methods/test_compiler_e02.py:266: KeyError</failure></testcase></testsuite></testsuites>

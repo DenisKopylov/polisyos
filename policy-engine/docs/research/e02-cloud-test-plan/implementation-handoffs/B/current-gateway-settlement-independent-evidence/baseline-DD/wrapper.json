@@ -1,0 +1,55 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "--noconftest",
+    "-c",
+    "/dev/null",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/baseline-DD/cache",
+    "--basetemp=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/baseline-DD/tmp",
+    "--junitxml=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/baseline-DD/native.xml",
+    "-vv",
+    "-s",
+    "/workspace/e02-B-current-composition/policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine/product",
+    "POLISYOS_METRICS_PORT": "0",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "E02_DRAFTER_ORACLE_SOURCE_ROOT": "/workspace/e02-B-current-coordination",
+    "E02_DRAFTER_ORACLE_SOURCE_SHA": "dd9584728bd96f204983615216efdbc58117e713"
+  },
+  "numeric_environment_caps_removed": true,
+  "source_projection_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "before": {
+    "actual_target_head": "3199fbbedcc29df9f37269a8586ab520a9ad0689",
+    "actual_target_tree": "771fb46a1e2b13dc002fd75d00bdc7798ed25ea5",
+    "target_status": "",
+    "own_test_sha": "48bfe21b744953dc667653b06d60b69477f24de2",
+    "test_sha256": "42c50c12a4cbc63e92b18b5ac5fe00f62548380714a5a595f158220eeb3012e8",
+    "test_bytes": 6753
+  },
+  "after": {
+    "actual_target_head": "3199fbbedcc29df9f37269a8586ab520a9ad0689",
+    "actual_target_tree": "771fb46a1e2b13dc002fd75d00bdc7798ed25ea5",
+    "target_status": ""
+  },
+  "started_utc": "2026-10-06T20:40:04.143180+00:00",
+  "ended_utc": "2026-10-06T20:40:13.467105+00:00",
+  "wall_seconds": 9.379173250999884,
+  "actual_exit": 1,
+  "wait4_resource": {
+    "utime": 9.263092,
+    "stime": 0.792972,
+    "maxrss_kib_linux": 504704
+  },
+  "full_stdout": {
+    "path": "/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/baseline-DD/native.txt",
+    "bytes": 21137,
+    "sha256": "c572f5ed5bed18029c82e15b5a85685af6678a94d154ffea0c38040fddb7d253"
+  },
+  "closure": "Exact six printed polisyos module origins and Git bytes, real filesystem provider; no full imported-module/network/resource/invoice census."
+}

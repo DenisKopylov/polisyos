@@ -1,0 +1,39 @@
+from __future__ import annotations
+import hashlib,json,os,pathlib,subprocess,sys
+import pytest
+ROOT=pathlib.Path(os.environ['E02_CROSSUNIT_FINAL_ROOT']).resolve();OUT=pathlib.Path(os.environ['E02_CROSSUNIT_FINAL_OUT']).resolve();SHA=os.environ['E02_CROSSUNIT_FINAL_SHA'];PRODUCT=ROOT/'policy-engine'
+def git(*a):return subprocess.check_output(['git','-C',str(ROOT),*a])
+def source():return {'sha':git('rev-parse','HEAD').decode().strip(),'tree':git('rev-parse','HEAD^{tree}').decode().strip(),'status':git('status','--porcelain').decode()}
+assert source()=={'sha':SHA,'tree':'f765043b27b96a1fbb0795aa600db9bd94df0e36','status':''}
+blob_cache={};origins={};phase_source=[]
+def census(role,node=None):
+ mapping={};issues=[]
+ for name,module in sorted(tuple(sys.modules.items())):
+  if not (name=='polisyos' or name.startswith('polisyos.')):continue
+  file=getattr(module,'__file__',None)
+  if file is None:continue
+  p=pathlib.Path(file).resolve();entry={'module':name,'path':str(p)}
+  try:
+   assert p.is_relative_to(PRODUCT/'src'),p
+   rel=str(p.relative_to(ROOT));data=p.read_bytes()
+   if rel not in blob_cache:blob_cache[rel]=git('show',SHA+':'+rel)
+   entry.update(path_relative_to_root=rel,bytes=len(data),sha256=hashlib.sha256(data).hexdigest(),matches_final_Git=data==blob_cache[rel]);assert entry['matches_final_Git'],entry
+   origins[name]=entry;mapping[name]=entry['sha256']
+  except BaseException as e:issues.append({'module':name,'path':str(p),'error':type(e).__name__,'detail':str(e)})
+ phase_source.append({'role':role,'nodeid':node,'complete_current_filebacked_polisyos_modules':mapping,'issues':issues})
+ assert not issues,issues
+ return mapping
+class Observe:
+ def __init__(self):self.items=[];self.reports=[];self.collectreports=[]
+ def pytest_collection_finish(self,session):
+  self.items=[{'nodeid':i.nodeid,'location':i.location,'path':str(i.path)} for i in session.items];census('collection_finish')
+ def pytest_collectreport(self,report):self.collectreports.append({'nodeid':report.nodeid,'outcome':report.outcome,'result_count':len(report.result or ())})
+ def pytest_runtest_setup(self,item):census('setup_before',item.nodeid)
+ def pytest_runtest_logreport(self,report):
+  self.reports.append({'nodeid':report.nodeid,'when':report.when,'outcome':report.outcome,'duration':report.duration,'wasxfail':getattr(report,'wasxfail',None)});census('phase_after_'+report.when,report.nodeid)
+ def pytest_sessionfinish(self,session,exitstatus):
+  census('sessionfinish');v={'schema':'policyos.e02.independent_native_observer.v1','source_sha':SHA,'source_at_finish':source(),'sessionfinish_observed_argument':int(exitstatus),'collected_items':self.items,'collection_reports':self.collectreports,'phase_reports':self.reports,'actual_python':{'executable':sys.executable,'version':sys.version,'prefix':sys.prefix,'base_prefix':sys.base_prefix},'pytest_version':pytest.__version__,'loaded_modules':origins,'source_phase_observations':phase_source,'boundary':'Actual current-process filebacked polisyos modules at named hook points only; no child-process/dynamic/in-memory/native-library/resource/network/production-data completeness.'};(OUT/'observer.json').write_text(json.dumps(v,indent=2)+'\n')
+observer=Observe();census('before_pytest')
+print('CROSSUNIT_FINAL_NATIVE_ENV '+json.dumps({'root':str(ROOT),'source_sha':SHA,'python':sys.executable,'prefix':sys.prefix,'pytest':pytest.__version__}),flush=True)
+args=['-vv','-s','-o','addopts=','-o','cache_dir='+str(OUT/'cache'),'--basetemp='+str(OUT/'pytest'),'--junitxml='+str(OUT/'native.xml'),'tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py','tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py']
+code=pytest.main(args,plugins=[observer]);assert source()=={'sha':SHA,'tree':'f765043b27b96a1fbb0795aa600db9bd94df0e36','status':''};raise SystemExit(code)

@@ -1,0 +1,959 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-composition-identity",
+  "closure_ids": [],
+  "owned_finding_ids": [
+    "B13",
+    "B42",
+    "B43",
+    "B44",
+    "B45",
+    "B46",
+    "B47",
+    "B48",
+    "B49",
+    "B50",
+    "B53",
+    "B74",
+    "B75",
+    "B76"
+  ],
+  "bundle_ids": [
+    "RES-04"
+  ],
+  "all_owned_bundle_ids": [
+    "CMP-01",
+    "CMP-02",
+    "CMP-03",
+    "RES-03",
+    "RES-04",
+    "JIT-01"
+  ],
+  "slice_base_sha": "2e42b6bd057b501988dc0a61f2e74aa1a79f4496",
+  "implementation_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+  "candidate_tree_sha": "fdc138d132c9bb0b23f79ff5f27db1cb8091bd68",
+  "implementation_commits": [
+    "70b8c6d2875563a37c81ec8f480eeda0a6039de0",
+    "06231bcfb0370a592db4be0ebff5b26b763e4c9c",
+    "c639295e25a602869c6c28754cd43fd856aa05cf",
+    "64b901bd633dec7f8f5b4a0b74720cab5da532e3",
+    "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf"
+  ],
+  "branch": "codex/e02-B-current-composition",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/45",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-checkpoint-identity.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-cas-manifest-profile-seam.toml",
+    "policy-engine/src/polisyos/core/artifacts/README.md",
+    "policy-engine/src/polisyos/core/artifacts/__init__.py",
+    "policy-engine/src/polisyos/core/artifacts/manifest_profile.py",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/__init__.py",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+    "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+    "policy-engine/src/polisyos/foundry/methods/components/README.md",
+    "policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py"
+  ],
+  "baseline_source_context": "Exact all14 source contexts and28 unique baseline cells/74routes are committed in current-composition-payload.json@c31e69958ba1d639db6d739ec42f6595add88234. Baseline source69780761... F01\u2013F15 summaries were PASS source-context only; absent full raw runtime receipts are not new patch evidence.",
+  "canonical_source_cards": {
+    "RES-04": {
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RES-04.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "sha256": "1beb9b75bb18f74356b568fa6a2261666b7d7893c879bd8ce08c513cb0ed38c2"
+    }
+  },
+  "baseline_cells": [
+    {
+      "id": "F02-P117",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "4.77",
+      "rss_kib": "168580",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "245",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F03-P010",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/methods/test_composer.py",
+      "state": "PASS",
+      "collected": "25",
+      "calls": "25",
+      "call_pass": "25",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.57",
+      "rss_kib": "169160.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "140",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F08-P117",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "11.026620626449585",
+      "rss_kib": "256836",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "240",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F15-P137",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "4.87",
+      "rss_kib": "254332",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "292",
+      "extra_json": "{\"reason\":\"null\"}"
+    },
+    {
+      "id": "F01-P044",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.89",
+      "rss_kib": "174068",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "161",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F03-P065",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.04",
+      "rss_kib": "165492.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "195",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F05-P065",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.67",
+      "rss_kib": "259996",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "475",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F07-P041",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.371877431869507",
+      "rss_kib": "259564.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "47",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F07-P059",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.220776319503784",
+      "rss_kib": "255460.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "65",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F12-P052",
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "8.00252217599973",
+      "rss_kib": "246516.0",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F12.txt",
+      "source_line": "637",
+      "extra_json": "{\"reason\":\"native\"}"
+    },
+    {
+      "id": "F14-P054",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.704198632000043",
+      "rss_kib": "271952",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "404",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F14-P077",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.841175300000032",
+      "rss_kib": "269232",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "427",
+      "extra_json": "{}"
+    }
+  ],
+  "intended_delta": "Reuse public owner selected-profile projection; bind actual one-time registry classes/ABI/source/runtime and strict guarded supplied artifact identities to effective checkpoint request in same generation. Generic runtime class helper descriptors/immutable captures widen source identity after real independent stale-prefix escape. Unknown graph inputs explicitly refuse strict admission.",
+  "equivalent_move": "Move existing local code-identity projection to one Foundry artifact owner helper; existing compute_source_hash and canonical digest algorithms are unchanged. The generic supported descriptor/immutable-data graph widening and strict refusals are intentional behavior changes, not an equivalent-only claim.",
+  "input_closure": "Native frozen test files and actual source bytes at named Git points, shared Python3.14.2 env with PYTHONPATH=src/metrics0; actual fresh filesystem CAS/checkpoint fixtures. Caller declarations are typed input premises; exact selected view/bytes/source/ABI/request independently reconciled. No production dataset copied into cloud.",
+  "review": {
+    "source_review": {
+      "reviewer": "/root",
+      "kind": "source_only",
+      "target_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "message_verdict": "Complete c639\u2192061 shared helper/facade/delegation and c639\u21922e42 checkpoint source accepted for finite configured graph, strict supplied selected refs/scope/runtime/checkpoint admission. No independent root runtime claim.",
+      "immutable_review_receipt_sha": null
+    },
+    "independent_before": {
+      "reviewer": "/root/dur_probe",
+      "receipt_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/receipt.json@3adeb4e90b803603f1e3cbcdfbfeb616ea402620",
+      "driver_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/probe.py@25c8fadbeb7190aec50dcfd467484af90eef3314",
+      "driver_sha256": "0364238f32260449173af2688099e754c5f27d0d65f1c25a6acfed1d52a2b08b",
+      "target_sha": "c639295e25a602869c6c28754cd43fd856aa05cf",
+      "verdict": "15selected nativePASS and actual helper countercaseFAIL; c639 rejected."
+    },
+    "independent_after": {
+      "reviewer": "/root/dur_probe",
+      "target_sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+      "driver_sha256": "0364238f32260449173af2688099e754c5f27d0d65f1c25a6acfed1d52a2b08b",
+      "verdict": "Actual unchanged driver PASS exit0 1.765seconds. Cold10/unchangedresume7, changed helper mismatch before any suffix dispatch, original pointer unchanged.",
+      "output_sha256": "ba544c2857e0fb05c2e1b57bbd888e24cf27e6ff0b03487ebbdeb031aaf58d79",
+      "output_actual_path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/review-b74-061/probe-061.txt",
+      "immutable_receipt_sha": "8495fe40a4c8655b7b9c76a6e6008d275d9697b2",
+      "source_audit_status": "Complete seven-path source graph diff reviewed independently; no blocker for finite configured record/module boundaries, no actual JIT claim.",
+      "receipt_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/successor-061-review.json@8495fe40a4c8655b7b9c76a6e6008d275d9697b2",
+      "receipt_sha256": "15644470220cc8e45ff2886a2c0a43b2168bc5cec8f7d77c433ce15799c7389a"
+    }
+  },
+  "checks": [
+    {
+      "name": "identity-native-red-before",
+      "outcome": "FAIL",
+      "meaning": "Immutable original native test-only70b8: current replacement source and ABI warm resume admitted stale prefix; 2FAIL1PASS.",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-native-red-before-cache",
+        "-q",
+        "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-native-red-before-tmp",
+        "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-native-red-before.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "source_before": {
+        "sha": "2e42b6bd057b501988dc0a61f2e74aa1a79f4496",
+        "tree": "2177f8971078fb43acca8cb9cb83f4b1ffc7ae6c",
+        "status": "?? policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "changed_paths_sha256": {}
+      },
+      "source_after": {
+        "sha": "2e42b6bd057b501988dc0a61f2e74aa1a79f4496",
+        "tree": "2177f8971078fb43acca8cb9cb83f4b1ffc7ae6c",
+        "status": "?? policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 1,
+      "wall_seconds": 2.508133374998579,
+      "max_rss_kib": 172924,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "artifacts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-native-red-before.txt",
+          "sha256": "64f228a9a82665cfbe769e8b3077d96dc5cb79dd28d474ddc88e6623c7f8a2a7",
+          "bytes": 8166
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-native-red-before.json",
+          "sha256": "3c3e9191efd40c18ff83d504cd9ae9bab49af6de32ceeb8415d358d5233cf05f",
+          "bytes": 1612
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-native-red-before.xml",
+          "sha256": "403f546d90817e389f83ae08eb3365a01ad188e9e2028c3db84bb40ca91abf47",
+          "bytes": 4560
+        }
+      ]
+    },
+    {
+      "name": "identity-frozen-c639",
+      "outcome": "PASS",
+      "meaning": "Six whole files119PASS before independent static-helper countercase; this does not establish closure of the helper class.",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-frozen-c639-cache",
+        "-q",
+        "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "tests/unit/remediation/test_res_04.py",
+        "tests/unit/remediation/test_cmp_01.py",
+        "tests/unit/foundry/methods/test_artifacts.py",
+        "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-frozen-c639-tmp",
+        "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-frozen-c639.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "source_before": {
+        "sha": "c639295e25a602869c6c28754cd43fd856aa05cf",
+        "tree": "22374e2a7480ab580e2192b066555ae47d1312c6",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "source_after": {
+        "sha": "c639295e25a602869c6c28754cd43fd856aa05cf",
+        "tree": "22374e2a7480ab580e2192b066555ae47d1312c6",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "wall_seconds": 18.31157286099915,
+      "max_rss_kib": 181860,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "artifacts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-frozen-c639.txt",
+          "sha256": "ace06344eb2e73702a06e09fbd40b70af666cd3fc291f43e4144b6bddd207689",
+          "bytes": 181
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-frozen-c639.json",
+          "sha256": "1f8b0f6787cdd3799eeb2cd1bb662e46d22f085a85d5b9d19e97a4841f39adb2",
+          "bytes": 1716
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-frozen-c639.xml",
+          "sha256": "319c250d18764107274e6cef2616de6d9f1680f21e36e63c021017157c26485d",
+          "bytes": 19789
+        }
+      ]
+    },
+    {
+      "name": "identity-descriptor-frozen-red",
+      "outcome": "FAIL",
+      "meaning": "Exact clean64b901bd test-only source: real static/class/method/property helper and consumed metadata changes cold7\u219210 but resume accepted old7;30PASS5FAIL.",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-descriptor-frozen-red-cache",
+        "-q",
+        "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-descriptor-frozen-red-tmp",
+        "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-descriptor-frozen-red.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "source_before": {
+        "sha": "64b901bd633dec7f8f5b4a0b74720cab5da532e3",
+        "tree": "8929bfaf7e75fc865503109c40dbe979d266588d",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "source_after": {
+        "sha": "64b901bd633dec7f8f5b4a0b74720cab5da532e3",
+        "tree": "8929bfaf7e75fc865503109c40dbe979d266588d",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 1,
+      "wall_seconds": 10.372022244002437,
+      "max_rss_kib": 178584,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "artifacts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-descriptor-frozen-red.txt",
+          "sha256": "4a719971e1e70fc19ed6f4a2f8cb86f33f481996eaade4c0f39f75dbc50daaac",
+          "bytes": 30546
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-descriptor-frozen-red.json",
+          "sha256": "2766b8c8a1ee1f8d41788721ec8f885b81a0b9ed876f5e86ca9bb4e11eeca504",
+          "bytes": 1465
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-descriptor-frozen-red.xml",
+          "sha256": "daca52b93fb38e8774ce86ed189e9521d27b527ef56091b410a892fce0289080",
+          "bytes": 20534
+        }
+      ]
+    },
+    {
+      "name": "identity-helper-frozen",
+      "outcome": "PASS",
+      "meaning": "Exact clean061 six whole files128PASS, including39 real checkpoint/ref/helper/boundary cases.",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-helper-frozen-cache",
+        "-q",
+        "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "tests/unit/foundry/methods/backends/test_checkpointing.py",
+        "tests/unit/remediation/test_res_04.py",
+        "tests/unit/remediation/test_cmp_01.py",
+        "tests/unit/foundry/methods/test_artifacts.py",
+        "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-helper-frozen-tmp",
+        "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-helper-frozen.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "source_before": {
+        "sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+        "tree": "fdc138d132c9bb0b23f79ff5f27db1cb8091bd68",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "source_after": {
+        "sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+        "tree": "fdc138d132c9bb0b23f79ff5f27db1cb8091bd68",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "wall_seconds": 22.733169319995795,
+      "max_rss_kib": 185116,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "artifacts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-helper-frozen.txt",
+          "sha256": "1d371ab12e49d1b13dc092b9aa044522811a63e0d15efcb36182e2457262cad2",
+          "bytes": 181
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-helper-frozen.json",
+          "sha256": "c385740bafc8110248cc889b79c187f332c5b3d0a73e094e8da6461e7566ac65",
+          "bytes": 1723
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-helper-frozen.xml",
+          "sha256": "bf0121df562a8652e7791b2e5178e2c06e86f928a24a4b811f593c6bb9afe5eb",
+          "bytes": 21464
+        }
+      ]
+    },
+    {
+      "name": "identity-dur-driver-061",
+      "outcome": "PASS",
+      "meaning": "Author replay of unchanged independent committed0364238 driver; original7/unchangedresume7/coldchanged10; strict mismatch before suffix, old pointer unchanged.",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-durability/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/probe.py",
+        "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/identity-dur-driver-061-fixture",
+        "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "source_before": {
+        "sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+        "tree": "fdc138d132c9bb0b23f79ff5f27db1cb8091bd68",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "source_after": {
+        "sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+        "tree": "fdc138d132c9bb0b23f79ff5f27db1cb8091bd68",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "wall_seconds": 1.737327782990178,
+      "max_rss_kib": 144444,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "artifacts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-dur-driver-061.txt",
+          "sha256": "e76bef776980cb2e45e7ee0d3a85c8ae675e4781baacf15f584135b8c142fcc8",
+          "bytes": 3869
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-dur-driver-061.json",
+          "sha256": "c32cc4441508829781ee5aa0d3353f5459f860e93592e62419436a42e991db96",
+          "bytes": 1239
+        }
+      ]
+    },
+    {
+      "name": "res03-real-route-061",
+      "outcome": "FAIL",
+      "meaning": "Real SimulationResult producer and workflow prefix assertions passed; HTTP/TestClient startup failed catalog_fetch_source_unreadable before any route consumer request.",
+      "command_argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/res03-real-route-061-cache",
+        "-q",
+        "tests/integration/scientist/test_res_03_real_simulation_route.py",
+        "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/res03-real-route-061-tmp",
+        "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/res03-real-route-061.xml"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "source_before": {
+        "sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+        "tree": "fdc138d132c9bb0b23f79ff5f27db1cb8091bd68",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "source_after": {
+        "sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+        "tree": "fdc138d132c9bb0b23f79ff5f27db1cb8091bd68",
+        "status": "",
+        "changed_paths_sha256": {}
+      },
+      "environment": {
+        "PYTHONPATH": "src",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 1,
+      "wall_seconds": 51.67244660599681,
+      "max_rss_kib": 991144,
+      "resource_method": "direct wait4 child rusage; Linux KiB",
+      "artifacts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/res03-real-route-061.txt",
+          "sha256": "37d2c52ac63c67147d663fd371390e3155aca1326c0909294c4a6f52bdd88a07",
+          "bytes": 147024
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/res03-real-route-061.json",
+          "sha256": "1f0ed14f8d58af27ec59bb8e82f5a62f6476f8a1f1b5c1781497de7176aefeaa",
+          "bytes": 1435
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/res03-real-route-061.xml",
+          "sha256": "75ac976d176e1aa2ed4916c9a7dfaa7bbf057991786784baccff5af492fc64a0",
+          "bytes": 18274
+        }
+      ]
+    }
+  ],
+  "deciding_artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-native-red-before.txt",
+      "sha256": "64f228a9a82665cfbe769e8b3077d96dc5cb79dd28d474ddc88e6623c7f8a2a7",
+      "bytes": 8166
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-native-red-before.json",
+      "sha256": "3c3e9191efd40c18ff83d504cd9ae9bab49af6de32ceeb8415d358d5233cf05f",
+      "bytes": 1612
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-native-red-before.xml",
+      "sha256": "403f546d90817e389f83ae08eb3365a01ad188e9e2028c3db84bb40ca91abf47",
+      "bytes": 4560
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-frozen-c639.txt",
+      "sha256": "ace06344eb2e73702a06e09fbd40b70af666cd3fc291f43e4144b6bddd207689",
+      "bytes": 181
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-frozen-c639.json",
+      "sha256": "1f8b0f6787cdd3799eeb2cd1bb662e46d22f085a85d5b9d19e97a4841f39adb2",
+      "bytes": 1716
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-frozen-c639.xml",
+      "sha256": "319c250d18764107274e6cef2616de6d9f1680f21e36e63c021017157c26485d",
+      "bytes": 19789
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-descriptor-frozen-red.txt",
+      "sha256": "4a719971e1e70fc19ed6f4a2f8cb86f33f481996eaade4c0f39f75dbc50daaac",
+      "bytes": 30546
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-descriptor-frozen-red.json",
+      "sha256": "2766b8c8a1ee1f8d41788721ec8f885b81a0b9ed876f5e86ca9bb4e11eeca504",
+      "bytes": 1465
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-descriptor-frozen-red.xml",
+      "sha256": "daca52b93fb38e8774ce86ed189e9521d27b527ef56091b410a892fce0289080",
+      "bytes": 20534
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-helper-frozen.txt",
+      "sha256": "1d371ab12e49d1b13dc092b9aa044522811a63e0d15efcb36182e2457262cad2",
+      "bytes": 181
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-helper-frozen.json",
+      "sha256": "c385740bafc8110248cc889b79c187f332c5b3d0a73e094e8da6461e7566ac65",
+      "bytes": 1723
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-helper-frozen.xml",
+      "sha256": "bf0121df562a8652e7791b2e5178e2c06e86f928a24a4b811f593c6bb9afe5eb",
+      "bytes": 21464
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-dur-driver-061.txt",
+      "sha256": "e76bef776980cb2e45e7ee0d3a85c8ae675e4781baacf15f584135b8c142fcc8",
+      "bytes": 3869
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-dur-driver-061.json",
+      "sha256": "c32cc4441508829781ee5aa0d3353f5459f860e93592e62419436a42e991db96",
+      "bytes": 1239
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/res03-real-route-061.txt",
+      "sha256": "37d2c52ac63c67147d663fd371390e3155aca1326c0909294c4a6f52bdd88a07",
+      "bytes": 147024
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/res03-real-route-061.json",
+      "sha256": "1f0ed14f8d58af27ec59bb8e82f5a62f6476f8a1f1b5c1781497de7176aefeaa",
+      "bytes": 1435
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/res03-real-route-061.xml",
+      "sha256": "75ac976d176e1aa2ed4916c9a7dfaa7bbf057991786784baccff5af492fc64a0",
+      "bytes": 18274
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/source_replacement_probe.py",
+      "sha256": "ced8717b73e219122298471be8b98ab9b5745aa0a8208b26303be30e3fd09dda",
+      "bytes": 3658
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-source-replacement-before.txt",
+      "sha256": "2033e3f859fbc7fe916e2ed3f04689398eddfc3466c40e639b530ae569dc2910",
+      "bytes": 3287
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-source-replacement-before.json",
+      "sha256": "32ddf5b73d7571b9ef273a46597364bd17428de42dc2bbe81bd2ef6fed9efede",
+      "bytes": 968
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/run_checks.py",
+      "sha256": "ce4721c25c5389e9d992ed1967b9300e12163dc658933dc1981a3d2979f25273",
+      "bytes": 2072
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/run_command.py",
+      "sha256": "a7f267bce62145508b5be5f63f73923417d0dd2b957e5a8ae32731bfd7c610da",
+      "bytes": 1895
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity_environment.py",
+      "sha256": "2917bb04faaca94d2b1a196fbe399dec57c359350bc00fe29c0e55019a9b279b",
+      "bytes": 1286
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-environment.json",
+      "sha256": "19db35c915ed7dc9663c1c1e5046a747b0fe0b411c2307067d43a615a3444d93",
+      "bytes": 7460
+    }
+  ],
+  "finding_classification": {
+    "B13": {
+      "source_status": "partial",
+      "candidate_status": "real_producer_verified_served_consumer_cloud_blocked",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "basis": "One actual full served-route test preserved real simulation artifact and later-failure workflow semantics before TestClient startup.",
+      "cloud_stop": "ValueError catalog_fetch_source_unreadable at data_forge catalog store.py:966, TestClient entry line505; no HTTP consumer ran.",
+      "next_owner": "A alone owns generation_cycle.py/run_lifecycle.py and served consumer changes; local G runs unchanged exact candidate with real frozen production catalog/acquisition overlay."
+    },
+    "B42": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    },
+    "B43": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    },
+    "B44": {
+      "source_status": "partial",
+      "candidate_status": "bounded_runtime_verified",
+      "formal_closure": false,
+      "basis": "Real registry NumPy arithmetic agrees across sequential/async/checkpoint; actual bound scalar restored on resume; unknown parameter and changed effective payload refuse before execution."
+    },
+    "B45": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    },
+    "B46": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    },
+    "B47": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    },
+    "B48": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    },
+    "B49": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    },
+    "B50": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    },
+    "B53": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    },
+    "B74": {
+      "source_status": "partial",
+      "candidate_status": "bounded_runtime_verified",
+      "strict_disposition": "limited",
+      "formal_closure": false,
+      "basis": "Actual pinned registry/source/helper/current ABI and plan/request bind same immutable generation with original history. Strict declared refs independently reconcile real guarded CAS bytes and selected manifest views, tenant/cell, input/config/origin/dependency/occurrence-cache identities. Independent unchanged actual helper discriminator refuses before suffix dispatch after cold7\u219210; source graph remains finite configured profile.",
+      "limitations": "Declared refs are lineage premises, not permission/decoder/cache materialization. Imported module/builtin versions and frozen-record direct field values are explicit boundaries; dynamic reflection/imports, arbitrary record methods and mutable external code/data are not proven. Legacy context=None does not establish artifact/source closure.",
+      "falsifier": "A supported method/helper/capture or exact selected ref view changes real cold semantics but strict resume admits old prefix; any source/scope drift acknowledged during dispatch.",
+      "next_owner": "B compiler uses the same public helper; G integrates and validates exact supported runtime inputs."
+    },
+    "B75": {
+      "source_status": "partial",
+      "candidate_status": "bounded_runtime_verified",
+      "formal_closure": false,
+      "basis": "Original per-node records survive filesystem resume; absent records remain absent; false/missing/unknown complete header and original warning retain incomplete provenance through continuation and re-persist; missing required producer slots refuse."
+    },
+    "B76": {
+      "source_status": "partial",
+      "candidate_status": "pending_in_this_lane",
+      "formal_closure": false
+    }
+  },
+  "formal_e02_closure": false,
+  "limitations": [
+    "Finite configured Python helper graph and declared artifact lineage only; no all-Python/external-effect closure.",
+    "ContextNone retains explicitly unavailable legacy graph values and lacks artifact/scope/origin authority.",
+    "Checkpoint source/profile changes refuse/recompute; partial graph recomputation is not implemented.",
+    "Imported modules are distribution-version boundaries; frozen records support stored immutable data fields, not arbitrary transformation methods.",
+    "B13 actual served consumer remains cloud-blocked by absent production catalog; its1FAIL is retained.",
+    "JIT B49/B50/B53 and real manual/automatic/required-registry controls remain active; this is one finished B74 slice."
+  ],
+  "next_actions": [
+    "Publish source061 and this separate handoff normally with exact remote verification.",
+    "Finish same canonical source helper consumer in JIT and actual compiled-edge/materializer tests; retain cold/warm defaults, flight generation/deadline/error/cancel controls.",
+    "Finish real registry/manual-auto typed acceptance and occurrence/order/merge controls.",
+    "Commit exact B13 real producer artifacts and cloud stop/input/localG handoff; A/G alone served-route/lifecycle changes."
+  ],
+  "shared_write_boundary": "No Scientist EXE files, A generation_cycle/run_lifecycle, C streaming, runtime async_tools/retry, FTrinity compiler or core CAS algorithms edited. Public CAS profile dependency062 is owner-reviewed7207 cherry-pick, new current dependency only.",
+  "environment_identity": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-composition-identity-evidence/identity-environment.json",
+  "finding_ids": [
+    "B74"
+  ],
+  "criterion_ids": [
+    "B74"
+  ],
+  "metadata_correction": "This bounded finite source/ref identity slice has no formal E02 closure IDs; strict limited disposition and formal_e02_closure=false are authoritative."
+}

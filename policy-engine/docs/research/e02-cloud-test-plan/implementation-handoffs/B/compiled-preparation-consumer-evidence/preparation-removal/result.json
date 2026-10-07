@@ -1,0 +1,80 @@
+{
+  "artifacts": [
+    {
+      "bytes": 37,
+      "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/cache/.gitignore",
+      "sha256": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd"
+    },
+    {
+      "bytes": 191,
+      "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/cache/CACHEDIR.TAG",
+      "sha256": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4"
+    },
+    {
+      "bytes": 302,
+      "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/cache/README.md",
+      "sha256": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad"
+    },
+    {
+      "bytes": 175,
+      "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/cache/v/cache/lastfailed",
+      "sha256": "9ff8ddd1d236b15ac3badd72ef70f4774253ffbfd0dfc01d9ed7d00696582530"
+    },
+    {
+      "bytes": 169,
+      "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/cache/v/cache/nodeids",
+      "sha256": "a41db361ab17e4df0ca368669d66eff89dd1d42cbcab57e5428f1ba96970d93a"
+    },
+    {
+      "bytes": 70412,
+      "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/module-origins.jsonl",
+      "sha256": "42d8a43adafaae6f30c4a105a6068e5085b293581aeec16ff06ac6dfcd1e5207"
+    },
+    {
+      "bytes": 4378,
+      "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/native-stdout.txt",
+      "sha256": "c2afb7b302e5db4aed5c192ebfeff19c7a6fb12ad38316427611b5718986a254"
+    },
+    {
+      "bytes": 2118,
+      "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/native.xml",
+      "sha256": "f5f5927848c7cf092ee36d84829f2c0c5822844e5aea0235687e732fb3a74209"
+    },
+    {
+      "bytes": 15532,
+      "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/profile.json",
+      "sha256": "3e22ab8dc0b183ee67d664abbcf0efc360c24b9bc0f7c4ecf8c8c74742836959"
+    },
+    {
+      "bytes": 310,
+      "path": "/tmp/e02-B-compiled-preparation-5b36cc53b242/property-removal-effects.jsonl",
+      "sha256": "0ec9de77c52ff2c1694015008c85b3e6f005d8e5cc1a9517a50114d4779d1d55"
+    }
+  ],
+  "counts": {
+    "actual_cases": 1,
+    "error": 0,
+    "failed": 1,
+    "passed": 0,
+    "skipped": 0
+  },
+  "elapsed_seconds": 4.3591494239954045,
+  "finished_utc": "2026-10-06T21:01:19Z",
+  "returncode": 1,
+  "rusage_exact_pytest_pid": {
+    "maxrss_kib": 295708,
+    "pid": 487471,
+    "system_seconds": 0.538071,
+    "user_seconds": 3.898282
+  },
+  "source_after": {
+    "head": "83b7b81a4f6d665380993b3fed3b9985a51b547d",
+    "status": "",
+    "tree": "2ba1226f720e2ccb07fec3eab9887ab13d590e18"
+  },
+  "source_before": {
+    "head": "83b7b81a4f6d665380993b3fed3b9985a51b547d",
+    "status": "",
+    "tree": "2ba1226f720e2ccb07fec3eab9887ab13d590e18"
+  }
+}

@@ -1,0 +1,6 @@
+type = "fix"
+scope = "foundry"
+summary = "Bind statically selected imported module members before checkpoint reuse and compiler specialization."
+surface_classification = "internal"
+compatibility = "The supported code graph moves to v2; previous graph snapshots are not silently accepted as complete selected-member identity. Dynamic module transport and reflection refuse strict admission."
+migration = "Recompute checkpoints/compiler entries under the current identity. External numerical callable internals retain an explicitly opaque distribution boundary; this is not historical source or permission authority."

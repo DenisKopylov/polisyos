@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="7.772" timestamp="2026-10-06T16:55:03.572799+00:00" hostname="b878f4efbdfc"><testcase classname="" name="test_real_atomic_head_35_seconds_fits_original_60_second_workflow" time="0.010"><failure message="AssertionError: assert False&#10; +  where False = is_relative_to(PosixPath('/workspace/e02-B-current-coordination/policy-engine'))&#10; +    where is_relative_to = PosixPath('/workspace/e02-B-current-durability/policy-engine/src/polisyos/common/async_tools.py').is_relative_to&#10; +    and   PosixPath('/workspace/e02-B-current-coordination/policy-engine') = resolve()&#10; +      where resolve = PosixPath('/workspace/e02-B-current-coordination/policy-engine').resolve&#10; +        where PosixPath('/workspace/e02-B-current-coordination/policy-engine') = Path('/workspace/e02-B-current-coordination/policy-engine')">tmp_path = PosixPath('/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/base456/pytest-scratch-first/test_real_atomic_head_35_secon0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f7f13e95940&gt;
+
+    @pytest.mark.asyncio
+    async def test_real_atomic_head_35_seconds_fits_original_60_second_workflow(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -&gt; None:
+        """The real replace waits 35s; the owner permits it for 60s, not 30s."""
+&gt;       sources = _source_observation()
+                  ^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py:115: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _source_observation() -&gt; dict[str, object]:
+        observed: dict[str, object] = {}
+        expected = os.environ.get("E02_ORACLE_PRODUCT_ROOT")
+        for module in (async_tools, async_store, executor_module, checkpoint_module):
+            path = Path(module.__file__).resolve()
+            if expected is not None:
+&gt;               assert path.is_relative_to(Path(expected).resolve())
+E               AssertionError: assert False
+E                +  where False = is_relative_to(PosixPath('/workspace/e02-B-current-coordination/policy-engine'))
+E                +    where is_relative_to = PosixPath('/workspace/e02-B-current-durability/policy-engine/src/polisyos/common/async_tools.py').is_relative_to
+E                +    and   PosixPath('/workspace/e02-B-current-coordination/policy-engine') = resolve()
+E                +      where resolve = PosixPath('/workspace/e02-B-current-coordination/policy-engine').resolve
+E                +        where PosixPath('/workspace/e02-B-current-coordination/policy-engine') = Path('/workspace/e02-B-current-coordination/policy-engine')
+
+../../e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py:74: AssertionError</failure></testcase></testsuite></testsuites>

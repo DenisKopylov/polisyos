@@ -1,0 +1,820 @@
+{
+  "schema": "policyos.e02.independent_gateway_settlement_review.v1",
+  "author_role": "CMP foreign source reviewer and independently admitted ordinary drafter normalization oracle author; no LLM/ledger production writes",
+  "scope": "Full six upper production deltas initial d56→c0, complete additional upper source deltas c0→a391 including canonical agent consumer, exact two lower API/decoder/admission/transition/receipt/publication owner sources as dependency, complete declared literal production census with finite manually traced downstream edges. No universal SDK or money-authority proof.",
+  "source_points": {
+    "baseline": {
+      "sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e"
+    },
+    "initial_upper": {
+      "sha": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b",
+      "tree": "9dc76f183b4b562ef78f44220293a093400cceb3"
+    },
+    "frozen_composed_candidate": {
+      "sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e"
+    },
+    "lower_dependency": {
+      "sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+      "tree": "038b0012692a7fc12ca58aea91724f3a85c83b6e"
+    },
+    "oracle_input": {
+      "sha": "48bfe21b744953dc667653b06d60b69477f24de2",
+      "tree": "e5d474ffbfaf5649f18101d57f4367db315f51c4",
+      "path": "policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py",
+      "sha256": "42c50c12a4cbc63e92b18b5ac5fe00f62548380714a5a595f158220eeb3012e8",
+      "bytes": 6753
+    }
+  },
+  "criterion_refs": [
+    {
+      "id": "B65",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        1669,
+        1688
+      ],
+      "bytes": 4468,
+      "sha256": "f21a5d7d62b538e3466fe46778cbd8e27c2e3fa333cfb0b3a367b8fa6c731b76"
+    },
+    {
+      "id": "B66",
+      "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        1689,
+        1708
+      ],
+      "bytes": 4442,
+      "sha256": "397fc3ab86c9c5243288fde7c7396afd3146df75bf74bb39973870a9d22c47a5"
+    }
+  ],
+  "criterion_clauses": {
+    "B65": "Optional telemetry failure must preserve an obtained result and one provider operation; required accounting/admission failure is retained and cannot admit uncontrolled new spend. Primary provider errors must not be masked by telemetry.",
+    "B66": "Original provider usage belongs to provenance; each current cache consumption has zero additional cost only under the actual admitted cache emitter. Missing/invalid network cost cannot be synthesized as free completion; actual provider execution, TTL and concurrency must remain separately counted."
+  },
+  "production_module_identities": [
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/src/polisyos/core/llm/response.py",
+      "git_blob": "33c7b310aef734b31c2ed2e61fe28d6525524b97",
+      "bytes": 8621,
+      "sha256": "9964c5183108f47143cec32b0beb8b65aa4de6df706757b3a1f02be1c77b0581"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+      "git_blob": "ffe401ee6a81b2abd803b952b097674443ed8e37",
+      "bytes": 13529,
+      "sha256": "14bab0fd9071359c5172a12cb386b72e84685b1b30d9545d813dc6fa38330d25"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "git_blob": "0bdb572f7893617e037e0be5abdcd1332274d006",
+      "bytes": 36972,
+      "sha256": "fcd09cee45b49a42be8cc4e86c0b9e9ec34033a6903adf4d8e4cf30731a2f01b"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/src/polisyos/scientist/agent/_drafter_llm.py",
+      "git_blob": "940d49f663e36513ab501c615f8e7c4aa66be811",
+      "bytes": 3404,
+      "sha256": "1f6575d2c0c835fb0eeb5af81f482d3321aefa7754d82ebe9a1a1c44cee692a5"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "git_blob": "edc20aeef614fa3486868b04fc4be03ace992893",
+      "bytes": 59381,
+      "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "git_blob": "596731c164fc1ad264b4f157f74b58cf73f7c513",
+      "bytes": 10751,
+      "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "git_blob": "2c936750b0d6129094ea64528b51d6384980c474",
+      "bytes": 52922,
+      "sha256": "ee1fe542209afbb8506c1d2dfbe1a0132e40358101b958252d2327b2f98691de"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "git_blob": "337af929388eac4355c0b4431dde5cc6bef00f45",
+      "bytes": 27838,
+      "sha256": "56b327209d659ca5aec50e49c27fbfa431880f04ae60cb8535d4bd615c857cee"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "git_blob": "201cbfa12bfea5f3e0d50a07ba340d13643294fe",
+      "bytes": 38237,
+      "sha256": "e4bce7674e30f4314e3f2ed89b33a23088f038a31db3b513b570d9c8247f064b"
+    }
+  ],
+  "owner_readme_companions": [
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/src/polisyos/core/llm/README.md",
+      "git_blob": "b90090fa1f35d9562a852b9094369cb9bb892e73",
+      "bytes": 4755,
+      "sha256": "bb62b41efcfe8175314be503404b98e3aa9a61ca9934f4b2b4a88c69ff4275b3"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/src/polisyos/scientist/agent/README.md",
+      "git_blob": "c6fece8d483fc416817abb9996457b9577301973",
+      "bytes": 3933,
+      "sha256": "d11323d9ec50d1e2b9aef0ff2b989fe9e667b663b82f9eb63ea7604a4cb6accd"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+      "git_blob": "6a88d37d56a1c6b87318d8495b0779fa209ee56f",
+      "bytes": 6183,
+      "sha256": "46e1ba77ce3bebb03eb9b6ebddf31dd5df74028737aeb07eca30c1386bb36ff3"
+    }
+  ],
+  "release_companions": [
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-llm-unknown-cost-and-protected-audit.toml",
+      "git_blob": "49f1dca762dc21764630c1b492c2bdcb66070b23",
+      "bytes": 2394,
+      "sha256": "2ca870a79a757fb321ccf7f31fbd3d618a60cad8aef03c5bde8fb0b6fe6ead82"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-durable-completion-obligations.toml",
+      "git_blob": "638e393abf55d45e76c8ae053a765d1e6a60ef08",
+      "bytes": 1475,
+      "sha256": "5201281ce4f318070688120ef060c1ad40340cae4e9f101df613c8e02bd50be4"
+    }
+  ],
+  "consumer_census": {
+    "input_roots": [
+      "policy-engine/src",
+      "policy-engine/product"
+    ],
+    "tracked_all_files": 2914,
+    "tracked_python_files": 2701,
+    "literal_matched_paths": 27,
+    "all_literal_identities": [
+      {
+        "path": "policy-engine/src/polisyos/core/llm/README.md",
+        "git_blob": "b90090fa1f35d9562a852b9094369cb9bb892e73",
+        "bytes": 4755,
+        "sha256": "bb62b41efcfe8175314be503404b98e3aa9a61ca9934f4b2b4a88c69ff4275b3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/__init__.py",
+        "git_blob": "b362658c388c1c4c3a861b986c326688e32f1f54",
+        "bytes": 983,
+        "sha256": "e8382029341226839ad5e9b14110d11233c9aca0c9d32b39ae275533a3cc4128"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/response.py",
+        "git_blob": "33c7b310aef734b31c2ed2e61fe28d6525524b97",
+        "bytes": 8621,
+        "sha256": "9964c5183108f47143cec32b0beb8b65aa4de6df706757b3a1f02be1c77b0581"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+        "git_blob": "ffe401ee6a81b2abd803b952b097674443ed8e37",
+        "bytes": 13529,
+        "sha256": "14bab0fd9071359c5172a12cb386b72e84685b1b30d9545d813dc6fa38330d25"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+        "git_blob": "0bdb572f7893617e037e0be5abdcd1332274d006",
+        "bytes": 36972,
+        "sha256": "fcd09cee45b49a42be8cc4e86c0b9e9ec34033a6903adf4d8e4cf30731a2f01b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+        "git_blob": "4956678ca4ec4253cdf96e103ff83e7226e192da",
+        "bytes": 427462,
+        "sha256": "e73f044870901509f76f73a20e7ea34919029d1d60e3557cf3b507981256b6bd"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+        "git_blob": "a12f1aade3ef5368bdd1571df52a2ef32538f7c1",
+        "bytes": 182148,
+        "sha256": "e290ec767a95d032fb55603449a64fb515f95af844e6285650d063f895499ddc"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py",
+        "git_blob": "0ff734f7908e7b27462232e0e63ed9241caf3be5",
+        "bytes": 173858,
+        "sha256": "0675e4d0398c532e744af931816cbfcb91fb41b06cacd6af2eff8d3605cd82d1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/README.md",
+        "git_blob": "1f6419e4d305fa58f5ac6c165b30d816ab279c77",
+        "bytes": 8896,
+        "sha256": "a0be844195c96f011fe0d1e6a85ed2432c8e6683873990a6d4a31142d3e25c97"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/__init__.py",
+        "git_blob": "568c5962fb5929aaf904ee51d8359725229423b6",
+        "bytes": 7829,
+        "sha256": "ab721e4a2e6da23e8786a1f1af1f7cc8a4a7b90d02384882b21de70b1cbb3e90"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/agent/_drafter_llm.py",
+        "git_blob": "940d49f663e36513ab501c615f8e7c4aa66be811",
+        "bytes": 3404,
+        "sha256": "1f6575d2c0c835fb0eeb5af81f482d3321aefa7754d82ebe9a1a1c44cee692a5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/discovery/workers/__init__.py",
+        "git_blob": "a37e2447ca1b5535b493eb291f6713ce28bd7cc4",
+        "bytes": 31436,
+        "sha256": "603f72e9caaa857a091a69935b138f7e316441e35bdb97cb00068bd933c497ff"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+        "git_blob": "6a88d37d56a1c6b87318d8495b0779fa209ee56f",
+        "bytes": 6183,
+        "sha256": "46e1ba77ce3bebb03eb9b6ebddf31dd5df74028737aeb07eca30c1386bb36ff3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/__init__.py",
+        "git_blob": "e879f14bbcd9a8b2901cf0fffb4bc7b464248525",
+        "bytes": 3601,
+        "sha256": "e9d970c63e43cc20d6a83d265f425f2b3f3d69fc20a693738454a07138c6ddfe"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "git_blob": "2c936750b0d6129094ea64528b51d6384980c474",
+        "bytes": 52922,
+        "sha256": "ee1fe542209afbb8506c1d2dfbe1a0132e40358101b958252d2327b2f98691de"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/cost_anomaly.py",
+        "git_blob": "67a2d4f96e6fe8e05d1f2153b5b58e4491a31282",
+        "bytes": 1454,
+        "sha256": "a4ab0555543a5f89aa731ea6e28b166e9720ef6af1d2a3bbe98188e3dc1e3169"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+        "git_blob": "311b66e54dea6c49c4a295121f3ece57aa4a30b9",
+        "bytes": 9508,
+        "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/fallback_router.py",
+        "git_blob": "3ee8b3268a5a64fa76860f74696c557dfe511105",
+        "bytes": 8047,
+        "sha256": "22a26cf08a51a641cdad332c821a1ae528e6917fa61c4a44685509dad90576db"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "git_blob": "337af929388eac4355c0b4431dde5cc6bef00f45",
+        "bytes": 27838,
+        "sha256": "56b327209d659ca5aec50e49c27fbfa431880f04ae60cb8535d4bd615c857cee"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "git_blob": "201cbfa12bfea5f3e0d50a07ba340d13643294fe",
+        "bytes": 38237,
+        "sha256": "e4bce7674e30f4314e3f2ed89b33a23088f038a31db3b513b570d9c8247f064b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/provider_verification.py",
+        "git_blob": "a5d5717a16295a7f040f656a429dd6f9d60181b5",
+        "bytes": 32342,
+        "sha256": "780355c714ea862d4df5b5f66d88cd92bd15d6cb4a5c121d94ba9156d3cdc538"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/simulated_gateway.py",
+        "git_blob": "b40bbfa5a05db8c1eff5fc09c23dcd0cb64ce3d0",
+        "bytes": 24905,
+        "sha256": "933e7817454ecbe91e8a372043fcfc73033f79b437ea31580a51ff90c9a61aa0"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+        "git_blob": "11ac91e6e7a68453b2d322c448a1812dac1ff4cb",
+        "bytes": 15332,
+        "sha256": "e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+        "git_blob": "49ddb4c29f333de12211a1e7222a1d8368f8cd85",
+        "bytes": 55516,
+        "sha256": "a9045842cbfe78123f42d702317f4c65b979ebbc2c3ce46ef192d1472f51412e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+        "git_blob": "6b3bac9e054559146050e44634dd41a3445b5061",
+        "bytes": 15582,
+        "sha256": "a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/validation/citation_faithfulness.py",
+        "git_blob": "6e32c3a106e8a017edef9601a4089459b4369955",
+        "bytes": 47811,
+        "sha256": "7207a445b8e3cdc82cf476a05f2aa4b1d1b3d994339fdc94938b6fdc62842e95"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/validation/policy_verified/service.py",
+        "git_blob": "d8eb528ad61f87990efcde6d427b9257d54d8fbe",
+        "bytes": 42395,
+        "sha256": "d3e7a29cd0a20f00b577605ed2dc7da8e112a6ee499392718da075ea4b9f184e"
+      }
+    ],
+    "candidate_match_denominators": {
+      "gateway_types": {
+        "files": 6,
+        "python_files": 5,
+        "literal_line_occurrences": 44
+      },
+      "response_normalization": {
+        "files": 8,
+        "python_files": 7,
+        "literal_line_occurrences": 32
+      },
+      "settlement_abi": {
+        "files": 5,
+        "python_files": 5,
+        "literal_line_occurrences": 107
+      },
+      "gateway_numeric_reader": {
+        "files": 3,
+        "python_files": 3,
+        "literal_line_occurrences": 9
+      },
+      "factory_budget_composition": {
+        "files": 17,
+        "python_files": 15,
+        "literal_line_occurrences": 46
+      }
+    },
+    "baseline_match_denominators": {
+      "gateway_types": {
+        "files": 6,
+        "python_files": 5,
+        "literal_line_occurrences": 43
+      },
+      "response_normalization": {
+        "files": 6,
+        "python_files": 5,
+        "literal_line_occurrences": 27
+      },
+      "settlement_abi": {
+        "files": 5,
+        "python_files": 5,
+        "literal_line_occurrences": 64
+      },
+      "gateway_numeric_reader": {
+        "files": 3,
+        "python_files": 3,
+        "literal_line_occurrences": 7
+      },
+      "factory_budget_composition": {
+        "files": 17,
+        "python_files": 15,
+        "literal_line_occurrences": 44
+      }
+    },
+    "manually_traced_transitive_identities": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/agent/_drafter_orchestrator.py",
+        "git_blob": "d19d7d9edcca96ddee07803b53c0530d5c7a10e8",
+        "bytes": 36957,
+        "sha256": "761e9885e85a34bdf86ebbb256164c01581ebc05954f680ecc7dc4190c9fd62b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py",
+        "git_blob": "448dff30bfdcfbef812ff09eb0472438f49b3d4e",
+        "bytes": 34752,
+        "sha256": "b129c35c13a7bb021497f667979a0c8604f6c49a8b13a2e3dd44f668034f678b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+        "git_blob": "4956678ca4ec4253cdf96e103ff83e7226e192da",
+        "bytes": 427462,
+        "sha256": "e73f044870901509f76f73a20e7ea34919029d1d60e3557cf3b507981256b6bd"
+      }
+    ],
+    "input_read_method": "Every tracked blob under src/product was read from immutable Git using cat-file --batch and explicit regex names; code was not imported/executed by the census. Named relevant consumer bodies were then read and traced manually.",
+    "limits": [
+      "Runtime/dynamic imports or callable aliases lacking these literal names",
+      "External SDK/package versions, nontracked production data/resources and network responses",
+      "Arbitrary serialized downstream consumers with renamed fields",
+      "Native/billing/authority behavior not established by a source census"
+    ]
+  },
+  "consumer_groups": [
+    {
+      "paths": [
+        "core/llm/response.py",
+        "scientist/orchestration/llm/gateway_client.py",
+        "scientist/orchestration/llm/simulated_gateway.py"
+      ],
+      "quantity": "GatewayUsage/LLMResponseData constructors and parser",
+      "review": "Numeric telemetry defaults remain integers. Knowledge statuses separately distinguish default missing zero, observed valid zero, invalid usage/cost and actual known pricing. Simulated constructors supply explicit cost0 and positive counts. Canonical parser observed statuses are carried into usage. Cost parsing validates finite Decimal sign and nonzero underflow before float; invalid reported evidence cannot fall back to pricing."
+    },
+    {
+      "paths": [
+        "core/llm/settlement.py",
+        "core/llm/traced_client.py",
+        "scientist/orchestration/llm/budget_enforcer.py"
+      ],
+      "quantity": "Exact completion/charge/audit ABI",
+      "review": "amount=None is only unknown provider evidence and cannot get committed settlement. Exact event/payload/request identity established before work; synchronous invoke and owned generate/ainvoke all flow into retained settlement. Known reported0/known validated zero tokens remain actual numeric controls. Charge receipts, required audit act and optional observer events have distinct outcomes. Typed resolution is obtained only through constructor-bound verification; references/DTOs alone do not confer authority."
+    },
+    {
+      "paths": [
+        "scientist/orchestration/llm/prompt_cache.py",
+        "scientist/orchestration/llm/factory.py",
+        "scientist/orchestration/llm/fallback_router.py"
+      ],
+      "quantity": "Freeze/thaw/reuse/flight/provider/factory consumers",
+      "review": "Freeze/thaw preserves statuses and operational settlement; trusted cache emitter/HMAC and actual request identity select reuse0. Completion hook precedes atomic cache publication; unknown amounts refuse publication and retain the received response. Direct cache errors flow into lower pending completion rather than leaving live-intent exemption. Flight finally retires its owner. Factory composes traced gateway/cache but does not itself install a durable ledger; mandatory streaming refuses at the delegated boundary, unmanaged stream remains available. Transport retry/provider invoice status is outside local response receipts."
+    },
+    {
+      "paths": [
+        "scientist/agent/_drafter_llm.py",
+        "scientist/agent/_drafter_orchestrator.py"
+      ],
+      "quantity": "Ordinary configured critique normalization and heuristic pass budget",
+      "review": "Original DD unwrap/rewrap bypass was reproduced with real filesystem provider and retained exact required-accounting error. Candidate uses typed with_model: pending state refuses before retarget, same model preserves same owner, unsupported protected model changes refuse; unmanaged views retain configuration. Drafter pass budget remains a text/token pricing estimate, not durable charge proof."
+    },
+    {
+      "paths": [
+        "scientist/orchestration/llm/provider_verification.py"
+      ],
+      "quantity": "Model availability diagnostic",
+      "review": "JSON-completion probe reads usage.total_tokens for diagnostics; no spend receipt or zero-price ACK consumed."
+    },
+    {
+      "paths": [
+        "runtime/quality/design_generation.py",
+        "runtime/quality/proving_ground/bounded_request_agent.py",
+        "scientist/methods/discovery/workers/__init__.py",
+        "scientist/policy_design/adversary.py",
+        "scientist/policy_design/search.py",
+        "scientist/policy_design/translator.py",
+        "scientist/validation/citation_faithfulness.py",
+        "scientist/validation/policy_verified/service.py"
+      ],
+      "quantity": "Concrete factory/budget composition and response content consumers",
+      "review": "Literal constructor/call bodies were read; these use ordinary content, availability or memory BudgetState profiles and do not establish a deployment of the new initialized durable completion profile. Explicit trusted constructor composition remains a premise."
+    },
+    {
+      "paths": [
+        "runtime/http/services/control/nl_pipeline.py",
+        "runtime/http/services/control/response_shapes.py"
+      ],
+      "quantity": "Served optional observer cost aggregation / run budget",
+      "review": "Unchanged DD factory caller configures call_observer only; _sum_call_events maps None cost to0.0, and run_budget_spent consumes these totals. This exact existing consumer remains a typed A/G integration boundary. It cannot be attested monetary certainty from new provider knowledge fields/ledger APIs."
+    },
+    {
+      "paths": [
+        "core/llm/__init__.py",
+        "scientist/orchestration/llm/__init__.py",
+        "scientist/__init__.py",
+        "scientist/README.md",
+        "scientist/orchestration/llm/cost_anomaly.py"
+      ],
+      "quantity": "Facades/annotations/documentation and incidental navigation",
+      "review": "These literal references were read as export/annotation/documentation navigation; they are not counted as physical provider executions or monetary receipts."
+    }
+  ],
+  "lower_contract_join": {
+    "record_fields": [
+      "obligation_id",
+      "event_payload",
+      "event_digest",
+      "run_id",
+      "owner_epoch",
+      "budget_keys",
+      "reserved_amounts",
+      "phase",
+      "known_receipt_ids",
+      "required_action"
+    ],
+    "views": "with_completion_resolver uses the same private runtime owner and PID-bound epoch, does not install a string as ownership",
+    "admission": "Intent and all-key reservation are persisted atomically before client entry; unresolved cost/audit or older foreign in-flight owner intersects admission. Constructor epoch is not supplied by provider/caller data.",
+    "transition": "Exact prior record digest, run/request/owner/reservations and previously observed event/act remain bound. Upper successor reconciles actual persisted old/new phase before CAS transition rather than treating intended local bytes as published.",
+    "completion": "Lower independently reconciles actual all-key spend receipts. Unknown None cannot be completed; explicit known0 is not rewritten unknown; cache reuse0 is a separate issuer-bound profile.",
+    "wire": "Strict complete1.2 persisted completion index; full1.0/1.1 explicit migration to empty index does not certify earlier opaquezero. Regular ledger mutations preserve pending index.",
+    "runtime": "No lower runtime/process/fault replay by this reviewer; other independent owner checks remain separate."
+  },
+  "source_review_findings": [
+    {
+      "id": "sdk_input_getter",
+      "initial_ref": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b:policy-engine/src/polisyos/core/llm/response.py",
+      "initial_property": "Ordinary input_tokens fallback getter could raise outside _field after obtained content",
+      "candidate_resolution": "a391 uses guarded _field input/output fallback and gives present invalid tokens priority over missing sibling; new actual fixture preserved as author test source only",
+      "verdict": "source_nonblocking finite ordinary SDK metadata profile; no independent getter runtime claim"
+    },
+    {
+      "id": "durable_run_fixture",
+      "initial_ref": "c0f31b203c44bed9390913a53ceb5aa5dccacf8b:policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "initial_property": "New initialized ledger fixture omitted min1 run identity, so no entered provider premise",
+      "candidate_resolution": "a391 explicit run fixture and explicit pre-estimate/reservation/work admission guard; migration documented",
+      "verdict": "source premise repaired without weakening entered-work/reservation/receipt assertions; author native result not imported"
+    },
+    {
+      "id": "normalization",
+      "initial_ref": "dd9584728bd96f204983615216efdbc58117e713:policy-engine/src/polisyos/scientist/agent/_drafter_llm.py",
+      "initial_property": "Ordinary MultiPass ctor unwrapped the required-accounting client and lost pending guard for same/different model",
+      "candidate_resolution": "with_model canonical typed owner-preserving/refusing normalization; same immutable three-case oracle2FAIL1PASS→3PASS",
+      "verdict": "independent finite actual consumer control PASS; full B65/B66 formal closure remains false"
+    },
+    {
+      "id": "protected_audit_dependency",
+      "initial_property": "Initial c0 release cited required-audit test absent locally",
+      "candidate_resolution": "Actual independent RUN test fullpath exists at9c76d54cf10255ab5b926dfd961dcb3e07711ff4; additional recovery body475L exists samepath@5290d8a8f6af3ac2d19364b297e09467ecea6512",
+      "verdict": "Dependency resolved by exact foreign input SHA, not imaginary local c0 test or future PASS"
+    }
+  ],
+  "source_verdict": {
+    "status": "NONBLOCKING_WITH_EXPLICIT_FINITE_BOUNDARIES",
+    "statement": "No blocking source issue identified in the reviewed initialized ledger/constructor-owned completion profile after a391. This is not an all-deployed-consumer, external billing, audit authority or broad runtime verdict. The served optional telemetry cost aggregation boundary remains assigned A/G.",
+    "closure_ids": [],
+    "P41": "not_established"
+  },
+  "checks": [
+    {
+      "kind": "complete three-case actual canonical constructor/required callback/filesystem-provider oracle",
+      "outcome": "FAIL",
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "actual_process_target": {
+        "actual_target_head": "3199fbbedcc29df9f37269a8586ab520a9ad0689",
+        "actual_target_tree": "771fb46a1e2b13dc002fd75d00bdc7798ed25ea5",
+        "target_status": "",
+        "own_test_sha": "48bfe21b744953dc667653b06d60b69477f24de2",
+        "test_sha256": "42c50c12a4cbc63e92b18b5ac5fe00f62548380714a5a595f158220eeb3012e8",
+        "test_bytes": 6753
+      },
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "--noconftest",
+        "-c",
+        "/dev/null",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/baseline-DD/cache",
+        "--basetemp=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/baseline-DD/tmp",
+        "--junitxml=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/baseline-DD/native.xml",
+        "-vv",
+        "-s",
+        "/workspace/e02-B-current-composition/policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine/product",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "E02_DRAFTER_ORACLE_SOURCE_ROOT": "/workspace/e02-B-current-coordination",
+        "E02_DRAFTER_ORACLE_SOURCE_SHA": "dd9584728bd96f204983615216efdbc58117e713"
+      },
+      "wall_seconds": 9.379173250999884,
+      "wait4_resource": {
+        "utime": 9.263092,
+        "stime": 0.792972,
+        "maxrss_kib_linux": 504704
+      },
+      "actual_exit": 1,
+      "junit_complete_case_counts": {
+        "passed": 1,
+        "failed": 2,
+        "errors": 0
+      },
+      "source_after": {
+        "actual_target_head": "3199fbbedcc29df9f37269a8586ab520a9ad0689",
+        "actual_target_tree": "771fb46a1e2b13dc002fd75d00bdc7798ed25ea5",
+        "target_status": ""
+      },
+      "full_stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/baseline-DD/native.txt",
+      "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/baseline-DD/native.xml",
+      "wrapper_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/baseline-DD/wrapper.json",
+      "predicate_basis": "independently_reconciled"
+    },
+    {
+      "kind": "complete three-case actual canonical constructor/required callback/filesystem-provider oracle",
+      "outcome": "PASS",
+      "target_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "actual_process_target": {
+        "actual_target_head": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+        "actual_target_tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e",
+        "target_status": "",
+        "own_test_sha": "48bfe21b744953dc667653b06d60b69477f24de2",
+        "test_sha256": "42c50c12a4cbc63e92b18b5ac5fe00f62548380714a5a595f158220eeb3012e8",
+        "test_bytes": 6753
+      },
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "--noconftest",
+        "-c",
+        "/dev/null",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/candidate-a391/cache",
+        "--basetemp=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/candidate-a391/tmp",
+        "--junitxml=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/gateway-settlement-review/candidate-a391/native.xml",
+        "-vv",
+        "-s",
+        "/workspace/e02-B-current-composition/policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py"
+      ],
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine/product",
+        "POLISYOS_METRICS_PORT": "0",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "E02_DRAFTER_ORACLE_SOURCE_ROOT": "/workspace/e02-B-current-adapters",
+        "E02_DRAFTER_ORACLE_SOURCE_SHA": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d"
+      },
+      "wall_seconds": 9.653604563005501,
+      "wait4_resource": {
+        "utime": 9.183705,
+        "stime": 0.851715,
+        "maxrss_kib_linux": 506088
+      },
+      "actual_exit": 0,
+      "junit_complete_case_counts": {
+        "passed": 3,
+        "failed": 0,
+        "errors": 0
+      },
+      "source_after": {
+        "actual_target_head": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+        "actual_target_tree": "da24b5d33dad29e7d23ad953e687b73d99c5265e",
+        "target_status": ""
+      },
+      "full_stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/candidate-a391/native.txt",
+      "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/candidate-a391/native.xml",
+      "wrapper_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-settlement-independent-evidence/candidate-a391/wrapper.json",
+      "predicate_basis": "independently_reconciled"
+    }
+  ],
+  "related_tests_source_only": [
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/tests/unit/core/test_llm_core.py",
+      "git_blob": "5caa00dce0908c19487a9eb7f9330f4788b039b4",
+      "bytes": 1942,
+      "sha256": "5de4046006fb35942a30eb161d7e403d6eceee7067c22deae8bbec1972c5da5d"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "git_blob": "2c9e1ab1ed6b897cc2d20ad6c4f0f517359a6b50",
+      "bytes": 8263,
+      "sha256": "b247897d69ec0c990aeb94700db0d471a46890e77ea6f181190e3eaa40d7b5de"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "git_blob": "0e99193a709e6db5c663eb2ac69f2f1c4a3169ae",
+      "bytes": 21218,
+      "sha256": "8736dff32a452af960f0de1ac944106a9f7939751527a50d94e204330d0b7821"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "git_blob": "41e01cbaf59832e3d2890b72ed03144b98d8ff08",
+      "bytes": 6644,
+      "sha256": "bad07ae1d13e7df68db4fb1a4c864003d6715fec21ab07ae1ad1f4417a0a70b9"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_factory.py",
+      "git_blob": "1b3377c7c654829458f1bda777277c68f93095e2",
+      "bytes": 9466,
+      "sha256": "0c9582814b5e82cce3c45ad48025af72c663be2ee0759a60862b62ccf9a1c301"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_fallback_router.py",
+      "git_blob": "d33ba8b01730b2c96692fccb5a856ddebe91f59c",
+      "bytes": 5623,
+      "sha256": "c7e6b03e654c0d695638a63427b1f37fc6265893b300fd0e4d30bd825cfaee20"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+      "git_blob": "8ead0d5bdae6b8a4115dab50011c25c4e44b8f25",
+      "bytes": 25259,
+      "sha256": "d0f8081646f625d27bd2c9eb3ea75e2a530f1c02ef3ca9dc44943bda02abe154"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "git_blob": "4ac872ce11f1232eed5c35f66b073a76fb2d9125",
+      "bytes": 21213,
+      "sha256": "8e2a53ddf3245f983a8f030f4b07767d9be729d5a7e523c58a61cc3ddb1105fb"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "git_blob": "2a94ac185cebd2717b8b4df257490f388367cae7",
+      "bytes": 41709,
+      "sha256": "b89b439c51c669c5a073c0f1b05b337265889e8fc25af87571967003df98d9c6"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+      "git_blob": "f13d3fe881073d7bedebe655387be8db289d320c",
+      "bytes": 4182,
+      "sha256": "733452c3d753d3f66464152c7b11628b8a57cbb2ed12387375127d50a5ca09b0"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+      "git_blob": "f1b5da1a9d4ca25720379dd6202318a9c26b6f35",
+      "bytes": 26797,
+      "sha256": "9b42cb92d53718bdd73e488cc425f5df5a7f332a952d1f9f7cc227a17533d8b1"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/tests/unit/scientist/agent/test_drafter_llm.py",
+      "git_blob": "26dcf0d01b33431a8864ee8b35315e115e9fdada",
+      "bytes": 4996,
+      "sha256": "62e29fac63c46fa9964df55813a72ea4a980ffac24d01973d2b42e68772dffc6"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/tests/unit/scientist/agent/test_response_healing.py",
+      "git_blob": "ad2f9223a95ae9e0cbeda576060afe5487dbf085",
+      "bytes": 22755,
+      "sha256": "d0d34fc4bb86a1c4c928e305cf27026e6a19f39784c6b37b30554b683b799ea1"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/tests/unit/scientist/agent/test_critic_factory.py",
+      "git_blob": "e6c5ed017f3cb2608007d8916b32a13a20526ea9",
+      "bytes": 8756,
+      "sha256": "c14556a2ee22053b6685d9b409db41ca636826a0a8a5ff57ac4a1c48c1185d1d"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+      "git_blob": "38c14640e53d1bffddaac44fc48b2a0ebe42722c",
+      "bytes": 26912,
+      "sha256": "e014ebecd3342c76e4e3d529d32fe0a72a0708b49f90375e59792526a077116d"
+    },
+    {
+      "source_sha": "a391e0c1f5bec81e6033675e4d48dd1cbe8e194d",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "git_blob": "a8a6ad561cc598fb72c7fd6c0e2170b0d11dd36f",
+      "bytes": 13720,
+      "sha256": "2cd4013df96e19c5620ad8d05cf6d79151f0c532eb00b1d4638ea6975bec8a01"
+    }
+  ],
+  "foreign_required_audit_input": {
+    "source_sha": "5290d8a8f6af3ac2d19364b297e09467ecea6512",
+    "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+    "git_blob": "8d3c357a7b2114e72bcc9179919f5d530354bfca",
+    "bytes": 21616,
+    "sha256": "aa091fcb60933e78f60ab3f337ca2892e2d71042528da08d5d901ca5eb84fcde"
+  },
+  "required_affected_checks": {
+    "state": "UNRUN_BY_THIS_REVIEWER except exact new three-case normalization oracle",
+    "whole_files": [
+      "policy-engine/tests/unit/core/test_llm_core.py",
+      "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_factory.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_fallback_router.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+      "policy-engine/tests/unit/scientist/agent/test_drafter_llm.py",
+      "policy-engine/tests/unit/scientist/agent/test_response_healing.py",
+      "policy-engine/tests/unit/scientist/agent/test_critic_factory.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "policy-engine/tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py"
+    ],
+    "foreign_input_addition": "Whole required-audit test9c76/5290 after real composition; actual actor/input must be independently bound. No collection count inferred from parameter decorators.",
+    "transitive_consumer_targets": [
+      "policy-engine/tests/unit/scientist/agent/test_drafter_llm.py",
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+      "policy-engine/tests/unit/runtime/quality/test_design_generation.py"
+    ]
+  },
+  "limitations_and_next_owner": [
+    "A/G: exact source a391, existing DD-byte-identical served nl_pipeline factory/response_shapes aggregation. Minimal unexecuted input has valid obtained content and absent monetary evidence; traced observer emits cost_usd=None/cost_origin=unknown, aggregate currently coerces to0. Run actual served variant through run_budget_usd before attesting monetary certainty. No A-owned/runtime-quality source writes here.",
+    "ADAPTER/DUR/RUN/root: execute and preserve defining unknown SDK/getter/underflow/zero/three-port/direct-cache and real protected audit/fresh-owner/process/fault controls on exact composed candidate; only our unchanged normalization3 cases independently ran.",
+    "Deployment owner: external audit reconciler must verify the original exact act, and cache issuer/reuse permission remains a supplied operational/institutional premise. Local typed DTO/cost estimate/receipt is not an invoice or permission grant.",
+    "Unmanaged client/model/stream configuration is not mandatory accounting. Dynamic aliases, arbitrary SDK schemas, provider retries/invoice reconciliation, network/resource/child inputs and complete deployed financial graph are not established by this literal source census.",
+    "Public source/README/release/generated surfaces require root normal integration/public-surface generation after all source freezes; no generator/gate or full cohort run by this reviewer."
+  ]
+}

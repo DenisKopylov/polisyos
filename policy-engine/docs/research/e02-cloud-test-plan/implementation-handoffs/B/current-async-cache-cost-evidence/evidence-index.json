@@ -1,0 +1,257 @@
+[
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-cells.json",
+    "bytes": 10046,
+    "sha256": "dad98411d10760b9eb2aea4f2aa5ca60f40223230c5b6fa95415139daaa00cb0"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-job-contexts.json",
+    "bytes": 6979,
+    "sha256": "cc5619fbc78218bea47e5a4463bfa9ea05af9ec8d1039d596977e421d2f4efcc"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/capture.source.txt",
+    "bytes": 2455,
+    "sha256": "8e0c5159662babd0736a308c464fc9d080c53eee8ab50e2c0b58fa63b356eed6"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/child.source.txt",
+    "bytes": 2869,
+    "sha256": "546868e3896f32b2d9d1d4b48752268156be6c805eda11b5913a099145cca33d"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/format.txt",
+    "bytes": 25,
+    "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/native.txt",
+    "bytes": 2325,
+    "sha256": "fa50cf72fe6197b9217a675ca7effc4b6d300aa26aebdb6c0224f8fbfae98540"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/native.xml",
+    "bytes": 588,
+    "sha256": "b2b547e77de85d7c79ae60cdafafc45a76031067b5a4c68d655aee0468f82fd4"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/profile.json",
+    "bytes": 800,
+    "sha256": "e74345acb2c414373079a4ce1fe30447a31b130dd70a5b3cf992ac048cbdd3fb"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/ruff.txt",
+    "bytes": 19,
+    "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/source-context-summary.json",
+    "bytes": 3719,
+    "sha256": "3a4fc35f8c8a8809bdda802bf2cd34563d743abc7f3821831977fbd561d2bf41"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/style.json",
+    "bytes": 1349,
+    "sha256": "587727ca5579c3ecd98086fa5e5f7063a8bea15d8a6a9c0e1cd1460bd233dd1a"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/wrapper.json",
+    "bytes": 1308,
+    "sha256": "a623eeef0be80316f6b2b71ef28af7c1ad8269e6839b7385247ed5427be010b2"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/cache/49820e7de6f05cc434f0fb29e6ae4954967063687b6a246bd9c7cc73fcd4278f.blob",
+    "bytes": 5545,
+    "sha256": "49820e7de6f05cc434f0fb29e6ae4954967063687b6a246bd9c7cc73fcd4278f"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/cache/49820e7de6f05cc434f0fb29e6ae4954967063687b6a246bd9c7cc73fcd4278f.manifest.json",
+    "bytes": 720,
+    "sha256": "4bb3d389ab860ec7ac3399fe95f278742b64df2a17474c87eab88fbf58a17518"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/cache/49820e7de6f05cc434f0fb29e6ae4954967063687b6a246bd9c7cc73fcd4278f.view.898975c2a6666069eee88706b43e990b9b15d45cb06f4a07aa5bea49416365f1.manifest.json",
+    "bytes": 720,
+    "sha256": "4bb3d389ab860ec7ac3399fe95f278742b64df2a17474c87eab88fbf58a17518"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/cache-ref.json",
+    "bytes": 171,
+    "sha256": "1bfe517245d13138d4d8c03f2a02e08996cd4d697d6da390b370eaf2776fcac7"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/individual-costs.json",
+    "bytes": 49786,
+    "sha256": "67bca9902973c2e8146e5011c46f3e19252b1e2ad9aa06a7a5dfc43900e7e2dc"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/physical-provider.jsonl",
+    "bytes": 94,
+    "sha256": "c2213d4557ae17d1bbbb33db512de03db3b719c5c213f04054033809119c368f"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/summary.json",
+    "bytes": 743,
+    "sha256": "6869856003e608d261132e0241ee1505ed5733fa946a7f9350dcd916bbe17953"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/trace.jsonl",
+    "bytes": 34254,
+    "sha256": "3af437d7e5bf4a66086c1b2210d80c4f915ded3e9bc07c00c0794ae289924045"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/cache/47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975.blob",
+    "bytes": 199085,
+    "sha256": "47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/cache/47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975.manifest.json",
+    "bytes": 722,
+    "sha256": "6698289034a57f68f2bef5d0b9307f60f7d17f54ec60fffea36f3caeae4c6212"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/cache/47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975.view.898975c2a6666069eee88706b43e990b9b15d45cb06f4a07aa5bea49416365f1.manifest.json",
+    "bytes": 722,
+    "sha256": "6698289034a57f68f2bef5d0b9307f60f7d17f54ec60fffea36f3caeae4c6212"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/cache-ref.json",
+    "bytes": 171,
+    "sha256": "1bbfd484bf96f6f6cef85bb8112195e738f093d93baba59d977940b1bf6742cf"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/individual-costs.json",
+    "bytes": 52630,
+    "sha256": "480cd9948c6675c90ae74ed5f73d617ab357be1b7c8648fa37ef6c526efcb105"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/physical-provider.jsonl",
+    "bytes": 95,
+    "sha256": "2f93587b84c75d366b1b48fce5076f1cfa46774ee8efd9029723a5e14e3accf4"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/summary.json",
+    "bytes": 746,
+    "sha256": "4eef92a23c218c5b70890c72325083f82f25ab0c72f6b75c2d26028da07d3af9"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/trace.jsonl",
+    "bytes": 34371,
+    "sha256": "86b0695d616bdbed8c54d4c30ae6b6fface0fe1e6ecd7053eef37b8aaee50b6c"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/cache/20c4ad82e9fdf0777dbe90462e5a58c1f8681f72b8886e24fe5eecc60e63dec3.blob",
+    "bytes": 5545,
+    "sha256": "20c4ad82e9fdf0777dbe90462e5a58c1f8681f72b8886e24fe5eecc60e63dec3"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/cache/20c4ad82e9fdf0777dbe90462e5a58c1f8681f72b8886e24fe5eecc60e63dec3.manifest.json",
+    "bytes": 720,
+    "sha256": "44760caaf59407dd3fea42d57a04b4ff6622a5134246f010eeea23f31ee85db5"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/cache/20c4ad82e9fdf0777dbe90462e5a58c1f8681f72b8886e24fe5eecc60e63dec3.view.898975c2a6666069eee88706b43e990b9b15d45cb06f4a07aa5bea49416365f1.manifest.json",
+    "bytes": 720,
+    "sha256": "44760caaf59407dd3fea42d57a04b4ff6622a5134246f010eeea23f31ee85db5"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/cache-ref.json",
+    "bytes": 171,
+    "sha256": "7ce76c5f8d6fa74792480882a5844aa9966b89455c2efe918475f306f62337fd"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/individual-costs.json",
+    "bytes": 1902,
+    "sha256": "32f2618813380cdaa83fe373d94943f148137b1cbbe1d2ef96167cb80801d8bc"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/physical-provider.jsonl",
+    "bytes": 94,
+    "sha256": "c2213d4557ae17d1bbbb33db512de03db3b719c5c213f04054033809119c368f"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/trace.jsonl",
+    "bytes": 2766,
+    "sha256": "c459b78315ff39d425c4ba6a423092c7d3852060bae99916826c2109c12aef6c"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations-summary.json",
+    "bytes": 6725,
+    "sha256": "8f1e4ed64cc05c259d673a2d8e08be10654ded56438e5386d5d5a4df51b5cacf"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/pack.source.txt",
+    "bytes": 9060,
+    "sha256": "cb722b410eb14a0840859718de32006cb2d8c76fa29a52544f9051af1fd971af"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/raw-reference-index.json",
+    "bytes": 737,
+    "sha256": "df364ef97dfbe4a5a247098fa52aabd4ad0c89124771cbaf545821b204db0475"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/capture.source.txt",
+    "bytes": 2454,
+    "sha256": "6d9e455b4d158548c0bb6f4f36af418e67c5fa39c0ee19bd36d532681d4f65ac"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/child.source.txt",
+    "bytes": 4805,
+    "sha256": "ab9a1ff7ddea0ede37167b551b9de7b1431a06fe4322bc289c6be7621193d5ca"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/native.txt",
+    "bytes": 8091,
+    "sha256": "4171d393d01619a863598137636de38159d951de8dcb81a369fcef68923d3ac0"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/native.xml",
+    "bytes": 5899,
+    "sha256": "fbeed286dd599458717837b0ef79b7f6ede4f54da65755392640c26fa96f4aa5"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/profile.json",
+    "bytes": 799,
+    "sha256": "caf514dddb439292352fff6943c2fdf6440a04a15cae0c21089f73092d9c34b5"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/readback-initial-error.txt",
+    "bytes": 709,
+    "sha256": "f75b6d7ff273cb44eca9c779d798012c32e80ff4add604143be9847c9a54d945"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/readback.json",
+    "bytes": 993,
+    "sha256": "3075ccc8b5fb00f50a84f634c94fae6b242e3f12ee1dbab26fb1f45c1cbf2e80"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/readback.txt",
+    "bytes": 993,
+    "sha256": "3075ccc8b5fb00f50a84f634c94fae6b242e3f12ee1dbab26fb1f45c1cbf2e80"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/source-context-summary.json",
+    "bytes": 3779,
+    "sha256": "49b1051e0546e296a99c25fbf5fe9da872f5e903c3c26006d14655963ede89ff"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/wrapper.json",
+    "bytes": 1305,
+    "sha256": "29a0193f6f182901075909ea6a31a7c3d6e4a0016b8c8e9ef8bcedc54f012ca3"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal-prepare.source.txt",
+    "bytes": 2999,
+    "sha256": "dbba841acc949be1294a1559b6e5ab13720c90104d0819120c31f3d6cd4440b7"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal-readback-initial.source.txt",
+    "bytes": 3002,
+    "sha256": "7dc81502a02332efa677a56e171910866a7a9d1a93eca2d8a00759d68370ad21"
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal-readback.source.txt",
+    "bytes": 2994,
+    "sha256": "eb0c25679300a1f1a71594bd0bb3f1ccd2aeeca5779cf05a8d8b2c95577b79f2"
+  }
+]

@@ -1,0 +1,49 @@
+"""Finite metadata identity reconciliation, run only after parent DD terminal admission."""
+import ast
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+assert len(sys.argv)==2 and sys.argv[1]=='parent-DD-wave-terminal', 'Requires explicit terminal admission'
+root=Path('/workspace/e02-B-current-coordination')
+own=Path('/workspace/e02-B-current-composition')
+source='dd9584728bd96f204983615216efdbc58117e713'
+implementation='e50bcdc2913305ac52adc7b6313fd3cc502950cf'
+rel='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json'
+selbytes=(root/'.polisyos/e02-B-current/raw/successor-final-selector.json').read_bytes()
+assert hashlib.sha256(selbytes).hexdigest()=='e5475e32e07fe0642a16a9c729ee5ba8c90b0355496e4434dfa0b86dffd123f0'
+s=json.loads(selbytes);assert s['root_snapshot_sha']==source
+old=json.loads(subprocess.check_output(['git','show',source+':'+rel],cwd=root))
+new=json.loads(subprocess.check_output(['git','show',implementation+':'+rel],cwd=own))
+source_selector='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-cohort-selector.py'
+selector_py=subprocess.check_output(['git','show',source+':'+source_selector],cwd=root)
+assert hashlib.sha256(selector_py).hexdigest()=='c8eed06f75fb395c3b064d251d5d8854988eaefc9c7f71b244403f4f5f5e7a4d'
+missing=[e for e in s['absent_named_selectors'] if e['required_by_canonical_plan']]
+original_paths=set();corrected_paths=set();body_cache={}
+for e in missing:
+ name=e['named_selector']
+ original_paths.update(c['selector'].split('::')[0] for c in old[name]['candidates'])
+ for c in new[name]['candidates']:
+  path,*parts=c['selector'].split('::');corrected_paths.add(path)
+  assert len(parts) in (1,2) and parts[-1].startswith('test_')
+  assert len(parts)==1 or parts[0].startswith('Test')
+  if path not in body_cache:body_cache[path]=ast.parse(subprocess.check_output(['git','show',source+':policy-engine/'+path],cwd=root).decode())
+  nodes=body_cache[path].body
+  for part in parts:
+   matches=[n for n in nodes if isinstance(n,(ast.ClassDef,ast.FunctionDef,ast.AsyncFunctionDef)) and n.name==part]
+   assert len(matches)==1,(name,c['selector'],part)
+   nodes=matches[0].body
+frozen=s['test_paths'];frozen_set=set(frozen);assert len(frozen)==len(frozen_set)==236
+assert original_paths<=frozen_set
+assert original_paths<=corrected_paths, 'No historical equivalent body/file removed'
+# The unchanged selector creates its whole-file union BEFORE map matching.
+# Map candidates must already resolve once in test_defs from that union; they
+# do not auto-admit a new file. IDs/grade/residuals only annotate those bodies.
+# A candidate outside236 is a typed selector-admission error, never a fabricated
+# added native input/PASS. No selector import/run is performed here.
+unadmitted=corrected_paths-frozen_set
+corrected=frozen_set
+out={'kind':'finite path/definition identity reconciliation only; no selector execution, collection, product import or native result interpretation','explicit_parent_terminal_admission':True,'source_sha':source,'source_tree':s['root_snapshot_tree'],'metadata_implementation_sha':implementation,'metadata_map_sha256':hashlib.sha256(subprocess.check_output(['git','show',implementation+':'+rel],cwd=own)).hexdigest(),'unchanged_selector_sha256':hashlib.sha256(selector_py).hexdigest(),'frozen_selector_sha256':hashlib.sha256(selbytes).hexdigest(),'original_canonical_absent_names':len(missing),'historical_equivalent_file_count':len(original_paths),'corrected_equivalent_file_count':len(corrected_paths),'all_original_equivalent_files_retained':True,'frozen_native_whole_file_count':len(frozen_set),'corrected_native_whole_file_count':len(corrected),'added_whole_files':sorted(corrected-frozen_set),'removed_whole_files':sorted(frozen_set-corrected),'unadmitted_candidate_whole_files':sorted(unadmitted),'selector_admission_state':'ERROR_expected_missing_candidate_test_defs' if unadmitted else 'SOURCE_BODY_MATCHING_RECONCILED_NO_RUNTIME_CLAIM','native_case_count_or_PASS':'NOT_ESTABLISHED_BY_THIS_RECONCILIATION','original_named_selectors_state':'UNRUN remains unchanged','input_semantic_delta':'Map finding-ID/property/residual interpretation changed. Native DD source bodies, whole-file inputs and outcomes are not retroactively relabeled as future map-SHA PASS.'}
+print(json.dumps(out,indent=2))

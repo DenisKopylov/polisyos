@@ -1,0 +1,36 @@
+{
+  "schema": "policyos.e02.foreign_source_review.v1",
+  "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+  "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+  "author": "CMP exclusive _implementation_identity owner",
+  "reviewer": "B cas_probe foreign source/evidence reviewer",
+  "predicate_basis": "independently_reconciled",
+  "verdict": "NONBLOCKING within declared ordinary-function finite data-field getter profile",
+  "source_review_quantities": [
+    "Actual captured builtins.getattr object and all captured-alias uses are classified, not a helper name exception.",
+    "Only direct calls with immutable complete public selector literals/strings or one captured tuple/frozenset comprehension, runtimeparameter target and same-parameter optional default are admitted.",
+    "Python root FUNCTION symbol table/name/line is required before parameter lookup; is_assigned/is_imported and AST Store/Del cover ordinary rebinding including exception/definition/import/match and comprehension/deletion.",
+    "Unsupported generic type-parameter scope returnsNone then _unavailable→SourceIdentityUnavailableError→existing CheckpointIdentityError/CompilationError; no raw lookup escape retained.",
+    "Nested getter context/transport, capturedModuleType reflection, runtime selector, private field selector and other direct namespace/import guards retain refusal.",
+    "Eight prior module/capture/capability guard function ASTs equal selected root6fa. Complete authored delta is e82→0903 fourpaths, not fullbranch byte equality with root6fa.",
+    "Nearest README/release record generic unsupported and no runtime targettype, descriptor, opaque internals or returnedcontext authority; frame counterexample remains LIMITED."
+  ],
+  "native_input_review": [
+    "Actual old canonical _method fixture dematerialize_output: captured immutable output_names tuple, unrebound output parameter, comprehension direct actualgetattr(output,slot,output). No canonical test_jit assertions were weakened.",
+    "New registered real exception-binding source must refuse CheckpointIdentityError with dispatcher.calls[] before its body.",
+    "New real PEP695 source must refuse same canonical typedidentity boundary rather than accepting raw KeyError; old907518 owner red is separately retained and not a success grade.",
+    "Published DUR independent final f6a3 full source/native/hash/152origin and numerical quantities independently reconciled without copying its native output."
+  ],
+  "per_premise_basis": {
+    "source_and_git_hashes_ast_and_final_DUR_data": "independently_reconciled",
+    "DUR_physicalbodyabsence_and_handleidentity": "consumer_asserted by exact independently authored native fixture",
+    "CMP115_27_removal_style_mypy": "Parent/author actualreports only; canonical publication pending, not recomputed here"
+  },
+  "limitations": [
+    "Reviewer runtimeUNRUN; no candidate code import, native tests, gate, provision, cleanup or source mutation.",
+    "No full scientific pipeline/JIT graph/history/source authority, external mutable code closure, institutional policy or allB acceptance.",
+    "Remaining actual frame107FAIL remains B74LIMITED; closure_ids[].",
+    "Existing6fa wholecohort/gates red remain predecessor actualoutputs. Future ROOT integration and affected/fullnative/gates owned by ROOT/G.",
+    "Author final115=114PASS1knownframeFAIL and27=26PASS1knownframeFAIL plusgetterremoval1materialFAIL are reported actual but not custody accepted until canonical evidence is published; no future SHA invented."
+  ]
+}

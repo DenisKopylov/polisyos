@@ -1,0 +1,140 @@
+"""Preserve complete moderate native observations; pin derived input inventories."""
+import hashlib
+import json
+import math
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import xml.etree.ElementTree as ET
+
+REPO=Path('/workspace/e02-B-current-execution-state')
+BASE=Path('/tmp/e02-B52-cache-cost-c043')
+PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence'
+DEST=REPO/PREFIX
+DEST.mkdir()
+def copy(source,name):
+    target=DEST/name
+    target.parent.mkdir(parents=True,exist_ok=True)
+    shutil.copyfile(source,target)
+def digest(path):
+    data=path.read_bytes()
+    return {'path':str(path),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+def nearest(values,q):
+    return sorted(values)[max(0,math.ceil(q*len(values))-1)]
+raw=[]
+source_summaries=[]
+for phase in ['evidence','removal']:
+    source=BASE/phase
+    for name in ['capture.source.txt','child.source.txt','native.txt','native.xml','profile.json','wrapper.json']:
+        copy(source/name,phase+'/'+name)
+    for name in ['source-context.json','module-origins.json']:
+        raw.append(digest(source/name))
+    context=json.loads((source/'source-context.json').read_text())
+    identities=context.pop('input_inventory')
+    context['input_inventory_count']=len(identities)
+    context['input_inventory_raw']=digest(source/'source-context.json')
+    context['loaded_module_origins_raw']=digest(source/'module-origins.json')
+    context['inventory_reproduction']='Literal committed child.source.txt git ls-files + git show target:path + actual byte checks; raw derivative retained outside Git.'
+    context['selected_mechanisms']=[x for x in identities if x['path'] in [
+      'policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py',
+      'policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py',
+      'policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py',
+      'policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py',
+      'policy-engine/src/polisyos/scientist/orchestration/engine/metrics_protocol.py',
+      'policy-engine/src/polisyos/scientist/orchestration/engine/metrics_otel.py',
+      'policy-engine/pytest.ini','policy-engine/pyproject.toml','policy-engine/uv.lock',
+      'policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py']]
+    (DEST/phase/'source-context-summary.json').write_text(json.dumps(context,indent=2)+'\n')
+    source_summaries.append(context)
+for name in ['ruff.txt','format.txt','style.json']:
+    copy(BASE/'evidence'/name,'evidence/'+name)
+for name in ['readback.json','readback.txt','readback-initial-error.txt']:
+    copy(BASE/'removal'/name,'removal/'+name)
+for name in ['removal-prepare.source.txt','removal-readback.source.txt','removal-readback-initial.source.txt']:
+    copy(BASE/name,name)
+measurements=[]
+for case,root in [('1024',BASE/'fixtures/test_real_async_cache_costs_an0'),('65536',BASE/'fixtures/test_real_async_cache_costs_an1'),('removal1024',BASE/'removal-fixtures/test_real_async_cache_costs_an0')]:
+    copy(root/'individual-costs.json','observations/'+case+'/individual-costs.json')
+    copy(root/'physical-provider.jsonl','observations/'+case+'/physical-provider.jsonl')
+    copy(root/'run/trace.jsonl','observations/'+case+'/trace.jsonl')
+    if (root/'summary.json').exists():
+        copy(root/'summary.json','observations/'+case+'/summary.json')
+        summary=json.loads((root/'summary.json').read_text())
+        rows=json.loads((root/'individual-costs.json').read_text())
+        assert len(rows)==13
+        lateness=[x['lateness_ns'] for row in rows for x in row['neighbour_timer_samples']]
+        warm=[x['workflow_return_cost_ns'] for x in rows if x['warm']]
+        assert summary['neighbour_wait_p95_ns']==nearest(lateness,.95)
+        assert summary['neighbour_wait_p99_ns']==nearest(lateness,.99)
+        assert summary['warm_workflow_return_cost_p95_ns']==nearest(warm,.95)
+        assert summary['warm_workflow_return_cost_p99_ns']==nearest(warm,.99)
+        summary['raw_individual_measurements']=PREFIX+'/observations/'+case+'/individual-costs.json'
+        summary['quantiles_independently_recomputed_by_metadata_driver']=True
+        summary['independent_reviewer_acceptance']=False
+        measurements.append(summary)
+    trace=[json.loads(x) for x in (root/'run/trace.jsonl').read_text().splitlines()]
+    ref=next(x for x in trace if x['event']=='NODE_CACHE_STORE')['refs']['outputs'][0]
+    hex_digest=ref['artifact_id'].partition(':')[2]
+    for path in (root/'cas').rglob(hex_digest+'*'):
+        if path.is_file():
+            copy(path,'observations/'+case+'/cache/'+path.name)
+    (DEST/'observations'/case/'cache-ref.json').write_text(json.dumps(ref,indent=2)+'\n')
+result={}
+for phase in ['evidence','removal']:
+    suite=ET.parse(BASE/phase/'native.xml').getroot().find('testsuite')
+    cases=list(suite.findall('testcase'))
+    result[phase]={'cases':len(cases),'PASS':sum(not any(x.tag in {'failure','error','skipped'} for x in c) for c in cases),
+                  'FAIL':sum(c.find('failure') is not None for c in cases),
+                  'ERROR':sum(c.find('error') is not None for c in cases),
+                  'SKIP':sum(c.find('skipped') is not None for c in cases),
+                  'pytest_suite_seconds':suite.attrib['time'],
+                  'nodeids':[c.attrib['classname']+'::'+c.attrib['name'] for c in cases],
+                  'wrapper':json.loads((BASE/phase/'wrapper.json').read_text())}
+(DEST/'observations-summary.json').write_text(json.dumps({'native':result,'measurements':measurements,'derived_raw_pins':raw,
+    'qualification':'Metadata recomputation and source byte checks are not author self-review; actual native source c043, no final future-root replay asserted.'},indent=2)+'\n')
+# Bind every baseline cell to its full received job metadata location. This is
+# source-reported compact navigation only, never candidate mechanism evidence.
+results=REPO/'policy-engine/docs/research/e02-cloud-test-plan/results'
+jobs=[]
+for job in ['F01','F02','F05','F06','F07','F09','F11','F14']:
+    path=results/'received'/f'{job}.txt'
+    text=path.read_text()
+    found=None
+    for match in re.finditer(r'(?m)^\s*\{',text):
+        try:
+            obj,used=json.JSONDecoder().raw_decode(text[match.start():].lstrip())
+        except json.JSONDecodeError:
+            continue
+        if isinstance(obj,dict) and any(k in obj for k in ['source','source_sha']) and any(k in obj for k in ['environment','toolchain','environment_compact']):
+            found=(match.start(),used,obj)
+            break
+    assert found is not None,job
+    start,used,obj=found
+    jobs.append({'job':job,'source_file':'received/'+job+'.txt',
+       'metadata_line_start':text[:start].count('\n')+1,'metadata_line_end':text[:start+used].count('\n')+1,
+       'source_sha':obj.get('source',obj.get('source_sha')),'source_tree':obj['tree'],
+       'source_ref':obj.get('source_role',obj.get('role','e02_head')),'manifest_sha256':obj['manifest_sha256'],
+       'environment_key':next(k for k in ['environment','toolchain','environment_compact'] if k in obj),
+       'config_identity_key':next((k for k in ['config_sha256','lock_hashes'] if k in obj),None),
+       'transferred_text_sha256':hashlib.sha256(text.encode()).hexdigest(),
+       'input_closure':'Full assigned test-path manifest digest and config hashes in this exact block; raw native archive missing; source-reported environment/profile only.',
+       'raw_archive_transfer':'missing','predicate_basis':'not_established','purpose':'baseline navigation; not new candidate PASS'})
+(DEST/'baseline-job-contexts.json').write_text(json.dumps(jobs,indent=2)+'\n')
+baseline=json.loads(Path('/tmp/e02-B-executor-format-exe/B52-query.json').read_text())
+cells=[]
+for row in baseline['cells']:
+    route=next(x for x in baseline['finding_routes'] if x['cell_id']==row['id'])
+    cells.append({**row,'source_ref':route['source_ref'],'route_grade':route['route_grade'],'semantic_adequacy':route['semantic_adequacy'],
+                  'job_context_ref':PREFIX+'/baseline-job-contexts.json#'+row['job'],'purpose':'source-reported baseline navigation only'})
+(DEST/'baseline-cells.json').write_text(json.dumps(cells,indent=2)+'\n')
+(DEST/'raw-reference-index.json').write_text(json.dumps(raw,indent=2)+'\n')
+# This packer is itself literal transferable metadata code, not product code.
+copy(BASE/'pack.source.txt','pack.source.txt')
+index=[]
+for path in sorted(DEST.rglob('*')):
+    if path.is_file():
+        data=path.read_bytes()
+        index.append({'path':path.relative_to(REPO).as_posix(),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+(DEST/'evidence-index.json').write_text(json.dumps(index,indent=2)+'\n')
+print(json.dumps({'committed_evidence_objects':len(index)+1,'bytes':sum(x['bytes'] for x in index),'native':{k:{field:value for field,value in v.items() if field!='wrapper'} for k,v in result.items()}},indent=2))

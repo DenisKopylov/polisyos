@@ -1,0 +1,926 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-async-cache-cost",
+  "closure_ids": [],
+  "proposed_bounded_verification_ids": [
+    "B52"
+  ],
+  "bundle_ids": [
+    "EXE-01"
+  ],
+  "slice_base_sha": "af5f54427eadad9da117d0aa126c1756206fc1dc",
+  "implementation_commits": [
+    "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+    "8e0c9ab1f5516f20d2a39c2bfba8240cb9d4f8f2",
+    "0592674c103841ed6e671d7c50ac3e814dc9d1c2"
+  ],
+  "candidate_sha": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+  "candidate_tree_sha": "dc541e06438eceb012fca6e91f11f0934a6b5289",
+  "runtime_source_sha": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+  "runtime_source_tree": "ba4cdd14d0e18fae1c7569d5f398c673e0f38282",
+  "branch": "codex/e02-B-current-execution-state",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/54",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-cells.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-job-contexts.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/capture.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/child.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/format.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/source-context-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/style.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/cache-ref.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/cache/49820e7de6f05cc434f0fb29e6ae4954967063687b6a246bd9c7cc73fcd4278f.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/cache/49820e7de6f05cc434f0fb29e6ae4954967063687b6a246bd9c7cc73fcd4278f.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/cache/49820e7de6f05cc434f0fb29e6ae4954967063687b6a246bd9c7cc73fcd4278f.view.898975c2a6666069eee88706b43e990b9b15d45cb06f4a07aa5bea49416365f1.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/individual-costs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/physical-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/trace.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/cache-ref.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/cache/47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/cache/47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/cache/47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975.view.898975c2a6666069eee88706b43e990b9b15d45cb06f4a07aa5bea49416365f1.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/individual-costs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/physical-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/trace.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/cache-ref.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/cache/20c4ad82e9fdf0777dbe90462e5a58c1f8681f72b8886e24fe5eecc60e63dec3.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/cache/20c4ad82e9fdf0777dbe90462e5a58c1f8681f72b8886e24fe5eecc60e63dec3.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/cache/20c4ad82e9fdf0777dbe90462e5a58c1f8681f72b8886e24fe5eecc60e63dec3.view.898975c2a6666069eee88706b43e990b9b15d45cb06f4a07aa5bea49416365f1.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/individual-costs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/physical-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/trace.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/pack.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/raw-reference-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal-prepare.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal-readback-initial.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal-readback.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/capture.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/child.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/readback-initial-error.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/readback.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/readback.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/source-context-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/wrapper.json",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py"
+  ],
+  "source_changed_paths": [
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py"
+  ],
+  "metadata_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-cells.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-job-contexts.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/capture.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/child.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/format.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/source-context-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/style.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/cache-ref.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/cache/49820e7de6f05cc434f0fb29e6ae4954967063687b6a246bd9c7cc73fcd4278f.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/cache/49820e7de6f05cc434f0fb29e6ae4954967063687b6a246bd9c7cc73fcd4278f.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/cache/49820e7de6f05cc434f0fb29e6ae4954967063687b6a246bd9c7cc73fcd4278f.view.898975c2a6666069eee88706b43e990b9b15d45cb06f4a07aa5bea49416365f1.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/individual-costs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/physical-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/trace.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/cache-ref.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/cache/47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/cache/47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/cache/47ab30cda1adc7f76c6380c6bfd4cc8d3eb85399cabe633f8a556fab986eb975.view.898975c2a6666069eee88706b43e990b9b15d45cb06f4a07aa5bea49416365f1.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/individual-costs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/physical-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/trace.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/cache-ref.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/cache/20c4ad82e9fdf0777dbe90462e5a58c1f8681f72b8886e24fe5eecc60e63dec3.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/cache/20c4ad82e9fdf0777dbe90462e5a58c1f8681f72b8886e24fe5eecc60e63dec3.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/cache/20c4ad82e9fdf0777dbe90462e5a58c1f8681f72b8886e24fe5eecc60e63dec3.view.898975c2a6666069eee88706b43e990b9b15d45cb06f4a07aa5bea49416365f1.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/individual-costs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/physical-provider.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/trace.jsonl",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/pack.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/raw-reference-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal-prepare.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal-readback-initial.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal-readback.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/capture.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/child.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/readback-initial-error.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/readback.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/readback.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/source-context-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/wrapper.json"
+  ],
+  "production_config_delta": "ZERO_DIFF base→candidate; source test-only; evidence docs-only; no product tests executed on evidence HEAD.",
+  "baseline_cells": [
+    {
+      "id": "F01-P120",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/core/artifacts/test_async_store.py",
+      "state": "PASS",
+      "collected": "3",
+      "calls": "3",
+      "call_pass": "3",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.55",
+      "rss_kib": "93024",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "237",
+      "extra_json": "{}",
+      "source_ref": "research_main",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "job_context_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-job-contexts.json#F01",
+      "purpose": "source-reported baseline navigation only"
+    },
+    {
+      "id": "F02-P058",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "state": "PASS",
+      "collected": "15",
+      "calls": "15",
+      "call_pass": "15",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "17.49",
+      "rss_kib": "1270468",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "186",
+      "extra_json": "{}",
+      "source_ref": "research_main",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "job_context_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-job-contexts.json#F02",
+      "purpose": "source-reported baseline navigation only"
+    },
+    {
+      "id": "F05-P134",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/core/artifacts/test_async_store.py",
+      "state": "PASS",
+      "collected": "3",
+      "calls": "3",
+      "call_pass": "3",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.97",
+      "rss_kib": "100760",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "544",
+      "extra_json": "{}",
+      "source_ref": "e02_execution_base",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "job_context_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-job-contexts.json#F05",
+      "purpose": "source-reported baseline navigation only"
+    },
+    {
+      "id": "F06-P082",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "state": "PASS",
+      "collected": "7",
+      "calls": "7",
+      "call_pass": "7",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "37.33150935173035",
+      "rss_kib": "1399980",
+      "receipt_status": "valid",
+      "source_file": "received/F06.txt",
+      "source_line": "266",
+      "extra_json": "{\"reason\":\"null\"}",
+      "source_ref": "e02_execution_base",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "job_context_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-job-contexts.json#F06",
+      "purpose": "source-reported baseline navigation only"
+    },
+    {
+      "id": "F07-P054",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "state": "PASS",
+      "collected": "15",
+      "calls": "15",
+      "call_pass": "15",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "33.07446765899658",
+      "rss_kib": "1380620.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "60",
+      "extra_json": "{}",
+      "source_ref": "e02_head",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "job_context_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-job-contexts.json#F07",
+      "purpose": "source-reported baseline navigation only"
+    },
+    {
+      "id": "F09-P122",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/core/artifacts/test_async_store.py",
+      "state": "PASS",
+      "collected": "3",
+      "calls": "3",
+      "call_pass": "3",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.11",
+      "rss_kib": "101136",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "238",
+      "extra_json": "{}",
+      "source_ref": "e02_head",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "job_context_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-job-contexts.json#F09",
+      "purpose": "source-reported baseline navigation only"
+    },
+    {
+      "id": "F11-P065",
+      "job": "F11",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "state": "PASS",
+      "collected": "7",
+      "calls": "7",
+      "call_pass": "7",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "32.006",
+      "rss_kib": "1391400",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F11.txt",
+      "source_line": "194",
+      "extra_json": "{\"receipt_quality\":\"reconciled\",\"input_custody_blockers\":\"0\"}",
+      "source_ref": "main",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "job_context_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-job-contexts.json#F11",
+      "purpose": "source-reported baseline navigation only"
+    },
+    {
+      "id": "F11-P109",
+      "job": "F11",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/core/artifacts/test_async_store.py",
+      "state": "PASS",
+      "collected": "3",
+      "calls": "3",
+      "call_pass": "3",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "3.001",
+      "rss_kib": "100952",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F11.txt",
+      "source_line": "238",
+      "extra_json": "{\"receipt_quality\":\"reconciled\",\"input_custody_blockers\":\"0\"}",
+      "source_ref": "main",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "job_context_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-job-contexts.json#F11",
+      "purpose": "source-reported baseline navigation only"
+    },
+    {
+      "id": "F14-P070",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "state": "PASS",
+      "collected": "15",
+      "calls": "15",
+      "call_pass": "15",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "32.58072829900084",
+      "rss_kib": "1426756",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "420",
+      "extra_json": "{}",
+      "source_ref": "integration_head",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "job_context_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-job-contexts.json#F14",
+      "purpose": "source-reported baseline navigation only"
+    },
+    {
+      "id": "F14-P143",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/core/artifacts/test_async_store.py",
+      "state": "PASS",
+      "collected": "3",
+      "calls": "3",
+      "call_pass": "3",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "5.615440248000596",
+      "rss_kib": "110196",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "493",
+      "extra_json": "{}",
+      "source_ref": "integration_head",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "job_context_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-job-contexts.json#F14",
+      "purpose": "source-reported baseline navigation only"
+    }
+  ],
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-I",
+        "-B",
+        "/tmp/e02-B52-cache-cost-c043/evidence/child.source.txt"
+      ],
+      "launch_command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-I",
+        "-B",
+        "/tmp/e02-B52-cache-cost-c043/evidence/capture.source.txt"
+      ],
+      "target_sha": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+      "environment": {
+        "python_lexical": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "E02_EXPECTED_SOURCE": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+        "E02_PRODUCT_ROOT": "/workspace/e02-B-current-execution-state",
+        "versions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5"
+        },
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "no_explicit_cloud_process_worker_cpu_or_numerical_caps": true,
+        "fixtures": "unique /tmp namespace; real metrics server OS allocated port"
+      },
+      "input_closure": {
+        "source_tree": "ba4cdd14d0e18fae1c7569d5f398c673e0f38282",
+        "all_tracked_src_config_test_inventory": {
+          "path": "/tmp/e02-B52-cache-cost-c043/evidence/source-context.json",
+          "bytes": 585000,
+          "sha256": "cf7f284f9f8ac32f0e886688b517db535d77ebc5be8a220aef5ce895deb54791"
+        },
+        "input_inventory_count": 2918,
+        "all_loaded_origin_identity": {
+          "path": "/tmp/e02-B52-cache-cost-c043/evidence/module-origins.json",
+          "bytes": 415248,
+          "sha256": "64b930f039b7c3c663d78e658739ba01024a1d401fa57132e8be59e7d1cf9c47"
+        },
+        "loaded_module_count": 1100,
+        "all_source_bytes_equal_before_after": true,
+        "actual_pytest_argv": [
+          "-ra",
+          "-q",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "--benchmark-storage=file://./_cache/benchmarks",
+          "--noconftest",
+          "-p",
+          "no:cacheprovider",
+          "-s",
+          "-ra",
+          "tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py",
+          "--basetemp=/tmp/e02-B52-cache-cost-c043/fixtures",
+          "--junitxml=/tmp/e02-B52-cache-cost-c043/evidence/native.xml"
+        ],
+        "literal_child": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/child.source.txt",
+          "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+          "bytes": 2869,
+          "sha256": "546868e3896f32b2d9d1d4b48752268156be6c805eda11b5913a099145cca33d"
+        },
+        "profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/profile.json",
+          "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+          "bytes": 800,
+          "sha256": "e74345acb2c414373079a4ce1fe30447a31b130dd70a5b3cf992ac048cbdd3fb"
+        },
+        "source_context": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/source-context-summary.json",
+          "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+          "bytes": 3719,
+          "sha256": "3a4fc35f8c8a8809bdda802bf2cd34563d743abc7f3821831977fbd561d2bf41"
+        }
+      },
+      "outcome": "PASS",
+      "description": "Two real native payload profiles",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/native.txt",
+        "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+        "bytes": 2325,
+        "sha256": "fa50cf72fe6197b9217a675ca7effc4b6d300aa26aebdb6c0224f8fbfae98540"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/native.xml",
+        "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+        "bytes": 588,
+        "sha256": "b2b547e77de85d7c79ae60cdafafc45a76031067b5a4c68d655aee0468f82fd4"
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/wrapper.json",
+        "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+        "bytes": 1308,
+        "sha256": "a623eeef0be80316f6b2b71ef28af7c1ad8269e6839b7385247ed5427be010b2"
+      },
+      "observed_counts": {
+        "cases": 2,
+        "PASS": 2,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "pytest_suite_seconds": "13.527",
+        "nodeids": [
+          "tests.unit.scientist.orchestration.engine.test_async_cache_cost_oracle::test_real_async_cache_costs_and_neighbour_waits[1024]",
+          "tests.unit.scientist.orchestration.engine.test_async_cache_cost_oracle::test_real_async_cache_costs_and_neighbour_waits[65536]"
+        ]
+      },
+      "warning_qualification": "actual cache_dir config warning due no cacheprovider retained; removal also imported-jaxtyping assert rewrite warning",
+      "source_control_qualification": "No product source overlay."
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-I",
+        "-B",
+        "/tmp/e02-B52-cache-cost-c043/removal/child.source.txt"
+      ],
+      "launch_command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-I",
+        "-B",
+        "/tmp/e02-B52-cache-cost-c043/removal/capture.source.txt"
+      ],
+      "target_sha": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+      "environment": {
+        "python_lexical": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "E02_EXPECTED_SOURCE": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+        "E02_PRODUCT_ROOT": "/workspace/e02-B-current-execution-state",
+        "versions": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5"
+        },
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "no_explicit_cloud_process_worker_cpu_or_numerical_caps": true,
+        "fixtures": "unique /tmp namespace; real metrics server OS allocated port"
+      },
+      "input_closure": {
+        "source_tree": "ba4cdd14d0e18fae1c7569d5f398c673e0f38282",
+        "all_tracked_src_config_test_inventory": {
+          "path": "/tmp/e02-B52-cache-cost-c043/removal/source-context.json",
+          "bytes": 585062,
+          "sha256": "deedf928cb9d081c6878efb52a9c6fbe5f7efae9c816f7c533cd43cbce60a0be"
+        },
+        "input_inventory_count": 2918,
+        "all_loaded_origin_identity": {
+          "path": "/tmp/e02-B52-cache-cost-c043/removal/module-origins.json",
+          "bytes": 415248,
+          "sha256": "64b930f039b7c3c663d78e658739ba01024a1d401fa57132e8be59e7d1cf9c47"
+        },
+        "loaded_module_count": 1100,
+        "all_source_bytes_equal_before_after": true,
+        "actual_pytest_argv": [
+          "-ra",
+          "-q",
+          "--import-mode=importlib",
+          "--strict-markers",
+          "--benchmark-storage=file://./_cache/benchmarks",
+          "--noconftest",
+          "-p",
+          "no:cacheprovider",
+          "-s",
+          "-ra",
+          "tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py::test_real_async_cache_costs_and_neighbour_waits[1024]",
+          "--basetemp=/tmp/e02-B52-cache-cost-c043/removal-fixtures",
+          "--junitxml=/tmp/e02-B52-cache-cost-c043/removal/native.xml"
+        ],
+        "literal_child": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/child.source.txt",
+          "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+          "bytes": 4805,
+          "sha256": "ab9a1ff7ddea0ede37167b551b9de7b1431a06fe4322bc289c6be7621193d5ca"
+        },
+        "profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/profile.json",
+          "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+          "bytes": 799,
+          "sha256": "caf514dddb439292352fff6943c2fdf6440a04a15cae0c21089f73092d9c34b5"
+        },
+        "source_context": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/source-context-summary.json",
+          "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+          "bytes": 3779,
+          "sha256": "49b1051e0546e296a99c25fbf5fe9da872f5e903c3c26006d14655963ede89ff"
+        }
+      },
+      "outcome": "FAIL",
+      "description": "Same 1024 input with literal cache-only off-loop removal",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/native.txt",
+        "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+        "bytes": 8091,
+        "sha256": "4171d393d01619a863598137636de38159d951de8dcb81a369fcef68923d3ac0"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/native.xml",
+        "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+        "bytes": 5899,
+        "sha256": "fbeed286dd599458717837b0ef79b7f6ede4f54da65755392640c26fa96f4aa5"
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/wrapper.json",
+        "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+        "bytes": 1305,
+        "sha256": "29a0193f6f182901075909ea6a31a7c3d6e4a0016b8c8e9ef8bcedc54f012ca3"
+      },
+      "observed_counts": {
+        "cases": 1,
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0,
+        "pytest_suite_seconds": "0.255",
+        "nodeids": [
+          "tests.unit.scientist.orchestration.engine.test_async_cache_cost_oracle::test_real_async_cache_costs_and_neighbour_waits[1024]"
+        ]
+      },
+      "warning_qualification": "actual cache_dir config warning due no cacheprovider retained; removal also imported-jaxtyping assert rewrite warning",
+      "source_control_qualification": "Native source/test files unchanged; removal replaces four run_blocking_async cache call names only in module memory."
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-I",
+        "-B",
+        "/tmp/e02-B52-cache-cost-c043/removal-readback.source.txt"
+      ],
+      "target_sha": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+      "environment": "Same immutable lexical Python194, explicit own src/project sys.path, unique retained removal CAS; no provider/gate replay.",
+      "input_closure": {
+        "literal_script": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal-readback.source.txt",
+          "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+          "bytes": 2994,
+          "sha256": "eb0c25679300a1f1a71594bd0bb3f1ccd2aeeca5779cf05a8d8b2c95577b79f2"
+        },
+        "cache": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/cache-ref.json",
+          "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+          "bytes": 171,
+          "sha256": "7ce76c5f8d6fa74792480882a5844aa9966b89455c2efe918475f306f62337fd"
+        },
+        "original_observations": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/removal1024/individual-costs.json",
+          "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+          "bytes": 1902,
+          "sha256": "32f2618813380cdaa83fe373d94943f148137b1cbbe1d2ef96167cb80801d8bc"
+        },
+        "all_loaded_source_git_equal": true
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/readback.txt",
+        "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+        "bytes": 993,
+        "sha256": "3075ccc8b5fb00f50a84f634c94fae6b242e3f12ee1dbab26fb1f45c1cbf2e80"
+      },
+      "readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/readback.json",
+        "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+        "bytes": 993,
+        "sha256": "3075ccc8b5fb00f50a84f634c94fae6b242e3f12ee1dbab26fb1f45c1cbf2e80"
+      },
+      "description": "Actual FileSystemCAS verify/get plus reopened NodeResultCache.load_entry/get preserve cache marker/output while 0 neighbour ticks occur within loop-thread cache write."
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-I",
+        "-B",
+        "/tmp/e02-B52-cache-cost-c043/removal-readback.source.txt"
+      ],
+      "target_sha": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+      "environment": "Same lexical Python194; initial auxiliary metadata consumer, before its correction.",
+      "input_closure": {
+        "actual_initial_script": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal-readback-initial.source.txt",
+          "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+          "bytes": 3002,
+          "sha256": "7dc81502a02332efa677a56e171910866a7a9d1a93eca2d8a00759d68370ad21"
+        },
+        "actual_argv_path_at_attempt": "/tmp/e02-B52-cache-cost-c043/removal-readback.source.txt",
+        "error": "wrong harness field cache_key, actual NodeCacheEntry field is idempotency_key"
+      },
+      "outcome": "ERROR",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/removal/readback-initial-error.txt",
+        "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+        "bytes": 709,
+        "sha256": "f75b6d7ff273cb44eca9c779d798012c32e80ff4add604143be9847c9a54d945"
+      },
+      "description": "Actual tool-captured initial auxiliary readback error, not a product failure or the native removal outcome."
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py"
+      ],
+      "target_sha": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+      "environment": {
+        "python_lexical": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+        "shared_profile_unchanged": true
+      },
+      "input_closure": {
+        "test_path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py",
+        "test_sha256": "22925ca45c128fec913cb16417ddd2349b6127704e45da50cf335e2fdf8dc7c8",
+        "config_sha": "c0431c5b0e8dd71f758ec956b4de271910cef19a"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/ruff.txt",
+        "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "actual_wall_seconds": 0.043171166
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--no-cache",
+        "tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py"
+      ],
+      "target_sha": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+      "environment": {
+        "python_lexical": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+        "shared_profile_unchanged": true
+      },
+      "input_closure": {
+        "test_path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py",
+        "test_sha256": "22925ca45c128fec913cb16417ddd2349b6127704e45da50cf335e2fdf8dc7c8",
+        "config_sha": "c0431c5b0e8dd71f758ec956b4de271910cef19a"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence/format.txt",
+        "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+        "bytes": 25,
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+      },
+      "actual_wall_seconds": 0.040184891
+    },
+    {
+      "command": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+        "--finding",
+        "B52",
+        "--limit",
+        "100"
+      ],
+      "target_sha": "af5f54427eadad9da117d0aa126c1756206fc1dc",
+      "environment": "stdlib source-reported baseline query only; results bytes identical base→source.",
+      "input_closure": {
+        "cells": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-cells.json",
+          "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+          "bytes": 10046,
+          "sha256": "dad98411d10760b9eb2aea4f2aa5ca60f40223230c5b6fa95415139daaa00cb0"
+        },
+        "job_contexts": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-job-contexts.json",
+          "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+          "bytes": 6979,
+          "sha256": "cc5619fbc78218bea47e5a4463bfa9ea05af9ec8d1039d596977e421d2f4efcc"
+        },
+        "full_navigation_denominator": 10,
+        "raw_archive_transfer": "missing"
+      },
+      "outcome": "UNRUN",
+      "execution_state": "query executed; candidate semantic baseline replay UNRUN",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/baseline-cells.json",
+        "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+        "bytes": 10046,
+        "sha256": "dad98411d10760b9eb2aea4f2aa5ca60f40223230c5b6fa95415139daaa00cb0"
+      },
+      "description": "No candidate PASS inferred from the ten old baseline PASS cells."
+    }
+  ],
+  "property": {
+    "statement": "Measure finite real async cache cold/warm cost, serialized cache volume and empirical neighbour wait while successful reopened native consumers preserve producer uniqueness, verified output and current-state replay.",
+    "runtime_path": [
+      "actual async physical node plus one fsynced provider file",
+      "native NodeResultCache 2.0 payload, replay_epoch2.1/state_mutations1.2 persisted in FileSystemCAS",
+      "AsyncWorkflowExecutor shared off-loop cache admission/recovery; persisted run trace",
+      "new FileSystemCAS/AsyncWorkflowExecutor on each warm invocation; native state/applicability/get/metrics/ref consumer"
+    ],
+    "denominator": {
+      "native_cases": 2,
+      "workflow_invocations_per_case": 13,
+      "cold_per_case": 1,
+      "warm_per_case": 12,
+      "payload_bytes": [
+        1024,
+        65536
+      ],
+      "physical_producer_effects": 2
+    },
+    "proxy_divergence": "Literal in-memory removal keeps real cache/artifact, producer effect and NODE_CACHE_STORE trace. Actual reopened cache get succeeds, while cache write occurs on loop thread and has zero neighbour ticks; native oracle fails.",
+    "negative_controls": [
+      "Four cache helper call sites changed only in memory to execute unchanged real sync functions on loop; native1024 FAIL, no file edits or marker changes."
+    ],
+    "measurement_qualification": "Injected12ms actual-cache-I/O delay and 2ms independent coroutine timer. Raw individual monotonic samples; empirical nearest-rank p95/p99, twelve warm samples therefore p95 and p99 equal maximum. Warm workflow return includes startup/recovery/read/validation/apply/persistence/finalize. No SLA, general speedup, production dataset or CPU/GIL isolation."
+  },
+  "predicate_basis": "consumer_asserted",
+  "predicate_premises": {
+    "actual_native_case_status_and_empirical_quantiles": "recomputed",
+    "source/config/module_byte_identity": "recomputed",
+    "author_offloop_neighbour_and_cache_semantics_assertions": "consumer_asserted",
+    "independent_final_composed_root_execution": "not_established",
+    "independent_author_code_acceptance": "not_established"
+  },
+  "capability_state_or_finding_state": "Bounded B52 measurement verification added; proposed LIMITED until independent final composed replay/adjudication. No new production runtime capability or formal closure.",
+  "finding_dispositions": [
+    {
+      "finding_id": "B52",
+      "state": "LIMITED",
+      "classification": "verification_added; proposed bounded empirical fixture evidence",
+      "technical_property": "Existing real off-loop cache consumers measured on c043; actual2PASS and literal removal1FAIL, warm one producer/effect per input and full native cache output/state/trace proof.",
+      "consumer_evidence_checks": [
+        0,
+        1,
+        2
+      ],
+      "formal_closure": false,
+      "remaining": "Final composed root native replay and full B52 deadline/cancellation/integrity/rights criteria remain separate source-bound evidence; arbitrary CPU/thread-affine backend profile unestablished."
+    }
+  ],
+  "measurements": [
+    {
+      "payload_bytes": 1024,
+      "cold_workflow_return_cost_ns": 46753192,
+      "warm_observations": 12,
+      "neighbour_observations": 258,
+      "neighbour_wait_p95_ns": 6488516,
+      "neighbour_wait_p99_ns": 7828224,
+      "warm_workflow_return_cost_p95_ns": 54349895,
+      "warm_workflow_return_cost_p99_ns": 54349895,
+      "serialized_cache_put_bytes": 5545,
+      "raw_individual_measurements": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/1024/individual-costs.json",
+      "qualification": "Finite 1KiB/64KiB workloads, injected12ms actual-cache-I/O delay; empirical nearest-rank statistics, no SLA or general speedup claim. Workflow hit return includes recovery/read/apply/state/report/finalize, not only disk read. CPU/GIL timing not isolated.",
+      "quantiles_independently_recomputed_by_metadata_driver": true,
+      "independent_reviewer_acceptance": false
+    },
+    {
+      "payload_bytes": 65536,
+      "cold_workflow_return_cost_ns": 53632106,
+      "warm_observations": 12,
+      "neighbour_observations": 280,
+      "neighbour_wait_p95_ns": 3594116,
+      "neighbour_wait_p99_ns": 7445936,
+      "warm_workflow_return_cost_p95_ns": 72293586,
+      "warm_workflow_return_cost_p99_ns": 72293586,
+      "serialized_cache_put_bytes": 199085,
+      "raw_individual_measurements": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/observations/65536/individual-costs.json",
+      "qualification": "Finite 1KiB/64KiB workloads, injected12ms actual-cache-I/O delay; empirical nearest-rank statistics, no SLA or general speedup claim. Workflow hit return includes recovery/read/apply/state/report/finalize, not only disk read. CPU/GIL timing not isolated.",
+      "quantiles_independently_recomputed_by_metadata_driver": true,
+      "independent_reviewer_acceptance": false
+    }
+  ],
+  "evidence_implementation_sha": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+  "evidence_index": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-async-cache-cost-evidence/evidence-index.json",
+    "commit": "0592674c103841ed6e671d7c50ac3e814dc9d1c2",
+    "bytes": 14162,
+    "sha256": "9ed54e689013ac81a3413c61731972915448c7f6105ed8f4b9b0addbb5e096b2"
+  },
+  "raw_derived_inventory_policy": "Large repeated source/origin derivatives stay at preserved /tmp path@sha; literal child and exact tracked Git denominator transfer; all deciding moderate stdout/XML/individual timings/provider/trace/cache bytes committed.",
+  "limitations_and_next_owner": [
+    "Root independently reviewed all275 test lines as NONBLOCKING finite fixture profile; no immutable independent runtime acceptance packet imported by author.",
+    "Root/G repeats whole new file on exact final composed source, then adjudicates B52 with prior bounded cancellation/deadline/identity consumers; closure_ids stays empty.",
+    "This profile does not measure CPU-only serialization/GIL, full production payload distribution or arbitrary native async/thread-affine backend behavior.",
+    "No production metric/dashboard surface is added for neighbour wait or cache volume; actual EngineMetrics node cache_hit consumer is observed, local new measurements have test/evidence surface.",
+    "Native fixture source c043 precedes future lower/LLM composition; budget middleware is not exercised here; future source PASS is not inferred.",
+    "Original first auxiliary readback ERROR and all actual warnings are preserved; no P41/inherited-red attribution."
+  ]
+}

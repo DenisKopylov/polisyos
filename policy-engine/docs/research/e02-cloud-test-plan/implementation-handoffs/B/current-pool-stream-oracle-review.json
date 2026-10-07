@@ -1,0 +1,73 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "reviewer": "exe_state_writer",
+  "author": "root",
+  "reviewed_source_sha": "46656d88103f8cb289da78d92411f2d58f01df4a",
+  "reviewed_tree_sha": "2f62e105218a3d528bde4ce865c1d5f1f71d23cb",
+  "source_refs": {
+    "policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py": {
+      "source_sha": "46656d88103f8cb289da78d92411f2d58f01df4a",
+      "git_blob": "7ddc6b5bbe7b09c8db0ccaecf75852d9cee252a7",
+      "sha256": "e1d4fca7abf7934f38bd789c5dcb6c4a461ba59a4e65a731bdff9104630e512d",
+      "bytes": 8699
+    },
+    "policy-engine/src/polisyos/fabric/connectors/pool.py": {
+      "source_sha": "46656d88103f8cb289da78d92411f2d58f01df4a",
+      "git_blob": "850659c2e09aa6a23aa7f3f0daebb88637fd9e29",
+      "sha256": "0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35",
+      "bytes": 43461
+    },
+    "policy-engine/src/polisyos/fabric/data_plane/streaming.py": {
+      "source_sha": "46656d88103f8cb289da78d92411f2d58f01df4a",
+      "git_blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6",
+      "sha256": "aaa69447dca6eb011a21e2385abad9a91b796d0f90689d1ab7b93e88ffa9e5c3",
+      "bytes": 108192
+    },
+    "policy-engine/src/polisyos/core/contracts/cursor.py": {
+      "source_sha": "46656d88103f8cb289da78d92411f2d58f01df4a",
+      "git_blob": "0e5e772008545beab99ef5ea9c489d0febed406e",
+      "sha256": "7c635464b897b73fd2e5b462d0a49acddf1581dca4994d285b1da5a9c47c6b16",
+      "bytes": 3698
+    }
+  },
+  "read_scope": "Complete original191-line c8 test; exact c8\u2192466 delta incl12f real handle-counter revision. No root edits and no independent pytest rerun.",
+  "classification": "BOUNDED_NATIVE_CONSUMER_ORACLE_ACCEPTED",
+  "property": "Actual JSONL file/pool/stream/CAS cursor recovery with cap3 checkpoint containing2 pending rows must refuse restored cap1 before poll/flush/commit, preserve committed cursor and settle all actual owned leases. Healthycap3 must emit source-bound sessions[1,2]then[3] exactlyonce and leave repeated restart empty.",
+  "input_closure": {
+    "actual_file_rows": [
+      {
+        "message_id": "event-1",
+        "event_time_second": 0
+      },
+      {
+        "message_id": "event-2",
+        "event_time_second": 1
+      },
+      {
+        "message_id": "event-3",
+        "event_time_second": 5
+      }
+    ],
+    "source_chunk_size": 2,
+    "session_gap_seconds": 2,
+    "producer_max_buffered_rows": 3,
+    "restart_negative_max_buffered_rows": 1,
+    "positive_max_buffered_rows": 3,
+    "persisted_operator_rows": 2,
+    "operator_state_version": "existing C operator/accumulator v1; no new schema or authority invented"
+  },
+  "source_observations": [
+    "Real first poll enters file connector then actual checkpoint persists pendingoperatorstate and dedupeevent1/event2; injected nextpoll stop does not synthesize checkpoint bytes.",
+    "Fresh FileSystemCAS/CursorStore reopening and real delegated pool/poll/flush/commit methods provide actual consumer boundary; invocation events detect attempted effects rather than fabricate their success.",
+    "DeltaCounter identifies each actual(pool,session_id) acquisition/release, including schema-discovery lease; release recorded only after actual release returns. Original unjustified constantone removed.",
+    "Delta independently verifies/reads original pendingchunk bytes event1/event2 and each emittedwindow contributor CAS bytes; actual source IDs match emitted rows. Manifest/payload lineage equality is supplemented by real sourcecontent read.",
+    "Positive samecap returns exact two session datasets and repeat outputwindow_refs=[],rows_emitted=0,chunk_refs=[]; no count-only success claim."
+  ],
+  "limitations": [
+    "Read-only source review; root actual native outcomes remain separate deciding execution receipts.",
+    "RuntimeError/ValueError acceptance does not establish a new typed C budget ABI; current C before-effects criterion violation remains C-owned.",
+    "This default-manifest native file source case does not establish arbitrary connectors, alternate selected-manifest views, full production dataset, or cancellation-suppressing acquisition cleanup (separate B pool tests)."
+  ],
+  "closure_decision": "No blocking issue found in strengthened finite oracle. Preserve actual nativeFAIL if existing C admits overcap frontier; never call package summary/newtypedABI evidence."
+}

@@ -1,0 +1,20 @@
+........
+=============================== warnings summary ===============================
+tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_stale_bound_worker_cannot_mutate_any_table[running]
+tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_stale_bound_worker_cannot_mutate_any_table[completed]
+  tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py:192: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    @pytest.mark.parametrize("current_state", ["running", "completed"])
+
+tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_current_worker_publishes_coherent_terminal_generation[completed]
+tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_current_worker_publishes_coherent_terminal_generation[failed]
+  tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py:300: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    @pytest.mark.parametrize("terminal", ["completed", "failed"])
+
+tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[event-completed]
+tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[event-failed]
+tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[outbox-completed]
+tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[outbox-failed]
+  tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py:344: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    @pytest.mark.parametrize("terminal", ["completed", "failed"])
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html

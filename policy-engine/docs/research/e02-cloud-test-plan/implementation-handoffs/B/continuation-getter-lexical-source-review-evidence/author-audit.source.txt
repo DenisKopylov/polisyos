@@ -1,0 +1,113 @@
+"""Reconcile immutable owner outputs; no candidate imports/native repetition."""
+from pathlib import Path
+import hashlib
+import json
+import os
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+from collections import Counter
+
+ROOT='/workspace/e02-B-current-cas-generation'
+REF='db1e001c095e48370a34901555ec991b47c3e0ca'
+SOURCE='7c05686dbd8427fa2e8bf217827046acef097058'
+PRE='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-jit-data-field-identity-evidence/'
+env=os.environ.copy()
+env['GIT_ALTERNATE_OBJECT_DIRECTORIES']='/tmp/e02-B-jit-data-getattr-20261007/git-objects:/workspace/polisyos/.git/objects'
+def git(*args):return subprocess.check_output(['git',*args],cwd=ROOT,env=env)
+def read(path):return git('show',REF+':'+PRE+path)
+def obj(path):return json.loads(read(path))
+errors=[]
+index_bytes=read('root-binding-index.json')
+index=json.loads(index_bytes)
+payloads=index['payloads']
+for r in payloads:
+    raw=read(r['path'])
+    if (len(raw),hashlib.sha256(raw).hexdigest())!=(r['bytes'],r['sha256']):
+        errors.append({'payload_hash_mismatch':r['path']})
+    if r['path'].endswith('.lossless.json'):
+        d=json.loads(raw)
+        text=d['text'].encode(d['encoding'])
+        if (len(text),hashlib.sha256(text).hexdigest())!=(d['raw_bytes'],d['raw_sha256']):
+            errors.append({'decoded_lossless_mismatch':r['path']})
+if (len(payloads),sum(r['bytes'] for r in payloads))!=(94,760092):
+    errors.append('owner payload denominator mismatch')
+def decoded(path):return obj(path)['text'].encode('utf-8')
+def native(namespace, expected):
+    wrapper=obj(namespace+'/wrapper.json')
+    profile=obj(namespace+'/profile.json')
+    xml=ET.fromstring(decoded(namespace+'/native.xml.lossless.json'))
+    cases=[{'classname':c.attrib.get('classname',''),'name':c.attrib['name'],
+            'outcome':'FAIL' if c.find('failure') is not None else 'ERROR' if c.find('error') is not None else 'SKIP' if c.find('skipped') is not None else 'PASS'}
+           for c in xml.iter('testcase')]
+    counts=dict(Counter(c['outcome'] for c in cases))
+    if counts!=expected:errors.append({'case_partition_mismatch':namespace,'counts':counts})
+    source=wrapper['source_before']['sha']
+    if wrapper['source_before']!=wrapper['source_after'] or profile['source_before']!=wrapper['source_before']:
+        errors.append({'source_custody_mismatch':namespace})
+    for r in profile['test_input_bytes']:
+        raw=git('show',source+':policy-engine/'+r['path'].split('::',1)[0])
+        if (len(raw),hashlib.sha256(raw).hexdigest())!=(r['bytes'],r['sha256']):errors.append({'test_input_mismatch':namespace,'path':r['path']})
+    origins=obj(namespace+'/module-origins.json')['polisyos_file_origins']
+    for r in origins:
+        raw=git('show',source+':'+r['git_path'])
+        if r['source_sha']!=source or (len(raw),hashlib.sha256(raw).hexdigest())!=(r['bytes'],r['sha256']):
+            errors.append({'origin_mismatch':namespace,'module':r['module']})
+    stdout=decoded(namespace+'/stdout.lossless.json')
+    if (len(stdout),hashlib.sha256(stdout).hexdigest())!=(wrapper['stdout']['bytes'],wrapper['stdout']['sha256']):
+        errors.append({'stdout_wrapper_mismatch':namespace})
+    return {'namespace':namespace,'actual_source':wrapper['source_before'],'counts':counts,
+            'cases':len(cases),'origin_count':len(origins),'stdout':wrapper['stdout'],
+            'exit_code':wrapper['exit_code'],'cases_of_scope':[c for c in cases if c['outcome']!='PASS' or 'test_jit_01' in c['classname'] or 'recursive_global' in c['name']]}
+native_result=native('terminal-native',{'PASS':127,'FAIL':1})
+removal=native('terminal-removal',{'FAIL':1})
+lexical=native('lexical-binding-red',{'FAIL':3})
+alias=native('getter-entry-red',{'FAIL':1})
+for r in [native_result,removal]:
+    if r['actual_source']!={'sha':SOURCE,'tree':index['source_tree'],'status':''}:errors.append('final owner run source mismatch')
+if len([c for c in native_result['cases_of_scope'] if 'test_jit_01' in c['classname'] and c['outcome']=='PASS'])!=9:
+    errors.append('canonical JIT9 actual PASS denominator mismatch')
+measurements={}
+for namespace in ['lexical-binding-red','getter-entry-red','terminal-native']:
+    measurements[namespace]=[{'path':r['path'],'measurement':obj(r['path'])} for r in payloads
+                             if r['path'].startswith(namespace+'/fixtures/') and r['path'].endswith('/measurement.json')]
+    lexical_rows=[r['measurement'] for r in measurements[namespace] if 'recursive_global' in r['path']]
+    if namespace!='terminal-native' and any(r['actual_effects']!=['body'] or r['refusal'] is not None for r in lexical_rows):
+        errors.append('old lexical failure physical effect mismatch')
+    if namespace=='terminal-native' and (len(lexical_rows)!=4 or any(r['refusal']!='CheckpointIdentityError' or r['actual_effects']!=[] for r in lexical_rows)):
+        errors.append('final actual lexical typed refusal mismatch')
+checks={}
+for name in ['ruff','format','mypy']:
+    d=obj('terminal-checks/'+name+'.json')
+    raw=decoded('terminal-checks/'+name+'.output.lossless.json')
+    if d['actual_exit_code']!=0 or d['source_sha']!=SOURCE or d['source_after']!=SOURCE:
+        errors.append('owner actual style/type status mismatch')
+    if (len(raw),hashlib.sha256(raw).hexdigest())!=(d['output']['bytes'],d['output']['sha256']):
+        errors.append('style/type output mismatch')
+    checks[name]={'argv':d['argv'],'cwd':d['cwd'],'actual_exit_code':d['actual_exit_code'],'output':d['output']}
+production='policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py'
+projection={lexical['actual_source']['sha']:'0903e31d1b9090560280c2e15aea0575da97ec20',alias['actual_source']['sha']:'5cd7d962f2bf87bc872e01365778858adf52ba9f'}
+for actual,expected in projection.items():
+    if git('rev-parse',actual+':'+production)!=git('rev-parse',expected+':'+production):errors.append('old red source production projection mismatch')
+result={
+ 'schema':'policyos.e02.foreign_owner_output_custody.v1','source_sha':SOURCE,'source_tree':index['source_tree'],
+ 'immutable_author_evidence':{'git_sha':REF,'tree':git('rev-parse',REF+'^{tree}').decode().strip(),
+                            'path':PRE+'root-binding-index.json','bytes':len(index_bytes),'sha256':hashlib.sha256(index_bytes).hexdigest()},
+ 'owner_payload_count':len(payloads),'owner_payload_bytes':sum(r['bytes'] for r in payloads),
+ 'actual_final_native':native_result,'actual_final_removal':removal,
+ 'original_lexical_red':lexical,'original_actual_getter_entry_red':alias,
+ 'red_actual_production_byte_projection':projection,'retained_measurements':measurements,
+ 'actual_final_style_type':checks,'reviewer_runtime':'UNRUN','predicate_basis':'independently_reconciled',
+ 'per_premise_basis':{'Git_payload_hashes_lossless_XML_source_origins_fields':'independently_reconciled',
+                     'native_physical_effect_and_before_body_refusal':'consumer_asserted by exact actual author fixtures'},
+ 'qualifications':['No owner native stdout copied; exact94 deciding payloads remain at immutable peer Git refs.',
+                   'Removal disables the permitted getter admission, causing a genuine supported compiler consumer to refuse. It is a positive-admission discriminator, not a claim that a removed rejection guard allowed a second physical call.',
+                   'The four old lexical body effects and four final typed-refusal/empty-effect controls decide the lexical rejection inlet class.',
+                   'Single actual frame107/history-complete/pointer-unchanged failure is preserved; B74 LIMITED and closure_ids[].',
+                   '168 owner final local origins and166 removal origins differ from independent DUR152; no denominators transplanted.',
+                   'Whole6fa source/native/gate failures and P41 not_established remain separate; no wholeB acceptance.'],
+ 'audit_errors':errors,
+}
+Path(sys.argv[1]).write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
+print(json.dumps({k:result[k] for k in ['source_sha','source_tree','immutable_author_evidence','owner_payload_count','owner_payload_bytes','actual_final_native','actual_final_removal','original_lexical_red','original_actual_getter_entry_red','actual_final_style_type','audit_errors']},ensure_ascii=False,indent=2))
+raise SystemExit(bool(errors))

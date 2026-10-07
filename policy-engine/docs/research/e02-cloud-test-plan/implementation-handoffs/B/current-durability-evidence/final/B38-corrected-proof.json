@@ -1,0 +1,55 @@
+{
+  "target_sha": "4f71e8bbd95225c8d857b2123f7f2fe9fcc5071d",
+  "target_tree": "d418a555e7883599a3c8c482f5b43a6c7b6f7a50",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "--basetemp=../.polisyos/e02-B-current-durability/tmp/B38-corrected-proof",
+    "--junitxml=../.polisyos/e02-B-current-durability/raw/B38-corrected-proof.xml",
+    "tests/unit/runtime/http/test_control_plane_store.py",
+    "-k",
+    "completed_proof_publication"
+  ],
+  "cwd": "/workspace/e02-B-current-durability/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src",
+    "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python": "3.14.2",
+    "no_artificial_process_or_numeric_thread_quota": true
+  },
+  "start_utc": "2026-10-06T11:05:06.233039+00:00",
+  "end_utc": "2026-10-06T11:05:36.112899+00:00",
+  "exit_code": 0,
+  "wall_s": 29.880138836990227,
+  "max_child_rss_kib": 837600,
+  "status_before": "",
+  "status_after": "",
+  "inputs": [
+    "tests/unit/runtime/http/test_control_plane_store.py",
+    "-k",
+    "completed_proof_publication"
+  ],
+  "counts": {
+    "tests": 20,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "input_closure": "Actual checked checkout and complete native files; isolated unique pytest basetemp and real POSIX file/process controls or temporary SQLite typed collaborators; no production dataset/external services.",
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/raw/B38-corrected-proof.txt",
+      "sha256": "92b97630eb69c4d51b80319529467d315d1676114bc095f2c3a461b5157b872a",
+      "bytes": 114
+    },
+    {
+      "path": "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/raw/B38-corrected-proof.xml",
+      "sha256": "b6f42796d3e12f1260b926e0f63eaefb5954ca368cc0ed855f9c66bdadfc3c37",
+      "bytes": 3903
+    }
+  ]
+}

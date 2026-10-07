@@ -1,0 +1,57 @@
+{
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention/actual-uv-cache-query.txt",
+      "bytes": 10,
+      "sha256": "64f847d81df0656640e7b672bf78be0c1f358b54a4f9c199bac416b39a172072"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention/failed-product-cwd-preparation.json",
+      "bytes": 1237,
+      "sha256": "f184f99d3b469c6ff81f3f680a67266bf6f0e911005ca40ce33e54d8752048ff"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention/failed-product-cwd-preparation.source.txt",
+      "bytes": 6038,
+      "sha256": "d17f931e6f11a485b125eef3abe19025aa32c4ba4e95398715aff413f004e680"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention/format.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention/ruff.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention-final/capture-final-retention-preparation.source.txt",
+      "bytes": 5203,
+      "sha256": "4a7925f27ca6daa3e5bbd685eecbf907397ca3ba9d6c6477884f2d04d3bfa997"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention-final/format.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention-final/intermediate-style-qualification.json",
+      "bytes": 432,
+      "sha256": "7d5939b91b8957304c831d30d019a35b46e3094875d32ba48186fe27cddf0b5a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention-final/ruff.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention-final/wrapper.json",
+      "bytes": 3114,
+      "sha256": "6422106b032642ce44d9dbb983d250453f0a36dde70eb49be32f5b49d521f424"
+    }
+  ],
+  "count": 10,
+  "bytes": 16122,
+  "scope": "Both complete narrow author preparation attempts retained; original13 evidence unchanged"
+}

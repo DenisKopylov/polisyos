@@ -1,0 +1,81 @@
+{
+  "schema": "policyos.e02.opa_cli_existing_ci_profile.v1",
+  "upstream_selection": "Tracked open-policy-agent/setup-opa@v2 with version latest; root authorized resolve official current metadata",
+  "metadata_url": "https://api.github.com/repos/open-policy-agent/opa/releases/latest",
+  "resolved_version": "v1.21.1",
+  "release_id": 399459832,
+  "published_at": "2026-09-29T21:07:37Z",
+  "draft": false,
+  "prerelease": false,
+  "release_html_url": "https://github.com/open-policy-agent/opa/releases/tag/v1.21.1",
+  "binary_asset": {
+    "id": 599034191,
+    "name": "opa_linux_amd64_static",
+    "size": 64162886,
+    "digest": "sha256:668506eb17a2eaa1fce6cc0d1f42ef85125d4ac5bda5fc74d1152d0c77145031",
+    "browser_download_url": "https://github.com/open-policy-agent/opa/releases/download/v1.21.1/opa_linux_amd64_static"
+  },
+  "checksum_asset": {
+    "id": 599034259,
+    "name": "opa_linux_amd64_static.sha256",
+    "size": 89,
+    "digest": "sha256:c3c479c646b363cd2f219b9e401e29352d5f9f32e7506f93503938b98fbba3f2",
+    "browser_download_url": "https://github.com/open-policy-agent/opa/releases/download/v1.21.1/opa_linux_amd64_static.sha256"
+  },
+  "actual_binary": {
+    "path": "/tmp/e02-B-opa-latest-preparation-1db95544/opa_linux_amd64_static",
+    "bytes": 64162886,
+    "sha256": "668506eb17a2eaa1fce6cc0d1f42ef85125d4ac5bda5fc74d1152d0c77145031"
+  },
+  "checksum_content": "668506eb17a2eaa1fce6cc0d1f42ef85125d4ac5bda5fc74d1152d0c77145031  opa_linux_amd64_static\n",
+  "actual_version_argv": [
+    "/tmp/e02-B-opa-latest-preparation-1db95544/bin/opa",
+    "version"
+  ],
+  "actual_version_stdout": "Version: 1.21.1\nBuild Commit: 2a109e54103370d2ef288782ef3cb4c8a37902b2-dirty\nBuild Timestamp: 2026-09-29T19:10:43Z\nBuild Hostname: \nGo Version: go1.27.1\nPlatform: linux/amd64\nRego Version: v1\nWebAssembly: available\n",
+  "path_prefix": "/tmp/e02-B-opa-latest-preparation-1db95544/bin",
+  "profile": "Real standalone official Linux/amd64 OPA CLI; no service, port, global install or repository version-policy change",
+  "environment": {
+    "system": "Linux",
+    "machine": "x86_64",
+    "architecture": "64bit"
+  },
+  "artifacts": [
+    {
+      "path": "/tmp/e02-B-opa-latest-preparation-1db95544/latest.json",
+      "bytes": 34877,
+      "sha256": "bdcd628df8477b733372dd2d5fb052fe13a7a995e7778d38766f1bfa0e7c253f"
+    },
+    {
+      "path": "/tmp/e02-B-opa-latest-preparation-1db95544/latest.headers.txt",
+      "bytes": 1645,
+      "sha256": "c18191fa478689604df7eac07d088964120d02935b4b765ade4618efacd099f0"
+    },
+    {
+      "path": "/tmp/e02-B-opa-latest-preparation-1db95544/binary.headers.txt",
+      "bytes": 6203,
+      "sha256": "5ce520594d375b3ed4710f8de554bcaf727a2ea5b14f70958618ab20b7b42787"
+    },
+    {
+      "path": "/tmp/e02-B-opa-latest-preparation-1db95544/checksum.headers.txt",
+      "bytes": 6265,
+      "sha256": "3b4bdfc91651539f6081d14d9a5edd2ecdb39aa7aaf9360dc4e25728ed59f1e7"
+    },
+    {
+      "path": "/tmp/e02-B-opa-latest-preparation-1db95544/opa_linux_amd64_static.sha256",
+      "bytes": 89,
+      "sha256": "c3c479c646b363cd2f219b9e401e29352d5f9f32e7506f93503938b98fbba3f2"
+    },
+    {
+      "path": "/tmp/e02-B-opa-latest-preparation-1db95544/version.txt",
+      "bytes": 215,
+      "sha256": "4d416ccdfb3aad15074543067b349925406b25aca40b67b0bbc50b509109b7f8"
+    }
+  ],
+  "limitations": [
+    "CI latest resolved for this run only; no production-version equivalence",
+    "Literal vendor build commit has -dirty suffix; binary digest establishes downloaded artifact, not reproducible-build provenance",
+    "64MB binary retained locally; moderate metadata/checksum/version transferred by Git, fresh download exact URL+digest required if local binary unavailable",
+    "No production data or missing law/schema fixtures supplied; CLI only restores existing backend prerequisite"
+  ]
+}

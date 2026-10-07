@@ -1,0 +1,1092 @@
+{
+  "target_sha": "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+  "target_tree": "e9979738e8d9fa6ebce06592f2970b00d8c69625",
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "source_identity": {
+    "policy-engine/src/polisyos/__init__.py": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c",
+    "policy-engine/src/polisyos/core/__init__.py": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40",
+    "policy-engine/src/polisyos/core/artifacts/__init__.py": "bf4757743e4618d1576f62a1a34a4469f0988b6f42a8708554f9b2696ba10a7f",
+    "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py": "c85c7c0a79abfde0131206dc7a98a360ef5cfd6bf19cdd199bb6fa8e40ff5c34",
+    "policy-engine/src/polisyos/core/canon/__init__.py": "e33a7486224d5e15cd418ac4dab69bb38ac6b1593d739a4b7ac24ea4d477dfb3",
+    "policy-engine/src/polisyos/core/canon/canon_json.py": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95",
+    "policy-engine/src/polisyos/common/__init__.py": "80cb9fa767bae18ffe0514ca9b1fb09f45263c754a921b77671d3deada89e080",
+    "policy-engine/src/polisyos/common/canonical.py": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41",
+    "policy-engine/src/polisyos/core/canon/hashing.py": "a32caf919317c5667ac02bde68fa6a1d0fa064e1edeb44c89bc066a14a9272c0",
+    "policy-engine/src/polisyos/common/hashing.py": "4ecfe5e4ed78585a25dfd4ee7de1eee10f4d4b467bca95fd6716537a68ef3ead",
+    "policy-engine/src/polisyos/core/artifacts/manifest.py": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d",
+    "policy-engine/src/polisyos/core/components/__init__.py": "7be43542a1e235b4a32cb13f2a0924fac8cc43087433515c063f7f7b683dfd89",
+    "policy-engine/src/polisyos/core/components/bootstrap.py": "6a5d7216f16bd1d659cc8b9876d776fcc862bc18c0bfd27b58247b0b771b4d10",
+    "policy-engine/src/polisyos/core/components/discovery.py": "d82889dc55e74b6e80d4243364a980e2f763c65930a803c9b8efdfbb074e7b22",
+    "policy-engine/src/polisyos/common/logger.py": "d496cd41f388b185cc4c9c9bcb5d7f7c2c3eecba02fc9f437ae5f02f2201e5a0",
+    "policy-engine/src/polisyos/core/discovery/__init__.py": "050b0b60b19d7ae358b9927baa279b8efc70f999b18a083b62ee7588c9a474ce",
+    "policy-engine/src/polisyos/core/discovery/base.py": "c6ca686a2823557950e9e801419f404ee58c5f7b74666c2a9518719db9f0f7bf",
+    "policy-engine/src/polisyos/core/components/metadata.py": "efba84687477aaf838aa55db88c82eedfdbbc0b414020d9190cc6e2b0b10df05",
+    "policy-engine/src/polisyos/core/components/capabilities.py": "899ac56d56e4c85e1447c707c1e8637ef9798cc2b1a7373b002a84cadfed9a8a",
+    "policy-engine/src/polisyos/core/components/ids.py": "7cac29d83cbe0775829892a9e32339c53ef7b06c0dabef95e9341b99e26c5c6c",
+    "policy-engine/src/polisyos/core/components/protocols.py": "a755d4f4bf0c008265afc9be48f84f854c0604d9d0aa669bc8c872d834af7a01",
+    "policy-engine/src/polisyos/core/components/registry.py": "e15806f4df623df06293e3e50ded6c160b9e3f14257174b263608734fbdc41fe",
+    "policy-engine/src/polisyos/core/registry/__init__.py": "3c0133c05fcda3e0270a117f54ca2b401f1e2dce02c2291c247c786a2e4f6e6d",
+    "policy-engine/src/polisyos/core/registry/base.py": "140b47ccc131641a2a3cf3bbb91f899e6ef7429348ba2be3bd59afa7b275a015",
+    "policy-engine/src/polisyos/core/registry/generic.py": "b1e1708fa846adf841fc4f54faa126c0b2605f005ce12c0c1e1ce9a79758553c",
+    "policy-engine/src/polisyos/core/components/compliance.py": "b34a3adb344e6332d2912faee4156f64d800bac5f9244920b41a2080325c1e1b",
+    "policy-engine/src/polisyos/core/artifacts/ids.py": "96ab03d78510679bb9195ce79a58dd1559be8f7ccf1de2e6d10031c172ae07e6",
+    "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py": "7d131caba0deae2ddc9762e2c5a989d51934b3e731e0d6552047bec46d902812",
+    "policy-engine/src/polisyos/common/serialization.py": "03c7fc1756449d77aff0819a79038c632724a398fee1091b2423bffca9d93d24",
+    "policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py": "b0948bf37ec2fd9e7d0b893db319b63bfdc21290564a7aa414e80a97cbebf966",
+    "policy-engine/src/polisyos/core/artifacts/signing.py": "5d4a19ab6a2c8b5caacb3c7c74caf3625c24d4e5e51873d131292a682738b568",
+    "policy-engine/src/polisyos/core/artifacts/async_store.py": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078",
+    "policy-engine/src/polisyos/common/async_tools.py": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+    "policy-engine/src/polisyos/core/artifacts/protocol.py": "2a45894dd5f69a377248fdb80b5157ed99bffdcf2362908c5a2c6e93d68d72d2",
+    "policy-engine/src/polisyos/core/artifacts/backends/__init__.py": "c1b63ae18ac92ae67fac24338d775c0dd17253682d0240e32f92bd98398a998a",
+    "policy-engine/src/polisyos/core/artifacts/backends/config.py": "0c942402af1a304c32bccd285fd78a3aeeebc13a1f02c23b3242c1f6ead2f99d",
+    "policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py": "52ff5c08997516419f0097ae2710dcc5d602a12aaaa55a5b290be101c7b1bc2d",
+    "policy-engine/src/polisyos/core/artifacts/graph.py": "26fe822573a2c9787fafe015195121b70a1a2a7ff89e3bf20d182a92d4909e1f",
+    "policy-engine/src/polisyos/core/artifacts/ownership.py": "79216c9596812628119769a4dcdb9520c04dd097df5501e1b878e5270fd98b9a",
+    "policy-engine/src/polisyos/core/artifacts/_atomic_write.py": "afa41fe64aa388d65ec89db504d2f651447c5a92b5a8cea0384a6793c924ebcf",
+    "policy-engine/src/polisyos/core/artifacts/registry.py": "e665dc55703db9d4c4a9b4f4040c665a8a85c300ae9c668d67480f6241ccaf28",
+    "policy-engine/src/polisyos/core/artifacts/store.py": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+    "policy-engine/src/polisyos/core/observability/__init__.py": "13e425237dd9ce7dfc45a18eb5a57f77cad6196d72a97f30450bcb19fdf61377",
+    "policy-engine/src/polisyos/core/observability/config.py": "08cacb20670ed714ce97f90e0d42a9ce5ce4f57b629395fe70fba4dd2d5e0be0",
+    "policy-engine/src/polisyos/core/observability/determinism.py": "989adf82b32a6ea03d11c11920364d97cc2fb64982b5bc54006b76b36e4bd7de",
+    "policy-engine/src/polisyos/core/observability/decorators.py": "909bf120a4650ee6ef0f0b6d0e02af3d23283c172e77e8646aad976c4913d27d",
+    "policy-engine/src/polisyos/core/security/__init__.py": "eaf1cfb96501a334d6f4f164bec3921fb209e2b28fd764eb448a52617cd96564",
+    "policy-engine/src/polisyos/core/security/tenant_context.py": "f9051375fa189e5bc3e020356eccc4d14f6c1e6402080cd4261396ef3b56c9e0",
+    "policy-engine/src/polisyos/core/security/db_backend.py": "e2a24be263f3afe4faa445cf0b0500cfeacec2fbe1949a911b138f8ba4c84727",
+    "policy-engine/src/polisyos/core/security/exceptions.py": "7ec972cde8fc7da7d79b553a4ea5441cffff35add96787c5ffab515250083f92",
+    "policy-engine/src/polisyos/core/errors/__init__.py": "e1bbe5e46a1f67d2c9d01175400036782717be128130ab15c63768af1003cdec",
+    "policy-engine/src/polisyos/core/errors/base.py": "f013683b373b4bf947dbdaf0b5e6fc4c830da6fa6b74ef431d59a215bbbeaaed",
+    "policy-engine/src/polisyos/core/observability/tracer.py": "bac8b15dc232b3e1589198d68e89c2e785f0cf7d5f80352344fba99644b71a8d",
+    "policy-engine/src/polisyos/core/observability/logs.py": "9d51eda431ee4a4d9e839866500d792e4f527c1bec08731f247a5ad083d72f4f",
+    "policy-engine/src/polisyos/core/observability/metrics.py": "9148d24d122b591e2a9f16d1aaafee161dd37746cbab024686b1750e549ba022",
+    "policy-engine/src/polisyos/core/observability/metrics_parts.py": "45d3d3183677aeed557e0d410cdce412387c29e526bc33c81c16ad324a4287ac",
+    "policy-engine/src/polisyos/core/observability/_metrics_helpers.py": "d168be218d7a3e9dfbb457342127d088d65ee31b417d5766d6a5bc4588964355",
+    "policy-engine/src/polisyos/core/observability/_metrics_registry_base.py": "922eac01d723a6e30070fd887f469b8c6c0c735d922b1fb76185cb0e47d62f85",
+    "policy-engine/src/polisyos/core/observability/pricing.py": "3a0920548c07468519635b3e9f1dc9c579d8e423739b4b83a001e73d032fe311",
+    "policy-engine/src/polisyos/core/observability/propagation.py": "0662550de014f5f6eefbb85a371328503f630186b9df376d610fd444fd843a96",
+    "policy-engine/src/polisyos/core/artifacts/_layout.py": "693f2a119d9b413e3091f0fbf5b1dc093ad3786c7af5cc15ed0c3209e660f194",
+    "policy-engine/src/polisyos/core/artifacts/_signature_ops.py": "4473a4742a27ff022f59383b201a0473838931aa58d635a061c99ba8b6b6af93",
+    "policy-engine/src/polisyos/core/artifacts/write_contract.py": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef",
+    "policy-engine/src/polisyos/core/registry/builder.py": "be523b3bef72b1b16773b1aefe3c493b854e47d2d9f2101d9d827d6270c0fda3",
+    "policy-engine/src/polisyos/ir/__init__.py": "7758c7b1b07ceb5906fa322a83bd156dadb4b33dfce8e2653198d3f961606e3c",
+    "policy-engine/src/polisyos/ir/api.py": "50eef6b0cb043705d1bd03069e6e1ecd5cfe995575faedb2c5af1fd4e544e384",
+    "policy-engine/src/polisyos/ir/kernel/__init__.py": "1a1124a1b02cca8854bb0f42b56fa8ec97363d2025b351557c2f2bf9eec4b04a",
+    "policy-engine/src/polisyos/ir/kernel/constraints.py": "5717f604f7b2b2d09d84292d2a8317548aa27c331a5f4036b0e3908c68468149",
+    "policy-engine/src/polisyos/ir/kernel/base.py": "ca08c309aefc4d39bc5d96850e44c8801f30441f49c67da4aa3aed92d9091607",
+    "policy-engine/src/polisyos/ir/kernel/mechanisms.py": "c81c2e87c5bd9dfdc504cc54ec9d22a4a7861864a9e20a8ee13f8eb30a1bca27",
+    "policy-engine/src/polisyos/ir/kernel/merge_rules.py": "3db58a179cd48e8a101034cc8b54fdfba039c8c77389c46af91a079aaae4193f",
+    "policy-engine/src/polisyos/ir/kernel/metrics.py": "da4b7f01893f286b3061a1a8a2c51b1d56374a4080f53ce75be8bcf3f63ca994",
+    "policy-engine/src/polisyos/ir/kernel/selector_fields.py": "c118ac130f1dd674d6b686e62597cdf2dc5f981b470b912c85bc29e675453b60",
+    "policy-engine/src/polisyos/ir/kernel/slots.py": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81",
+    "policy-engine/src/polisyos/ir/kernel/units.py": "47be6475ab0523e1a276a78162becf8eb43f3b4915c3dcae04cfae65075b35d4",
+    "policy-engine/src/polisyos/core/run/__init__.py": "6ee2f44052fb820dc40d0d3584b021c58ed20729a9e7d198bf7a4ef2c478c6e1",
+    "policy-engine/src/polisyos/core/run/context.py": "c91029ec1e99435dbdbd234e47e796e90fcbe1f8897e7ac07f4abf9c75f4bc2c",
+    "policy-engine/src/polisyos/core/trace/__init__.py": "da9e8b72508ee15502f8bb13b4b46da89cf5b67384059d5f377d254e9e9d10dc",
+    "policy-engine/src/polisyos/core/trace/record.py": "67d759b571cafc07559b4875636bd040bab7c640470320567da161a79171cbf7",
+    "policy-engine/src/polisyos/core/trace/sink.py": "abcdc30944206159100ea2c3ebc8c4e2855741455a5e08c2085196278a4c93cc",
+    "policy-engine/src/polisyos/core/run/manifest.py": "9f6ceff0f2da613da4861540f73c88240ca353d3a8ed713891e0cfb18979afde",
+    "policy-engine/src/polisyos/scientist/__init__.py": "ab721e4a2e6da23e8786a1f1af1f7cc8a4a7b90d02384882b21de70b1cbb3e90",
+    "policy-engine/src/polisyos/scientist/orchestration/__init__.py": "40beb0a19843e28995a4f3deaa30aadcd6dc5ac706fcca998e833d0ef1043457",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/__init__.py": "79ffb9a9e14a06b62aaa19378b7279930247b7b41974057ac6571bc1d8e28df2",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/state.py": "7f02ad147eae494e905a984dd6eb1d5282e315122d40c37146ce66a0e9e180a9",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py": "b38481eec549e4bb999937c52f9fedc4269a78709f850adaa23b64f0032fba76",
+    "policy-engine/src/polisyos/core/contracts/__init__.py": "9b711f5139397946be246aca817aacfb31c7637385cac570cff71872470e7d4e",
+    "policy-engine/src/polisyos/core/contracts/skip_blockers.py": "29068e7acaf9e6a03614e141b9f8961a8fccf758c3c8de6d1c6df34e4613d207",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py": "d12be89d178f81540676e6dcc459698e43c4629335479e08daa66ab1cf9128d0",
+    "policy-engine/src/polisyos/ir/registry/__init__.py": "edebf2f8452d62b447bc593d9935c75183857653b281f82fd46dc571e38116f2",
+    "policy-engine/src/polisyos/ir/registry/refs.py": "4135199d208ea8970114df0d53a45b92f4e880b32451387a59de43be4987ed19",
+    "policy-engine/src/polisyos/ir/artifacts/__init__.py": "0ed2e21568bd6e97323957da0a8970ca172b64a61a8b77e8ed6cb773bb550134",
+    "policy-engine/src/polisyos/ir/artifacts/contracts.py": "9caecf307c06ca3efe13b7b234d10e860e734bfd415823e3cd6650f3d0ed1c9b",
+    "policy-engine/src/polisyos/ir/artifacts/io.py": "e876f8d65572ef11992a5ba7336decffea966af7e5b6df12a48ec7dae25b08f3",
+    "policy-engine/src/polisyos/ir/model_layer/__init__.py": "7ed768ff9143dc957510f4f22ac51c44bb2c2791a68b5209185cd2eb8bb72993",
+    "policy-engine/src/polisyos/ir/model_layer/canon.py": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b",
+    "policy-engine/src/polisyos/ir/artifacts/lineage.py": "52627f8886454ecb4b3d23435754eb3e68ecd8245761765bf2eef02a8c6722ff",
+    "policy-engine/src/polisyos/ir/artifacts/transport.py": "ae135cb10626f01d4bae2d5f9853cc133be4ea80650b15920f375b6246eb6a0d",
+    "policy-engine/src/polisyos/ir/observation/__init__.py": "b230861e7a7deb64941bbe5393073cc825f45924634e531efa943d27da4f6686",
+    "policy-engine/src/polisyos/ir/observation/contracts.py": "4154ee4d25e789791e2d590e73425f1856f376e01deb73d8225257ef8415b6c7",
+    "policy-engine/src/polisyos/ir/_internal/__init__.py": "26efcf5ea5aa8d7138a675fef7ccd2f17083279ddf38f6fda5c028830dab3756",
+    "policy-engine/src/polisyos/ir/_internal/validation.py": "d1cb68bfec95789a5067cf352adae538875297e67423dc344f3453885b2d8b4b",
+    "policy-engine/src/polisyos/ir/model_layer/types.py": "9420f2ccde75f9ffe37a1f2acacd37b330aac1489daf77a42da9ab6da1c6bde6",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py": "6eb8cd4bcb7f3e67c82f24903357591e44e38fe6aa96f4467f09ee3e36846d83",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py": "3a1658e0ef6d43236b3be774483b9c0dac2b70c5418e103f80781da33d1eb85c",
+    "policy-engine/src/polisyos/common/timestamps.py": "c6343733a85b80f7b8eb2a2e607ad864e0059f30b6c01a818ba6eb97129d6963",
+    "policy-engine/src/polisyos/core/cache/__init__.py": "a278145dfef156f2acb25cd04c47acaf6965ee0186f347caeb3b322079397a58",
+    "policy-engine/src/polisyos/core/cache/lru.py": "5f302417cafaf491c16dbcb65127db9dc92be247e91a79e4f64c7e09a429953e",
+    "policy-engine/src/polisyos/core/cache/protocol.py": "f923867391174f79ae0c5369fe6a7bce4cb9cc8c97d8a1dad64839bc1e6cd528",
+    "policy-engine/src/polisyos/core/cache/ttl.py": "203c97b77e7b2527cd7030e90b4186c8140f33e1796cc958351909663f98afc3",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/__init__.py": "de70a7390dd9a9cd7992002e901c94c2cf197662d1e8486ee784268d1a05999c",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/config.py": "3657ff0f7deeb60fb01351273052f24ba7965db9fbaaea35d100f63c51ced176",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/protocol.py": "10881937f7169527c4ba75074f87701b1f5b0bceb92fbb41c3fbe23223fd4c84",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py": "79e0a1e01af4e8e46c760c00b33ca6f49e27c38e61b8c9dfd0e9a8a953dfa271",
+    "policy-engine/src/polisyos/core/contracts/bounded_liveness.py": "6dd1115d7b89ca47fe23304b8b33c7dce008579478797655436c2ebed844b353",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/error_semantics.py": "b0ef31d6e3bbf78e971ce17c3857fdc279729ec0e7f304247c6d871a6c9079d0",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/errors.py": "41736e82315c56cad6dcbda2b5289300e495e57a7df7215e46c42e0dd97c168f",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py": "93c5f4b5577e00dd18e83ff4b4b4423d99706da90300d0ea44d74c2a06d96bb7"
+  },
+  "source_profile": "Exact Git canonical Python loader; declared producer True keyword where supported, prior declared write_paths producer API otherwise; existing admitted lane supplies resources/sharedvenv.",
+  "cases": [
+    {
+      "case": "append_aliased",
+      "producer_input_alias_identity": true,
+      "producer": {
+        "x": 2,
+        "left": [
+          {
+            "id": "base",
+            "v": 1
+          },
+          {
+            "id": "remove",
+            "v": 2
+          },
+          {
+            "id": "added",
+            "v": 5
+          }
+        ],
+        "right": [
+          {
+            "id": "base",
+            "v": 1
+          },
+          {
+            "id": "remove",
+            "v": 2
+          }
+        ],
+        "neighbor": {
+          "queue": [
+            "kept"
+          ]
+        }
+      },
+      "expected_producer_each_alias": [
+        {
+          "id": "base",
+          "v": 1
+        },
+        {
+          "id": "remove",
+          "v": 2
+        },
+        {
+          "id": "added",
+          "v": 5
+        }
+      ],
+      "producer_correct": false,
+      "producer_base_wire_unchanged": true,
+      "cache_ref": {
+        "artifact_id": "sha256:b84bcd8999deeb4170133bb9646bc13c0df5b62c1288782251ae462d66dfcfae",
+        "kind": "scientist.node_cache_entry",
+        "media_type": "application/json"
+      },
+      "cache_sha256": "b84bcd8999deeb4170133bb9646bc13c0df5b62c1288782251ae462d66dfcfae",
+      "cache_bytes": "{\"created_at\":{\"_type\":\"datetime\",\"iso_utc\":\"2026-10-06T13:41:05Z\"},\"idempotency_key\":\"24bec8dd815e31b8b9b4919b1fd0911d1da2c536b1d4765aa4d7e5f101fce21b\",\"journal_proof\":{\"manifest_producer\":{\"component\":\"scientist.engine.idempotency\",\"git\":null,\"version\":\"1.0.0\"},\"manifest_schema\":{\"name\":\"polisyos.scientist.orchestration.engine.NodeCacheEntry\",\"version\":\"2.0\"},\"payload_hash\":\"sha256:534ea9a974293b5b619eaa241b4cb6f4eddc1e70a8edf5bd229537ac884ef383\",\"replay_epoch\":\"2.1\"},\"node_id\":\"scientist.independent_additive@1.0.0\",\"outcome_payload\":{\"artifacts\":[],\"error\":null,\"events\":[],\"skip_blocker\":null,\"state\":{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"53\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"left\":[{\"id\":\"base\",\"v\":1},{\"id\":\"remove\",\"v\":2},{\"id\":\"added\",\"v\":5}],\"neighbor\":{\"queue\":[\"kept\"]},\"right\":[{\"id\":\"base\",\"v\":1},{\"id\":\"remove\",\"v\":2}],\"x\":2},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_additive\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null},\"status\":\"ok\"},\"outcome_ref\":null,\"replay_epoch\":\"2.1\",\"run_id\":\"R_independent_additive\",\"schema_version\":\"2.0\",\"state_mutations\":[{\"index\":null,\"operation\":\"append\",\"path\":\"params.left\",\"start\":null,\"step\":null,\"stop\":null,\"target_kind\":\"list\",\"target_presence\":\"present\",\"value\":{\"id\":\"added\",\"v\":5},\"value_kind\":\"json\"}],\"state_mutations_version\":\"1.1\",\"tenant_context\":null}",
+      "mutations": [
+        {
+          "index": null,
+          "operation": "append",
+          "path": "params.left",
+          "start": null,
+          "step": null,
+          "stop": null,
+          "target_kind": "list",
+          "target_presence": "present",
+          "value": {
+            "id": "added",
+            "v": 5
+          },
+          "value_kind": "json"
+        }
+      ],
+      "version": "1.1",
+      "profiles": [
+        {
+          "profile": "warm",
+          "pass": false,
+          "actual": {
+            "left": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              },
+              {
+                "id": "removeL",
+                "v": 31
+              },
+              {
+                "id": "added",
+                "v": 5
+              }
+            ],
+            "neighbor": {
+              "queue": [
+                "current"
+              ]
+            },
+            "right": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              },
+              {
+                "id": "removeL",
+                "v": 31
+              }
+            ],
+            "x": 2
+          },
+          "expected_literal_current_effect": {
+            "x": 2,
+            "left": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              },
+              {
+                "id": "removeL",
+                "v": 31
+              },
+              {
+                "id": "added",
+                "v": 5
+              }
+            ],
+            "right": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              },
+              {
+                "id": "removeL",
+                "v": 31
+              },
+              {
+                "id": "added",
+                "v": 5
+              }
+            ],
+            "neighbor": {
+              "queue": [
+                "current"
+              ]
+            }
+          },
+          "current_input_alias_identity": true,
+          "original_current_wire_unchanged": true,
+          "reserved_usd": "61",
+          "result_ref": {
+            "artifact_id": "sha256:085c88b40af20cbc20b6699cb50cebeee035c85947c16f9660a26ade8b689e23",
+            "kind": "scientist.independent_additive_result",
+            "media_type": "application/json"
+          },
+          "result_bytes": "{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"61\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"left\":[{\"id\":\"currentL\",\"v\":17},{\"id\":\"extraL\",\"v\":19},{\"id\":\"removeL\",\"v\":31},{\"id\":\"added\",\"v\":5}],\"neighbor\":{\"queue\":[\"current\"]},\"right\":[{\"id\":\"currentL\",\"v\":17},{\"id\":\"extraL\",\"v\":19},{\"id\":\"removeL\",\"v\":31}],\"x\":2},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_additive\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null}"
+        },
+        {
+          "profile": "reopened",
+          "pass": false,
+          "actual": {
+            "left": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              },
+              {
+                "id": "removeL",
+                "v": 31
+              },
+              {
+                "id": "added",
+                "v": 5
+              }
+            ],
+            "neighbor": {
+              "queue": [
+                "current"
+              ]
+            },
+            "right": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              },
+              {
+                "id": "removeL",
+                "v": 31
+              }
+            ],
+            "x": 2
+          },
+          "expected_literal_current_effect": {
+            "x": 2,
+            "left": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              },
+              {
+                "id": "removeL",
+                "v": 31
+              },
+              {
+                "id": "added",
+                "v": 5
+              }
+            ],
+            "right": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              },
+              {
+                "id": "removeL",
+                "v": 31
+              },
+              {
+                "id": "added",
+                "v": 5
+              }
+            ],
+            "neighbor": {
+              "queue": [
+                "current"
+              ]
+            }
+          },
+          "current_input_alias_identity": true,
+          "original_current_wire_unchanged": true,
+          "reserved_usd": "61",
+          "result_ref": {
+            "artifact_id": "sha256:085c88b40af20cbc20b6699cb50cebeee035c85947c16f9660a26ade8b689e23",
+            "kind": "scientist.independent_additive_result",
+            "media_type": "application/json"
+          },
+          "result_bytes": "{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"61\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"left\":[{\"id\":\"currentL\",\"v\":17},{\"id\":\"extraL\",\"v\":19},{\"id\":\"removeL\",\"v\":31},{\"id\":\"added\",\"v\":5}],\"neighbor\":{\"queue\":[\"current\"]},\"right\":[{\"id\":\"currentL\",\"v\":17},{\"id\":\"extraL\",\"v\":19},{\"id\":\"removeL\",\"v\":31}],\"x\":2},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_additive\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null}"
+        }
+      ],
+      "pass": false
+    },
+    {
+      "case": "append_split",
+      "producer_input_alias_identity": true,
+      "producer": {
+        "x": 2,
+        "left": [
+          {
+            "id": "base",
+            "v": 1
+          },
+          {
+            "id": "remove",
+            "v": 2
+          },
+          {
+            "id": "added",
+            "v": 5
+          }
+        ],
+        "right": [
+          {
+            "id": "base",
+            "v": 1
+          },
+          {
+            "id": "remove",
+            "v": 2
+          }
+        ],
+        "neighbor": {
+          "queue": [
+            "kept"
+          ]
+        }
+      },
+      "expected_producer_each_alias": [
+        {
+          "id": "base",
+          "v": 1
+        },
+        {
+          "id": "remove",
+          "v": 2
+        },
+        {
+          "id": "added",
+          "v": 5
+        }
+      ],
+      "producer_correct": false,
+      "producer_base_wire_unchanged": true,
+      "cache_ref": {
+        "artifact_id": "sha256:0b5632e2a8ea9f423eae6fd41a5d6043ef457fdc3866bd8fdc92c5b330916b28",
+        "kind": "scientist.node_cache_entry",
+        "media_type": "application/json"
+      },
+      "cache_sha256": "0b5632e2a8ea9f423eae6fd41a5d6043ef457fdc3866bd8fdc92c5b330916b28",
+      "cache_bytes": "{\"created_at\":{\"_type\":\"datetime\",\"iso_utc\":\"2026-10-06T13:41:05Z\"},\"idempotency_key\":\"2a063e705344511f7779a9e790005b9852c2b54d822a5211379b55dc332ab236\",\"journal_proof\":{\"manifest_producer\":{\"component\":\"scientist.engine.idempotency\",\"git\":null,\"version\":\"1.0.0\"},\"manifest_schema\":{\"name\":\"polisyos.scientist.orchestration.engine.NodeCacheEntry\",\"version\":\"2.0\"},\"payload_hash\":\"sha256:70554f6bde2aa29ced69ae1a943e5ccf124f57ca709f25dfe26ca43d93c21ff7\",\"replay_epoch\":\"2.1\"},\"node_id\":\"scientist.independent_additive@1.0.0\",\"outcome_payload\":{\"artifacts\":[],\"error\":null,\"events\":[],\"skip_blocker\":null,\"state\":{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"53\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"left\":[{\"id\":\"base\",\"v\":1},{\"id\":\"remove\",\"v\":2},{\"id\":\"added\",\"v\":5}],\"neighbor\":{\"queue\":[\"kept\"]},\"right\":[{\"id\":\"base\",\"v\":1},{\"id\":\"remove\",\"v\":2}],\"x\":2},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_additive\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null},\"status\":\"ok\"},\"outcome_ref\":null,\"replay_epoch\":\"2.1\",\"run_id\":\"R_independent_additive\",\"schema_version\":\"2.0\",\"state_mutations\":[{\"index\":null,\"operation\":\"append\",\"path\":\"params.left\",\"start\":null,\"step\":null,\"stop\":null,\"target_kind\":\"list\",\"target_presence\":\"present\",\"value\":{\"id\":\"added\",\"v\":5},\"value_kind\":\"json\"}],\"state_mutations_version\":\"1.1\",\"tenant_context\":null}",
+      "mutations": [
+        {
+          "index": null,
+          "operation": "append",
+          "path": "params.left",
+          "start": null,
+          "step": null,
+          "stop": null,
+          "target_kind": "list",
+          "target_presence": "present",
+          "value": {
+            "id": "added",
+            "v": 5
+          },
+          "value_kind": "json"
+        }
+      ],
+      "version": "1.1",
+      "profiles": [
+        {
+          "profile": "warm",
+          "pass": false,
+          "actual": {
+            "left": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              },
+              {
+                "id": "removeL",
+                "v": 31
+              },
+              {
+                "id": "added",
+                "v": 5
+              }
+            ],
+            "neighbor": {
+              "queue": [
+                "current"
+              ]
+            },
+            "right": [
+              {
+                "id": "currentR",
+                "v": 27
+              },
+              {
+                "id": "extraR",
+                "v": 29
+              },
+              {
+                "id": "removeR",
+                "v": 41
+              }
+            ],
+            "x": 2
+          },
+          "expected_literal_current_effect": {
+            "x": 2,
+            "left": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              },
+              {
+                "id": "removeL",
+                "v": 31
+              },
+              {
+                "id": "added",
+                "v": 5
+              }
+            ],
+            "right": [
+              {
+                "id": "currentR",
+                "v": 27
+              },
+              {
+                "id": "extraR",
+                "v": 29
+              },
+              {
+                "id": "removeR",
+                "v": 41
+              },
+              {
+                "id": "added",
+                "v": 5
+              }
+            ],
+            "neighbor": {
+              "queue": [
+                "current"
+              ]
+            }
+          },
+          "current_input_alias_identity": false,
+          "original_current_wire_unchanged": true,
+          "reserved_usd": "61",
+          "result_ref": {
+            "artifact_id": "sha256:5d26cf63158eff2e9dcfeb06d644363201fa23a6dd33e9b737669a1e9209d63c",
+            "kind": "scientist.independent_additive_result",
+            "media_type": "application/json"
+          },
+          "result_bytes": "{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"61\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"left\":[{\"id\":\"currentL\",\"v\":17},{\"id\":\"extraL\",\"v\":19},{\"id\":\"removeL\",\"v\":31},{\"id\":\"added\",\"v\":5}],\"neighbor\":{\"queue\":[\"current\"]},\"right\":[{\"id\":\"currentR\",\"v\":27},{\"id\":\"extraR\",\"v\":29},{\"id\":\"removeR\",\"v\":41}],\"x\":2},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_additive\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null}"
+        },
+        {
+          "profile": "reopened",
+          "pass": false,
+          "actual": {
+            "left": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              },
+              {
+                "id": "removeL",
+                "v": 31
+              },
+              {
+                "id": "added",
+                "v": 5
+              }
+            ],
+            "neighbor": {
+              "queue": [
+                "current"
+              ]
+            },
+            "right": [
+              {
+                "id": "currentR",
+                "v": 27
+              },
+              {
+                "id": "extraR",
+                "v": 29
+              },
+              {
+                "id": "removeR",
+                "v": 41
+              }
+            ],
+            "x": 2
+          },
+          "expected_literal_current_effect": {
+            "x": 2,
+            "left": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              },
+              {
+                "id": "removeL",
+                "v": 31
+              },
+              {
+                "id": "added",
+                "v": 5
+              }
+            ],
+            "right": [
+              {
+                "id": "currentR",
+                "v": 27
+              },
+              {
+                "id": "extraR",
+                "v": 29
+              },
+              {
+                "id": "removeR",
+                "v": 41
+              },
+              {
+                "id": "added",
+                "v": 5
+              }
+            ],
+            "neighbor": {
+              "queue": [
+                "current"
+              ]
+            }
+          },
+          "current_input_alias_identity": false,
+          "original_current_wire_unchanged": true,
+          "reserved_usd": "61",
+          "result_ref": {
+            "artifact_id": "sha256:5d26cf63158eff2e9dcfeb06d644363201fa23a6dd33e9b737669a1e9209d63c",
+            "kind": "scientist.independent_additive_result",
+            "media_type": "application/json"
+          },
+          "result_bytes": "{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"61\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"left\":[{\"id\":\"currentL\",\"v\":17},{\"id\":\"extraL\",\"v\":19},{\"id\":\"removeL\",\"v\":31},{\"id\":\"added\",\"v\":5}],\"neighbor\":{\"queue\":[\"current\"]},\"right\":[{\"id\":\"currentR\",\"v\":27},{\"id\":\"extraR\",\"v\":29},{\"id\":\"removeR\",\"v\":41}],\"x\":2},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_additive\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null}"
+        }
+      ],
+      "pass": false
+    },
+    {
+      "case": "pop_aliased",
+      "producer_input_alias_identity": true,
+      "producer": {
+        "x": 2,
+        "left": [
+          {
+            "id": "base",
+            "v": 1
+          }
+        ],
+        "right": [
+          {
+            "id": "base",
+            "v": 1
+          },
+          {
+            "id": "remove",
+            "v": 2
+          }
+        ],
+        "neighbor": {
+          "queue": [
+            "kept"
+          ]
+        }
+      },
+      "expected_producer_each_alias": [
+        {
+          "id": "base",
+          "v": 1
+        }
+      ],
+      "producer_correct": false,
+      "producer_base_wire_unchanged": true,
+      "cache_ref": {
+        "artifact_id": "sha256:39d636a7e16ad8660e079e029fd39c1583e074c295c32a0f79c94a3053f1ad1a",
+        "kind": "scientist.node_cache_entry",
+        "media_type": "application/json"
+      },
+      "cache_sha256": "39d636a7e16ad8660e079e029fd39c1583e074c295c32a0f79c94a3053f1ad1a",
+      "cache_bytes": "{\"created_at\":{\"_type\":\"datetime\",\"iso_utc\":\"2026-10-06T13:41:05Z\"},\"idempotency_key\":\"5cf45ee29de343b4de3b9044b022a4983f4e996a3cbd045bff99fe50100f3cba\",\"journal_proof\":{\"manifest_producer\":{\"component\":\"scientist.engine.idempotency\",\"git\":null,\"version\":\"1.0.0\"},\"manifest_schema\":{\"name\":\"polisyos.scientist.orchestration.engine.NodeCacheEntry\",\"version\":\"2.0\"},\"payload_hash\":\"sha256:5d5a7386ee385ae10b71e41582dba95d793c13c66373267e9e2a8a1b37955222\",\"replay_epoch\":\"2.1\"},\"node_id\":\"scientist.independent_additive@1.0.0\",\"outcome_payload\":{\"artifacts\":[],\"error\":null,\"events\":[],\"skip_blocker\":null,\"state\":{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"53\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"left\":[{\"id\":\"base\",\"v\":1}],\"neighbor\":{\"queue\":[\"kept\"]},\"right\":[{\"id\":\"base\",\"v\":1},{\"id\":\"remove\",\"v\":2}],\"x\":2},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_additive\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null},\"status\":\"ok\"},\"outcome_ref\":null,\"replay_epoch\":\"2.1\",\"run_id\":\"R_independent_additive\",\"schema_version\":\"2.0\",\"state_mutations\":[{\"index\":-1,\"operation\":\"pop\",\"path\":\"params.left\",\"start\":null,\"step\":null,\"stop\":null,\"target_kind\":\"list\",\"target_presence\":\"present\",\"value\":null,\"value_kind\":\"json\"}],\"state_mutations_version\":\"1.1\",\"tenant_context\":null}",
+      "mutations": [
+        {
+          "index": -1,
+          "operation": "pop",
+          "path": "params.left",
+          "start": null,
+          "step": null,
+          "stop": null,
+          "target_kind": "list",
+          "target_presence": "present",
+          "value": null,
+          "value_kind": "json"
+        }
+      ],
+      "version": "1.1",
+      "profiles": [
+        {
+          "profile": "warm",
+          "pass": false,
+          "actual": {
+            "left": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              }
+            ],
+            "neighbor": {
+              "queue": [
+                "current"
+              ]
+            },
+            "right": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              },
+              {
+                "id": "removeL",
+                "v": 31
+              }
+            ],
+            "x": 2
+          },
+          "expected_literal_current_effect": {
+            "x": 2,
+            "left": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              }
+            ],
+            "right": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              }
+            ],
+            "neighbor": {
+              "queue": [
+                "current"
+              ]
+            }
+          },
+          "current_input_alias_identity": true,
+          "original_current_wire_unchanged": true,
+          "reserved_usd": "61",
+          "result_ref": {
+            "artifact_id": "sha256:c53836a27c265558397088f79aa5c1b8a311a8825906b5838a8ce7fca70c4829",
+            "kind": "scientist.independent_additive_result",
+            "media_type": "application/json"
+          },
+          "result_bytes": "{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"61\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"left\":[{\"id\":\"currentL\",\"v\":17},{\"id\":\"extraL\",\"v\":19}],\"neighbor\":{\"queue\":[\"current\"]},\"right\":[{\"id\":\"currentL\",\"v\":17},{\"id\":\"extraL\",\"v\":19},{\"id\":\"removeL\",\"v\":31}],\"x\":2},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_additive\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null}"
+        },
+        {
+          "profile": "reopened",
+          "pass": false,
+          "actual": {
+            "left": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              }
+            ],
+            "neighbor": {
+              "queue": [
+                "current"
+              ]
+            },
+            "right": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              },
+              {
+                "id": "removeL",
+                "v": 31
+              }
+            ],
+            "x": 2
+          },
+          "expected_literal_current_effect": {
+            "x": 2,
+            "left": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              }
+            ],
+            "right": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              }
+            ],
+            "neighbor": {
+              "queue": [
+                "current"
+              ]
+            }
+          },
+          "current_input_alias_identity": true,
+          "original_current_wire_unchanged": true,
+          "reserved_usd": "61",
+          "result_ref": {
+            "artifact_id": "sha256:c53836a27c265558397088f79aa5c1b8a311a8825906b5838a8ce7fca70c4829",
+            "kind": "scientist.independent_additive_result",
+            "media_type": "application/json"
+          },
+          "result_bytes": "{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"61\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"left\":[{\"id\":\"currentL\",\"v\":17},{\"id\":\"extraL\",\"v\":19}],\"neighbor\":{\"queue\":[\"current\"]},\"right\":[{\"id\":\"currentL\",\"v\":17},{\"id\":\"extraL\",\"v\":19},{\"id\":\"removeL\",\"v\":31}],\"x\":2},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_additive\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null}"
+        }
+      ],
+      "pass": false
+    },
+    {
+      "case": "pop_split",
+      "producer_input_alias_identity": true,
+      "producer": {
+        "x": 2,
+        "left": [
+          {
+            "id": "base",
+            "v": 1
+          }
+        ],
+        "right": [
+          {
+            "id": "base",
+            "v": 1
+          },
+          {
+            "id": "remove",
+            "v": 2
+          }
+        ],
+        "neighbor": {
+          "queue": [
+            "kept"
+          ]
+        }
+      },
+      "expected_producer_each_alias": [
+        {
+          "id": "base",
+          "v": 1
+        }
+      ],
+      "producer_correct": false,
+      "producer_base_wire_unchanged": true,
+      "cache_ref": {
+        "artifact_id": "sha256:f7edc29de7ffe0c617e5bcde1415f8806d873f2ec93336951a6f648a27372660",
+        "kind": "scientist.node_cache_entry",
+        "media_type": "application/json"
+      },
+      "cache_sha256": "f7edc29de7ffe0c617e5bcde1415f8806d873f2ec93336951a6f648a27372660",
+      "cache_bytes": "{\"created_at\":{\"_type\":\"datetime\",\"iso_utc\":\"2026-10-06T13:41:05Z\"},\"idempotency_key\":\"be7955755ad01f3f0c4c25886cf694f37119d51d9911447c08ea679afdca90a9\",\"journal_proof\":{\"manifest_producer\":{\"component\":\"scientist.engine.idempotency\",\"git\":null,\"version\":\"1.0.0\"},\"manifest_schema\":{\"name\":\"polisyos.scientist.orchestration.engine.NodeCacheEntry\",\"version\":\"2.0\"},\"payload_hash\":\"sha256:e67dae6e8f81e8253b9841e8ba6f6180e39bc8cb857b9334b826d2f3ab5c3a2c\",\"replay_epoch\":\"2.1\"},\"node_id\":\"scientist.independent_additive@1.0.0\",\"outcome_payload\":{\"artifacts\":[],\"error\":null,\"events\":[],\"skip_blocker\":null,\"state\":{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"53\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"left\":[{\"id\":\"base\",\"v\":1}],\"neighbor\":{\"queue\":[\"kept\"]},\"right\":[{\"id\":\"base\",\"v\":1},{\"id\":\"remove\",\"v\":2}],\"x\":2},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_additive\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null},\"status\":\"ok\"},\"outcome_ref\":null,\"replay_epoch\":\"2.1\",\"run_id\":\"R_independent_additive\",\"schema_version\":\"2.0\",\"state_mutations\":[{\"index\":-1,\"operation\":\"pop\",\"path\":\"params.left\",\"start\":null,\"step\":null,\"stop\":null,\"target_kind\":\"list\",\"target_presence\":\"present\",\"value\":null,\"value_kind\":\"json\"}],\"state_mutations_version\":\"1.1\",\"tenant_context\":null}",
+      "mutations": [
+        {
+          "index": -1,
+          "operation": "pop",
+          "path": "params.left",
+          "start": null,
+          "step": null,
+          "stop": null,
+          "target_kind": "list",
+          "target_presence": "present",
+          "value": null,
+          "value_kind": "json"
+        }
+      ],
+      "version": "1.1",
+      "profiles": [
+        {
+          "profile": "warm",
+          "pass": false,
+          "actual": {
+            "left": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              }
+            ],
+            "neighbor": {
+              "queue": [
+                "current"
+              ]
+            },
+            "right": [
+              {
+                "id": "currentR",
+                "v": 27
+              },
+              {
+                "id": "extraR",
+                "v": 29
+              },
+              {
+                "id": "removeR",
+                "v": 41
+              }
+            ],
+            "x": 2
+          },
+          "expected_literal_current_effect": {
+            "x": 2,
+            "left": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              }
+            ],
+            "right": [
+              {
+                "id": "currentR",
+                "v": 27
+              },
+              {
+                "id": "extraR",
+                "v": 29
+              }
+            ],
+            "neighbor": {
+              "queue": [
+                "current"
+              ]
+            }
+          },
+          "current_input_alias_identity": false,
+          "original_current_wire_unchanged": true,
+          "reserved_usd": "61",
+          "result_ref": {
+            "artifact_id": "sha256:0711333519b1673e27312d4fe3966e09f12b00cbe21a0a97a6065febb459cf7f",
+            "kind": "scientist.independent_additive_result",
+            "media_type": "application/json"
+          },
+          "result_bytes": "{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"61\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"left\":[{\"id\":\"currentL\",\"v\":17},{\"id\":\"extraL\",\"v\":19}],\"neighbor\":{\"queue\":[\"current\"]},\"right\":[{\"id\":\"currentR\",\"v\":27},{\"id\":\"extraR\",\"v\":29},{\"id\":\"removeR\",\"v\":41}],\"x\":2},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_additive\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null}"
+        },
+        {
+          "profile": "reopened",
+          "pass": false,
+          "actual": {
+            "left": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              }
+            ],
+            "neighbor": {
+              "queue": [
+                "current"
+              ]
+            },
+            "right": [
+              {
+                "id": "currentR",
+                "v": 27
+              },
+              {
+                "id": "extraR",
+                "v": 29
+              },
+              {
+                "id": "removeR",
+                "v": 41
+              }
+            ],
+            "x": 2
+          },
+          "expected_literal_current_effect": {
+            "x": 2,
+            "left": [
+              {
+                "id": "currentL",
+                "v": 17
+              },
+              {
+                "id": "extraL",
+                "v": 19
+              }
+            ],
+            "right": [
+              {
+                "id": "currentR",
+                "v": 27
+              },
+              {
+                "id": "extraR",
+                "v": 29
+              }
+            ],
+            "neighbor": {
+              "queue": [
+                "current"
+              ]
+            }
+          },
+          "current_input_alias_identity": false,
+          "original_current_wire_unchanged": true,
+          "reserved_usd": "61",
+          "result_ref": {
+            "artifact_id": "sha256:0711333519b1673e27312d4fe3966e09f12b00cbe21a0a97a6065febb459cf7f",
+            "kind": "scientist.independent_additive_result",
+            "media_type": "application/json"
+          },
+          "result_bytes": "{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"61\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"left\":[{\"id\":\"currentL\",\"v\":17},{\"id\":\"extraL\",\"v\":19}],\"neighbor\":{\"queue\":[\"current\"]},\"right\":[{\"id\":\"currentR\",\"v\":27},{\"id\":\"extraR\",\"v\":29},{\"id\":\"removeR\",\"v\":41}],\"x\":2},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_additive\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null}"
+        }
+      ],
+      "pass": false
+    }
+  ],
+  "trace_utf8": "{\"ts\":\"2026-10-06T13:41:05Z\",\"run_id\":\"R_independent_additive\",\"phase\":\"core\",\"event\":\"RUN_STARTED\",\"run_terminality\":\"non_terminal\",\"refs\":{\"inputs\":[],\"outputs\":[]},\"metrics\":{},\"warnings\":[],\"errors\":[]}\n{\"ts\":\"2026-10-06T13:41:05Z\",\"run_id\":\"R_independent_additive\",\"phase\":\"independent.additive\",\"event\":\"ADDITIVE_CURRENT_RESULT\",\"refs\":{\"inputs\":[],\"outputs\":[{\"artifact_id\":\"sha256:b84bcd8999deeb4170133bb9646bc13c0df5b62c1288782251ae462d66dfcfae\",\"kind\":\"scientist.node_cache_entry\",\"media_type\":\"application/json\"},{\"artifact_id\":\"sha256:085c88b40af20cbc20b6699cb50cebeee035c85947c16f9660a26ade8b689e23\",\"kind\":\"scientist.independent_additive_result\",\"media_type\":\"application/json\"}]},\"metrics\":{\"matched\":0},\"warnings\":[],\"errors\":[]}\n{\"ts\":\"2026-10-06T13:41:05Z\",\"run_id\":\"R_independent_additive\",\"phase\":\"independent.additive\",\"event\":\"ADDITIVE_CURRENT_RESULT\",\"refs\":{\"inputs\":[],\"outputs\":[{\"artifact_id\":\"sha256:b84bcd8999deeb4170133bb9646bc13c0df5b62c1288782251ae462d66dfcfae\",\"kind\":\"scientist.node_cache_entry\",\"media_type\":\"application/json\"},{\"artifact_id\":\"sha256:085c88b40af20cbc20b6699cb50cebeee035c85947c16f9660a26ade8b689e23\",\"kind\":\"scientist.independent_additive_result\",\"media_type\":\"application/json\"}]},\"metrics\":{\"matched\":0},\"warnings\":[],\"errors\":[]}\n{\"ts\":\"2026-10-06T13:41:05Z\",\"run_id\":\"R_independent_additive\",\"phase\":\"independent.additive\",\"event\":\"ADDITIVE_CURRENT_RESULT\",\"refs\":{\"inputs\":[],\"outputs\":[{\"artifact_id\":\"sha256:0b5632e2a8ea9f423eae6fd41a5d6043ef457fdc3866bd8fdc92c5b330916b28\",\"kind\":\"scientist.node_cache_entry\",\"media_type\":\"application/json\"},{\"artifact_id\":\"sha256:5d26cf63158eff2e9dcfeb06d644363201fa23a6dd33e9b737669a1e9209d63c\",\"kind\":\"scientist.independent_additive_result\",\"media_type\":\"application/json\"}]},\"metrics\":{\"matched\":0},\"warnings\":[],\"errors\":[]}\n{\"ts\":\"2026-10-06T13:41:05Z\",\"run_id\":\"R_independent_additive\",\"phase\":\"independent.additive\",\"event\":\"ADDITIVE_CURRENT_RESULT\",\"refs\":{\"inputs\":[],\"outputs\":[{\"artifact_id\":\"sha256:0b5632e2a8ea9f423eae6fd41a5d6043ef457fdc3866bd8fdc92c5b330916b28\",\"kind\":\"scientist.node_cache_entry\",\"media_type\":\"application/json\"},{\"artifact_id\":\"sha256:5d26cf63158eff2e9dcfeb06d644363201fa23a6dd33e9b737669a1e9209d63c\",\"kind\":\"scientist.independent_additive_result\",\"media_type\":\"application/json\"}]},\"metrics\":{\"matched\":0},\"warnings\":[],\"errors\":[]}\n{\"ts\":\"2026-10-06T13:41:05Z\",\"run_id\":\"R_independent_additive\",\"phase\":\"independent.additive\",\"event\":\"ADDITIVE_CURRENT_RESULT\",\"refs\":{\"inputs\":[],\"outputs\":[{\"artifact_id\":\"sha256:39d636a7e16ad8660e079e029fd39c1583e074c295c32a0f79c94a3053f1ad1a\",\"kind\":\"scientist.node_cache_entry\",\"media_type\":\"application/json\"},{\"artifact_id\":\"sha256:c53836a27c265558397088f79aa5c1b8a311a8825906b5838a8ce7fca70c4829\",\"kind\":\"scientist.independent_additive_result\",\"media_type\":\"application/json\"}]},\"metrics\":{\"matched\":0},\"warnings\":[],\"errors\":[]}\n{\"ts\":\"2026-10-06T13:41:05Z\",\"run_id\":\"R_independent_additive\",\"phase\":\"independent.additive\",\"event\":\"ADDITIVE_CURRENT_RESULT\",\"refs\":{\"inputs\":[],\"outputs\":[{\"artifact_id\":\"sha256:39d636a7e16ad8660e079e029fd39c1583e074c295c32a0f79c94a3053f1ad1a\",\"kind\":\"scientist.node_cache_entry\",\"media_type\":\"application/json\"},{\"artifact_id\":\"sha256:c53836a27c265558397088f79aa5c1b8a311a8825906b5838a8ce7fca70c4829\",\"kind\":\"scientist.independent_additive_result\",\"media_type\":\"application/json\"}]},\"metrics\":{\"matched\":0},\"warnings\":[],\"errors\":[]}\n{\"ts\":\"2026-10-06T13:41:05Z\",\"run_id\":\"R_independent_additive\",\"phase\":\"independent.additive\",\"event\":\"ADDITIVE_CURRENT_RESULT\",\"refs\":{\"inputs\":[],\"outputs\":[{\"artifact_id\":\"sha256:f7edc29de7ffe0c617e5bcde1415f8806d873f2ec93336951a6f648a27372660\",\"kind\":\"scientist.node_cache_entry\",\"media_type\":\"application/json\"},{\"artifact_id\":\"sha256:0711333519b1673e27312d4fe3966e09f12b00cbe21a0a97a6065febb459cf7f\",\"kind\":\"scientist.independent_additive_result\",\"media_type\":\"application/json\"}]},\"metrics\":{\"matched\":0},\"warnings\":[],\"errors\":[]}\n{\"ts\":\"2026-10-06T13:41:05Z\",\"run_id\":\"R_independent_additive\",\"phase\":\"independent.additive\",\"event\":\"ADDITIVE_CURRENT_RESULT\",\"refs\":{\"inputs\":[],\"outputs\":[{\"artifact_id\":\"sha256:f7edc29de7ffe0c617e5bcde1415f8806d873f2ec93336951a6f648a27372660\",\"kind\":\"scientist.node_cache_entry\",\"media_type\":\"application/json\"},{\"artifact_id\":\"sha256:0711333519b1673e27312d4fe3966e09f12b00cbe21a0a97a6065febb459cf7f\",\"kind\":\"scientist.independent_additive_result\",\"media_type\":\"application/json\"}]},\"metrics\":{\"matched\":0},\"warnings\":[],\"errors\":[]}\n",
+  "pass": false
+}

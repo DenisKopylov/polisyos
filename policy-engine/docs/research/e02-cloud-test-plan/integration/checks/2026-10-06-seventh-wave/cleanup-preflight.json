@@ -1,0 +1,306 @@
+{
+  "schema": "policyos.e02.native_trash_preflight.v1",
+  "created_utc": "2026-10-06T20:14:09.551935+00:00",
+  "scope": "Exact used reproducible source/test leaves and two completed superseded rollouts; no permanent deletion or Trash emptying",
+  "review_anchor": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+  "actions_taken": [],
+  "candidates": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/checkout",
+      "device": 16777231,
+      "inode": 172986947,
+      "kind": "extracted test-source checkout",
+      "allocated_bytes": 62795776,
+      "source_proof": {
+        "commit": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+        "tree": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+        "manifest": "1800-Bcas-checks/inputs/input-manifest-before.json",
+        "manifest_entries": 2924,
+        "manifest_file_hashes_and_git_blobs_match": true,
+        "extra_files": "64 generated .pyc files; no untracked non-bytecode files",
+        "remote_refs": [
+          "origin/codex/e02-B-current-cas-generation",
+          "origin/codex/e02-B-current-coordination"
+        ],
+        "ancestor_of_G_head": false
+      }
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/checkout-attempt2",
+      "device": 16777231,
+      "inode": 172991053,
+      "kind": "extracted test-source checkout",
+      "allocated_bytes": 61550592,
+      "source_proof": {
+        "commit": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+        "tree": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+        "manifest": "1800-Bcas-checks/inputs/attempt2/input-manifest-before.json",
+        "manifest_entries": 2925,
+        "manifest_file_hashes_and_git_blobs_match": true,
+        "extra_files": "none",
+        "remote_refs": [
+          "origin/codex/e02-B-current-cas-generation",
+          "origin/codex/e02-B-current-coordination"
+        ],
+        "ancestor_of_G_head": false
+      }
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/inputs/source-5ece606ee1c1016c1133a1e81bbf852574a64a48.tar",
+      "device": 16777231,
+      "inode": 172986995,
+      "kind": "generated source archive used as test input",
+      "allocated_bytes": 57446400,
+      "source_proof": {
+        "commit": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+        "manifest_sha256": "6f31700e1c9661ea888ed55b011fe229ea96d737afa2733d374ec88358cdb6ab",
+        "archive_sha256_matches_manifest": true,
+        "candidate_tree": "ff36af874a0a08d3571a1703ce1574b8273c9cbf"
+      }
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-Bcas-checks/inputs/attempt2/source-5ece606ee1c1016c1133a1e81bbf852574a64a48.tar",
+      "device": 16777231,
+      "inode": 172991099,
+      "kind": "generated source archive used as test input",
+      "allocated_bytes": 57487360,
+      "source_proof": {
+        "commit": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+        "manifest_sha256": "56f14e6bbe4158728e50bfa4770ef7597ec0da5cee3266eab1ef14e23ee194c3",
+        "archive_sha256_matches_manifest": true,
+        "candidate_tree": "ff36af874a0a08d3571a1703ce1574b8273c9cbf",
+        "difference_from_first_manifest": [
+          "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml"
+        ]
+      }
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source",
+      "device": 16777231,
+      "inode": 172996195,
+      "kind": "extracted test-source checkout",
+      "allocated_bytes": 62005248,
+      "source_proof": {
+        "commit": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+        "tree": "3e654b07a3228d1b3d2d0bb2a3a91ae792068090",
+        "manifest": "1845-DOE-checks/candidate-input-manifest-before.json",
+        "manifest_entries": 2946,
+        "manifest_file_hashes_and_git_blobs_match": true,
+        "archive_sha256": "93accd8d4582e6958c6a30d3c376caae16ecca0fa4342efc7cc01f938b458bb9",
+        "remote_refs": [
+          "origin/codex/e02-E-continuation-20261006",
+          "origin/codex/e02-E-doe-20261006"
+        ],
+        "ancestor_of_G_head": false
+      }
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/candidate-source.tar",
+      "device": 16777231,
+      "inode": 172996199,
+      "kind": "generated source archive used as test input",
+      "allocated_bytes": 57929728,
+      "source_proof": {
+        "commit": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+        "tree": "3e654b07a3228d1b3d2d0bb2a3a91ae792068090",
+        "archive_sha256": "93accd8d4582e6958c6a30d3c376caae16ecca0fa4342efc7cc01f938b458bb9",
+        "archive_sha256_matches_before_and_after_manifests": true
+      }
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/checkout",
+      "device": 16777231,
+      "inode": 173063063,
+      "kind": "extracted test-source checkout",
+      "allocated_bytes": 62058496,
+      "source_proof": {
+        "commit": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+        "tree": "98405fab6c567d9fd44a5e30387c0ba32a7c7cf9",
+        "manifest": "1910-A11-checks/inputs/source-manifest-before.json",
+        "manifest_entries": 2929,
+        "manifest_file_hashes_and_git_blobs_match": true,
+        "extra_files": "none",
+        "remote_refs": [
+          "origin/codex/e02-A-full-queue"
+        ],
+        "ancestor_of_G_head": false
+      }
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/checkout-retry",
+      "device": 16777231,
+      "inode": 173068424,
+      "kind": "extracted test-source checkout",
+      "allocated_bytes": 62078976,
+      "source_proof": {
+        "commit": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+        "tree": "98405fab6c567d9fd44a5e30387c0ba32a7c7cf9",
+        "manifest": "1910-A11-checks/inputs/source-manifest-retry.json",
+        "manifest_entries": 2933,
+        "manifest_file_hashes_and_git_blobs_match": true,
+        "extra_files": "three zero-byte generated .polisyos runtime root.lock files",
+        "retry_added_tracked_paths": [
+          "policy-engine/tools/lib/imports.py",
+          "policy-engine/tools/lib/output.py",
+          "policy-engine/tools/lib/preflight.py",
+          "policy-engine/tools/lib/sql.py"
+        ],
+        "remote_refs": [
+          "origin/codex/e02-A-full-queue"
+        ],
+        "ancestor_of_G_head": false
+      }
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/inputs/source-905820ceac5860c7d1c4ebcbdde7b1265afb0b15.tar",
+      "device": 16777231,
+      "inode": 173063062,
+      "kind": "generated source archive used as test input",
+      "allocated_bytes": 57991168,
+      "source_proof": {
+        "commit": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+        "manifest_sha256": "ec01e47c6209d0b372970c6e520f00c2b6a940ce9663450af10e1ca1cee612a5",
+        "archive_sha256_matches_manifest": true,
+        "candidate_tree": "98405fab6c567d9fd44a5e30387c0ba32a7c7cf9"
+      }
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1910-A11-checks/inputs/source-905820ceac5860c7d1c4ebcbdde7b1265afb0b15-closure2.tar",
+      "device": 16777231,
+      "inode": 173068423,
+      "kind": "generated retry source archive used as test input",
+      "allocated_bytes": 57999360,
+      "source_proof": {
+        "commit": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+        "manifest_sha256": "97769f1db7d1300e87413d978573f2c1fd84fc6f8e097f21296252cf7ff6dc03",
+        "archive_sha256_matches_manifest": true,
+        "candidate_tree": "98405fab6c567d9fd44a5e30387c0ba32a7c7cf9"
+      }
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1850-schema-dirty-probe/candidate",
+      "device": 16777231,
+      "inode": 172999891,
+      "kind": "bounded source subset used by schema dirty probe",
+      "allocated_bytes": 364544,
+      "source_proof": {
+        "commit": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+        "tree": "467cd6f01ec204767dc60bb939955578428bf102",
+        "receipt": "1850-schema-dirty-probe/receipt.json",
+        "source_inputs": 16,
+        "all_16_git_blob_and_sha256_hashes_match": true,
+        "extra_files": "12 generated .pyc files",
+        "remote_refs": [
+          "origin/codex/e02-C-schema-20261006"
+        ],
+        "ancestor_of_G_head": false
+      }
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1850-schema-dirty-probe/fixture",
+      "device": 16777231,
+      "inode": 172999892,
+      "kind": "synthetic two-file Git fixture left in final staged-rename state",
+      "allocated_bytes": 135168,
+      "source_proof": {
+        "synthetic_test_data": [
+          "a.py/b.py baseline, modified files and a staged a.py-to-c.py rename"
+        ],
+        "recreator": "1850-schema-dirty-probe/run_probe.py",
+        "fixture_commands_and_all_four_case_outputs_retained_in": "1850-schema-dirty-probe/receipt.json",
+        "production_data": false
+      }
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/sessions/2026/09/24/rollout-2026-09-24T11-12-42-01a0d279-559c-7ce1-9e31-0cc3e9214896.jsonl",
+      "device": 16777231,
+      "inode": 147480156,
+      "kind": "old completed superseded Codex rollout",
+      "allocated_bytes": 1133080576,
+      "logical_bytes": 1133076710,
+      "mtime_ns": 1791114099464247766,
+      "provenance": {
+        "thread_id": "01a0d279-559c-7ce1-9e31-0cc3e9214896",
+        "title": "Repair E02 regressions",
+        "status": "notLoaded; latest turn completed; not current root/A/C/G",
+        "retained_refs": [
+          "codex/e02-r2@69780761a",
+          "2b31b46569d8bd99107881710888a6fc012bdb44"
+        ],
+        "limitation": "At old handoff, 13 controls and full four-base run remained UNRUN; current six owner prompts continue the work.",
+        "open_pids": []
+      }
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/sessions/2026/09/19/rollout-2026-09-19T11-46-34-01a0b8d8-8da0-77b2-bb1d-e266225c30c0.jsonl",
+      "device": 16777231,
+      "inode": 138790126,
+      "kind": "old completed superseded Codex rollout",
+      "allocated_bytes": 418988032,
+      "logical_bytes": 418984758,
+      "mtime_ns": 1791044403101091968,
+      "provenance": {
+        "thread_id": "01a0b8d8-8da0-77b2-bb1d-e266225c30c0",
+        "title": "Создать изолированный ворктри",
+        "status": "notLoaded; latest turn completed; not current root/A/C/G",
+        "retained_refs": [
+          "codex/safe-workspace@00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "codex/e02-cau-03-current@7348f51e7e17e205f287b006d6575ccff0ae1981"
+        ],
+        "cleanup_summary": "18/19 intended objects moved to native Trash: 7 worktrees, 3 .venv, 6 node_modules, 2 caches; stated total 13.85 GiB. CAU-03 was left for an in-progress RDD fix/review at that time.",
+        "open_pids": []
+      }
+    }
+  ],
+  "total_allocated_bytes": 2151911424,
+  "recoverability": [
+    {
+      "candidate": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "ref": "origin/codex/e02-B-current-cas-generation",
+      "fetched_head": "1a816b90a7ee159c67fad29584a783c409bc650e",
+      "ancestor": true
+    },
+    {
+      "candidate": "5ece606ee1c1016c1133a1e81bbf852574a64a48",
+      "ref": "origin/codex/e02-B-current-coordination",
+      "fetched_head": "dd9584728bd96f204983615216efdbc58117e713",
+      "ancestor": true
+    },
+    {
+      "candidate": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+      "ref": "origin/codex/e02-E-continuation-20261006",
+      "fetched_head": "e9cb425e4dfe888720f93eb84f1667f24a8a92c4",
+      "ancestor": true
+    },
+    {
+      "candidate": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+      "ref": "origin/codex/e02-A-full-queue",
+      "fetched_head": "93d62af8eb037fa37cb0254ad38285507b26a86a",
+      "ancestor": true
+    },
+    {
+      "candidate": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+      "ref": "origin/codex/e02-C-schema-20261006",
+      "fetched_head": "28b04149e6477216f37c2ab2e0abfc54b8857ac6",
+      "ancestor": true
+    },
+    {
+      "old_session_commit": "2b31b46569d8bd99107881710888a6fc012bdb44",
+      "main_and_G_ancestor": true
+    },
+    {
+      "old_session_commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "main_and_G_ancestor": true
+    },
+    {
+      "old_session_commit": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "main_and_G_ancestor": true
+    },
+    {
+      "old_session_commit": "7348f51e7e17e205f287b006d6575ccff0ae1981",
+      "main_and_G_ancestor": true
+    }
+  ],
+  "preservation": "All deciding outputs/receipts/full ignored input and origin manifests, reproducers, unique A11 review test, ready DoE overlay, Git objects/refs, production data and current A/C/G+other current sessions retained. Source acceptance not a retention gate.",
+  "next_action": "After this preflight and all deciding receipts are published/read back and readers released, recheck identities and open handles and move exact candidates using native NSFileManager Trash. Source absent and Trash device/inode must agree. Trash does not immediately free disk space."
+}

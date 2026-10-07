@@ -1,6 +1,6 @@
 {
   "schema": "F-original35-independent-review-full-material/v1",
-  "record_count": 48,
+  "record_count": 52,
   "records": [
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/original35-review.json.gz",
@@ -481,10 +481,51 @@
       "encoding": "identity",
       "original_path": "/tmp/e02-F-continuation-20261007/cau/api-review/published-material-review.json",
       "role": "independent full120 stored/decoded publication audit"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/full-implementation-diff.patch.gz",
+      "bytes": 175840,
+      "sha256": "fb0422215deef89edd04ef9787fbdb9534dada8993de43c1306d4347eec897c5",
+      "decoded_bytes": 714574,
+      "decoded_sha256": "95ed4576bed2ba52264ac3eb67b7ad02a9f97f8f6a9204423277b4e4513adff7",
+      "encoding": "gzip-lossless",
+      "role": "Complete binary Git diff slice-base f88 to implementation f3d; excludes the separate future handoff commit by protocol",
+      "source_begin": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "source_end": "f3d4dad8dfa0980763d87050418c902908af25d2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/frozen-candidate-verifier.stdout.gz",
+      "bytes": 708,
+      "sha256": "e506a532677587aa425b7b3b0df575d7909c3fc5849fa892a22be53828e1154e",
+      "decoded_bytes": 1714,
+      "decoded_sha256": "89a33a8a8bf1a295804cefa04153309695a85c804ccd3c0bb8ee04cd1c53e172",
+      "encoding": "gzip-lossless",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/frozen-candidate-verifier.stdout",
+      "role": "Complete metadata verification on immutable implementationf3 script and packet bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/frozen-candidate-verifier.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/frozen-candidate-verifier.stderr",
+      "role": "Complete metadata verification on immutable implementationf3 script and packet bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/original35-independent-criterion-review-20261007/frozen-candidate-verifier.execution.json",
+      "bytes": 1460,
+      "sha256": "5ec1e1c5ee19f521688b4df6d5ca3d2255472937ace5eece03a850d1d425100a",
+      "decoded_bytes": 1460,
+      "decoded_sha256": "5ec1e1c5ee19f521688b4df6d5ca3d2255472937ace5eece03a850d1d425100a",
+      "encoding": "identity",
+      "original_path": "/tmp/e02-F-continuation-20261007/cau/frozen-candidate-verifier.execution.json",
+      "role": "Complete metadata verification on immutable implementationf3 script and packet bytes"
     }
   ],
-  "stored_bytes": 606019,
-  "decoded_bytes": 1489342,
+  "stored_bytes": 784027,
+  "decoded_bytes": 2207090,
   "all_complete": true,
   "external_full_outputs": "Exact API605120 and ECOfa53108 manifests are bound inside the packet; not copied again."
 }

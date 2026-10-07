@@ -11,6 +11,7 @@ import ast
 import builtins
 import dis
 import inspect
+import symtable
 import sys
 import textwrap
 from collections.abc import Callable, Iterator
@@ -235,7 +236,9 @@ def _data_field_getattr(
     Captured module reflection still has no static member paths and is refused.
     """
     try:
-        tree = ast.parse(textwrap.dedent(inspect.getsource(function)))
+        source = textwrap.dedent(inspect.getsource(function))
+        tree = ast.parse(source)
+        symbols = symtable.symtable(source, function.__code__.co_filename, "exec")
     except (OSError, TypeError, SyntaxError):
         return None
     definitions = [
@@ -247,6 +250,13 @@ def _data_field_getattr(
     if len(definitions) != 1:
         return None
     definition = definitions[0]
+    scopes = [
+        scope
+        for scope in symbols.get_children()
+        if scope.get_name() == definition.name and scope.get_lineno() == definition.lineno
+    ]
+    if len(scopes) != 1:
+        return None
     parameters = {
         arg.arg
         for arg in (definition.args.posonlyargs + definition.args.args + definition.args.kwonlyargs)
@@ -258,6 +268,14 @@ def _data_field_getattr(
         for node in nodes
         if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del))
     }
+    # Python's own binding census includes exception names, nested definitions,
+    # imports and match captures, whose AST names are strings rather than
+    # Name(Store). Keep explicit deletion/comprehension checks as well.
+    rebound.update(
+        parameter
+        for parameter in parameters
+        if scopes[0].lookup(parameter).is_assigned() or scopes[0].lookup(parameter).is_imported()
+    )
     fields: set[str] = set()
     targets: set[str] = set()
     uses = [

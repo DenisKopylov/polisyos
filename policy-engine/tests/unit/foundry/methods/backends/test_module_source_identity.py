@@ -96,9 +96,22 @@ class _DynamicFieldSource:
         return {"product": _DATA_GETTER(state, params["field"], state)}
 
 
-def test_runtime_selector_does_not_gain_data_field_identity_from_getter_alias(tmp_path):
+class _ReboundFieldSource:
+    signature: ClassVar = _PRODUCER_SIGNATURE
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, params):
+        try:
+            raise ValueError("replacement input")
+        except ValueError as state:
+            return {"product": len(_DATA_GETTER(state, "args", state))}
+
+
+@pytest.mark.parametrize("source", [_DynamicFieldSource, _ReboundFieldSource])
+def test_runtime_selector_or_rebinding_does_not_gain_data_field_identity(tmp_path, source):
     chain, registry = _chain()
-    registry.register(_DynamicFieldSource, override=True)
+    registry.register(source, override=True)
     store = FileSystemCAS(tmp_path / "cas")
     dispatcher = _RecordingDispatcher()
     with pytest.raises(CheckpointIdentityError):

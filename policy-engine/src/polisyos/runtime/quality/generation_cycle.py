@@ -1965,6 +1965,8 @@ def reconcile_candidate_model_revision(
             )
             if (
                 len(selected_summaries) != 1
+                or receipt.new_cycle.selected_candidate_content_hash
+                != source.candidate.atom.content_hash
                 or selected_summaries[0].content_hash
                 != receipt.new_cycle.selected_candidate_content_hash
                 or (selected_summaries[0].source_content_hash or selected_summaries[0].content_hash)

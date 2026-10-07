@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/usr/sbin/lsof",
+    "-nP",
+    "-Fpc",
+    "+D",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/.venv"
+  ],
+  "exit_code": 1,
+  "stdout": "",
+  "stderr": "",
+  "wall_seconds": 0.08812899998156354,
+  "candidate": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/.venv",
+  "device": 16777231,
+  "inode": 174062084,
+  "all_15_regular_hashes_match": true,
+  "sole_trash_candidate": true,
+  "preserve": "symlink targets, audit reports, deciding evidence, all source/docs/production/shared data"
+}

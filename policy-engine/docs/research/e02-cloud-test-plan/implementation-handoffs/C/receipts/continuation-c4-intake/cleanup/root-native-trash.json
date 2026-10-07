@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/usr/bin/swift",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C4/raw/cleanup-prep/trash-one-env.swift",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/.venv"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+  "exit_code": 0,
+  "wall_seconds": 1.2492925830301829,
+  "stdout": "{\n  \"operation\" : \"FileManager.default.trashItem\",\n  \"source\" : \"\\/Users\\/deniskopylov\\/.codex\\/worktrees\\/e02-c-net-ing-20261007\\/polisyos\\/policy-engine\\/.venv\",\n  \"trash_destination\" : \"\\/Users\\/deniskopylov\\/.Trash\\/.venv 17-38-14-723\",\n  \"trash_emptied\" : false\n}\n",
+  "stderr": "",
+  "operation": "native macOS Trash only",
+  "source_absent": true,
+  "trash_emptied": false,
+  "readback": {
+    "destination": "/Users/deniskopylov/.Trash/.venv 17-38-14-723",
+    "device": 16777231,
+    "inode": 174062084,
+    "matches_source_device_inode": true,
+    "source_absent": true,
+    "regular_files_hash_verified": 15
+  }
+}

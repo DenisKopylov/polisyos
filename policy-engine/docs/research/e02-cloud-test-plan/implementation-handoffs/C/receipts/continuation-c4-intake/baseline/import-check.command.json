@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "python3",
+    "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+    "--check"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+  "exit_code": 0,
+  "stdout_sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "argv": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--failures-only",
+      "--limit",
+      "30"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C4/raw/baseline/global-failures.stdout.txt",
+    "stdout_sha256": "1e3b6ea0517a7d030d1c80efafd0fc9183ab7b7feb99846d9323baf632158d51",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "argv": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--unit",
+      "C",
+      "--failures-only",
+      "--limit",
+      "30"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C4/raw/baseline/C-failures.stdout.txt",
+    "stdout_sha256": "a88c3dc6b80a1a8d65870040bfef51363f0a3f3cdbcf421c95f9f200a6100512",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "argv": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "LA-021"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C4/raw/baseline/LA021.stdout.txt",
+    "stdout_sha256": "910724209a040f5f580edd565d0547061f8cb65654b9aa18a1fd109bac883085",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "argv": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/results/query.py",
+      "--finding",
+      "B84"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C4/raw/baseline/B84.stdout.txt",
+    "stdout_sha256": "74b6096efcbfa3e2ef926c94cde341970711c47890cd353e5f162a6ca58d454a",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

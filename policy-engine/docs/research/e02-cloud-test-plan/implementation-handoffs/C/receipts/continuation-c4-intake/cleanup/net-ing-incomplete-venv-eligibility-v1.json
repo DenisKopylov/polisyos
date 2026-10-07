@@ -1,0 +1,696 @@
+{
+  "action": "No move performed. Parent may use native Trash only for the exact `.venv` directory after final handoff capture and a last lstat/lsof preflight confirms this identity/no active handle. Do not traverse or include the symlink destination or adjacent checkout/receipt paths.",
+  "candidate": {
+    "after_lstat": {
+      "device": 16777231,
+      "entry_bytes": 256,
+      "exists": true,
+      "inode": 174062084,
+      "mode": "0o755",
+      "mtime_ns": 1791381428177157841,
+      "mtime_utc": "2026-10-07T13:57:08.177158+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/.venv",
+      "type": "directory"
+    },
+    "before_lstat": {
+      "device": 16777231,
+      "entry_bytes": 256,
+      "exists": true,
+      "inode": 174062084,
+      "mode": "0o755",
+      "mtime_ns": 1791381428177157841,
+      "mtime_utc": "2026-10-07T13:57:08.177158+00:00",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/.venv",
+      "type": "directory"
+    },
+    "census_summary": {
+      "descendant_directories": 4,
+      "file_extensions": {
+        ".bat": 3,
+        ".cfg": 1,
+        ".csh": 1,
+        ".fish": 1,
+        ".nu": 1,
+        ".ps1": 1,
+        ".pth": 1,
+        ".py": 2,
+        ".tag": 1,
+        "<no-extension>": 3
+      },
+      "other_entries": 0,
+      "product_or_evidence_named_path_count": 0,
+      "product_or_evidence_named_paths": [],
+      "regular_file_bytes": 30446,
+      "regular_files": 15,
+      "scan_errors": [],
+      "symlinks": 3
+    },
+    "complete_directory_manifest_nofollow": [
+      {
+        "device": 16777231,
+        "entry_bytes": 448,
+        "inode": 174062087,
+        "mode": "0o755",
+        "relative_path": "bin"
+      },
+      {
+        "device": 16777231,
+        "entry_bytes": 96,
+        "inode": 174062101,
+        "mode": "0o755",
+        "relative_path": "lib"
+      },
+      {
+        "device": 16777231,
+        "entry_bytes": 96,
+        "inode": 174062102,
+        "mode": "0o755",
+        "relative_path": "lib/python3.14"
+      },
+      {
+        "device": 16777231,
+        "entry_bytes": 128,
+        "inode": 174062103,
+        "mode": "0o755",
+        "relative_path": "lib/python3.14/site-packages"
+      }
+    ],
+    "complete_regular_file_manifest_nofollow": [
+      {
+        "bytes_read": 0,
+        "device": 16777231,
+        "entry_bytes": 0,
+        "inode": 174062106,
+        "mode": "0o666",
+        "relative_path": ".lock",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes_read": 205,
+        "device": 16777231,
+        "entry_bytes": 205,
+        "inode": 174062100,
+        "mode": "0o644",
+        "relative_path": "pyvenv.cfg",
+        "sha256": "1eaa0e4e4be4b02929ffdec9fc56fea39faecd1c3d04bf1edad29a62549c5046"
+      },
+      {
+        "bytes_read": 43,
+        "device": 16777231,
+        "entry_bytes": 43,
+        "inode": 174062085,
+        "mode": "0o644",
+        "relative_path": "CACHEDIR.TAG",
+        "sha256": "5953156d7e0c564a427251316eaf26f8870e6483ae2197f916b630e4f93e31ae"
+      },
+      {
+        "bytes_read": 1,
+        "device": 16777231,
+        "entry_bytes": 1,
+        "inode": 174062086,
+        "mode": "0o644",
+        "relative_path": ".gitignore",
+        "sha256": "684888c0ebb17f374298b65ee2807526c066094c701bcc7ebbe1c1095f494fc1"
+      },
+      {
+        "bytes_read": 4342,
+        "device": 16777231,
+        "entry_bytes": 4342,
+        "inode": 174062104,
+        "mode": "0o644",
+        "relative_path": "lib/python3.14/site-packages/_virtualenv.py",
+        "sha256": "6cf30c56faf2a55228914dbbd17f8088ed371ebb08f5e7fa6fd931f913fcaf1d"
+      },
+      {
+        "bytes_read": 18,
+        "device": 16777231,
+        "entry_bytes": 18,
+        "inode": 174062105,
+        "mode": "0o644",
+        "relative_path": "lib/python3.14/site-packages/_virtualenv.pth",
+        "sha256": "69ac3d8f27e679c81b94ab30b3b56e9cd138219b1ba94a1fa3606d5a76a1433d"
+      },
+      {
+        "bytes_read": 2734,
+        "device": 16777231,
+        "entry_bytes": 2734,
+        "inode": 174062096,
+        "mode": "0o644",
+        "relative_path": "bin/activate.bat",
+        "sha256": "87dee3862d09c3ba930ae3435c84fdefe51b78061e68af4430c87964dcb184d0"
+      },
+      {
+        "bytes_read": 2788,
+        "device": 16777231,
+        "entry_bytes": 2788,
+        "inode": 174062095,
+        "mode": "0o644",
+        "relative_path": "bin/activate.ps1",
+        "sha256": "a59aa66bf524e9e0e452019bbeacbb0e4a6f7027b31706538e00a0a46186c4dd"
+      },
+      {
+        "bytes_read": 4269,
+        "device": 16777231,
+        "entry_bytes": 4269,
+        "inode": 174062093,
+        "mode": "0o644",
+        "relative_path": "bin/activate.fish",
+        "sha256": "e2d19a3faed6fa069c6b4de39974cf944c509aa464860dbd109fa1ed43b82c75"
+      },
+      {
+        "bytes_read": 1217,
+        "device": 16777231,
+        "entry_bytes": 1217,
+        "inode": 174062098,
+        "mode": "0o644",
+        "relative_path": "bin/pydoc.bat",
+        "sha256": "2a8eb66d1bc7b73adcd3c6f59e2383e0a7fe9412609c1f9d1870e35035ee6fee"
+      },
+      {
+        "bytes_read": 2396,
+        "device": 16777231,
+        "entry_bytes": 2396,
+        "inode": 174062099,
+        "mode": "0o644",
+        "relative_path": "bin/activate_this.py",
+        "sha256": "c60cfe0d8c37173e19d557c661ff866fa5d8d6844ae7b5ae75f8e3419b2a0ac0"
+      },
+      {
+        "bytes_read": 4167,
+        "device": 16777231,
+        "entry_bytes": 4167,
+        "inode": 174062091,
+        "mode": "0o644",
+        "relative_path": "bin/activate",
+        "sha256": "897a223c0d37365deafa7f06a3cad10fa26d8486c8a58afefd5ec6219f8173be"
+      },
+      {
+        "bytes_read": 3839,
+        "device": 16777231,
+        "entry_bytes": 3839,
+        "inode": 174062094,
+        "mode": "0o644",
+        "relative_path": "bin/activate.nu",
+        "sha256": "d531d75f9c068db2c295b85358b4a2ae937340eba7807be16a69d8b2d32ec925"
+      },
+      {
+        "bytes_read": 1730,
+        "device": 16777231,
+        "entry_bytes": 1730,
+        "inode": 174062097,
+        "mode": "0o644",
+        "relative_path": "bin/deactivate.bat",
+        "sha256": "13ea86073a9ee43a66e3549312599dd47ff315758b4ca5a0406faf041fb82300"
+      },
+      {
+        "bytes_read": 2697,
+        "device": 16777231,
+        "entry_bytes": 2697,
+        "inode": 174062092,
+        "mode": "0o644",
+        "relative_path": "bin/activate.csh",
+        "sha256": "30a1dbfb154c273f6676c3dc8f57f7b21046a3bf1fdc97badcde8e18f650809c"
+      }
+    ],
+    "disposition": "ELIGIBLE for parent-owned native Trash after final handoff capture. The exact failed private env is reconstructible. Complete no-follow manifest contains venv bootstrap files only; no installed distributions, project source, docs, receipts, probes, run outputs, audit artifacts, production data, or shared-data files. The positive C4 check did not use it.",
+    "git_ignore_check": {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos",
+        "check-ignore",
+        "-v",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/.venv"
+      ],
+      "cwd": null,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "policy-engine/.gitignore:15:.venv/\t/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/.venv\n",
+      "timed_out": false,
+      "wall_seconds": 0.009
+    },
+    "lsof": {
+      "argv": [
+        "/usr/sbin/lsof",
+        "-nP",
+        "-Fpc",
+        "+D",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/.venv"
+      ],
+      "exit_code": 1,
+      "no_open_handles_observed": true,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "wall_seconds": 0.081
+    },
+    "other_entries": [],
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/.venv",
+    "symlink_boundary": "The three symlinks are Python executable aliases only. The direct `bin/python` link text names `/Users/deniskopylov/.local/share/uv/python/cpython-3.14-macos-aarch64-none/bin/python3.14`, with `python3` and `python3.14` targeting sibling `python`. None targets production or shared data. No symlink target was resolved or read; preserve the UV-managed interpreter/cache and exclude it from any Trash operation.",
+    "symlink_manifest_readlink_text_only": [
+      {
+        "device": 16777231,
+        "entry_bytes": 6,
+        "inode": 174062089,
+        "production_or_shared_data_marker": false,
+        "relative_path": "bin/python3",
+        "target_text_only": "python"
+      },
+      {
+        "device": 16777231,
+        "entry_bytes": 89,
+        "inode": 174062088,
+        "production_or_shared_data_marker": false,
+        "relative_path": "bin/python",
+        "target_text_only": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14-macos-aarch64-none/bin/python3.14"
+      },
+      {
+        "device": 16777231,
+        "entry_bytes": 6,
+        "inode": 174062090,
+        "production_or_shared_data_marker": false,
+        "relative_path": "bin/python3.14",
+        "target_text_only": "python"
+      }
+    ]
+  },
+  "captured_at_utc": "2026-10-07T14:36:59.406666+00:00",
+  "preserve": [
+    "all source/tests, docs, worktrees/refs, C4 handoff and receipt files",
+    "the UV-managed interpreter and shared UV cache referenced by the Python link",
+    "production_data, production runtimes, databases, shared data, raw probes, run outputs, CAS, test inputs, and audit artifacts",
+    "original user checkout environment, root C `.venv`, and all other environments/caches"
+  ],
+  "root_context": {
+    "branch": {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "cwd": null,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-C-continuation-20261006\n",
+      "timed_out": false,
+      "wall_seconds": 0.0056
+    },
+    "expected_HEAD": "12d77b34ea845adde0bf27a653fa70fd2ea8ad35",
+    "head": {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": null,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "12d77b34ea845adde0bf27a653fa70fd2ea8ad35\n",
+      "timed_out": false,
+      "wall_seconds": 0.0062
+    },
+    "review_note": "Reviewed current root AGENTS, E02 HANDOFF, execution-organization README, product README, CONTRIBUTING, failure/repair register P35/P41, and current-ing-cleanup handoff. P35 calls for complete path/file denominators; P41 keeps unknown-provenance evidence bounded. Root branch stayed clean/attached throughout.",
+    "reviewed_documents": [
+      {
+        "matches_HEAD": true,
+        "path": "AGENTS.md",
+        "root_HEAD_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+        "worktree_blob": "94173d77ab34173f12883ee6575db4a461f6df98"
+      },
+      {
+        "matches_HEAD": true,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+        "root_HEAD_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e",
+        "worktree_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e"
+      },
+      {
+        "matches_HEAD": true,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/README.md",
+        "root_HEAD_blob": "036ff3998acb4ea915f23b68e53c07f6fe89bbf7",
+        "worktree_blob": "036ff3998acb4ea915f23b68e53c07f6fe89bbf7"
+      },
+      {
+        "matches_HEAD": true,
+        "path": "policy-engine/README.md",
+        "root_HEAD_blob": "325eeb5f88c533e65c339947ba7eb2483743255d",
+        "worktree_blob": "325eeb5f88c533e65c339947ba7eb2483743255d"
+      },
+      {
+        "matches_HEAD": true,
+        "path": "policy-engine/CONTRIBUTING.md",
+        "root_HEAD_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+        "worktree_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf"
+      },
+      {
+        "matches_HEAD": true,
+        "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+        "root_HEAD_blob": "7f4cc9ab9541a44c26e4648a2c08326e53743492",
+        "worktree_blob": "7f4cc9ab9541a44c26e4648a2c08326e53743492"
+      },
+      {
+        "matches_HEAD": true,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-ing-cleanup-20261007.json",
+        "root_HEAD_blob": "985af44c38cfca8cc7d98fa28f7e4bb57a6cc554",
+        "worktree_blob": "985af44c38cfca8cc7d98fa28f7e4bb57a6cc554"
+      }
+    ],
+    "status": {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+        "status",
+        "-sb"
+      ],
+      "cwd": null,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "## codex/e02-C-continuation-20261006\n",
+      "timed_out": false,
+      "wall_seconds": 0.0948
+    }
+  },
+  "schema": "policyos.e02.c4.cleanup_candidate_incomplete_environment.v1",
+  "scope": "Read-only eligibility audit for one ignored, incomplete, unused Net-ing virtual environment. No candidate moved/deleted/restored; no source, receipt, environment, cache, or worktree state modified. Symlinks were lstat/readlink-only and never traversed.",
+  "setup_and_usage_evidence": {
+    "artifact_hashes": [
+      {
+        "bytes": 3547,
+        "git_blob": "7b26fffef6283223bff85a4c694b939f0deaf901",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/README.md",
+        "sha256": "31e9e60f0f04f541b24cf0f9d7a556c7e93bc99d282bd988d5df7e7b32bd0765"
+      },
+      {
+        "bytes": 855,
+        "git_blob": "0576b411d582cfcbd1561c1326058f7e7e0d7d05",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/environment/uv-sync.json",
+        "sha256": "96f2dc81b4ad5096676052b85647b027d7a40276aa3d7567a7c448120c4419c7"
+      },
+      {
+        "bytes": 0,
+        "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/environment/uv-sync.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 468,
+        "git_blob": "65d3cf0c2ec94d65894e03e9108c64974d39eae8",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/environment/uv-sync.stderr",
+        "sha256": "1a8d8ac37e7d78a1f4ce2890ada52e0381641c548c01153a7d245857878b6db8"
+      },
+      {
+        "bytes": 9487,
+        "git_blob": "88b004ff9dedc52e4e32a8df31067eff1d45250f",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/focused-v4/run.json",
+        "sha256": "31d49f2d6568d948e2f6d450b1623a297475696d6c1942528808f4d6a89d00a4"
+      },
+      {
+        "bytes": 2713,
+        "git_blob": "283e93ed4a161bc4a9e18e3c06788cd63f7ae5b4",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/run.json",
+        "sha256": "46033b725b46660a5a87908ca314719d9a345d158a12f430fe1e1315824d78e1"
+      }
+    ],
+    "committed_readme_environment_lines": [
+      "Offline environment provisioning failed because the CPython 3.14.3 `jaxlib==0.8.2` wheel was not cached. The focused runs used observed system Python 3.14.0 and the checkout on `PYTHONPATH`, not a frozen environment or installed wheel. No JUnit XML was produced by the captured pytest commands. Ruff was absent from the initial handoff evidence inventory; a later exact run on the unchanged frozen test bytes passed, with argv and complete stdout/stderr retained at `checks/ruff-v1/net-ruff.json`. The partial ignored `.venv` created by the failed sync was not used; its observed cleanup status is recorded in the handoff."
+    ],
+    "conclusion": "Exact command `/opt/homebrew/bin/uv sync --frozen --offline --extra test --extra runtime` created this `.venv` and exited 1 after 0.149803s because locked `jaxlib==0.8.2` for CPython 3.14.3 macOS arm64 was absent from the offline cache. The positive focused and property-removal checks used observed system Python 3.14.0 with checkout PYTHONPATH; their executable and profile do not reference this candidate `.venv`. The committed C4 README states the partial ignored `.venv` was not used.",
+    "positive_focused_run": {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-C4/raw/stream-replay/focused-v4/run_focused.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine",
+      "environment": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/src"
+      },
+      "git_head": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+      "git_tree": "267fef2e1a46aee7a7b2c1f6baaa00bf66e3cbd9",
+      "interpreter": "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+      "profile": "observed-system-python-3.14; pytest 9.0.2; not frozen/offline venv",
+      "pytest_exit_code": 0
+    },
+    "property_removal_run": {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-C4/raw/stream-replay/focused-v3/run_remove_property.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine",
+      "environment": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/src"
+      },
+      "probe_verdict": "EXPECTED_PROPERTY_REMOVAL_RED",
+      "profile": "observed-system-python-3.14; pytest 9.0.2; not frozen/offline venv",
+      "pytest_exit_code": 1
+    },
+    "uv_sync_record": {
+      "command": [
+        "/opt/homebrew/bin/uv",
+        "sync",
+        "--frozen",
+        "--offline",
+        "--extra",
+        "test",
+        "--extra",
+        "runtime"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine",
+      "elapsed_seconds": 0.149803,
+      "environment": {
+        "UV_OFFLINE": null,
+        "UV_PROJECT_ENVIRONMENT": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/.venv"
+      },
+      "exit_code": 1,
+      "finished_unix_ns": 1791381428219344000,
+      "launcher_python": "/opt/homebrew/bin/python3",
+      "started_unix_ns": 1791381428069541000,
+      "stderr_bytes": 468,
+      "stderr_sha256": "1a8d8ac37e7d78a1f4ce2890ada52e0381641c548c01153a7d245857878b6db8",
+      "stdout_bytes": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "uv_path": "/opt/homebrew/bin/uv"
+    },
+    "uv_sync_stderr": "Using CPython 3.14.3\nCreating virtual environment at: .venv\n  \u00d7 Failed to download `jaxlib==0.8.2`\n  \u2570\u2500\u25b6 Network connectivity is disabled, but the\n      requested data wasn't found in the cache for:\n      `https://files.pythonhosted.org/packages/d8/9d/dca93d916bf8664d7a2bb73ea3d219028dabbe382c31774348963287356a/jaxlib-0.8.2-cp314-cp314-macosx_11_0_arm64.whl`\n  help: `jaxlib` (v0.8.2) was included because `policy-engine` (v0.1.0)\n        depends on `jaxlib`\n",
+    "uv_sync_stdout": ""
+  },
+  "target_author_checkout": {
+    "authorized_author_change_paths": [],
+    "branch": {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "cwd": null,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-C-net-ing-20261007\n",
+      "timed_out": false,
+      "wall_seconds": 0.0058
+    },
+    "current_HEAD": {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": null,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "373c9623071f60c08f5e362e61d211829e5d8f5a\n",
+      "timed_out": false,
+      "wall_seconds": 0.0052
+    },
+    "current_tree": {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": null,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "dece08804715a9288aa17281532c4f58cb249bda\n",
+      "timed_out": false,
+      "wall_seconds": 0.0075
+    },
+    "diff_8580_to_current": {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos",
+        "diff",
+        "--name-status",
+        "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+        "373c9623071f60c08f5e362e61d211829e5d8f5a"
+      ],
+      "cwd": null,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-net-ing-owner-overlap-20261007.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/.gitattributes\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/README.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/initial-stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/initial-stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/second-stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/second-stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/focused-v4/run.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/focused-v4/run_focused.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/focused-v4/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/focused-v4/stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/run.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/run_remove_property.py\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/ruff-v1/net-ruff.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/environment/focused-v2-profile.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/environment/uv-sync.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/environment/uv-sync.stderr\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/environment/uv-sync.stdout\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/evidence-index.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/review/independent-review.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/review/run.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/review/stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/review/stdout.txt\n",
+      "timed_out": false,
+      "wall_seconds": 0.0085
+    },
+    "frozen_source_base": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+    "note": "Per parent authorization, current author append/working edits are limited to E02 docs/handoff/receipt paths. Candidate source/test bytes at 8580 are unchanged at current HEAD and match the focused run receipt hash manifest.",
+    "source_test_blob_and_sha_checks": [
+      {
+        "at_8580_blob": "71d21e8f8d4517c602efc2662106f35d45f0ebc4",
+        "at_current_blob": "71d21e8f8d4517c602efc2662106f35d45f0ebc4",
+        "base_sha256": "50871b4cae9d88a6426e9036572e58893f7fe9bec257be8d50e6244c00e42b31",
+        "current_sha256": "50871b4cae9d88a6426e9036572e58893f7fe9bec257be8d50e6244c00e42b31",
+        "expected_run_sha256": "50871b4cae9d88a6426e9036572e58893f7fe9bec257be8d50e6244c00e42b31",
+        "matches_run_sha": true,
+        "path": "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+        "run_path_relative_to_policy_engine": "src/polisyos/fabric/connectors/_registry_lifecycle.py",
+        "same_blob": true
+      },
+      {
+        "at_8580_blob": "850659c2e09aa6a23aa7f3f0daebb88637fd9e29",
+        "at_current_blob": "850659c2e09aa6a23aa7f3f0daebb88637fd9e29",
+        "base_sha256": "0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35",
+        "current_sha256": "0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35",
+        "expected_run_sha256": "0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35",
+        "matches_run_sha": true,
+        "path": "policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "run_path_relative_to_policy_engine": "src/polisyos/fabric/connectors/pool.py",
+        "same_blob": true
+      },
+      {
+        "at_8580_blob": "fe1be7f203a0db865e9ecc6a6fad43963234d8a5",
+        "at_current_blob": "fe1be7f203a0db865e9ecc6a6fad43963234d8a5",
+        "base_sha256": "08d9e9da61ed238233af222e009d139853db60ddf1e4975efe546a02a61e5f2f",
+        "current_sha256": "08d9e9da61ed238233af222e009d139853db60ddf1e4975efe546a02a61e5f2f",
+        "expected_run_sha256": "08d9e9da61ed238233af222e009d139853db60ddf1e4975efe546a02a61e5f2f",
+        "matches_run_sha": true,
+        "path": "policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py",
+        "run_path_relative_to_policy_engine": "src/polisyos/fabric/connectors/registry_core_parts.py",
+        "same_blob": true
+      },
+      {
+        "at_8580_blob": "1d3e5c36215cb4f4ccda86a9ac7f05908a81fc1c",
+        "at_current_blob": "1d3e5c36215cb4f4ccda86a9ac7f05908a81fc1c",
+        "base_sha256": "63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48",
+        "current_sha256": "63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48",
+        "expected_run_sha256": "63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48",
+        "matches_run_sha": true,
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+        "run_path_relative_to_policy_engine": "src/polisyos/fabric/connectors/sources/event_stream.py",
+        "same_blob": true
+      },
+      {
+        "at_8580_blob": "31525859297cf05d5c190db00e5389ab0c61b0ff",
+        "at_current_blob": "31525859297cf05d5c190db00e5389ab0c61b0ff",
+        "base_sha256": "e52018d556972e60932490fa7c7e9510ad66f2c72a694b429f4eb1e9bebc3405",
+        "current_sha256": "e52018d556972e60932490fa7c7e9510ad66f2c72a694b429f4eb1e9bebc3405",
+        "expected_run_sha256": "e52018d556972e60932490fa7c7e9510ad66f2c72a694b429f4eb1e9bebc3405",
+        "matches_run_sha": true,
+        "path": "policy-engine/src/polisyos/fabric/data_plane/cursor_store.py",
+        "run_path_relative_to_policy_engine": "src/polisyos/fabric/data_plane/cursor_store.py",
+        "same_blob": true
+      },
+      {
+        "at_8580_blob": "80af60d90e2eb6aeed0d335c4dbe5d80c8c24c7c",
+        "at_current_blob": "80af60d90e2eb6aeed0d335c4dbe5d80c8c24c7c",
+        "base_sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119",
+        "current_sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119",
+        "expected_run_sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119",
+        "matches_run_sha": true,
+        "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "run_path_relative_to_policy_engine": "src/polisyos/fabric/data_plane/streaming.py",
+        "same_blob": true
+      },
+      {
+        "at_8580_blob": "3b3dea7cbb99b28cece5ba01e9da52bad6c6ded1",
+        "at_current_blob": "3b3dea7cbb99b28cece5ba01e9da52bad6c6ded1",
+        "base_sha256": "b99737efb81cc5c332f125ae0b04261940cb8a3768fa213c1d7e828e3af9b894",
+        "current_sha256": "b99737efb81cc5c332f125ae0b04261940cb8a3768fa213c1d7e828e3af9b894",
+        "expected_run_sha256": "b99737efb81cc5c332f125ae0b04261940cb8a3768fa213c1d7e828e3af9b894",
+        "matches_run_sha": true,
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_net_ing_current_frontier.py",
+        "run_path_relative_to_policy_engine": "tests/unit/fabric/data_plane/test_net_ing_current_frontier.py",
+        "same_blob": true
+      },
+      {
+        "at_8580_blob": "0fcd3ad009d7e66d49075c64d0a4b7fa1d73fdff",
+        "at_current_blob": "0fcd3ad009d7e66d49075c64d0a4b7fa1d73fdff",
+        "base_sha256": "e716a8b501dea4e88c805ff0b707e6bfe2084a735ee94d86d15c25e9691fc68c",
+        "current_sha256": "e716a8b501dea4e88c805ff0b707e6bfe2084a735ee94d86d15c25e9691fc68c",
+        "expected_run_sha256": "e716a8b501dea4e88c805ff0b707e6bfe2084a735ee94d86d15c25e9691fc68c",
+        "matches_run_sha": true,
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_net_ing_registry_cleanup.py",
+        "run_path_relative_to_policy_engine": "tests/unit/fabric/data_plane/test_net_ing_registry_cleanup.py",
+        "same_blob": true
+      },
+      {
+        "at_8580_blob": "17bf265469fcd8455c96c2f775c5ff0a619c9c08",
+        "at_current_blob": "17bf265469fcd8455c96c2f775c5ff0a619c9c08",
+        "base_sha256": "88e35f698a7f4a8dc1a8b6ac8e11d89981640a07dabeed6d1f6e699afafd7d3d",
+        "current_sha256": "88e35f698a7f4a8dc1a8b6ac8e11d89981640a07dabeed6d1f6e699afafd7d3d",
+        "expected_run_sha256": "88e35f698a7f4a8dc1a8b6ac8e11d89981640a07dabeed6d1f6e699afafd7d3d",
+        "matches_run_sha": true,
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py",
+        "run_path_relative_to_policy_engine": "tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py",
+        "same_blob": true
+      },
+      {
+        "at_8580_blob": "37513f22c75e7bc07904751292eb05dae8c8aeb8",
+        "at_current_blob": "37513f22c75e7bc07904751292eb05dae8c8aeb8",
+        "base_sha256": "57a93345d81860b0de51fcd4fc494c82f7b4f2ef845f9253659b6e41d54bc6f9",
+        "current_sha256": "57a93345d81860b0de51fcd4fc494c82f7b4f2ef845f9253659b6e41d54bc6f9",
+        "expected_run_sha256": "57a93345d81860b0de51fcd4fc494c82f7b4f2ef845f9253659b6e41d54bc6f9",
+        "matches_run_sha": true,
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+        "run_path_relative_to_policy_engine": "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py",
+        "same_blob": true
+      }
+    ],
+    "status_porcelain": {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all"
+      ],
+      "cwd": null,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "wall_seconds": 0.1103
+    },
+    "status_short": {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos",
+        "status",
+        "-sb"
+      ],
+      "cwd": null,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "## codex/e02-C-net-ing-20261007\n",
+      "timed_out": false,
+      "wall_seconds": 0.1024
+    }
+  }
+}

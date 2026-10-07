@@ -1,0 +1,155 @@
+{
+  "branch": "codex/e02-C-continuation-20261006",
+  "commit": "12d77b34ea845adde0bf27a653fa70fd2ea8ad35",
+  "tree": "a5a0199ac0ed470c76ab7afbe016020fd65247fb",
+  "packet_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/stream-oracle-owner-packet-20261007.json",
+  "packet_sha256": "0822a809281977b2df75df791915b39f65993ac2247758dd8140db671ea0140c",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "symbolic-ref",
+        "--short",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "codex/e02-C-continuation-20261006\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "dbe1fb24b33201c7ff967a3227ab88e512e185d4\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "add",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/stream-oracle-owner-packet-20261007.json"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--name-only"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/stream-oracle-owner-packet-20261007.json\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "commit",
+        "-m",
+        "docs(e02-C): request B-owned canonical stream-key oracle decode"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "[codex/e02-C-continuation-20261006 12d77b34e] docs(e02-C): request B-owned canonical stream-key oracle decode\n 1 file changed, 112 insertions(+)\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/stream-oracle-owner-packet-20261007.json\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "12d77b34ea845adde0bf27a653fa70fd2ea8ad35\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "a5a0199ac0ed470c76ab7afbe016020fd65247fb\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "push",
+        "origin",
+        "HEAD:refs/heads/codex/e02-C-continuation-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "To https://github.com/DenisKopylov/polisyos.git\n   dbe1fb24b..12d77b34e  HEAD -> codex/e02-C-continuation-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "ls-remote",
+        "--heads",
+        "origin",
+        "codex/e02-C-continuation-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "12d77b34ea845adde0bf27a653fa70fd2ea8ad35\trefs/heads/codex/e02-C-continuation-20261006\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "origin",
+        "refs/heads/codex/e02-C-continuation-20261006:refs/remotes/origin/codex/e02-C-continuation-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/codex/e02-C-continuation-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "stdout": "12d77b34ea845adde0bf27a653fa70fd2ea8ad35\n",
+      "stderr": ""
+    }
+  ],
+  "hooks": "UNRUN: missingLefthook, single-command override only",
+  "scope": "B owner request only, no runtime modification or closure"
+}

@@ -1,0 +1,104 @@
+[
+  {
+    "argv": [
+      "git",
+      "status",
+      "-sb"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.13185441703535616,
+    "stdout": "## codex/e02-C-continuation-20261006\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.006333291996270418,
+    "stdout": "dbe1fb24b33201c7ff967a3227ab88e512e185d4\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD^{tree}"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.008040790969971567,
+    "stdout": "c161f86f7265fd90be66361cfd7ec89aa775c249\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "remote",
+      "-v"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.0053027080139145255,
+    "stdout": "origin\thttps://github.com/DenisKopylov/polisyos.git (fetch)\norigin\thttps://github.com/DenisKopylov/polisyos.git (push)\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "fetch",
+      "origin",
+      "main",
+      "codex/e02-integration"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.7094342079944909,
+    "stdout": "",
+    "stderr": "From https://github.com/DenisKopylov/polisyos\n * branch                main       -> FETCH_HEAD\n * branch                codex/e02-integration -> FETCH_HEAD\n"
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "origin/main",
+      "origin/main^{tree}"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.007763250032439828,
+    "stdout": "198076863e143dea9f89f02734b13d50dae3eed5\n2b754a92c27959e2e747738d47ed0b419f3b6dd8\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "rev-parse",
+      "origin/codex/e02-integration",
+      "origin/codex/e02-integration^{tree}"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.00626608298625797,
+    "stdout": "83e7c0e934d0b40644dec8a24264a0602ef013e7\ndc1a7697f506b23f2db0f1c80bf929fd2d6a2e0d\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "1ddcd7b3905e52c0d19db091823a64830139fa64",
+      "198076863e143dea9f89f02734b13d50dae3eed5"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.006377250014338642,
+    "stdout": "",
+    "stderr": ""
+  }
+]

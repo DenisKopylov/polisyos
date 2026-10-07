@@ -1,0 +1,155 @@
+{
+  "schema": "policyos.e02.C.continuation_intake_receipts.v1",
+  "root_parent": "12d77b34ea845adde0bf27a653fa70fd2ea8ad35",
+  "root_parent_tree": "a5a0199ac0ed470c76ab7afbe016020fd65247fb",
+  "entries": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/baseline/B84.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/baseline/B84.stdout.txt",
+      "sha256": "74b6096efcbfa3e2ef926c94cde341970711c47890cd353e5f162a6ca58d454a",
+      "bytes": 12596,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/baseline/C-failures.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/baseline/C-failures.stdout.txt",
+      "sha256": "a88c3dc6b80a1a8d65870040bfef51363f0a3f3cdbcf421c95f9f200a6100512",
+      "bytes": 20675,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/baseline/LA021.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/baseline/LA021.stdout.txt",
+      "sha256": "910724209a040f5f580edd565d0547061f8cb65654b9aa18a1fd109bac883085",
+      "bytes": 9943,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/baseline/global-failures.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/baseline/global-failures.stdout.txt",
+      "sha256": "1e3b6ea0517a7d030d1c80efafd0fc9183ab7b7feb99846d9323baf632158d51",
+      "bytes": 71222,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/baseline/import-check.command.json",
+      "sha256": "d44076918e7c3e6c115b14ab0a9a80191a2d56106d8077bbda6c6fdf7fd8f614",
+      "bytes": 408,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/baseline/import-check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/baseline/import-check.stdout.txt",
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "bytes": 112,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/baseline/queries.command-results.json",
+      "sha256": "a21292c7ad193e88dcf6560e0187e6360ff1ddd211d2a7dbeafbc765860dd579",
+      "bytes": 2390,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/intake/commands.json",
+      "sha256": "fcccb5f80bd9ba54bb87ea636c4afdc9b7773157c75de1d6d42e9e962834aac1",
+      "bytes": 2908,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/intake/resume-root.json",
+      "sha256": "975dc46541675b30be746f0a3a440dbbb912efbd054c62aff99ea449464d1249",
+      "bytes": 54189,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/intake/B-owner-packet-publication.json",
+      "sha256": "281474d6eae309a124307f575aca7209c5c4c28f9e55a1f0a26268c1d12f5fde",
+      "bytes": 4840,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/publication/NET.json",
+      "sha256": "73d76b4266999fa0cc71ae250fbe073796c000eb2b3c55c3155fa927f716f6c5",
+      "bytes": 5186,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/publication/NET-payload-readback.json",
+      "sha256": "f3a1ba0610afbd1df7b720a52fa3aa7e7b5d0042aea0c966fbefa5f42e4ce384",
+      "bytes": 6877,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/publication/CAN.json",
+      "sha256": "6bec300ef27001281e7025cf42220f559d6814fc8fb753a9f9f739ab934f8dda",
+      "bytes": 9758,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/cleanup/net-ing-incomplete-venv-eligibility-v1.json",
+      "sha256": "994273a214facc137f82058bb5e2034f7a5f8d1df868ac6d81242ef5d22b5b99",
+      "bytes": 33741,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/cleanup/root-preflight.json",
+      "sha256": "99d44c3f85bb57323301a5b2d553982d3f2d3c196fb4078390aa77f5abae1279",
+      "bytes": 588,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/cleanup/trash-one-env.swift",
+      "sha256": "b8ab79b9096dbd6ee0ee79e494d94b24aed93ccc1f0681a9f96acc749c6f5272",
+      "bytes": 563,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/cleanup/root-native-trash.json",
+      "sha256": "a01b1fae5a1c501573805362174b4425a8af59d98e52d19eb664239ebd0ad2a1",
+      "bytes": 1078,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/continuation-c4-intake/availability/LA040-digest-prep.md",
+      "sha256": "8c119eba5529d74a21c1c3596149614fc68500e80d3cae71f5e959461e6ddcb6",
+      "bytes": 9891,
+      "scope": "complete original capture; candidate-grade intake/availability/operation evidence, not finding PASS"
+    }
+  ],
+  "preservation": "Original ignored audit reports retained in place; only the independently-inventoried unused 15-file incomplete Net .venv was moved to native Trash; no source/docs/production/uniqueinputs lost; Trash not emptied.",
+  "baseline_scope": "Transfer/navigation only. Complete import check passed. Queries are selected navigation, not product PASS/denominator/closure.",
+  "later_G_metadata": {
+    "commit": "c75eb7125ae0b4b296fc469b13bba9653f1dd42d",
+    "tree": "1aa2e587332108de1b60d9d9eb5a1d1fcae46ff6",
+    "intake_frozen_commit": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+    "source_tests_delta_paths": 0,
+    "total_delta_paths": 37,
+    "classification": "docs/evidence-only; twelfth README and owner-actions read; no new runtime accepted or formal finding closed. Does not retarget C4 source/review base."
+  }
+}

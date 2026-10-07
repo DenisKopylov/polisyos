@@ -1,0 +1,170 @@
+{
+  "commit": "60b523c2d0e1a587f2f1d4b92a0ac9a89a1f49db",
+  "tree": "75308c9d306bc8187008613597f2acc917cb0d74",
+  "source_candidate": "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+  "handoff_sha256": "529f473f1546e1035f7abb0571d08088fb1f1d1749cf655e7248c8f2bdccd1bc",
+  "full_payload_hashes_verified": 52,
+  "scope": "Own topic only; exact preserved diagnostics explain whitespace exit2; hooks UNRUN singlecommandoverride",
+  "records": [
+    {
+      "argv": [
+        "git",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.00602162501309067,
+      "stdout": "refs/heads/codex/e02-C-canon-20261006\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.005425249983090907,
+      "stdout": "60b523c2d0e1a587f2f1d4b92a0ac9a89a1f49db\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.0062969590071588755,
+      "stdout": "75308c9d306bc8187008613597f2acc917cb0d74\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.06261691701365635,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+        "60b523c2d0e1a587f2f1d4b92a0ac9a89a1f49db"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.00845545798074454,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--exit-code",
+        "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+        "60b523c2d0e1a587f2f1d4b92a0ac9a89a1f49db",
+        "--",
+        "policy-engine/src",
+        "policy-engine/tests"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.006711292022373527,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "e3cb3fafc847b94a5d4b3adc03b814b4c711920c",
+        "60b523c2d0e1a587f2f1d4b92a0ac9a89a1f49db"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+      "exit_code": 2,
+      "wall_seconds": 0.010244333010632545,
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/diagnostic/production-invocation.stderr.txt:5: trailing whitespace.\n+KeyboardInterrupt: \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/final46/stdout.txt:5: trailing whitespace.\n+  \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-global-policy-engine.stdout:4: trailing whitespace.\n+Home-page: \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-global-policy-engine.stdout:5: trailing whitespace.\n+Author: \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-global-policy-engine.stdout:6: trailing whitespace.\n+Author-email: \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-global-policy-engine.stdout:7: trailing whitespace.\n+License: \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-global-policy-engine.stdout:11: trailing whitespace.\n+Required-by: \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-global-python-packages.stdout:5: trailing whitespace.\n+Author: \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/independent/installed-wheel-preflight/installed-wheel-preflight-global-python-packages.stdout:17: trailing whitespace.\n+Author-email: \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/junit.xml:17: trailing whitespace.\n+    \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/junit.xml:37: trailing whitespace.\n+    \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/junit.xml:49: trailing whitespace.\n+    \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/junit.xml:57: trailing whitespace.\n+tests/unit/core/artifacts/test_ir_adapter.py:402: \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/junit.xml:58: trailing whitespace.\n+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/junit.xml:62: trailing whitespace.\n+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/junit.xml:80: trailing whitespace.\n+    \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/stdout.txt:21: trailing whitespace.\n+    \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/stdout.txt:41: trailing whitespace.\n+    \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/stdout.txt:53: trailing whitespace.\n+    \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/stdout.txt:61: trailing whitespace.\n+tests/unit/core/artifacts/test_ir_adapter.py:402: \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/stdout.txt:62: trailing whitespace.\n+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/stdout.txt:66: trailing whitespace.\n+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/stdout.txt:84: trailing whitespace.\n+    \npolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/canonical-mapping-c4/mapping-red/stdout.txt:97: trailing whitespace.\n+  \n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "push",
+        "origin",
+        "codex/e02-C-canon-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 2.1168698749970645,
+      "stdout": "",
+      "stderr": "To https://github.com/DenisKopylov/polisyos.git\n   79cbb05c9..60b523c2d  codex/e02-C-canon-20261006 -> codex/e02-C-canon-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "ls-remote",
+        "--heads",
+        "origin",
+        "refs/heads/codex/e02-C-canon-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.5399307920015417,
+      "stdout": "60b523c2d0e1a587f2f1d4b92a0ac9a89a1f49db\trefs/heads/codex/e02-C-canon-20261006\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "origin",
+        "codex/e02-C-canon-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.5479341669706628,
+      "stdout": "",
+      "stderr": "From https://github.com/DenisKopylov/polisyos\n * branch                codex/e02-C-canon-20261006 -> FETCH_HEAD\n"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/codex/e02-C-canon-20261006"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.006616917031351477,
+      "stdout": "60b523c2d0e1a587f2f1d4b92a0ac9a89a1f49db\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/codex/e02-C-canon-20261006^{tree}"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos",
+      "exit_code": 0,
+      "wall_seconds": 0.006917541963048279,
+      "stdout": "75308c9d306bc8187008613597f2acc917cb0d74\n",
+      "stderr": ""
+    }
+  ]
+}

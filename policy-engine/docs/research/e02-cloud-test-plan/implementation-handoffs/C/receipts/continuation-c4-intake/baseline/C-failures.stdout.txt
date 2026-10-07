@@ -1,0 +1,760 @@
+{
+  "grade": "source_reported_compact_text_only; candidate_routes",
+  "matching_cells": 9,
+  "displayed_cells": 9,
+  "states": {
+    "FAILED": 9
+  },
+  "cells": [
+    {
+      "id": "F02-P065",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py",
+      "state": "FAILED",
+      "collected": "13",
+      "calls": "13",
+      "call_pass": "12",
+      "call_failed": "1",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "4.17",
+      "rss_kib": "250096",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "193",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F03-P063",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_hyg_04.py",
+      "state": "FAILED",
+      "collected": "14",
+      "calls": "14",
+      "call_pass": "11",
+      "call_failed": "3",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.36",
+      "rss_kib": "110192.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "193",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F05-P075",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py",
+      "state": "FAILED",
+      "collected": "1",
+      "calls": "1",
+      "call_pass": "0",
+      "call_failed": "1",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "49.89",
+      "rss_kib": "1641348",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "485",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F08-P065",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_hyg_04.py",
+      "state": "FAILED",
+      "collected": "14",
+      "calls": "14",
+      "call_pass": "13",
+      "call_failed": "1",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "5.018071174621582",
+      "rss_kib": "114000",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "188",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F09-P057",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py",
+      "state": "FAILED",
+      "collected": "1",
+      "calls": "1",
+      "call_pass": "0",
+      "call_failed": "1",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "52.86",
+      "rss_kib": "1665928",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "173",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F10-P055",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py",
+      "state": "FAILED",
+      "collected": "1",
+      "calls": "1",
+      "call_pass": "0",
+      "call_failed": "1",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "62.36",
+      "rss_kib": "1753764",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F10.txt",
+      "source_line": "175",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F13-P062",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py",
+      "state": "FAILED",
+      "collected": "1",
+      "calls": "1",
+      "call_pass": "0",
+      "call_failed": "1",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "30.28",
+      "rss_kib": "1717352",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F13.txt",
+      "source_line": "189",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F14-P075",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_hyg_04.py",
+      "state": "FAILED",
+      "collected": "14",
+      "calls": "14",
+      "call_pass": "11",
+      "call_failed": "3",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "5.787514263999583",
+      "rss_kib": "133324",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "425",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F15-P076",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py",
+      "state": "FAILED",
+      "collected": "13",
+      "calls": "13",
+      "call_pass": "12",
+      "call_failed": "1",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "5.06",
+      "rss_kib": "305104",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "231",
+      "extra_json": "{\"reason\":\"null\"}"
+    }
+  ],
+  "finding_routes": [
+    {
+      "finding_id": "LA-011",
+      "unit": "C",
+      "cell_id": "F03-P063",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#LA-011"
+    },
+    {
+      "finding_id": "LA-011",
+      "unit": "C",
+      "cell_id": "F08-P065",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "e02_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#LA-011"
+    },
+    {
+      "finding_id": "LA-011",
+      "unit": "C",
+      "cell_id": "F14-P075",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "integration_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#LA-011"
+    },
+    {
+      "finding_id": "LA-012",
+      "unit": "C",
+      "cell_id": "F03-P063",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#LA-012"
+    },
+    {
+      "finding_id": "LA-012",
+      "unit": "C",
+      "cell_id": "F08-P065",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "e02_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#LA-012"
+    },
+    {
+      "finding_id": "LA-012",
+      "unit": "C",
+      "cell_id": "F14-P075",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "integration_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#LA-012"
+    },
+    {
+      "finding_id": "LA-013",
+      "unit": "C",
+      "cell_id": "F03-P063",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#LA-013"
+    },
+    {
+      "finding_id": "LA-013",
+      "unit": "C",
+      "cell_id": "F08-P065",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "e02_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#LA-013"
+    },
+    {
+      "finding_id": "LA-013",
+      "unit": "C",
+      "cell_id": "F14-P075",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "integration_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#LA-013"
+    },
+    {
+      "finding_id": "LA-028",
+      "unit": "C",
+      "cell_id": "F02-P065",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#LA-028"
+    },
+    {
+      "finding_id": "LA-028",
+      "unit": "C",
+      "cell_id": "F05-P075",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "e02_execution_base",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#LA-028"
+    },
+    {
+      "finding_id": "LA-028",
+      "unit": "C",
+      "cell_id": "F09-P057",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "e02_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#LA-028"
+    },
+    {
+      "finding_id": "LA-028",
+      "unit": "C",
+      "cell_id": "F10-P055",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#LA-028"
+    },
+    {
+      "finding_id": "LA-028",
+      "unit": "C",
+      "cell_id": "F13-P062",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "integration_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#LA-028"
+    },
+    {
+      "finding_id": "LA-028",
+      "unit": "C",
+      "cell_id": "F15-P076",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "integration_head",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#LA-028"
+    }
+  ],
+  "finding_basis": [
+    {
+      "finding_id": "LA-011",
+      "bundle_ids": [
+        "HYG-04"
+      ],
+      "recorded_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "discriminator_ref": "bundle-catalog.md#hyg-04; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/HYG-04.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:LA-011",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#LA-011",
+      "assigned_routes": [
+        {
+          "job": "F03",
+          "ref": "research_main",
+          "cell_ids": [
+            "F03-P063"
+          ]
+        },
+        {
+          "job": "F08",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F08-P065"
+          ]
+        },
+        {
+          "job": "F14",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F14-P075"
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-012",
+      "bundle_ids": [
+        "HYG-04"
+      ],
+      "recorded_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "discriminator_ref": "bundle-catalog.md#hyg-04; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/HYG-04.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:LA-012",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#LA-012",
+      "assigned_routes": [
+        {
+          "job": "F03",
+          "ref": "research_main",
+          "cell_ids": [
+            "F03-P063"
+          ]
+        },
+        {
+          "job": "F08",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F08-P065"
+          ]
+        },
+        {
+          "job": "F14",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F14-P075"
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-013",
+      "bundle_ids": [
+        "HYG-04"
+      ],
+      "recorded_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "discriminator_ref": "bundle-catalog.md#hyg-04; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/HYG-04.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:LA-013",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#LA-013",
+      "assigned_routes": [
+        {
+          "job": "F03",
+          "ref": "research_main",
+          "cell_ids": [
+            "F03-P063"
+          ]
+        },
+        {
+          "job": "F08",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F08-P065"
+          ]
+        },
+        {
+          "job": "F14",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F14-P075"
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-028",
+      "bundle_ids": [
+        "DFK-02"
+      ],
+      "recorded_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "discriminator_ref": "bundle-catalog.md#dfk-02; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DFK-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:LA-028",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#LA-028",
+      "assigned_routes": [
+        {
+          "job": "F02",
+          "ref": "research_main",
+          "cell_ids": [
+            "F02-P065",
+            "F02-P079"
+          ]
+        },
+        {
+          "job": "F03",
+          "ref": "research_main",
+          "cell_ids": [
+            "F03-P079"
+          ]
+        },
+        {
+          "job": "F04",
+          "ref": "research_main",
+          "cell_ids": [
+            "F04-P053"
+          ]
+        },
+        {
+          "job": "F05",
+          "ref": "e02_execution_base",
+          "cell_ids": [
+            "F05-P075",
+            "F05-P087"
+          ]
+        },
+        {
+          "job": "F07",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F07-P058"
+          ]
+        },
+        {
+          "job": "F08",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F08-P079"
+          ]
+        },
+        {
+          "job": "F09",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F09-P057"
+          ]
+        },
+        {
+          "job": "F10",
+          "ref": "main",
+          "cell_ids": [
+            "F10-P055",
+            "F10-P067"
+          ]
+        },
+        {
+          "job": "F13",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F13-P062",
+            "F13-P090"
+          ]
+        },
+        {
+          "job": "F15",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F15-P076"
+          ]
+        }
+      ]
+    }
+  ],
+  "unrouted_findings": [],
+  "matching_source_blocks": 10,
+  "source_blocks": [
+    {
+      "job": "F02",
+      "source_file": "received/F02.txt",
+      "line_start": 342,
+      "line_end": 342,
+      "kind": "json_block",
+      "cell_ids": [
+        "F02-P065"
+      ],
+      "keys": [
+        "cell",
+        "phase",
+        "actual",
+        "nodeids"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F05",
+      "source_file": "received/F05.txt",
+      "line_start": 573,
+      "line_end": 573,
+      "kind": "json_block",
+      "cell_ids": [
+        "F05-P006",
+        "F05-P013",
+        "F05-P016",
+        "F05-P023",
+        "F05-P074",
+        "F05-P075",
+        "F05-P091",
+        "F05-P096",
+        "F05-P106",
+        "F05-P113"
+      ],
+      "keys": [
+        "block",
+        "phase",
+        "outcome",
+        "actual",
+        "nodes"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F08",
+      "source_file": "received/F08.txt",
+      "line_start": 397,
+      "line_end": 397,
+      "kind": "tsv_event_row",
+      "cell_ids": [
+        "F08-P065"
+      ],
+      "keys": [
+        "cell",
+        "phase",
+        "outcome",
+        "error_id",
+        "nodes"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F09",
+      "source_file": "received/F09.txt",
+      "line_start": 457,
+      "line_end": 457,
+      "kind": "json_block",
+      "cell_ids": [
+        "F09-P057"
+      ],
+      "keys": [],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F10",
+      "source_file": "received/F10.txt",
+      "line_start": 300,
+      "line_end": 300,
+      "kind": "json_block",
+      "cell_ids": [
+        "F10-P055"
+      ],
+      "keys": [
+        "c",
+        "p",
+        "o",
+        "t",
+        "e",
+        "n"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F13",
+      "source_file": "received/F13.txt",
+      "line_start": 395,
+      "line_end": 395,
+      "kind": "json_block",
+      "cell_ids": [
+        "F13-P062"
+      ],
+      "keys": [],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F14",
+      "source_file": "received/F14.txt",
+      "line_start": 635,
+      "line_end": 635,
+      "kind": "json_block",
+      "cell_ids": [
+        "F14-P075"
+      ],
+      "keys": [
+        "cell",
+        "attempt",
+        "phase",
+        "outcome",
+        "message",
+        "nodes"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F14",
+      "source_file": "received/F14.txt",
+      "line_start": 636,
+      "line_end": 636,
+      "kind": "json_block",
+      "cell_ids": [
+        "F14-P075"
+      ],
+      "keys": [
+        "cell",
+        "attempt",
+        "phase",
+        "outcome",
+        "message",
+        "nodes"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F14",
+      "source_file": "received/F14.txt",
+      "line_start": 637,
+      "line_end": 637,
+      "kind": "json_block",
+      "cell_ids": [
+        "F14-P075"
+      ],
+      "keys": [
+        "cell",
+        "attempt",
+        "phase",
+        "outcome",
+        "message",
+        "nodes"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F15",
+      "source_file": "received/F15.txt",
+      "line_start": 692,
+      "line_end": 693,
+      "kind": "message_node_group",
+      "cell_ids": [
+        "F15-P076"
+      ],
+      "keys": [
+        "cell",
+        "attempt",
+        "phase",
+        "outcome",
+        "nodeid_prefix",
+        "wasxfail"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    }
+  ],
+  "referenced_messages": [],
+  "available_job_context_blocks": 253,
+  "job_dictionary_or_context_blocks": [],
+  "matching_route_cells": 9,
+  "raw_archives_received": 0,
+  "limitations": "Locators are structured source blocks, not a normalized event census. PASS does not establish semantic adequacy or finding closure."
+}

@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-B",
+    "-I",
+    "-c",
+    "import importlib.metadata as m,json,sys\nfrom pathlib import Path\nversions={}\nfor n in ('dowhy','numpy','scipy','statsmodels','pytest','pydantic','econml'):\n try:\n  dist=m.distribution(n);versions[n]={'version':dist.version,'distribution_root':str(dist.locate_file(''))}\n except m.PackageNotFoundError:versions[n]=None\nprint(json.dumps({'python':sys.version,'executable':sys.executable,'resolved_executable':str(Path(sys.executable).resolve()),'distributions':versions,'scope':'Current installed environment identity; no backend PASS from parent optional absence.'},sort_keys=True,indent=2))\n"
+  ],
+  "cwd": "/tmp/e02-F-graph-profile-20261007/worker/frozen-4ee-native",
+  "exit_code": 0,
+  "outcome": "PASS",
+  "wall_seconds": 0.06620369097799994,
+  "stdout": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/frozen-4ee-native/parent-versions.stdout.json",
+    "bytes": 1248,
+    "sha256": "19326a56d45e82e24551bcedd1948eb2f87315c70c84d473274d94451c663588"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/frozen-4ee-native/parent-versions.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "scope": "Actual environment metadata only; no scientific result."
+}

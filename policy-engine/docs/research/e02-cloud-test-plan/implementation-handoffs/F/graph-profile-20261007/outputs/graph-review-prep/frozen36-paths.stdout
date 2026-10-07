@@ -1,0 +1,6 @@
+M	policy-engine/docs/reference/scientist/causal-graph-intake.md
+M	policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml
+M	policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py
+M	policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py
+M	policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py
+M	policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py

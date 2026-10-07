@@ -1,0 +1,19 @@
+{
+  "check": "PASS",
+  "commits": [
+    {
+      "commit": "e1c4bb28c9d5ff936ae1c047619c56cf12ba5347",
+      "tree": "7ae6991cb8424e93b22dee4234914a6c99c88141",
+      "parent": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "all_exact_object_bytes_verified": true
+    },
+    {
+      "commit": "a7204961ac1028965c58224fe40e6bb3a397d8a8",
+      "tree": "936d0e79ae4fea92dfb082a98296037bdc965452",
+      "parent": "e1c4bb28c9d5ff936ae1c047619c56cf12ba5347",
+      "all_exact_object_bytes_verified": true
+    }
+  ],
+  "branch_update": "UNRUN; separate expected-head nonforced update",
+  "no_rewritten_history": true
+}

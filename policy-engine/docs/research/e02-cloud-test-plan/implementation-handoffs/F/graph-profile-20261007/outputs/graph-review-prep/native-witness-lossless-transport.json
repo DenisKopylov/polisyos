@@ -1,0 +1,17 @@
+{
+  "check": "PASS",
+  "raw_scratch_preserved": true,
+  "stored": {
+    "bytes": 75630,
+    "decoded": {
+      "bytes": 507857,
+      "media_type": "application/json",
+      "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json",
+      "sha256": "ab5158126e7079bc05a3f901f3b75868bd21e9f956d31f906f86add8822954f5"
+    },
+    "encoding": "gzip",
+    "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected/native-witness.json.gz",
+    "sha256": "5e6c43436923dd9c83786048203d42c16e6b5259f796661b06c6037871ce1911"
+  },
+  "uncompressed_duplicate_transfer": false
+}

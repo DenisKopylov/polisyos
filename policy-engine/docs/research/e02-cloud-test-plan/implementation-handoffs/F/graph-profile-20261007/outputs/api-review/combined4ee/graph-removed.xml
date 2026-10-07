@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="7" time="0.624" timestamp="2026-10-07T16:51:54.609805+00:00" hostname="6d6fd139922b"><testcase classname="tests.unit.scientist.methods.causal.test_graph_intake_current_content" name="test_mgraph_producer_and_node_refuse_without_retyping_or_publishing" time="0.103"><failure message="AssertionError: JobResult(job_key=JobKey(value='job:3c5f3f351dbedf27d6c104081941cf3fd38256d1e0d5a6bdd0bf4656e7ce34ab'), state_delta_re...ues=[], warnings=['legacy_method_adapter_ref:sha256:c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771'])&#10;assert ([])&#10; +  where [] = JobResult(job_key=JobKey(value='job:3c5f3f351dbedf27d6c104081941cf3fd38256d1e0d5a6bdd0bf4656e7ce34ab'), state_delta_re...ues=[], warnings=['legacy_method_adapter_ref:sha256:c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771']).issues">context = ExecutionContext(store=&lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7fd539310ec0&gt;, run=RunContext(store=&lt;p...one, memory=None, eval_safety_execution_context=None, eval_safety_verifier=None, epoch_certificate_issuance_owner=None)
+
+    def test_mgraph_producer_and_node_refuse_without_retyping_or_publishing(context):
+        """The actual missingness reader survives refusal of static reconciliation."""
+        source_graph = scored_mgraph()
+        original = persist_causal_graph_model(context.store, source_graph)
+        job, _ = produce(context, source_graph)
+        direct = ReconcileCausalGraphNode().execute(
+            context,
+            ExperimentState(
+                run_id="graph-content",
+                params={"data_causal_graph": source_graph.model_dump(mode="json")},
+            ),
+        )
+&gt;       assert job.issues and job.method_result_ref is None, job
+E       AssertionError: JobResult(job_key=JobKey(value='job:3c5f3f351dbedf27d6c104081941cf3fd38256d1e0d5a6bdd0bf4656e7ce34ab'), state_delta_re...ues=[], warnings=['legacy_method_adapter_ref:sha256:c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771'])
+E       assert ([])
+E        +  where [] = JobResult(job_key=JobKey(value='job:3c5f3f351dbedf27d6c104081941cf3fd38256d1e0d5a6bdd0bf4656e7ce34ab'), state_delta_re...ues=[], warnings=['legacy_method_adapter_ref:sha256:c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771']).issues
+
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py:134: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.causal.test_graph_intake_current_content" name="test_supplied_mgraph_result_and_selected_cache_apply_same_profile_boundary" time="0.043"><failure message="AssertionError: assert ('ok' == 'fail'&#10;  &#10;  - fail&#10;  + ok)">context = ExecutionContext(store=&lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x7fd3c0b22fd0&gt;, run=RunContext(store=&lt;p...one, memory=None, eval_safety_execution_context=None, eval_safety_verifier=None, epoch_certificate_issuance_owner=None)
+
+    def test_supplied_mgraph_result_and_selected_cache_apply_same_profile_boundary(context):
+        """The scored builder graph cannot enter through either selected CAS surface."""
+        source_graph = scored_mgraph()
+        supplied = context.store.put_json(
+            {"graph": source_graph.model_dump(mode="json")},
+            PutOptions(
+                kind="scientist.method_result.causal.discovery",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.scientist.MethodResult", version="0.1.0"),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        original = persist_causal_graph_model(context.store, source_graph)
+        for key, ref in (
+            (ARTIFACT_CAUSAL_METHOD_RESULT_REF, supplied),
+            (ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF, original),
+        ):
+            outcome = ReconcileCausalGraphNode().execute(
+                context, ExperimentState(run_id="graph-content", artifacts_index={key: ref})
+            )
+&gt;           assert outcome.status == "fail" and not outcome.artifacts
+E           AssertionError: assert ('ok' == 'fail'
+E             
+E             - fail
+E             + ok)
+
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py:222: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.causal.test_graph_intake_current_content" name="test_same_admg_shape_has_real_producer_node_and_fresh_reader" time="0.076" /><testcase classname="tests.unit.scientist.methods.causal.test_graph_intake_current_content" name="test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph0-expected0]" time="0.080" /><testcase classname="tests.unit.scientist.methods.causal.test_graph_intake_current_content" name="test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph1-expected1]" time="0.080" /><testcase classname="tests.unit.scientist.methods.causal.test_graph_intake_current_content" name="test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph2-expected2]" time="0.081" /><testcase classname="tests.unit.scientist.methods.causal.test_graph_intake_current_content" name="test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph3-expected3]" time="0.080" /></testsuite></testsuites>

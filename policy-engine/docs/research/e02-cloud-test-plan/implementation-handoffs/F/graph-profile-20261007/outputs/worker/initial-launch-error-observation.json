@@ -1,0 +1,32 @@
+{
+  "outcome": "ERROR",
+  "exit_code": 1,
+  "scientific_tests_executed": 0,
+  "classification": "Scratch timing harness environment limitation: optional /usr/bin/time executable absent; AssertionError occurred before pytest launch. No scientific failure/skip or backend fit was executed in this attempt.",
+  "exact_launcher_input": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/frozen-4ee-native/launcher-input.json",
+    "bytes": 1112,
+    "sha256": "dc1227727421764742d26aa0e0fab6e6f6b09df5c7360bc7e1dc46daebc51d35"
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/frozen-4ee-native/launcher.stdout.json",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/frozen-4ee-native/launcher.stderr.txt",
+    "bytes": 447,
+    "sha256": "08d8dc8ea9b942363e0fe5d9389cf5bc8a7776a08d7f8b5f3120718c2d4c49f9"
+  },
+  "original_runner": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/run_frozen_focused_native.py",
+    "bytes": 6445,
+    "sha256": "45eb8bb69d3ac32c5aeeed72396bf72220a7b48c09fae71a71836fe39a645f65"
+  },
+  "forward_correction": {
+    "path": "/tmp/e02-F-graph-profile-20261007/worker/wait4-harness-forward.json",
+    "bytes": 1672,
+    "sha256": "441fa7a917421145fc95029597e048204c0ad0ea9f3d3cd6833a0b4a6fb4471f"
+  },
+  "initial_total_wall_and_RSS": "Not recorded as a structured complete subprocess measurement; not inferred from the corrected run."
+}

@@ -1,0 +1,96 @@
+{
+  "schema": "policyos.e02.explicit_transport_selection.v1",
+  "files": [
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/importer-check.execution.json",
+      "bytes": 744,
+      "sha256": "4d88ec17f4acb261660feaec0fc821a975c07ef66a3428511a8b315f20238c5c"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/importer-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/importer-check.stdout.txt",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/old-native-to-25c.execution.json",
+      "bytes": 924,
+      "sha256": "95005691cfac261d71bfc86c3efd1ba62f6b3ac8354134f3ea49c765dfaa5213"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/old-native-to-25c.full.patch",
+      "bytes": 1260,
+      "sha256": "fa7c31aa2931bc7bba88a491a3d88a8b0654bf5d9bd532d713fc2b7f13794d2d"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/old-native-to-25c.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/parent-baseline.execution.json",
+      "bytes": 1629,
+      "sha256": "504814482cbfce3da88f4a2997bc474b83388b49633300433cf2963e1619a6df"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/parent-baseline.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/parent-baseline.stdout.json",
+      "bytes": 357,
+      "sha256": "e05cb47246a00eabb6fca8ae7d9936f2a33cad526acd661216b0a4e70086cd33"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/preflight-profile.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/preflight-profile.stdout.json",
+      "bytes": 375,
+      "sha256": "992447b19c4463a5a49a6ef176a9f9b99ea85990de2abb9eed231cfb96c360a0"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/preflight_profile.py",
+      "bytes": 7101,
+      "sha256": "bd3e8ad98574a848b434f943d26b83f641f4ea47e56692219d10166157bd049b"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/readonly-readiness.json",
+      "bytes": 6296,
+      "sha256": "5c99bb0a83383e23585ebb4ed540a1a23950f9113825002280514cec9dbb581a"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/run_frozen_focused_native.py",
+      "bytes": 6445,
+      "sha256": "45eb8bb69d3ac32c5aeeed72396bf72220a7b48c09fae71a71836fe39a645f65"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/source-and-backend-preflight.json",
+      "bytes": 16791,
+      "sha256": "84d8e539b7d379d1cdd7c46a7a544ef109c66baaac2481ae10aeaf40def8c3ab"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/worker-backend.execution.json",
+      "bytes": 1896,
+      "sha256": "228ea5dc4bc108cdff8f8c4e69b42df0760b188cf89d9941e69db4e2f705d6e8"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/worker-backend.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-graph-profile-20261007/worker/worker-backend.stdout.json",
+      "bytes": 1709,
+      "sha256": "8f66774310d667eddbe6befcda8e4fe0a34d4c623126d359ca53e23098e50ac5"
+    }
+  ],
+  "scope": "Complete actual deciding preflight source-delta/import/API streams and ready-runner. No copied trackedsource/cards, production inputs, native execution PASS or future SHA."
+}

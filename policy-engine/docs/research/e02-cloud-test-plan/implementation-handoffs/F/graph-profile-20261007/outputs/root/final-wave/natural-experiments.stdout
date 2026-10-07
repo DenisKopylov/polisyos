@@ -1,0 +1,65 @@
+--- preflight ---
+{
+  "run_id": null,
+  "mode": "smoke",
+  "benchmark_tier": "local_evidence",
+  "validation_contour": "legacy",
+  "visibility": "public",
+  "data_source": "synthetic_policy_natural_experiments",
+  "dataset_family": null,
+  "batch_id": null,
+  "estimator_profile": "default",
+  "comparator_profile": null,
+  "required_comparators": [],
+  "dependency_status": {},
+  "comparator_status": {},
+  "degraded_reasons": [],
+  "environment": {
+    "python_version": "3.14.7",
+    "python_executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "machine": "x86_64",
+    "processor": ""
+  },
+  "benchmark_env_spec": "/workspace/e02-F-closeout-20261006/policy-engine/benchmarks/comparators/research_acceptance_environment.yml",
+  "installed_comparator_versions": {
+    "econml": null,
+    "zepid": "0.9.1",
+    "stochtree": null,
+    "dowhy": null,
+    "y0": "0.2.11",
+    "lightgbm": "4.6.0",
+    "causallib": null,
+    "causalml": null,
+    "pgmpy": null,
+    "ananke": null,
+    "causal-learn": "0.1.4.4",
+    "tigramite": "5.2.10.1",
+    "pygformula": null,
+    "pot": null,
+    "openspiel": null,
+    "nashpy": null,
+    "pywhy-graphs": null,
+    "bartpy": null,
+    "pymc_bart": null
+  },
+  "data_manifest_path": null,
+  "data_manifest_hash": null,
+  "run_config_hash": "28e0c2c38467222812bca2991b15b3c7fea7283bd02ae342c25352a4e2007bf6"
+}
+========================================================================
+  PolicyOS Benchmark Report
+========================================================================
+
+Circuit: estimation
+  Pass rate : 3/3 (100.0%)
+  Timing    : n=3  mean=1.04ms  p50=1.07ms  p95=1.28ms  min=0.73ms  max=1.30ms
+  Memory    : n=3  mean=0.49MB  peak=1.11MB  std=0.56MB
+
+
+  TOTAL: 3/3 passed (100.0%)
+
+  Breakdown: fail=0 error=0 skip=0 over_budget=0
+========================================================================
+
+JSON report written to: /tmp/e02-F-graph-profile-20261007/root/final-wave/natural-experiments.json

@@ -1,0 +1,30 @@
+{
+  "distributions": {
+    "dowhy": null,
+    "econml": null,
+    "numpy": {
+      "distribution_root": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages",
+      "version": "2.3.5"
+    },
+    "pydantic": {
+      "distribution_root": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages",
+      "version": "2.12.5"
+    },
+    "pytest": {
+      "distribution_root": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages",
+      "version": "9.0.2"
+    },
+    "scipy": {
+      "distribution_root": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages",
+      "version": "1.16.3"
+    },
+    "statsmodels": {
+      "distribution_root": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages",
+      "version": "0.14.6"
+    }
+  },
+  "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "resolved_executable": "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/bin/python3.14",
+  "scope": "Current installed environment identity; no backend PASS from parent optional absence."
+}

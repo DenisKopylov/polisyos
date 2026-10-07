@@ -1,0 +1,25 @@
+2026-10-07 16:58:11 [info     ] method_registered              backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 lazy=False namespace=causal.prior override=True tags=['causal', 'estimation', 'prior', 'reconciliation', 'structural'] version=1.0.0
+2026-10-07 16:58:11 [debug    ] method_dispatch_start          backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 16:58:11 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=13.59 fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+F
+=================================== FAILURES ===================================
+_____ test_mgraph_producer_and_node_refuse_without_retyping_or_publishing ______
+tests/unit/scientist/methods/causal/test_graph_intake_current_content.py:134: in test_mgraph_producer_and_node_refuse_without_retyping_or_publishing
+    assert job.issues and job.method_result_ref is None, job
+E   AssertionError: JobResult(job_key=JobKey(value='job:3c5f3f351dbedf27d6c104081941cf3fd38256d1e0d5a6bdd0bf4656e7ce34ab'), state_delta_re...ues=[], warnings=['legacy_method_adapter_ref:sha256:c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771'])
+E   assert ([])
+E    +  where [] = JobResult(job_key=JobKey(value='job:3c5f3f351dbedf27d6c104081941cf3fd38256d1e0d5a6bdd0bf4656e7ce34ab'), state_delta_re...ues=[], warnings=['legacy_method_adapter_ref:sha256:c3c23725cb6dd73ffe4b561c80abb0c7962677246a6efdcb3515acf1b5952771']).issues
+=============================== warnings summary ===============================
+../../../../../workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+tests/conftest.py:215
+  /tmp/e02-F-graph-profile-20261007/foundry/installed-4ee/wheel-consumer/tests/conftest.py:215: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    item.add_marker(getattr(pytest.mark, primary_marker))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_mgraph_producer_and_node_refuse_without_retyping_or_publishing
+1 failed, 2 warnings in 0.19s
+{"raw_pytest_exit": 1, "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d", "owned_origins": 970}

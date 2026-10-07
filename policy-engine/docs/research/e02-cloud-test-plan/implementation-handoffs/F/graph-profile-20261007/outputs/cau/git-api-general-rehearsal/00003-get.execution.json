@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "gh",
+    "api",
+    "--method",
+    "GET",
+    "repos/DenisKopylov/polisyos/git/commits/a7204961ac1028965c58224fe40e6bb3a397d8a8"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006",
+  "exit_code": 0,
+  "wall_seconds": 1.2571909539983608,
+  "stdin": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "request_reconstruction": "immutable local Git objects + exact replayer",
+  "stdout": {
+    "path": "/tmp/e02-F-graph-profile-20261007/cau/git-api-general-rehearsal/00003-get.stdout.json",
+    "bytes": 1196,
+    "sha256": "c9b58e92166268ca7d50801fd203d628c25096f30eabb295617729ef1c6a9b57"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-graph-profile-20261007/cau/git-api-general-rehearsal/00003-get.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "replayer": {
+    "path": "/tmp/e02-F-graph-profile-20261007/cau/publish_git_objects_exact.py",
+    "bytes": 7320,
+    "sha256": "2b7787fc5d4f0e1aabc49ab984156c1881ff90bbd6cfe04541ea609e8f6dcd4c"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "check": "ERROR",
+  "stage": "independent harness expectation",
+  "reason": "Directed-only reverse ADMG input legitimately reconciles to DAG; child incorrectly expected ADMG. No product assertion failure identified. Exact first raw outputs and scripts retained; first CAS/child inputs retained at original scratch paths.",
+  "initial_exec_orchestration_error": {
+    "check": "ERROR",
+    "native_started": false,
+    "tool_output": "exec_command failed: CreateProcess { message: \"Rejected(\\\"Failed to create unified exec process: exec-server rejected request (-32603): No such file or directory (os error 2)\\\")\" }",
+    "requested_cwd": "/tmp/e02-F-graph-profile-20261007/graph-review-prep"
+  },
+  "first_cas": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native/cas"
+}

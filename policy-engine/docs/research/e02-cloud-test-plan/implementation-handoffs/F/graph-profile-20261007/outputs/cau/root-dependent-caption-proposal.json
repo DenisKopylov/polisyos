@@ -1,0 +1,110 @@
+{
+  "schema": "e02.F.root_caption_proposal.v1",
+  "role": "read-only proposal; ROOT is sole ledger/caption writer",
+  "base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+  "base_tree": "ed4a4fd6864e8b60cb45124fb8e6fa9b7c503b66",
+  "candidate_sha": "e1c4bb28c9d5ff936ae1c047619c56cf12ba5347",
+  "candidate_tree": "7ae6991cb8424e93b22dee4234914a6c99c88141",
+  "source_delta": "one clean_rollout checker, no estimator/diagnostic implementation changes",
+  "B218": {
+    "original_card": [
+      {
+        "criterion_id": "B218",
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          5361,
+          5374
+        ],
+        "bytes": 3861,
+        "sha256": "8ce1868ddb2663580547f475288d03502e03ae6a4bc38923313bc069efb0a40a",
+        "title": "## B218. Временной граф теряет лаги при экспорте, а лаговая самозависимость отвергается как обычный self-loop",
+        "byte_binding_check": "PASS"
+      }
+    ],
+    "historical_limited_refs": [
+      {
+        "git_ref": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17",
+        "git_blob": "c33de33430598b4f91f3824f36b044b1d7dcc7ac",
+        "json_pointer": "/per_id/4"
+      },
+      {
+        "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B218.json",
+        "bytes": 39221,
+        "sha256": "655fab3290e09a951357d6fe5645e635ef86dd23acfbf4347a3cd127b2cdf4ea",
+        "git_blob": "c58731ffc67bd7502fd72cef7f0495601e06eb24"
+      }
+    ],
+    "current_bounded_closed_ref": {
+      "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B218.json",
+      "bytes": 26151,
+      "sha256": "6b546ab6d3561ab4257ab7277a5a2fae7e767425dcc7875ebed202ad173ea46d",
+      "git_blob": "d27c2609ebd43bf2354c6e0be5dbb778f4c4dcca"
+    },
+    "exact_status_transition": {
+      "historical_F_outcome": "limited",
+      "current_F_outcome": "closed",
+      "current_check": "PASS",
+      "G_formal_acceptance": "not_issued"
+    },
+    "proposed_text": "B218: ранняя рекомендация limited в SCM receipt bf335dd#/per_id/4 и ROOT072 сохраняется как историческая. Для исходной нормы B218 она superseded текущей bounded рекомендацией F closed/check PASS: actual lag1/lag2/self-lag NetworkX/CAS round-trip и точный отказ static GCM/ADMG/intake без temporal conversion удовлетворяют исходному export/consumer-boundary критерию. Исходный текст и bytes unchanged. Full temporal protected-readiness route остаётся отдельным UNRUN/limited capability; serialization не identification. Это supersession исходной F-рекомендации, не formal closure или code acceptance G.",
+    "separate_residual": "full temporal protected-readiness UNRUN/limited; no general temporal identification claim"
+  },
+  "B204": {
+    "current_original_criterion_ref": {
+      "git_ref": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B204.json",
+      "bytes": 17977,
+      "sha256": "a8b3fb41f8a690eb238a59cacaff7c3f15ac957079ef5118ed78a321ce41375f",
+      "git_blob": "ff6b68f9c21930b3699ab2d66adac166d3227922"
+    },
+    "proposed_text": "B204 original estimator GO/PASS и bounded F closed сохраняются: zero-pre refusal, hand ATT3 и honest pretrend dispositions имеют прежние exact source bindings. В clean_rollout прежний checker на двух preperiods ошибочно требовал passed=True; actual base25c run FAIL при ATT1.997217 и корректном not_testable/insufficient_pre_periods. Companion e1c4 исправляет только checker, сохраняет DGP/time_treatment=2/seed11/ATT2 и требует passed=False, no statistic or p-value, identification_authority=False. До independent source review и ROOT affected benchmark replay новая companion readiness UNRUN, без объявления green. После actual replay ROOT добавляет отдельные exact source/check/output refs, сохраняя прежний FAIL и P41 not_established. Non-testability/nonrejection не устанавливают untreated real parallel trends.",
+    "reviewed_affected_benchmark_command": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "-m",
+      "benchmarks.natural_experiments.policy_natural_experiments",
+      "--mode",
+      "smoke",
+      "--quiet",
+      "--json",
+      "<ROOT-unique-output-path>"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+    "environment": {
+      "PYTHONPATH": "src:.",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "run_owner": "ROOT after independent frozen-source review",
+    "current_new_benchmark_readiness": "UNRUN",
+    "independent_four_means_att": 1.9972170388636759,
+    "native_standard_did_att": 1.997217038863679,
+    "base_red_stdout": "/tmp/e02-F-graph-profile-20261007/cau/source-clean-rollout-red.stdout",
+    "base_red_stderr": "/tmp/e02-F-graph-profile-20261007/cau/source-clean-rollout-red.stderr",
+    "base_red_execution": "/tmp/e02-F-graph-profile-20261007/cau/source-clean-rollout-red.execution.json"
+  },
+  "ROOT_only_dependent_surfaces": [
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md#f-m3",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md#f-m9",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B204.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B218.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/full-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/REPORT.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/G-source-integration-order.json"
+  ],
+  "caption_constraints": [
+    "Keep all35/17/36 source-card bindings; B204/B218 do not introduce IDs or change current33closed/2limited count.",
+    "Keep actual check, F recommendation, assembled consumer readiness, and formal G acceptance distinct.",
+    "Do not overwrite original historical limited/FAIL outputs or retarget old scientific checks to e1c4.",
+    "Do not describe the two-pre diagnostic as passed or causal identification.",
+    "P41 inherited-red remains not_established; no complete denominator disjointness proof."
+  ]
+}

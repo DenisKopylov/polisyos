@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-I",
+    "-B",
+    "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid_producer.py",
+    "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected"
+  ],
+  "cwd": "/tmp/e02-F-graph-profile-20261007/graph-review-prep",
+  "environment_overrides": {
+    "POLISYOS_METRICS_PORT": "9465",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "exit_code": 0,
+  "reviewer": "graph_scm",
+  "runtime_result": "UNASSESSED",
+  "schema": "readonly_native_command/1.0",
+  "source_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+  "source_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+  "stderr": {
+    "bytes": 0,
+    "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected.stderr.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stdout": {
+    "bytes": 3015,
+    "path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/freshpid-native-corrected.stdout.txt",
+    "sha256": "5a7127c28351a0224bc4e2f812dae283b26ce012d2c765abf4bffafe1a3c21a4"
+  },
+  "wall_s": 12.326087055000244
+}

@@ -1,0 +1,39 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/probe_b204.py"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "env_overrides": {
+    "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools:/workspace/e02-F-closeout-20261006/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "source_before": {
+    "head": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+    "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+    "tracked_clean": true
+  },
+  "source_after": {
+    "head": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+    "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+    "tracked_clean": true
+  },
+  "exit_code": 0,
+  "wall_seconds": 6.764667097013444,
+  "stdout": {
+    "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/b204.stdout.json",
+    "bytes": 194492,
+    "sha256": "6acdf5f4f818f2def7d4136b32b8453825c45a2ce7d91c4026bc6e97f273dd43"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/b204.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "replayer": {
+    "path": "/tmp/e02-F-graph-profile-20261007/api-review/combined4ee/probe_b204.py",
+    "bytes": 4001,
+    "sha256": "1ce12aace43bbbd8943c51b9b614d29054054614dd4fd1e57a566b77ee4ee09f"
+  },
+  "scope": "native known DGP/checker; no authority or optional worker claim"
+}

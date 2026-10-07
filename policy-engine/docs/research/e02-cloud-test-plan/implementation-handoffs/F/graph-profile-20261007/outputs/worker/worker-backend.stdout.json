@@ -1,0 +1,26 @@
+{
+  "CausalModel_constructor_signature": "(data, treatment, outcome, graph=None, common_causes=None, instruments=None, effect_modifiers=None, estimand_type='nonparametric-ate', proceed_when_unidentifiable=False, missing_nodes_as_confounders=False, identify_vars=False, **kwargs)",
+  "estimate_effect_signature": "(self, identified_estimand, method_name=None, control_value=0, treatment_value=1, test_significance=None, evaluate_effect_strength=False, confidence_intervals=False, target_units='ate', effect_modifiers=None, fit_estimator=True, method_params=None)",
+  "executable": "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+  "identify_effect_signature": "(self, estimand_type=None, method_name='default', proceed_when_unidentifiable=None, optimize_backdoor=False)",
+  "modules": {
+    "dowhy": {
+      "origin": "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/dowhy/__init__.py",
+      "version": "0.14"
+    },
+    "numpy": {
+      "origin": "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/numpy/__init__.py",
+      "version": "2.4.6"
+    },
+    "scipy": {
+      "origin": "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/scipy/__init__.py",
+      "version": "1.15.3"
+    },
+    "statsmodels": {
+      "origin": "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/statsmodels/__init__.py",
+      "version": "0.15.0"
+    }
+  },
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]"
+}

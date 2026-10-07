@@ -1,0 +1,1392 @@
+{
+  "schema": "policyos.e02.graph_profile_independent_review_preparation.v1",
+  "reviewer": "graph_scm",
+  "base_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+  "base_tree": "ed4a4fd6864e8b60cb45124fb8e6fa9b7c503b66",
+  "G_witness_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+  "role": "READ_ONLY oracle/witness and bounded discriminator preparation; ROOT sole writer; not implementation/finding closure",
+  "classification": {
+    "P40": "Same static-profile admission class, at semantic GraphType identity depth; not a new causal-authority/identification algorithm task",
+    "property": "Canonical static reconciliation accepts only DAG/ADMG input tags and resolved contemporaneous endpoint profile, before confidence filtering, structural rewrite or accepted graph persistence; unsupported profiles typed-refuse. Existing general MGRAPH IR remains readable/persistable.",
+    "old_proxy": "Reconcile and Node static adjacency validates marks/lag but not graph_type. Ordinary FragmentCompositionData constructor already rejects unsupported types; Compose only lacks a defensive recheck for explicitly unsafe model_copy/model_construct DTO bypass.",
+    "actual_divergence": "G validated builder MGRAPH with MCAR and three scored relations is accepted, retyped ADMG, copied mgraph metadata survives, and actual downstream extractor refuses on fresh CAS."
+  },
+  "complete_G_publication_byte_check": "PASS",
+  "G_published_file_count": 22,
+  "G_full_input_refs": [
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.stdout.txt",
+      "git_blob": "b4b41baec63402952322341996baa22cdc66f9f3",
+      "bytes": 2626,
+      "sha256": "94d7cc9c55b92cebc55cce0c9df1996fd0e6f8f3243bdd51814031cd4124ff7e"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/report.md",
+      "git_blob": "46c9292eac596963cc0658d26cde2b952364e694",
+      "bytes": 3908,
+      "sha256": "bfacb9efca3b8963451fb8c8578af8908cc96753fdb37481b3542eb5f0f4ccd8"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/deciding.stdout.txt",
+      "git_blob": "8ccc89a5518a2a56776588ae1ff2ab149394b1fb",
+      "bytes": 3050,
+      "sha256": "8160fecd4d7fa174c7a328b2970295a27d44c5e17ba830af72596c0417dd3197"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/probe.py",
+      "git_blob": "47e4fe4f13cd1635fd28e1b8756f7efc691970e0",
+      "bytes": 23974,
+      "sha256": "5ce7244429ec1c6cf60507f5c4ef1b3059583ea3825aaa269c00dfc7b7f21bbc"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/run-native.py",
+      "git_blob": "2b4c9f01aaf82dd083372546ad42fcb78e536642",
+      "bytes": 2527,
+      "sha256": "840e32d15fdb762ebf0c68f5ddc1f2a90aca635822095212e517e3c6f045e0d6"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.execution.json",
+      "git_blob": "ff889dd0584d0f0f7543aa865d969ba72848200b",
+      "bytes": 1248,
+      "sha256": "10b18c3a2e6c675d65dee40f8f6b8857b40d777421a39ac084637b317af3f27b"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/deciding.stderr.txt",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/preflight.json",
+      "git_blob": "cdffd6d0554ef2ee901efd7a777464e7b104082d",
+      "bytes": 3101,
+      "sha256": "a310c269d533902f4d1135321cca5273a472080be4787db486a83740e4254f1c"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/execution.json",
+      "git_blob": "6cd212a1756dbe980fc84a295addbbfd0fd92f10",
+      "bytes": 1346,
+      "sha256": "f020896b72787af5b409ca3e2e335b086b8e59fd38e70685f4502f87fd9e0d11"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/receipt.json",
+      "git_blob": "871a82fb11f6ec983115c175bca89a443cf5fdbc",
+      "bytes": 26957,
+      "sha256": "97cbc9aba2cd526966b12de34be1494a0477b01f1063fdc11c301d9fc2476bbc"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/mgraph-target.json",
+      "git_blob": "2d845d7e27658dca56577d915aa2ffbb4ce32afc",
+      "bytes": 10617,
+      "sha256": "6e99a3f2c30986008edf901527daac3fe8d63f2ef86f170dc11d8b5775652a6e"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/admg-control.json",
+      "git_blob": "a0370dd74359407c87cf1d0488f663c2c5d34980",
+      "bytes": 6158,
+      "sha256": "47e47a5b9e6d81cce90c7703497993e19f92211eb2453adae1029d7d41f3c3cf"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/dag-control.json",
+      "git_blob": "ed528224866adf8c81c866b053c108bf7d0a7fa8",
+      "bytes": 4784,
+      "sha256": "d3728437b52fc566b936561fc071516d4a019486869069e40c8f7711f302c883"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/dag-control-request.json",
+      "git_blob": "3ab77beda49b4e85c3ed5d1f6076aa76c06df5ac",
+      "bytes": 1018,
+      "sha256": "79381e702c2893cf6d8ebedfa89c0742823a884a1782b512ae37f4f7e7a3cf78"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-builder-unscored.json",
+      "git_blob": "ac3d8bc42810bec6fa1970b3d677876fe1eb2d58",
+      "bytes": 2116,
+      "sha256": "b0340670241b67bfef2e0d7003e7aca289b472381bac88f24653daf4b637a71b"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-target.json",
+      "git_blob": "0322fc12fe5b7aeaa96b6936e0d2396660aee438",
+      "bytes": 2176,
+      "sha256": "9720406aeef3dc2f352764dc7ce0fdbba6bcebceb84c85fa03ed949396e7a17c"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/admg-control-request.json",
+      "git_blob": "175cbc0e63279fad27955a70cd5a762f97b362bf",
+      "bytes": 1537,
+      "sha256": "c00ee99fa7cb0cd1e9e18300aa740a29d8edfaee93c61e9f00af53339960d8ae"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-target-request.json",
+      "git_blob": "3d63a88c7e64c450a6777609abc772e8ee702c30",
+      "bytes": 2569,
+      "sha256": "e7a18e9ab89845ef412ac35bb03645ea0316ecd1064bca66187be686b4608a96"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-builder-arguments.json",
+      "git_blob": "eee90ad9b100ea24871d316e88d7443062ccc7ed",
+      "bytes": 696,
+      "sha256": "14b9630a497d41a356b8d70dea65dec13adb6a7a50050c5415d3acba23087823"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/admg-control.json",
+      "git_blob": "d954716cf26df166f7d7c0513f1040c68adc64ea",
+      "bytes": 1236,
+      "sha256": "180ff927350ba499b90e712bc3cc9f4435420a70692fd3a795b9b7a6691c797f"
+    },
+    {
+      "git_sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/dag-control.json",
+      "git_blob": "026366f70764398f5e23c58fe90922dc895c5adc",
+      "bytes": 757,
+      "sha256": "1f2aad745173d5913678e20479f34f538c923bc1400c3197444fc111950e7291"
+    }
+  ],
+  "G_reported_observation": "CONFIRMED_ADMITTED_TYPE_ERASURE",
+  "G_native_run_not_reexecuted": "UNRUN",
+  "initial_G_unscored_attempt": "INCONCLUSIVE: edges filtered; not positive refusal",
+  "G_initial_setup_error": "ERROR: raw original bytes overwritten; transcript/hash only per exact receipt, not custody PASS",
+  "critical_source_refs": [
+    {
+      "git_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "git_blob": "6b148f720d7fb7aa978fb46bbca722615cf433cf",
+      "bytes": 62212,
+      "sha256": "559af61ee42f294bf28fe71beca620c9ce4091bcc2ffdc38c611f3a8da83ee44",
+      "same_actual519_git_blob": true
+    },
+    {
+      "git_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "git_blob": "70ccfd46c42253861c31210ac176e22df3119e15",
+      "bytes": 48349,
+      "sha256": "4696b3597bf23b6dab8d3170cd846151d8c6d78b5c52d8dcc21a2d54aebe1253",
+      "same_actual519_git_blob": true
+    },
+    {
+      "git_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "git_blob": "f2635665550259d20323d29a784faf11dc8896b7",
+      "bytes": 20654,
+      "sha256": "431b0c00ddbc0c33720c1b5ee61b85493a3c4bb1759e1487d2cbe5b016456dc7",
+      "same_actual519_git_blob": true
+    },
+    {
+      "git_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "path": "policy-engine/src/polisyos/ir/analytics/mgraph.py",
+      "git_blob": "9e7308b213ce90be5033bf8077c357c8e38617eb",
+      "bytes": 11577,
+      "sha256": "f2133e1fd2ee8abaa99154cc70032a700c55869e2c71976cc63a012c8db60497",
+      "same_actual519_git_blob": true
+    },
+    {
+      "git_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+      "git_blob": "2d35616ebe69a23b820cca258c77cf296d155bef",
+      "bytes": 89157,
+      "sha256": "250497e0024481a5bdc4e0b941fb31e57eaeb841702164490874f3978a3134c1",
+      "same_actual519_git_blob": true
+    },
+    {
+      "git_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "git_blob": "b1de9ace7e2535100b94cec3efe55ca92af34b47",
+      "bytes": 41585,
+      "sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a",
+      "same_actual519_git_blob": true
+    }
+  ],
+  "GraphType_denominator": [
+    {
+      "name": "DAG",
+      "value": "dag",
+      "reconciliation_supported": true,
+      "old_marks_lag_predicate_cannot_distinguish_tag": true,
+      "independent_semantic_oracle": "preserve admitted static directed/reverse/bidirected relations and fresh-CAS type under declared reconciliation output law",
+      "falsifier": "normal high-confidence same-form control lost or reversed"
+    },
+    {
+      "name": "CPDAG",
+      "value": "cpdag",
+      "reconciliation_supported": false,
+      "old_marks_lag_predicate_cannot_distinguish_tag": true,
+      "independent_semantic_oracle": "IR graph_type defines this graph family; a fully oriented representation does not ratify equivalence-family identification",
+      "falsifier": "same resolved edge form or empty edges admitted despite unsupported tag"
+    },
+    {
+      "name": "PAG",
+      "value": "pag",
+      "reconciliation_supported": false,
+      "old_marks_lag_predicate_cannot_distinguish_tag": true,
+      "independent_semantic_oracle": "IR graph_type defines this graph family; a fully oriented representation does not ratify equivalence-family identification",
+      "falsifier": "same resolved edge form or empty edges admitted despite unsupported tag"
+    },
+    {
+      "name": "MGRAPH",
+      "value": "mgraph",
+      "reconciliation_supported": false,
+      "old_marks_lag_predicate_cannot_distinguish_tag": true,
+      "independent_semantic_oracle": "extract_mgraph_metadata requires MGRAPH and decodes typed missingness/proxy metadata",
+      "falsifier": "same resolved edge form or empty edges admitted despite unsupported tag"
+    },
+    {
+      "name": "ADMG",
+      "value": "admg",
+      "reconciliation_supported": true,
+      "old_marks_lag_predicate_cannot_distinguish_tag": true,
+      "independent_semantic_oracle": "preserve admitted static directed/reverse/bidirected relations and fresh-CAS type under declared reconciliation output law",
+      "falsifier": "normal high-confidence same-form control lost or reversed"
+    }
+  ],
+  "source_call_denominator": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "owner": "ReconcileCausalGraph",
+      "start": 928,
+      "end": 1068,
+      "relevant_calls": [
+        {
+          "line": 996,
+          "callee": "_validate_static_admg"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "owner": "ReconcileCausalGraph.pure_step",
+      "start": 986,
+      "end": 1068,
+      "relevant_calls": [
+        {
+          "line": 996,
+          "callee": "_validate_static_admg"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "owner": "_resolve_graph_ref",
+      "start": 203,
+      "end": 208,
+      "relevant_calls": [
+        {
+          "line": 207,
+          "callee": "_validate_static_admg"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "owner": "_load_fragment_graphs",
+      "start": 281,
+      "end": 289,
+      "relevant_calls": [
+        {
+          "line": 288,
+          "callee": "_resolve_graph_ref"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "owner": "_persist_query_preservation_artifacts",
+      "start": 401,
+      "end": 442,
+      "relevant_calls": [
+        {
+          "line": 426,
+          "callee": "persist_causal_graph_model"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "owner": "_apply_query_preservation_hook",
+      "start": 453,
+      "end": 657,
+      "relevant_calls": [
+        {
+          "line": 465,
+          "callee": "_resolve_graph_ref"
+        },
+        {
+          "line": 496,
+          "callee": "_load_fragment_graphs"
+        },
+        {
+          "line": 506,
+          "callee": "ComposeSCMFragments.pure_step"
+        },
+        {
+          "line": 573,
+          "callee": "_validate_static_admg"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "owner": "ReconcileCausalGraphNode",
+      "start": 661,
+      "end": 1118,
+      "relevant_calls": [
+        {
+          "line": 700,
+          "callee": "_apply_query_preservation_hook"
+        },
+        {
+          "line": 954,
+          "callee": "_load_data_graph"
+        },
+        {
+          "line": 1021,
+          "callee": "ReconcileCausalGraph.pure_step"
+        },
+        {
+          "line": 1073,
+          "callee": "_validate_static_admg"
+        },
+        {
+          "line": 681,
+          "callee": "_resolve_graph_ref"
+        },
+        {
+          "line": 740,
+          "callee": "_load_fragment_graphs"
+        },
+        {
+          "line": 806,
+          "callee": "ComposeSCMFragments.pure_step"
+        },
+        {
+          "line": 826,
+          "callee": "persist_causal_graph_model"
+        },
+        {
+          "line": 1085,
+          "callee": "persist_causal_graph_model"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "owner": "ReconcileCausalGraphNode.execute",
+      "start": 673,
+      "end": 1118,
+      "relevant_calls": [
+        {
+          "line": 700,
+          "callee": "_apply_query_preservation_hook"
+        },
+        {
+          "line": 954,
+          "callee": "_load_data_graph"
+        },
+        {
+          "line": 1021,
+          "callee": "ReconcileCausalGraph.pure_step"
+        },
+        {
+          "line": 1073,
+          "callee": "_validate_static_admg"
+        },
+        {
+          "line": 681,
+          "callee": "_resolve_graph_ref"
+        },
+        {
+          "line": 740,
+          "callee": "_load_fragment_graphs"
+        },
+        {
+          "line": 806,
+          "callee": "ComposeSCMFragments.pure_step"
+        },
+        {
+          "line": 826,
+          "callee": "persist_causal_graph_model"
+        },
+        {
+          "line": 1085,
+          "callee": "persist_causal_graph_model"
+        }
+      ]
+    }
+  ],
+  "canonical_entries": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "id": "causal.prior.reconcile_causal_graph@1.0.0",
+      "entry": "ReconcileCausalGraph.pure_step",
+      "current_boundary": "_validate_static_admg(payload.data_graph), line996 before confidence/materialization"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "id": "causal.composition.compose_scm_fragments@1.0.0",
+      "entry": "ComposeSCMFragments.pure_step",
+      "current_boundary": "FragmentCompositionData._validate_fragment_composition lines952–961 rejects nonDAG/ADMG before ordinary mapping or DTO admission. pure_step skips this validation only when handed an already-typed instance, so unsafe model_copy can bypass it."
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "id": "scientist.node_reconcile_causal_graph@1.0.0",
+      "entry": "ReconcileCausalGraphNode.execute",
+      "routes": [
+        "params.data_causal_graph → _extract_graph → Reconcile",
+        "selected actual MethodResult CAS → _load_data_graph → Reconcile",
+        "SCM fragment refs → actual graph refs → Compose",
+        "selected reconciled cache → _resolve_graph_ref",
+        "query-only cache → actual full composition sources/reproduction → Compose → query hooks"
+      ]
+    }
+  ],
+  "narrow_owner_fix_recommendation": {
+    "owner_paths": [
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+    ],
+    "mechanism": "One local reconciliation supported-profile predicate over original typed graph, reused by Reconcile and Node admissions. Compose ordinary DTO guard remains; optional early defensive producer predicate covers explicitly unsafe typed copies before transform, without claiming a schema-valid original Compose escape.",
+    "supported_tag_set": [
+      "dag",
+      "admg"
+    ],
+    "unknown_future_enum_policy": "Refuse unless explicitly added to supported local profile",
+    "not_type_erasure_fix": "Do not add a special mgraph metadata keyword filter or preserve a tag while omitting missingness semantics",
+    "preserve_existing_law": "Do not invent new DAG-only acyclicity validation for declared cycle-aware ADMG fragment composition; preserve existing cycle contracts. Reverse-edge canonicalization remains existing Reconcile behavior, not a new Compose algorithm."
+  },
+  "minimal_real_witness": {
+    "fixture": "build_mgraph(X→Y, X↔Y, R_X→X_star; MCAR), revalidated actual synthetic DATA confidence0.9, metadata extractor succeeds before intake",
+    "chain": [
+      "persist original ir.causal_graph_model → new FileSystemCAS → extract_mgraph_metadata",
+      "actual registered MethodRegistry/MethodJob run_job → typed producer refusal, no method graph result",
+      "direct ReconcileCausalGraphNode → typed fail, no reconciled artifact/ref",
+      "actual kind/schema-bound supplied method result CAS containing MGRAPH → Node refusal",
+      "fresh original source CAS read → same MGRAPH/type/relations/missingness metadata still readable"
+    ],
+    "positive": "Same exact node/edge/metadata payload with supported ADMG tag → real registered producer → Node → fresh CAS ADMG and same relations; no metadata-name rejection"
+  },
+  "prepared_adversarial_cases": [
+    {
+      "case": "all enum members",
+      "property": "Derive unsupported cases from all current GraphType values minus DAG/ADMG; fully oriented and empty forms reject uniformly"
+    },
+    {
+      "case": "threshold escape",
+      "property": "Unsupported type with confidence below cutoff and cutoff0.99 must refuse before becoming empty DAG; scored case preserves discriminator"
+    },
+    {
+      "case": "selected result/cache",
+      "property": "Valid actual CAS unsupported graph in supplied MethodResult or current ir graph ref refuses before outputs; direct DTO and actual body agree"
+    },
+    {
+      "case": "fragment sibling",
+      "property": "Keep ordinary FragmentCompositionData unsupported-tag ValidationError as existing DTO law; separately create a valid payload then explicit model_copy(graph map with actual unsupported graph) to test defensive pretransform rejection. Node graph-ref route must refuse before new fragment/alignment/result persistence."
+    },
+    {
+      "case": "query-only reuse",
+      "property": "Cached composed unsupported graph or changed fragment source graph tag refuses before certificate/query rewrite; normal actual composition positive retained"
+    },
+    {
+      "case": "endpoint/temporal preservation",
+      "property": "Supported ADMG reverse known arrow canonicalizes; bidirected retained; every unresolved endpoint pair and positive lag still refuses; lag0 supported"
+    },
+    {
+      "case": "remove-property keep-markers",
+      "property": "Memory-only local supported-tag admission removal with existing error/helper/name/source markers must reopen actual MGRAPH or fully oriented CPDAG/PAG admission; scientific math/global helpers unchanged"
+    }
+  ],
+  "original_finding": {
+    "id": "B214",
+    "owner": {
+      "finding_id": "B214",
+      "unit": "F",
+      "docx_analytical_package": "P34",
+      "source_closure_owner": "GRF-03",
+      "source_bundle_ids": "GRF-03",
+      "source_status": "partial"
+    },
+    "per_ID_ref": {
+      "git_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B214.json",
+      "git_blob": "4a1e51e4f837c0c2299ad0fcb24ffa93e02625e4",
+      "bytes": 26943,
+      "sha256": "0e14cf984e41da503c7e184d62aaeb0396483ea4e1c75cc594c44f0d4b4a3cd7"
+    },
+    "card": {
+      "criterion_id": "B214",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        5218,
+        5229
+      ],
+      "bytes": 3537,
+      "sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+      "title": "## B214. Проекция PAG/CPDAG разворачивает известное направление и может создать цикл",
+      "byte_binding_check": "PASS"
+    },
+    "card_full_byte_check": "PASS",
+    "current_original_outcome": "limited",
+    "next_owner": "A/C/F shared partial-query semantics decision remains separate; finite refusal does not establish universal family identification"
+  },
+  "future_independent_review": "UNRUN until ROOT immutable implementation source/tree; this preparation has no fresh runtime or implementation GO",
+  "no_source_tests_or_git_mutations": true,
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/published-files.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 6528,
+      "stdout_sha256": "a3e84896a3fb6e924021a3914220b08e20e62bdf712723a523615f93da5568e9",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.stdout.txt"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 2626,
+      "stdout_sha256": "94d7cc9c55b92cebc55cce0c9df1996fd0e6f8f3243bdd51814031cd4124ff7e",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.stdout.txt"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "434a1e2e569b3ff755e597834d0e0afb7762ae1fb5f6bfd66113fc89f34323a2",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/report.md"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 3908,
+      "stdout_sha256": "bfacb9efca3b8963451fb8c8578af8908cc96753fdb37481b3542eb5f0f4ccd8",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/report.md"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "af4da8c0d5f89775d61d29c5608e48350deea99428de75d793055d93139113f5",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/deciding.stdout.txt"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 3050,
+      "stdout_sha256": "8160fecd4d7fa174c7a328b2970295a27d44c5e17ba830af72596c0417dd3197",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/deciding.stdout.txt"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "1a285a6825629e5a1332535a39e40d735c69276bc286656209de4face2f733d5",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/probe.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 23974,
+      "stdout_sha256": "5ce7244429ec1c6cf60507f5c4ef1b3059583ea3825aaa269c00dfc7b7f21bbc",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/probe.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "912006094dee06443686e7bfbcc9aca4628e3b78689e6882a0f2b7cb88ecf2d7",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.stderr.txt"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.stderr.txt"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "9ca990ad213db6735ea35d90b25433efd2e35300a1a42469eeed91c2d62ae235",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/run-native.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 2527,
+      "stdout_sha256": "840e32d15fdb762ebf0c68f5ddc1f2a90aca635822095212e517e3c6f045e0d6",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/run-native.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "017fb0ab2b69eb83b354ae0f695ba0838d0e2cdae6fec8e8d49e6b551a2308e5",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.execution.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 1248,
+      "stdout_sha256": "10b18c3a2e6c675d65dee40f8f6b8857b40d777421a39ac084637b317af3f27b",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.execution.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "12df6a81635a4b0860936794a5dd98caeebb6c5a009b432f437eaf84a45e7394",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/deciding.stderr.txt"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/deciding.stderr.txt"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "9ca990ad213db6735ea35d90b25433efd2e35300a1a42469eeed91c2d62ae235",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/preflight.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 3101,
+      "stdout_sha256": "a310c269d533902f4d1135321cca5273a472080be4787db486a83740e4254f1c",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/preflight.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "42df8cb7eec08059abf807599958e4aa3b910805b2b458893dbf8751cc146dde",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/execution.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 1346,
+      "stdout_sha256": "f020896b72787af5b409ca3e2e335b086b8e59fd38e70685f4502f87fd9e0d11",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/execution.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "357bedca22c7550e28996b404b44223a09a67e399f95f7d0443a4c64630b126e",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/receipt.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 26957,
+      "stdout_sha256": "97cbc9aba2cd526966b12de34be1494a0477b01f1063fdc11c301d9fc2476bbc",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/receipt.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "68d6297de35b51aabc03568219fd827e2f3b3e5a50b5efc6267d05458669f291",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/mgraph-target.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 10617,
+      "stdout_sha256": "6e99a3f2c30986008edf901527daac3fe8d63f2ef86f170dc11d8b5775652a6e",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/mgraph-target.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "46189fa391c4ba4877e43d876e242b29cf409d6266e90bffb8ee5408b7d44ac4",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/admg-control.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 6158,
+      "stdout_sha256": "47e47a5b9e6d81cce90c7703497993e19f92211eb2453adae1029d7d41f3c3cf",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/admg-control.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "48d20a2bcb09c7700fca2277dbc16c035f80480b0eae4710b812ec7c134a98b3",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/dag-control.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 4784,
+      "stdout_sha256": "d3728437b52fc566b936561fc071516d4a019486869069e40c8f7711f302c883",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/dag-control.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "e5a0d78a2cad7132ae4b98d3fb158851a3fffea78d64fc9e4487ddc77b412242",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/dag-control-request.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 1018,
+      "stdout_sha256": "79381e702c2893cf6d8ebedfa89c0742823a884a1782b512ae37f4f7e7a3cf78",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/dag-control-request.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "0c71123fe39032c000e4376b7ec11af2225c03a390cf2fb3251b89acf5f939ab",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-builder-unscored.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 2116,
+      "stdout_sha256": "b0340670241b67bfef2e0d7003e7aca289b472381bac88f24653daf4b637a71b",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-builder-unscored.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "3ea239551868124fa80e511b001ce13e091f2f6ed62f0fb5811b27f4391dd53c",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-target.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 2176,
+      "stdout_sha256": "9720406aeef3dc2f352764dc7ce0fdbba6bcebceb84c85fa03ed949396e7a17c",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-target.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "924577d11a42295a0d7d23a232f6d76ed433671493b1271336661d11729e5dda",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/admg-control-request.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 1537,
+      "stdout_sha256": "c00ee99fa7cb0cd1e9e18300aa740a29d8edfaee93c61e9f00af53339960d8ae",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/admg-control-request.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "909616ba2a8b6d12386a34e47c78a81ffe52ceacb9afffd2af40aeeeacfa6a2c",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-target-request.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 2569,
+      "stdout_sha256": "e7a18e9ab89845ef412ac35bb03645ea0316ecd1064bca66187be686b4608a96",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-target-request.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "e56db8280d162374ed8bf094b09b8a740d9bc6b646eac5506086119015311519",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-builder-arguments.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 696,
+      "stdout_sha256": "14b9630a497d41a356b8d70dea65dec13adb6a7a50050c5415d3acba23087823",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-builder-arguments.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "dd1559f4ba33f69e9dad14de2ad464afbf9e586ea1bbbc16190091ef1d6f66c1",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/admg-control.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 1236,
+      "stdout_sha256": "180ff927350ba499b90e712bc3cc9f4435420a70692fd3a795b9b7a6691c797f",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/admg-control.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "c082dc8b88621d74bc918fc9e2eebd90a0fc7021db39fd202d91e01bcf497d6c",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/dag-control.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 757,
+      "stdout_sha256": "1f2aad745173d5913678e20479f34f538c923bc1400c3197444fc111950e7291",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/dag-control.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "ccda4995b608d1efa77cfc9f10759cc263a6ffd467a9c5eb64e02b48cf2c0f64",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 62212,
+      "stdout_sha256": "559af61ee42f294bf28fe71beca620c9ce4091bcc2ffdc38c611f3a8da83ee44",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "389893778a7ccfa8b04f26d3a963bd453f74ec9e9f5fca4a7500dfbe689a6de5",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82:policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "389893778a7ccfa8b04f26d3a963bd453f74ec9e9f5fca4a7500dfbe689a6de5",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 48349,
+      "stdout_sha256": "4696b3597bf23b6dab8d3170cd846151d8c6d78b5c52d8dcc21a2d54aebe1253",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "201be959b83f3f877cdafea865523b8e1a49dee1a57f9cad3ebef1de643ca2bb",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82:policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "201be959b83f3f877cdafea865523b8e1a49dee1a57f9cad3ebef1de643ca2bb",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 20654,
+      "stdout_sha256": "431b0c00ddbc0c33720c1b5ee61b85493a3c4bb1759e1487d2cbe5b016456dc7",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "2414aae0eb75ffa3b9d4d50d1ca1859f61054c033e1941a9853dcc90ef8ccaa3",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82:policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "2414aae0eb75ffa3b9d4d50d1ca1859f61054c033e1941a9853dcc90ef8ccaa3",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/ir/analytics/mgraph.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 11577,
+      "stdout_sha256": "f2133e1fd2ee8abaa99154cc70032a700c55869e2c71976cc63a012c8db60497",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/ir/analytics/mgraph.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "8f9af499300c7181d4b59c844efd16f353cc97cb296c045f966d0290229899c6",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82:policy-engine/src/polisyos/ir/analytics/mgraph.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "8f9af499300c7181d4b59c844efd16f353cc97cb296c045f966d0290229899c6",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 89157,
+      "stdout_sha256": "250497e0024481a5bdc4e0b941fb31e57eaeb841702164490874f3978a3134c1",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "7716422bd4d9c2bf68fc58b0ba6dd7e89aa99d377d6d9939e1c326991d062b41",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82:policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "7716422bd4d9c2bf68fc58b0ba6dd7e89aa99d377d6d9939e1c326991d062b41",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41585,
+      "stdout_sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "250290a9a500b36859bee6e956e9ce848d3e8bd693218fe82e1577032aad145a",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82:policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "250290a9a500b36859bee6e956e9ce848d3e8bd693218fe82e1577032aad145a",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B214.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 26943,
+      "stdout_sha256": "0e14cf984e41da503c7e184d62aaeb0396483ea4e1c75cc594c44f0d4b4a3cd7",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261007/per-ID/B214.json"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 41,
+      "stdout_sha256": "d7cd7bcb9d3b387d939e2a6075d061048ff20a115d90ddc098550e6fad623591",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "198076863e143dea9f89f02734b13d50dae3eed5:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 1336380,
+      "stdout_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "25cdea9064ddea2c3a812fd68670076bd4b088cb:policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv"
+      ],
+      "cwd": "/workspace/e02-F-closeout-20261006",
+      "exit": 0,
+      "stdout_bytes": 9504,
+      "stdout_sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+      "stderr": ""
+    }
+  ],
+  "initial_analysis_error": {
+    "check": "ERROR",
+    "reason": "Original preparation incorrectly labelled normal schema-valid Compose as an escape; FragmentCompositionData._validate_fragment_composition already rejects nonDAG/ADMG tags. Original source/predicate output retained unchanged.",
+    "original_path": "/tmp/e02-F-graph-profile-20261007/graph-review-prep/profile-review-preparation.initial.json",
+    "bytes": 54998,
+    "sha256": "b44d46588ae09dd5f1c9190aae9ab5c5524ba65aebc9a25ab90e708043f99cf1"
+  },
+  "protocol_validator_denominator": {
+    "source_ref": {
+      "git_sha": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+      "git_blob": "2d35616ebe69a23b820cca258c77cf296d155bef",
+      "bytes": 89157,
+      "sha256": "250497e0024481a5bdc4e0b941fb31e57eaeb841702164490874f3978a3134c1",
+      "same_actual519_git_blob": true
+    },
+    "class": "FragmentCompositionData",
+    "function": "_validate_fragment_composition",
+    "line": 952,
+    "existing_supported_types": [
+      "dag",
+      "admg"
+    ],
+    "ordinary_mapping_profile": "existing typed ValidationError",
+    "unsafe_copy_scope": "Typed model_copy can skip constructor validators; do not label as ordinary admitted source."
+  }
+}

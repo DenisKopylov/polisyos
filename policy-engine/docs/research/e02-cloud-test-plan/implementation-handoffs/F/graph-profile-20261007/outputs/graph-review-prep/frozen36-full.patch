@@ -1,0 +1,381 @@
+diff --git a/policy-engine/docs/reference/scientist/causal-graph-intake.md b/policy-engine/docs/reference/scientist/causal-graph-intake.md
+index a9b35548f12e975eeb0f5b0ea6209f712dfecc28..c466cd06a14c37736924709bc8ebae99f6174f37 100644
+--- a/policy-engine/docs/reference/scientist/causal-graph-intake.md
++++ b/policy-engine/docs/reference/scientist/causal-graph-intake.md
+@@ -30,7 +30,18 @@ as causal source authority. All selected source references retain their actual
+ manifest view for CAS resolution. Newly
+ supplied source content follows reconciliation instead of the old shortcut.
+ 
+-The reconciler supports known contemporaneous directed and bidirected relations.
++The prior reconciler and fragment composer admit the declared static DAG/ADMG
++graph families before confidence filtering, edge merging, cycle rewrites or
++persistence. CPDAG, PAG and MGraph are distinct semantic profiles; even empty or
++fully oriented edges cannot authorize conversion into DAG/ADMG. They receive
++the existing typed `ValueError` refusal. An original MGraph remains readable by
++its missingness consumer; refusal publishes no reconciled graph. This support
++boundary applies equally to direct input, supplied method-result content and
++selected cached graph references. Other partial/missingness consumers retain
++their own contracts; this is not a global ban on partial graphs.
++
++Within its admitted families the reconciler supports known contemporaneous
++directed and bidirected relations.
+ Reverse-stored arrows are normalized by exchanging their endpoints; bidirected
+ relations remain bidirected, including parallel directed and bidirected edges.
+ Unresolved circle/tail-tail endpoints and compact nonzero lags raise the existing
+diff --git a/policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml b/policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml
+index 32cb4e45d650246704b4e545fca00b7fc5c0de5e..0d506b76554a16ff2c605a812d176ebe7d5560b7 100644
+--- a/policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml
++++ b/policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml
+@@ -3,10 +3,10 @@ title = "Reconcile current causal graph content before reuse"
+ type = "fixed"
+ component = "scientist"
+ owner = "team-scientist"
+-summary = "Resolve actual selected graph manifests and bytes, recompute current source content, preserve known endpoint identity and refuse unsupported static graph profiles before admission."
++summary = "Resolve actual selected graph manifests and bytes, recompute current source content, preserve known endpoint identity and refuse unsupported graph families and static endpoint/lag profiles before admission."
+ change_class = "internal"
+ surface_classification = "internal: Scientist graph reconciliation and Foundry causal prior providers"
+-compatibility = "Known static directed/bidirected graph paths remain supported. Presence-only cache success, malformed-input fallbacks and implicit orientation of unresolved or lagged inputs are refused. Graph wire schema 1.0 is unchanged."
++compatibility = "Declared static DAG/ADMG directed/bidirected graph paths remain supported. CPDAG/PAG/MGraph reconciliation refuses before filtering or semantic projection, including resolved or empty edges; original artifacts retain their own consumer semantics. Presence-only cache success, malformed-input fallbacks and implicit orientation of unresolved or lagged inputs are refused. Graph wire schema 1.0 is unchanged."
+ migration = "Retain the actual current source artifact/content; handle typed static-profile refusal. Do not erase endpoint uncertainty or lag to bypass intake."
+ generated_client_compatibility = "not_required"
+ migration_docs = ["docs/reference/scientist/causal-graph-intake.md"]
+@@ -21,7 +21,7 @@ surface = "internal: polisyos.scientist.nodes.builtins.causal.reconcile_causal_g
+ owner = "team-scientist"
+ version_owner = "team-foundry"
+ deprecation_window = "not_applicable: correction of unsupported graph admission"
+-release_note = "Graph intake resolves actual selected CAS content and source lineage before reuse; query-only replay reconciles the complete composition result and recomputes operational caches; unsupported static endpoints and compact lags refuse before reconciliation."
++release_note = "Graph intake resolves actual selected CAS content and source lineage before reuse; query-only replay reconciles the complete composition result and recomputes operational caches. Prior reconciliation, fragment composition and selected graph admission share declared DAG/ADMG family admission; unsupported semantic graph families, static endpoints and compact lags refuse before transforms or persistence."
+ generated_client_compatibility = "not_required"
+ migration_docs = ["docs/reference/scientist/causal-graph-intake.md"]
+ runbook_docs = ["docs/reference/scientist/causal-graph-intake.md"]
+diff --git a/policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py b/policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py
+index 6b148f720d7fb7aa978fb46bbca722615cf433cf..3af0355c3f7e0dc4872f20c3b1d0223423785f55 100644
+--- a/policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py
++++ b/policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py
+@@ -79,6 +79,21 @@ _SUPPORTED_CYCLE_TYPES = {
+ }
+ 
+ 
++def _validate_reconciliation_profile(graph: CausalGraphModel) -> None:
++    """Admit the declared DAG/ADMG family before any semantic projection.
++
++    Resolved endpoint marks alone cannot establish this profile: MGraph,
++    CPDAG and PAG carry distinct semantics even with the same visible edges.
++    This boundary does not constrain their other supported consumers.
++    """
++    if graph.graph_type not in {GraphType.DAG, GraphType.ADMG}:
++        raise ValueError(
++            "Unsupported graph reconciliation profile: "
++            f"graph_type={graph.graph_type.value}; requires declared static DAG/ADMG"
++        )
++    _validate_static_admg(graph)
++
++
+ @dataclass
+ class _MergedEdge:
+     src: str
+@@ -993,7 +1008,7 @@ class ReconcileCausalGraph:
+             else GraphReconciliationData.model_validate(state)
+         )
+         # Admission precedes filtering, confidence merging and cycle rewrites.
+-        _validate_static_admg(payload.data_graph)
++        _validate_reconciliation_profile(payload.data_graph)
+         min_edge_confidence = float(params.get("min_edge_confidence", payload.min_edge_confidence))
+         max_lag_depth = int(params.get("max_lag_depth", payload.max_lag_depth))
+         max_lagged_edges = int(params.get("max_lagged_edges", payload.max_lagged_edges))
+@@ -1305,6 +1320,8 @@ class ComposeSCMFragments:
+             if isinstance(state, FragmentCompositionData)
+             else FragmentCompositionData.model_validate(state)
+         )
++        for graph in payload.fragment_graphs.values():
++            _validate_reconciliation_profile(graph)
+         declared_cycle_semantics = _fragments_declare_cycles(payload.fragments)
+         cycle_semantics_mode = _cycle_semantics_mode(payload.fragments)
+         graph_type = _effective_composition_graph_type(payload.fragment_graphs, payload.fragments)
+diff --git a/policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py b/policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py
+index 70ccfd46c42253861c31210ac176e22df3119e15..411d98f8bc3d355a997a83653d2b551011ba35d9 100644
+--- a/policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py
++++ b/policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py
+@@ -14,7 +14,6 @@ from polisyos.core.artifacts import ArtifactRef, InputRef
+ from polisyos.core.canon import from_canonical_bytes
+ from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+ from polisyos.core.contracts import build_skip_blocker_record
+-from polisyos.foundry.methods.catalog.causal.admg_ops import _validate_static_admg
+ from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
+     CompositionFailureCardBundle,
+     persist_composition_failure_card_bundle,
+@@ -22,6 +21,7 @@ from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
+ from polisyos.foundry.methods.catalog.causal.graph_reconciliation import (
+     ComposeSCMFragments,
+     ReconcileCausalGraph,
++    _validate_reconciliation_profile,
+ )
+ from polisyos.foundry.methods.catalog.causal.protocols import (
+     FragmentCompositionData,
+@@ -204,7 +204,7 @@ def _resolve_graph_ref(ctx: ExecutionContext, ref: Any) -> CausalGraphModel:
+     graph = _resolve_typed_source(ctx, ref, kind="ir.causal_graph_model", model=CausalGraphModel)
+     if graph.schema_version != "1.0":
+         raise ValueError("Unsupported causal graph schema version")
+-    _validate_static_admg(graph)
++    _validate_reconciliation_profile(graph)
+     return graph
+ 
+ 
+@@ -570,7 +570,7 @@ def _apply_query_preservation_hook(
+                 "failure_card_bundle_ref": certificate.failure_card_bundle_ref,
+             }
+         )
+-        _validate_static_admg(composed_graph)
++        _validate_reconciliation_profile(composed_graph)
+     except _RECONCILE_LOAD_ERRORS as exc:
+         return NodeOutcome(
+             status="fail",
+@@ -1070,7 +1070,7 @@ class ReconcileCausalGraphNode:
+             reconciled_graph = CausalGraphModel.model_validate(
+                 reconciled_graph.model_dump(mode="json")
+             )
+-            _validate_static_admg(reconciled_graph)
++            _validate_reconciliation_profile(reconciled_graph)
+             metadata = dict(reconciled_graph.metadata)
+             metadata["reconciliation_input_sha256"] = hashlib.sha256(request_bytes).hexdigest()
+             reconciled_graph = reconciled_graph.model_copy(update={"metadata": metadata})
+diff --git a/policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py b/policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py
+index 5212ac4094dd8ac41bcd5fab8ffe5855b57764d1..072c10f4a75f32f2443e78cc6a8a55015a545bdc 100644
+--- a/policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py
++++ b/policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py
+@@ -250,7 +250,7 @@ def test_simple_cycle_converts_min_confidence_edge_to_lagged_edge() -> None:
+             _data_edge("B", "C", confidence=0.8),
+             _data_edge("C", "A", confidence=0.2),
+         ],
+-        graph_type=GraphType.CPDAG,
++        graph_type=GraphType.ADMG,
+     )
+     payload = GraphReconciliationData(data_graph=data_graph, min_edge_confidence=0.0)
+ 
+@@ -277,7 +277,7 @@ def test_more_than_eight_cycles_triggers_fallback_removal_warning() -> None:
+                 _data_edge(c, a, confidence=0.1),
+             ]
+         )
+-    data_graph = _graph(nodes, edges, graph_type=GraphType.CPDAG)
++    data_graph = _graph(nodes, edges, graph_type=GraphType.ADMG)
+     payload = GraphReconciliationData(data_graph=data_graph, min_edge_confidence=0.0)
+ 
+     result = ReconcileCausalGraph.pure_step(payload, params={})
+@@ -295,7 +295,7 @@ def test_cycle_edge_with_lag_depth_limit_is_removed() -> None:
+             _data_edge("B", "C", confidence=0.8),
+             _data_edge("C", "A", confidence=0.1, lag=2),
+         ],
+-        graph_type=GraphType.CPDAG,
++        graph_type=GraphType.ADMG,
+     )
+     payload = GraphReconciliationData(
+         data_graph=data_graph,
+@@ -346,7 +346,7 @@ def test_diagnostics_truncated_when_hard_limits_exceeded() -> None:
+         _data_edge(nodes[idx], nodes[idx + 1], confidence=0.55)
+         for idx in range(MAX_RECON_EDGES + 2)
+     ]
+-    data_graph = _graph(nodes, edges, graph_type=GraphType.CPDAG)
++    data_graph = _graph(nodes, edges, graph_type=GraphType.ADMG)
+     payload = GraphReconciliationData(data_graph=data_graph, min_edge_confidence=0.0)
+ 
+     result = ReconcileCausalGraph.pure_step(payload, params={})
+@@ -356,6 +356,36 @@ def test_diagnostics_truncated_when_hard_limits_exceeded() -> None:
+     assert diagnostics.truncation_reason is not None
+ 
+ 
++@pytest.mark.parametrize("graph_type", [GraphType.CPDAG, GraphType.PAG, GraphType.MGRAPH])
++def test_compose_scm_fragments_refuses_other_semantic_profiles(graph_type) -> None:
++    """Resolved arrows do not authorize a different fragment graph family."""
++    fragments = [_fragment(name, interface_variables=["X"]) for name in ("a", "b")]
++    report, mapping = verify_fragment_bundle_alignment(fragments)
++    payload = FragmentCompositionData(
++        fragments=fragments,
++        fragment_graphs={
++            "a": _graph(["X", "Y"], [_data_edge("X", "Y", confidence=0.9)]),
++            "b": _graph(["X", "Z"], [_data_edge("X", "Z", confidence=0.9)]),
++        },
++        alignment_report=report,
++        interface_mapping=mapping,
++    )
++    # DTO construction already rejects unsupported types. Public model_copy
++    # does not validate updates; a typed instance cannot bypass runtime intake.
++    payload = payload.model_copy(
++        update={
++            "fragment_graphs": {
++                **payload.fragment_graphs,
++                "a": _graph(
++                    ["X", "Y"], [_data_edge("X", "Y", confidence=0.9)], graph_type=graph_type
++                ),
++            }
++        }
++    )
++    with pytest.raises(ValueError, match="Unsupported graph reconciliation profile"):
++        ComposeSCMFragments.pure_step(payload, params={})
++
++
+ def test_compose_scm_fragments_preserves_exact_observed_interface() -> None:
+     fragment_a = _fragment(
+         "a",
+diff --git a/policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py b/policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py
+index 319a13ba97da60d70117c526dd03828ad216aea0..5bfcc1b7fc4241422cd1eb4b69cc6a36693fd13c 100644
+--- a/policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py
++++ b/policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py
+@@ -14,7 +14,12 @@ from polisyos.core.run.context import RunContext
+ from polisyos.foundry.methods.catalog.causal.graph_reconciliation import ReconcileCausalGraph
+ from polisyos.foundry.methods.catalog.causal.protocols import GraphReconciliationData
+ from polisyos.foundry.methods.registry import MethodRegistry
+-from polisyos.ir.analytics.causal_graph import CausalGraphModel, load_causal_graph_model
++from polisyos.ir.analytics.causal_graph import (
++    CausalGraphModel,
++    load_causal_graph_model,
++    persist_causal_graph_model,
++)
++from polisyos.ir.analytics.mgraph import MissingnessKind, build_mgraph, extract_mgraph_metadata
+ from polisyos.scientist.compute.job_spec import JobSpec
+ from polisyos.scientist.compute.runner import run_job
+ from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import ReconcileCausalGraphNode
+@@ -100,13 +105,134 @@ def relations(value):
+     }
+ 
+ 
++def scored_mgraph():
++    """Build the actual missingness profile, with synthetic cutoff support only."""
++    value = build_mgraph(
++        substantive_vars=["X", "Y"],
++        directed_edges=[("X", "Y")],
++        bidirected_edges=[("X", "Y")],
++        missingness_map={"X": MissingnessKind.MCAR},
++        discovery_method="native-probe-mgraph",
++    ).model_dump(mode="json")
++    for edge in value["edges"]:
++        edge.update(sources=["data"], data_confidence=0.9, combined_confidence=0.9)
++    return CausalGraphModel.model_validate(value)
++
++
++def test_mgraph_producer_and_node_refuse_without_retyping_or_publishing(context):
++    """The actual missingness reader survives refusal of static reconciliation."""
++    source_graph = scored_mgraph()
++    original = persist_causal_graph_model(context.store, source_graph)
++    job, _ = produce(context, source_graph)
++    direct = ReconcileCausalGraphNode().execute(
++        context,
++        ExperimentState(
++            run_id="graph-content",
++            params={"data_causal_graph": source_graph.model_dump(mode="json")},
++        ),
++    )
++    assert job.issues and job.method_result_ref is None, job
++    assert direct.status == "fail" and not direct.artifacts, direct
++    assert "Unsupported graph reconciliation profile" in direct.error.message
++    assert ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF not in direct.state.artifacts_index
++    reopened = load_causal_graph_model(FileSystemCAS(context.store.root), original)
++    assert reopened == source_graph
++    assert relations(reopened) == {
++        ("X", "Y", "tail", "arrow", None),
++        ("X", "Y", "arrow", "arrow", None),
++        ("R_X", "X_star", "tail", "arrow", None),
++    }
++    assert extract_mgraph_metadata(reopened) == extract_mgraph_metadata(source_graph)
++
++
++def test_same_admg_shape_has_real_producer_node_and_fresh_reader(context):
++    """Graph family, rather than metadata names or endpoint shape, decides intake."""
++    value = scored_mgraph().model_dump(mode="json")
++    value["graph_type"] = "admg"
++    source_graph = CausalGraphModel.model_validate(value)
++    job, _ = produce(context, source_graph)
++    _, reopened = fresh(context, ReconcileCausalGraphNode().execute(context, state_for(job)))
++    assert reopened.graph_type.value == "admg"
++    assert relations(reopened) == relations(source_graph)
++    assert reopened.metadata["mgraph"] == source_graph.metadata["mgraph"]
++
++
++@pytest.mark.parametrize("source_type", ["cpdag", "pag", "mgraph"])
++@pytest.mark.parametrize("with_edges", [False, True])
++def test_other_semantic_profiles_refuse_direct_and_supplied_result(
++    context, source_type, with_edges
++):
++    """Resolved/empty edges and a filtering cutoff cannot erase graph semantics."""
++    source_graph = graph(
++        *([{"src": "X", "dst": "Y"}] if with_edges else []), graph_type=source_type
++    )
++    for cutoff in (0.1, 0.99):
++        job, _ = produce(context, source_graph)
++        assert job.issues and job.method_result_ref is None
++        # A supplied discovery result is real CAS content, but never authority.
++        supplied = context.store.put_json(
++            {"graph": source_graph.model_dump(mode="json")},
++            PutOptions(
++                kind="scientist.method_result.causal.discovery",
++                media_type="application/json",
++                schema=SchemaInfo(name="polisyos.scientist.MethodResult", version="0.1.0"),
++            ),
++            canon_spec=CanonSpec(forbid_floats=False),
++        )
++        for state in (
++            ExperimentState(
++                run_id="graph-content",
++                params={
++                    "data_causal_graph": source_graph.model_dump(mode="json"),
++                    "reconciliation_min_edge_confidence": cutoff,
++                },
++            ),
++            ExperimentState(
++                run_id="graph-content",
++                params={"reconciliation_min_edge_confidence": cutoff},
++                artifacts_index={ARTIFACT_CAUSAL_METHOD_RESULT_REF: supplied},
++            ),
++        ):
++            outcome = ReconcileCausalGraphNode().execute(context, state)
++            assert outcome.status == "fail" and not outcome.artifacts
++            assert "Unsupported graph reconciliation profile" in outcome.error.message
++            assert ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF not in outcome.state.artifacts_index
++
++
++def test_supplied_mgraph_result_and_selected_cache_apply_same_profile_boundary(context):
++    """The scored builder graph cannot enter through either selected CAS surface."""
++    source_graph = scored_mgraph()
++    supplied = context.store.put_json(
++        {"graph": source_graph.model_dump(mode="json")},
++        PutOptions(
++            kind="scientist.method_result.causal.discovery",
++            media_type="application/json",
++            schema=SchemaInfo(name="polisyos.scientist.MethodResult", version="0.1.0"),
++        ),
++        canon_spec=CanonSpec(forbid_floats=False),
++    )
++    original = persist_causal_graph_model(context.store, source_graph)
++    for key, ref in (
++        (ARTIFACT_CAUSAL_METHOD_RESULT_REF, supplied),
++        (ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF, original),
++    ):
++        outcome = ReconcileCausalGraphNode().execute(
++            context, ExperimentState(run_id="graph-content", artifacts_index={key: ref})
++        )
++        assert outcome.status == "fail" and not outcome.artifacts
++        assert "Unsupported graph reconciliation profile" in outcome.error.message
++    reopened = load_causal_graph_model(FileSystemCAS(context.store.root), original)
++    assert reopened == source_graph
++    assert extract_mgraph_metadata(reopened) == extract_mgraph_metadata(source_graph)
++
++
+ @pytest.mark.parametrize(
+     "source_graph, expected",
+     [
+         (graph({"src": "X", "dst": "Y"}), {("X", "Y", "tail", "arrow", None)}),
+         (
+             graph(
+-                {"src": "X", "dst": "Y", "mark_src": "arrow", "mark_dst": "tail"}, graph_type="pag"
++                {"src": "X", "dst": "Y", "mark_src": "arrow", "mark_dst": "tail"}, graph_type="admg"
+             ),
+             {("Y", "X", "tail", "arrow", None)},
+         ),
+@@ -219,7 +345,7 @@ def test_unsupported_static_profile_refuses_before_real_producer_and_node(
+     )
+     result = ReconcileCausalGraphNode().execute(context, state)
+     assert result.status == "fail" and not result.artifacts
+-    assert "Unsupported static ADMG profile" in result.error.message
++    assert "Unsupported" in result.error.message and "profile" in result.error.message
+ 
+ 
+ def test_missing_cache_is_not_admitted_even_with_valid_current_source(context):

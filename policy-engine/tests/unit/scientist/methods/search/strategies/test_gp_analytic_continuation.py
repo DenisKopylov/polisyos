@@ -377,6 +377,70 @@ def test_real_initial_fit_matches_independent_original_unit_full_covariance(
     )
 
 
+def test_whole_and_warm_new_corpora_fit_equal_basis_and_native_plan(
+    analytic_case: AnalyticCase,
+) -> None:
+    """One immutable corpus has the same plan through whole and split intake."""
+    case = analytic_case
+    torch = require_torch()
+    whole = _strategy(case.space)
+    whole._sobol_candidate(3)
+    whole._random_candidate(source="analytic-rng-prelude")
+    rows = copy.deepcopy([*case.warm, *case.current])
+    with patch.object(
+        bayesian_module, "fit_gpytorch_mll", wraps=bayesian_module.fit_gpytorch_mll
+    ) as fit:
+        assert whole.suggest(rows).source_strategy == "bayesian_acquisition"
+    assert fit.call_count == case.initial_fit_calls == 1
+    state = StrategyState.from_artifact(whole.get_state().to_artifact())
+    for key in (
+        "train_X",
+        "train_y_bo",
+        "refit_train_X",
+        "refit_train_y_bo",
+        "fitted_record_ids",
+    ):
+        assert state.metadata[key] == case.initial.metadata[key]
+    assert state.rng_state == case.initial.rng_state
+    expected_weights = _weights(case.initial)
+    for key, actual in _weights(state).items():
+        torch.testing.assert_close(actual, expected_weights[key], rtol=RTOL, atol=ATOL)
+    _assert_matches(whole._model, state, POINTS)
+    expected_mean, expected_covariance = _dense_expected(case.initial, POINTS)
+    whole_mean, whole_covariance = _dense_expected(state, POINTS)
+    np.testing.assert_allclose(whole_mean, expected_mean, rtol=RTOL, atol=ATOL)
+    np.testing.assert_allclose(whole_covariance, expected_covariance, rtol=RTOL, atol=ATOL)
+
+    warm = _restore(case)
+    with patch.object(
+        bayesian_module, "fit_gpytorch_mll", wraps=bayesian_module.fit_gpytorch_mll
+    ) as no_refit:
+        whole_proposal = whole.suggest(rows)
+        warm_proposal = warm.suggest(copy.deepcopy(case.current))
+    assert no_refit.call_count == 0
+    assert whole_proposal.source_strategy == warm_proposal.source_strategy == "bayesian_acquisition"
+    assert whole_proposal.params == pytest.approx(warm_proposal.params, rel=RTOL, abs=ATOL)
+    for key in ("acquisition_value", "predicted_mean", "predicted_std"):
+        assert getattr(whole_proposal, key) == pytest.approx(
+            getattr(warm_proposal, key), rel=RTOL, abs=ATOL
+        )
+    assert whole.get_state().rng_state == warm.get_state().rng_state
+    print(
+        json.dumps(
+            {
+                "cell": "whole-vs-warm-new-ten-row-native-plan",
+                "whole_fit_calls": fit.call_count,
+                "warm_fit_calls": case.initial_fit_calls,
+                "next_plan_fit_calls": no_refit.call_count,
+                "whole_params": whole_proposal.params,
+                "warm_params": warm_proposal.params,
+                "full_covariance_oracle": "saved-parameter-independent-NumPy",
+                "same_acquisition_rng": state.rng_state == case.initial.rng_state,
+            }
+        )
+    )
+
+
 def test_warm_target_basis_is_explicitly_configurable() -> None:
     assert "numerical_basis" in inspect.signature(BayesianOptimizer).parameters, (
         "A warm row cannot choose its own receiver target basis"

@@ -225,6 +225,11 @@ def branch_state(
         enforce_write_scope = True
     if enforce_write_scope is None:
         enforce_write_scope = source_journal.enforce_write_scope if source_journal else False
+    if enforce_write_scope:
+        # Admission precedes every path-isolation copy as well as tracked class
+        # creation. Original model copy/constructor hooks cannot run first.
+        for name in type(base_state).model_fields:
+            _validate_mutation_attachment(None, getattr(base_state, name))
     branched = _promote_to_journaled_state(base_state.model_copy(deep=False))
     object.__setattr__(branched, _MUTATION_JOURNAL_ATTR, None)
     isolated_fields: list[str] = []

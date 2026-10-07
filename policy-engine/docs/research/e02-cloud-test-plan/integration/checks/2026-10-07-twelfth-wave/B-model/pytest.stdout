@@ -1,0 +1,65 @@
+{"action": "pytest", "argv": ["-o", "addopts=", "-q", "-p", "no:cacheprovider", "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/results/selected-tests.junit.xml", "tests/unit/scientist/orchestration/engine/test_state_branching.py", "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py"], "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine"}
+
+==================================== ERRORS ====================================
+_ ERROR collecting _build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py _
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:23: in <module>
+    from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
+src/polisyos/scientist/orchestration/engine/async_executor.py:49: in <module>
+    from polisyos.scientist.orchestration.engine.executor import (
+src/polisyos/scientist/orchestration/engine/executor.py:26: in <module>
+    from polisyos.scientist.methods.research_dag.persistence import persist_research_dag
+src/polisyos/scientist/methods/research_dag/__init__.py:16: in <module>
+    from polisyos.scientist.methods.research_dag.invalidation import (
+src/polisyos/scientist/methods/research_dag/invalidation.py:14: in <module>
+    from polisyos.scientist.evidence.claims.lifecycle import (
+src/polisyos/scientist/evidence/claims/__init__.py:3: in <module>
+    from polisyos.scientist.evidence.claims.audit import (
+src/polisyos/scientist/evidence/claims/audit.py:14: in <module>
+    from polisyos.scientist.evidence.claims.ledger import CLAIM_LEDGER_KIND
+src/polisyos/scientist/evidence/claims/ledger.py:11: in <module>
+    from polisyos.scientist.evidence.claims.models import ClaimLedger
+src/polisyos/scientist/evidence/claims/models.py:11: in <module>
+    from polisyos.scientist.methods.search.readiness import DecisionReadiness
+src/polisyos/scientist/methods/search/readiness.py:14: in <module>
+    from polisyos.foundry.validation import (
+src/polisyos/foundry/validation/__init__.py:12: in <module>
+    from polisyos.foundry.validation.phase0_closure import (
+src/polisyos/foundry/validation/phase0_closure.py:16: in <module>
+    from polisyos.foundry.agent_sim.world import (
+src/polisyos/foundry/agent_sim/__init__.py:84: in <module>
+    from .government_policy import (
+src/polisyos/foundry/agent_sim/government_policy.py:18: in <module>
+    from polisyos.foundry.welfare.social_weights import (
+src/polisyos/foundry/welfare/social_weights.py:10: in <module>
+    from polisyos.foundry.methods.catalog.policy.welfare import (
+src/polisyos/foundry/methods/catalog/__init__.py:133: in <module>
+    from polisyos.foundry.methods.catalog.dependency_authority import (
+src/polisyos/foundry/methods/catalog/dependency_authority.py:7157: in <module>
+    _OWNER_ENTRYPOINT_SPECS = derive_owner_entrypoint_denominator_from_source(
+src/polisyos/foundry/methods/catalog/dependency_authority.py:6119: in derive_owner_entrypoint_denominator_from_source
+    registry = load_digest_domain_registry(_DIGEST_REGISTRY_PATH)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/catalog/dependency_evidence.py:2253: in load_digest_domain_registry
+    return decode_digest_domain_registry_toml(path.read_bytes())
+                                              ^^^^^^^^^^^^^^^^^
+/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:777: in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml'
+=============================== warnings summary ===============================
+../../../../../../../.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 warning, 1 error in 4.27s
+import_origin_receipt=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/results/import-origins-pytest.json
+polisyos_modules=543 origin_errors=0
+runtime_result=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/results/runtime-result-pytest.json

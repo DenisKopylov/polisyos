@@ -1,0 +1,33 @@
+{
+  "utc": "2026-10-07T13:37:29.027255+00:00",
+  "candidate_count": 2,
+  "allocated_bytes": 235462656,
+  "process_checks": [
+    {
+      "process": "cargo",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "process": "rustc",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "process": "rustup",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "process": "firebase",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "deferred": "Installer/Sparkle andPlaywrightclients remainactive; their4leaves protected",
+  "G_head": "83e7c0e934d0b40644dec8a24264a0602ef013e7"
+}

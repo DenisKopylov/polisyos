@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261007/intake/read_current_pack.py", line 68, in <module>
+    raise ValueError((n,'unknown decoding',dec))
+ValueError: (4, 'unknown decoding', 'lossless JSON UTF-8 wrapper')

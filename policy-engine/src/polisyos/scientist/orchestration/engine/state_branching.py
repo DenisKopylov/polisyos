@@ -980,6 +980,14 @@ class _TrackedModelMixin(BaseModel):
     at admission; this finite profile is not a Python object sandbox.
     """
 
+    __slots__ = (
+        "_mutation_detached",
+        "_mutation_journal",
+        "_mutation_owners",
+        "_mutation_path",
+        "_mutation_roots",
+    )
+
     _original_model_type: ClassVar[type[BaseModel]]
     _mutation_path: ClassVar[tuple[str, ...]]
     _mutation_journal: ClassVar[StateMutationJournal]
@@ -998,10 +1006,25 @@ class _TrackedModelMixin(BaseModel):
         _validate_mutation_attachment(self, value)
         previous = getattr(self, name, _MISSING)
         wrapped = _wrap_mutable_value(value, (*self._mutation_path, name), journal)
-        super().__setattr__(name, wrapped)
-        _bind_mutation_parent(getattr(self, name), self)
+        before_fields = self.__dict__.copy()
+        before_fields_set = self.__pydantic_fields_set__.copy()
+        before_extra = None if self.__pydantic_extra__ is None else self.__pydantic_extra__.copy()
+        try:
+            super().__setattr__(name, wrapped)
+            stored = getattr(self, name)
+            _validate_mutation_attachment(self, stored)
+            reconciled = _wrap_mutable_value(stored, (*self._mutation_path, name), journal)
+            self.__dict__[name] = reconciled
+        except Exception:
+            # Validation can materialize a different field representation.
+            # Refuse unsupported results without retaining a partial field edit.
+            object.__setattr__(self, "__dict__", before_fields)
+            object.__setattr__(self, "__pydantic_fields_set__", before_fields_set)
+            object.__setattr__(self, "__pydantic_extra__", before_extra)
+            raise
+        _bind_mutation_parent(reconciled, self)
         _record_container_mutation(
-            self, suffix=(name,), operation="set", value=value, target=previous
+            self, suffix=(name,), operation="set", value=reconciled, target=previous
         )
 
     def __delattr__(self, name: str) -> None:
@@ -1045,21 +1068,24 @@ class _TrackedModelMixin(BaseModel):
                 setattr(copied, name, value)
         return copied
 
+    def __copy__(self) -> Self:
+        copied = super().__copy__()
+        _initialize_model_tracking(copied, self._mutation_path, self._mutation_journal)
+        object.__setattr__(copied, "_mutation_detached", True)
+        for name in type(copied).model_fields:
+            _bind_mutation_parent(getattr(copied, name), copied)
+        return copied
+
     def __deepcopy__(self, memo: dict[int, Any] | None = None) -> Self:
         memo = {} if memo is None else memo
         existing = memo.get(id(self))
         if existing is not None:
             return cast("Self", existing)
-        clone = type(self).__new__(type(self))
+        clone = super().__deepcopy__(memo)
         memo[id(self)] = clone
-        object.__setattr__(clone, "__dict__", {})
-        object.__setattr__(clone, "__pydantic_fields_set__", set(self.__pydantic_fields_set__))
-        object.__setattr__(clone, "__pydantic_extra__", deepcopy(self.__pydantic_extra__, memo))
-        object.__setattr__(clone, "__pydantic_private__", None)
         _initialize_model_tracking(clone, self._mutation_path, self._mutation_journal)
         object.__setattr__(clone, "_mutation_detached", True)
-        for name in type(self).model_fields:
-            clone.__dict__[name] = deepcopy(getattr(self, name), memo)
+        for name in type(clone).model_fields:
             _bind_mutation_parent(getattr(clone, name), clone)
         return clone
 

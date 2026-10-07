@@ -192,12 +192,19 @@ to their actual current parents. Frozen models retain their frozen assignment
 and copy contracts. Neutral public consumers keep the existing editable model
 behavior.
 
+Assignment validation retains its actual validated field value. The tracker
+reconciles that materialized child before recording the operation or admitting
+a later descendant write. Unsupported materialized results restore the model's
+field snapshot before refusal. A detached model copy checks the original grant
+but contributes no effect to the live-state journal until it is attached.
+
 This profile admits declared ordinary model fields and their finite container
-graph. Custom mutation/copy hooks, private or extra runtime model state, new
+graph. Custom mutation/copy/construction hooks (including post-init), private or extra runtime model state, new
 undeclared model attributes and cyclic attachments are refused. Model-field
 deletion is refused because the replay consumer does not support it. It does not
 claim custody of arbitrary custom runtime objects, explicit base-class mutators
-or reflection, and does not reconstruct arbitrary model classes from cache JSON.
+or reflection, including arbitrary validator side effects, and does not
+reconstruct arbitrary model classes from cache JSON.
 
 Legacy `1.0` and `1.1` cache journals admit only direct primitive model or mapping
 set/delete operations. Nested or container intents become cache misses, allowing

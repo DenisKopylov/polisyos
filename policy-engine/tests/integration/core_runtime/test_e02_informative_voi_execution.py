@@ -17,6 +17,7 @@ from polisyos.runtime.quality.generation_cycle import (
 from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from polisyos.scientist.methods.search.voi_scheduler import SimpleVOIScheduler
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from tests.integration.core_runtime.test_e02_hard_feasibility_before_voi import (
     _FixtureGrounding,
     _owner_fixture,
@@ -163,7 +164,14 @@ async def test_default_information_value_advance_executes_real_n5_and_budget_blo
                 candidate=exhausted_candidate,
                 repo_root=repo_root,
             )
-            exhausted_budget = _bounded_budget("0.0")
+            # Feed the real controller a canonical BudgetMiddleware snapshot
+            # whose bounded run allowance has been consumed. This is a
+            # test-fixture debit, not provider-meter or billing evidence.
+            exhausted_budget_owner = BudgetMiddleware(_bounded_budget("1.0"))
+            exhausted_budget_owner.record_spend_safe("run", Decimal("1.0"))
+            exhausted_budget = exhausted_budget_owner.budget_state
+            assert exhausted_budget.spent["run"] == Decimal("1.0")
+            assert exhausted_budget.remaining("run") == Decimal("0.0")
             assert type(exhausted_controller._voi_scheduler) is SimpleVOIScheduler
             assert exhausted_controller._candidate_simulation_handoff is None
             assert type(exhausted_controller._simulation_port) is JointSimulationPort

@@ -8,6 +8,7 @@ change_class = "python-public-api"
 surface_classification = "public_experimental: polisyos.data_forge.read_api.catalog.catalog_default_resource_path; internal: curated catalog resource selection and packaging"
 compatibility = "Existing durable Path APIs, explicit custom paths and optional proxy/WVS fallback policies remain supported."
 migration = "Rebuild and install the package so the four original YAML projections accompany the canonical catalog provider; raw observations remain external."
+public_surface_inventory_reviewed = true
 generated_client_compatibility = "not_required"
 migration_docs = ["docs/reference/data-forge/catalog-default-resources.md"]
 runbook_docs = ["docs/reference/data-forge/catalog-default-resources.md"]

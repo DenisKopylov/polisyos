@@ -3093,6 +3093,23 @@ def test_nl_pipeline_simulated_multimodel_honors_run_budget_guard_without_networ
         captured["kwargs"] = kwargs
 
     monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "1")
+    from polisyos.data_forge.read_api.catalog import build_slice0_fixture_catalog_graph
+
+    catalog_root = tmp_path / "bounded_slice0_catalog"
+    catalog_graph = build_slice0_fixture_catalog_graph(catalog_root)
+    catalog_graph.close()
+    curated_dir = tmp_path / "empty_curated_hints"
+    curated_dir.mkdir()
+    monkeypatch.setenv("POLISYOS_CURATED_DIR", str(curated_dir))
+    monkeypatch.setenv("POLISYOS_CACHE_HOME", str(tmp_path / "runtime_cache"))
+    monkeypatch.setattr(
+        "polisyos.runtime.quality.substrate_registry.default_substrate_catalog_paths",
+        lambda _root: SimpleNamespace(l1_dcat_path=catalog_root / "catalog.duckdb"),
+    )
+    monkeypatch.setattr(
+        "polisyos.data_forge.read_api.catalog.default_acquisition_overlay_path",
+        lambda _root: tmp_path / "absent_overlay.duckdb",
+    )
     _forbid_real_gateway_network(monkeypatch)
     monkeypatch.setattr("polisyos.fabric.retrieval.RetrievalService", _FakeRetrievalService)
     monkeypatch.setattr("polisyos.scientist.api.run_experiment", _capture_state)
@@ -3123,6 +3140,13 @@ def test_nl_pipeline_simulated_multimodel_honors_run_budget_guard_without_networ
     service = ControlPlaneService(
         cas_root=tmp_path / "cas",
         core_runs_root=tmp_path / "runs",
+        policy_resolver=RuntimeExecutionPolicyResolver(
+            default_profile="dev",
+            worker_backend="external",
+            state_store_backend="sqlite",
+            sqlite_path=str(tmp_path / "control.sqlite3"),
+            postgres_dsn=None,
+        ),
         registry_providers=_registry_providers(),
     )
     job_id = "job_nl_simulated_multimodel_budget"

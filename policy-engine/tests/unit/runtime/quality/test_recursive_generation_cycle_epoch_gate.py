@@ -1538,15 +1538,27 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
 
     from polisyos.core.artifacts.protocol import ArtifactStore
 
+    expected_candidate_id = candidate.candidate_id
+    expected_candidate_content_hash = candidate.atom.content_hash
+
     def fixture_eval_input_ref_for_currentness(
         observation: object,
         *,
         artifact_store: ArtifactStore | None = None,
+        candidate: object | None = None,
+        problem: DesignProblem | None = None,
     ) -> object:
-        """Return the persisted test-fixture input used by this currentness probe."""
+        """Bind the synthetic N5 observation to this test's fixture context."""
 
         del artifact_store
         assert observation is simulation
+        assert getattr(candidate, "candidate_id", None) == expected_candidate_id
+        candidate_atom = getattr(candidate, "atom", None)
+        assert getattr(candidate_atom, "intervention_id", None) == expected_candidate_id
+        assert getattr(candidate_atom, "content_hash", None) == expected_candidate_content_hash
+        assert getattr(candidate_atom, "problem_frame_ref", None) == problem_ref
+        assert problem is not None
+        assert gy_content_hash(problem.model_dump(mode="json")) == problem_ref
         return fixture.execution_context.evaluation_input_refs[0]
 
     monkeypatch.setattr(

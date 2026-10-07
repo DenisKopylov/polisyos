@@ -12,9 +12,11 @@ from polisyos.runtime.quality.scorecard import build_quality_scorecard
 from polisyos.scientist.orchestration.llm.provider_quality import (
     CONTROLLED_GROUNDING_TASK_ID,
     DEFAULT_CONTROLLED_GROUNDING_SCENARIO_PACK_ID,
+    ControlledProviderModelComparisonRow,
     DefaultProductionModelChoice,
     ProviderCostOrigin,
     ProviderCostStatus,
+    ProviderModelComparisonRow,
     ProviderModelQualityLedger,
     ProviderModelQualityObservation,
     ProviderModelQualityThresholds,
@@ -189,8 +191,10 @@ def test_provider_cost_summary_keeps_unknowns_and_typed_origins() -> None:
         ),
     ]
     ledger = build_provider_model_quality_ledger(observations, generated_at=NOW)
+    entries_by_fingerprint = {entry.model_fingerprint: entry for entry in ledger.entries}
     metrics_by_fingerprint = {
-        entry.model_fingerprint: entry.metrics for entry in ledger.entries
+        fingerprint: entry.metrics
+        for fingerprint, entry in entries_by_fingerprint.items()
     }
 
     legacy_scalar = metrics_by_fingerprint["legacy-scalar"]
@@ -221,8 +225,12 @@ def test_provider_cost_summary_keeps_unknowns_and_typed_origins() -> None:
     assert estimated.cost_usd_total == 0.125
     assert estimated.cost_usd_avg == 0.125
 
-    assert legacy_scalar.drift_action == zero.drift_action
-    assert legacy_scalar.drift_reasons == zero.drift_reasons
+    assert entries_by_fingerprint["legacy-scalar"].drift_action == entries_by_fingerprint[
+        "explicit-zero"
+    ].drift_action
+    assert entries_by_fingerprint["legacy-scalar"].drift_reasons == entries_by_fingerprint[
+        "explicit-zero"
+    ].drift_reasons
 
     invalid = metrics_by_fingerprint["invalid-cost"]
     assert invalid.cost_status == "invalid"
@@ -416,6 +424,24 @@ def test_legacy_v1_costs_are_not_reemitted_without_typed_provenance() -> None:
     assert standard_rows[0].cost_origin == "unknown"
     assert standard_rows[0].cost_usd_avg is None
 
+    legacy_standard_row_payload = json.loads(
+        json.dumps(standard_rows[0].model_dump(mode="json"))
+    )
+    legacy_standard_row_payload["cost_usd_avg"] = original_average
+    for field_name in (
+        "cost_status",
+        "cost_origin",
+        "cost_known_sample_count",
+        "cost_missing_sample_count",
+        "cost_invalid_sample_count",
+    ):
+        legacy_standard_row_payload.pop(field_name)
+    parsed_standard_row = ProviderModelComparisonRow.model_validate(
+        legacy_standard_row_payload
+    )
+    assert parsed_standard_row.sample_count == standard_rows[0].sample_count
+    assert parsed_standard_row.cost_usd_avg is None
+
     choice = {
         "provider": "legacy-provider",
         "model_id": "legacy-model",
@@ -448,6 +474,26 @@ def test_legacy_v1_costs_are_not_reemitted_without_typed_provenance() -> None:
     assert controlled_rows[0].cost_origin == "unknown"
     assert controlled_rows[0].cost_usd_total is None
     assert controlled_rows[0].cost_usd_avg is None
+
+    legacy_controlled_row_payload = json.loads(
+        json.dumps(controlled_rows[0].model_dump(mode="json"))
+    )
+    legacy_controlled_row_payload["cost_usd_total"] = 0.75
+    legacy_controlled_row_payload["cost_usd_avg"] = 0.25
+    for field_name in (
+        "cost_status",
+        "cost_origin",
+        "cost_known_sample_count",
+        "cost_missing_sample_count",
+        "cost_invalid_sample_count",
+    ):
+        legacy_controlled_row_payload.pop(field_name)
+    parsed_controlled_row = ControlledProviderModelComparisonRow.model_validate(
+        legacy_controlled_row_payload
+    )
+    assert parsed_controlled_row.sample_count == controlled_rows[0].sample_count
+    assert parsed_controlled_row.cost_usd_total is None
+    assert parsed_controlled_row.cost_usd_avg is None
 
 
 def test_ledger_sanitizes_credentials_and_hidden_answers() -> None:

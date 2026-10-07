@@ -1976,6 +1976,23 @@ class ConditionalSimulationValueProjection(BaseModel):
         return self
 
 
+class RecursiveCycleCheckpoint(BaseModel):
+    """Persisted, non-publishing checkpoint for an incomplete recursive cycle."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["policyos.runtime.recursive_cycle_checkpoint.v1"]
+    status: Literal["partial"]
+    compiled_artifact_ref: ArtifactRef
+    root_design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    pending_frontier: list[str]
+    completed_design_refs: list[str]
+    stop_node_ref: str
+    authority_scope: Literal["production", "contract_testing"]
+    verification_basis: Literal["resolved_core_cas_intrinsic"]
+    publication_authority: Literal[False] = False
+
+
 class RunDetails(RunRecordV1):
     """Run details public type."""
 
@@ -1992,6 +2009,10 @@ class RunDetails(RunRecordV1):
     decision_superseded_by_ref: ArtifactRef | None = None
     operator_diagnostic: RunOperatorDiagnostic | None = None
     policy_design_case_projection: PolicyDesignCaseProjection | None = None
+    recursive_cycle_checkpoint: RecursiveCycleCheckpoint | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
     conditional_simulation_values: list[ConditionalSimulationValueProjection] = Field(
         default_factory=list, exclude_if=lambda rows: not rows
     )

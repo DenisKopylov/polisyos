@@ -1152,11 +1152,20 @@ if router is not None:
                 run_id,
                 expected_tenant_id=run.details.tenant_id,
                 expected_cell_id=run.details.cell_id,
+                control_job_id=run.details.control_job_id,
             )
             updates["conditional_simulation_values"] = [
                 ConditionalSimulationValueProjection.model_validate(row)
                 for row in conditional_values
             ]
+        resolve_checkpoint = getattr(control_service, "resolve_recursive_cycle_checkpoint", None)
+        if callable(resolve_checkpoint):
+            updates["recursive_cycle_checkpoint"] = resolve_checkpoint(
+                run_id,
+                control_job_id=run.details.control_job_id,
+                expected_tenant_id=run.details.tenant_id,
+                expected_cell_id=run.details.cell_id,
+            )
         if updates:
             run_details = run_details.model_copy(update=updates)
         return RunDetailsResponse(

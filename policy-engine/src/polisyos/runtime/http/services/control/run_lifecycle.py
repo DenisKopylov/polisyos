@@ -41,6 +41,7 @@ from polisyos.core.contracts import (
     CapabilityDiscoveryResponse,
     ConditionalSimulationObservation,
     ConditionalSimulationValueProjection,
+    RecursiveCycleCheckpoint,
     SearchRequest,
 )
 from polisyos.core.contracts.control import (
@@ -3654,6 +3655,7 @@ class ControlPlaneService(
         *,
         expected_tenant_id: str | None,
         expected_cell_id: str | None,
+        control_job_id: str | None = None,
     ) -> tuple[ConditionalSimulationValueProjection, ...]:
         """Resolve the owned completed source and consume its N5 values again.
 
@@ -3662,7 +3664,11 @@ class ControlPlaneService(
         compiled artifact, and the N4/N5/context owners resolve its exact basis.
         No simulation, promotion, or persisted pass status is replayed as truth.
         """
-        record = self._control_store.get_latest_job_by_run(run_id)
+        record = (
+            self._control_store.get_job(control_job_id)
+            if control_job_id is not None
+            else self._control_store.get_latest_job_by_run(run_id)
+        )
         if record is None or record.kind != "natural_language_run" or record.state != "completed":
             return ()
 
@@ -3689,15 +3695,17 @@ class ControlPlaneService(
                 or not isinstance(payload, Mapping)
                 or payload.get("tenant_id") != expected_tenant_id
                 or payload.get("cell_id") != expected_cell_id
-                or payload.get("run_id") != run_id
+                or payload.get("run_id") != record.run_id
             ):
                 return refused("conditional_simulation_owned_scope_mismatch")
             terminal = self.resolve_completed_control_job_core_run_source(
                 record,
-                expected_control_run_id=run_id,
+                expected_control_run_id=str(record.run_id or ""),
                 tenant_id=expected_tenant_id,
                 cell_id=expected_cell_id,
             )
+            if control_job_id is not None and terminal.manifest.run_id != run_id:
+                return refused("conditional_simulation_owned_core_run_mismatch")
             outputs = terminal.manifest.outputs
             compiled_outputs = tuple(
                 ref for ref in outputs if ref.kind == "runtime.compiled_recursive_generation_cycle"
@@ -3733,7 +3741,7 @@ class ControlPlaneService(
                 context_owner=CycleSubstrateContextArtifactOwner(store=self._artifact_store),
                 admission_owner=self._cycle_substrate_context_admission_owner,
                 expected_job_id=record.job_id,
-                expected_run_id=run_id,
+                expected_run_id=str(record.run_id or ""),
                 expected_tenant_id=expected_tenant_id,
                 expected_cell_id=expected_cell_id,
             )
@@ -3767,6 +3775,79 @@ class ControlPlaneService(
             return refused(
                 str(getattr(exc, "code", None) or "conditional_simulation_replay_failed")
             )
+
+    def resolve_recursive_cycle_checkpoint(
+        self,
+        run_id: str,
+        *,
+        control_job_id: str | None,
+        expected_tenant_id: str | None,
+        expected_cell_id: str | None,
+    ) -> RecursiveCycleCheckpoint | None:
+        """Project a partial graph from the authorized Core attempt's owned CAS.
+
+        The control job ID comes from authorized run details. A partial result
+        has no root terminal or publication authority; corrupt or foreign input
+        cannot produce a positive checkpoint projection.
+        """
+        if not control_job_id or not expected_tenant_id or not expected_cell_id:
+            return None
+        record = self._control_store.get_job(control_job_id)
+        if record is None or record.kind != "natural_language_run" or record.state != "completed":
+            return None
+        try:
+            payload = self._load_payload_ref(record.payload_ref)
+            if (
+                not isinstance(payload, Mapping)
+                or payload.get("tenant_id") != expected_tenant_id
+                or payload.get("cell_id") != expected_cell_id
+                or payload.get("run_id") != record.run_id
+            ):
+                return None
+            terminal = self.resolve_completed_control_job_core_run_source(
+                record,
+                expected_control_run_id=str(record.run_id or ""),
+                tenant_id=expected_tenant_id,
+                cell_id=expected_cell_id,
+            )
+            outputs = terminal.manifest.outputs
+            if (
+                terminal.manifest.run_id != run_id
+                or terminal.manifest.status != "ok"
+                or len(outputs) != 1
+                or outputs[0].kind != "runtime.compiled_recursive_generation_cycle"
+            ):
+                return None
+            compiled_ref = outputs[0]
+            if not self._artifact_store.verify(compiled_ref).ok:
+                return None
+            raw = self._artifact_store.get_bytes(compiled_ref)
+            if str(compiled_ref.artifact_id) != "sha256:" + hashlib.sha256(raw).hexdigest():
+                return None
+            from polisyos.runtime.http.services.control.generation_cycle import (
+                CompiledRecursiveGenerationCycleRun,
+            )
+            from polisyos.runtime.quality.recursive_generation_cycle import (
+                RecursiveGenerationCyclePartialRunV2,
+            )
+
+            compiled = CompiledRecursiveGenerationCycleRun.model_validate(from_canonical_bytes(raw))
+            partial = compiled.recursive_run
+            if not isinstance(partial, RecursiveGenerationCyclePartialRunV2):
+                return None
+            return RecursiveCycleCheckpoint(
+                schema_version="policyos.runtime.recursive_cycle_checkpoint.v1",
+                status="partial",
+                compiled_artifact_ref=compiled_ref,
+                root_design_problem_ref=partial.root_design_problem_ref,
+                pending_frontier=list(partial.frontier_node_refs),
+                completed_design_refs=[node.node_ref for node in partial.leaf_nodes],
+                stop_node_ref=partial.budget_stop_node_ref,
+                authority_scope=partial.authority_scope,
+                verification_basis="resolved_core_cas_intrinsic",
+            )
+        except (OSError, RuntimeError, TypeError, ValueError, KeyError):
+            return None
 
     def get_latest_job_for_run(self, run_id: str) -> ControlJobRecord | None:
         """Return the newest durable control job attached to one runtime run."""
@@ -6239,7 +6320,14 @@ class ControlPlaneService(
                             progress=progress,
                         )
                         return
-                    if intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT:
+                    from polisyos.runtime.quality.recursive_generation_cycle import (
+                        RecursiveGenerationCyclePartialRunV2,
+                    )
+
+                    is_partial = isinstance(
+                        compiled.recursive_run, RecursiveGenerationCyclePartialRunV2
+                    )
+                    if intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT or is_partial:
                         compiled_artifact_ref = self._put_json_artifact_ref(
                             compiled.model_dump(mode="json"),
                             kind="runtime.compiled_recursive_generation_cycle",
@@ -6267,9 +6355,11 @@ class ControlPlaneService(
                         progress = {
                             "state": "completed",
                             "phase": "natural_language_run",
-                            "status": "simulation_only",
+                            "status": "budget_stopped" if is_partial else "simulation_only",
                             "execution_band": "candidate",
-                            "candidate_computation_status": "completed",
+                            "candidate_computation_status": (
+                                "partial" if is_partial else "completed"
+                            ),
                             "execution_intent_band": intent_band.value,
                             "execution_intent_limitation_code": None,
                             "compiled_recursive_generation_cycle_ref": compiled_ref,
@@ -6321,7 +6411,9 @@ class ControlPlaneService(
                                 "job_kind": job.kind,
                                 "execution_band": "candidate",
                                 "execution_intent_band": intent_band.value,
-                                "candidate_computation_status": "completed",
+                                "candidate_computation_status": (
+                                    "partial" if is_partial else "completed"
+                                ),
                                 "normative_disposition_status": "not_run",
                                 "s8_status": "not_run",
                                 "publication_status": "not_run",

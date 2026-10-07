@@ -724,6 +724,12 @@ class EvaluationSafetyPersistenceService:
                         inputs_read=inputs_read, read_attempts=read_attempts,
                     )
                 )
+                from polisyos.runtime.quality.recursive_generation_cycle import (
+                    RecursiveGenerationCyclePartialRunV2,
+                )
+
+                if isinstance(compiled.recursive_run, RecursiveGenerationCyclePartialRunV2):
+                    raise ValueError("promotion_source_recursive_run_partial")
                 for node in compiled.recursive_run.leaf_nodes:
                     cycle = node.cycle_run
                     if cycle is None:

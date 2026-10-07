@@ -1,0 +1,16 @@
+{
+  "archive": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/full-architecture-retained-source.tar.gz",
+    "bytes": 135138492,
+    "sha256": "12f927e032c6c84c319ed4a5ad57feb4ff0ae36c6581483d08fa8f5acdcecef3"
+  },
+  "full_inventory": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/full-architecture-retained-full-inventory.json",
+    "bytes": 12840994,
+    "sha256": "90968117adfa6c45412e817a99611f0f440d49b15eda6bdca888d8f8b7024196"
+  },
+  "members": 20547,
+  "file_bytes_verified": 525483332,
+  "all_links_modes_preserved": true,
+  "unmatched_bytes_retained": 1556390
+}

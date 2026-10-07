@@ -1,0 +1,47 @@
+import hashlib,json,collections
+from pathlib import Path
+S=Path('/tmp/e02-E-cleanup-description-plan-publication-r4-stage')
+L=Path('/workspace/e02-E-frc-20261006')
+P=Path('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-cleanup-description-plan')
+script=S/'copy-cleanup-description-plan.py.txt';old=script.read_bytes()
+(S/'historical-before-raw-stream-normalization.py.txt').write_bytes(old)
+for name in ('manifest.json','author-custody-controls.json','metadata-admission-controls.json'):
+ (S/('historical-before-raw-stream-'+name)).write_bytes((S/name).read_bytes())
+needle=" if not body and name.endswith('.json'):name=name[:-5]+'.txt'"
+replacement=""" if name.endswith('.json'):
+  try:strict_json(body)
+  except (ValueError,UnicodeError):name=name[:-5]+'.txt'"""
+s=old.decode()
+if s.count(needle)!=1:raise ValueError('unique general passive raw-stream normalization')
+script.write_text(s.replace(needle,replacement))
+m=json.loads((S/'manifest.json').read_text());oldroutes={r['source_sha256']+'-'+str(r['source_bytes']):r['destination'] for r in m['canonical_copies']}
+ns={'__name__':'archived_copier'};exec(compile(script.read_text(),str(script),'exec'),ns)
+changes=[]
+for r in m['logical_sources']:
+ if r['member_class']=='selector':continue
+ raw=r['selected_record'];idx=m['logical_sources'].index(r)
+ body=(S/'payload'/oldroutes[r['source_sha256']+'-'+str(r['source_bytes'])]).read_bytes()
+ # Preserve actual indexed raw-files names used by the original selector.
+ name=r['logical_destination'].split('/',1)[1]
+ new=ns['normalized'](r['family'],name,body)
+ if new!=r['logical_destination']:
+  changes.append({'source_path':r['source_path'],'source_bytes':r['source_bytes'],'source_sha256':r['source_sha256'],'old_portable_path':r['logical_destination'],'new_portable_path':new,'actual_original_selector_record':raw})
+ r['logical_destination']=new
+seen={};carriers={}
+for r in m['logical_sources']:
+ key=(r['source_sha256'],r['source_bytes']);dest=seen.setdefault(key,r['logical_destination'])
+ r['canonical_destination']=dest;r['literal_alias']=r['logical_destination']!=dest
+ carriers.setdefault(dest,{k:r[k] for k in ('source_path','source_bytes','source_sha256')}|{'destination':dest})
+for r in carriers.values():
+ oldroute=oldroutes[r['source_sha256']+'-'+str(r['source_bytes'])]
+ if oldroute!=r['destination']:
+  for root in (S/'payload',L/P):
+   oldpath=root/oldroute;newpath=root/r['destination']
+   if newpath.exists():raise ValueError('unexpected replacement target')
+   newpath.parent.mkdir(parents=True,exist_ok=True);oldpath.rename(newpath)
+m['canonical_copies']=list(carriers.values());(S/'manifest.json').write_text(json.dumps(m,indent=2)+'\n')
+ns['validate'](S/'manifest.json',m)
+for name in ('manifest.json','copy-cleanup-description-plan.py.txt'):(L/P/name).write_bytes((S/name).read_bytes())
+(L/P/'correct-raw-stream-portable.py.txt').write_bytes((S/'correct-raw-stream-portable.py.txt').read_bytes())
+result={'schema':'policyos.e02.raw_stream_portable_correction.v1','outcome':'PASS portable destination correction','changes':changes,'original_selectors_and_source_bytes_changed':False,'originals_preserved':True,'historical_precommit_observation':{'guard':'json.loads on every intended .json output','outcome':'ERROR','message':'historical REST error text in100-byte .stdout.json; single invalid intended JSON file','literal_full_stdout_stderr_saved':False,'tool_report_only':True},'counts':{k:m[k] for k in ('logical_count','logical_bytes','unique_payload_files','unique_payload_bytes','deduplicated_aliases')},'new_copier_sha256':hashlib.sha256(script.read_bytes()).hexdigest(),'source_native_numeric_gate_execution':False,'ROOT_source_env_locks_written':False}
+(S/'raw-stream-portable-correction.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

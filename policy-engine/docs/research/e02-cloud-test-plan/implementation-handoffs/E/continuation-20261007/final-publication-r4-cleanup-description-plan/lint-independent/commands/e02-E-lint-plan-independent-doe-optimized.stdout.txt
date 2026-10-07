@@ -1,0 +1,9 @@
+{
+  "disposition": "GO boundedprospectiveplan only",
+  "control_count": 18,
+  "report": {
+    "path": "/tmp/e02-E-lint-plan-independent-doe-20261007/independent-review-optimized.json",
+    "bytes": 10842,
+    "sha256": "ecf318f3cb3c11c842c0225aaee165c72a070143acc5c84cbe1089408e4d9064"
+  }
+}

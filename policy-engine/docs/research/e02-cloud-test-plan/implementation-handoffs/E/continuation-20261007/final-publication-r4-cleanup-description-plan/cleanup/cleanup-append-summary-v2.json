@@ -1,0 +1,235 @@
+{
+  "schema": "policyos.e02.closed_cloud_cleanup_append.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "scope": "Two completed source-copy overlays and eight completed exact pytest basetemp children only. Currentbackend ROOT61243 and ROOT207/DoE184 environments, source/Git/registrations and original decidingoutputs protected. All contents including unmatched unique files retained in complete archives before deletion.",
+  "source_copy_phase": {
+    "summary": {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/cleanup-summary.json",
+      "bytes": 8441,
+      "sha256": "d5cd079af66cf9e2a1ec54217a22260979cc71c4b79688381ee5842b8834501e"
+    },
+    "selection": {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/publication-selection.json",
+      "bytes": 8571,
+      "sha256": "c6cf415e9ec964edebd473e77964afc8f6fa818326104a0026d18ea419747310"
+    },
+    "action_count": 2,
+    "members": 41073,
+    "immediate_action_available_deltas_bytes": 1156337664,
+    "actual_phase_net_available_delta_bytes": 1156268032,
+    "archives": [
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/architecture-retained-source.tar.gz",
+        "bytes": 135133695,
+        "sha256": "be25692ac486a06dffca2c0be1c025e4d319ca88fda95225c24ccb6d9c8f22ab"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/full-architecture-retained-source.tar.gz",
+        "bytes": 135138492,
+        "sha256": "12f927e032c6c84c319ed4a5ad57feb4ff0ae36c6581483d08fa8f5acdcecef3"
+      }
+    ]
+  },
+  "numeric_fixture_phase": {
+    "summary": {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cleanup-summary.json",
+      "bytes": 28661,
+      "sha256": "12f1ae955c87743b03ad811974669d12cf27ec03e5ba21b1c7e8a52e1a2c4105"
+    },
+    "action_count": 8,
+    "members": 32685,
+    "immediate_action_available_deltas_bytes": 189472768,
+    "actual_phase_net_available_delta_bytes": 189337600,
+    "filesystem_after": {
+      "observed_unix": 1791376313.621478,
+      "free_bytes": 3575906304,
+      "available_bytes": 1841143808
+    },
+    "archives": [
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers.tar.gz",
+        "bytes": 6256608,
+        "sha256": "f541855404fd242b05c3b54c174bc535e0fa41c87c116604f5b62f74951c0cbe"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/mc-joint-law-support-and-scientist-consumer.tar.gz",
+        "bytes": 1294819,
+        "sha256": "d58fdf51b9d560ba27ade1e808f976f6f0ceea6d1dc285054bfe0b434fed5a13"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer.tar.gz",
+        "bytes": 928363,
+        "sha256": "a3faa00201884016227c93a0ad8af9f530959610a5370cd3f0908d5ca2062b29"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/g-checkpoint10-controlplanestore-companion.tar.gz",
+        "bytes": 385217,
+        "sha256": "0df62a91226b20a38e51743ee0eebf9a9e022a517c85bb7a68e7f2dbb6006172"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/doe-salib-and-consumer-factory.tar.gz",
+        "bytes": 407349,
+        "sha256": "80dc60b5a292d1f990a409f6400dee378d2df301f94392f37e3753ca9a30f5ef"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/pcl-continuous-persistence.tar.gz",
+        "bytes": 99074,
+        "sha256": "7073eadf2d142b4641f4dd2eab313a7bc8c3eadd89b536f94163e2bcb5ae6831"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/ddm-runtime-and-facade.tar.gz",
+        "bytes": 1519,
+        "sha256": "8ca3901cf55e93692aa62644523d89db7a93b9c0b7076f4b435a6a4738c103d3"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-retry.tar.gz",
+        "bytes": 1718810,
+        "sha256": "8f8e3dd380c7661773134600b90c635f03d2c30b72c2f731168d69b3d500ec8a"
+      }
+    ]
+  },
+  "authorization": "User explicitly authorized cloud permanent cleanup of unused repeatable outputs/environments after deciding receipts and 0 active users; parent exact-path scopes applied. LocalTrash-only rule remains local.",
+  "no_users_scope": "Each archived/deleted child has fresh initial/prearchive/immediate agentUID process cwd/argv/selectedenv/maps/FD observer proof. Privileged infrastructure exclusion is explicit; no hostwide quiescence assertion.",
+  "Git_path_registration_correction": {
+    "registration_path_set_unchanged": true,
+    "whole_worktree_HEAD_bytes_not_the_cleanup_predicate": true,
+    "source_phase_earlier_summary_raw_registration_equality_false_preserved": true,
+    "reason": "Concurrent authorized MC writer changed its HEAD; exact before/after raw-list and only-MC-head delta retained in separate corrective readback. Cleanup performed no Git operations that change refs or registrations.",
+    "receipt": {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/git-registration-corrective-readback.json",
+      "bytes": 6415,
+      "sha256": "c6d4a42ef235e587fb964464ecbe6d50f90b9639a7c9aa34c88737188be83770"
+    },
+    "numeric_terminal_receipt": {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/git-registration-terminal-readback.json",
+      "bytes": 5616,
+      "sha256": "abf573bde9790fa30f57f8c29bdde57c4b70a588610391e5949fe9b5dad76cae"
+    }
+  },
+  "protected_source_and_metadata_unchanged": {
+    "ROOT_source_SHA": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "ROOT_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "ROOT_distributions": 207,
+    "DoE_distributions": 184,
+    "full_protected_before_binding": {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/protected-metadata-before.json",
+      "bytes": 103791,
+      "sha256": "19ebd20f38c574b66c9a87969d17b0e39384add175b058b6c092c756bf7e8d0d"
+    }
+  },
+  "historical_native_outcomes_preserved": [
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/bkt-frc-s10-and-adjacent-report-consumers",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "counts": {
+        "cases": 321,
+        "passed": 313,
+        "failed": 8,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/mc-joint-law-support-and-scientist-consumer",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "cases": 443,
+        "passed": 443,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/cal-and-welfare-consumer",
+      "outcome": "FAIL",
+      "exit_code": -9,
+      "counts": null
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/g-checkpoint10-controlplanestore-companion",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "cases": 59,
+        "passed": 59,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/doe-salib-and-consumer-factory",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "cases": 221,
+        "passed": 221,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/pcl-continuous-persistence",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "cases": 99,
+        "passed": 99,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/ddm-runtime-and-facade",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "cases": 82,
+        "passed": 82,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/temporary/cal-and-welfare-consumer-retry",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "cases": 324,
+        "passed": 324,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    }
+  ],
+  "metric_limits": "Per-phase/per-action available filesystem observations are reported separately. Concurrent backend writes affect netcapacity; allocated du/hardlink counts and tmpfs archives are not physicalRAM recovered, nor are phase deltas a RAMsum.",
+  "previous_published_cleanup_receipts_unchanged": true,
+  "native_tests_or_backend_repeated": false,
+  "finding_closure": false,
+  "historical_original_summary": {
+    "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-append-20261007/cleanup-append-summary.json",
+    "bytes": 9255,
+    "sha256": "558a21635fb151b11ff61fe4ca999577ea2fac8dfa27d3556a11e69cfaa00c45"
+  },
+  "actual_backend_scope_correction": {
+    "receipt": {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-append-20261007/actual-backend-scope-corrective-readback.json",
+      "bytes": 19794,
+      "sha256": "c4d62bd25599ec9faee118acd8509b84ea77670465d96681fdff0bf26b721084"
+    },
+    "executed_observer_outdated_fourth_prefix_retained": true,
+    "actual_backend_prefix": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry",
+    "all8_actual_terminal_receipt_owned_actions_disjoint": true,
+    "backend_directory_still_exists": true,
+    "fresh_readonly_actual_backend_process_observation_bound": true,
+    "no_cleanup_rerun": true
+  }
+}

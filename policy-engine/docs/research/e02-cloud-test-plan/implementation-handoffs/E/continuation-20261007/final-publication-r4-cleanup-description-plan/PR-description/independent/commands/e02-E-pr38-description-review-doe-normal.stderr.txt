@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-pr38-description-review-doe.py", line 96, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/tmp/e02-E-pr38-description-review-doe.py", line 92, in main
+    code=Path(__file__).read_text().split('def main():',1)[0];require(code.count('    admit_claims(observed,expected)')==1,'single commontruthguard');namespace={'__file__':__file__};exec(compile(code.replace('    admit_claims(observed,expected)','    # actual typed-claim admission removed'),'independent-property-removal','exec'),namespace)
+                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-pr38-description-review-doe.py", line 9, in require
+    if not v:raise ValueError(m)
+             ^^^^^^^^^^^^^^^^^^^
+ValueError: single commontruthguard

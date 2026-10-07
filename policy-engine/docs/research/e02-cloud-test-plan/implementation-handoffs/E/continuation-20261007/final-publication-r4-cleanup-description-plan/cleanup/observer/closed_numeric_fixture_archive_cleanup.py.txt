@@ -1,0 +1,101 @@
+"""Exact eight CLOSED pytest fixture children: full archive/readback, zero users, unlink only exact child."""
+from pathlib import Path
+import ast,hashlib,json,os,shutil,stat,subprocess,tarfile,time,xml.etree.ElementTree as ET
+ROOT=Path('/workspace/e02-E-continuation-20261006');SOURCE='64d7444a18c55df7b88b71b7699a2f1b25ca24bd';TREE='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+OUT=Path('/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures');PACKET=Path('/tmp/e02-E-capacity-cleanup-20261007-doe/additional-capacity-candidates.json')
+rows=json.loads(PACKET.read_text())['candidates'][1:]
+RETRY=Path('/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946');retry_path=RETRY/'checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.json';retry=json.loads(retry_path.read_text())
+rows.append({'candidate':str(RETRY/'temporary/cal-and-welfare-consumer-retry'),'actual_environment_complete_receipt':{'path':str(retry_path)},'full_argv':retry['command'],'counts':retry['counts'],'closed_native_outcome':retry['outcome'],'exit_code':retry['exit_code'],'deciding_outputs_outside_candidate_exact_published_refs':[]})
+CANDIDATES=[Path(r['candidate']) for r in rows]
+PROTECTED=[ROOT/'policy-engine/.venv',Path('/workspace/e02-E-doe-20261006/policy-engine/.venv'),Path('/workspace/.polisyos-environment'),Path('/workspace/e02-E-pr38-r3-receipts/full-backend-after-prereq-64d-20261007')]
+PUBLICATION='a5021561c7630b8a1e721e34307d30550825b07d'
+def require(v,why):
+ if not v:raise ValueError(why)
+def digest_file(p):
+ h=hashlib.sha256()
+ with p.open('rb') as f:
+  for b in iter(lambda:f.read(1024*1024),b''):h.update(b)
+ return h.hexdigest()
+def ref(p):return {'path':str(p),'bytes':p.stat().st_size,'sha256':digest_file(p)}
+def write(p,v):
+ with p.open('x') as f:json.dump(v,f,indent=2);f.write('\n')
+def fs():
+ s=os.statvfs('/workspace');return {'observed_unix':time.time(),'free_bytes':s.f_bfree*s.f_frsize,'available_bytes':s.f_bavail*s.f_frsize}
+def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args])
+def root_guard():require(git('rev-parse','HEAD').decode().strip()==SOURCE and git('rev-parse','HEAD^{tree}').decode().strip()==TREE and not git('status','--porcelain','--untracked-files=no').decode(),'ROOT source64d clean freeze')
+def metadata():return [{'prefix':str(prefix),'count':len(paths),'rows':[ref(p) for p in paths]} for prefix in PROTECTED[:2] for paths in [sorted(prefix.glob('lib/python*/site-packages/*.dist-info/METADATA'))]]
+def regs():
+ raw=git('worktree','list','--porcelain').decode();return raw,[Path(r.split(' ',1)[1]).resolve() for r in raw.splitlines() if r.startswith('worktree ')]
+# Reuse literal reviewed process scanner, no prior module execution.
+old=Path('/tmp/e02-E-capacity-cleanup-20261007-doe/prepare_cleanup.py');node=next(n for n in ast.parse(old.read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='proc_scan');exec(compile(ast.Module(body=[node],type_ignores=[]),'saved-observer:proc_scan','exec'),globals())
+OUT.mkdir(mode=0o700,exist_ok=False);root_guard();start_fs=fs();before_meta=metadata();require([r['count'] for r in before_meta]==[207,184],'protected ROOT207/DoE184');reg_before,registered=regs();write(OUT/'git-registrations-before.json',{'source':SOURCE,'raw':reg_before,'registered_paths':[str(p) for p in registered]})
+# Read publication object set once; every deciding byte belongs to a saved immutable published Git blob.
+publication_blobs={r.split(b'\t',1)[0].split()[2].decode() for r in git('ls-tree','-r',PUBLICATION).splitlines()};require(publication_blobs,'actual exact publication object set')
+scan=proc_scan();write(OUT/'initial-process-scan.json',scan);require(not scan['active_users'] and not scan['unreadable_agent_processes'],'zero readable live-agent users before preparation')
+write(OUT/'protected-metadata-before.json',before_meta);all_saved=[];actions=[]
+for spec,candidate in zip(rows,CANDIDATES):
+ label=candidate.name;receipt_path=Path(spec['actual_environment_complete_receipt']['path']);d=json.loads(receipt_path.read_text())
+ require(d['candidate_sha']==SOURCE and d['candidate_tree_sha']==TREE and d['head_at_end']==SOURCE and d['source_immutable'] is True and d['source_identity_before']==d['source_identity_after'],'closed native source/end identity')
+ require(d['command']==spec['full_argv'] and d['command'].count('--basetemp')==1 and d['command'][d['command'].index('--basetemp')+1]==str(candidate),'exact native --basetemp establishes child ownership')
+ require(d['outcome']==spec['closed_native_outcome'] and d['outcome'] in ('PASS','FAIL') and d['exit_code']==spec['exit_code'] and type(d['exit_code']) is int and d['wall_seconds']>0 and d.get('counts')==spec['counts'],'actual terminal native outcome separate from finding closure')
+ require(candidate.is_dir() and not candidate.is_symlink() and candidate.resolve()==candidate and candidate.parent.name=='temporary' and not (candidate/'.git').exists(),'exact real basetemp child')
+ require(candidate not in registered and all(not p.is_relative_to(candidate) for p in registered),'not registered Git checkout')
+ require(all(not p.is_relative_to(candidate) and not candidate.is_relative_to(p) for p in PROTECTED),'protected backend/env prefixes excluded')
+ for p in candidate.rglob('.git'):raise ValueError('nested Git registration/source repository must not be removed '+str(p))
+ # Full original deciding records/stdout/stderr/JUnit saved outside exact basetemp; copies under /tmp before unlink.
+ originals=[receipt_path,Path(d['stdout_path']),receipt_path.with_name(label+'.stderr.txt')]
+ if d.get('junit') and Path(d['junit']).exists():originals.append(Path(d['junit']))
+ require(Path(d['stdout_path']).stat().st_size==d['stdout_bytes'] and digest_file(Path(d['stdout_path']))==d['stdout_sha256'],'actual full stdout custody')
+ saved=[]
+ for original in originals:
+  if not original.exists():continue
+  require(not original.is_relative_to(candidate),'deciding bytes must remain outside removed fixture')
+  identity=ref(original);blob=git('hash-object',str(original)).decode().strip();require(blob in publication_blobs,'deciding original is exact Git-published a502 object')
+  require(hashlib.sha256(git('cat-file','blob',blob)).hexdigest()==identity['sha256'],'published Git blob exact same deciding bytes')
+  declared=next((r for r in spec['deciding_outputs_outside_candidate_exact_published_refs'] if r['path']==str(original)),None)
+  if declared:require(identity['bytes']==declared['bytes'] and identity['sha256']==declared['sha256'] and blob==declared['git_blob'],'prior published ref/byte identity preserved')
+  target=OUT/'saved-deciding'/label/original.name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(original,target);require(ref(target)['sha256']==identity['sha256'],'saved deciding copy');saved.append({**identity,'publication_SHA':PUBLICATION,'git_blob':blob,'saved_path':str(target)})
+ for path,expected in d['input_files'].items():
+  observed=ref(ROOT/path);require(observed['bytes']==expected['bytes'] and observed['sha256']==expected['sha256'] and git('rev-parse',SOURCE+':'+path).decode().strip()==expected['git_blob'],'full declared original source input identities')
+ if d.get('counts') is not None:
+  xml=ET.parse(Path(d['junit']));cases=list(xml.iter('testcase'));counts={'cases':len(cases),'passed':0,'failed':0,'errors':0,'skipped':0}
+  for c in cases:
+   key='errors' if c.find('error') is not None else 'failed' if c.find('failure') is not None else 'skipped' if c.find('skipped') is not None else 'passed';counts[key]+=1
+  require(counts==d['counts'],'actual full JUnit counts match closed receipt')
+ write(OUT/(label+'-deciding-binding.json'),{'candidate':str(candidate),'native_receipt':ref(receipt_path),'publication_SHA':PUBLICATION,'source':SOURCE,'tree':TREE,'command':d['command'],'cwd':d['cwd'],'environment':d['environment'],'input_files':d['input_files'],'actual_outcome':d['outcome'],'exit_code':d['exit_code'],'counts':d.get('counts'),'original_and_saved_outputs':saved,'finding_closure':False});all_saved+=saved
+ inventory=[];file_bytes=allocated=0
+ for path in sorted(candidate.rglob('*')):
+  s=path.lstat();r={'relative_path':path.relative_to(candidate).as_posix(),'mode':s.st_mode,'size':s.st_size,'mtime_ns':s.st_mtime_ns,'device':s.st_dev,'inode':s.st_ino,'allocated_bytes':s.st_blocks*512,'hardlink_count':s.st_nlink}
+  if stat.S_ISREG(s.st_mode):r['type']='file';r['sha256']=digest_file(path);file_bytes+=s.st_size;allocated+=s.st_blocks*512
+  elif stat.S_ISDIR(s.st_mode):r['type']='directory'
+  elif stat.S_ISLNK(s.st_mode):r['type']='symlink';r['target']=os.readlink(path)
+  else:raise ValueError('special fixture file requires manual preservation: '+str(path))
+  inventory.append(r)
+ inv=OUT/(label+'-full-inventory.json');write(inv,{'candidate':str(candidate),'entries':inventory,'files_bytes':file_bytes,'allocated_regular_file_bytes':allocated,'preservation':'ALL member contents/links including unmatched unique fixtures/diagnostics retained in complete archive; no inference that fixture inputs are production.'})
+ before_archive=proc_scan();write(OUT/(label+'-before-archive-processes.json'),before_archive);require(not before_archive['active_users'] and not before_archive['unreadable_agent_processes'],'no readable active fixture users before archive')
+ archive=OUT/(label+'.tar.gz')
+ with tarfile.open(archive,'x:gz',compresslevel=1,dereference=False) as tar:tar.add(candidate,arcname='fixture',recursive=True)
+ expected={'fixture/'+r['relative_path']:r for r in inventory};seen=set();verified_bytes=0
+ with tarfile.open(archive,'r:gz') as tar:
+  for member in tar:
+   if member.name=='fixture':require(member.isdir(),'root archived directory');continue
+   require(member.name in expected and member.name not in seen,'unique complete archive member');r=expected[member.name];seen.add(member.name)
+   require(member.mode==(r['mode']&0o7777),'archive literal permission mode')
+   if r['type']=='file':
+    require(member.isfile() or member.islnk(),'file/hardlink archive type');f=tar.extractfile(member);h=hashlib.sha256();n=0
+    for b in iter(lambda:f.read(1024*1024),b''):h.update(b);n+=len(b)
+    require(n==r['size'] and h.hexdigest()==r['sha256'],'every file byte size/hash readback');verified_bytes+=n
+   elif r['type']=='symlink':require(member.issym() and member.linkname==r['target'],'symlink preserved without following')
+   else:require(member.isdir(),'directory preserved')
+ require(seen==set(expected) and verified_bytes==file_bytes,'complete archival member and byte denominator')
+ proof={'archive':ref(archive),'full_inventory':ref(inv),'members':len(seen),'verified_file_bytes':verified_bytes,'all_modes_links_byte_identities':True,'no_unmatched_unique_input_or_diagnostic_dropped':True};write(OUT/(label+'-archive-verification.json'),proof)
+ for r in inventory:
+  p=candidate/r['relative_path'];s=p.lstat();require((s.st_dev,s.st_ino,s.st_mode,s.st_size,s.st_mtime_ns)==(r['device'],r['inode'],r['mode'],r['size'],r['mtime_ns']),'candidate unchanged before unlink')
+  if r['type']=='file':require(digest_file(p)==r['sha256'],'fresh original byte equality')
+  elif r['type']=='symlink':require(os.readlink(p)==r['target'],'fresh original symlink equality')
+ immediate=proc_scan();write(OUT/(label+'-immediate-processes.json'),immediate);require(not immediate['active_users'] and not immediate['unreadable_agent_processes'],'immediate 0 live-agent fixture users; privileged infrastructure exclusions explicit');root_guard();require(metadata()==before_meta,'ROOT207/DoE184 fully unchanged')
+ before=fs();started=time.time();shutil.rmtree(candidate);after=fs();require(not candidate.exists(),'only exact verified fixture child removed')
+ require(all(ref(Path(r['path']))['sha256']==r['sha256'] and Path(r['path']).stat().st_size==r['bytes'] for r in all_saved),'every deciding original remains unchanged outside removed children')
+ action={'candidate':str(candidate),'started_unix':started,'ended_unix':time.time(),'source':SOURCE,'tree':TREE,'native_outcome':d['outcome'],'native_exit_code':d['exit_code'],'native_counts':d.get('counts'),'archive':proof['archive'],'inventory':proof['full_inventory'],'archive_members':len(inventory),'archived_file_bytes':file_bytes,'allocated_regular_fixture_bytes':allocated,'actual_filesystem_before':before,'actual_filesystem_after':after,'immediate_available_delta_bytes':after['available_bytes']-before['available_bytes'],'absent_after':True,'preserved_ALL_unique_unmatched_data':True,'deciding_outputs_originals_saved_and_unchanged':True,'source_env_unchanged':True};write(OUT/(label+'-cleanup-result.json'),action);actions.append(action);print(json.dumps({'closed_fixture':str(candidate),'members':len(inventory),'archive_bytes':action['archive']['bytes'],'immediate_recovered_bytes':action['immediate_available_delta_bytes'],'available_after':after['available_bytes']},indent=2),flush=True)
+root_guard();require(metadata()==before_meta,'protected metadata unchanged terminal');reg_after,paths_after=regs();require(set(paths_after)==set(registered),'exact registered path set unchanged, concurrent authorized HEAD commits permitted');write(OUT/'git-registration-terminal-readback.json',{'before':reg_before,'after':reg_after,'registered_paths_unchanged':True,'whole_worktree_HEAD_list_equality_not_a_cleanup_predicate':True,'cleanup_performed_no_Git_mutation':True});finish=fs()
+summary={'schema':'policyos.e02.closed_native_fixture_archival_cleanup.v1','authorization':'Exact seven CLOSED frozenwave pytest basetemps plus CLOSED CAL retry, explicit user cloud repeatable-output cleanup via parent; no active prefixes/registrations/source/Git/environment cleanup.','source':SOURCE,'tree':TREE,'original_candidate_packet':ref(PACKET),'actions':actions,'deciding_outputs':all_saved,'protected_metadata_counts':[207,184],'protected_metadata_byte_identical':True,'registered_paths_unchanged':True,'cleanup_performed_no_Git_mutation':True,'filesystem_before':start_fs,'filesystem_after':finish,'actual_observed_available_net_delta_bytes':finish['available_bytes']-start_fs['available_bytes'],'sum_immediate_action_available_deltas_bytes':sum(r['immediate_available_delta_bytes'] for r in actions),'metric_limit':'Concurrent active backend writes can change overlay capacity during observation; neither du/hardlink allocated sums nor tmpfs archive bytes are physical RAM recovered.','all_unmatched_unique_file_data_retained_in_complete_verified_archives':True,'finding_closure':False,'backend_or_numeric_checks_repeated':False};write(OUT/'cleanup-summary.json',summary);print(json.dumps({'summary':ref(OUT/'cleanup-summary.json'),'actual_available':finish['available_bytes'],'observed_net_recovery':summary['actual_observed_available_net_delta_bytes']},indent=2),flush=True)

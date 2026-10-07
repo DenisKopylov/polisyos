@@ -1,0 +1,840 @@
+{
+  "schema": "policyos.e02.closed_cloud_cleanup_append_publication_selection.v2",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-append-20261007/cleanup-append-summary.json",
+      "bytes": 9255,
+      "sha256": "558a21635fb151b11ff61fe4ca999577ea2fac8dfa27d3556a11e69cfaa00c45",
+      "portable_path": "cleanup-append-summary.json",
+      "role": "current-summary-derived-from-literal-closed-phase-receipts"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/publication-selection.json",
+      "bytes": 8571,
+      "sha256": "c6cf415e9ec964edebd473e77964afc8f6fa818326104a0026d18ea419747310",
+      "portable_path": "source-copies/publication-selection-original.json",
+      "role": "literal-original-closed-source-copy-selector"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/cleanup-summary.json",
+      "bytes": 8441,
+      "sha256": "d5cd079af66cf9e2a1ec54217a22260979cc71c4b79688381ee5842b8834501e",
+      "portable_path": "source-copies/cleanup-summary.json",
+      "role": "exactclosedsourceoverlaycleanupmoderateadmission/custody/output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/git-registrations.json",
+      "bytes": 2823,
+      "sha256": "c33127d0b82b1ee21b5fb7242b149347751cc56e8e1811570de966aee1328d90",
+      "portable_path": "source-copies/git-registrations.json",
+      "role": "exactclosedsourceoverlaycleanupmoderateadmission/custody/output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/git-registration-corrective-readback.json",
+      "bytes": 6415,
+      "sha256": "c6d4a42ef235e587fb964464ecbe6d50f90b9639a7c9aa34c88737188be83770",
+      "portable_path": "source-copies/git-registration-corrective-readback.json",
+      "role": "exactclosedsourceoverlaycleanupmoderateadmission/custody/output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/initial-process-scan.json",
+      "bytes": 2865,
+      "sha256": "55c365706ea989253d78cde5cc7379fcf9c02620f0a02b4be481415c02c32da3",
+      "portable_path": "source-copies/initial-process-scan.json",
+      "role": "exactclosedsourceoverlaycleanupmoderateadmission/custody/output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/architecture-retained-archive-verification.json",
+      "bytes": 649,
+      "sha256": "8388e3f63e3a929b4975818402db4941eefa43e172def86269ebf73854e95ab0",
+      "portable_path": "source-copies/architecture-retained-archive-verification.json",
+      "role": "exactclosedsourceoverlaycleanupmoderateadmission/custody/output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/architecture-retained-cleanup-result.json",
+      "bytes": 1310,
+      "sha256": "5295cc7708ff20beb48e4bcc92ee9e2a6c6c7f65426f6b53c552bddd4c97171d",
+      "portable_path": "source-copies/architecture-retained-cleanup-result.json",
+      "role": "exactclosedsourceoverlaycleanupmoderateadmission/custody/output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/architecture-retained-before-archive-processes.json",
+      "bytes": 2865,
+      "sha256": "5fc48bb69dc4f471d87525ecbbe42468317d9c7a2b0172155448ecf01526dcc0",
+      "portable_path": "source-copies/architecture-retained-before-archive-processes.json",
+      "role": "exactclosedsourceoverlaycleanupmoderateadmission/custody/output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/architecture-retained-immediate-processes.json",
+      "bytes": 2865,
+      "sha256": "8961bc6833ba1c0c8fd28fa74463eaae0a6232de03a075c14018122d8ea4a3c0",
+      "portable_path": "source-copies/architecture-retained-immediate-processes.json",
+      "role": "exactclosedsourceoverlaycleanupmoderateadmission/custody/output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/full-architecture-retained-archive-verification.json",
+      "bytes": 659,
+      "sha256": "43b947e148437eb0720e094a95d0fd58535bf2acf518b3a5512cace10b3bb62e",
+      "portable_path": "source-copies/full-architecture-retained-archive-verification.json",
+      "role": "exactclosedsourceoverlaycleanupmoderateadmission/custody/output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/full-architecture-retained-cleanup-result.json",
+      "bytes": 1325,
+      "sha256": "cbebc04cca68336e43f6b359fa36806e899a1cda695aa9ccca2a379bc97ddd83",
+      "portable_path": "source-copies/full-architecture-retained-cleanup-result.json",
+      "role": "exactclosedsourceoverlaycleanupmoderateadmission/custody/output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/full-architecture-retained-before-archive-processes.json",
+      "bytes": 2865,
+      "sha256": "562f21e2dcf14419df3b22de9efea909b13a318ab5e86a5e4ae725f57cf3a1af",
+      "portable_path": "source-copies/full-architecture-retained-before-archive-processes.json",
+      "role": "exactclosedsourceoverlaycleanupmoderateadmission/custody/output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/full-architecture-retained-immediate-processes.json",
+      "bytes": 3592,
+      "sha256": "106665f8e6ceec069b34f69c6389a28e2a877f7ebe83cacd80c408e91c8cbfcb",
+      "portable_path": "source-copies/full-architecture-retained-immediate-processes.json",
+      "role": "exactclosedsourceoverlaycleanupmoderateadmission/custody/output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/saved-deciding/narrow-runtime-family.stdout.txt",
+      "bytes": 774,
+      "sha256": "0b38fd8de22127c76379502604b59a91236a82d9e20b30a7361a52f7ac67dc7f",
+      "portable_path": "source-copies/saved-deciding/narrow-runtime-family.stdout.txt",
+      "role": "exactclosedsourceoverlaycleanupmoderateadmission/custody/output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/saved-deciding/narrow-runtime-family.json",
+      "bytes": 7698,
+      "sha256": "d846247a0bde06bb466054682e8ac565f70fe8a4d270723797a4320f93e9c1dd",
+      "portable_path": "source-copies/saved-deciding/narrow-runtime-family.json",
+      "role": "exactclosedsourceoverlaycleanupmoderateadmission/custody/output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/saved-deciding/architecture-full-retry.stdout.txt",
+      "bytes": 123571,
+      "sha256": "8240df44dd7f4a899c3c9e25a1945e1bf15680b19fbfcbc38a378c05fb3354af",
+      "portable_path": "source-copies/saved-deciding/architecture-full-retry.stdout.txt",
+      "role": "exactclosedsourceoverlaycleanupmoderateadmission/custody/output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/saved-deciding/architecture-full-retry.json",
+      "bytes": 7883,
+      "sha256": "79341bd7ef4131f55ec7a9ca22f0ae4b378a4969a61a38e0047143951f3e5bba",
+      "portable_path": "source-copies/saved-deciding/architecture-full-retry.json",
+      "role": "exactclosedsourceoverlaycleanupmoderateadmission/custody/output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed_architecture_source_archive_cleanup.py",
+      "bytes": 12388,
+      "sha256": "47b48387f66120b5578c74438b80603f54910e0a948f4f8d57f2fa1e560c99c1",
+      "portable_path": "source-copies/observer/closed_architecture_source_archive_cleanup.py.txt",
+      "role": "exactclosedsourceoverlaycleanupmoderateadmission/custody/output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-cleanup.stdout.txt",
+      "bytes": 782,
+      "sha256": "dfbb105a7a2a87c64c9b232e3afd15522c0d4b572e11b4884827f239a2c9de6f",
+      "portable_path": "source-copies/observer/closed-architecture-source-cleanup.stdout.txt",
+      "role": "exactclosedsourceoverlaycleanupmoderateadmission/custody/output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-cleanup.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "source-copies/observer/closed-architecture-source-cleanup.stderr.txt",
+      "role": "exactclosedsourceoverlaycleanupmoderateadmission/custody/output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers-archive-verification.json",
+      "bytes": 684,
+      "sha256": "713acbeff3ed5fe48d19e685ea6169074ffdc0330d6127a3940b310970488225",
+      "portable_path": "numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers-archive-verification.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers-before-archive-processes.json",
+      "bytes": 4172,
+      "sha256": "8312de0304404f1999de1e743714bb81530c3d3a277905d0c11d1de562dcf7f7",
+      "portable_path": "numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers-before-archive-processes.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers-cleanup-result.json",
+      "bytes": 1606,
+      "sha256": "3937d9b3077dec9b41547bdb1fce7835591d9276f97fd5d3f904c30ac39daba0",
+      "portable_path": "numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers-cleanup-result.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers-deciding-binding.json",
+      "bytes": 8074,
+      "sha256": "12d09a7190af0205be3502dadf7347f482f511ca0d4298c41d06706a66d49c77",
+      "portable_path": "numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers-deciding-binding.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers-immediate-processes.json",
+      "bytes": 4391,
+      "sha256": "badad43725aa08e38482b8bf42e6f8e1a3f96077c75834cd0e899e7338e795db",
+      "portable_path": "numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers-immediate-processes.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-archive-verification.json",
+      "bytes": 647,
+      "sha256": "dab925af69c7bd69d0c4c8070d9cc35f3dd3e85939024f0082aa8855d6c764de",
+      "portable_path": "numeric-fixtures/cal-and-welfare-consumer-archive-verification.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-before-archive-processes.json",
+      "bytes": 4390,
+      "sha256": "7c1d58382b080e019c4466e558d0c0dafe060bb61b5ffc03f01f68ce98897997",
+      "portable_path": "numeric-fixtures/cal-and-welfare-consumer-before-archive-processes.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-cleanup-result.json",
+      "bytes": 1464,
+      "sha256": "e282bdbc37a00372a85eb1aebcccb2612143e09dc5df49c784c56084cc0a8f70",
+      "portable_path": "numeric-fixtures/cal-and-welfare-consumer-cleanup-result.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-deciding-binding.json",
+      "bytes": 7221,
+      "sha256": "f04de172c1de5b10cba36b8a4b64e1035e61011d6b0be2decf2d3253114db957",
+      "portable_path": "numeric-fixtures/cal-and-welfare-consumer-deciding-binding.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-immediate-processes.json",
+      "bytes": 4390,
+      "sha256": "04cf30ab08917cdc2804d5f77d29c964f0c054f5b4b679febd822905a7d6673d",
+      "portable_path": "numeric-fixtures/cal-and-welfare-consumer-immediate-processes.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-retry-archive-verification.json",
+      "bytes": 660,
+      "sha256": "229368eeceb1650ddd13c28ee6e200875f98f1bd2c4c064d1547e4ddb02c4629",
+      "portable_path": "numeric-fixtures/cal-and-welfare-consumer-retry-archive-verification.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-retry-before-archive-processes.json",
+      "bytes": 4391,
+      "sha256": "4db532e26b845ce3df7aea1d3fea63e2f8491177db7f6720ef0f44bd1149752a",
+      "portable_path": "numeric-fixtures/cal-and-welfare-consumer-retry-before-archive-processes.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-retry-cleanup-result.json",
+      "bytes": 1588,
+      "sha256": "a8e642e2614958d007ad03b56bad70cb6c1c213dbaf958beb3fd3c51b04ff452",
+      "portable_path": "numeric-fixtures/cal-and-welfare-consumer-retry-cleanup-result.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-retry-deciding-binding.json",
+      "bytes": 8089,
+      "sha256": "7e202e6031140af0b60222ee5e61febb4ae85a4bddf4ea805005b7ac60c5c359",
+      "portable_path": "numeric-fixtures/cal-and-welfare-consumer-retry-deciding-binding.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-retry-immediate-processes.json",
+      "bytes": 4527,
+      "sha256": "e4a04d8c31bf6b2445c11e46fd028ba4b4acad38775694428f68e8eae4154217",
+      "portable_path": "numeric-fixtures/cal-and-welfare-consumer-retry-immediate-processes.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cleanup-summary.json",
+      "bytes": 28661,
+      "sha256": "12f1ae955c87743b03ad811974669d12cf27ec03e5ba21b1c7e8a52e1a2c4105",
+      "portable_path": "numeric-fixtures/cleanup-summary.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/ddm-runtime-and-facade-archive-verification.json",
+      "bytes": 632,
+      "sha256": "40c90d759e188768a904c011e0b0c80bfb78e6910c7bef416d337005cd85e54f",
+      "portable_path": "numeric-fixtures/ddm-runtime-and-facade-archive-verification.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/ddm-runtime-and-facade-before-archive-processes.json",
+      "bytes": 4391,
+      "sha256": "e49178978b77a27f33b6cb6786000594963ec990b2ec514bfba8f8c5446c298c",
+      "portable_path": "numeric-fixtures/ddm-runtime-and-facade-before-archive-processes.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/ddm-runtime-and-facade-cleanup-result.json",
+      "bytes": 1526,
+      "sha256": "291d752c357158f924b6fc231309f975c769ba65bdc41c5bcd5c2b394bed6eb0",
+      "portable_path": "numeric-fixtures/ddm-runtime-and-facade-cleanup-result.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/ddm-runtime-and-facade-deciding-binding.json",
+      "bytes": 6938,
+      "sha256": "d227a230dff7f4095ec98c78d44bd80d8da97702042a81e92e393d9de71b61af",
+      "portable_path": "numeric-fixtures/ddm-runtime-and-facade-deciding-binding.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/ddm-runtime-and-facade-immediate-processes.json",
+      "bytes": 4391,
+      "sha256": "e3b5e90a400ea73ea53cbeb0bc9f4c3bb6a77530c087a27fb2a3d7b43ccfe584",
+      "portable_path": "numeric-fixtures/ddm-runtime-and-facade-immediate-processes.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/doe-salib-and-consumer-factory-archive-verification.json",
+      "bytes": 656,
+      "sha256": "2ac146c8abd557025d0635d29461be8076b74dca3b7c5e41a2a7e02d89d9ca66",
+      "portable_path": "numeric-fixtures/doe-salib-and-consumer-factory-archive-verification.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/doe-salib-and-consumer-factory-before-archive-processes.json",
+      "bytes": 4545,
+      "sha256": "318ffbbb38fa855f1c879d04f14767d0b0d3841ddeb7693c5fb7e583fffdbfb0",
+      "portable_path": "numeric-fixtures/doe-salib-and-consumer-factory-before-archive-processes.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/doe-salib-and-consumer-factory-cleanup-result.json",
+      "bytes": 1565,
+      "sha256": "95e54a98ef8f56ca97a7f55203e3bfeb749a87dd595f679c13da1a48b2366f19",
+      "portable_path": "numeric-fixtures/doe-salib-and-consumer-factory-cleanup-result.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/doe-salib-and-consumer-factory-deciding-binding.json",
+      "bytes": 7161,
+      "sha256": "33f6b7bcaef1b39682fbb4f85c3d2b64b3df40a48adc8f1dca59269894fdd595",
+      "portable_path": "numeric-fixtures/doe-salib-and-consumer-factory-deciding-binding.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/doe-salib-and-consumer-factory-immediate-processes.json",
+      "bytes": 4391,
+      "sha256": "c0552f6a51cda9bbd969aa23bb1d9a55b112a4bd3c2a9b6f56d5d954ca30a9db",
+      "portable_path": "numeric-fixtures/doe-salib-and-consumer-factory-immediate-processes.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/g-checkpoint10-controlplanestore-companion-archive-verification.json",
+      "bytes": 680,
+      "sha256": "d51e153e541331f47e10db587f942c35160bd48e3fa8dd48a319b7356d929883",
+      "portable_path": "numeric-fixtures/g-checkpoint10-controlplanestore-companion-archive-verification.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/g-checkpoint10-controlplanestore-companion-before-archive-processes.json",
+      "bytes": 4390,
+      "sha256": "c64fb2052370c32d4f24f2f051e9ccc2dc68a394ec78f479d936a43a40d4c941",
+      "portable_path": "numeric-fixtures/g-checkpoint10-controlplanestore-companion-before-archive-processes.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/g-checkpoint10-controlplanestore-companion-cleanup-result.json",
+      "bytes": 1599,
+      "sha256": "1ce10dc811c8ab7d08055b42a587760c024e3c8838b3f8e57dd8fb40685e8268",
+      "portable_path": "numeric-fixtures/g-checkpoint10-controlplanestore-companion-cleanup-result.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/g-checkpoint10-controlplanestore-companion-deciding-binding.json",
+      "bytes": 6457,
+      "sha256": "be99af295f8cd0abb99f10f3d21175100e584f1b57f2d35a608252fd7f145a6e",
+      "portable_path": "numeric-fixtures/g-checkpoint10-controlplanestore-companion-deciding-binding.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/g-checkpoint10-controlplanestore-companion-immediate-processes.json",
+      "bytes": 4391,
+      "sha256": "9f0b9ff593b01021e1ab1d8303033cea65f18826580d886c563ddd39c0186fb8",
+      "portable_path": "numeric-fixtures/g-checkpoint10-controlplanestore-companion-immediate-processes.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/git-registration-terminal-readback.json",
+      "bytes": 5616,
+      "sha256": "abf573bde9790fa30f57f8c29bdde57c4b70a588610391e5949fe9b5dad76cae",
+      "portable_path": "numeric-fixtures/git-registration-terminal-readback.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/git-registrations-before.json",
+      "bytes": 3558,
+      "sha256": "7cc74c7a70d92c202706bfb8cac2fe9378d66720c5a63d76570667f7c8aa7f34",
+      "portable_path": "numeric-fixtures/git-registrations-before.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/initial-process-scan.json",
+      "bytes": 4171,
+      "sha256": "30388f366d1863bc53ee348789083ed7add3a4f2f44bf14f8b69a1798031af23",
+      "portable_path": "numeric-fixtures/initial-process-scan.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/mc-joint-law-support-and-scientist-consumer-archive-verification.json",
+      "bytes": 686,
+      "sha256": "eee74e26fd0bafcca05e8d8d93e1063105e0829d48f4a7b5debf68f14d966c92",
+      "portable_path": "numeric-fixtures/mc-joint-law-support-and-scientist-consumer-archive-verification.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/mc-joint-law-support-and-scientist-consumer-before-archive-processes.json",
+      "bytes": 4391,
+      "sha256": "7e9ea5863d597cf9886cab32b1f64166c9d53e63496dd0b4d571d69fdae985b2",
+      "portable_path": "numeric-fixtures/mc-joint-law-support-and-scientist-consumer-before-archive-processes.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/mc-joint-law-support-and-scientist-consumer-cleanup-result.json",
+      "bytes": 1611,
+      "sha256": "31a468688aeeb7d2b7dc2ae0bfe3fb464c02deffa0923b4992efa323cd3104d1",
+      "portable_path": "numeric-fixtures/mc-joint-law-support-and-scientist-consumer-cleanup-result.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/mc-joint-law-support-and-scientist-consumer-deciding-binding.json",
+      "bytes": 8046,
+      "sha256": "1f0c30e9778e0fb1b4613940c58f9d4eb787498dc0baab63f8042edc8fb1c3f4",
+      "portable_path": "numeric-fixtures/mc-joint-law-support-and-scientist-consumer-deciding-binding.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/mc-joint-law-support-and-scientist-consumer-immediate-processes.json",
+      "bytes": 4391,
+      "sha256": "a4b69d8efd758ff80a671290f6215d11834ba61cf63a410ee466e2c739299d61",
+      "portable_path": "numeric-fixtures/mc-joint-law-support-and-scientist-consumer-immediate-processes.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/pcl-continuous-persistence-archive-verification.json",
+      "bytes": 647,
+      "sha256": "3eb3f987d297197a4707b4e0c1aaf503094f4c917fd81ed5256769d5c6f91256",
+      "portable_path": "numeric-fixtures/pcl-continuous-persistence-archive-verification.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/pcl-continuous-persistence-before-archive-processes.json",
+      "bytes": 4390,
+      "sha256": "ad1ebc2b878d1484d5e064560c27341141547bdb492e5bb399282d8c9626e6b8",
+      "portable_path": "numeric-fixtures/pcl-continuous-persistence-before-archive-processes.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/pcl-continuous-persistence-cleanup-result.json",
+      "bytes": 1550,
+      "sha256": "4c570a7fc8b996fa5d7e761028fb5046936337ea1703e2cd209dff6622b21343",
+      "portable_path": "numeric-fixtures/pcl-continuous-persistence-cleanup-result.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/pcl-continuous-persistence-deciding-binding.json",
+      "bytes": 6731,
+      "sha256": "488a936b6100e759c8e4ee698c7857a4cb9ad059fc5623ab22959a86cc8d4305",
+      "portable_path": "numeric-fixtures/pcl-continuous-persistence-deciding-binding.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/pcl-continuous-persistence-immediate-processes.json",
+      "bytes": 4391,
+      "sha256": "f4f1a2035713efef575840459ade5c179c4728fe30700e839712d4e364ba708b",
+      "portable_path": "numeric-fixtures/pcl-continuous-persistence-immediate-processes.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/protected-metadata-before.json",
+      "bytes": 103791,
+      "sha256": "19ebd20f38c574b66c9a87969d17b0e39384add175b058b6c092c756bf7e8d0d",
+      "portable_path": "numeric-fixtures/protected-metadata-before.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+      "bytes": 10645,
+      "sha256": "2b76b7f27babe3eee1a1b4fe1bf8fa82c839f351c70460ec1ebb0665df527434",
+      "portable_path": "numeric-fixtures/saved-deciding/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+      "bytes": 27554,
+      "sha256": "1a1b6fde267fa9a2283b4bbadbff0ea3fe0221e691bf1525f2d63db65c1844fc",
+      "portable_path": "numeric-fixtures/saved-deciding/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "bytes": 83154,
+      "sha256": "eff4ee7af671cae2f9d49bf4bd994533bc52245433d61f1fe0a56ff668e3ebbb",
+      "portable_path": "numeric-fixtures/saved-deciding/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+      "bytes": 10457,
+      "sha256": "bf14aaaebfb61d9ea6e64a1f05d0e9fc0da75a856aa456855470d74eb91a30cd",
+      "portable_path": "numeric-fixtures/saved-deciding/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+      "bytes": 281,
+      "sha256": "840e92795a70320c72cbedd9f1ef462e30cbd062b488ab646e23b5c93c0ea505",
+      "portable_path": "numeric-fixtures/saved-deciding/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.json",
+      "bytes": 10726,
+      "sha256": "2a026082c9ae0f332147d8b121ca6841dcea20d2451ba712753b5160a5b49d35",
+      "portable_path": "numeric-fixtures/saved-deciding/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.stdout.txt",
+      "bytes": 400,
+      "sha256": "878d5c6256968b7eba8ddbccd44ad7d165f61c4a7521d05198d615d5b5289e83",
+      "portable_path": "numeric-fixtures/saved-deciding/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.stdout.txt",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/cal-and-welfare-consumer-retry/pytest.xml",
+      "bytes": 52854,
+      "sha256": "e1990adf7d224852294334881d0a06f5a86b44a75c70f3018f7b6061013cde8b",
+      "portable_path": "numeric-fixtures/saved-deciding/cal-and-welfare-consumer-retry/pytest.xml",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+      "bytes": 9677,
+      "sha256": "3f5055ffa1d657d7fb6bb48aba2f58586a9dff7c477926a46cce4cac4ed38fed",
+      "portable_path": "numeric-fixtures/saved-deciding/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+      "bytes": 160,
+      "sha256": "4bed8cc624113743771e380f4fea7f09ec8586d03d46684c5c3a9889a2038305",
+      "portable_path": "numeric-fixtures/saved-deciding/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/ddm-runtime-and-facade/pytest.xml",
+      "bytes": 12578,
+      "sha256": "8ec75f41d5be88b055f813772e9c89fdb9ed1ba978df9966b153074d899cfbcd",
+      "portable_path": "numeric-fixtures/saved-deciding/ddm-runtime-and-facade/pytest.xml",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+      "bytes": 9830,
+      "sha256": "74d964a4a6c8e7d6a52592b0c3d3d71ae161279272fc3179577dae62cbfcee93",
+      "portable_path": "numeric-fixtures/saved-deciding/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+      "bytes": 2280,
+      "sha256": "c1d3a2f4cd10aa217734d3855947b1ce82b395ce79df040da3a5a9ba0089d16b",
+      "portable_path": "numeric-fixtures/saved-deciding/doe-salib-and-consumer-factory/doe-salib-and-consumer-factory.stdout.txt",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/doe-salib-and-consumer-factory/pytest.xml",
+      "bytes": 36923,
+      "sha256": "c2856e7892537f67c965ce385585a206fd5d4a937cd3a0d4eaafd358688ec09b",
+      "portable_path": "numeric-fixtures/saved-deciding/doe-salib-and-consumer-factory/pytest.xml",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+      "bytes": 9017,
+      "sha256": "c063fcf1288e0a5c17562e71cdf899e5251c93a8c4c3fc4b5ae5f21eca64f66a",
+      "portable_path": "numeric-fixtures/saved-deciding/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+      "bytes": 80,
+      "sha256": "028dd49c08f9ca3151612e7dd2db85e156b2c618b6b2899f2dfec4d2027564ae",
+      "portable_path": "numeric-fixtures/saved-deciding/g-checkpoint10-controlplanestore-companion/g-checkpoint10-controlplanestore-companion.stdout.txt",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/g-checkpoint10-controlplanestore-companion/pytest.xml",
+      "bytes": 10247,
+      "sha256": "0a0ebe21740efba221edccd2312a788eb6fb453aafad5b50b48e84cc69bafbb9",
+      "portable_path": "numeric-fixtures/saved-deciding/g-checkpoint10-controlplanestore-companion/pytest.xml",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+      "bytes": 10594,
+      "sha256": "7227ca411296804de6d5f6cca769b9be0d210009040ef9c9bf3390c36ba1586e",
+      "portable_path": "numeric-fixtures/saved-deciding/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+      "bytes": 1211,
+      "sha256": "2b8d025fdbc1364f5afbb4edf9717bda621429495f142c349cb8548908c7e235",
+      "portable_path": "numeric-fixtures/saved-deciding/mc-joint-law-support-and-scientist-consumer/mc-joint-law-support-and-scientist-consumer.stdout.txt",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "bytes": 73798,
+      "sha256": "16387db180e797b9663e288360f4bd50d4b638b50d357e70453e2e6baf57bdfa",
+      "portable_path": "numeric-fixtures/saved-deciding/mc-joint-law-support-and-scientist-consumer/pytest.xml",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/pcl-continuous-persistence/pcl-continuous-persistence.json",
+      "bytes": 9433,
+      "sha256": "e7d34b6fb91f3301783d6fc14b0bb4870847d2d4a1710b8469be362c1bdcf42b",
+      "portable_path": "numeric-fixtures/saved-deciding/pcl-continuous-persistence/pcl-continuous-persistence.json",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+      "bytes": 160,
+      "sha256": "d8b8de5aa45f370d8fca3d3554fc6f6eb91df8892674da930f787edcc91f0d95",
+      "portable_path": "numeric-fixtures/saved-deciding/pcl-continuous-persistence/pcl-continuous-persistence.stdout.txt",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/pcl-continuous-persistence/pytest.xml",
+      "bytes": 15059,
+      "sha256": "590659d7422b8103617787f7d42345502a5f6ea718321fff783563cd45017f51",
+      "portable_path": "numeric-fixtures/saved-deciding/pcl-continuous-persistence/pytest.xml",
+      "role": "literal-closed-native-deciding/admission/archive-readback/no-users/custody"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/additional-capacity-candidates.json",
+      "bytes": 39606,
+      "sha256": "0fbcf1af86433bb4835ebbe771dc552be4f15e60a3d920e12b19a3c808e29859",
+      "portable_path": "original-readonly-capacity-candidates.json",
+      "role": "literal-historical-input-scope-and-Gitpublished-decidingrefs-no-inventory-rewrite"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed_numeric_fixture_archive_cleanup.py",
+      "bytes": 14810,
+      "sha256": "b082999455f40a58ae0b5a69248ce0a50d8d888caad3a78631ba28269bf74a29",
+      "portable_path": "observer/closed_numeric_fixture_archive_cleanup.py.txt",
+      "role": "literal-executed-passive-observer-source"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixture-cleanup.stdout.txt",
+      "bytes": 2328,
+      "sha256": "6bcaf6e1e58ada1f1ad6a400799357ec0242c59868a90624afa41fdd746a7db4",
+      "portable_path": "observer/closed-numeric-fixture-cleanup.stdout.txt",
+      "role": "literal-closed-native-observer-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixture-cleanup.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "observer/closed-numeric-fixture-cleanup.stderr.txt",
+      "role": "literal-closed-native-observer-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-append-20261007/publication-selection.json",
+      "bytes": 47817,
+      "sha256": "c7f3c4ce9e04c0fcbd8bbb11e54de2132f5229369c17d98e33e38de29ed72b23",
+      "portable_path": "historical/publication-selection-v1.json",
+      "role": "literal-historical-93asset-selector"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-append-20261007/cleanup-append-summary-v2.json",
+      "bytes": 10202,
+      "sha256": "8e4b7eedc47c427c09241454f3b6026af60236d6d5ddda8d4c92f42d13cf738b",
+      "portable_path": "cleanup-append-summary-v2.json",
+      "role": "current-corrective-derived-summary"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-append-20261007/actual-backend-scope-corrective-readback.json",
+      "bytes": 19794,
+      "sha256": "c4d62bd25599ec9faee118acd8509b84ea77670465d96681fdff0bf26b721084",
+      "portable_path": "actual-backend-scope-corrective-readback.json",
+      "role": "readonly-actual-protected-backend-inlet-rebinding"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/read_actual_backend_cleanup_scope.py",
+      "bytes": 2991,
+      "sha256": "2c59a4a1634347bf314554bb133bee67dcff868db50115f5ef18f7c6192a24e1",
+      "portable_path": "observer/read_actual_backend_cleanup_scope.py.txt",
+      "role": "literal-executed-passive-corrective-observer"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/actual-backend-scope-corrective.stdout.txt",
+      "bytes": 340,
+      "sha256": "4957935e1658dcad282cfa0beda8b437697d3cd6dbbfb3005b90b44595855414",
+      "portable_path": "observer/actual-backend-scope-corrective.stdout.txt",
+      "role": "literal-corrective-readback-output"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/actual-backend-scope-corrective.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "observer/actual-backend-scope-corrective.stderr.txt",
+      "role": "literal-corrective-readback-stderr"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/capacity-after-closed-cleanup-readonly.json",
+      "bytes": 4012,
+      "sha256": "aa2120a34c600b0200bc7a753a2925a51e6695d017a4ead90b8e346d622d6cd1",
+      "portable_path": "capacity/after-cleanup-readonly.json",
+      "role": "plan-only-readonly-capacity"
+    },
+    {
+      "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/current-receipt-catalog-size-readonly.txt",
+      "bytes": 18295,
+      "sha256": "ef7b376af91cf32a549815ce8cfd94afba1894e5072b98c55e011fa89fc965a5",
+      "portable_path": "capacity/current-receipt-catalog-size-readonly.txt",
+      "role": "literal-readonly-du-output"
+    }
+  ],
+  "asset_count": 101,
+  "bytes": 1057547,
+  "logical_paths_unique": true,
+  "archives_and_full_inventories_ignored_refs": {
+    "archives": [
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/architecture-retained-source.tar.gz",
+        "bytes": 135133695,
+        "sha256": "be25692ac486a06dffca2c0be1c025e4d319ca88fda95225c24ccb6d9c8f22ab"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/full-architecture-retained-source.tar.gz",
+        "bytes": 135138492,
+        "sha256": "12f927e032c6c84c319ed4a5ad57feb4ff0ae36c6581483d08fa8f5acdcecef3"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers.tar.gz",
+        "bytes": 6256608,
+        "sha256": "f541855404fd242b05c3b54c174bc535e0fa41c87c116604f5b62f74951c0cbe"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/mc-joint-law-support-and-scientist-consumer.tar.gz",
+        "bytes": 1294819,
+        "sha256": "d58fdf51b9d560ba27ade1e808f976f6f0ceea6d1dc285054bfe0b434fed5a13"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer.tar.gz",
+        "bytes": 928363,
+        "sha256": "a3faa00201884016227c93a0ad8af9f530959610a5370cd3f0908d5ca2062b29"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/g-checkpoint10-controlplanestore-companion.tar.gz",
+        "bytes": 385217,
+        "sha256": "0df62a91226b20a38e51743ee0eebf9a9e022a517c85bb7a68e7f2dbb6006172"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/doe-salib-and-consumer-factory.tar.gz",
+        "bytes": 407349,
+        "sha256": "80dc60b5a292d1f990a409f6400dee378d2df301f94392f37e3753ca9a30f5ef"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/pcl-continuous-persistence.tar.gz",
+        "bytes": 99074,
+        "sha256": "7073eadf2d142b4641f4dd2eab313a7bc8c3eadd89b536f94163e2bcb5ae6831"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/ddm-runtime-and-facade.tar.gz",
+        "bytes": 1519,
+        "sha256": "8ca3901cf55e93692aa62644523d89db7a93b9c0b7076f4b435a6a4738c103d3"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-retry.tar.gz",
+        "bytes": 1718810,
+        "sha256": "8f8e3dd380c7661773134600b90c635f03d2c30b72c2f731168d69b3d500ec8a"
+      }
+    ],
+    "full_inventories": [
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/architecture-retained-full-inventory.json",
+        "bytes": 12852251,
+        "sha256": "b226200b9407260b2624b0e0974c1a7812385ab4d3ceda9880275ea4c12e46b4"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/full-architecture-retained-full-inventory.json",
+        "bytes": 12840994,
+        "sha256": "90968117adfa6c45412e817a99611f0f440d49b15eda6bdca888d8f8b7024196"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers-full-inventory.json",
+        "bytes": 6127647,
+        "sha256": "22054246fe5a43064954e9bab6a74d247cbc0793ed505757566fdf07030d8c5a"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/mc-joint-law-support-and-scientist-consumer-full-inventory.json",
+        "bytes": 1755487,
+        "sha256": "f2ede3a1b112dce5caffe26ef587d7ebbec167df9a20ed43a21481848ce1aeca"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-full-inventory.json",
+        "bytes": 1267436,
+        "sha256": "300c4be3c25ffdd29e4e12478729b2b79b6a80c134f8ccd6d5258ada4000663f"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/g-checkpoint10-controlplanestore-companion-full-inventory.json",
+        "bytes": 62779,
+        "sha256": "1a3e5d7a778e35d2f223309de5c2d65eeea09a97f1659e7173805c6d791c1a42"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/doe-salib-and-consumer-factory-full-inventory.json",
+        "bytes": 93549,
+        "sha256": "22750c181aa4374ef85565c99fae9c2c598b424b7fc3ca1236a75171b0138641"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/pcl-continuous-persistence-full-inventory.json",
+        "bytes": 216631,
+        "sha256": "04d8cf8e22fc5460379b747f9cbc8fdc44677855278ecb73e783f0bd90cf80f2"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/ddm-runtime-and-facade-full-inventory.json",
+        "bytes": 2536,
+        "sha256": "8b826e06c55b2e9d929da341d53e8e665366b13b09765fc5dfce5672d8bf9e2c"
+      },
+      {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-retry-full-inventory.json",
+        "bytes": 3292357,
+        "sha256": "998cbb77fe9616b092493ef54aa955a99c7909541463c15e09ef4455b50ca822"
+      }
+    ]
+  },
+  "actual_native_outcomes_do_not_change_findings": true,
+  "scope": "Moderate closed receipts and passive recipes only; full archives/inventories remain ignored/tmp hash-size refs; no active Python/source/env changes.",
+  "historical_selector": {
+    "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-append-20261007/publication-selection.json",
+    "bytes": 47817,
+    "sha256": "c7f3c4ce9e04c0fcbd8bbb11e54de2132f5229369c17d98e33e38de29ed72b23"
+  },
+  "current_summary": {
+    "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-append-20261007/cleanup-append-summary-v2.json",
+    "bytes": 10202,
+    "sha256": "8e4b7eedc47c427c09241454f3b6026af60236d6d5ddda8d4c92f42d13cf738b"
+  },
+  "actual_backend_scope_correction": {
+    "source_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-append-20261007/actual-backend-scope-corrective-readback.json",
+    "bytes": 19794,
+    "sha256": "c4d62bd25599ec9faee118acd8509b84ea77670465d96681fdff0bf26b721084"
+  }
+}

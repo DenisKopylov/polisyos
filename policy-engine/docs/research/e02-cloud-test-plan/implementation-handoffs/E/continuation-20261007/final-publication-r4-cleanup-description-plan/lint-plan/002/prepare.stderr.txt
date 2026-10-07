@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare_current_lint_inputs.py", line 139, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare_current_lint_inputs.py", line 136, in main
+    q=json.loads(QUAL.read_bytes());result=prepare(REFS,q)
+                                           ^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare_current_lint_inputs.py", line 126, in prepare
+    require(not config.get('extend'),'New extend config requires recursive discovery, no implicit drop')
+  File "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare_current_lint_inputs.py", line 20, in require
+    if not ok: raise ValueError(message)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: New extend config requires recursive discovery, no implicit drop

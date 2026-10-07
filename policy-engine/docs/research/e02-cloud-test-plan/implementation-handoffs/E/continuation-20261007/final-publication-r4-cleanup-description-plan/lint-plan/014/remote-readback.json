@@ -1,0 +1,47 @@
+{
+  "schema": "policyos.e02.E.lint_preparation_remote_readback.v1",
+  "actual_published_heads": {
+    "refs/heads/codex/e02-E-doe-20261006": "7537ef95beed07d02a3b72343b082ff3b7fd14e2",
+    "refs/heads/codex/e02-E-frc-20261006": "737c9e3115abac3fefe76920b08c05e76a5bee17",
+    "refs/heads/codex/e02-E-mc-20261006": "c4e8092d52cfff633465a8de1b8c93195388d401",
+    "refs/heads/codex/e02-integration": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+    "refs/heads/main": "198076863e143dea9f89f02734b13d50dae3eed5"
+  },
+  "published_input_heads_match_current_plan": true,
+  "MC_qualified_source3932_is_locally_immutable_but_not_yet_published": true,
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "source_plan": {
+    "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/plan-v3.json",
+    "bytes": 722104,
+    "sha256": "106a280d6fd0fb60893392e9f67408e76b712dff8b16cce5bbb2f697f6d52f74"
+  },
+  "command": {
+    "argv": [
+      "git",
+      "-C",
+      "/workspace/e02-E-mc-20261006",
+      "ls-remote",
+      "origin",
+      "refs/heads/main",
+      "refs/heads/codex/e02-integration",
+      "refs/heads/codex/e02-E-frc-20261006",
+      "refs/heads/codex/e02-E-doe-20261006",
+      "refs/heads/codex/e02-E-mc-20261006"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/remote-heads.stdout.txt",
+      "bytes": 361,
+      "sha256": "b97a79382c000a74d24fd14b0f41edd91c3aff4a6736080b2c799eda8a86f50e"
+    },
+    "stderr": {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/remote-heads.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "actual_final_merged_HEAD_still_pending": true,
+  "ROOT_native_tools_executed": false,
+  "observer_python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "parent_review_pending": true
+}

@@ -1,0 +1,11 @@
+{
+  "candidate": "66a4f8fc1398ed72b3ee9d38b07d88a4d2d5c3cd",
+  "tree": "54ec53ea6e53a61432135e8d2728c6fa1cfd964a",
+  "base": "737c9e3115abac3fefe76920b08c05e76a5bee17",
+  "full_paths": 522,
+  "full_bytes": 10231561,
+  "handoff_paths": 339,
+  "handoff_bytes": 1510294,
+  "active_python": [],
+  "product_test_paths": []
+}

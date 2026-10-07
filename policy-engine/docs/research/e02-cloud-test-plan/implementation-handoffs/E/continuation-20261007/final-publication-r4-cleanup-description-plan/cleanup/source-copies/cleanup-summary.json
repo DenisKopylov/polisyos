@@ -1,0 +1,160 @@
+{
+  "schema": "policyos.e02.closed_generated_source_overlay_archival_cleanup.v1",
+  "authorization": "Parent exact two CLOSED source-copy testoverlays authorized under user explicit cloud repeatable-fixture cleanup. All code/docs and unmatched/unique bytes first archived+full byte/link/mode readback; no real Git/registeredworktree/source deletion.",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "actions": [
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/architecture-retained/source",
+      "started_unix": 1791375498.4812596,
+      "ended_unix": 1791375499.3669565,
+      "filesystem_before": {
+        "observed_unix": 1791375498.4812555,
+        "free_bytes": 2237239296,
+        "available_bytes": 502476800
+      },
+      "filesystem_after": {
+        "observed_unix": 1791375499.354202,
+        "free_bytes": 2815377408,
+        "available_bytes": 1080614912
+      },
+      "actual_available_delta_bytes": 578138112,
+      "allocated_fixture_file_bytes": 569700352,
+      "archive": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/architecture-retained-source.tar.gz",
+        "bytes": 135133695,
+        "sha256": "be25692ac486a06dffca2c0be1c025e4d319ca88fda95225c24ccb6d9c8f22ab"
+      },
+      "inventory": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/architecture-retained-full-inventory.json",
+        "bytes": 12852251,
+        "sha256": "b226200b9407260b2624b0e0974c1a7812385ab4d3ceda9880275ea4c12e46b4"
+      },
+      "members": 20526,
+      "matched_tracked_files": 16988,
+      "matched_tracked_bytes": 523926942,
+      "all_unmatched_files_preserved": 1555,
+      "unmatched_bytes_preserved": 1552844,
+      "absent_after": true,
+      "protected_source_metadata_unchanged": true
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/source",
+      "started_unix": 1791375517.677686,
+      "ended_unix": 1791375518.2325628,
+      "filesystem_before": {
+        "observed_unix": 1791375517.6776822,
+        "free_bytes": 2815307776,
+        "available_bytes": 1080545280
+      },
+      "filesystem_after": {
+        "observed_unix": 1791375518.219411,
+        "free_bytes": 3393507328,
+        "available_bytes": 1658744832
+      },
+      "actual_available_delta_bytes": 578199552,
+      "allocated_fixture_file_bytes": 569737216,
+      "archive": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/full-architecture-retained-source.tar.gz",
+        "bytes": 135138492,
+        "sha256": "12f927e032c6c84c319ed4a5ad57feb4ff0ae36c6581483d08fa8f5acdcecef3"
+      },
+      "inventory": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/full-architecture-retained-full-inventory.json",
+        "bytes": 12840994,
+        "sha256": "90968117adfa6c45412e817a99611f0f440d49b15eda6bdca888d8f8b7024196"
+      },
+      "members": 20547,
+      "matched_tracked_files": 16988,
+      "matched_tracked_bytes": 523926942,
+      "all_unmatched_files_preserved": 1567,
+      "unmatched_bytes_preserved": 1556390,
+      "absent_after": true,
+      "protected_source_metadata_unchanged": true
+    }
+  ],
+  "closed_native_deciding_receipts": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/checks/architecture-full-retry/architecture-full-retry.json",
+      "bytes": 7883,
+      "sha256": "79341bd7ef4131f55ec7a9ca22f0ae4b378a4969a61a38e0047143951f3e5bba",
+      "saved_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/saved-deciding/architecture-full-retry.json"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/checks/architecture-full-retry/architecture-full-retry.stdout.txt",
+      "bytes": 123571,
+      "sha256": "8240df44dd7f4a899c3c9e25a1945e1bf15680b19fbfcbc38a378c05fb3354af",
+      "saved_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/saved-deciding/architecture-full-retry.stdout.txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/checks/narrow-runtime-family/narrow-runtime-family.json",
+      "bytes": 7698,
+      "sha256": "d846247a0bde06bb466054682e8ac565f70fe8a4d270723797a4320f93e9c1dd",
+      "saved_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/saved-deciding/narrow-runtime-family.json"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/checks/narrow-runtime-family/narrow-runtime-family.stdout.txt",
+      "bytes": 774,
+      "sha256": "0b38fd8de22127c76379502604b59a91236a82d9e20b30a7361a52f7ac67dc7f",
+      "saved_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/saved-deciding/narrow-runtime-family.stdout.txt"
+    }
+  ],
+  "preserved_outputs": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/architecture-retained/outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json",
+      "bytes": 2812414,
+      "sha256": "d60fa373d74d8af43a14b806da0d4180bed8bacb2670d10aea4b402268575c7b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "bytes": 31276,
+      "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "bytes": 108061,
+      "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/outputs/runtime-api-client/packages/runtime-api-client/types.ts",
+      "bytes": 951543,
+      "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/outputs/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+      "bytes": 791736,
+      "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json",
+      "bytes": 2812414,
+      "sha256": "d60fa373d74d8af43a14b806da0d4180bed8bacb2670d10aea4b402268575c7b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/outputs/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "bytes": 2376644,
+      "sha256": "8e0d0efe77563ce7211c1d491b19b5d2d25b8ae1ef6e58c01453e822afe6feea"
+    }
+  ],
+  "protected_metadata_counts": [
+    207,
+    184
+  ],
+  "protected_metadata_byte_identical": true,
+  "git_registration_bytes_unchanged": false,
+  "filesystem_before": {
+    "observed_unix": 1791375477.5071661,
+    "free_bytes": 2237239296,
+    "available_bytes": 502476800
+  },
+  "filesystem_after": {
+    "observed_unix": 1791375518.2522767,
+    "free_bytes": 3393507328,
+    "available_bytes": 1658744832
+  },
+  "actual_observed_available_net_delta_bytes": 1156268032,
+  "sum_action_immediate_available_deltas_bytes": 1156337664,
+  "metric_limits": "Native backend concurrently writes overlay; observed free deltas are actual filesystem observations, not additive physicalRAM/resource claims. Full source archives are under ignoredtmp; do not sum tmpfs usage into workspace recoveredcapacity.",
+  "native_current_backend_or_environments_or_wheels_touched": false,
+  "scope": "Only two exact unregistered CLOSED generated-source testcopies. CurrentROOT/DoE environments, active backendfixtures/ports/cache, alloriginalcode/docs/Git/deciding outputs and complete source rawbytes remain preserved."
+}

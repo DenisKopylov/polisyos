@@ -1,0 +1,89 @@
+"""Independent read-only prospective lint planner review; no gates/environment/ROOT mutations."""
+from pathlib import Path
+import ast,collections,copy,hashlib,importlib.util,json,os,subprocess,sys,tomllib
+B=Path('/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007');P=B/'prepare_current_lint_inputs.v3.py';OUT=Path('/tmp/e02-E-lint-plan-independent-doe-20261007');ROOT=Path('/workspace/e02-E-continuation-20261006');REPO=Path('/workspace/e02-E-mc-20261006');S='64d7444a18c55df7b88b71b7699a2f1b25ca24bd';T='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+def require(v,m):
+ if not v:raise ValueError(m)
+def ref(p):
+ b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def git(*args):return subprocess.check_output(['git','-C',str(REPO),*args])
+def changes(base,head):
+ fields=git('diff','--name-status','--no-renames','-z',base,head,'--').decode().split('\0');require(fields.pop()=='' and len(fields)%2==0,'Gitdelta framing');return [{'status':fields[i],'path':fields[i+1]} for i in range(0,len(fields),2)]
+def verify_plan(plan,expected_paths,expected_blobs,writer_counts):
+ require(plan['prospective_union_only'] is True and plan['actual_merged_candidate'] is None and plan['actual_merged_tree'] is None and plan['execution_allowed'] is False and plan['global_Ruff_or_format_executed'] is False,'prospective/nonexecuted binding')
+ require(type(plan['prospective_python_path_count']) is int and plan['prospective_python_path_count']==len(expected_paths) and type(plan['command_python_path_count']) is int and plan['command_python_path_count']==len(expected_paths),'typed366 denominator')
+ rows=plan['python_rows'];require(len(rows)==len(expected_paths) and {r['path'] for r in rows}==expected_paths and len({r['path'] for r in rows})==len(rows),'full exact Pythonmembership')
+ require(plan['writer_counts']==writer_counts and dict(collections.Counter(r['writer_attribution']['writer'] for r in rows))==writer_counts,'full factual writerclasses')
+ for r in rows:
+  require(r['object_id']==expected_blobs[r['path']] and r['physical_ROOT_binding'].startswith('UNMEASURED'),'exactplannedGitobject nofakedROOTbinding')
+  raw=git('cat-file','blob',r['object_id']);require(type(r['bytes']) is int and r['bytes']==len(raw) and r['sha256']==hashlib.sha256(raw).hexdigest(),'eachactual366Gitbyteidentity')
+ require(plan['check_outcomes']=={'Ruff':'UNRUN','Ruff-format':'UNRUN'},'nativeunrun notPASS')
+ py_paths=[r['path'][len('policy-engine/'):] for r in rows]
+ for c in plan['commands']:
+  start=c['argv'].index('json')+1 if c['name']=='Ruff' else c['argv'].index('--check')+1;require(c['argv'][start:]==py_paths and c['cwd']==str(ROOT/'policy-engine') and '--config' not in c['argv'] and c['status']=='UNRUN','literalfullnativeargv/cwd/nooverride/UNRUN')
+ config={r['path']:r for r in plan['effective_configuration_inputs']};require(set(config)=={'policy-engine/ruff.toml','policy-engine/architecture/tooling/ruff/generated.toml'},'full configextend closure')
+ for path,r in config.items():
+  raw=git('show',S+':'+path);require(r['equals_frozen_tree'] is True and r['bytes']==len(raw) and r['sha256']==hashlib.sha256(raw).hexdigest(),'actualfrozenconfigGitbytes')
+  doc=tomllib.loads(raw.decode());ext=doc.get('extend');require(r['extends']==('policy-engine/architecture/tooling/ruff/generated.toml' if ext else None),'exactrelativeconfigurationextend')
+ return True
+
+def main():
+ OUT.mkdir(exist_ok=True);require(ref(P)['sha256']=='bfe8dd2e1c0c78b1c3b6a9e2b9c5f2b408141c87fee9d7ad2a047702864ab924','immutableplanner15952 source')
+ selection=B/'publication-selection-v3.json';require(ref(selection)['sha256']=='651417bba8c733e9965fc51b5d38df3c3390c1f913793947bae253ff115a4aaa','closed18/14 selection');index=json.loads(selection.read_text());rows=index['files'];require(len(rows)==index['logical_count']==18 and len({r['logical_at'] for r in rows})==18,'exact18logical aliases')
+ for r in rows:require(ref(Path(r['stored_at']))['sha256']==r['sha256'] and ref(Path(r['stored_at']))['bytes']==r['bytes'],'allselectedbodyhashsize')
+ unique={(r['sha256'],r['bytes']) for r in rows};require(len(unique)==index['content_unique_count']==14 and sum(n for h,n in unique)==index['content_unique_bytes']==1156586,'logical/content denominators independentlyretotal')
+ # Bind all executable companions before importing planner; standardlib/Git-only known source.
+ prior=Path('/workspace/e02-E-pr38-r3-receipts/final-lint-recorder');qual=Path('/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-3932.json');required=[(prior/'record_denominator.py','17085daa5b0ec493c15f7f3583423221916539a621330e94d812ed3bb9da2a11'),(prior/'writer-attribution-supplement-64d7444a.json','f0ed212053b18814ad53c523e6f41d229c286fb9c3cddb218b01297743b8cb85'),(prior/'closed-wave-64d7444a/closed-lint-review.json','7ea12c7be7043c90aac8d8319de3028ee0b94c01fd436f4ca0d3dde59ee5de80'),(qual,'e9be8494cbf87f77f6c737fc5f2eebd58c6481b2893d4dfd76891b854409f418')]
+ for p,h in required:require(ref(p)['sha256']==h,'pinnedcompanion before moduleloader')
+ before=subprocess.check_output(['git','-C',str(ROOT),'rev-parse','HEAD','HEAD^{tree}']).decode().splitlines();require(before==[S,T],'ROOT64d source bracket')
+ spec=importlib.util.spec_from_file_location('independent_reviewed_lint_planner',P);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);q=json.loads(qual.read_text());prepared=m.prepare(copy.deepcopy(m.REFS),copy.deepcopy(q));saved=json.loads((B/'plan-v3.json').read_text());require(prepared==saved,'actual fresh prepare byte-equivalent structuredplan')
+ # Independent denominator oracle: prior360 plus literal incoming Gitdeltas; no planner select_python helpers reused.
+ old=json.loads((prior/'closed-64d7444a-denominator.json').read_text());expected_paths={r['path'] for r in old['rows']};expected_blobs={r['path']:git('rev-parse',S+':'+r['path']).decode().strip() for r in old['rows']};incoming=[]
+ for owner in ('G','FRC','DOE','MC'):
+  head=m.REFS[owner];base=git('merge-base',S,head).decode().strip();delta=changes(base,head);active=[r for r in delta if r['path'].endswith('.py') and r['status']!='D'];deleted=[r for r in delta if r['path'].endswith('.py') and r['status']=='D'];require(not deleted,'actual inputs containnoactivePython deletion')
+  for r in active:expected_paths.add(r['path']);expected_blobs[r['path']]=git('rev-parse',head+':'+r['path']).decode().strip()
+  incoming.append({'owner':owner,'head':head,'merge_base':base,'full_delta_paths':len(delta),'active_python':[r['path'] for r in active]})
+ wc={'E':344,'A':2,'B':13,'F':2,'G':5};verify_plan(prepared,expected_paths,expected_blobs,wc);require(len(expected_paths)==366 and len(q['full_footprint'])==24 and len([r for r in q['full_footprint'] if r['role']=='product_python'])==7,'actual complete source24/Py12/product7 counted')
+ # Author34controls are observations, not own authority; independently check all rows and actual controlcount in both modes.
+ author=[]
+ for mode in ('normal','optimized'):
+  p=B/('controls-v3-'+mode+'.stdout.json');d=json.loads(p.read_text());require(d['control_count']==len(d['controls'])==34 and all(r['outcome']=='PASS' for r in d['controls']) and d['mode']==mode,'actualauthored34metadata controlreceipt');author.append(ref(p))
+ controls=[]
+ for name,change in [('refboolean',lambda r,q:r.__setitem__('MC',True)),('refoption',lambda r,q:r.__setitem__('MC','--output=/tmp/escape')),('latepathboolean',lambda r,q:q['full_footprint'][-1].__setitem__('path',True)),('latepathtraversal',lambda r,q:q['full_footprint'][-1].__setitem__('path','../escape')),('countboolean',lambda r,q:q['complete_footprint'].__setitem__('paths',True)),('sizeboolean',lambda r,q:q['full_footprint'][-1].__setitem__('bytes',True)),('lastduplicate',lambda r,q:q['full_footprint'][-1].__setitem__('path',q['full_footprint'][0]['path'])),('reviewmarkertruebutwrong',lambda r,q:q.__setitem__('implementation_review_outcome','PASS')),('executionmarkertrue',lambda r,q:q.__setitem__('global_gate_execution_allowed',True)),('validtypedretotalwrong',lambda r,q:q['complete_footprint'].__setitem__('paths',23))]:
+  refs=copy.deepcopy(m.REFS);qq=copy.deepcopy(q);change(refs,qq);calls=[];oldrun=m.subprocess.run
+  def spy(*args,**kwargs):calls.append(str(args));raise RuntimeError('Git/nativecallbackmustnotrun')
+  m.subprocess.run=spy
+  try:
+   try:m.prepare(refs,qq)
+   except ValueError as e:controls.append({'name':name,'outcome':'PASS','refusal':str(e),'callback_count':len(calls)});require(not calls,'typedmetadata beforecallback')
+   else:raise ValueError('typedmetadataescaped')
+  finally:m.subprocess.run=oldrun
+ # Semantically well-typed wrong source tree/path requires read-only Git identity knowledge; it must refuse before any gate/native execute and not emit a plan.
+ for name,change in [('wrong_valid_sourcetree',lambda q:q.__setitem__('tree','0'*40)),('unknown_canonical_reviewedpath',lambda q:q['full_footprint'][-1].__setitem__('path','policy-engine/docs/unknown-review-input.md'))]:
+  qq=copy.deepcopy(q);change(qq);calls=[];oldrun=m.subprocess.run
+  def observe(*args,**kwargs):
+   argv=args[0];require(argv[0] in ('git','/usr/bin/git') and '--output' not in argv,'only actual safe Gitread callbacks');calls.append(argv);return oldrun(*args,**kwargs)
+  m.subprocess.run=observe
+  try:
+   try:m.prepare(copy.deepcopy(m.REFS),qq)
+   except ValueError as e:controls.append({'name':name,'outcome':'PASS','actual_refusal':str(e),'readonlyGitcallbacks':len(calls),'native/gatecallbacks':0,'limits':'Identitychecking uses actual pinned Git; zeroreadcallbacks is not claimed for canonicalbutincorrect semanticmetadata.'})
+   else:raise ValueError('semantic bindingescaped')
+  finally:m.subprocess.run=oldrun
+ # Actual first-child escape after removing only common preflight, all GO/admission/authority fields remain.
+ refs=copy.deepcopy(m.REFS);refs['MC']='--output=/tmp/neverexecuted';calls=[];oldrun=m.subprocess.run;oldpre=m.preflight;m.preflight=lambda refs,q:(refs,q)
+ def blocked(*a,**kw):calls.append(a[0]);raise RuntimeError('actual first Gitchild intercepted noexecution')
+ m.subprocess.run=blocked
+ try:
+  try:m.prepare(refs,copy.deepcopy(q))
+  except RuntimeError:require(len(calls)==1,'effectivepreflight removalcallback');controls.append({'name':'effectivewholemetadata_admission_removal','outcome':'PASS','actual_removed_guard_defining_property':'FAIL','callback_count':1,'unsafecommandactuallyexecuted':False})
+ finally:m.subprocess.run=oldrun;m.preflight=oldpre
+ # Corrupt fullyretotalled plan must fail membership/source/config identity admission without globalexecution.
+ for name,change in [('wrong_plan_bool_count',lambda d:d.__setitem__('prospective_python_path_count',True)),('wrong_unmeasured_actualcandidate',lambda d:d.__setitem__('actual_merged_candidate',m.REFS['MC'])),('omitted_py_row_retall',lambda d:(d['python_rows'].pop(),d.__setitem__('prospective_python_path_count',365),d.__setitem__('command_python_path_count',365))),('unknownwriterretotal',lambda d:d.__setitem__('writer_counts',{'E':343,'A':2,'B':13,'F':2,'G':5,'not_established':1})),('wrongconfigbody',lambda d:d['effective_configuration_inputs'][0].__setitem__('sha256','0'*64))]:
+  d=copy.deepcopy(prepared);change(d)
+  try:verify_plan(d,expected_paths,expected_blobs,wc)
+  except ValueError as e:controls.append({'name':name,'outcome':'PASS','refusal':str(e),'native/globalcommands':0})
+  else:raise ValueError('planpredicateescape')
+ after=subprocess.check_output(['git','-C',str(ROOT),'rev-parse','HEAD','HEAD^{tree}']).decode().splitlines();require(after==before,'ROOTsourceunchanged')
+ # Keep full independentlyprepared output ignored/scratch; moderate output references exact source/recipe and complete selected membership digest.
+ mode='optimized' if not __debug__ else 'normal';full=OUT/('prepared-'+mode+'.json');full.write_text(json.dumps(prepared,indent=2)+'\n');report={'schema':'policyos.e02.independent_prospective_lint_planner_review.v1','reviewer':'doe_r4','mode':mode,'disposition':'GO boundedprospectiveplan only','source_planner':ref(P),'source_selection':ref(selection),'source_qualification':ref(qual),'complete_refs':m.REFS,'complete_input_trees':prepared['input_trees'],'fresh_actualprepare_structured_identical':True,'independent_complete_denominator':len(expected_paths),'membership_sha256':hashlib.sha256(('\n'.join(sorted(expected_paths))+'\n').encode()).hexdigest(),'independently_recomputed_incoming_delta':incoming,'factual_writer_counts':wc,'canonical_leases_are_separate_from_writerclasses':True,'config_inputs':prepared['effective_configuration_inputs'],'actual_merged_ROOT_candidate':None,'current_ROOT64d_source_unchanged':True,'Ruff':'UNRUN','format':'UNRUN','source_newproduct_admission':{'paths':24,'python':12,'product_python':7,'test_python':5,'evidence':'Exact qualified3932 source/objectbytes, not currentROOTor globalgate authority'},'author_control_receipts':author,'independent_control_count':len(controls),'independent_controls':controls,'full_prepared_ignored_output':ref(full),'limits':['NativeglobalRuff/format/backend/source/API code not executed or changed. Observeruses only externalstdlib and read-onlyGit.','Prospective366 union is planonly; laterDOCheads/mergedROOTphysicalfootprint/config mustbe recounted after actual append-onlymerge/freeze.','Old frozen360 diagnostics36/3foreignpaths remain historicalactualFAIL, no inherited P41 waiver.','Semantic wrong source tree/path refusals require pinned read-onlyGit callbacks; no falsezero-read claim.','General Core/IR/facade/schema authority is not granted by E scopedsourcequalification or writer counts.'],'input_dependency_refs':[ref(p) for p,h in required]};p=OUT/('independent-review-'+mode+'.json');p.write_text(json.dumps(report,indent=2)+'\n');print(json.dumps({'disposition':report['disposition'],'control_count':len(controls),'report':ref(p)},indent=2))
+if __name__=='__main__':main()

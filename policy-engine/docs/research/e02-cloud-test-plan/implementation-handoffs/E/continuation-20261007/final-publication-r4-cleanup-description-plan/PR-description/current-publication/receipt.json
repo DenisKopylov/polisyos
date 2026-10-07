@@ -1,0 +1,58 @@
+{
+  "schema": "policyos.e02.pr_description_edge_qualification.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "previous_publication_receipt": {
+    "path": "/tmp/e02-E-pr38-description-current-64d-20261007/receipt.json",
+    "bytes": 2779,
+    "sha256": "920581bf61629d4ded557a34dd369c754b5c2ae4ef4c7f098ec78394c15030ad"
+  },
+  "previous_publication_unchanged": true,
+  "correction": "Historical12 remaining bundle loader edge is distinct from newer CanonSpec typed debt; source/native outcomes untouched.",
+  "began_at": "2026-10-07T12:43:55.023015+00:00",
+  "ended_at": "2026-10-07T12:43:59.380733+00:00",
+  "body_readback_exact": true,
+  "source_readback_exact": true,
+  "assets": [
+    {
+      "name": "after.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "after.stdout.json",
+      "bytes": 6109,
+      "sha256": "c8628f928fdfef3993117fc8db89c78a5b394354e352773b934949ec123e2ba9"
+    },
+    {
+      "name": "before.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "before.stdout.json",
+      "bytes": 5932,
+      "sha256": "e26c941f63fc18c8d6b4b85654ac6c13733ce680122bc5dd81bfb2e6016b3a3c"
+    },
+    {
+      "name": "body.md",
+      "bytes": 5905,
+      "sha256": "def7607630f4b4a761a7be17a8fa08dff27e941668a0774fa7d8278e67c75c3b"
+    },
+    {
+      "name": "edit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "edit.stdout.json",
+      "bytes": 6155,
+      "sha256": "7f7f0adfa67d45a60ff403b7d831118a7eeeb04bfec1610f416d4e50771c3823"
+    },
+    {
+      "name": "request.json",
+      "bytes": 6152,
+      "sha256": "e0f2be565300e7be1428dc69418de6f08748a4ed89d94a76022bd34523cc7049"
+    }
+  ]
+}

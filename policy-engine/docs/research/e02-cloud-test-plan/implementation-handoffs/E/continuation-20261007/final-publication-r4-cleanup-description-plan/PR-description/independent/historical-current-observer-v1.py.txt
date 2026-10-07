@@ -1,0 +1,58 @@
+"""Read-only current append custody/claim rebind; reuses independent frozen baseline and preserves historical change-required."""
+from pathlib import Path
+import copy,hashlib,json,sys
+OUT=Path('/tmp/e02-E-pr38-description-independent-doe-20261007');B=Path('/tmp/e02-E-pr38-description-edge-qualification-64d-20261007');BASE=Path('/tmp/e02-E-pr38-description-current-64d-20261007')
+helper=Path('/tmp/e02-E-pr38-description-review-doe.py');namespace={'__file__':str(helper)};exec(compile(helper.read_text().split('def main():',1)[0],'independent-pr-description-baseline','exec'),namespace)
+SOURCE=namespace['SOURCE'];TREE=namespace['TREE'];require=namespace['require'];extract=namespace['extract'];ref=namespace['ref'];admit_claims=namespace['admit_claims']
+NAMES={'after.stderr.txt','after.stdout.json','before.stderr.txt','before.stdout.json','body.md','edit.stderr.txt','edit.stdout.json','request.json'}
+
+def verify(receipt,raw,expected,previous):
+ require(receipt['source']==SOURCE and receipt['tree']==TREE,'current immutable64d source/tree')
+ require(len(receipt['assets'])==8 and {r['name'] for r in receipt['assets']}==NAMES and set(raw)==NAMES,'complete8 actual appendassets')
+ for r in receipt['assets']:
+  b=raw[r['name']];require(len(b)==r['bytes'] and hashlib.sha256(b).hexdigest()==r['sha256'],'currentliteral assethash/size')
+ require(receipt['previous_publication_receipt']==previous and receipt['previous_publication_unchanged'] is True,'exact old920581 publication retained')
+ before=json.loads(raw['before.stdout.json']);after=json.loads(raw['after.stdout.json']);edit=json.loads(raw['edit.stdout.json'])['data']['updatePullRequest']['pullRequest'];request=json.loads(raw['request.json']);body=raw['body.md'].decode()
+ require(raw['before.stdout.json']==(BASE/'graphql-after.stdout.json').read_bytes(),'actual current preread equals originalpublication freshreadback')
+ require(after['body']==edit['body']==request['variables']['body']==body and before['body']!=body,'native request/edit/readbackexact and actualdelta')
+ require(before['headRefOid']==after['headRefOid']==edit['headRefOid']==SOURCE and before['url']==after['url']==edit['url']=='https://github.com/DenisKopylov/polisyos/pull/38','actualPR/head all frozen64d')
+ require(before['id']==after['id']==edit['id']==request['variables']['id'] and request['query'].count('mutation(')==1 and request['query'].count('updatePullRequest(')==1,'sameexplicit single GraphQLedit')
+ require(not raw['edit.stderr.txt'] and not raw['before.stderr.txt'] and not raw['after.stderr.txt'] and receipt['body_readback_exact'] is True and receipt['source_readback_exact'] is True,'actual cleancapturedmutation/readbacks')
+ observed=extract(body)
+ admit_claims(observed,expected)
+ return observed
+
+def main():
+ old=OUT/'independent-review-normal.json';optimized=OUT/'independent-review-optimized.json';prior=json.loads(old.read_text());po=json.loads(optimized.read_text());require(prior['disposition']==po['disposition']=='CHANGE_REQUIRED' and prior['independently_recomputed_expected_claims']==po['independently_recomputed_expected_claims'],'historicalnegative bothmodes unchanged');expected=prior['independently_recomputed_expected_claims'];previous=ref(BASE/'receipt.json');require(previous['sha256']=='920581bf61629d4ded557a34dd369c754b5c2ae4ef4c7f098ec78394c15030ad','literalprevious');rp=B/'receipt.json';require(ref(rp)['sha256']=='470d05f613e9deb1805ab19ec0abcfdb7e43388da2b4479765c9a0f3aee34df7','pin new actual receipt');rc=json.loads(rp.read_text());raw={n:(B/n).read_bytes() for n in NAMES};observed=verify(rc,raw,expected,previous)
+ # Every claimed source/evidence input from prior independent recomputation remains physically byteequal; pendingbackendstdout was deliberately never used as input.
+ for r in prior['input_refs']:require(ref(Path(r['path']))==r,'literalbaseline source/closeddeciding input unchanged')
+ body=raw['body.md'].decode();oldbody=(BASE/'body.md').read_text();beforetext=namespace['OLD'];start=oldbody.index(beforetext);newpara=body[start:body.index(' G owns integration publication',start)];require(oldbody.replace(beforetext,newpara)==body,'only intended remainingedge owner paragraph changed')
+ controls=[]
+ def refused(name,r,b):
+  try:verify(r,b,expected,previous)
+  except ValueError as e:controls.append({'name':name,'outcome':'PASS','actual_refusal':str(e),'exactreadbackflags_preserved':r['body_readback_exact'] is True and r['source_readback_exact'] is True});return
+  raise ValueError('refusal escaped '+name)
+ def rebind(text):
+  r=copy.deepcopy(rc);b=copy.deepcopy(raw);b['body.md']=text.encode()
+  for k in ('after.stdout.json','edit.stdout.json','request.json'):
+   d=json.loads(b[k]);node=d['data']['updatePullRequest']['pullRequest'] if k=='edit.stdout.json' else d['variables'] if k=='request.json' else d;node['body']=text;b[k]=(json.dumps(d)+'\n').encode()
+  for row in r['assets']:row['bytes']=len(b[row['name']]);row['sha256']=hashlib.sha256(b[row['name']]).hexdigest()
+  return r,b
+ for name,old,new in [('retotal_wave','1,549 cases: 1,541 PASS / 8 FAIL','1,548 cases: 1,540 PASS / 8 FAIL'),('retotal_ledger','49 partial / 4 held / 1 closed','50 partial / 3 held / 1 closed'),('falsely_integrated_newMC','it is not yet part of this PR','it is already part of this PR'),('false_terminal_backend','full native backend retry is still running','full native backend retry has completed with 2000 PASS'),('owneredge_scope_removed','load_forecasting_uncertainty_bundle','CanonSpec'),('technicalopen_removed','two newly established technical defects are open on this head','two newly established technical defects are closed on this head')]:
+  require(old in body,'actualmutableclaim exists');r,b=rebind(body.replace(old,new));refused(name,r,b)
+ for field,value in [('sha256','0'*64),('bytes',1)]:
+  r=copy.deepcopy(rc);r['assets'][0][field]=value;refused('custody_'+field,r,raw)
+ r=copy.deepcopy(rc);r['assets']=[x for x in r['assets'] if x['name']!='request.json'];b=copy.deepcopy(raw);del b['request.json'];refused('mandatory_graphqlrequest_omitted',r,b)
+ future=prior['actual_newer_MC_candidate_not_PR'];r,b=rebind(body.replace(SOURCE,future));r['source']=future
+ for k in ('before.stdout.json','after.stdout.json','edit.stdout.json'):
+  d=json.loads(b[k]);node=d['data']['updatePullRequest']['pullRequest'] if k=='edit.stdout.json' else d;node['headRefOid']=future;b[k]=(json.dumps(d)+'\n').encode()
+ for row in r['assets']:row['bytes']=len(b[row['name']]);row['sha256']=hashlib.sha256(b[row['name']]).hexdigest()
+ refused('futureMC_fullyrebound_body_headstill_not_publishedfrozen_source',r,b)
+ require(body.count('load_forecasting_uncertainty_bundle')==1 and 'A separate current CanonSpec private edge' in body,'explicit separateoriginal12/currentCanonSpec scope')
+ # Remove shared typed-claim comparator; retain all native marker, body, source and custody predicates.
+ original_admitter=globals()['admit_claims'];globals()['admit_claims']=lambda observed,expected:None
+ try:
+  r,b=rebind(body.replace('1,549 cases: 1,541 PASS / 8 FAIL','1,548 cases: 1,540 PASS / 8 FAIL'));mutant=verify(r,b,expected,previous);require(mutant['wave_cases']==1548 and expected['wave_cases']==1549,'actual typedguard-removal escape');controls.append({'name':'shared_typed_admission_removed','outcome':'PASS','actual_removed_guard_defining_property':'FAIL','admitted_wrong_case_total':1548,'true_case_total':1549,'source_and_all_native/custody_markers_retained':True})
+ finally:globals()['admit_claims']=original_admitter
+ result={'schema':'policyos.e02.independent_current_PR_description_append_custody.v1','reviewer':'doe_r4','mode':'optimized' if not __debug__ else 'normal','disposition':'GO','current_publication':ref(rp),'original_change_required_publication':previous,'independent_historical_CHANGE_REQUIRED':ref(old),'source':SOURCE,'tree':TREE,'actual_current_claims_rebound':observed,'current_body':ref(B/'body.md'),'only_changed_paragraph':newpara,'owner_scope':'Historical12 remaining ForecastBridge private load_forecasting_uncertainty_bundle reader at995. Separate newer CanonSpec/Core typed owner question remains pending; scoped B201/B202 appointment grants no automatic general facade lease.','controls':controls,'control_count':len(controls),'input_refs':[ref(helper),ref(old),ref(optimized),ref(rp)]+[ref(B/n) for n in sorted(NAMES)],'truth_limits':['CurrentPRsource64d only; newerMCsource correction is not merged/currentPRauthority.','1549 counts include separateCAL324retry; originalCAL−9/noJUnit and originalglobalrequiredgateFAIL remain literal.','No fullbackend finalcounts/outcome claimed; native61243 is pending, not PASS.','Description publication claim/custody GO is neither runtime/code review nor ownerfinding/globalCI acceptance.','No remote fetch/edit/Git/source/env/native test or cleanup action by this reviewer.']};suffix='optimized' if not __debug__ else 'normal';p=OUT/('independent-current-append-'+suffix+'.json');p.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({'disposition':'GO','control_count':len(controls),'report':ref(p)},indent=2))
+if __name__=='__main__':main()

@@ -1,0 +1,56 @@
+{
+  "schema": "policyos.e02.independent_cleanup_append_publication_selection.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "files": [
+    {
+      "path": "/tmp/e02-E-cleanup-append-custody-independent/independent-final-custody-v2.json",
+      "bytes": 3871,
+      "sha256": "f5680490d387b0a139682e253032f9faae1237aac304d9b6529ea6c9e6d83349"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-append-custody-independent/review-normal.json",
+      "bytes": 26083,
+      "sha256": "21ebdd27f58351039d09b9bf43ade4aa4804f197bd630e46ffa2c77e255e9396"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-append-custody-independent/review-optimized.json",
+      "bytes": 26086,
+      "sha256": "ad6cb3c202ddbbca93a06cd170c5a01ddeb75876356917627a4b5fefa662dae7"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-append-custody-independent/normal.stdout.json",
+      "bytes": 492,
+      "sha256": "880a3451ebeb660ec7b45791633cb558ba294546cdd5327972efc2e7532c4ea9"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-append-custody-independent/normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-append-custody-independent/optimized.stdout.json",
+      "bytes": 495,
+      "sha256": "860e4d268c73ed7742f73433d61ddd85204ff3791e2979c7237c4ecc710f925c"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-append-custody-independent/optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-append-custody-independent/validate_cleanup_append.py.txt",
+      "bytes": 20637,
+      "sha256": "2c514f19914b6afc33ddc094736c30d98fec84bbf076a6ea40cdd81170ffe6df"
+    }
+  ],
+  "file_count": 8,
+  "total_bytes": 77664,
+  "current_author_selector": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-append-20261007/publication-selection-v2.json",
+    "bytes": 51421,
+    "sha256": "f522e7f42a508643e167d66bcbaf7600f6c4c75dace6988039d32d3983f82e6f"
+  },
+  "no_archive_or_raw_fixture_copies": true,
+  "source_acceptance": "GO bounded custody"
+}

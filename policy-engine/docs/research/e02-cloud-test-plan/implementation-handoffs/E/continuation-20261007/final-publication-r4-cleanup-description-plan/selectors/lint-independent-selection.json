@@ -1,0 +1,103 @@
+{
+  "schema": "policyos.e02.independent_prospective_lint_planner_publication_selection.v1",
+  "disposition": "GO bounded prospective plan only",
+  "actual_merged_ROOT_candidate": null,
+  "Ruff": "UNRUN",
+  "format": "UNRUN",
+  "source_planner_sha256": "bfe8dd2e1c0c78b1c3b6a9e2b9c5f2b408141c87fee9d7ad2a047702864ab924",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-lint-plan-independent-doe-20261007/independent-review-normal.json",
+      "bytes": 10836,
+      "sha256": "a7ad0954d541eb2c0532b8b4b7f537ed0f650c91869d0faccc73deaf09ea8561",
+      "portable_path": "independent-review-normal.json",
+      "role": "literal-independent-bounded-prospectiveplan-review"
+    },
+    {
+      "source_path": "/tmp/e02-E-lint-plan-independent-doe-20261007/independent-review-optimized.json",
+      "bytes": 10842,
+      "sha256": "ecf318f3cb3c11c842c0225aaee165c72a070143acc5c84cbe1089408e4d9064",
+      "portable_path": "independent-review-optimized.json",
+      "role": "literal-independent-bounded-prospectiveplan-review"
+    },
+    {
+      "source_path": "/tmp/e02-E-lint-plan-independent-doe.py",
+      "bytes": 13912,
+      "sha256": "419d939f5e1ce773b9a11845c97928544c4e1dfe3ffbae0107e3016dbd0785e3",
+      "portable_path": "observer/review_lint_plan.py.txt",
+      "role": "literal-executed-passive-independent-observer"
+    },
+    {
+      "source_path": "/tmp/e02-E-lint-plan-independent-doe-normal.stdout.txt",
+      "bytes": 289,
+      "sha256": "179a2cdb94118bb384c1add19d1ca0992b3c296cbd4ebc1b5deecad6e0d810e7",
+      "portable_path": "commands/e02-E-lint-plan-independent-doe-normal.stdout.txt",
+      "role": "literal-closed-independent-subprocess-capture"
+    },
+    {
+      "source_path": "/tmp/e02-E-lint-plan-independent-doe-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "commands/e02-E-lint-plan-independent-doe-normal.stderr.txt",
+      "role": "literal-closed-independent-subprocess-capture"
+    },
+    {
+      "source_path": "/tmp/e02-E-lint-plan-independent-doe-optimized.stdout.txt",
+      "bytes": 292,
+      "sha256": "d80abe0587050cc0a7b434f6200ffd501d5049dfc7a036d1088ddeeb6c2c1084",
+      "portable_path": "commands/e02-E-lint-plan-independent-doe-optimized.stdout.txt",
+      "role": "literal-closed-independent-subprocess-capture"
+    },
+    {
+      "source_path": "/tmp/e02-E-lint-plan-independent-doe-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "commands/e02-E-lint-plan-independent-doe-optimized.stderr.txt",
+      "role": "literal-closed-independent-subprocess-capture"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/publication-selection-v3.json",
+      "bytes": 11922,
+      "sha256": "651417bba8c733e9965fc51b5d38df3c3390c1f913793947bae253ff115a4aaa",
+      "portable_path": "inputs/author-publication-selection-v3.json",
+      "role": "literal-current-reviewed-author-input"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare_current_lint_inputs.v3.py",
+      "bytes": 15952,
+      "sha256": "bfe8dd2e1c0c78b1c3b6a9e2b9c5f2b408141c87fee9d7ad2a047702864ab924",
+      "portable_path": "inputs/prepare_current_lint_inputs.v3.py.txt",
+      "role": "literal-current-reviewed-author-input"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/check_plan_controls.v3.py",
+      "bytes": 6070,
+      "sha256": "d16b90592afe290d16efbbe89cf78c53c99c3ac817bd3ba3c3ab522cdda455c2",
+      "portable_path": "inputs/check_plan_controls.v3.py.txt",
+      "role": "literal-current-reviewed-author-input"
+    }
+  ],
+  "asset_count": 10,
+  "bytes": 70115,
+  "full_plan_ignored_output_refs": [
+    {
+      "source_path": "/tmp/e02-E-lint-plan-independent-doe-20261007/prepared-normal.json",
+      "bytes": 722104,
+      "sha256": "106a280d6fd0fb60893392e9f67408e76b712dff8b16cce5bbb2f697f6d52f74"
+    },
+    {
+      "source_path": "/tmp/e02-E-lint-plan-independent-doe-20261007/prepared-optimized.json",
+      "bytes": 722104,
+      "sha256": "106a280d6fd0fb60893392e9f67408e76b712dff8b16cce5bbb2f697f6d52f74"
+    },
+    {
+      "source_path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/plan-v3.json",
+      "bytes": 722104,
+      "sha256": "106a280d6fd0fb60893392e9f67408e76b712dff8b16cce5bbb2f697f6d52f74"
+    }
+  ],
+  "large_author_plan_already_selected_by_original_selector": true,
+  "independent_controls_per_mode": 18,
+  "source_or_ROOT_environment_mutation": false,
+  "repeat_native/globalgate/backend_execution": false
+}

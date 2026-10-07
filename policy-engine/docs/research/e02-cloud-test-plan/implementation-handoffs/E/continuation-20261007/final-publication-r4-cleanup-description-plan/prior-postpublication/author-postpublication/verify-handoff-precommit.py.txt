@@ -1,0 +1,22 @@
+import hashlib,json
+from pathlib import Path
+R=Path('/workspace/e02-E-frc-20261006')
+P='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs-handoff'
+D=R/P
+rows=[]
+for p in D.rglob('*'):
+ if p.is_file():
+  b=p.read_bytes()
+  if p.suffix=='.py':raise ValueError('active Python')
+  if p.suffix=='.json':json.loads(b)
+  rows.append({'path':str(p.relative_to(R)),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+rows.sort(key=lambda r:r['path'])
+h=json.loads((D/'implementation-handoff.json').read_text());ix=json.loads((D/'copy-index.json').read_text())
+if [a['path'] for a in rows]!=h['handoff_footprint'] or len(rows)!=338:raise ValueError('footprint mismatch')
+if ix['copied_files']!=334 or ix['copied_bytes']!=1033929:raise ValueError('summary mismatch')
+for a in ix['copies']:
+ b=(D/a['portable_path']).read_bytes();o=Path(a['source_path']).read_bytes()
+ if b!=o or len(b)!=a['bytes'] or hashlib.sha256(b).hexdigest()!=a['sha256']:raise ValueError('copy mismatch')
+x={'path_count':len(rows),'bytes':sum(a['bytes'] for a in rows),'copy_files':ix['copied_files'],'copy_bytes':ix['copied_bytes'],'active_python':[],'paths':rows}
+Path('/tmp/e02-E-decisions-prereqs-publication-r4-stage/handoff-precommit-readback.json').write_text(json.dumps(x,indent=2)+'\n')
+print(json.dumps({k:v for k,v in x.items() if k!='paths'},indent=2))

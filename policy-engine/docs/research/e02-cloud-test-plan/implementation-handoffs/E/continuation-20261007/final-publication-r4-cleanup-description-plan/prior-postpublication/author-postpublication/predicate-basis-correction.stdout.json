@@ -1,0 +1,23 @@
+{
+  "predicate_count": 15,
+  "labels": [
+    "independently_reconciled",
+    "institutionally_supplied",
+    "not_established",
+    "recomputed"
+  ],
+  "copied_files": 335,
+  "copied_bytes": 1040026,
+  "handoff_paths": 339,
+  "full_paths": 522,
+  "metadata": {
+    "copy-index.json": {
+      "bytes": 153410,
+      "sha256": "ecbf7822563788d03cf91a61fa8ca47fbfb89ac9009bc7c8b10f5b974d117b7c"
+    },
+    "implementation-handoff.json": {
+      "bytes": 308475,
+      "sha256": "ef4fd92581134bd8465ea879b7679f451d2bb366e5d87ce5967a0a63395bb5a8"
+    }
+  }
+}

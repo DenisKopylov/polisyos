@@ -1,0 +1,21 @@
+{
+  "closed_action": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/architecture-retained/source",
+  "archive_bytes": 135133695,
+  "actual_available_delta_bytes": 578138112,
+  "available_after": 1080614912
+}
+{
+  "closed_action": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/source",
+  "archive_bytes": 135138492,
+  "actual_available_delta_bytes": 578199552,
+  "available_after": 1658744832
+}
+{
+  "summary": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/cleanup-summary.json",
+    "bytes": 8441,
+    "sha256": "d5cd079af66cf9e2a1ec54217a22260979cc71c4b79688381ee5842b8834501e"
+  },
+  "available": 1658744832,
+  "sum_immediate_recovery": 1156337664
+}

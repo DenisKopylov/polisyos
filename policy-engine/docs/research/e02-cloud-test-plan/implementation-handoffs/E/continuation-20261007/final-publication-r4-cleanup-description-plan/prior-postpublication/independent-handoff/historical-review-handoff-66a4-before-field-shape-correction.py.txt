@@ -1,0 +1,90 @@
+import collections,copy,hashlib,json,platform,subprocess,sys
+from pathlib import Path
+R=Path('/workspace/e02-E-frc-20261006');O=Path('/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4');O.mkdir(exist_ok=True)
+S='66a4f8fc1398ed72b3ee9d38b07d88a4d2d5c3cd';T='54ec53ea6e53a61432135e8d2728c6fa1cfd964a';A='98e913252845384f275092d86714c3d18a647218';C='e233efcd0e5a4bb4c5b280f86a12ec7d0a264d62';P='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs-handoff'
+def sha(b):return hashlib.sha256(b).hexdigest()
+def canon(d):return json.dumps(d,sort_keys=True,ensure_ascii=False,separators=(',',':'))
+def need(x,m):
+ if not x:raise ValueError(m)
+def git(*a):return subprocess.check_output(['git','-C',str(R),*a])
+def blob(p,s=S):return git('show',s+':'+p)
+def ref(p):p=Path(p);b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':sha(b)}
+head=git('rev-parse','HEAD').decode().strip();need(head==S and git('rev-parse','HEAD^{tree}').decode().strip()==T,'immutable finalhandoff')
+oldproof=Path('/tmp/e02-E-decisions-prereqs-custody-independent/handoff-98e913/independent-byte-custody-98e913.json');proof=json.loads(oldproof.read_text())
+hraw=blob(P+'/implementation-handoff.json');iraw=blob(P+'/copy-index.json');H=json.loads(hraw);I=json.loads(iraw)
+need(sha(hraw)=='ef4fd92581134bd8465ea879b7679f451d2bb366e5d87ce5967a0a63395bb5a8' and len(hraw)==308475,'fixedhandoff bytes')
+need(sha(iraw)=='ecbf7822563788d03cf91a61fa8ca47fbfb89ac9009bc7c8b10f5b974d117b7c' and len(iraw)==153410,'fixedindex bytes')
+delta=git('diff','--name-status',A,S).decode().splitlines();expected={'M\t'+P+'/implementation-handoff.json','M\t'+P+'/copy-index.json','A\t'+P+'/author/add-predicate-basis.py.txt'};need(set(delta)==expected,'threepassiveDOC delta')
+newcopy=I['copies'][-1];need(I['copies'][:-1]==proof['copied_original_records'],'all334 priorcopy recordsexact')
+need(blob(P+'/'+newcopy['portable_path'])==Path(newcopy['source_path']).read_bytes(),'newpassive recipeoriginalbytes')
+need(len(blob(P+'/'+newcopy['portable_path']))==6097 and sha(blob(P+'/'+newcopy['portable_path']))==newcopy['sha256'],'new6097companion')
+need(git('diff','--name-only',A,S,'--','policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs').strip()==b'','reviewede233unchanged')
+foot=[]
+for row in git('diff','--name-status',C,S).decode().splitlines():
+ status,path=row.split('\t');need(status=='A' and path.startswith(P+'/') and not path.endswith('.py'),'fullpassiveDOC')
+ b=blob(path);need(b==(R/path).read_bytes(),'finalGitphysical')
+ foot.append({'path':path,'bytes':len(b),'sha256':sha(b)})
+need(len(foot)==339 and sum(r['bytes'] for r in foot)==1510294,'339/1510294')
+need(H['handoff_path_count']==339 and H['full_path_count']==522,'339/522')
+Q=json.loads(blob('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs/qualification.json'))
+fixed={'base_sha':'737c9e3115abac3fefe76920b08c05e76a5bee17','base_tree_sha':'a32e3762c3d969a4749650be7e34c8c0108a8a53','candidate_sha':C,'candidate_tree_sha':'6f541e58830bb760c2885921d58d6dfae4e6b01a','verification_source_sha':'64d7444a18c55df7b88b71b7699a2f1b25ca24bd','verification_source_tree_sha':'aef23574d3162abb19bf5a1c67d02624ff9d4d1d','implementation_path_count':183,'implementation_bytes':8721267,'implementation_active_python_paths':0,'copied_handoff_files':335,'copied_handoff_bytes':1040026,'handoff_path_count':339,'full_path_count':522,'ROOT_source_env_locks_written':False,'source_tests_gate_numerical_execution':False}
+expected_claim_keys=['selected_subset','membership','ROOT_tracked_input_qualification','predicate_basis','qualification','checks','ROOT_before','ROOT_after']
+# Gold membership comes from independent original-source custody; fixed claims from reviewed immutable source. Normal/-O has no assert-based admission.
+Gold=collections.Counter(canon(v) for v in proof['copied_original_records']+[newcopy])
+fullpaths={r['path'] for r in foot};expectedmeta={k:H[k] for k in expected_claim_keys}
+# All15 actualpredicate categories; lastthree predicates deliberately degrade external authority.
+labels={'recomputed','independently_reconciled','consumer_asserted','institutionally_supplied','not_established'}
+need(len(H['predicate_basis'])==15,'15P37predicates')
+for value in H['predicate_basis'].values():need(set(value)=={'basis','explanation'} and value['basis'] in labels and isinstance(value['explanation'],str),'canonical typed P37entry')
+need(H['predicate_basis']['ROOT_full_input_identity_and_mutating_native_caller']['basis']=='not_established' and H['predicate_basis']['finding_and_global_gate_authority']['basis']=='not_established','degradedroot/globalauthority')
+def admit(h,i,claims=True):
+ if claims:
+  need(set(h)==set(H) and set(i)==set(I),'completeheader keys')
+  need(canon({k:h[k] for k in fixed})==canon(fixed),'typedbase/candidate/source/counts/flags')
+  need(canon({k:h[k] for k in expected_claim_keys})==canon(expectedmeta),'typedcurrent/historical/P37/ROOTclaims')
+  need(canon(h['qualification'])==canon(Q),'immutableoriginalqualification')
+  need(h['copy_index']=={'path':'copy-index.json','bytes':len(iraw),'sha256':sha(iraw)},'indexactualhash/sizeinlet')
+  need(type(i['copied_files']) is int and type(i['copied_bytes']) is int,'indexintegerdenominator')
+  need(i['copied_files']==335 and i['copied_bytes']==1040026,'indexactualdenominator')
+  for k in ['candidate_sha','candidate_tree_sha','verification_source_sha','verification_source_tree_sha']:need(i[k]==fixed[k],'indexsamefrozenidentity')
+  need(i['original_bytes_rewritten'] is False and i['source_tests_gate_numerical_execution'] is False,'indexscopeflags')
+ need(collections.Counter(canon(v) for v in i['copies'])==Gold,'complete335 originalcopyCounter')
+ need(sum(v['bytes'] for v in i['copies'])==1040026 and len(i['copies'])==335,'fullactualcopydenominator')
+ need(len(set(v['portable_path'] for v in i['copies']))==335,'uniqueportablecopyrows')
+ need(set(h['handoff_footprint'])==fullpaths and len(h['handoff_footprint'])==339,'339fullrawfootprint')
+ need(set(h['full_footprint'])==set(h['handoff_footprint'])|set(h['implementation_footprint']) and len(h['full_footprint'])==522,'full522companions')
+ return True
+admit(H,I)
+records=[]
+def test(name,fn):
+ h=copy.deepcopy(H);i=copy.deepcopy(I);fn(h,i)
+ try:admit(h,i)
+ except ValueError as e:records.append({'case':name,'status':'PASS refusal','reason':str(e)});return
+ raise ValueError('mutantreadmitted '+name)
+test('wrongbase',lambda h,i:h.update(base_sha='0'*40))
+test('wrongcandidate',lambda h,i:h.update(candidate_sha='0'*40))
+test('wrongcandidateTree',lambda h,i:h.update(candidate_tree_sha='0'*40))
+test('wrongverificationSource',lambda h,i:h.update(verification_source_sha='0'*40))
+test('copied_files_int_to_float',lambda h,i:h.update(copied_handoff_files=335.0))
+test('activePy_zero_to_boolFalse',lambda h,i:h.update(implementation_active_python_paths=False))
+test('numeric_scope_false_to_true',lambda h,i:h.update(source_tests_gate_numerical_execution=True))
+test('ROOT_currentclean_false_to_true',lambda h,i:h['ROOT_tracked_input_qualification'].update(whole_tracked_clean=True))
+test('ROOT_inputimmutable_false_to_true',lambda h,i:h['ROOT_tracked_input_qualification'].update(broad_source_input_immutable=True))
+test('P37unknown_promoted',lambda h,i:h['predicate_basis']['ROOT_full_input_identity_and_mutating_native_caller'].update(basis='recomputed'))
+test('P37category_omitted',lambda h,i:h['predicate_basis']['member_law'].pop('basis'))
+test('frozenLedger_closed1_to_boolTrue',lambda h,i:h['qualification']['frozen54']['historical_ledger'].update(closed=True))
+test('G855B201open_to_closed',lambda h,i:h['qualification']['G855_pre_fix_qualification'].update(B201='closed'))
+test('ca17typedred_to_GO',lambda h,i:h['qualification']['separate_source_slice']['typed_DTO_review'].update(status='GO'))
+test('global_PASSfalse_to_true',lambda h,i:h['checks'].update(global_or_finding_PASS=True))
+test('index_scope_false_to_true',lambda h,i:i.update(source_tests_gate_numerical_execution=True))
+test('index_denominator_int_to_bool',lambda h,i:i.update(copied_files=True))
+test('index_omitted_member',lambda h,i:i['copies'].pop())
+test('same_body_duplicate_member',lambda h,i:i['copies'].__setitem__(0,copy.deepcopy(i['copies'][1])))
+test('handoff_omitted_path',lambda h,i:h['handoff_footprint'].pop())
+test('added_unowned_path',lambda h,i:h['handoff_footprint'].append('policy-engine/src/foreign.py'))
+test('extraAuthoritymetadata',lambda h,i:h.update(authority_granted=True))
+h=copy.deepcopy(H);h['ROOT_tracked_input_qualification']['broad_source_input_immutable']=True
+need(admit(h,I,claims=False),'effectiveclaimsremoval; content/Countermarkersretained')
+records.append({'case':'effective_claim_admission_removal','status':'PASS effectivecontrol; requiredsource-inputclaimpropertyFAIL','result':'wrongfullROOTinputimmutable accepted if only typed claim inlet skipped; full335contentCounter and522footprint unchanged'})
+result={'schema':'policyos.e02.independent_decisions_prereqs_handoff_metadata_review.v2','disposition':'GO boundedDOC custody/protocol delta, source/finding/backendauthority distinct','source_sha':S,'source_tree':T,'implementation_sha':C,'historical_handoff':A,'reused334copy_byte_custody':ref(oldproof),'final_delta':delta,'new_original_copy':newcopy,'current_handoff_paths':339,'current_handoff_bytes':1510294,'current_copies':335,'current_copy_bytes':1040026,'all183sourceimplementation_and334priorliteralcopies_unchanged':True,'P37_count':15,'P37_categories_frozen':{k:v['basis'] for k,v in H['predicate_basis'].items()},'normal_or_optimized':bool(sys.flags.optimize),'negative_count':22,'controls':records,'currentROOT_input_identity':'not_established beyondHEAD/tree/observedproducttestdelta;29trackedgeneratedJSON drift andprecisecaller remainroot/Gwork','full_footprint':foot,'source_tests_gate_native_or_numeric_repeated':False,'ROOT_packages_env_source_mutated':False,'environment':{'python':sys.version,'executable':sys.executable,'platform':platform.platform()},'limitations':['Literal docs acceptance does notchange historicalledger, frozenproposals/currenttechnicalOPEN orscientific authority','No currentROOTinputbytecleanliness, P41cause orglobalbackendPASS inferred','334priorasset provenance reusedexactly; appendnew6097passiverecipe and3DOCdelta independentlychecked']}
+p=O/('independent-handoff-'+('optimized' if sys.flags.optimize else 'normal')+'.json');p.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({'disposition':result['disposition'],'source_sha':S,'source_tree':T,'339DOC_bytes':1510294,'335copied_bytes':1040026,'P37':15,'negative_count':22,'effective_claim_removal':True,'optimized':bool(sys.flags.optimize),'receipt':ref(p)},indent=2))

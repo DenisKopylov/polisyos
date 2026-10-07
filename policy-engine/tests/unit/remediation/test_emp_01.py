@@ -455,7 +455,7 @@ def test_empty_selected_profile_returns_no_profile_before_unit_binding(
     assert exc_info.value.code == "acquire_data:value_owner_rows_missing"
 
 
-@pytest.mark.parametrize("row_count", (1, 2, 3))
+@pytest.mark.parametrize("row_count", [1, 2, 3])
 def test_nonempty_under_four_profile_is_insufficient_at_loader_and_gateway(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,

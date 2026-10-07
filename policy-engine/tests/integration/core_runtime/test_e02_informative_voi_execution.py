@@ -46,7 +46,7 @@ class _LowProxyInformationGenerator:
     async def __call__(self, problem: object, *, cycle_index: int) -> _GenerationResult:
         del problem
         assert cycle_index == 0
-        candidate_id = str(getattr(self._candidate, "candidate_id"))
+        candidate_id = str(self._candidate.candidate_id)
         return _GenerationResult(
             status="generated",
             candidates=(self._candidate,),
@@ -104,7 +104,7 @@ async def test_default_information_value_advance_executes_real_n5_and_budget_blo
 
     def observe_real_n5_call(self: JointSimulationPort, **kwargs: Any) -> Any:
         candidate = kwargs["candidate"]
-        n5_calls.append(str(getattr(candidate, "candidate_id")))
+        n5_calls.append(str(candidate.candidate_id))
         return original_n5_call(self, **kwargs)
 
     monkeypatch.setattr(JointSimulationPort, "__call__", observe_real_n5_call)

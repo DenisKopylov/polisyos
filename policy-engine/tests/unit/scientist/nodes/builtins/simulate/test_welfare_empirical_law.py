@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from copy import deepcopy
+from dataclasses import replace
 
 import numpy as np
 import pytest
@@ -113,6 +114,107 @@ def _run_native(tmp_path, envelope=None):
     )
     samples = module._load_verified_welfare_samples(fresh, bundle.sample_bundle_ref)
     return fresh, bundle, receipt, samples, env_ref
+
+
+def test_native_welfare_posterior_profile_uses_named_mean_after_fresh_read(tmp_path):
+    from polisyos.foundry.calibration import uncertainty_adapter
+
+    env = uncertainty_adapter.summarize_bayesian_calibration_posterior(
+        {"A": [0.0] * 99 + [0.5]}
+    ).parameter_envelopes["A"]
+    assert env.point_estimate == 0
+    ctx, state, _ = _native_fixture(tmp_path, env)
+    ctx = replace(ctx, store=FileSystemCAS(tmp_path))
+    outcome = module.PropagateWelfareNode().execute(ctx, state)
+    assert outcome.status == "ok", outcome.error
+    bundle = load_welfare_bundle(
+        FileSystemCAS(tmp_path), outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF]
+    )
+    # Native scalar GE: 2/(1-mean(A)), where mean(A)=.005; median is0.
+    assert bundle.point_estimate == pytest.approx(2.0 / 0.995)
+    assert bundle.point_estimate != 2.0
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "mean",
+        "consistent_joint",
+        "profile",
+        "carrier",
+        "raw_bool",
+        "raw_string",
+        "state_bool",
+        "state_string",
+        "missing_required_false",
+        "missing_required_string",
+        "missing_discriminator",
+    ],
+)
+def test_welfare_profile_corruption_refuses_before_nominal_callback(
+    tmp_path, monkeypatch, mutation
+):
+    from polisyos.foundry.calibration import uncertainty_adapter
+
+    env = uncertainty_adapter.summarize_bayesian_calibration_posterior(
+        {"A": [0.0, 0.5]}
+    ).parameter_envelopes["A"]
+    data = deepcopy(env.model_dump(mode="python"))
+    if mutation == "mean":
+        data["metadata"]["posterior_summary_profile"]["posterior_mean"] = 123.0
+    elif mutation == "consistent_joint":
+        data["metadata"]["posterior_summary_profile"]["joint_law_sha256"] = "0" * 64
+        data["metadata"]["joint_law_sha256"] = data["metadata"]["joint_sample_id"] = "0" * 64
+    elif mutation == "profile":
+        data["metadata"]["posterior_summary_profile"]["profile_version"] = "999.0"
+    elif mutation == "carrier":
+        data["distribution_payload"] = None
+    elif mutation.startswith("missing_"):
+        del data["metadata"]["posterior_summary_profile"]
+        if mutation == "missing_discriminator":
+            del data["metadata"]["posterior_summary_profile_required"]
+        else:
+            data["metadata"]["posterior_summary_profile_required"] = (
+                False if mutation == "missing_required_false" else "true"
+            )
+    forged = UncertaintyEnvelope.model_validate(data)
+    ctx, state, _ = _native_fixture(tmp_path, forged)
+    if mutation in {"state_bool", "state_string"}:
+        raw = env.model_dump(mode="json")
+        raw["distribution_payload"]["samples"][0] = False if mutation == "state_bool" else "0.0"
+        state.params["welfare_config"]["input_envelopes"]["A"] = raw
+    elif mutation in {"raw_bool", "raw_string"}:
+        raw = env.model_dump(mode="json")
+        raw["distribution_payload"]["samples"][0] = False if mutation == "raw_bool" else "0.0"
+        record = ctx.store.put_json(
+            raw,
+            PutOptions(
+                kind="ir.uncertainty_envelope",
+                media_type="application/json",
+                schema=SchemaInfo(name="ir.uncertainty_envelope", version="1.1"),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        assert ctx.store.verify(record).ok
+        state.params["welfare_config"]["input_envelopes"]["A"] = record.model_dump(
+            include={"artifact_id", "kind", "media_type"}
+        )
+    calls = []
+    original = module._build_simulation_fn
+
+    def tracked(*args, **kwargs):
+        fn, nominal, envelopes, refs = original(*args, **kwargs)
+
+        def counted(**params):
+            calls.append(params)
+            return fn(**params)
+
+        return counted, nominal, envelopes, refs
+
+    monkeypatch.setattr(module, "_build_simulation_fn", tracked)
+    with pytest.raises(ValueError):
+        module.PropagateWelfareNode().execute(ctx, state)
+    assert calls == []
 
 
 def test_native_ge_preserves_empirical_atoms_failed_support_and_conditional_values(tmp_path):

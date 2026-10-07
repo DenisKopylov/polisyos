@@ -16,6 +16,7 @@ from polisyos.foundry.calibration.uncertainty_adapter import (
     envelopes_from_calibration,
     summarize_bayesian_calibration_posterior,
 )
+from polisyos.ir.analytics import UncertaintyEnvelope
 from polisyos.ir.analytics.uncertainty import IntervalSemantics, UncertaintySource
 
 
@@ -175,9 +176,9 @@ def test_tied_projection_is_invariant_to_coordinate_name() -> None:
 
     first = projected("shared_rate")
     renamed = projected("renamed_tie")
-    assert first["A.rate"].metadata["covariance_row"] == renamed["A.rate"].metadata[
-        "covariance_row"
-    ]
+    assert (
+        first["A.rate"].metadata["covariance_row"] == renamed["A.rate"].metadata["covariance_row"]
+    )
     assert first["B.rate"].metadata["std"] == renamed["B.rate"].metadata["std"]
 
 
@@ -246,3 +247,17 @@ def test_summarize_bayesian_calibration_posterior_supports_emulator_diagnostics(
     assert summary.parameter_envelopes["node.tax_rate"].source == UncertaintySource.CALIBRATION
     assert summary.diagnostics["calibration_mode"] == "bayesian_emulator"
     assert summary.uncertainty_decomposition["node.tax_rate"]["aleatoric"] is not None
+
+
+def test_posterior_summary_decomposition_is_only_nongating_spread_diagnostic() -> None:
+    summary = summarize_bayesian_calibration_posterior({"x": [0.0] * 99 + [100.0]})
+    assert summary.posterior_means["x"] == 1
+    for component in ("total", "epistemic", "aleatoric"):
+        envelope = UncertaintyEnvelope.model_validate(
+            summary.uncertainty_decomposition["x"][component]
+        )
+        assert envelope.gate_eligible is False
+        assert envelope.confidence_level is None
+        assert envelope.interval_semantics is IntervalSemantics.HEURISTIC_RANGE
+        assert envelope.metadata["posterior_coverage_established"] is False
+        assert envelope.metadata["noise_law_established"] is False

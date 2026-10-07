@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import numbers
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from statistics import NormalDist
@@ -12,6 +13,17 @@ import numpy as np
 
 from polisyos.foundry.calibration.report import CalibrationReport
 from polisyos.foundry.uncertainty.protocol import UncertaintyDecomposition
+from polisyos.foundry.uncertainty.sampling_admission import (
+    admit_empirical_weights,
+    joint_carrier_digest,
+)
+from polisyos.ir.analytics import (
+    PosteriorSamplesCarrier,
+    PosteriorSummaryContext,
+    PosteriorSummaryProfile,
+    posterior_carrier_content_hash,
+    posterior_summary_functionals,
+)
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
@@ -213,11 +225,57 @@ def summarize_bayesian_calibration_posterior(
     credible_mass: float = 0.9,
     emulator_diagnostics: Mapping[str, Any] | None = None,
     posterior_diagnostics: Mapping[str, Any] | None = None,
+    weights: Sequence[float] | np.ndarray | None = None,
+    draw_ids: Sequence[str] | None = None,
+    sample_axis: str = "draw",
+    context: PosteriorSummaryContext | None = None,
 ) -> BayesianCalibrationPosteriorSummary:
     """Summarize posterior draws from Bayesian calibration or emulator-assisted inference."""
 
     if not (0.0 < credible_mass < 1.0):
         raise ValueError("credible_mass must be in (0, 1)")
+    if not posterior_draws or not isinstance(sample_axis, str) or not sample_axis.strip():
+        raise ValueError("posterior draws and sample axis must be non-empty")
+    names = sorted(posterior_draws)
+    if any(not isinstance(name, str) or not name.strip() for name in names):
+        raise ValueError("posterior parameter names must be non-empty strings")
+    admitted_draws: dict[str, np.ndarray] = {}
+    for name in names:
+        raw = np.asarray(posterior_draws[name], dtype=object)
+        if (
+            raw.ndim != 1
+            or raw.size == 0
+            or any(
+                isinstance(value, (bool, np.bool_)) or not isinstance(value, numbers.Real)
+                for value in raw
+            )
+        ):
+            raise ValueError("posterior draws require one finite real non-bool row axis")
+        draws = np.asarray(raw, dtype=np.float64)
+        if not np.all(np.isfinite(draws)) or np.any((raw != 0) & (draws == 0)):
+            raise ValueError("posterior draws exceed finite float64 representation")
+        # Existing IR CAS canon uses positive zero. Admit that representation
+        # before content hashes so fresh readers see the identical finite law.
+        admitted_draws[name] = np.where(draws == 0, 0.0, draws)
+    count = len(admitted_draws[names[0]])
+    if any(len(draws) != count for draws in admitted_draws.values()):
+        raise ValueError("posterior coordinates must share an aligned draw axis")
+    raw_weights = np.ones(count) if weights is None else np.asarray(weights, dtype=object)
+    if any(isinstance(value, (bool, np.bool_)) for value in raw_weights.flat):
+        raise ValueError("posterior weights cannot be bool")
+    probabilities = tuple(
+        0.0 if value == 0 else float(value) for value in admit_empirical_weights(raw_weights, count)
+    )
+    ids = list(draw_ids) if draw_ids is not None else [f"draw:{i}" for i in range(count)]
+    if (
+        len(ids) != count
+        or len(set(ids)) != count
+        or any(not isinstance(value, str) or not value.strip() for value in ids)
+    ):
+        raise ValueError("posterior draw IDs must be unique aligned non-empty strings")
+    context = context or PosteriorSummaryContext()
+    if set(context.parameters) - set(names):
+        raise ValueError("posterior context contains an unmatched parameter binding")
 
     emulator_info = dict(emulator_diagnostics or {})
     diagnostics = dict(posterior_diagnostics or {})
@@ -227,18 +285,15 @@ def summarize_bayesian_calibration_posterior(
     decompositions: dict[str, dict[str, Any]] = {}
 
     noise_map = emulator_info.get("emulator_noise_std", {})
-    for param_name, values in posterior_draws.items():
-        draws = np.asarray(values, dtype=float).reshape(-1)
-        if draws.size == 0:
-            raise ValueError(f"posterior draws for {param_name!r} must be non-empty")
-        if not np.all(np.isfinite(draws)):
-            raise ValueError(f"posterior draws for {param_name!r} must be finite")
-        point = float(np.mean(draws))
-        interval = _credible_interval(draws, credible_mass=credible_mass)
+    for param_name in names:
+        draws = admitted_draws[param_name]
+        point, median, interval = posterior_summary_functionals(
+            tuple(float(value) for value in draws), probabilities, credible_mass
+        )
         posterior_means[param_name] = point
         credible_intervals[param_name] = interval
         parameter_envelopes[param_name] = UncertaintyEnvelope(
-            point_estimate=point,
+            point_estimate=median,
             confidence_interval=interval,
             confidence_level=float(credible_mass),
             distribution_family=DistributionFamily.BAYESIAN,
@@ -246,14 +301,30 @@ def summarize_bayesian_calibration_posterior(
             propagation_method=PropagationMethod.MONTE_CARLO,
             interval_semantics=IntervalSemantics.CREDIBLE_INTERVAL,
             sample_size=int(draws.shape[0]),
+            gate_eligible=False,
+            numeric_policy={"mode": "decimal_exact"},
+            distribution_payload=PosteriorSamplesCarrier(
+                samples=tuple(float(value) for value in draws),
+                weights=probabilities,
+                sample_axis=sample_axis,
+            ),
             metadata={
                 "param_name": param_name,
                 "posterior_basis": "posterior_draws",
                 "emulator_diagnostics": emulator_info,
                 "posterior_diagnostics": diagnostics,
+                "posterior_summary_profile_required": True,
+                "point_functional": "median",
+                "interval_functional": "equal_tail_inverse_cdf",
             },
         )
-        epistemic_std = float(np.std(draws, ddof=1)) if draws.shape[0] > 1 else 0.0
+        epistemic_std = math.hypot(
+            *(
+                math.sqrt(probability) * float(value) - math.sqrt(probability) * point
+                for value, probability in zip(draws, probabilities, strict=True)
+                if probability > 0
+            )
+        )
         aleatoric_std = 0.0
         if isinstance(noise_map, Mapping) and param_name in noise_map:
             aleatoric_std = max(float(noise_map[param_name]), 0.0)
@@ -270,9 +341,61 @@ def summarize_bayesian_calibration_posterior(
             propagation_method=PropagationMethod.MONTE_CARLO,
             metadata={
                 "calibration_mode": ("bayesian_emulator" if emulator_info else "bayesian_direct"),
+                "epistemic_std_basis": "weighted_finite_corpus_population_spread",
             },
         )
-        decompositions[param_name] = decomposition.as_dict()
+        diagnostic = decomposition.as_dict()
+        for component in ("total", "epistemic", "aleatoric"):
+            diagnostic[component].update(
+                {
+                    "gate_eligible": False,
+                    "is_heuristic_ci": True,
+                    "confidence_level": None,
+                    "interval_semantics": IntervalSemantics.HEURISTIC_RANGE,
+                    "metadata": {
+                        **diagnostic[component]["metadata"],
+                        "interval_basis": "gaussian_spread_diagnostic",
+                        "requested_credible_mass": float(credible_mass),
+                        "posterior_coverage_established": False,
+                        "noise_law_established": False,
+                    },
+                }
+            )
+        decompositions[param_name] = diagnostic
+
+    joint_digest = joint_carrier_digest(names, parameter_envelopes, ids)
+    for name, envelope in parameter_envelopes.items():
+        profile = PosteriorSummaryProfile(
+            parameter_name=name,
+            parameter_order=tuple(names),
+            draw_ids=tuple(ids),
+            row_identity_basis="producer_input_order"
+            if draw_ids is None
+            else "producer_supplied_ids",
+            sample_axis=sample_axis,
+            probabilities=probabilities,
+            posterior_mean=posterior_means[name],
+            credible_mass=float(credible_mass),
+            carrier_content_hash=posterior_carrier_content_hash(envelope.distribution_payload),
+            joint_law_sha256=joint_digest,
+            binding=context.parameters.get(name),
+            context=context,
+            context_content_hash=context.content_hash,
+        )
+        parameter_envelopes[name] = envelope.model_copy(
+            update={
+                "metadata": {
+                    **envelope.metadata,
+                    "posterior_summary_profile_id": profile.profile_id,
+                    "posterior_summary_profile_version": profile.profile_version,
+                    "joint_sample_id": joint_digest,
+                    "joint_draw_ids": ids,
+                    "joint_parameter_order": names,
+                    "joint_law_sha256": joint_digest,
+                    "posterior_summary_profile": profile.model_dump(mode="json"),
+                }
+            }
+        )
 
     diagnostics.setdefault("credible_mass", float(credible_mass))
     diagnostics.setdefault("num_parameters", float(len(posterior_means)))

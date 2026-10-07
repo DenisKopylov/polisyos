@@ -23,6 +23,7 @@ Package facade `polisyos.ir.analytics` намеренно уже, чем пол�
 - [`transportability.py`](./transportability.py) — перенос между environments и gap diagnostics.
 - [`privacy_transportability.py`](./privacy_transportability.py) — privacy-aware слой над transportability/recoverability для DP-distorted multi-domain releases.
 - [`uncertainty.py`](./uncertainty.py) — uncertainty algebra, interval semantics и propagation contracts.
+- [`posterior_summary.py`](./posterior_summary.py) — scoped B201/B202 named posterior mean, labelled median/equal-tail profile, shared sampler joint-content digest and complete-group/CAS-protocol readback; v1.1 envelope replay is unchanged and all new outputs remain non-gating.
 - [`strategic.py`](./strategic.py) — strategic-response SCM, equilibria и bundle outputs.
 - [`ecosystem_bridges.py`](./ecosystem_bridges.py) — bridges в DoWhy, EconML, CausalNex, pgmpy и смежные ecosystems.
 - Для upstream/downstream контекста откройте [`../observation/README.md`](../observation/README.md) и [`../artifacts/README.md`](../artifacts/README.md).

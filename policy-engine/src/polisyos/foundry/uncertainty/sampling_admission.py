@@ -20,11 +20,12 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.ir.analytics import (
     DistributionFamily,
     IntervalSemantics,
+    PosteriorSamplesCarrier,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
+    posterior_joint_carrier_digest,
 )
-from polisyos.ir.analytics.uncertainty import PosteriorSamplesCarrier
 
 
 def sampling_content_digest(value: Any) -> str:
@@ -37,15 +38,7 @@ def joint_carrier_digest(
     names: list[str], envelopes: Mapping[str, UncertaintyEnvelope], draw_ids: list[str]
 ) -> str:
     """Bind finite-law coordinate order, exact paired rows, weights and row identity."""
-    return sampling_content_digest(
-        {
-            "parameter_order": names,
-            "draw_ids": draw_ids,
-            "carriers": [
-                envelopes[name].distribution_payload.model_dump(mode="json") for name in names
-            ],
-        }
-    )
+    return posterior_joint_carrier_digest(names, envelopes, draw_ids)
 
 
 def _real_float64(values: object) -> np.ndarray:

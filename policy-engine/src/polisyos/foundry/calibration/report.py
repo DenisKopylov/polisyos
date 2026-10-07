@@ -14,12 +14,13 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core import artifacts as core_artifacts
 from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo, InputRef, SchemaInfo
-from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
 from polisyos.foundry.calibration.identifiability import IdentifiabilityReport
+from polisyos.ir.analytics import validate_raw_posterior_summary_envelope
 from polisyos.ir.analytics.calibration import CalibrationConfig
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
 
@@ -193,7 +194,7 @@ def serialize_calibration_report_v1(report: CalibrationReport) -> bytes:
 
 
 def put_calibration_config(
-    store: ArtifactStore,
+    store: core_artifacts.ArtifactStore,
     config: CalibrationConfig,
     *,
     inputs: list[InputRef] | None = None,
@@ -212,7 +213,7 @@ def put_calibration_config(
 
 
 def put_calibration_report(
-    store: ArtifactStore,
+    store: core_artifacts.ArtifactStore,
     report: CalibrationReport,
     *,
     inputs: list[InputRef] | None = None,
@@ -270,7 +271,9 @@ def put_calibration_report(
     )
 
 
-def load_calibration_report(store: ArtifactStore, ref: ArtifactRef) -> CalibrationReport:
+def load_calibration_report(
+    store: core_artifacts.ArtifactStore, ref: ArtifactRef
+) -> CalibrationReport:
     """Resolve a Foundry report only through its exact CAS kind/schema/payload.
 
     A payload matching the report model under a different artifact kind is not
@@ -295,7 +298,12 @@ def load_calibration_report(store: ArtifactStore, ref: ArtifactRef) -> Calibrati
         raise ValueError("calibration report manifest kind/schema mismatch")
     if not store.verify(exact_ref).ok:
         raise ValueError("calibration report content integrity failed")
-    report = CalibrationReport.model_validate(from_canonical_bytes(store.get_bytes(exact_ref)))
+    raw = from_canonical_bytes(store.get_bytes(exact_ref))
+    raw_envelopes = raw.get("uncertainty_envelopes") if isinstance(raw, dict) else None
+    if isinstance(raw_envelopes, dict):
+        for name, envelope in raw_envelopes.items():
+            validate_raw_posterior_summary_envelope(envelope, parameter_name=name)
+    report = CalibrationReport.model_validate(raw)
     if report.schema_version != schema.version:
         raise ValueError("calibration report payload/schema version mismatch")
     if report.schema_version != "1.0":

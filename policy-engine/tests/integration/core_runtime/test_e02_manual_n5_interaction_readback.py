@@ -401,7 +401,8 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
                 cycle = leaf.cycle_run.cycles[0]
                 assert cycle.simulation.status == "joint_simulated"
                 assert cycle.value_port.status == "value_conditional"
-                assert not cycle.promotion_port.receipts
+                assert not leaf.cycle_run.promotion_port.receipts
+                assert not leaf.cycle_run.promotion_port.certified_candidate_ids
                 assert not any(
                     summary.certified_by_n9
                     for summary in leaf.cycle_run.candidate_summaries

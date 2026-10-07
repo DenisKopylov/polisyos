@@ -1,0 +1,130 @@
+{
+  "schema": "policyos.e02.E.independent_publication_custody_supplement.v1",
+  "candidate_sha": "1186ce5bf60f11ceaafe395f626cee1096d0b878",
+  "candidate_tree_sha": "e580359680641ff27cb39344d240393b57e8852b",
+  "base_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "reviewer": "/root/lint_r4",
+  "author": "/root/doe_r4",
+  "bounded_review": {
+    "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/independent-review.json",
+    "bytes": 242108,
+    "sha256": "42e87fe341bffc5eed7e9669a0c8707f253e2206f230819d046b25345dbc4196"
+  },
+  "normal_native_controls": {
+    "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/optimization-controls-0.json",
+    "bytes": 2203,
+    "sha256": "fc9b058cb3d8bb2b31ac33d4e242d9f6eec292a51fcae1cae8e5b21e4f0ff5ce"
+  },
+  "optimized_native_controls": {
+    "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/optimization-controls-1.json",
+    "bytes": 2203,
+    "sha256": "67f9a4859664d1a05363a9878068d7d805108ce10650b97ff3bef1396f1fd0f4"
+  },
+  "commands": [
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/review.py"
+      ],
+      "cwd": "/workspace/e02-E-doe-20261006/policy-engine",
+      "exit_code": 0,
+      "outcome": "PASS",
+      "stdout": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/review.stdout.txt",
+        "bytes": 227,
+        "sha256": "4aa87e32b17ab75024864038577a5deb434fe39c69104328a3e68f152f9c74ac"
+      },
+      "stderr": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/review.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input_source": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/review.py",
+        "bytes": 18539,
+        "sha256": "47c8ea8c0426a24a767518f5e921e150ae0878e47ddfb0a3964b6e5d7b6ccab7"
+      },
+      "observation_origin": "Actual exec exit and closed captures; no reconstructed program output"
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/optimization_controls.py"
+      ],
+      "cwd": "/workspace/e02-E-doe-20261006/policy-engine",
+      "exit_code": 0,
+      "outcome": "PASS",
+      "stdout": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/optimization-controls-0.stdout.txt",
+        "bytes": 52,
+        "sha256": "821e8c24e3986dba021afe660cdb20bbb2df56cce517d230c5c870273866a56f"
+      },
+      "stderr": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/optimization-controls-0.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input_source": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/optimization_controls.py",
+        "bytes": 5145,
+        "sha256": "312ffc0167c32af40d39a4dfdb188fb3a19dbcfeffcdb20c6eefa41845b8aac7"
+      },
+      "observation_origin": "Actual exec exit and closed captures; no reconstructed program output"
+    },
+    {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-O",
+        "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/optimization_controls.py"
+      ],
+      "cwd": "/workspace/e02-E-doe-20261006/policy-engine",
+      "exit_code": 0,
+      "outcome": "PASS",
+      "stdout": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/optimization-controls-1.stdout.txt",
+        "bytes": 52,
+        "sha256": "fea5c92f62e4e10d225fb151a6b105ea762d5906e6b12f77e02bcf513f3baddd"
+      },
+      "stderr": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/optimization-controls-1.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "input_source": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b/optimization_controls.py",
+        "bytes": 5145,
+        "sha256": "312ffc0167c32af40d39a4dfdb188fb3a19dbcfeffcdb20c6eefa41845b8aac7"
+      },
+      "observation_origin": "Actual exec exit and closed captures; no reconstructed program output"
+    }
+  ],
+  "Git_version": "git version 2.47.3",
+  "review_disposition": "GO for bounded artifact-role/current custody repair only",
+  "normal_controls": 215,
+  "narrow_native_controls_each_mode": 11,
+  "all_current_records": 100,
+  "current_indices": [
+    {
+      "rows": 49,
+      "actual_and_declared_bytes": 4087148
+    },
+    {
+      "rows": 51,
+      "actual_and_declared_bytes": 4098026
+    }
+  ],
+  "full_staged_cascade": 86,
+  "full_Git_object_ref_closure": 85,
+  "historical_b4_CHANGE_REQUIRED": {
+    "source_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/b4af26cf/independent-review.json",
+    "bytes": 140656,
+    "sha256": "feb98e550dc371331d70583eaaf9c157e37a82be2235ea6fcd3d5dd6a68286a9"
+  },
+  "historical_base_observation_preserved": "64d current copy indices contained nine byte mismatches. Original inputs/census/source_path/source_index remain immutable; e9 literal archives supply current raw-evidence copies. No historical observation is a new numeric/gate PASS.",
+  "effective_removal": "Removing exactly the actual physical byte-equality guard retains record metadata and pinned Git reads, accepts altered literal bytes, and fails the independent property discriminator in normal/-O.",
+  "canonical_parser": "Unchanged actual canonical parser and caller: old empty .json refuses; new empty .txt admits while text references remain scanned. No fake JSON or prefix exemptions.",
+  "full_inventory_by_this_reviewer": "UNRUN; author owns complete inventory invocation",
+  "numeric_global_Ruff_format_by_this_reviewer": "UNRUN; no duplicate broad wave or full gates",
+  "finding_status_changes": 0,
+  "root_tracked_writes": 0
+}

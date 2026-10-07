@@ -1,0 +1,7 @@
+{
+  "observer_only": "First inline publication-selector attempt used old capture suffix .stdout.txt instead of actual legacy .stdout; it raised FileNotFoundError before publishing any selection. This was an observer publication naming error, not source/native-control failure. The inline source was not separately snapshotted and is not represented as a reproducible code regression.",
+  "wrong_path": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/b4af26cf/review.stdout.txt",
+  "actual_closed_capture": "/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/b4af26cf/review.stdout",
+  "retained_review_source": "b4af26cf/review.py",
+  "review_decisions_unchanged": true
+}

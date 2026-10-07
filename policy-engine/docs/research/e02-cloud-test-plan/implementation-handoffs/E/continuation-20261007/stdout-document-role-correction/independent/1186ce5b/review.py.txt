@@ -1,0 +1,163 @@
+"""Independent bounded source-role/custody review; no full inventory or numeric wave."""
+import copy,hashlib,importlib.util,json,re,subprocess,sys
+from pathlib import Path
+from unittest.mock import patch
+REPO=Path('/workspace/e02-E-doe-20261006');OLDROOT=Path('/workspace/e02-E-continuation-20261006');OUT=Path('/workspace/e02-E-pr38-r3-receipts/lint-empty-stdout-independent/1186ce5b');BASE='64d7444a18c55df7b88b71b7699a2f1b25ca24bd';CANDIDATE='1186ce5bf60f11ceaafe395f626cee1096d0b878';TREE='e580359680641ff27cb39344d240393b57e8852b';PRIOR='b4af26cfba78b2a196d1578bea2ee6357b43452f';HISTORICAL='e9cb425e4dfe888720f93eb84f1667f24a8a92c4';PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/';FOLDER=PREFIX+'final-closeout-independent/';MAP='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/stdout-document-role-correction/current-publication-map.json';CHECKS=[]
+def git(*args):return subprocess.check_output(['/usr/bin/git',*args],cwd=REPO)
+def data(sha,path):
+ if re.fullmatch('[0-9a-f]{40}',sha) is None or not isinstance(path,str) or ':' in path or path!=Path(path).as_posix() or Path(path).is_absolute() or '..' in Path(path).parts:raise ValueError('source object not admitted')
+ return git('show',sha+':'+path)
+def bind(sha,path):
+ b=data(sha,path);return {'source_sha':sha,'path':path,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'Git_blob':git('rev-parse',sha+':'+path).decode().strip()}
+def check(name,value,**details):
+ row={'name':name,'passed':bool(value),**details};CHECKS.append(row)
+ if not value:raise AssertionError(row)
+def load(path,name):
+ spec=importlib.util.spec_from_file_location(name,path);module=importlib.util.module_from_spec(spec);sys.modules[name]=module;spec.loader.exec_module(module);return module
+helper_path='policy-engine/tools/lib/document_references.py';inventory_path='policy-engine/tools/quality/validation/repository_last_mile_inventory.py'
+check('candidate_clean_exact_source',git('rev-parse','HEAD').decode().strip()==CANDIDATE and git('rev-parse','HEAD^{tree}').decode().strip()==TREE and not git('status','--porcelain').strip())
+check('canonical_parser_unchanged',data(BASE,helper_path)==data(CANDIDATE,helper_path)==(REPO/helper_path).read_bytes())
+check('actual_inventory_caller_unchanged',data(BASE,inventory_path)==data(CANDIDATE,inventory_path)==(REPO/inventory_path).read_bytes())
+sys.path.insert(0,str(REPO/'policy-engine'));sys.dont_write_bytecode=True;helper=load(REPO/helper_path,'independent_document_references');inventory=load(REPO/inventory_path,'independent_last_mile')
+rolemap=json.loads(data(CANDIDATE,MAP));index=json.loads(data(CANDIDATE,FOLDER+'copy-index.json'));portable=json.loads(data(CANDIDATE,FOLDER+'portable-copy-index.json'));base_portable=json.loads(data(BASE,FOLDER+'portable-copy-index.json'));assembly=json.loads(data(CANDIDATE,PREFIX+'final-publication-assembly.json'));refbinding=json.loads(data(CANDIDATE,PREFIX+'final-review-refbindings.json'))
+for n in range(1,5):
+ old=FOLDER+f'independent-recompute-attempt{n}.stdout.json';new=old[:-5]+'.txt';before=data(BASE,old);after=data(CANDIDATE,new)
+ check('stdout_actual_zero_bytes_unchanged_'+str(n),before==after==b'',source=bind(BASE,old),current=bind(CANDIDATE,new))
+ oldrole=Path(old.removeprefix('policy-engine/'));newrole=Path(new.removeprefix('policy-engine/'))
+ try:helper.reference_scan_text(oldrole,before.decode())
+ except json.JSONDecodeError:refused=True
+ else:refused=False
+ check('real_parser_old_json_refusal_'+str(n),refused)
+ check('real_parser_new_text_admission_'+str(n),helper.reference_scan_text(newrole,after.decode())=='')
+ for role in [Path('docs/arbitrary-prefix/stdout.json'),Path('docs/superpowers/journals/stdout.json'),Path('docs/research/arbitrary/stdout.txt.json')]:
+  try:helper.reference_scan_text(role,after.decode())
+  except json.JSONDecodeError:refused=True
+  else:refused=False
+  check('no_arbitrary_json_prefix_exemption_'+str(n)+'_'+str(role),refused)
+ check('txt_not_blanket_reference_exemption_'+str(n),helper.reference_scan_text(newrole,'frontend/fixture')=='frontend/fixture')
+ fake=b'{"outcome":"PASS"}\n';check('syntactic_fake_json_is_not_stdout_'+str(n),helper.reference_scan_text(oldrole,fake.decode())==fake.decode() and hashlib.sha256(fake).hexdigest()!=hashlib.sha256(after).hexdigest())
+# Run the literal canonical caller with only the four actual file paths; no full inventory.
+newpaths=[str(Path(FOLDER+f'independent-recompute-attempt{n}.stdout.txt').relative_to('policy-engine')) for n in range(1,5)];oldpaths=[path[:-4]+'.json' for path in newpaths]
+with patch.object(inventory,'_tracked_paths',lambda root:newpaths):check('actual_bounded_inventory_new_text_inputs',inventory._collect_frontend_mentions(REPO/'policy-engine')==[])
+with patch.object(inventory,'_tracked_paths',lambda root:oldpaths):
+ try:inventory._collect_frontend_mentions(OLDROOT/'policy-engine')
+ except json.JSONDecodeError:refused=True
+ else:refused=False
+ check('actual_bounded_inventory_original_json_inputs_refused',refused)
+with patch.object(inventory,'_tracked_paths',lambda root:newpaths),patch.object(inventory,'_read_text',lambda path:'frontend/fixture'):
+ check('actual_caller_text_inputs_still_scanned',inventory._collect_frontend_mentions(REPO/'policy-engine')==sorted(newpaths))
+# Complete current and exact slice-base byte predicates. Failures are retained, not waived.
+def index_review(sha,which):
+ obj=json.loads(data(sha,FOLDER+which));records=obj['files'];rows=[]
+ for item in records:
+  path=item['copied_path'] if which=='portable-copy-index.json' else FOLDER+item['path'];b=data(sha,path);rows.append({'path':path,'declared_bytes':item['bytes'],'actual_bytes':len(b),'declared_sha256':item['sha256'],'actual_sha256':hashlib.sha256(b).hexdigest(),'matched':len(b)==item['bytes'] and hashlib.sha256(b).hexdigest()==item['sha256']})
+ return {'index':which,'source_sha':sha,'rows':rows,'record_count':len(records),'declared_count':obj['file_count'],'declared_total_bytes':obj['total_bytes'],'row_declared_total_bytes':sum(item['bytes'] for item in records),'actual_total_bytes':sum(row['actual_bytes'] for row in rows),'mismatches':[row for row in rows if not row['matched']]}
+index_results=[index_review(sha,which) for sha in [BASE,CANDIDATE] for which in ['copy-index.json','portable-copy-index.json']]
+for row in index_results:
+ check('complete_index_count_and_declared_total_'+row['source_sha'][:8]+'_'+row['index'],row['record_count']==row['declared_count'] and row['declared_total_bytes']==row['row_declared_total_bytes'],records=row['record_count'],declared_bytes=row['declared_total_bytes'],actual_bytes=row['actual_total_bytes'],current_mismatch_count=len(row['mismatches']))
+for which in ['copy-index.json','portable-copy-index.json']:
+ before=next(r for r in index_results if r['source_sha']==BASE and r['index']==which);after=next(r for r in index_results if r['source_sha']==CANDIDATE and r['index']==which)
+ check('full_current_custody_repaired_'+which,len(before['mismatches'])==9 and after['mismatches']==[] and after['actual_total_bytes']==after['declared_total_bytes'],prior_mismatches=9,current_mismatches=0)
+check('historical_source_index_immutable',portable['source_index']==base_portable['source_index'] and portable['source_index']['sha256']==hashlib.sha256(data(BASE,FOLDER+'copy-index.json')).hexdigest())
+check('all_historical_source_paths_immutable',[row['source_path'] for row in portable['files']]==[row['source_path'] for row in base_portable['files']])
+for item in rolemap['historical_original_index_refs']:
+ b=data(item['repository_sha'],item['repository_path']);check('explicit_historical_index_binding_'+Path(item['repository_path']).name,len(b)==item['bytes'] and hashlib.sha256(b).hexdigest()==item['sha256'])
+for path in rolemap['historical_observation_files_unchanged']:check('historical_snapshot_census_unchanged_'+Path(path).name,data(BASE,path)==data(CANDIDATE,path))
+# Recompute direct current assembly identities; historical numeric/PASS counts remain historical.
+for item in assembly['review_copy_groups']:
+ b=data(CANDIDATE,item['path']);obj=json.loads(b);check('assembly_current_group_hash_'+Path(item['path']).parent.name,len(b)==item['bytes'] and hashlib.sha256(b).hexdigest()==item['sha256'] and len(obj['files'])==item['records'])
+for item in assembly['staged_footprint']:
+ if item['path'] in [FOLDER+'copy-index.json',FOLDER+'portable-copy-index.json',PREFIX+'final-review-refbindings.json'] or item['path'] in [FOLDER+f'independent-recompute-attempt{n}.stdout.txt' for n in range(1,5)]:
+  b=data(CANDIDATE,item['path']);check('assembly_derivative_ref_'+Path(item['path']).name,len(b)==item['bytes'] and hashlib.sha256(b).hexdigest()==item['sha256'] and git('rev-parse',CANDIDATE+':'+item['path']).decode().strip()==item['index_git_blob'])
+groups=[]
+for item in assembly['review_copy_groups']:
+ obj=json.loads(data(CANDIDATE,item['path']));groups.append({'path':item['path'],'records':len(obj['files']),'declared_bytes':sum(row['bytes'] for row in obj['files'])})
+check('assembly_current_declared_archive_total',assembly['current_archive_review_record_bytes']==sum(row['declared_bytes'] for row in groups))
+check('refbinding_current_declared_group_total',refbinding['review_copy_records']==sum(row['records'] for row in groups[:3]) and refbinding['review_copy_bytes']==sum(row['declared_bytes'] for row in groups[:3]))
+# All explicit full Git object strings close over real objects; no option-like fake refs.
+object_ids=set()
+def census(value):
+ if isinstance(value,dict):
+  for key,item in value.items():
+   if key in {'repository_sha','base_repository_sha'} and (not isinstance(item,str) or re.fullmatch('[0-9a-f]{40}',item) is None):raise ValueError('malformed exact source ref')
+   census(item)
+ elif isinstance(value,list):
+  for item in value:census(item)
+ elif isinstance(value,str) and re.fullmatch('[0-9a-f]{40}',value):object_ids.add(value)
+for obj in [rolemap,index,portable,assembly,refbinding]:census(obj)
+object_closure=[{'object':oid,'type':git('cat-file','-t',oid).decode().strip()} for oid in sorted(object_ids)]
+check('full40_object_ref_closure',all(row['type'] in {'commit','tree','blob'} for row in object_closure),object_count=len(object_closure))
+
+# Admission is not a marker-only oracle: exercise the actual existing byte validator.
+validator_path=PREFIX+'validate_review_copies.py'
+check('canonical_byte_validator_unchanged',data(BASE,validator_path)==data(CANDIDATE,validator_path)==(REPO/validator_path).read_bytes())
+validator=load(REPO/validator_path,'independent_current_byte_validator')
+records49=[{'copied_path':FOLDER+r['path'],'bytes':r['bytes'],'sha256':r['sha256']} for r in index['files']]
+records51=portable['files']
+for name,records in [('49',records49),('51',records51)]:
+ check('complete_current_unique_paths_'+name,len({r['copied_path'] for r in records})==len(records))
+ validator.validate(REPO,records,CANDIDATE)
+ check('actual_canonical_current_byte_validator_'+name,True,record_count=len(records))
+# All changed inputs and prior immutable inputs are recorded completely, not an intersection waiver.
+delta_prior=git('diff','--name-status',PRIOR,CANDIDATE).decode().splitlines()
+delta_base=git('diff','--name-status',BASE,CANDIDATE).decode().splitlines()
+check('whole_python_source_unchanged',git('diff','--name-only',BASE,CANDIDATE,'--','*.py')==b'')
+archives=rolemap['historical_script_alias_corrections']
+check('nine_literal_archive_class',len(archives)==9==rolemap['historical_script_archive_count'] and sum(a['current_archive_identity']['bytes'] for a in archives)==rolemap['historical_script_archive_bytes'])
+check('complete_prior_delta_class',len(delta_prior)==14 and sum(r.startswith('A\t') for r in delta_prior)==9 and sum(r.startswith('M\t') for r in delta_prior)==5)
+check('complete_base_delta_class',len(delta_base)==18 and sum(r.startswith('R100\t') for r in delta_base)==4 and sum(r.startswith('A\t') for r in delta_base)==10 and sum(r.startswith('M\t') for r in delta_base)==4)
+archive_inputs=[];negative_controls=[]
+original_read_bytes=Path.read_bytes
+for n,archive in enumerate(archives):
+ h=archive['historical_original'];p=archive['current_archive_path'];active=archive['active_current_source_path'];body=data(CANDIDATE,p);historical=data(HISTORICAL,h['repository_path'])
+ check('archive_exact_original_Git_bytes_'+str(n),h['repository_sha']==HISTORICAL and body==historical and len(body)==h['bytes']==archive['current_archive_identity']['bytes'] and hashlib.sha256(body).hexdigest()==h['sha256']==archive['current_archive_identity']['sha256'] and git('rev-parse',HISTORICAL+':'+h['repository_path']).decode().strip()==h['git_blob'])
+ check('active_corrected_helper_preserved_'+str(n),data(CANDIDATE,active)==data(PRIOR,active) and data(CANDIDATE,active)!=body)
+ check('all_archives_selected_once_per_current_index_'+str(n),sum(r['copied_path']==p for r in records49)==sum(r['copied_path']==p for r in records51)==1)
+ check('archive_separate_text_role_'+str(n),p==active+'.txt' and helper.reference_scan_text(Path(p.removeprefix('policy-engine/')),body.decode())==body.decode())
+ archive_inputs.append({'historical':bind(HISTORICAL,h['repository_path']),'current_archive':bind(CANDIDATE,p),'current_active':bind(CANDIDATE,active)})
+ for name,records in [('49',records49),('51',records51)]:
+  # Physical byte removal/corruption: marker fields and pinned Git remain intact.
+  for change,mutated in [('corruption',body+b'\nindependent_archive_corruption\n'),('byte_removal',body[:-1])]:
+   def altered_read(path,*,target=REPO/p,replacement=mutated):
+    return replacement if path==target else original_read_bytes(path)
+   with patch.object(Path,'read_bytes',altered_read):
+    try:validator.validate(REPO,records,CANDIDATE)
+    except ValueError as exc:refused=True;reason=str(exc)
+    else:refused=False;reason=None
+   check('actual_live_archive_'+change+'_'+name+'_'+str(n),refused,reason=reason)
+   negative_controls.append({'class':change,'index_rows':int(name),'archive':p,'refused':refused,'reason':reason})
+  # Record repointing cannot claim the mutable corrected helper as historical bytes.
+  altered=copy.deepcopy(records)
+  for record in altered:
+   if record['copied_path']==p:record['copied_path']=active
+  try:validator.validate(REPO,altered,CANDIDATE)
+  except ValueError as exc:refused=True;reason=str(exc)
+  else:refused=False;reason=None
+  check('actual_record_archive_path_removal_'+name+'_'+str(n),refused,reason=reason)
+  negative_controls.append({'class':'archive_path_removed_to_active_source','index_rows':int(name),'archive':p,'refused':refused,'reason':reason})
+# Existing current cascade must bind every staged copy, not only the four renamed stdout.
+staged=[]
+for item in assembly['staged_footprint']:
+ b=data(CANDIDATE,item['path']);actual={'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'Git_blob':git('rev-parse',CANDIDATE+':'+item['path']).decode().strip()}
+ matched=actual['bytes']==item['bytes'] and actual['sha256']==item['sha256'] and actual['Git_blob']==item['index_git_blob']
+ staged.append({'path':item['path'],'matched':matched,'actual':actual})
+check('complete_current_staged_footprint_cascade',all(r['matched'] for r in staged),records=len(staged),mismatches=[r for r in staged if not r['matched']])
+# Historical numeric and owner observations retain all unchanged fields.
+prior_assembly=json.loads(data(PRIOR,PREFIX+'final-publication-assembly.json'))
+prior_ref=json.loads(data(PRIOR,PREFIX+'final-review-refbindings.json'))
+for field in assembly:
+ if field not in {'review_copy_groups','staged_footprint','current_archive_review_record_bytes'}:
+  check('assembly_historical_field_unchanged_'+field,assembly[field]==prior_assembly[field])
+for field in refbinding:
+ if field not in {'review_copy_groups','review_copy_bytes'}:
+  check('refbinding_historical_field_unchanged_'+field,refbinding[field]==prior_ref[field])
+# Independent path denominator check detects omission/duplicate, separate from record-byte validator.
+def full_set_admitted(records,expected):
+ paths=[r['copied_path'] for r in records]
+ return len(paths)==len(set(paths))==len(expected) and set(paths)==expected
+for name,records in [('49',records49),('51',records51)]:
+ expected={r['copied_path'] for r in records};check('complete_set_healthy_'+name,full_set_admitted(records,expected))
+ check('complete_set_omission_negative_'+name,not full_set_admitted(records[1:],expected))
+ check('complete_set_duplicate_negative_'+name,not full_set_admitted(records+[records[0]],expected))
+report={'candidate_sha':CANDIDATE,'candidate_tree_sha':TREE,'base_sha':BASE,'prior_candidate_sha':PRIOR,'reviewer':'/root/lint_r4','author':'/root/doe_r4','environment':{'python':sys.version,'executable':sys.executable,'canonical_cwd':str(REPO/'policy-engine')},'checks':CHECKS,'check_count':len(CHECKS),'canonical_parser_input':bind(CANDIDATE,helper_path),'canonical_inventory_caller_input':bind(CANDIDATE,inventory_path),'canonical_byte_validator_input':bind(CANDIDATE,validator_path),'indices':index_results,'current_ref_cascade_groups':groups,'object_ref_closure':object_closure,'whole_delta_prior':delta_prior,'whole_delta_base':delta_base,'archive_source_inputs':archive_inputs,'archive_negative_controls':negative_controls,'complete_current_staged_cascade':staged,'bounded_source_role_verdict':'PASS: zero actual stdout text and exact historical source text archives are separately admitted without parser edits/exemptions/fake JSON','complete_current_custody_verdict':'PASS: all49+51 current records match exact Git and physical bytes; all9 archive corruptions/removals/repoints refused by real byte validator','P41':'not_established as a global inherited waiver; bounded exact-base nine mismatches retained separately and repaired at current archive paths','finding_disposition_changes':0,'codegate_classification':'Publication/document-role and byte custody only; no new numerical/finding closure outcome','full_inventory_status':'UNRUN by this reviewer; author owns one actual full inventory run','root_frozen_source_modified':False,'overall_review':'GO for the bounded source-role/custody repair; global gate and finding decisions remain separate'}
+(OUT/'independent-review.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps({'bounded_controls':len(CHECKS),'all_controls_passed':all(r['passed'] for r in CHECKS),'current49_mismatches':0,'current51_mismatches':0,'overall_review':report['overall_review']}))

@@ -1,0 +1,17 @@
+id = "2026-10-08-e02-a-monetary-observer-composition"
+title = "Connect canonical typed LLM cost observations to runtime budget projection"
+type = "fixed"
+component = "runtime-http"
+owner = "team-policyos-runtime"
+summary = "Compose the exact B-owned response, completion, tracer, gateway, cache and factory sources so A's existing observer preserves reported zero, unknown and invalid cost, estimates, and cache reuse without another provider call."
+evidence = ["tests/integration/core_runtime/test_e02_monetary_producer_budget_readback.py", "tests/unit/runtime/http/services/test_e02_monetary_usage_projection.py"]
+compatibility = "Projected monetary amounts remain float or None. Fractional/exponent values in raw gateway completion JSON remain Decimal until numeric admission. Traced observer status/origin and completion/cache provenance are additive; invalid reported amounts no longer qualify for estimates."
+change_class = "runtime-correctness"
+surface_classification = "Canonical B-owned LLM producer internals and the existing A runtime cost observer; facade exports are not added by this composition."
+migration = "Raw completion readers must support Decimal or use the existing JSON-safe conversion. Keep the six producer/cache source paths together; old unsigned cache markers do not establish reuse provenance for the typed producer."
+api = "No new RunDetails cost DTO or public budget-summary endpoint. Existing factory/tracer optional completion and cache-provenance hooks are carried from the canonical B source."
+limitations = "Ordinary A call observations remain unmanaged settlement and operational telemetry. This composition does not establish invoice truth, protected/durable settlement, or an ordinary NL production worker run."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/core/llm/README.md", "src/polisyos/scientist/orchestration/llm/README.md"]
+runbook_docs = []

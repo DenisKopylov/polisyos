@@ -32,3 +32,15 @@ execution, fallback routing, prompt caching и registry model profiles для co
 - Python modules: 14
 - Exports: 7
 - README теперь отражает profiles/fallback/cache surface, а не только gateway client
+
+## Точный numeric ingress и cost observer
+
+Gateway completion JSON сохраняет дробные numeric tokens через `Decimal` до проверки
+cost evidence. Ненулевой `1e-1000` нельзя выдать за reported zero после float underflow;
+negative и невалидная стоимость остаются invalid. Traced callback передаёт amount,
+cost/usage statuses и origin существующему runtime cost consumer. Unknown cost не
+становится нулём, а estimate остаётся отличим от reported amount.
+
+Prompt cache и factory используют completion provenance того же producer: обычный hit
+отражается как reuse без нового provider call. A observer composition сохраняет
+unmanaged settlement; отдельная protected/durable budget integration этим не доказана.

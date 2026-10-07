@@ -11,6 +11,7 @@ from typing import Any
 import duckdb
 import pytest
 
+from polisyos.fabric.data_plane import content_sha256
 from polisyos.data_forge.domains.catalog.knowledge.overlay import (
     ActivatedAcquisitionObservationProjection,
     CanonicalAcquisitionObservation,
@@ -376,6 +377,90 @@ def test_active_c_claim_without_member_projection_refuses_before_availability(
         _load_through_default_root_gateway(scenario, None)
 
     assert raised.value.code == "acquire_data:active_observation_projection_missing"
+
+
+def _model_copy_projection_with_recomputed_digest(
+    projection: ActivatedAcquisitionObservationProjection,
+    **updates: object,
+) -> ActivatedAcquisitionObservationProjection:
+    """Tamper a typed C view without issuing or persisting a new CAS claim."""
+    tampered = projection.model_copy(update=updates)
+    payload = tampered.model_dump(mode="json", exclude={"projection_content_sha256"})
+    return tampered.model_copy(
+        update={"projection_content_sha256": content_sha256(payload)}
+    )
+
+
+@pytest.mark.parametrize(
+    ("case", "expected_code"),
+    (
+        ("malformed_digest", "acquire_data:active_observation_projection_invalid"),
+        ("wrong_target", "acquire_data:active_observation_projection_invalid"),
+        ("tampered_c_ref", "acquire_data:active_observation_projection_drift"),
+        ("foreign_projection", "acquire_data:active_observation_passport_unresolved"),
+    ),
+)
+def test_non_none_projection_is_c_verified_before_availability(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    case: str,
+    expected_code: str,
+) -> None:
+    """Malformed, mismatched, and foreign C views cannot reach availability."""
+    scenario, projection = _activate_four_row_scenario(tmp_path / "local", monkeypatch)
+    if case == "malformed_digest":
+        supplied_projection = projection.model_copy(
+            update={"projection_content_sha256": "sha256:" + "0" * 64}
+        )
+    elif case == "wrong_target":
+        # Keep the genuine row set and old digest. C's actual model validator
+        # rejects this altered typed view before any profile query.
+        supplied_projection = projection.model_copy(
+            update={"variable_id": "cells.foreign_outcome"}
+        )
+    elif case == "tampered_c_ref":
+        # Rebind the view's local digest to an already-existing, wrong-kind C ref.
+        # No new CAS artifact or pretend receipt is minted; the real overlay owner
+        # must reject that reference during readback.
+        supplied_projection = _model_copy_projection_with_recomputed_digest(
+            projection,
+            receipt_ref=projection.passport_ref,
+        )
+    elif case == "foreign_projection":
+        foreign_rows = _four_ratio_rows()
+        foreign_rows[0]["distress_score"] = 0.44
+        foreign_scenario, supplied_projection = _activate_scenario(
+            tmp_path / "foreign", monkeypatch, foreign_rows
+        )
+        assert foreign_scenario.store is not scenario.store
+        # Restore the local fixture's read roots after creating the foreign C
+        # projection. Its real passport ref must not resolve in the local store.
+        local_paths = SimpleNamespace(l1_dcat_path=scenario.authority.baseline_path)
+        monkeypatch.setattr(
+            data_state_substrate,
+            "default_substrate_catalog_paths",
+            lambda _repo_root: local_paths,
+        )
+        monkeypatch.setattr(
+            substrate_registry,
+            "default_substrate_catalog_paths",
+            lambda _repo_root: local_paths,
+        )
+    else:  # pragma: no cover - the parametrized denominator is closed above.
+        raise AssertionError(f"unknown projection case: {case}")
+
+    def availability_must_not_run(*_args: Any, **_kwargs: Any) -> Any:
+        pytest.fail(f"{case} projection reached availability before C verification")
+
+    monkeypatch.setattr(
+        data_state_substrate,
+        "l1_dcat_variable_availability",
+        availability_must_not_run,
+    )
+    with pytest.raises(ValueOwnerAccessError) as raised:
+        _load_through_default_root_gateway(scenario, supplied_projection)
+
+    assert raised.value.code == expected_code
 
 
 def test_unavailable_c_state_projection_refuses_before_availability(

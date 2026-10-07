@@ -175,6 +175,7 @@ from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopE
 if TYPE_CHECKING:
     from polisyos.foundry import MethodRouteConstraint
     from polisyos.pdc import ArtifactEnvelope
+    from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
     from polisyos.runtime.quality.acquisition_planner import AcquisitionOwnerArtifact
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationContextHandoff,
@@ -4549,7 +4550,17 @@ class RealValueOwnerGateway:
                 "An active C outcome claim requires its verified member projection",
                 owner_access_ref="substrate_owner://active_observation_projection",
             )
-        baseline_only = self.activated_observation_projection is None
+        observation_projection = self.activated_observation_projection
+        if observation_projection is not None:
+            observation_projection, _passport = _verified_active_value_observation_projection(
+                repo_root=repo_root,
+                outcome=outcome,
+                owner_access_ref="substrate_owner://active_observation_projection",
+                overlay_path=self.catalog_overlay_path,
+                artifact_store=self.artifact_store,
+                activated_observation_projection=observation_projection,
+            )
+        baseline_only = observation_projection is None
         try:
             from polisyos.runtime.quality.data_state_substrate import (
                 l1_dcat_variable_availability,
@@ -4592,7 +4603,7 @@ class RealValueOwnerGateway:
             overlay_path=self.catalog_overlay_path,
             scope_region=scope_region,
             artifact_store=self.artifact_store,
-            activated_observation_projection=self.activated_observation_projection,
+            activated_observation_projection=observation_projection,
             baseline_only=baseline_only,
         )
         if profile is None:
@@ -10448,6 +10459,112 @@ def _candidate_target_world_slots(candidate: object) -> tuple[str, ...]:
     )
 
 
+def _verified_active_value_observation_projection(
+    *,
+    repo_root: Path,
+    outcome: str,
+    owner_access_ref: str,
+    overlay_path: Path | None,
+    artifact_store: ArtifactStore | None,
+    activated_observation_projection: (
+        data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
+    ),
+) -> tuple[
+    data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection, AdmissionPassport
+]:
+    """Resolve and rebind C's active member chain before any A aggregate read."""
+
+    from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
+
+    projection_type = data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
+    try:
+        observation_projection = projection_type.model_validate(
+            activated_observation_projection.model_dump(mode="json")
+        )
+    except Exception as exc:
+        raise ValueOwnerAccessError(
+            "acquire_data:active_observation_projection_invalid",
+            f"Data Forge active observation projection failed content validation: {exc}",
+            owner_access_ref=(f"{owner_access_ref}#activated-observation-projection"),
+        ) from exc
+    if artifact_store is None:
+        raise ValueOwnerAccessError(
+            "acquire_data:active_observation_passport_store_missing",
+            "N8 requires the runtime artifact store to resolve the active passport",
+            owner_access_ref=f"{owner_access_ref}#active-passport",
+        )
+    try:
+        passport_payload = core_contracts.epoch.load_verified_epoch_statement(
+            store=artifact_store,
+            ref=observation_projection.passport_ref,
+            expected_kind="epoch.acquisition_passport_snapshot",
+        )
+        from polisyos.fabric.data_plane import content_sha256
+        from polisyos.runtime.quality import acquisition_executor
+
+        passport = acquisition_executor.AdmissionPassport.model_validate(passport_payload)
+        passport_content_hash = content_sha256(passport_payload)
+    except Exception as exc:
+        raise ValueOwnerAccessError(
+            "acquire_data:active_observation_passport_unresolved",
+            f"N8 could not verify the Data Forge active passport: {exc}",
+            owner_access_ref=f"{owner_access_ref}#active-passport",
+        ) from exc
+    if (
+        observation_projection.variable_id != outcome
+        or observation_projection.activation_state != "active"
+        or observation_projection.predicate_provenance != "recomputed"
+        or observation_projection.source_time_status != "not_established"
+        or passport_content_hash != observation_projection.passport_content_sha256
+        or passport.passport_id != observation_projection.passport_id
+        or passport.epoch_id != observation_projection.epoch_id
+        or passport.variable_id != outcome
+        or passport.registration.field_binding.canonical_variable != outcome
+        or passport.registration.field_binding != passport.field_binding
+        or getattr(passport.status, "value", passport.status)
+        not in {"admitted", "admitted_degraded"}
+    ):
+        raise ValueOwnerAccessError(
+            "acquire_data:active_observation_projection_binding_mismatch",
+            "Data Forge active projection does not bind the verified passport and N8 outcome",
+            owner_access_ref=(f"{owner_access_ref}#activated-observation-projection"),
+        )
+    if any(
+        row.observation.dataset_id != passport.registration.catalog_dataset_id
+        for row in observation_projection.observations
+    ):
+        raise ValueOwnerAccessError(
+            "acquire_data:active_observation_projection_registration_mismatch",
+            "Data Forge active rows differ from their passport registration dataset",
+            owner_access_ref=f"{owner_access_ref}#activated-observation-projection",
+        )
+    try:
+        authority = data_forge_read_api.catalog.CanonicalAcquisitionAuthority.from_provision(
+            repo_root=repo_root,
+            baseline_path=default_substrate_catalog_paths(repo_root).l1_dcat_path,
+        )
+        owner = data_forge_read_api.catalog.CatalogAcquisitionOverlay(
+            default_substrate_catalog_paths(repo_root).l1_dcat_path,
+            overlay_path or data_forge_read_api.catalog.default_acquisition_overlay_path(repo_root),
+        )
+        revalidated = owner.read_activated_semantic_epoch_observations(
+            receipt_ref=observation_projection.receipt_ref,
+            artifact_store=artifact_store,
+            passport=passport,
+            authority=authority,
+        )
+        if revalidated != observation_projection:
+            raise ValueError("active owner projection differs from the supplied view")
+        observation_projection = revalidated
+    except Exception as exc:
+        raise ValueOwnerAccessError(
+            "acquire_data:active_observation_projection_drift",
+            f"C owner could not revalidate the active source/member chain: {exc}",
+            owner_access_ref=f"{owner_access_ref}#activated-observation-projection",
+        ) from exc
+    return observation_projection, passport
+
+
 def _load_value_data_profile_from_l1_dcat(
     *,
     repo_root: Path,
@@ -10463,92 +10580,28 @@ def _load_value_data_profile_from_l1_dcat(
 ) -> ValueDataProfile | None:
     """Load deterministic owner rows without deriving an exposure assignment."""
 
+    from polisyos.fabric.data_plane import content_sha256
+
     normalized_scope_region = _optional_text(scope_region)
     owner_row_limit = 20_000
     parameters: list[object] = [outcome]
     observation_projection = None
-    registered_dataset_id: str | None = None
     registered_canonical_unit: str | None = None
     selected_wdi_observation_ids: tuple[str, ...] = ()
     selected_projection_ids: tuple[str, ...] = ()
     registered_measurement_units_by_id: dict[str, str] = {}
     if activated_observation_projection is not None:
-        projection_type = (
-            data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
+        observation_projection, passport = _verified_active_value_observation_projection(
+            repo_root=repo_root,
+            outcome=outcome,
+            owner_access_ref=owner_access_ref,
+            overlay_path=overlay_path,
+            artifact_store=artifact_store,
+            activated_observation_projection=activated_observation_projection,
         )
-        try:
-            observation_projection = projection_type.model_validate(
-                activated_observation_projection.model_dump(mode="json")
-            )
-        except Exception as exc:
-            raise ValueOwnerAccessError(
-                "acquire_data:active_observation_projection_invalid",
-                f"Data Forge active observation projection failed content validation: {exc}",
-                owner_access_ref=(
-                    f"{owner_access_ref}#activated-observation-projection"
-                ),
-            ) from exc
-        if artifact_store is None:
-            raise ValueOwnerAccessError(
-                "acquire_data:active_observation_passport_store_missing",
-                "N8 requires the runtime artifact store to resolve the active passport",
-                owner_access_ref=f"{owner_access_ref}#active-passport",
-            )
-        try:
-            passport_payload = core_contracts.epoch.load_verified_epoch_statement(
-                store=artifact_store,
-                ref=observation_projection.passport_ref,
-                expected_kind="epoch.acquisition_passport_snapshot",
-            )
-            from polisyos.fabric.data_plane import content_sha256
-            from polisyos.runtime.quality import acquisition_executor
-
-            passport = acquisition_executor.AdmissionPassport.model_validate(
-                passport_payload
-            )
-            passport_content_hash = content_sha256(passport_payload)
-        except Exception as exc:
-            raise ValueOwnerAccessError(
-                "acquire_data:active_observation_passport_unresolved",
-                f"N8 could not verify the Data Forge active passport: {exc}",
-                owner_access_ref=f"{owner_access_ref}#active-passport",
-            ) from exc
-        if (
-            observation_projection.variable_id != outcome
-            or observation_projection.activation_state != "active"
-            or observation_projection.predicate_provenance != "recomputed"
-            or observation_projection.source_time_status != "not_established"
-            or passport_content_hash != observation_projection.passport_content_sha256
-            or passport.passport_id != observation_projection.passport_id
-            or passport.epoch_id != observation_projection.epoch_id
-            or passport.variable_id != outcome
-            or passport.registration.field_binding.canonical_variable != outcome
-            or passport.registration.field_binding != passport.field_binding
-            or getattr(passport.status, "value", passport.status)
-            not in {"admitted", "admitted_degraded"}
-        ):
-            raise ValueOwnerAccessError(
-                "acquire_data:active_observation_projection_binding_mismatch",
-                "Data Forge active projection does not bind the verified passport and N8 outcome",
-                owner_access_ref=(
-                    f"{owner_access_ref}#activated-observation-projection"
-                ),
-            )
-        registered_dataset_id = passport.registration.catalog_dataset_id
         registered_canonical_unit = _optional_text(
             passport.registration.field_binding.canonical_unit
         )
-        if any(
-            row.observation.dataset_id != registered_dataset_id
-            for row in observation_projection.observations
-        ):
-            raise ValueOwnerAccessError(
-                "acquire_data:active_observation_projection_registration_mismatch",
-                "Data Forge active rows differ from their passport registration dataset",
-                owner_access_ref=(
-                    f"{owner_access_ref}#activated-observation-projection"
-                ),
-            )
         if normalized_scope_region:
             from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
                 iso2_to_iso3,
@@ -10655,30 +10708,6 @@ def _load_value_data_profile_from_l1_dcat(
         if baseline_only
         else overlay_path or data_forge_read_api.catalog.default_acquisition_overlay_path(repo_root)
     )
-    if observation_projection is not None:
-        try:
-            authority = data_forge_read_api.catalog.CanonicalAcquisitionAuthority.from_provision(
-                repo_root=repo_root,
-                baseline_path=dcat_path,
-            )
-            owner = data_forge_read_api.catalog.CatalogAcquisitionOverlay(
-                dcat_path, selected_overlay
-            )
-            revalidated = owner.read_activated_semantic_epoch_observations(
-                receipt_ref=observation_projection.receipt_ref,
-                artifact_store=artifact_store,
-                passport=passport,
-                authority=authority,
-            )
-            if revalidated != observation_projection:
-                raise ValueError("active owner projection differs from the supplied view")
-            observation_projection = revalidated
-        except Exception as exc:
-            raise ValueOwnerAccessError(
-                "acquire_data:active_observation_projection_drift",
-                f"C owner could not revalidate the active source/member chain: {exc}",
-                owner_access_ref=f"{owner_access_ref}#activated-observation-projection",
-            ) from exc
     con = data_forge_read_api.catalog.open_catalog_read_session(
         dcat_path,
         overlay_path=selected_overlay,

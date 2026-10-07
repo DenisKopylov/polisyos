@@ -33,6 +33,9 @@ from .test_checkpoint_identity import (
 
 _DATA_GETTER = getattr
 _DATA_FIELDS = ("product",)
+params = "product"
+field_names = ("product",)
+field_name = "product"
 
 
 class _DataFieldState(NamedTuple):
@@ -128,6 +131,89 @@ def test_runtime_selector_or_rebinding_does_not_gain_data_field_identity(tmp_pat
             registry=registry, dispatcher=dispatcher, artifact_store=store
         ).execute(chain, initial_state={"x": 3}, artifact_context=_strict_context(store, chain))
     assert dispatcher.calls == []
+
+
+class _ShadowedSelectorSource:
+    signature: ClassVar = replace(
+        _PRODUCER_SIGNATURE,
+        parameters=(ParameterSpec("effect_path", default=""),),
+    )
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, params):
+        def unused():
+            global params
+            return params
+
+        with open(params["effect_path"], "a", encoding="utf-8") as output:
+            output.write("body\n")
+        return {"product": _DATA_GETTER(state, params, state)}
+
+
+class _ShadowedIteratorSource:
+    signature: ClassVar = _ShadowedSelectorSource.signature
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, field_names):
+        def unused():
+            global field_names
+            return field_names
+
+        with open(field_names["effect_path"], "a", encoding="utf-8") as output:
+            output.write("body\n")
+        return {
+            "product": {name: _DATA_GETTER(state, name, state) for name in field_names}
+        }
+
+
+def _closure_collision_source(field_name):
+    class ClosureCollisionSource:
+        signature: ClassVar = _ShadowedSelectorSource.signature
+        metadata: ClassVar = _METADATA
+
+        @staticmethod
+        def pure_step(state, params):
+            def unused():
+                global field_name
+                return field_name
+
+            with open(params["effect_path"], "a", encoding="utf-8") as output:
+                output.write("body\n")
+            return {"product": _DATA_GETTER(state, field_name, state)}
+
+    return ClosureCollisionSource
+
+
+@pytest.mark.parametrize(
+    "source", [_ShadowedSelectorSource, _ShadowedIteratorSource, _closure_collision_source("other")]
+)
+def test_recursive_global_capture_cannot_authorize_other_root_bindings(tmp_path, source):
+    _, registry = _chain()
+    registry.register(source, override=True)
+    composer = MethodComposer(registry=registry)
+    node = composer.add(source.signature.fqn)
+    chain = composer.build(validate_semantics=False)
+    store = FileSystemCAS(tmp_path / "cas")
+    effects = tmp_path / "effects.txt"
+    observed = {"refusal": None}
+    try:
+        CheckpointingChainExecutor(registry=registry, artifact_store=store).execute(
+            chain,
+            initial_state={"x": 3},
+            params_per_node={node.id: {"effect_path": str(effects)}},
+            artifact_context=_strict_context(store, chain),
+        )
+    except Exception as error:  # preserve the actual before-body/after-body distinction
+        observed.update({"error": type(error).__name__, "message": str(error)})
+        if isinstance(error, CheckpointIdentityError):
+            observed["refusal"] = type(error).__name__
+    observed["actual_effects"] = effects.read_text().splitlines() if effects.exists() else []
+    (tmp_path / "measurement.json").write_text(json.dumps(observed, indent=2) + "\n")
+    print("ROOT_CAPTURE_OBSERVATION", json.dumps(observed, sort_keys=True))  # noqa: T201
+    assert observed["refusal"] == "CheckpointIdentityError"
+    assert observed["actual_effects"] == []
 
 
 def _frame_original_increment(value, effect_path):

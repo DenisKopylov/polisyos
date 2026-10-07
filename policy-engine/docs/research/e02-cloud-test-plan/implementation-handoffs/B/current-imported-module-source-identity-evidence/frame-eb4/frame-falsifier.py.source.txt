@@ -1,0 +1,47 @@
+from __future__ import annotations
+import importlib.util
+import math
+import sys
+from pathlib import Path
+from typing import ClassVar
+import pytest
+from polisyos.foundry.methods.backends.checkpointing import CheckpointDigestMismatchError, CheckpointIdentityError
+
+_fixture_path=Path("/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py")
+_spec=importlib.util.spec_from_file_location("b74_foreign_fixture_module",_fixture_path)
+_fixture=importlib.util.module_from_spec(_spec)
+sys.modules[_spec.name]=_fixture
+_spec.loader.exec_module(_fixture)
+
+class _FrameConsumer:
+    signature: ClassVar = _fixture._CONSUMER_SIGNATURE
+    metadata: ClassVar = _fixture._METADATA
+
+    @staticmethod
+    def pure_step(state, params):
+        return {"total": sys._getframe().f_globals["math"]._e02_b74_checkpoint_helper(state, params["effect_path"])}
+
+
+def test_returned_frame_namespace_is_not_closed_by_static_selected_module_graph(tmp_path,monkeypatch):
+    monkeypatch.setattr(math,"_e02_b74_checkpoint_helper",_fixture._original_increment,raising=False)
+    effects=tmp_path/"effects.txt"
+    original,chain,params,context,checkpoint,pointer,reopened=_fixture._saved_prefix(tmp_path,_FrameConsumer,effects)
+    assert original.final_state["total"]==7
+    before=pointer.read_bytes()
+    unchanged=reopened.execute(chain,initial_state={"x":3},params_per_node=params,checkpoint=checkpoint,seed=7,artifact_context=context)
+    assert unchanged.final_state["total"]==7
+    baseline_effects=effects.read_text().splitlines()
+    monkeypatch.setattr(math,"_e02_b74_checkpoint_helper",_fixture._replacement_increment)
+    observed={"original":original.final_state["total"],"unchanged_resume":unchanged.final_state["total"],"before_effects":baseline_effects}
+    try:
+        result=reopened.execute(chain,initial_state={"x":3},params_per_node=params,checkpoint=checkpoint,seed=7,artifact_context=context)
+        observed.update({"refusal":None,"changed_resume":result.final_state["total"],"history_complete":result.history_complete})
+    except (CheckpointDigestMismatchError,CheckpointIdentityError) as error:
+        observed.update({"refusal":type(error).__name__,"message":str(error)})
+    observed.update({"pointer_unchanged":pointer.read_bytes()==before,"actual_effects":effects.read_text().splitlines()})
+    import json
+    (tmp_path/"measurement.json").write_text(json.dumps(observed,indent=2)+"\n")
+    print("FRAME_NAMESPACE_OBSERVATION",json.dumps(observed,sort_keys=True))
+    assert observed["pointer_unchanged"]
+    assert observed["refusal"] is not None, "Opaque builtin-returned namespace was admitted and replacement body physically executed"
+    assert observed["actual_effects"]==baseline_effects

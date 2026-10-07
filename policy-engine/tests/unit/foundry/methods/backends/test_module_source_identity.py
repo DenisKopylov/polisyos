@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import json
 import math
+import sys
 from dataclasses import replace
 from types import ModuleType
 from typing import ClassVar
@@ -16,14 +18,123 @@ from polisyos.foundry.methods.backends.checkpointing import (
     CheckpointIdentityError,
     CheckpointingChainExecutor,
 )
+from polisyos.foundry.methods.base import ParameterSpec
+from polisyos.foundry.methods.components.composer import MethodComposer
 
 from .test_checkpoint_identity import (
+    _CONSUMER_SIGNATURE,
     _METADATA,
     _PRODUCER_SIGNATURE,
     _chain,
+    _Original,
     _RecordingDispatcher,
     _strict_context,
 )
+
+
+def _frame_original_increment(value, effect_path):
+    with open(effect_path, "a", encoding="utf-8") as output:
+        output.write("original\n")
+    return value + 1
+
+
+def _frame_replacement_increment(value, effect_path):
+    with open(effect_path, "a", encoding="utf-8") as output:
+        output.write("replacement\n")
+    return value + 101
+
+
+class _FrameConsumer:
+    signature: ClassVar = replace(
+        _CONSUMER_SIGNATURE, parameters=(ParameterSpec("effect_path", default=""),)
+    )
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, params):
+        return {
+            "total": sys._getframe()
+            .f_globals["math"]
+            ._e02_b74_owner_frame_helper(state, params["effect_path"])
+        }
+
+
+def test_returned_frame_namespace_refuses_before_replacement_effect(tmp_path, monkeypatch):
+    """Retain the genuine unresolved builtin-returned namespace counterexample."""
+    monkeypatch.setattr(
+        math, "_e02_b74_owner_frame_helper", _frame_original_increment, raising=False
+    )
+    _, registry = _chain()
+    registry.register(_FrameConsumer, override=True)
+    composer = MethodComposer(registry=registry)
+    first = composer.add(_Original.signature.fqn)
+    second = composer.add(_FrameConsumer.signature.fqn)
+    composer.connect(first, second, {"product": "operand"})
+    chain = composer.build(validate_semantics=False)
+    store = FileSystemCAS(tmp_path / "cas")
+    context = _strict_context(store, chain)
+    effects = tmp_path / "effects.txt"
+    params = {second.id: {"effect_path": str(effects)}}
+    executor = CheckpointingChainExecutor(
+        registry=registry, artifact_store=store, checkpoint_dir=tmp_path / "checkpoints"
+    )
+    original = executor.execute(
+        chain, initial_state={"x": 3}, params_per_node=params, seed=7, artifact_context=context
+    )
+    pointer = next((tmp_path / "checkpoints").glob("*_0000_*.json"))
+    checkpoint = ChainCheckpoint.load(pointer)
+    assert checkpoint.completed_node_ids == [str(first.id)]
+    assert checkpoint.intermediate_state["product"] == 6
+    assert checkpoint.node_results[0]["output"] == {"product": 6}
+    original_pointer = pointer.read_bytes()
+    fresh_store = FileSystemCAS(tmp_path / "cas")
+    assert fresh_store.get_bytes(context.input_refs["x"]) == b'{"x":3}'
+    reopened = CheckpointingChainExecutor(registry=registry, artifact_store=fresh_store)
+    unchanged = reopened.execute(
+        chain,
+        initial_state={"x": 3},
+        params_per_node=params,
+        checkpoint=checkpoint,
+        seed=7,
+        artifact_context=context,
+    )
+    assert original.final_state["total"] == unchanged.final_state["total"] == 7
+    assert unchanged.history_complete
+    baseline_effects = effects.read_text().splitlines()
+    assert baseline_effects == ["original", "original"]
+    monkeypatch.setattr(math, "_e02_b74_owner_frame_helper", _frame_replacement_increment)
+    observed = {"original": 7, "unchanged_resume": 7, "before_effects": baseline_effects}
+    try:
+        result = reopened.execute(
+            chain,
+            initial_state={"x": 3},
+            params_per_node=params,
+            checkpoint=checkpoint,
+            seed=7,
+            artifact_context=context,
+        )
+        observed.update(
+            {
+                "refusal": None,
+                "changed_resume": result.final_state["total"],
+                "history_complete": result.history_complete,
+            }
+        )
+    except (CheckpointDigestMismatchError, CheckpointIdentityError) as error:
+        observed.update({"refusal": type(error).__name__, "message": str(error)})
+    observed.update(
+        {
+            "pointer_unchanged": pointer.read_bytes() == original_pointer,
+            "actual_effects": effects.read_text().splitlines(),
+        }
+    )
+    (tmp_path / "measurement.json").write_text(json.dumps(observed, indent=2) + "\n")
+    print("FRAME_NAMESPACE_OBSERVATION", json.dumps(observed, sort_keys=True))  # noqa: T201
+    assert observed["pointer_unchanged"]
+    assert observed["refusal"] is not None, (
+        "Builtin-returned frame namespace admitted a physically executed replacement helper"
+    )
+    assert observed["actual_effects"] == baseline_effects
 
 
 def _original_multiplier(value):

@@ -1,0 +1,187 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "continuation-jit-getter-independent-final",
+  "closure_ids": [],
+  "bundle_ids": [
+    "JIT-01",
+    "RES-04"
+  ],
+  "finding_ids": [
+    "B49",
+    "B50",
+    "B53",
+    "B74"
+  ],
+  "slice_base_sha": "66863a0d89e7acffde8deef79f47ab0b96061ccf",
+  "implementation_commits": [
+    "94f89db357f4e2d86414b7b0aba8203a6c503b04"
+  ],
+  "candidate_tree_sha": "01b360edfc242f87647a53bc413ac4acb35010d3",
+  "branch": "codex/e02-B-current-durability",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/43",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/run-native.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/wrapper.json"
+  ],
+  "production_changed_paths": [],
+  "test_changed_paths": [],
+  "baseline_cells": [],
+  "baseline_navigation": "Exact predecessor637 canonical handoff preserves d1efd finding/cell refs; this is changed-classifier consumer replay, not new baseline or fullB adjudication.",
+  "checks": [
+    {
+      "id": "same-three-final-typed-function-source",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-dur-getter-oracle-0903e31d1b90/run_native.py",
+        "child"
+      ],
+      "target_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "environment": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src:/workspace/e02-B-current-composition/policy-engine/product",
+          "GIT_OBJECT_DIRECTORY": "/tmp/e02-B-jit-data-getattr-20261007/git-objects",
+          "GIT_ALTERNATE_OBJECT_DIRECTORIES": "/workspace/polisyos/.git/objects",
+          "GIT_INDEX_FILE": "/tmp/e02-B-jit-data-getattr-20261007/index",
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+        },
+        "versions": {
+          "pytest": "9.0.2",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "numpy": "2.3.5",
+          "pydantic": "2.12.5"
+        }
+      },
+      "input_closure": {
+        "literal_test": {
+          "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/test_independent_getter_consumer.source.txt",
+          "bytes": 5272,
+          "sha256": "c60de7f76a3671961b44c830e6e1632f4be3c787ccc13eec49947e8e495b5559"
+        },
+        "actual_tmp_test_sha256": "c60de7f76a3671961b44c830e6e1632f4be3c787ccc13eec49947e8e495b5559",
+        "literal_runner": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/run-native.source.txt",
+          "bytes": 4636,
+          "sha256": "14471cae1773ec25fcda6ca0e85dc3494177975e0b840fd9c81689e7c715759b",
+          "git_sha": "94f89db357f4e2d86414b7b0aba8203a6c503b04"
+        },
+        "full_origin_before_after": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/profile.json",
+          "bytes": 38615,
+          "sha256": "23d389dd78f1c513e3ff61a58645e61375e649b0110af5ff3b1fb460d668ee88",
+          "git_sha": "94f89db357f4e2d86414b7b0aba8203a6c503b04"
+        },
+        "actual152_filebacked_origins": true,
+        "actual_source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+        "fixture_root": "/tmp/e02-dur-getter-oracle-0903e31d1b90/fixtures-final",
+        "authority": "Independent vector arithmetic fixture, not scientific or institutionalsource/permission law"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/native.txt",
+        "bytes": 3034,
+        "sha256": "9021cc51d126cde3903e1cbb19585cc42c75d633a11f5664d5ec921d77cce695",
+        "git_sha": "94f89db357f4e2d86414b7b0aba8203a6c503b04"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/native.xml",
+        "bytes": 605,
+        "sha256": "489cb63e06027ba6c7a71d74395cd191e68882cafca04afdb3087829d8d8da70",
+        "git_sha": "94f89db357f4e2d86414b7b0aba8203a6c503b04"
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/wrapper.json",
+        "bytes": 1177,
+        "sha256": "52672bd34910f299b75925c9a50d0929bd61ea2b81f7c9ea20815f21b1448452",
+        "git_sha": "94f89db357f4e2d86414b7b0aba8203a6c503b04"
+      },
+      "actual_cases": {
+        "PASS": 3
+      },
+      "wall_s": 2.6415889080089983,
+      "max_rss_kib": 200324,
+      "qualification": "Actually executed0903 separate from actual8aa3PASS; no source/case restamp or broadcohort conclusion."
+    }
+  ],
+  "property": {
+    "statement": "Generic symbol-table parameter binding preserves supported immutable-data getter numeric/cache behavior and capturedModuleType refusal after changing exact classifier dependency.",
+    "runtime_path": [
+      "actual0903 strict sourcegraph and fresh registry",
+      "actual MethodCompiler/cache eager+JAX compiledhandle",
+      "same physical testbody c60de7 runtimevector/dynamic values",
+      "aliased builtin public-field dematerialization and actual ModuleType typedrefusal-beforebody"
+    ],
+    "proxy_divergence": "An inherited8aa PASS or bindingclassifier source marker does not decide5fdd runtime; this reexecutes unchanged numeric/dynamic/reuse/reflection fixtures under new sourcebackings.",
+    "negative_controls": [
+      "Capturedmath reflection raises typedCompilationError with physicalbodyfileabsent",
+      "Old handle remains correct after rebound warm handle and explicitdynamicoverride",
+      "Original3PASS/errors remain source8aa in priorpacket without reinterpretation"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "NONBLOCKING finite consumer regression profile on0903; closure_ids[]",
+  "limitations_and_next_owner": [
+    "No full JIT/B74/sourcegraph or generic descriptor/installedcallable/scientific authority acceptance. Remaining actual frame107FAIL is separate criterion residual.",
+    "ROOT/G decides final integration/sourcebound native/gates/formalclosure; CMP solecanonical classifier. No budgetreview/productionedits/cleanup/quota/newcheckout/helper.",
+    "152 means actual filebacked loaded polisyos origins, not transitive external/data/service closure or borrowed author167.",
+    "AlternateGit metadata publication from exact oldpublished637 parent; localcheckoutHEAD may remainb61 while overlay0. This is not a newadmission/checkout or historyrewrite."
+  ],
+  "source_cut_history": [
+    {
+      "sha": "8aa69009572bdec3b4906257208c601bed4fd9a6",
+      "tree": "e6bfbe8e37f243bcb85d6097712e97a6832c52c7",
+      "native": "3PASS",
+      "handoff": {
+        "git_sha": "637b821971f8d9a6413c5f8e93a7d416a30dbc65",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent.json",
+        "bytes": 18270,
+        "sha256": "f5fc67f6fd6a76939ef23caab28eecd2e53e1e75a02ba85f1f37e3fbefc83f06"
+      }
+    },
+    {
+      "sha": "5fdd09d3b772ca84a95c0bbf13e0b3ef74018640",
+      "tree": "ab2050dd1606edf90fa9771dce76b6a368eeff8e",
+      "native": "3PASS",
+      "handoff": {
+        "git_sha": "66863a0d89e7acffde8deef79f47ab0b96061ccf",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-successor.json",
+        "bytes": 9415,
+        "sha256": "830fc61f4852e9605279a887c92bee331f69795f2f9d07b7a24c6012dd3c7fe1"
+      }
+    },
+    {
+      "sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+      "tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+      "native": "3PASS",
+      "observed_new": true
+    }
+  ],
+  "evidence_index": {
+    "git_sha": "94f89db357f4e2d86414b7b0aba8203a6c503b04",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/index.json",
+    "bytes": 1732,
+    "sha256": "22ce7239a5622084ad9bd48900232779a616b44497cb43ad6a88f5beb9e5a7b0"
+  },
+  "review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-final-evidence/review.json",
+    "bytes": 1716,
+    "sha256": "f1c0515ed2d9e2c5c2ab6b83e0e25ab69dd199349d115ddfcd12a6fcd26607ed",
+    "git_sha": "94f89db357f4e2d86414b7b0aba8203a6c503b04"
+  }
+}

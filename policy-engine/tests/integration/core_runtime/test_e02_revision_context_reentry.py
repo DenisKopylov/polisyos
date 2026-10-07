@@ -131,11 +131,24 @@ async def test_served_candidate_profile_two_iteration_cap_stops_before_revision_
         assert len(leaf_run.cycles) == 1
         cycle = leaf_run.cycles[0]
         assert cycle.simulation.status == "joint_simulated"
+        assert cycle.value_port.status == "value_conditional"
+        assert cycle.value_port.authority_blockers == (
+            "simulation_only_k_sim_not_world_evidence",
+        )
+        assert cycle.value_port.evaluation_mode == "simulate_only"
+        assert cycle.value_port.decision_grade == "low"
         assert cycle.voi_decision.next_action == "blocked"
-        assert cycle.voi_decision.reason == "candidate_scenario_n5_only"
+        assert cycle.voi_decision.scheduler_action == "reject"
+        assert cycle.voi_decision.scheduler_reason == "roi_below_threshold"
+        assert cycle.voi_decision.reason == "roi_below_threshold"
+        assert leaf_run.promotion_port.status == "not_promoted"
+        assert leaf_run.promotion_port.receipts == ()
+        assert leaf_run.fronts.decision.candidate_ids == ()
+        assert all(not summary.certified_by_n9 for summary in leaf_run.candidate_summaries)
 
-        # N6 retains its typed revision request, but candidate-only simulation
-        # terminates the served run before the revised problem can reach N4/N5.
+        # N6 retains its typed revision request. Conditional simulation remains
+        # low-grade, and the exact ROI rejection prevents the revised problem
+        # from advancing into a second N4/N5 cycle.
         revision = cycle.revision_request
         assert revision.source_counterexample_ref == cycle.counterexample.counterexample_ref
         assert revision.previous_grammar_elements == cycle.grammar_elements

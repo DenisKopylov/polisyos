@@ -2656,8 +2656,17 @@ async def _run_controlled_simulate_only_job_fixture(
         assert leaf_run.cycles[-1].selected_candidate_ref == candidate.candidate_id
         assert leaf_run.cycles[-1].simulation.status == "joint_simulated"
         assert leaf_run.cycles[-1].simulation.candidate_id == candidate.candidate_id
-        assert leaf_run.value_port.status == "value_pending_n8"
-        assert leaf_run.value_port.authority_blockers == ("candidate_scenario_n5_only",)
+        assert leaf_run.value_port.status == "value_conditional"
+        assert "simulation_only_k_sim_not_world_evidence" in (
+            leaf_run.value_port.authority_blockers
+        )
+        assert leaf_run.value_port.evaluation_mode == "simulate_only"
+        assert leaf_run.value_port.decision_grade == "low"
+        assert leaf_run.value_port.value_receipt is None
+        assert leaf_run.value_port.method_selection_receipt is None
+        assert leaf_run.value_port.value_ref == str(
+            leaf_run.cycles[-1].simulation.simulation_result_ref.artifact_id
+        )
         assert leaf_run.promotion_port.status == "not_promoted"
         assert leaf_run.promotion_port.certified_candidate_ids == ()
         assert all(not summary.certified_by_n9 for summary in leaf_run.candidate_summaries)

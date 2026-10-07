@@ -1,0 +1,31 @@
+{
+  "repository_root": "/workspace/e02-F-tmle-20261006",
+  "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+  "target_sha": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+  "guard_paths": [
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+    "policy-engine/src/polisyos/ir/analytics/causal.py",
+    "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+    "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+    "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+    "policy-engine/src/polisyos/scientist/compute/runner.py",
+    "policy-engine/src/polisyos/scientist/compute/job_spec.py",
+    "policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py",
+    "policy-engine/docs/reference/foundry/tmle-persisted-consumers.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml"
+  ],
+  "environment_overrides": {
+    "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+    "TMPDIR": "/tmp"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py"
+  ]
+}

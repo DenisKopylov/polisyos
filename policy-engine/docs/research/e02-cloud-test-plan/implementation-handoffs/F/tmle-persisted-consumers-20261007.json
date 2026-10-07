@@ -1,0 +1,1720 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "tmle-persisted-consumers-20261007",
+  "closure_ids": [],
+  "finding_ids": [
+    "B54",
+    "B56"
+  ],
+  "related_finding_ids": [
+    "B54",
+    "B56"
+  ],
+  "bundle_ids": [
+    "FIT-01"
+  ],
+  "slice_base_sha": "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a",
+  "slice_base_tree_sha": "b886405220a7820b8f6f86a1147efebba64beacd",
+  "dependency_checkpoint_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+  "dependency_merge_sha": "f910039d73a56e1d3ab18a16fd17f2463b557f00",
+  "dependency_merge_tree_sha": "f2b9b2d4bcc24a2feeae6f4873b61845a07cc090",
+  "dependency_merge_receipt": {
+    "command": [
+      "git",
+      "merge",
+      "--no-ff",
+      "072d45a56d1119fe3e7665cec2cbbdca015d2934"
+    ],
+    "commit_parents": [
+      "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a",
+      "072d45a56d1119fe3e7665cec2cbbdca015d2934"
+    ],
+    "note": "Actual ordinary merge completed and exact parent/tree/branch readback verified. Tool displayed truncated path inventory; complete raw merge stdout was not retained and is not claimed as evidence."
+  },
+  "fetched_G_instructions_sha": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+  "root_product_source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "implementation_commits": [
+    "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+    "8d94a937ca6e3f886ada9ad5c1f76dadb049da84"
+  ],
+  "scientific_test_candidate_sha": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+  "scientific_test_candidate_tree_sha": "00dcef92dcf711833750e842dec19188df69b74b",
+  "candidate_sha": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+  "candidate_tree_sha": "ccfe80dbcb149a8e7109255d0c5a98bb36111c1d",
+  "branch": "codex/e02-F-tmle-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/50",
+  "changed_paths": [
+    "policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py",
+    "policy-engine/docs/reference/foundry/tmle-persisted-consumers.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml"
+  ],
+  "source_identity": [
+    {
+      "git_ref": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+      "path": "policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py",
+      "bytes": 15094,
+      "sha256": "fb7b806dd6f97e9eb2ecf7196eaf58441ab26e2af6b497d3d635d7d6602e2c25",
+      "git_blob": "c28ad8bda927967ab25c7c4f76ebc3f25a98b12f"
+    },
+    {
+      "git_ref": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+      "path": "policy-engine/docs/reference/foundry/tmle-persisted-consumers.md",
+      "bytes": 5649,
+      "sha256": "66fe2054b47d264fae28d6b2aa239b01d9f6ecb44dfd45894aa8c5afbf5b4a84",
+      "git_blob": "1ce1bb146ec63c9b693b70e4552b51c5a239e061"
+    },
+    {
+      "git_ref": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml",
+      "bytes": 1890,
+      "sha256": "9798ce1fac3ee3f201dff83a17119582953ddf8eb235338574c421c063c3431e",
+      "git_blob": "fe5f0b5da0e72cea83256abacc1eca4a108fd0d2"
+    }
+  ],
+  "baseline_cells": [
+    {
+      "cell_id": "F01-P016",
+      "role": "Historical baseline query navigation only; no future-candidate semantic/backend PASS is inferred"
+    },
+    {
+      "cell_id": "F01-P109",
+      "role": "Historical baseline query navigation only; no future-candidate semantic/backend PASS is inferred"
+    },
+    {
+      "cell_id": "F06-P031",
+      "role": "Historical baseline query navigation only; no future-candidate semantic/backend PASS is inferred"
+    },
+    {
+      "cell_id": "F09-P024",
+      "role": "Historical baseline query navigation only; no future-candidate semantic/backend PASS is inferred"
+    },
+    {
+      "cell_id": "F09-P111",
+      "role": "Historical baseline query navigation only; no future-candidate semantic/backend PASS is inferred"
+    },
+    {
+      "cell_id": "F12-P023",
+      "role": "Historical baseline query navigation only; no future-candidate semantic/backend PASS is inferred"
+    },
+    {
+      "cell_id": "F14-P128",
+      "role": "Historical baseline query navigation only; no future-candidate semantic/backend PASS is inferred"
+    },
+    {
+      "cell_id": "F15-P021",
+      "role": "Historical baseline query navigation only; no future-candidate semantic/backend PASS is inferred"
+    }
+  ],
+  "original_criterion_source": {
+    "git_ref": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FIT-01.md",
+    "bytes": 14761,
+    "sha256": "af58e73e27d8417f9744dbf93a8adb8bb3badaf979d70c16ab924d76a4358075",
+    "git_blob": "9a7c550c56937430370253621bbd0a84c2fea3ec"
+  },
+  "historical_source_bound_receipts": [
+    {
+      "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json",
+      "bytes": 28486,
+      "sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429",
+      "implementation_commits": [
+        "55d2e14755bda6af31c41acd4fe1dcb76f3814b1"
+      ],
+      "role": "Prior source/profile evidence retained; this53-case slice does not rerun numerical/cache/default-fold/coverage or actual admitted study budget."
+    },
+    {
+      "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json",
+      "bytes": 125989,
+      "sha256": "53688e8d8ea8bc96ecdcf52a6e6d57bd0f4203ca6d23dca276cd45753f299056",
+      "implementation_commits": [
+        "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d"
+      ],
+      "role": "Prior source/profile evidence retained; this53-case slice does not rerun numerical/cache/default-fold/coverage or actual admitted study budget."
+    },
+    {
+      "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-report-schema-20261006.json",
+      "bytes": 81022,
+      "sha256": "e6bdc12b130a81b2f9f5d7b7261d0ba20809a2ebcb620c8bec17f420a7d95a9d",
+      "implementation_commits": [
+        "27f28925d8ecaa674ae7b553faa262b1cb624903"
+      ],
+      "role": "Prior source/profile evidence retained; this53-case slice does not rerun numerical/cache/default-fold/coverage or actual admitted study budget."
+    },
+    {
+      "git_ref": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-confidence-issue-preservation-20261006.json",
+      "bytes": 91876,
+      "sha256": "0818e463b5e8c942eba6d9f696932b3a0ad3deab79657199ae692f2e39c9fe5d",
+      "implementation_commits": [
+        "df5057dd3816885fc5bfacd9a9f1ee772df9ac51"
+      ],
+      "role": "Prior source/profile evidence retained; this53-case slice does not rerun numerical/cache/default-fold/coverage or actual admitted study budget."
+    }
+  ],
+  "checks": [
+    {
+      "name": "admission-before-freeze",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.cli",
+        "workspace",
+        "doctor",
+        "--worktree-admission",
+        "resume",
+        "--branch",
+        "codex/e02-F-tmle-20261006",
+        "--path",
+        "/workspace/e02-F-tmle-20261006"
+      ],
+      "target_sha": "f910039d73a56e1d3ab18a16fd17f2463b557f00",
+      "environment": "readonly shared Python3.14.7; candidate src:tools; no environment mutations or added quota",
+      "input_closure": "Exact existing attached branch/path; full doctor filesystem/admin/command denominator in output",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/admission-before-freeze.json.gz",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/tmle/admission-before-freeze.json",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/admission-before-freeze.json.gz",
+        "bytes": 11852,
+        "sha256": "7c3a707000b5c36f135842fa1fa9a713302f2da4774da4f64338c7938bfa2686",
+        "encoding": "gzip",
+        "decoded_bytes": 147911,
+        "decoded_sha256": "a8e0b2b8ca579460a90c3fb159f0c0f1353d8bad5bbb821153c6787adc05b50a",
+        "restored_relative_path": "author/admission-before-freeze.json"
+      },
+      "statement": "Workspace admitted with no unresolved inputs; this is workspace admission, not causal identification or workload admission."
+    },
+    {
+      "name": "native",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-s",
+        "-ra",
+        "tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py",
+        "--basetemp=/tmp/e02-F-continuation-20261007/tmle/native",
+        "--junitxml=/tmp/e02-F-continuation-20261007/tmle/native.xml"
+      ],
+      "target_sha": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+      "target_tree_sha": "00dcef92dcf711833750e842dec19188df69b74b",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+          "TMPDIR": "/tmp"
+        },
+        "safe_inherited_numeric_variables": {},
+        "new_orchestration_quota": false
+      },
+      "input_closure": {
+        "source_guards": [
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+            "git_blob": "8a8bfea424e1f3a0a3c1c8c21a42bf08ed6496d7",
+            "bytes": 31650,
+            "sha256": "778e4cd01700c3f96e1d5480ef8e2f17a2e85c3febc5f418b18440859610d828"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+            "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+            "bytes": 59964,
+            "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+            "git_blob": "cff094ea943bb51bbb238e684e1075eff9514d7e",
+            "bytes": 22295,
+            "sha256": "92fb3ac07d2363197d3bd642562985a59386562e7798272dfd6cd9987a6ad86d"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+            "git_blob": "874a75fd95bbd920db2b6fd56457d25a23b22589",
+            "bytes": 76407,
+            "sha256": "0c94715bbf1e0b04a6076a770acce717d55ee60dee53a561a99a8e63448398b8"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+            "bytes": 84428,
+            "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+            "git_blob": "8e16e8d76aeb8f4efe05589c1e084111d4479ee7",
+            "bytes": 10787,
+            "sha256": "8859ef8c96a2db6b7ed99af5524815ff2027753a24a6b7e482367a14a8470f74"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+            "git_blob": "99500dba7526c987be9e6e7bbc320ec844fb7a13",
+            "bytes": 18448,
+            "sha256": "183f8b40599955fdb790632b1fa3c5d3b7004bf5eef421c27a00a9ec67e19b40"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+            "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+            "bytes": 29575,
+            "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/compute/job_spec.py",
+            "git_blob": "420fe9cb32ed4eec6e6f120c9a96c200e312b3d2",
+            "bytes": 2662,
+            "sha256": "c409c976c98b57247d9469a9f33a295e099188d15abf5dbc6a0edb72422ce2f4"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py",
+            "git_blob": "c28ad8bda927967ab25c7c4f76ebc3f25a98b12f",
+            "bytes": 15094,
+            "sha256": "fb7b806dd6f97e9eb2ecf7196eaf58441ab26e2af6b497d3d635d7d6602e2c25"
+          },
+          {
+            "path": "policy-engine/docs/reference/foundry/tmle-persisted-consumers.md",
+            "git_blob": "1ce1bb146ec63c9b693b70e4552b51c5a239e061",
+            "bytes": 5649,
+            "sha256": "66fe2054b47d264fae28d6b2aa239b01d9f6ecb44dfd45894aa8c5afbf5b4a84"
+          },
+          {
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml",
+            "git_blob": "6d9b13f7a4505cd880287c3eeb29b36cbadece46",
+            "bytes": 1890,
+            "sha256": "65832b178f561060a8bd8bb8c2aa0bec9449b864079944ce43b44b34252b3335"
+          }
+        ],
+        "synthetic_fixture": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/producer-packet.json"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 550.9805871999997,
+      "rss_kib": 627400,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native.stdout.txt.gz",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/tmle/native.stdout.txt",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native.stdout.txt.gz",
+        "bytes": 15299,
+        "sha256": "8113b23c593515d645399581b3727817b682f32c565cd7592e6498395cc4a627",
+        "encoding": "gzip",
+        "decoded_bytes": 273625,
+        "decoded_sha256": "f61a5d5f5e330aa12b13bc4d780a81c435f5668434583b95e46eee3fab51ccb7",
+        "restored_relative_path": "author/native.stdout.txt"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native.stderr.txt",
+      "execution_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native.json",
+      "statement": "53 actual fresh readers of one registered native TMLE MethodJob report/bundle/source: causal-role BLOCKER survives all52 relabel/ratio/sibling variants plus1unmodified native reader; all53 actual value projections refuse upstream contract resolution. Zero skip/error/pytest warnings;36 degraded SimulationResult-load warnings retained.",
+      "negative_detection": "not_applicable"
+    },
+    {
+      "name": "causal_role",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/tmle/removal_replay.py",
+        "causal_role",
+        "/tmp/e02-F-continuation-20261007/tmle/native/tmle-consumers0/producer-packet.json",
+        "/workspace/e02-F-tmle-20261006/policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py"
+      ],
+      "target_sha": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+      "target_tree_sha": "00dcef92dcf711833750e842dec19188df69b74b",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+          "TMPDIR": "/tmp"
+        },
+        "safe_inherited_numeric_variables": {},
+        "new_orchestration_quota": false
+      },
+      "input_closure": {
+        "source_guards": [
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+            "git_blob": "8a8bfea424e1f3a0a3c1c8c21a42bf08ed6496d7",
+            "bytes": 31650,
+            "sha256": "778e4cd01700c3f96e1d5480ef8e2f17a2e85c3febc5f418b18440859610d828"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+            "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+            "bytes": 59964,
+            "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+            "git_blob": "cff094ea943bb51bbb238e684e1075eff9514d7e",
+            "bytes": 22295,
+            "sha256": "92fb3ac07d2363197d3bd642562985a59386562e7798272dfd6cd9987a6ad86d"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+            "git_blob": "874a75fd95bbd920db2b6fd56457d25a23b22589",
+            "bytes": 76407,
+            "sha256": "0c94715bbf1e0b04a6076a770acce717d55ee60dee53a561a99a8e63448398b8"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+            "bytes": 84428,
+            "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+            "git_blob": "8e16e8d76aeb8f4efe05589c1e084111d4479ee7",
+            "bytes": 10787,
+            "sha256": "8859ef8c96a2db6b7ed99af5524815ff2027753a24a6b7e482367a14a8470f74"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+            "git_blob": "99500dba7526c987be9e6e7bbc320ec844fb7a13",
+            "bytes": 18448,
+            "sha256": "183f8b40599955fdb790632b1fa3c5d3b7004bf5eef421c27a00a9ec67e19b40"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+            "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+            "bytes": 29575,
+            "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/compute/job_spec.py",
+            "git_blob": "420fe9cb32ed4eec6e6f120c9a96c200e312b3d2",
+            "bytes": 2662,
+            "sha256": "c409c976c98b57247d9469a9f33a295e099188d15abf5dbc6a0edb72422ce2f4"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py",
+            "git_blob": "c28ad8bda927967ab25c7c4f76ebc3f25a98b12f",
+            "bytes": 15094,
+            "sha256": "fb7b806dd6f97e9eb2ecf7196eaf58441ab26e2af6b497d3d635d7d6602e2c25"
+          },
+          {
+            "path": "policy-engine/docs/reference/foundry/tmle-persisted-consumers.md",
+            "git_blob": "1ce1bb146ec63c9b693b70e4552b51c5a239e061",
+            "bytes": 5649,
+            "sha256": "66fe2054b47d264fae28d6b2aa239b01d9f6ecb44dfd45894aa8c5afbf5b4a84"
+          },
+          {
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml",
+            "git_blob": "6d9b13f7a4505cd880287c3eeb29b36cbadece46",
+            "bytes": 1890,
+            "sha256": "65832b178f561060a8bd8bb8c2aa0bec9449b864079944ce43b44b34252b3335"
+          }
+        ],
+        "synthetic_fixture": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/producer-packet.json"
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 9.928160709008807,
+      "rss_kib": 586296,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/causal_role.stdout.txt",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/tmle/causal_role.stdout.txt",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/causal_role.stdout.txt",
+        "bytes": 3198,
+        "sha256": "66af09661bc00aff9e8022b92f3810112a29724f692f2e01d4dc7da47ec558b5",
+        "encoding": "verbatim",
+        "decoded_bytes": 3198,
+        "decoded_sha256": "66af09661bc00aff9e8022b92f3810112a29724f692f2e01d4dc7da47ec558b5",
+        "restored_relative_path": "author/causal_role.stdout.txt"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/causal_role.stderr.txt",
+      "execution_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/causal_role.json",
+      "statement": "Removing only consumption of the constructed causal-role issue in memory preserves class/constants/numerical report but actual reader fails on missing causal BLOCKER.",
+      "negative_detection": "PASS: real consumer assertion detected retained-marker removal"
+    },
+    {
+      "name": "collection_drop",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/tmle/removal_replay.py",
+        "collection_drop",
+        "/tmp/e02-F-continuation-20261007/tmle/native/tmle-consumers0/producer-packet.json",
+        "/workspace/e02-F-tmle-20261006/policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py"
+      ],
+      "target_sha": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+      "target_tree_sha": "00dcef92dcf711833750e842dec19188df69b74b",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+          "TMPDIR": "/tmp"
+        },
+        "safe_inherited_numeric_variables": {},
+        "new_orchestration_quota": false
+      },
+      "input_closure": {
+        "source_guards": [
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+            "git_blob": "8a8bfea424e1f3a0a3c1c8c21a42bf08ed6496d7",
+            "bytes": 31650,
+            "sha256": "778e4cd01700c3f96e1d5480ef8e2f17a2e85c3febc5f418b18440859610d828"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+            "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+            "bytes": 59964,
+            "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+            "git_blob": "cff094ea943bb51bbb238e684e1075eff9514d7e",
+            "bytes": 22295,
+            "sha256": "92fb3ac07d2363197d3bd642562985a59386562e7798272dfd6cd9987a6ad86d"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+            "git_blob": "874a75fd95bbd920db2b6fd56457d25a23b22589",
+            "bytes": 76407,
+            "sha256": "0c94715bbf1e0b04a6076a770acce717d55ee60dee53a561a99a8e63448398b8"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+            "bytes": 84428,
+            "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+            "git_blob": "8e16e8d76aeb8f4efe05589c1e084111d4479ee7",
+            "bytes": 10787,
+            "sha256": "8859ef8c96a2db6b7ed99af5524815ff2027753a24a6b7e482367a14a8470f74"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+            "git_blob": "99500dba7526c987be9e6e7bbc320ec844fb7a13",
+            "bytes": 18448,
+            "sha256": "183f8b40599955fdb790632b1fa3c5d3b7004bf5eef421c27a00a9ec67e19b40"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+            "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+            "bytes": 29575,
+            "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/compute/job_spec.py",
+            "git_blob": "420fe9cb32ed4eec6e6f120c9a96c200e312b3d2",
+            "bytes": 2662,
+            "sha256": "c409c976c98b57247d9469a9f33a295e099188d15abf5dbc6a0edb72422ce2f4"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py",
+            "git_blob": "c28ad8bda927967ab25c7c4f76ebc3f25a98b12f",
+            "bytes": 15094,
+            "sha256": "fb7b806dd6f97e9eb2ecf7196eaf58441ab26e2af6b497d3d635d7d6602e2c25"
+          },
+          {
+            "path": "policy-engine/docs/reference/foundry/tmle-persisted-consumers.md",
+            "git_blob": "1ce1bb146ec63c9b693b70e4552b51c5a239e061",
+            "bytes": 5649,
+            "sha256": "66fe2054b47d264fae28d6b2aa239b01d9f6ecb44dfd45894aa8c5afbf5b4a84"
+          },
+          {
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml",
+            "git_blob": "6d9b13f7a4505cd880287c3eeb29b36cbadece46",
+            "bytes": 1890,
+            "sha256": "65832b178f561060a8bd8bb8c2aa0bec9449b864079944ce43b44b34252b3335"
+          }
+        ],
+        "synthetic_fixture": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/producer-packet.json"
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 9.549862832995132,
+      "rss_kib": 587104,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/collection_drop.stdout.txt",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/tmle/collection_drop.stdout.txt",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/collection_drop.stdout.txt",
+        "bytes": 3205,
+        "sha256": "405ddc6d28f3f3f621fe590f10c5b7df6864932881c729db046e458ee178819a",
+        "encoding": "verbatim",
+        "decoded_bytes": 3205,
+        "decoded_sha256": "405ddc6d28f3f3f621fe590f10c5b7df6864932881c729db046e458ee178819a",
+        "restored_relative_path": "author/collection_drop.stdout.txt"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/collection_drop.stderr.txt",
+      "execution_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/collection_drop.json",
+      "statement": "Returning only the last degraded simulation warning in memory preserves causal constructor/constants but actual corrupt-sibling reader fails on missing accumulated causal BLOCKER.",
+      "negative_detection": "PASS: real consumer assertion detected retained-marker removal"
+    },
+    {
+      "name": "fragment",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/tmle/fragment_check.py"
+      ],
+      "target_sha": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+      "target_tree_sha": "00dcef92dcf711833750e842dec19188df69b74b",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+          "TMPDIR": "/tmp"
+        },
+        "safe_inherited_numeric_variables": {},
+        "new_orchestration_quota": false
+      },
+      "input_closure": {
+        "source_guards": [
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+            "git_blob": "8a8bfea424e1f3a0a3c1c8c21a42bf08ed6496d7",
+            "bytes": 31650,
+            "sha256": "778e4cd01700c3f96e1d5480ef8e2f17a2e85c3febc5f418b18440859610d828"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+            "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+            "bytes": 59964,
+            "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+            "git_blob": "cff094ea943bb51bbb238e684e1075eff9514d7e",
+            "bytes": 22295,
+            "sha256": "92fb3ac07d2363197d3bd642562985a59386562e7798272dfd6cd9987a6ad86d"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+            "git_blob": "874a75fd95bbd920db2b6fd56457d25a23b22589",
+            "bytes": 76407,
+            "sha256": "0c94715bbf1e0b04a6076a770acce717d55ee60dee53a561a99a8e63448398b8"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+            "bytes": 84428,
+            "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+            "git_blob": "8e16e8d76aeb8f4efe05589c1e084111d4479ee7",
+            "bytes": 10787,
+            "sha256": "8859ef8c96a2db6b7ed99af5524815ff2027753a24a6b7e482367a14a8470f74"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+            "git_blob": "99500dba7526c987be9e6e7bbc320ec844fb7a13",
+            "bytes": 18448,
+            "sha256": "183f8b40599955fdb790632b1fa3c5d3b7004bf5eef421c27a00a9ec67e19b40"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+            "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+            "bytes": 29575,
+            "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/compute/job_spec.py",
+            "git_blob": "420fe9cb32ed4eec6e6f120c9a96c200e312b3d2",
+            "bytes": 2662,
+            "sha256": "c409c976c98b57247d9469a9f33a295e099188d15abf5dbc6a0edb72422ce2f4"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py",
+            "git_blob": "c28ad8bda927967ab25c7c4f76ebc3f25a98b12f",
+            "bytes": 15094,
+            "sha256": "fb7b806dd6f97e9eb2ecf7196eaf58441ab26e2af6b497d3d635d7d6602e2c25"
+          },
+          {
+            "path": "policy-engine/docs/reference/foundry/tmle-persisted-consumers.md",
+            "git_blob": "1ce1bb146ec63c9b693b70e4552b51c5a239e061",
+            "bytes": 5649,
+            "sha256": "66fe2054b47d264fae28d6b2aa239b01d9f6ecb44dfd45894aa8c5afbf5b4a84"
+          },
+          {
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml",
+            "git_blob": "6d9b13f7a4505cd880287c3eeb29b36cbadece46",
+            "bytes": 1890,
+            "sha256": "65832b178f561060a8bd8bb8c2aa0bec9449b864079944ce43b44b34252b3335"
+          }
+        ],
+        "synthetic_fixture": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/producer-packet.json"
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 0.14632030299981125,
+      "rss_kib": 20712,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment.stdout.txt",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/tmle/fragment.stdout.txt",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment.stdout.txt",
+        "bytes": 173,
+        "sha256": "60c30f161592169cb091857a39bae3abbd0edf1e41c94f3fd98c5e227c42ea71",
+        "encoding": "verbatim",
+        "decoded_bytes": 173,
+        "decoded_sha256": "60c30f161592169cb091857a39bae3abbd0edf1e41c94f3fd98c5e227c42ea71",
+        "restored_relative_path": "author/fragment.stdout.txt"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment.stderr.txt",
+      "execution_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment.json",
+      "statement": "Original structured fragment validation has0errors/findings, but actual release renderer rejects type=other. Complete metadata defect output retained; its original maintained-tool origin is separately byte-reconciled.",
+      "negative_detection": "not_applicable"
+    },
+    {
+      "name": "fragment-corrected",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/tmle/fragment_check.py"
+      ],
+      "target_sha": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+      "target_tree_sha": "ccfe80dbcb149a8e7109255d0c5a98bb36111c1d",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine",
+          "TMPDIR": "/tmp"
+        },
+        "safe_inherited_numeric_variables": {},
+        "new_orchestration_quota": false
+      },
+      "input_closure": {
+        "source_guards": [
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+            "git_blob": "8a8bfea424e1f3a0a3c1c8c21a42bf08ed6496d7",
+            "bytes": 31650,
+            "sha256": "778e4cd01700c3f96e1d5480ef8e2f17a2e85c3febc5f418b18440859610d828"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+            "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+            "bytes": 59964,
+            "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+            "git_blob": "cff094ea943bb51bbb238e684e1075eff9514d7e",
+            "bytes": 22295,
+            "sha256": "92fb3ac07d2363197d3bd642562985a59386562e7798272dfd6cd9987a6ad86d"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+            "git_blob": "874a75fd95bbd920db2b6fd56457d25a23b22589",
+            "bytes": 76407,
+            "sha256": "0c94715bbf1e0b04a6076a770acce717d55ee60dee53a561a99a8e63448398b8"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+            "bytes": 84428,
+            "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+            "git_blob": "8e16e8d76aeb8f4efe05589c1e084111d4479ee7",
+            "bytes": 10787,
+            "sha256": "8859ef8c96a2db6b7ed99af5524815ff2027753a24a6b7e482367a14a8470f74"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+            "git_blob": "99500dba7526c987be9e6e7bbc320ec844fb7a13",
+            "bytes": 18448,
+            "sha256": "183f8b40599955fdb790632b1fa3c5d3b7004bf5eef421c27a00a9ec67e19b40"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+            "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+            "bytes": 29575,
+            "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/compute/job_spec.py",
+            "git_blob": "420fe9cb32ed4eec6e6f120c9a96c200e312b3d2",
+            "bytes": 2662,
+            "sha256": "c409c976c98b57247d9469a9f33a295e099188d15abf5dbc6a0edb72422ce2f4"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py",
+            "git_blob": "c28ad8bda927967ab25c7c4f76ebc3f25a98b12f",
+            "bytes": 15094,
+            "sha256": "fb7b806dd6f97e9eb2ecf7196eaf58441ab26e2af6b497d3d635d7d6602e2c25"
+          },
+          {
+            "path": "policy-engine/docs/reference/foundry/tmle-persisted-consumers.md",
+            "git_blob": "1ce1bb146ec63c9b693b70e4552b51c5a239e061",
+            "bytes": 5649,
+            "sha256": "66fe2054b47d264fae28d6b2aa239b01d9f6ecb44dfd45894aa8c5afbf5b4a84"
+          },
+          {
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml",
+            "git_blob": "fe5f0b5da0e72cea83256abacc1eca4a108fd0d2",
+            "bytes": 1890,
+            "sha256": "9798ce1fac3ee3f201dff83a17119582953ddf8eb235338574c421c063c3431e"
+          },
+          {
+            "path": "policy-engine/tools/ops_runners/release/build_release_notes.py",
+            "git_blob": "6eaa5b247a81e07d4c5bb22570169a9a91c06baa",
+            "bytes": 8236,
+            "sha256": "e671c6ed806228c4223c0542e6cde4c203d648e3614a99deafb574ffd7bf3525"
+          },
+          {
+            "path": "policy-engine/tools/ops_runners/release/check_compatibility_release_gates.py",
+            "git_blob": "bf4b94548619f4dcce395806a5ec70ea54b4847a",
+            "bytes": 26585,
+            "sha256": "2b7ce18983e59a02ddeef457dfc5a39f83129514707b03da45099018f0104b75"
+          },
+          {
+            "path": "policy-engine/architecture/gates/compatibility_release.toml",
+            "git_blob": "c146111155f3be917cc34f107522deecf6529024",
+            "bytes": 5278,
+            "sha256": "ad2c8d7940c7568d6feac37be1c76d3c0704abf859e29b8e61c958bdf8cd69a3"
+          }
+        ],
+        "synthetic_fixture": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/producer-packet.json"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.10529320099158213,
+      "rss_kib": 20656,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment-corrected.stdout.txt",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/tmle/fragment-corrected.stdout.txt",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment-corrected.stdout.txt",
+        "bytes": 1740,
+        "sha256": "33f11030f5884995043beb618cd09d1e1a30ed81f0556f99b7be531c6cabe0dd",
+        "encoding": "verbatim",
+        "decoded_bytes": 1740,
+        "decoded_sha256": "33f11030f5884995043beb618cd09d1e1a30ed81f0556f99b7be531c6cabe0dd",
+        "restored_relative_path": "author/fragment-corrected.stdout.txt"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment-corrected.stderr.txt",
+      "execution_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment-corrected.json",
+      "statement": "Candidate-owned canonical loader/validator/renderer accepts the one-line added category correction:0errors/findings and actual rendered release notes. No runtime/test/doc changes.",
+      "negative_detection": "not_applicable"
+    },
+    {
+      "name": "lint-frozen",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py"
+      ],
+      "target_sha": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+      "target_tree_sha": "ccfe80dbcb149a8e7109255d0c5a98bb36111c1d",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+          "TMPDIR": "/tmp"
+        },
+        "safe_inherited_numeric_variables": {},
+        "new_orchestration_quota": false
+      },
+      "input_closure": {
+        "source_guards": [
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+            "git_blob": "8a8bfea424e1f3a0a3c1c8c21a42bf08ed6496d7",
+            "bytes": 31650,
+            "sha256": "778e4cd01700c3f96e1d5480ef8e2f17a2e85c3febc5f418b18440859610d828"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+            "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+            "bytes": 59964,
+            "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+            "git_blob": "cff094ea943bb51bbb238e684e1075eff9514d7e",
+            "bytes": 22295,
+            "sha256": "92fb3ac07d2363197d3bd642562985a59386562e7798272dfd6cd9987a6ad86d"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+            "git_blob": "874a75fd95bbd920db2b6fd56457d25a23b22589",
+            "bytes": 76407,
+            "sha256": "0c94715bbf1e0b04a6076a770acce717d55ee60dee53a561a99a8e63448398b8"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+            "bytes": 84428,
+            "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+            "git_blob": "8e16e8d76aeb8f4efe05589c1e084111d4479ee7",
+            "bytes": 10787,
+            "sha256": "8859ef8c96a2db6b7ed99af5524815ff2027753a24a6b7e482367a14a8470f74"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+            "git_blob": "99500dba7526c987be9e6e7bbc320ec844fb7a13",
+            "bytes": 18448,
+            "sha256": "183f8b40599955fdb790632b1fa3c5d3b7004bf5eef421c27a00a9ec67e19b40"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+            "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+            "bytes": 29575,
+            "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/compute/job_spec.py",
+            "git_blob": "420fe9cb32ed4eec6e6f120c9a96c200e312b3d2",
+            "bytes": 2662,
+            "sha256": "c409c976c98b57247d9469a9f33a295e099188d15abf5dbc6a0edb72422ce2f4"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py",
+            "git_blob": "c28ad8bda927967ab25c7c4f76ebc3f25a98b12f",
+            "bytes": 15094,
+            "sha256": "fb7b806dd6f97e9eb2ecf7196eaf58441ab26e2af6b497d3d635d7d6602e2c25"
+          },
+          {
+            "path": "policy-engine/docs/reference/foundry/tmle-persisted-consumers.md",
+            "git_blob": "1ce1bb146ec63c9b693b70e4552b51c5a239e061",
+            "bytes": 5649,
+            "sha256": "66fe2054b47d264fae28d6b2aa239b01d9f6ecb44dfd45894aa8c5afbf5b4a84"
+          },
+          {
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml",
+            "git_blob": "fe5f0b5da0e72cea83256abacc1eca4a108fd0d2",
+            "bytes": 1890,
+            "sha256": "9798ce1fac3ee3f201dff83a17119582953ddf8eb235338574c421c063c3431e"
+          }
+        ],
+        "synthetic_fixture": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/producer-packet.json"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.04510556100285612,
+      "rss_kib": 22612,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/lint-frozen.stdout.txt",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/tmle/lint-frozen.stdout.txt",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/lint-frozen.stdout.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "encoding": "verbatim",
+        "decoded_bytes": 19,
+        "decoded_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "restored_relative_path": "author/lint-frozen.stdout.txt"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/lint-frozen.stderr.txt",
+      "execution_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/lint-frozen.json",
+      "statement": "Focused frozen mirrored consumer test passes canonical Ruff lint.",
+      "negative_detection": "not_applicable"
+    },
+    {
+      "name": "format-frozen",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py"
+      ],
+      "target_sha": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+      "target_tree_sha": "ccfe80dbcb149a8e7109255d0c5a98bb36111c1d",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+          "TMPDIR": "/tmp"
+        },
+        "safe_inherited_numeric_variables": {},
+        "new_orchestration_quota": false
+      },
+      "input_closure": {
+        "source_guards": [
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+            "git_blob": "8a8bfea424e1f3a0a3c1c8c21a42bf08ed6496d7",
+            "bytes": 31650,
+            "sha256": "778e4cd01700c3f96e1d5480ef8e2f17a2e85c3febc5f418b18440859610d828"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+            "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+            "bytes": 59964,
+            "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+            "git_blob": "cff094ea943bb51bbb238e684e1075eff9514d7e",
+            "bytes": 22295,
+            "sha256": "92fb3ac07d2363197d3bd642562985a59386562e7798272dfd6cd9987a6ad86d"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+            "git_blob": "874a75fd95bbd920db2b6fd56457d25a23b22589",
+            "bytes": 76407,
+            "sha256": "0c94715bbf1e0b04a6076a770acce717d55ee60dee53a561a99a8e63448398b8"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+            "bytes": 84428,
+            "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+            "git_blob": "8e16e8d76aeb8f4efe05589c1e084111d4479ee7",
+            "bytes": 10787,
+            "sha256": "8859ef8c96a2db6b7ed99af5524815ff2027753a24a6b7e482367a14a8470f74"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+            "git_blob": "99500dba7526c987be9e6e7bbc320ec844fb7a13",
+            "bytes": 18448,
+            "sha256": "183f8b40599955fdb790632b1fa3c5d3b7004bf5eef421c27a00a9ec67e19b40"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+            "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+            "bytes": 29575,
+            "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/compute/job_spec.py",
+            "git_blob": "420fe9cb32ed4eec6e6f120c9a96c200e312b3d2",
+            "bytes": 2662,
+            "sha256": "c409c976c98b57247d9469a9f33a295e099188d15abf5dbc6a0edb72422ce2f4"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py",
+            "git_blob": "c28ad8bda927967ab25c7c4f76ebc3f25a98b12f",
+            "bytes": 15094,
+            "sha256": "fb7b806dd6f97e9eb2ecf7196eaf58441ab26e2af6b497d3d635d7d6602e2c25"
+          },
+          {
+            "path": "policy-engine/docs/reference/foundry/tmle-persisted-consumers.md",
+            "git_blob": "1ce1bb146ec63c9b693b70e4552b51c5a239e061",
+            "bytes": 5649,
+            "sha256": "66fe2054b47d264fae28d6b2aa239b01d9f6ecb44dfd45894aa8c5afbf5b4a84"
+          },
+          {
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml",
+            "git_blob": "fe5f0b5da0e72cea83256abacc1eca4a108fd0d2",
+            "bytes": 1890,
+            "sha256": "9798ce1fac3ee3f201dff83a17119582953ddf8eb235338574c421c063c3431e"
+          }
+        ],
+        "synthetic_fixture": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/producer-packet.json"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 0.04068054098752327,
+      "rss_kib": 22612,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/format-frozen.stdout.txt",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/tmle/format-frozen.stdout.txt",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/format-frozen.stdout.txt",
+        "bytes": 25,
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+        "encoding": "verbatim",
+        "decoded_bytes": 25,
+        "decoded_sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+        "restored_relative_path": "author/format-frozen.stdout.txt"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/format-frozen.stderr.txt",
+      "execution_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/format-frozen.json",
+      "statement": "Focused frozen mirrored consumer test passes canonical Ruff format check.",
+      "negative_detection": "not_applicable"
+    },
+    {
+      "name": "environment-frozen",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/tmle/environment_probe.py"
+      ],
+      "target_sha": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+      "target_tree_sha": "ccfe80dbcb149a8e7109255d0c5a98bb36111c1d",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+          "TMPDIR": "/tmp"
+        },
+        "safe_inherited_numeric_variables": {},
+        "new_orchestration_quota": false
+      },
+      "input_closure": {
+        "source_guards": [
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+            "git_blob": "8a8bfea424e1f3a0a3c1c8c21a42bf08ed6496d7",
+            "bytes": 31650,
+            "sha256": "778e4cd01700c3f96e1d5480ef8e2f17a2e85c3febc5f418b18440859610d828"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+            "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+            "bytes": 59964,
+            "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+            "git_blob": "cff094ea943bb51bbb238e684e1075eff9514d7e",
+            "bytes": 22295,
+            "sha256": "92fb3ac07d2363197d3bd642562985a59386562e7798272dfd6cd9987a6ad86d"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+            "git_blob": "874a75fd95bbd920db2b6fd56457d25a23b22589",
+            "bytes": 76407,
+            "sha256": "0c94715bbf1e0b04a6076a770acce717d55ee60dee53a561a99a8e63448398b8"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+            "bytes": 84428,
+            "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+            "git_blob": "8e16e8d76aeb8f4efe05589c1e084111d4479ee7",
+            "bytes": 10787,
+            "sha256": "8859ef8c96a2db6b7ed99af5524815ff2027753a24a6b7e482367a14a8470f74"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+            "git_blob": "99500dba7526c987be9e6e7bbc320ec844fb7a13",
+            "bytes": 18448,
+            "sha256": "183f8b40599955fdb790632b1fa3c5d3b7004bf5eef421c27a00a9ec67e19b40"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+            "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+            "bytes": 29575,
+            "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/compute/job_spec.py",
+            "git_blob": "420fe9cb32ed4eec6e6f120c9a96c200e312b3d2",
+            "bytes": 2662,
+            "sha256": "c409c976c98b57247d9469a9f33a295e099188d15abf5dbc6a0edb72422ce2f4"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py",
+            "git_blob": "c28ad8bda927967ab25c7c4f76ebc3f25a98b12f",
+            "bytes": 15094,
+            "sha256": "fb7b806dd6f97e9eb2ecf7196eaf58441ab26e2af6b497d3d635d7d6602e2c25"
+          },
+          {
+            "path": "policy-engine/docs/reference/foundry/tmle-persisted-consumers.md",
+            "git_blob": "1ce1bb146ec63c9b693b70e4552b51c5a239e061",
+            "bytes": 5649,
+            "sha256": "66fe2054b47d264fae28d6b2aa239b01d9f6ecb44dfd45894aa8c5afbf5b4a84"
+          },
+          {
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml",
+            "git_blob": "fe5f0b5da0e72cea83256abacc1eca4a108fd0d2",
+            "bytes": 1890,
+            "sha256": "9798ce1fac3ee3f201dff83a17119582953ddf8eb235338574c421c063c3431e"
+          }
+        ],
+        "synthetic_fixture": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/producer-packet.json"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 7.766073314007372,
+      "rss_kib": 586464,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/environment-frozen.stdout.txt",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/tmle/environment-frozen.stdout.txt",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/environment-frozen.stdout.txt",
+        "bytes": 2268,
+        "sha256": "b12a5890f900d18d65eb7e1b4ca27e1916fbcc96a28e4d042347879b71aee2d5",
+        "encoding": "verbatim",
+        "decoded_bytes": 2268,
+        "decoded_sha256": "b12a5890f900d18d65eb7e1b4ca27e1916fbcc96a28e4d042347879b71aee2d5",
+        "restored_relative_path": "author/environment-frozen.stdout.txt"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/environment-frozen.stderr.txt",
+      "execution_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/environment-frozen.json",
+      "statement": "Exact native dependency versions and six candidate module origins read back; this is environment identity, not an excluded backend witness.",
+      "negative_detection": "not_applicable"
+    },
+    {
+      "name": "complete-native-census",
+      "command": [
+        "python3",
+        "/tmp/e02-F-continuation-20261007/tmle/census_replay.py"
+      ],
+      "target_sha": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+      "environment": "stdlib parser of complete retained stdout and JUnit",
+      "input_closure": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native.stdout.txt.gz",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native.xml"
+      ],
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/census.stdout.txt",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/tmle/census.stdout.txt",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/census.stdout.txt",
+        "bytes": 229,
+        "sha256": "0ead6e45f85e687db43fce87040eaa92977d9e7910b22053b1330db6f166e607",
+        "encoding": "verbatim",
+        "decoded_bytes": 229,
+        "decoded_sha256": "0ead6e45f85e687db43fce87040eaa92977d9e7910b22053b1330db6f166e607",
+        "restored_relative_path": "author/census.stdout.txt"
+      },
+      "full_denominator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native-census.json"
+    },
+    {
+      "name": "source-byte-and-owner-boundary-audit",
+      "command": [
+        "python3",
+        "/tmp/e02-F-continuation-20261007/tmle/source_audit.py"
+      ],
+      "target_sha": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+      "environment": "read-only Git/stdin; no production import or source mutation",
+      "input_closure": "All9 named production providers at8236/0c816/8d94;3 named Runtime/PDC providers atG9a/072/0c816/8d94; full original FITcard and continuation source identities",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-audit.stdout.txt",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/tmle/source-audit.stdout.txt",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-audit.stdout.txt",
+        "bytes": 207,
+        "sha256": "3a2c74dc5d271c02326dc64017c3fabb606eee5eb750d39c3e35cc30f7cc19db",
+        "encoding": "verbatim",
+        "decoded_bytes": 207,
+        "decoded_sha256": "3a2c74dc5d271c02326dc64017c3fabb606eee5eb750d39c3e35cc30f7cc19db",
+        "restored_relative_path": "author/source-audit.stdout.txt"
+      },
+      "full_source_and_owner_packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-and-owner-packet.json"
+    },
+    {
+      "name": "source-diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "f910039d73a56e1d3ab18a16fd17f2463b557f00",
+        "8d94a937ca6e3f886ada9ad5c1f76dadb049da84"
+      ],
+      "target_sha": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+      "cwd": "/workspace/e02-F-tmle-20261006",
+      "environment": "Git read-only scoped/source and staged evidence snapshot",
+      "input_closure": "Entire three-path source delta",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-diff-check.stdout.txt",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/tmle/source-diff-check.stdout.txt",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-diff-check.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "verbatim",
+        "decoded_bytes": 0,
+        "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "restored_relative_path": "author/source-diff-check.stdout.txt"
+      },
+      "execution_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-diff-check.json",
+      "statement": "Entire three-path implementation/source companion delta whitespace clean."
+    },
+    {
+      "name": "staged-raw-diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "target_sha": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+      "cwd": "/workspace/e02-F-tmle-20261006",
+      "environment": "Git read-only scoped/source and staged evidence snapshot",
+      "input_closure": {
+        "actual_staged_tree_at_observation": "cff5fa97deccc4a2765f0d101b25ca5862f498a8",
+        "purpose": "exact raw output whitespace; not product/native validation"
+      },
+      "outcome": "FAIL",
+      "exit_code": 2,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/staged-raw-diff-check.stdout.txt",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/tmle/staged-raw-diff-check.stdout.txt",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/staged-raw-diff-check.stdout.txt",
+        "bytes": 330,
+        "sha256": "d9fab99bce94f6a95c1dd67686cc979de14798c200c2f633be60b58a3587e847",
+        "encoding": "verbatim",
+        "decoded_bytes": 330,
+        "decoded_sha256": "d9fab99bce94f6a95c1dd67686cc979de14798c200c2f633be60b58a3587e847",
+        "restored_relative_path": "author/staged-raw-diff-check.stdout.txt"
+      },
+      "execution_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/staged-raw-diff-check.json",
+      "statement": "Raw stdout/stderr artifact whitespace retained verbatim; no source defect or inherited-red/global verdict is inferred."
+    },
+    {
+      "name": "independent-native",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-s",
+        "-ra",
+        "tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py",
+        "--basetemp=/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp",
+        "--junitxml=/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native.xml"
+      ],
+      "target_sha": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+      "target_tree_sha": "00dcef92dcf711833750e842dec19188df69b74b",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "worker": null,
+        "backend": "native NumPy/scikit-learn TMLE; no DoWhy/EconML claim",
+        "quotas": "none introduced"
+      },
+      "input_closure": {
+        "source": [
+          {
+            "path": "policy-engine/docs/reference/foundry/tmle-persisted-consumers.md",
+            "blob": "1ce1bb146ec63c9b693b70e4552b51c5a239e061",
+            "sha256": "66fe2054b47d264fae28d6b2aa239b01d9f6ecb44dfd45894aa8c5afbf5b4a84",
+            "size_bytes": 5649
+          },
+          {
+            "path": "policy-engine/release-fragments/unreleased/2026-10-07-tmle-persisted-consumers.toml",
+            "blob": "6d9b13f7a4505cd880287c3eeb29b36cbadece46",
+            "sha256": "65832b178f561060a8bd8bb8c2aa0bec9449b864079944ce43b44b34252b3335",
+            "size_bytes": 1890
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py",
+            "blob": "c28ad8bda927967ab25c7c4f76ebc3f25a98b12f",
+            "sha256": "fb7b806dd6f97e9eb2ecf7196eaf58441ab26e2af6b497d3d635d7d6602e2c25",
+            "size_bytes": 15094
+          }
+        ],
+        "synthetic_CAS": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native-cas-input.tar.gz"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 536.6956631590147,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native.stdout.txt.gz",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native.stdout.txt",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native.stdout.txt.gz",
+        "bytes": 15244,
+        "sha256": "68028b932c161c9b36d191fe78c234f9f8dc3be8faf178e07e658cb805d8a4f1",
+        "encoding": "gzip",
+        "decoded_bytes": 275541,
+        "decoded_sha256": "533a0c9d0d456bb3b64506a16f3253a4d95b4263b6ae3eb5e83e77e7c566c7c0",
+        "restored_relative_path": "independent/native.stdout.txt"
+      },
+      "execution_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native-result.json",
+      "statement": "Independent53PASS,0skip/error; all same-native report/bundle/source readers preserve candidate/blocker/refusal;36 degraded sibling warnings retained."
+    },
+    {
+      "name": "independent-mixed_priority",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/check_mixed_native_consumer.py",
+        "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/producer-packet.json",
+        "mixed_priority"
+      ],
+      "target_sha": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+        "new_quota": false,
+        "worker_required": false,
+        "backend": "actual native NumPy/scikit-learn TMLE persisted producer and actual Confidence/value consumers"
+      },
+      "input_closure": {
+        "packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native-tmp/tmle-consumers0/producer-packet.json",
+        "replayer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/check_mixed_native_consumer.py",
+        "CAS": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native-cas-input.tar.gz"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/mixed_priority.stdout.txt",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/mixed_priority.stdout.txt",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/mixed_priority.stdout.txt",
+        "bytes": 2314,
+        "sha256": "c42e74a155fda84df4e75d8bc20877c424943fc3210da0acd49973b86ecc2efb",
+        "encoding": "verbatim",
+        "decoded_bytes": 2314,
+        "decoded_sha256": "c42e74a155fda84df4e75d8bc20877c424943fc3210da0acd49973b86ecc2efb",
+        "restored_relative_path": "independent/mixed_priority.stdout.txt"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/mixed_priority.stderr.txt",
+      "negative_detection": "not_applicable",
+      "statement": "actual_consumer_pass",
+      "reviewer_original_outcome_semantics": "PASS is the actual successful consumer execution."
+    },
+    {
+      "name": "independent-malformed_top",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/check_mixed_native_consumer.py",
+        "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/producer-packet.json",
+        "malformed_top"
+      ],
+      "target_sha": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+        "new_quota": false,
+        "worker_required": false,
+        "backend": "actual native NumPy/scikit-learn TMLE persisted producer and actual Confidence/value consumers"
+      },
+      "input_closure": {
+        "packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native-tmp/tmle-consumers0/producer-packet.json",
+        "replayer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/check_mixed_native_consumer.py",
+        "CAS": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native-cas-input.tar.gz"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/malformed_top.stdout.txt",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/malformed_top.stdout.txt",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/malformed_top.stdout.txt",
+        "bytes": 1686,
+        "sha256": "c0e2e41feae41f88d2cfab8f7b747e3646b298a08d507a5036751ed57ab867ac",
+        "encoding": "verbatim",
+        "decoded_bytes": 1686,
+        "decoded_sha256": "c0e2e41feae41f88d2cfab8f7b747e3646b298a08d507a5036751ed57ab867ac",
+        "restored_relative_path": "independent/malformed_top.stdout.txt"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/malformed_top.stderr.txt",
+      "negative_detection": "not_applicable",
+      "statement": "actual_consumer_pass",
+      "reviewer_original_outcome_semantics": "PASS is the actual successful consumer execution."
+    },
+    {
+      "name": "independent-remove_role_issue",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/check_mixed_native_consumer.py",
+        "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/producer-packet.json",
+        "remove_role_issue"
+      ],
+      "target_sha": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+      "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+      "environment": {
+        "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+        "new_quota": false,
+        "worker_required": false,
+        "backend": "actual native NumPy/scikit-learn TMLE persisted producer and actual Confidence/value consumers"
+      },
+      "input_closure": {
+        "packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native-tmp/tmle-consumers0/producer-packet.json",
+        "replayer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/check_mixed_native_consumer.py",
+        "CAS": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native-cas-input.tar.gz"
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/remove_role_issue.stdout.txt",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/remove_role_issue.stdout.txt",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/remove_role_issue.stdout.txt",
+        "bytes": 1850,
+        "sha256": "9f0f87cad057b7ee8159bbebbdd4b287ad48654529bd8077cd847bc39bd584aa",
+        "encoding": "verbatim",
+        "decoded_bytes": 1850,
+        "decoded_sha256": "9f0f87cad057b7ee8159bbebbdd4b287ad48654529bd8077cd847bc39bd584aa",
+        "restored_relative_path": "independent/remove_role_issue.stdout.txt"
+      },
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/remove_role_issue.stderr.txt",
+      "negative_detection": "PASS",
+      "statement": "expected_assertion_failure_after_actual_consumer",
+      "reviewer_original_outcome_semantics": "Verbatim reviewer labels detected expected assertion as PASS; this handoff canonical command outcome is FAIL and detection is recorded separately."
+    },
+    {
+      "name": "statistical-identification-positive",
+      "command": "Run existing canonical producer and consumer with the missing owner packet identified in source-and-owner-packet.json",
+      "target_sha": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+      "environment": "Actual admitted owner inputs; G local production inputs remain local",
+      "input_closure": "not_established: specific missing input/semantic-owner contract, not a skipped successful test",
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-and-owner-packet.json",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/tmle/source-and-owner-packet.json",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-and-owner-packet.json",
+        "bytes": 20639,
+        "sha256": "f7c5c617d83f86c968698adba53bb57841b45b3d7802da4163735618d1622870",
+        "encoding": "verbatim",
+        "decoded_bytes": 20639,
+        "decoded_sha256": "f7c5c617d83f86c968698adba53bb57841b45b3d7802da4163735618d1622870",
+        "restored_relative_path": "author/source-and-owner-packet.json"
+      },
+      "statement": "No accepted issuer/verifier/input bridge binds this causal report role to exact current source/graph/estimand/target admission."
+    },
+    {
+      "name": "operational-admission-positive",
+      "command": "Run existing canonical producer and consumer with the missing owner packet identified in source-and-owner-packet.json",
+      "target_sha": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+      "environment": "Actual admitted owner inputs; G local production inputs remain local",
+      "input_closure": "not_established: specific missing input/semantic-owner contract, not a skipped successful test",
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-and-owner-packet.json",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/tmle/source-and-owner-packet.json",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-and-owner-packet.json",
+        "bytes": 20639,
+        "sha256": "f7c5c617d83f86c968698adba53bb57841b45b3d7802da4163735618d1622870",
+        "encoding": "verbatim",
+        "decoded_bytes": 20639,
+        "decoded_sha256": "f7c5c617d83f86c968698adba53bb57841b45b3d7802da4163735618d1622870",
+        "restored_relative_path": "author/source-and-owner-packet.json"
+      },
+      "statement": "Maintained Runtime defaults are unresolved/unappointed/empty; injected fixtures are not genuine admitted owner material."
+    },
+    {
+      "name": "native-value-positive",
+      "command": "Run existing canonical producer and consumer with the missing owner packet identified in source-and-owner-packet.json",
+      "target_sha": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+      "environment": "Actual admitted owner inputs; G local production inputs remain local",
+      "input_closure": "not_established: specific missing input/semantic-owner contract, not a skipped successful test",
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-and-owner-packet.json",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/tmle/source-and-owner-packet.json",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-and-owner-packet.json",
+        "bytes": 20639,
+        "sha256": "f7c5c617d83f86c968698adba53bb57841b45b3d7802da4163735618d1622870",
+        "encoding": "verbatim",
+        "decoded_bytes": 20639,
+        "decoded_sha256": "f7c5c617d83f86c968698adba53bb57841b45b3d7802da4163735618d1622870",
+        "restored_relative_path": "author/source-and-owner-packet.json"
+      },
+      "statement": "Real TMLE report slot has no native projection contract; actual upstream refusal precedes downstream gate predicate."
+    },
+    {
+      "name": "B56-admitted-common-study-budget",
+      "command": "Run existing canonical producer and consumer with the missing owner packet identified in source-and-owner-packet.json",
+      "target_sha": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+      "environment": "Actual admitted owner inputs; G local production inputs remain local",
+      "input_closure": "not_established: specific missing input/semantic-owner contract, not a skipped successful test",
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-and-owner-packet.json",
+      "output_ref": {
+        "original_path": "/tmp/e02-F-continuation-20261007/tmle/source-and-owner-packet.json",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-and-owner-packet.json",
+        "bytes": 20639,
+        "sha256": "f7c5c617d83f86c968698adba53bb57841b45b3d7802da4163735618d1622870",
+        "encoding": "verbatim",
+        "decoded_bytes": 20639,
+        "decoded_sha256": "f7c5c617d83f86c968698adba53bb57841b45b3d7802da4163735618d1622870",
+        "restored_relative_path": "author/source-and-owner-packet.json"
+      },
+      "statement": "Actual common-study models/seeds/repeats/competing jobs and canonical execution context/budget packet not supplied."
+    }
+  ],
+  "property": {
+    "statement": "One actual native TMLE MethodJob is persisted with observation/result/report/envelope lineage. Fresh readers of that exact numerical SUCCESS/CI report retain causal non-gating/blocker disposition under offered source/gate relabeling and absent/healthy/missing/corrupt/wrong-model sibling SimulationResult CAS. The same native report enters the real value consumer and truthfully refuses upstream native output-contract resolution.",
+    "runtime_path": [
+      "registered TMLEEstimator + typed HTEObservationalData + Scientist.run_job MethodJob",
+      "FileSystemCAS observation -> native result/evidence -> typed CausalEffectReport -> UncertaintyEnvelope manifests",
+      "fresh Python process + fresh FileSystemCAS + canonical typed loads/lineage and native report equality",
+      "ConfidencePass.validate real causal-purpose intake",
+      "project_method_value_evidence real TMLEsignature/reportslot and same native report -> typed method_output_contract_unresolved"
+    ],
+    "surface": "Unique regression module, consumer documentation, structured release fragment, full committed deciding receipts; no new public production API",
+    "authority_purpose": "method_execution and bounded synthetic consumer regression; not causal identification, positive value capability or institutional/production admission",
+    "proxy_divergence": "A real native SUCCESS and EIF CI persist while an offered envelope is relabeled eligible ensemble and sibling simulation loading fails. Presence/status/gate flag would grant incorrectly; the actual causal role retains BLOCKER. Real value consumer refuses before its downstream gate predicate, so earlier refusal cannot prove that predicate.",
+    "negative_controls": [
+      "same native candidate point/CI/method/status,52 complete relabelled reader variants and1 unmodified native",
+      "memory-only causal issue consumption removal, actual FAIL",
+      "memory-only accumulated collection drop to degraded warning, actual FAIL",
+      "independent mixed-indexed corrupt/top healthy precedence and malformed-top cases PASS",
+      "independent same-native marker-preserving issue removal, actual FAIL"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_breakdown": {
+    "native_artifact_lineage_and_consumer_outcomes": "recomputed",
+    "independent_fresh_reader_reconciliation": "independently_reconciled",
+    "statistical_identification_authority": "not_established",
+    "operational_appointed_admission": "not_established",
+    "native_value_contract_positive": "not_established",
+    "admitted_competing_study_budget": "not_established"
+  },
+  "capability_state_or_finding_state": "Bounded real producer/persisted/fresh-consumer regression is demonstrated; genuine statistical/operational authority and native value contract inputs remain missing, B56 admitted aggregate study budget limited/UNRUN. No new original finding closure.",
+  "per_id": {
+    "B54": {
+      "criterion": "Original nuisance cache/config/fold/model/seed/split and bounded binary regular-IID TMLE numerical contract",
+      "original_technical_recommendation": "closed in prior exact source/profile receipts",
+      "current_slice": "PASS bounded same-native consumer composition; prior numerical/cache/defaultfold/coverage proofs are retained by source refs, not rerun",
+      "finding_outcome_this_slice": "unchanged",
+      "check_refs": [
+        "native",
+        "independent-native",
+        "source-byte-and-owner-boundary-audit"
+      ],
+      "limitation": "Known synthetic regular-IID consumer profile is not an admitted real-data causal conclusion"
+    },
+    "B56": {
+      "criterion": "Actual admitted study-wide fit resource control and truthful method/consumer output",
+      "original_technical_recommendation": "limited",
+      "current_slice": "PASS actual producer -> same persisted typed report -> fresh Confidence/value consumer; true value refusal precedes downstream gate",
+      "finding_outcome_this_slice": "limited",
+      "required_positive_outcome": "UNRUN",
+      "check_refs": [
+        "native",
+        "independent-native",
+        "B56-admitted-common-study-budget"
+      ],
+      "limitation": "No actual admitted common-study workload/context/budget input; one MethodJob cannot close aggregate admission"
+    }
+  },
+  "independent_review": {
+    "outcome": "GO_BOUNDED",
+    "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/review.json",
+    "review_ref": {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/review.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/review.json",
+      "bytes": 13199,
+      "sha256": "ae3e0d37552c0d9a7f14c0565d23211705e32d0c04607a9d380846bd864e2150",
+      "encoding": "verbatim",
+      "decoded_bytes": 13199,
+      "decoded_sha256": "ae3e0d37552c0d9a7f14c0565d23211705e32d0c04607a9d380846bd864e2150",
+      "restored_relative_path": "independent/review.json"
+    },
+    "native_command_canonical_outcome": "PASS",
+    "removal_command_canonical_outcome": "FAIL with detected assertion; original reviewer detection-success annotation retained verbatim"
+  },
+  "limitations_and_next_owner": [
+    {
+      "plane": "statistical_identification",
+      "outcome": "UNRUN",
+      "owner": "existing causal identification/IR semantic owner coordinated by ROOT/C",
+      "producer": "existing ProofBundle and proof_bundle_from_identification_result project identification results; they are not the accepted gate admission input",
+      "consumer": "CausalEffectReport.to_uncertainty_envelope and ConfidencePass.validate",
+      "source_boundary": "IR report converter has no accepted identification verifier input; current Confidence causal-purpose role remains blocked",
+      "required_input": [
+        "accepted existing issuer/verifier API and exact artifact/input contract",
+        "content-bound observation source, graph, estimand type, treatment contrast, target/population and current revision",
+        "actual producer-issued positive receipt and fresh consumer challenge"
+      ],
+      "negative_falsifier": "Missing, fake, stale and swapped source/graph/estimand/target proof must retain candidate/BLOCKER with numerical SUCCESS and CI unchanged",
+      "reason_unavailable": "No accepted statistical admission bridge is supplied for this maintained consumer window; operational safety is a different plane"
+    },
+    {
+      "plane": "operational_evaluation_admission",
+      "outcome": "UNRUN",
+      "owner": "Runtime/A and canonical institutional authority suppliers",
+      "producer": "EvaluationSafetyPersistenceService.compose_and_persist_attempt",
+      "consumer": "EvaluationSafetyAdmissionVerifier.require_admission, EvalSafetyVerifierPort and evaluation_safety_consumer_admission_is_verified",
+      "source_boundary": "run_lifecycle default authority resolver blocked/not_established; appointment resolver blocked/unappointed; registry None; attempt basis/pack/facet denominator absent, evidence empty",
+      "required_input": [
+        "real appointed authority/verification suppliers and current CAS basis/pack/facet/evidence/revision material",
+        "actual resolved passed intake and Runtime-produced complete EvaluationExecutionContext",
+        "fresh EvalSafetyAdmissionChallenge matching owner/intake/certificate/current revision"
+      ],
+      "negative_falsifier": "Present-but-fake seal, stale revision, mismatched full context or replay evidence must refuse",
+      "reason_unavailable": "Maintained defaults do not supply this institutional packet; injected unit suppliers are not admitted production inputs"
+    },
+    {
+      "plane": "native_value_projection",
+      "outcome": "UNRUN",
+      "owner": "canonical output-contract/value owner coordinated by C/ROOT",
+      "producer": "TMLEEstimator.signature report SlotSpec and CausalEffectReport",
+      "consumer": "project_method_value_evidence",
+      "source_boundary": "Actual consumer returns method_output_contract_unresolved before downstream gate predicate",
+      "required_input": [
+        "declared SlotSpec contract_id, native canonical contract owner and VALUE_UNCERTAINTY_PROJECTION capability",
+        "matching native owner declaration, supported projection and content-bound NativeValueEstimandBinding"
+      ],
+      "negative_falsifier": "Wrong native contract/owner/estimand binding refuses; an operational safety receipt cannot replace this contract",
+      "reason_unavailable": "Current real TMLE report slot lacks the native value contract; no parallel projection is invented"
+    },
+    {
+      "plane": "B56_actual_admitted_study_budget",
+      "outcome": "UNRUN",
+      "owner": "Runtime/B/C actual study/workload suppliers and G local runner",
+      "producer": "actual admitted common study and configured MethodJobs/repeats/seeds/models/competing jobs",
+      "consumer": "existing LocalRunnerPool.wait admission and common CausalEvaluation consumer",
+      "source_boundary": "This fixture is one MethodJob, not an admitted common-study workload",
+      "required_input": [
+        "actual owner study/workload refs and full jobs/models/seeds/repeats denominator",
+        "existing execution context and concrete budget/admission inputs",
+        "exact candidate run receipt over competing admitted studies"
+      ],
+      "negative_falsifier": "Without canonical context preserve execution_context_missing before fit; with genuine supplied context execute every configured fold and enforce existing outer-job permits",
+      "reason_unavailable": "No actual admitted workload/context packet was supplied; no new global scheduler/quota is created"
+    }
+  ],
+  "historical_development_failures": [
+    {
+      "name": "probe bad import",
+      "outcome": "ERROR",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/probe.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/probe.stderr.txt",
+      "source_input_replay": "not_established: exact initial mutable test bytes and full argv were not separately retained; no reconstruction is represented as those original inputs"
+    },
+    {
+      "name": "probe wrong manifest reference type",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/probe-corrected.stdout.txt.gz",
+      "source_input_replay": "not_established: exact initial mutable test version not retained; full output retained"
+    },
+    {
+      "name": "fresh reader raw-double vs normalized envelope assertion",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fresh-reader-corrected.stderr.txt",
+      "source_input_replay": "not_established: original mutable bytes not retained; corrected canonical persisted-profile assertion is bound by frozen native source"
+    },
+    {
+      "name": "corrected normalized fresh reader",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fresh-reader-normalized.stdout.txt",
+      "role": "Development observation; final frozen53 native/independent readers are deciding evidence"
+    }
+  ],
+  "raw_evidence_policy": {
+    "sanitation": "none; complete output bytes retained",
+    "production_data": "none; both small CAS archives contain actual synthetic fixture inputs/outputs only",
+    "compression": "Lossless gzip for complete outputs larger than100000bytes, with stored and decoded byte/hash bindings; original raw logs retained locally",
+    "raw_whitespace": "Actual staged diff--check FAIL for blank EOF lines in two exact retained stdout/stderr logs. Source three-path diff--check PASS. No whitespace bytes discarded or source style/global PASS inferred.",
+    "tracked_source": "No copied product source, original cards or Git-derived repository views; source refs are exact Git identities",
+    "global_quality": "No global gates rerun or P41 inherited-red attribution in this focused slice",
+    "backend": "Actual native NumPy/scikit-learn; default Python3.14 DoWhy/EconML markers unchanged and exclusion is not a positive backend witness"
+  },
+  "G_acceptance": "UNRUN; source/receipt/topic delivery is separate from G integration acceptance",
+  "delivery": "Ordinary topic push then exact remote/Git-body readback; no main/force/history rewrite",
+  "reproduction": {
+    "native": "In an exact candidate checkout use the retained native-spec pytest selector and local src:tools, adapting only neutral basetemp/JUnit/interpreter locations. This reruns one actual configured2fold1repeat TMLE, not the broader numerical law.",
+    "negative_without_refit": "Restore the complete synthetic author/independent CAS archive in unique scratch, set only producer-packet cas_root to that scratch, and run retained removal/mixed replayers against the Git-bound frozen test and candidate providers.",
+    "source_and_denominator": "Restore/decode full stdout/XML companions, then run census_replay.py on the author scratch path; source_audit.py accepts an existing checkout path and binds named exact Git provider/card refs."
+  }
+}

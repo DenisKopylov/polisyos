@@ -1,0 +1,611 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "current-ing-cleanup-20261007",
+  "branch": "codex/e02-C-continuation-20261006",
+  "worktree_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+  "slice_base_sha": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+  "slice_base_tree_sha": "573063f560533e73518ef87d29acc1a46959cf33",
+  "criterion_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "criterion_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "required_anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "analysis_sources": [
+    {
+      "role": "inherited C root analysis source",
+      "sha": "97c85fae2d4505ec8248540d98b9556296244208",
+      "tree": "e77c0741d3b19acb43e07a0de2bdb97c8fa98ee3"
+    },
+    {
+      "role": "initial immutable G intake",
+      "sha": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+      "tree": "ae067d9bcd96ff123b76d3b6eebef27a1736079c",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/intake.json",
+        "sha256": "a7176505fade12ce1c98e0f9de1942a94f8f91cec626c5957e28797f5cd51137"
+      }
+    },
+    {
+      "role": "latest read-only fetched G storage refresh",
+      "sha": "ebae80eaa25482d84bc6ad2e78721bc318bc0228",
+      "tree": "4bc0ca606eaf5145e23769da3968a673d99a9abf",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/intake-refresh-ebae.json",
+        "sha256": "8eb7b9135ff45588215572893826c7c23d31980156a7e13c21a1eb47ba7cfdb5"
+      },
+      "delta": "12 storage documents added; five immutable C inputs byte-identical"
+    }
+  ],
+  "candidate_sha": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+  "candidate_tree_sha": "4bb3d7ef227f7745ab22a23f41f4618766e8b350",
+  "implementation_commits": [
+    "07bbb61ffa6d53709942bcda87c37daef1a04651"
+  ],
+  "implementation_commits_product_only": [
+    "07bbb61ffa6d53709942bcda87c37daef1a04651"
+  ],
+  "full_slice_changed_paths": [
+    "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+    "policy-engine/tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py"
+  ],
+  "mechanism_paths": [
+    "policy-engine/src/polisyos/fabric/data_plane/streaming.py"
+  ],
+  "test_paths": [
+    "policy-engine/tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py"
+  ],
+  "changed_paths": [
+    "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+    "policy-engine/tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py"
+  ],
+  "source_freeze": {
+    "source": {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "commit": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+      "git_blob": "80af60d90e2eb6aeed0d335c4dbe5d80c8c24c7c",
+      "sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119"
+    },
+    "test": {
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py",
+      "commit": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+      "git_blob": "17bf265469fcd8455c96c2f775c5ff0a619c9c08",
+      "sha256": "88e35f698a7f4a8dc1a8b6ac8e11d89981640a07dabeed6d1f6e699afafd7d3d"
+    },
+    "parent": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+    "tree": "4bb3d7ef227f7745ab22a23f41f4618766e8b350",
+    "branch_clean_at_candidate": true
+  },
+  "criterion_ids": [],
+  "closure_ids": [],
+  "bundle_ids": [],
+  "findings": [],
+  "baseline_cells": [],
+  "finding_disposition_boundary": {
+    "C54_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.json",
+      "commit": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+      "git_blob": "61e1abe90ae5f81e37077e2dc8e92f7e4de0cb76",
+      "sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc"
+    },
+    "prior_pinned_statuses": [
+      {
+        "id": "B79",
+        "root_verdict": "limited",
+        "capability_label": "bridge_missing"
+      },
+      {
+        "id": "B80",
+        "root_verdict": "held",
+        "capability_label": "semantic_test_missing"
+      },
+      {
+        "id": "B81",
+        "root_verdict": "closed",
+        "capability_label": "semantic_test_missing"
+      },
+      {
+        "id": "B82",
+        "root_verdict": "closed",
+        "capability_label": "semantic_test_missing"
+      },
+      {
+        "id": "B83",
+        "root_verdict": "held",
+        "capability_label": "semantic_test_missing"
+      },
+      {
+        "id": "B84",
+        "root_verdict": "closed",
+        "capability_label": "bridge_missing"
+      },
+      {
+        "id": "B85",
+        "root_verdict": "closed",
+        "capability_label": "semantic_test_missing"
+      },
+      {
+        "id": "B86",
+        "root_verdict": "closed",
+        "capability_label": "bridge_missing"
+      },
+      {
+        "id": "B88",
+        "root_verdict": "closed",
+        "capability_label": null
+      }
+    ],
+    "changed_by_this_slice": false,
+    "note": "No C54 row, ledger, binder/key criterion, B87, or unrelated B finding was closed/promoted."
+  },
+  "baseline_replay": {
+    "source_base": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+    "two_red_witness": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/c158-baseline-two-red/exit.txt",
+        "sha256": "cf205dbb8cea84897b488abcc281bf96698d5e94b1096b16657b4caba9082a22"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/c158-baseline-two-red/stdout.txt",
+        "sha256": "5830110a82a1110ca6fc37f8c37ab3ffb331ee1b13a87c39db00de2dc8e2fc7c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/c158-baseline-two-red/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "exact_command_captured": false,
+    "source_test_hash_captured": false,
+    "P41_attribution": "not_established"
+  },
+  "property": {
+    "statement": "After stream-close failure/cancellation the exact ConnectionPool and pending physical handle remain registry-retry-owned until successful close; retry uses the same handle, preserves primary error, releases capacity once, and clears ownership.",
+    "runtime_path": [
+      "real EventStream JSONL",
+      "process_stream_dataset",
+      "StreamingSourceSession",
+      "ConnectorRegistry retry owner and exact pool",
+      "FileSystemCAS checkpoint/chunk/window/cursor readback"
+    ],
+    "proxy_divergence": "Removing retention leaves cleanup marker present but registry owner count zero while the physical handle remains pending; both source and installed controls reject it.",
+    "negative_controls": [
+      "four source test failures with retention helper removed",
+      "installed wheel mutant removes retention while preserving marker; owner assertion fails"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "p37": {
+    "predicate": "Actual registry owner/pool/handle state, primary exception identity, permit behavior, and reopened CAS bytes are observed from runtime.",
+    "basis": "recomputed; no marker/declaration is used as property."
+  },
+  "p38": {
+    "property": "registry retries cleanup on the same physical connection",
+    "implementation_measures": "actual pool/handle identity, owner state, permit behavior, and persisted readback",
+    "divergent_case": "marker survives but owner count is zero and handle is pending"
+  },
+  "p40": {
+    "class": "cleanup-owner transfer across shared close lifecycle",
+    "classification": "same known class widened through the shared close/retry invariant",
+    "evidence": "C158 two-red witness, six focused passes, four expected removal-control failures"
+  },
+  "checks": [
+    {
+      "id": "targeted-importer-tests",
+      "target_sha": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/targeted-128/command.json",
+        "sha256": "78e2e9ce7cd405e6c9a908925dc9c8c8231406e7cdc1d3a5467ed68b20f0beeb"
+      },
+      "outcome": "PASS",
+      "summary": "128 passed; one unknown cache_dir pytest-config warning. Candidate source bytes were run before commit while result metadata base still named C158.",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/targeted-128/result.json",
+          "sha256": "d8993098aecf51f442e82fb36fe5e0299387f68c563d577611094f1b2fc8808f"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/targeted-128/stdout.txt",
+          "sha256": "c18e121f4b8b81edc1ed20d468f4ec23f5541b1641ca5bf2248d862eadfcb19a"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/targeted-128/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/targeted-128/native.xml",
+          "sha256": "473c99f3d9a753b0d32cd5e519a83a03e0a9e13fb1553bb037c926c6cdb2b533"
+        }
+      ]
+    },
+    {
+      "id": "focused-cleanup-tests",
+      "target_sha": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+      "command": {
+        "original_argv": "not retained",
+        "suggested_replay": "cd policy-engine && .venv/bin/python -B -m pytest -q tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py",
+        "historical_argv": false
+      },
+      "outcome": "PASS",
+      "summary": "Six focused cases pass; exact source/test hashes preserved.",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/focused-cleanup-6/environment.txt",
+          "sha256": "0a3e045653ad96b6e66a7929a9e056cdfb70bd2591b1b478d0b9c2f5e8862af5"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/focused-cleanup-6/filehashes.txt",
+          "sha256": "a8e021f87289af9f82cf8938a7412cc8a8a35a77e94762273c5b2258a5fd8b72"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/focused-cleanup-6/stdout.txt",
+          "sha256": "700bc0322b00f8e8db3ce495047983b54ab27ab59ed1fedac05f3aeba47dae24"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/focused-cleanup-6/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/focused-cleanup-6/exit.txt",
+          "sha256": "a589fb135cc49e1dd1462a45e1394bfa71fa20ffca282d444ae7f7d857ad39a3"
+        }
+      ]
+    },
+    {
+      "id": "property-removal-source-control",
+      "target_sha": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/property-removal-four-red/command.txt",
+        "sha256": "d61e42bf2e0af6ecb8ca5453fc9778e91f106fa8ef155de8c26dab5acbcc5fec"
+      },
+      "outcome": "FAIL",
+      "expected_failure": true,
+      "summary": "Four executions fail at retained-owner assertion when only retention helper is no-op.",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/property-removal-four-red/environment.txt",
+          "sha256": "0cbe1fb5c3bb300020c4c1f870b2e727939827635f77d394d88810fe1f8e3942"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/property-removal-four-red/filehashes.txt",
+          "sha256": "a8e021f87289af9f82cf8938a7412cc8a8a35a77e94762273c5b2258a5fd8b72"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/property-removal-four-red/exit.txt",
+          "sha256": "25d0f7d25acb9996e3d5a451dde5907c6b896419eac5fbd433d5a9afb98847b3"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/property-removal-four-red/stdout.txt",
+          "sha256": "b19ba8a555872393da3f3888bc2b06771fcda31234a0221d5d52371bb98fdf18"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/property-removal-four-red/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "id": "C158-baseline-witness",
+      "target_sha": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+      "command": "not retained",
+      "outcome": "FAIL",
+      "expected_baseline_red": true,
+      "attribution": "not_established under P41; test source SHA and exact argv not captured.",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/c158-baseline-two-red/exit.txt",
+          "sha256": "cf205dbb8cea84897b488abcc281bf96698d5e94b1096b16657b4caba9082a22"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/c158-baseline-two-red/stdout.txt",
+          "sha256": "5830110a82a1110ca6fc37f8c37ab3ffb331ee1b13a87c39db00de2dc8e2fc7c"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/c158-baseline-two-red/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "id": "ruff",
+      "target_sha": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/ruff-source/commands.json",
+        "sha256": "10863a8d547529d9950e3101a3ea16074802d8bab345fe65abad8a29cb875d64"
+      },
+      "outcome": "PASS",
+      "summary": "Ruff check and format check exit 0.",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/ruff-source/0.stdout",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/ruff-source/0.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/ruff-source/1.stdout",
+          "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/ruff-source/1.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/ruff-focused-final/exit.txt",
+          "sha256": "dc29a0a64402e0cbb8f86cc412bde848d0a7e9175bb97efb0d92065748546349"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/ruff-focused-final/stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/ruff-focused-final/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "id": "architecture-guardrails",
+      "target_sha": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/architecture-guardrails/command.json",
+        "sha256": "835524f5e4002f4b14f61d598f10347c68739c562c9552acb00b3f13873ac1d0"
+      },
+      "outcome": "FAIL",
+      "attribution": "not_established under P41; generated/freshness skipped and no exact slice-base replay.",
+      "summary": "Exit 1; no freshness PASS claimed.",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/architecture-guardrails/stdout.txt",
+          "sha256": "2d50e5772e0c04bfffc0d29b052c28b110b1ef653246e53e953b2da6c72d1eed"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/architecture-guardrails/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "id": "production-invocation-diagnostic",
+      "target_sha": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/static-production-invocation/command.json",
+        "sha256": "758732d7e031922ccfbf0dd8629c460db7b9fa31cff6b8e905635822fba7b0ff"
+      },
+      "outcome": "PASS",
+      "scope": "partial static direct-call reachability only",
+      "runtime_invocation_established": false,
+      "summary": "Exit 0 does not establish production/runtime invocation.",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/static-production-invocation/stdout.json",
+          "sha256": "0ad522a77710eb362290c798c8b532b25006e15d6da8ed4035d69a29e4ea0452"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/static-production-invocation/source-audit.json",
+          "sha256": "9f6ce29f6e702ebb74c501d81be397aed780b336ae105353dea8bd18acbb1ccd"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/static-production-invocation/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "id": "wheel-sdist-build-offline-attempt",
+      "target_sha": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+      "command": "uv build --offline --python python3.14 against exact candidate Git archive",
+      "environment": "uv cache; offline mode",
+      "outcome": "ERROR",
+      "expected_environment_limit": true,
+      "summary": "Exit 2 because hatchling was not cached; no product failure inferred.",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/build-spec.json",
+          "sha256": "5641cd1231cb3d757e098c20ad29f065d46f289c591fa2ab6e9d9273f1a49903"
+        }
+      ]
+    },
+    {
+      "id": "wheel-sdist-build-online-fallback",
+      "target_sha": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+      "command": "uv build --python python3.14 --clear against exact candidate Git archive",
+      "environment": "uv online fallback after recorded cache miss",
+      "outcome": "PASS",
+      "summary": "Built wheel and sdist from exact candidate archive.",
+      "artifacts": [
+        {
+          "kind": "wheel",
+          "sha256": "3d89ec345519e6b1f0392467f542786e651c09ae49055e73266700d5b10335f1",
+          "bytes": 15023663,
+          "tracked": false
+        },
+        {
+          "kind": "sdist",
+          "sha256": "f1912d0c099bc12da3511fdd6aea99f65a3cc195f1f2186a1856f7d600c3b3d7",
+          "bytes": 65763017,
+          "tracked": false
+        }
+      ],
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/build-online-spec.json",
+          "sha256": "e5d01b04e92b86d1c4f65b82cdbb62fa4122323c5bacfc5b7aa464fe9c01bfe5"
+        }
+      ]
+    },
+    {
+      "id": "fresh-base-wheel-install-and-consumers",
+      "target_sha": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/final-receipt.json",
+        "sha256": "a1645d0f1d589c1148de63de9d3e59f43464a21167d7ba154f9fa4d5709c91d4"
+      },
+      "outcome": "PASS",
+      "summary": "Fresh frozen base-only environment installed the exact wheel with normal dependency resolution; package-origin probe, Atlas positive plus nine corruption probes, installed stream consumer, and owner-removal mutant property assertion all passed.",
+      "environment": "Python 3.14, frozen base-only, no dev/test/vector extras, pytest/hnswlib absent, no PYTHONPATH.",
+      "wheel_sha256": "3d89ec345519e6b1f0392467f542786e651c09ae49055e73266700d5b10335f1",
+      "sdist_sha256": "f1912d0c099bc12da3511fdd6aea99f65a3cc195f1f2186a1856f7d600c3b3d7",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/final-receipt.json",
+          "sha256": "a1645d0f1d589c1148de63de9d3e59f43464a21167d7ba154f9fa4d5709c91d4"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/base-sync-offline/result.json",
+          "sha256": "718bff45b75258457a1997567988d3d57e3deecf3cb3a93d8b5785b08051defa"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/wheel-install-offline/result.json",
+          "sha256": "fa1fbbaca74916f890322d39622f8fe30de30037eb1a03056321921561a33fa2"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/profile-origin/result.json",
+          "sha256": "ea2658e6951143baf8f1be91f4e62dfe05520903ff2e425f6ad53572412599fc"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/atlas-validator-positive/result.json",
+          "sha256": "f04b2bc0c0691a1f0c0b9c21e2c1f7e018580bf4c0affb3fdb63318bac0cc227"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/atlas-validator-corruption/result.json",
+          "sha256": "d6b858d0fcc5316d37d7e5662192b24dfd6703cc562c4b0120354d48bf606cfd"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-consumer-corrected/result.json",
+          "sha256": "9b277bb7a1715e879d553ae752b09ed6f6f74499dc14541613b213ad308a704b"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-mutant/result.json",
+          "sha256": "aee0cdfa2c53d73ce3df768bcc64c4ad4d299e8c7cbb7631c03d6950927c1afa"
+        }
+      ],
+      "source_archive_scope": "Archive validator is a source-tree script outside the wheel; installed package origins and jsonschema were independently checked under isolated Python with no PYTHONPATH.",
+      "environment_limit": "Base-only profile; pytest/hnswlib and dev/test/vector extras absent. No full suite claim."
+    },
+    {
+      "id": "frontend-hooks",
+      "target_sha": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+      "outcome": "UNRUN",
+      "summary": "Docs/evidence-only commit, no TypeScript inputs; task-scoped hooksPath=/dev/null as directed."
+    }
+  ],
+  "predicate_basis_by_check": {
+    "runtime_state": "recomputed",
+    "installed_origin": "independently_reconciled",
+    "architecture_attribution": "not_established",
+    "production_runtime_invocation": "not_established",
+    "focused_test_argv": "not_established"
+  },
+  "capability_state_or_finding_state": "bounded runtime cleanup-owner transfer implemented and behaviorally verified; no new public capability and no finding closure",
+  "admission_receipts": {
+    "all_captured_admission_files": 21,
+    "primary_root_resume": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/resume-root-c158.command.json",
+        "sha256": "bd51d93a817286ddc4fccffc786d1dcaeeb24bc60adafc46cd4fd528ccb20159"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/resume-root-c158.stdout.json",
+        "sha256": "edec410ff7db4b0efe14346d864ffa9e148d51ea7e1e95f86ab4f468b6259cd3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/resume-root-c158.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "criterion_reconciliation": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.json",
+        "commit": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+        "git_blob": "61e1abe90ae5f81e37077e2dc8e92f7e4de0cb76",
+        "sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/final-handoff.json",
+        "commit": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+        "git_blob": "2f5fa1c369f9714e63118523ae98af0844ab4156",
+        "sha256": "8936eb2b12f69f601c11c42086b7378f446fca73c802c20db05a0fa46f7212ef"
+      }
+    ]
+  },
+  "procedure_deviation": {
+    "state": "verbatim ignored G-side audit copied; no G mutation",
+    "metadata": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/procedure-audit/procedure-deviation.json",
+      "sha256": "60d64c7b1665bff1f73b8de407591034ac9b9114bc2f0384cf2e83c61b89238e"
+    },
+    "original_helper_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/procedure-audit/fed-cli-c3-closure.json",
+      "sha256": "c7fe710bdcbd500089336540e865a47e072adfc85c9eb8a7277d6b9a62de5269"
+    },
+    "authority": "context only, not finding closure"
+  },
+  "storage_context": {
+    "latest_g_notes": {
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/README.md": {
+        "commit": "ebae80eaa25482d84bc6ad2e78721bc318bc0228",
+        "tree": "4bc0ca606eaf5145e23769da3968a673d99a9abf",
+        "git_blob": "d5b6254b4df6836a86b5e54c92d3e7d5bde953af",
+        "sha256": "f8c20e509e23b48b3baf5cb11a2ab5dd84f19b040686838ddfde3a603a104b16"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/C-source-disposition.md": {
+        "commit": "ebae80eaa25482d84bc6ad2e78721bc318bc0228",
+        "tree": "4bc0ca606eaf5145e23769da3968a673d99a9abf",
+        "git_blob": "d7a8cf66d39fb589561d956493925c9643e44fee",
+        "sha256": "70678494855d7740bb81527a1a66fbb05d7389bfd0e95fb76ed743d4ef0253ee"
+      }
+    },
+    "from": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+    "to": "ebae80eaa25482d84bc6ad2e78721bc318bc0228",
+    "changed_paths": 12,
+    "five_immutable_inputs_unchanged": true,
+    "note": "G reports old 20 C2 source archives moved reversibly to Trash; current C root/CAN and sibling evidence protected. Current candidate is in Git; this handoff performed no G cleanup.",
+    "separate_composition_stage": {
+      "status": "PENDING; not part of the 07bbb source admission",
+      "branch_reference": "c694/treebf1 as reported by Root",
+      "reported_run": "NET16 reported 14 passing checks and 2 B-oracle format/setup failures; actual target not run. These are not product outcomes.",
+      "next_step": "C test-only key-decode adaptation and a removed-admission negative control by fault_oracle; no runtime-source edit is indicated.",
+      "evidence_status": "not_established for target behavior in this slice; no raw NET16 command/output was supplied to this handoff and no NET16 result is used to support the 07bbb verdict."
+    }
+  },
+  "independent_review": {
+    "artifact": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/review/07bbb61-independent-source-review.md",
+      "sha256": "358768d122e4ef0f029184d3f9dfeb4d11db17a871d6fad1ba6228ccc84e98e9"
+    },
+    "decision": "GO for bounded C cleanup-owner transfer",
+    "scope": "source/test diff only; reviewer did not rerun tests or removal control"
+  },
+  "limitations": [
+    "Direct StreamingSourceSession without registry remains caller-owned; registry-retention insertion failure has no alternate owner.",
+    "Injected BaseException at Python frontier is not OS kill/process-death proof.",
+    "No spill/RSS/full-memory cap, pre-return connector allocation, full production/backend/performance run, numerical workload, or B87 closure is established.",
+    "Architecture exit 1 has not_established P41 attribution; generated/freshness checks skipped.",
+    "Production invocation diagnostic is partial static analysis and runtime_invocation_established=false.",
+    "Focused six-test original argv was not captured; exact source/test hashes and complete retained outputs are included.",
+    "Wheel/sdist/source archive/private environment/derived census maps remain ignored; only hashes and moderate deciding outputs are committed.",
+    "Separate B+C composition at c694/treebf1 is not part of this candidate; no blanket B source acceptance.",
+    "No C54 status or closure ledger is altered by this source slice."
+  ],
+  "next_owner": {
+    "owner": "Root / G integration",
+    "action": "Review exact frozen candidate and dependent integration; preserve missing inputs and per-finding dispositions.",
+    "separate_dependency": "B+C composition c694/treebf1 is separately reviewed.",
+    "publication": "No push; root owns publication."
+  },
+  "receipt": {
+    "evidence_index": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/evidence-index.json",
+      "sha256": "fc307cc1c175162679726db15bc5c5b864486b67a073d67b018137b8090de9ae"
+    },
+    "README": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/README.md",
+      "sha256": "b05788c958f27de11a0024d37a145b84c3bc5fb115633c45b57b55608e5a3362"
+    },
+    "receipt_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3",
+    "tracked_g_docs_not_duplicated": true
+  },
+  "publication_scope": "Own C topic branch only; no push, main publication, G write, or other user-chat message.",
+  "test_owner": "C continuation root authored the implementation and focused cleanup test; separate reviewer performed source/test-diff review only.",
+  "pull_request": null
+}

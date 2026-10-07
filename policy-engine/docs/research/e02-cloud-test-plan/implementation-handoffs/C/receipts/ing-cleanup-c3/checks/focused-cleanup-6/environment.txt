@@ -1,0 +1,5 @@
+executable=/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python
+streaming=/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/src/polisyos/fabric/data_plane/streaming.py
+streaming_source_sha256=6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119
+event_stream=/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py
+sys.path=['', '/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/src', '/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine', '/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python314.zip', '/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14', '/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/lib-dynload', '/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/lib/python3.14/site-packages']

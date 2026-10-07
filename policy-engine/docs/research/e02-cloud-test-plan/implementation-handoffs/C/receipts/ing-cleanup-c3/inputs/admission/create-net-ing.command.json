@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "uv",
+    "run",
+    "--no-sync",
+    "polisyos-tools",
+    "workspace",
+    "doctor",
+    "--worktree-admission",
+    "create",
+    "--branch",
+    "codex/e02-C-net-ing-20261007",
+    "--path",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/policy-engine",
+  "env_overrides": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+    "E02_TOPIC_BRANCH": "codex/e02-C-net-ing-20261007",
+    "E02_WORKTREE_ROOT": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos"
+  },
+  "exit_code": 0,
+  "stdout_sha256": "8183487c87285cd265d736ca10fc00d3eb59f0ee29f6e550118ff71e5f0167fd"
+}

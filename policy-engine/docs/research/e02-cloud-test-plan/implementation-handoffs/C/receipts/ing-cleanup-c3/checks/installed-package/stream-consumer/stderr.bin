@@ -1,0 +1,49 @@
+2026-10-07 11:41:00.671 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 11:41:00.672 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 11:41:00.672 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 11:41:00.672 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 11:41:00.672 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 11:41:00.674 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 11:41:00.676 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized
+2026-10-07 11:41:00.676 | DEBUG    | polisyos.common.logger:_call:120 - New connection created
+2026-10-07 11:41:00.676 | DEBUG    | polisyos.common.logger:_call:120 - Connection acquired
+2026-10-07 11:41:00.677 | DEBUG    | polisyos.common.logger:_call:120 - Connection released to pool
+2026-10-07 11:41:00.677 | WARNING  | polisyos.common.logger:_call:120 - Error closing connection
+2026-10-07 11:41:00.677 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+2026-10-07 11:41:00.677 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer-probe.py", line 276, in <module>
+    print(json.dumps(asyncio.run(main()),sort_keys=True,separators=(",",":")))
+                     ~~~~~~~~~~~^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer-probe.py", line 274, in main
+    return {"profile":{"python":sys.version,"executable":str(Path(sys.executable).resolve()),"isolated":bool(sys.flags.isolated),"PYTHONPATH":os.environ.get("PYTHONPATH"),"pytest_imported":"pytest" in sys.modules,"hnswlib_imported":"hnswlib" in sys.modules,"module_identity":module_identity,"sys_path":sys.path},"failure_cleanup_same_handle_retry":await sanitizer_failure_retry(root),"cancellation_cleanup_same_handle_retry":await task_cancellation_retry(root),"actual_commit_and_reopen_readback":await commit_reopen(root)}
+                                                                                                                                                                                                                                                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer-probe.py", line 105, in sanitizer_failure_retry
+    await process_stream_dataset(connector_id="stream.jsonl",dataset_id=name,store=store,cursor_store=CursorStore(store),sanitize_rows=fail,runtime_options=StreamRuntimeOptions(batch_size=1),registry=registry)
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/lib/python3.14/site-packages/polisyos/fabric/data_plane/streaming.py", line 2225, in process_stream_dataset
+    chunk = await session.poll()
+            ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/lib/python3.14/site-packages/polisyos/fabric/data_plane/streaming.py", line 488, in poll
+    chunk = await anext(self._generator)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer-probe.py", line 70, in fetch_stream
+    async for chunk in super().fetch_stream(handle,request):
+     yield chunk
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/lib/python3.14/site-packages/polisyos/fabric/connectors/sources/event_stream.py", line 120, in fetch_stream
+    message = json.loads(raw)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/decoder.py", line 348, in decode
+    raise JSONDecodeError("Extra data", s, end)
+json.decoder.JSONDecodeError: Extra data: line 1 column 36 (char 35)
+stream session final cleanup failed: RuntimeError('Connection cleanup remains pending for the closed pool')

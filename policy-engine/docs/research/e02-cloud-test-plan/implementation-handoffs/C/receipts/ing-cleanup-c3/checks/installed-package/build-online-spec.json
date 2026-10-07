@@ -1,0 +1,10 @@
+{
+  "step": "uv-build-wheel-and-sdist-from-exact-git-archive-online-after-offline-cache-miss",
+  "argv": ["/opt/homebrew/bin/uv", "build", "--python", "/opt/homebrew/bin/python3.14", "--clear", "--out-dir", "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/dist", "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source/policy-engine"],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+  "output_dir": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/build-online",
+  "env": {"UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/_cache/uv"},
+  "unset_env": ["UV_OFFLINE"],
+  "record_env": ["UV_CACHE_DIR", "UV_OFFLINE", "PYTHONPATH", "VIRTUAL_ENV", "UV_INDEX_URL", "UV_DEFAULT_INDEX"],
+  "redact_env": ["UV_INDEX_URL", "UV_DEFAULT_INDEX"]
+}

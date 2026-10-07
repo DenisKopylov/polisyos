@@ -1,0 +1,27 @@
+{
+  "step": "fresh-base-only-actual-workspace-atlas-jsonschema-corruption-probes",
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/bin/python",
+    "-I",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source/policy-engine/apps/runtime-dashboard/scripts/validate_atlas_health_sources.py",
+    "--corruption-probes"
+  ],
+  "cwd": "/private/tmp",
+  "exit_code": 0,
+  "started_unix_ns": 1791362292423458000,
+  "finished_unix_ns": 1791362293912104000,
+  "environment": {
+    "PYTHONPATH": null,
+    "PYTHONHOME": null,
+    "VIRTUAL_ENV": null,
+    "UV_PROJECT_ENVIRONMENT": null,
+    "UV_CACHE_DIR": null
+  },
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/atlas-validator-corruption/stdout.bin",
+  "stdout_bytes": 255,
+  "stdout_sha256": "6d6f4186f6f91d54ff36e95dcc8368fc6b28b286597d188ac8e42e99156329cd",
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/atlas-validator-corruption/stderr.bin",
+  "stderr_bytes": 0,
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

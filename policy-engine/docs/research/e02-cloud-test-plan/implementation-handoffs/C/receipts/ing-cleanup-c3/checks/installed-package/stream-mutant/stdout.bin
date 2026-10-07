@@ -1,0 +1,1 @@
+{"PYTHONPATH":null,"cleanup_marker_still_present":true,"mutant":"replaced ConnectorRegistry._retain_pending_startup_cleanup with no-op for this process only","owner_property_assertion_failed_as_expected":true,"pytest_imported":false,"registry_owner_count_after_mutation":0,"same_pool_still_has_pending_handle":true,"status":"pass"}

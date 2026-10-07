@@ -1,0 +1,8 @@
+{
+  "step":"install-exact-wheel-into-fresh-base-only-env-with-normal-dependency-resolution-offline",
+  "argv":["/opt/homebrew/bin/uv","pip","install","--offline","--python","/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/bin/python","/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/dist/policy_engine-0.1.0-py3-none-any.whl"],
+  "cwd":"/tmp",
+  "output_dir":"/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/wheel-install-offline",
+  "env":{"UV_CACHE_DIR":"/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/_cache/uv","UV_OFFLINE":"1"},
+  "record_env":["UV_CACHE_DIR","UV_OFFLINE","PYTHONPATH","VIRTUAL_ENV"]
+}

@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "uv",
+    "run",
+    "--no-sync",
+    "polisyos-tools",
+    "workspace",
+    "doctor",
+    "--worktree-admission",
+    "resume",
+    "--branch",
+    "codex/e02-C-canon-20261006",
+    "--path",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/policy-engine",
+  "env_overrides": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+    "E02_TOPIC_BRANCH": "codex/e02-C-canon-20261006",
+    "E02_WORKTREE_ROOT": "/Users/deniskopylov/.codex/worktrees/e02-c-canon-20261006/polisyos"
+  },
+  "exit_code": 0,
+  "stdout_sha256": "c0678627f1cc577245d0aae9f14efcbea17f3450c200d1666fff54edd164f80c"
+}

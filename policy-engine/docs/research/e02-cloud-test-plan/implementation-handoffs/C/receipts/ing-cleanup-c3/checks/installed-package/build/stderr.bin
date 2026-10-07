@@ -1,0 +1,12 @@
+Building source distribution...
+  × Failed to build
+  │ `/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source/policy-engine`
+  ├─▶ Failed to resolve requirements from `build-system.requires`
+  ├─▶ No solution found when resolving: `hatchling>=1.27.0`
+  ╰─▶ Because hatchling was not found in the cache and you require
+      hatchling>=1.27.0, we can conclude that your requirements are
+      unsatisfiable.
+
+      hint: Packages were unavailable because the network was disabled. When
+      the network is disabled, registry packages may only be read from the
+      cache.

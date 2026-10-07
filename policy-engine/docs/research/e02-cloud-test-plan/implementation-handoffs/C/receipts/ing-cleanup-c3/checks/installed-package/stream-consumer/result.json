@@ -1,0 +1,26 @@
+{
+  "step": "fresh-base-only-installed-eventstream-cas-cursor-registry-failure-cancellation-commit-reopen-probe",
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/bin/python",
+    "-I",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer-probe.py"
+  ],
+  "cwd": "/private/tmp",
+  "exit_code": 1,
+  "started_unix_ns": 1791362458517692000,
+  "finished_unix_ns": 1791362460798048000,
+  "environment": {
+    "PYTHONPATH": null,
+    "PYTHONHOME": null,
+    "VIRTUAL_ENV": null,
+    "UV_PROJECT_ENVIRONMENT": null,
+    "UV_CACHE_DIR": null
+  },
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer/stdout.bin",
+  "stdout_bytes": 0,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer/stderr.bin",
+  "stderr_bytes": 5418,
+  "stderr_sha256": "f5e42cae870ef53013d70c6211c3ab62ddba89e971f75294df5f4e30fa5dd397"
+}

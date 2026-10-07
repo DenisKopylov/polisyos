@@ -1,0 +1,8 @@
+{
+  "step": "uv-build-wheel-and-sdist-from-exact-git-archive",
+  "argv": ["/opt/homebrew/bin/uv", "build", "--offline", "--python", "/opt/homebrew/bin/python3.14", "--out-dir", "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/dist", "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source/policy-engine"],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+  "output_dir": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/build",
+  "env": {"UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/_cache/uv", "UV_OFFLINE": "1"},
+  "record_env": ["UV_CACHE_DIR", "UV_OFFLINE", "PYTHONPATH", "VIRTUAL_ENV"]
+}

@@ -1,0 +1,11 @@
+{
+  "deviation": "helper used unleased ignored G scratch",
+  "created_file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.tmp/e02-C3/raw/closed-carryover/fed-cli-c3-closure.json",
+  "bytes": 13889,
+  "sha256": "c7fe710bdcbd500089336540e865a47e072adfc85c9eb8a7277d6b9a62de5269",
+  "reported_git_tracked_changes": false,
+  "operation": "copy useful report to admitted C Root; preserve original",
+  "authorization_boundary": "Root revoked any G writes; no integration branch mutation permitted",
+  "root_copy": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/closed-carryover/fed-cli-c3-closure.json",
+  "remaining": "include deviation in committed C handoff"
+}

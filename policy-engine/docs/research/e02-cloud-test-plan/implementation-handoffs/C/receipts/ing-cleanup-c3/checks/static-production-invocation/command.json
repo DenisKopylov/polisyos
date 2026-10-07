@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "-m",
+    "polisyos.runtime.quality.production_invocation",
+    "--repo-root",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "--base",
+    "c158689d692d47b6300609ac2ba5e7dac28650dc",
+    "--receipt",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/ing-production-invocation/source-audit.json"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+  "env_overrides": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine"
+  },
+  "exit_code": 0,
+  "wall_s": 20.951925957982894,
+  "stdout_sha256": "0ad522a77710eb362290c798c8b532b25006e15d6da8ed4035d69a29e4ea0452",
+  "candidate": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+  "scope": "source-derived invocation diagnostics; not runtime proof"
+}

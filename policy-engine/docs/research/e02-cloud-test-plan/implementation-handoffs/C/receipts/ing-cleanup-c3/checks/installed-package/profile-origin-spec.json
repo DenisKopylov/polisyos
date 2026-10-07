@@ -1,0 +1,8 @@
+{
+ "step":"fresh-base-only-installed-module-origin-byte-and-jsonschema-consumer-probe",
+ "argv":["/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/bin/python","-I","-B","/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/profile-origin-probe.py"],
+ "cwd":"/tmp",
+ "output_dir":"/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/profile-origin",
+ "unset_env":["PYTHONPATH","PYTHONHOME","VIRTUAL_ENV","UV_PROJECT_ENVIRONMENT"],
+ "record_env":["PYTHONPATH","PYTHONHOME","VIRTUAL_ENV","UV_PROJECT_ENVIRONMENT","UV_CACHE_DIR"]
+}

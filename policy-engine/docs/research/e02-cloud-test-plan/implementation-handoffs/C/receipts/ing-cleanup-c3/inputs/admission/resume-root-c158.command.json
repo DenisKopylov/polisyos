@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "uv",
+    "run",
+    "--no-sync",
+    "polisyos-tools",
+    "workspace",
+    "doctor",
+    "--worktree-admission",
+    "resume",
+    "--branch",
+    "codex/e02-C-continuation-20261006",
+    "--path",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos"
+  ],
+  "cwd": "/Users/deniskopylov/polisyos/policy-engine",
+  "env_overrides": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+    "E02_TOPIC_BRANCH": "codex/e02-C-continuation-20261006",
+    "E02_WORKTREE_ROOT": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos"
+  },
+  "exit_code": 0,
+  "stdout_sha256": "edec410ff7db4b0efe14346d864ffa9e148d51ea7e1e95f86ab4f468b6259cd3",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "tool_profile": "Existing original uv environment; mandatory admission module read from frozen C source, no trashed env restored"
+}

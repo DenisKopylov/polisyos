@@ -1,0 +1,35 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-o",
+    "addopts=",
+    "-q",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/ing-early-current/pytest-temp",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/ing-early-current/native.xml",
+    "tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+    "tests/unit/fabric/data_plane/test_streaming_runtime.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+  "timeout_seconds": 120,
+  "env": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1"
+  },
+  "base": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+  "source_sha256": {
+    "policy-engine/src/polisyos/fabric/data_plane/streaming.py": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119",
+    "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py": "a6b28c8a79fa60fdfd018728947d6e67ea71af1c906d7238e0582396409488f3",
+    "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py": "59344c8fac40eb73b6d793b9dd955c9c7acf16067cc9cf3de860790a6502a742"
+  },
+  "exit_code": 0,
+  "wall_seconds": 68.34916833305033,
+  "stdout_sha256": "c18e121f4b8b81edc1ed20d468f4ec23f5541b1641ca5bf2248d862eadfcb19a",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

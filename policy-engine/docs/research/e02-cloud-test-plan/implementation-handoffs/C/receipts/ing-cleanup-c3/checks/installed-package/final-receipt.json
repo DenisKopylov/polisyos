@@ -1,0 +1,790 @@
+{
+  "schema": "policyos.e02.c3.installed_package_verification.v1",
+  "target": {
+    "commit": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+    "tree": "4bb3d7ef227f7745ab22a23f41f4618766e8b350",
+    "expected_commit": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+    "expected_tree": "4bb3d7ef227f7745ab22a23f41f4618766e8b350",
+    "parent": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+    "branch": "codex/e02-C-continuation-20261006",
+    "git_status_porcelain": ""
+  },
+  "archive_source": {
+    "command": [
+      "git",
+      "archive",
+      "--format=tar",
+      "--output",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source.tar",
+      "07bbb61ffa6d53709942bcda87c37daef1a04651"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "archive_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source.tar",
+    "archive_bytes": 462776320,
+    "archive_sha256": "b2b6f26b23ac6c9f1210c71ec70b28aed7c8b7813f12e4d2489b6313d718a87c",
+    "full_archive_input_census": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source-input-census.json",
+      "sha256": "fcfa225c20d3dd4b33e8b4ab85b30920159fb65b7bc30bb9b8ac52b535b2cede",
+      "all_archive_files": 13876,
+      "total_file_bytes": 451352721,
+      "product_root_files": 13848,
+      "product_file_type_counts": {
+        "": 25,
+        ".blob": 11,
+        ".cfg": 1,
+        ".cjs": 9,
+        ".css": 17,
+        ".csv": 15,
+        ".cypher": 2,
+        ".docx": 1,
+        ".duckdb": 4,
+        ".example": 3,
+        ".fixture": 2,
+        ".gz": 31,
+        ".html": 3,
+        ".ini": 11,
+        ".js": 4,
+        ".json": 3031,
+        ".jsonc": 1,
+        ".jsonl": 15,
+        ".lock": 1,
+        ".log": 20,
+        ".md": 2153,
+        ".mdc": 1,
+        ".mjs": 40,
+        ".patch": 2,
+        ".pkl": 2,
+        ".png": 42,
+        ".py": 6450,
+        ".pyi": 5,
+        ".rego": 23,
+        ".reproducible": 1,
+        ".retired": 1,
+        ".sh": 45,
+        ".sha256": 1,
+        ".sql": 6,
+        ".sqlite": 2,
+        ".sqlite-wal": 2,
+        ".stderr": 15,
+        ".stdout": 15,
+        ".svg": 18,
+        ".tf": 1,
+        ".tmpl": 7,
+        ".toml": 265,
+        ".tpl": 1,
+        ".ts": 519,
+        ".tsv": 7,
+        ".tsx": 720,
+        ".txt": 121,
+        ".typed": 2,
+        ".webm": 6,
+        ".whl": 1,
+        ".xml": 20,
+        ".yaml": 85,
+        ".yml": 54,
+        ".zip": 8
+      },
+      "census_generator_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source-census.py",
+      "census_generator_sha256": "30e2ce6e0ce0a35233ed3984b30b5b57910d2d243710d41ebe348af2bd396349"
+    }
+  },
+  "artifact_build": {
+    "input": "extracted git archive only; exact 07bbb source, not live checkout",
+    "failed_offline_attempt": {
+      "name": "uv build offline attempt (no artifacts; hatchling uncached)",
+      "result_json": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/build/result.json",
+      "result_json_sha256": "f47b13f96a0587b54bdb958dc65eceea64ceaa02463f278a046633ec0ff6723d",
+      "argv": [
+        "/opt/homebrew/bin/uv",
+        "build",
+        "--offline",
+        "--python",
+        "/opt/homebrew/bin/python3.14",
+        "--out-dir",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/dist",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source/policy-engine"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 2,
+      "environment": {
+        "UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/_cache/uv",
+        "UV_OFFLINE": "1",
+        "PYTHONPATH": null,
+        "VIRTUAL_ENV": null
+      },
+      "stdout": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/build/stdout.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/build/stderr.bin",
+        "bytes": 664,
+        "sha256": "f9dfac738312bbcb3d4a8f3e9f4799fce8bdd7055595a87a927b2d1980e01450"
+      },
+      "started_unix_ns": 1791361821517996000,
+      "finished_unix_ns": 1791361821696786000
+    },
+    "successful_single_pair_build": {
+      "name": "uv build online fallback after explicit offline cache miss",
+      "result_json": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/build-online/result.json",
+      "result_json_sha256": "ef5984a48f9f7d5fd313ffdc7d288e60e0e98d8820cc013882b180a89cc806a7",
+      "argv": [
+        "/opt/homebrew/bin/uv",
+        "build",
+        "--python",
+        "/opt/homebrew/bin/python3.14",
+        "--clear",
+        "--out-dir",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/dist",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source/policy-engine"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "exit_code": 0,
+      "environment": {
+        "UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/_cache/uv",
+        "UV_OFFLINE": null,
+        "PYTHONPATH": null,
+        "VIRTUAL_ENV": null,
+        "UV_INDEX_URL": null,
+        "UV_DEFAULT_INDEX": null
+      },
+      "stdout": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/build-online/stdout.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/build-online/stderr.bin",
+        "bytes": 271,
+        "sha256": "180d625223dd8196e17537eef5dca354606650ee39cf052abf85109382c59068"
+      },
+      "started_unix_ns": 1791361871396869000,
+      "finished_unix_ns": 1791361888044981000
+    },
+    "build_source_directory": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source/policy-engine",
+    "wheel_sha256": "3d89ec345519e6b1f0392467f542786e651c09ae49055e73266700d5b10335f1",
+    "wheel_bytes": 15023663,
+    "wheel_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/dist/policy_engine-0.1.0-py3-none-any.whl",
+    "sdist_sha256": "f1912d0c099bc12da3511fdd6aea99f65a3cc195f1f2186a1856f7d600c3b3d7",
+    "sdist_bytes": 65763017,
+    "sdist_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/dist/policy_engine-0.1.0.tar.gz",
+    "census_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/artifact-census.json",
+    "census_sha256": "a155c8c644f2f4424b36b671dd9822f7a9d477c9c4973976f733889d8c9920d0",
+    "census_generator_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/artifact-census.py",
+    "census_generator_sha256": "e7f714ab4efefa62ea0dd38046b083e2a8009d0e3eae27b1a3715d63007993e8",
+    "forced_resource_correction": {
+      "generator_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/fix-forced-resource-census.py",
+      "generator_sha256": "57efa2ae73a57ef89fc4aa97930e46f3088fa4cae7dcaf3046e857bc267a0341",
+      "basis": "source and wheel resource bytes independently SHA-256 matched; final census row corrected because initial mapper tested broad polisyos/ prefix before explicit forced-resource mapping"
+    },
+    "wheel_census": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/dist/policy_engine-0.1.0-py3-none-any.whl",
+      "sha256": "3d89ec345519e6b1f0392467f542786e651c09ae49055e73266700d5b10335f1",
+      "bytes": 15023663,
+      "file_members": 3457,
+      "source_mapped_members": 3451,
+      "source_byte_matches": 3451,
+      "source_mismatches": [],
+      "unmapped_payload_paths": [],
+      "generated_dist_info_members": [
+        "policy_engine-0.1.0.dist-info/METADATA",
+        "policy_engine-0.1.0.dist-info/RECORD",
+        "policy_engine-0.1.0.dist-info/WHEEL",
+        "policy_engine-0.1.0.dist-info/entry_points.txt",
+        "policy_engine-0.1.0.dist-info/licenses/LICENSE"
+      ],
+      "configured_package_source_files": 3450,
+      "missing_configured_package_sources": [],
+      "package_readmes_source": 167,
+      "package_readmes_wheel": 167,
+      "missing_package_readmes": [],
+      "forced_resource_source": "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+      "forced_resource_member_present": true
+    },
+    "sdist_census": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/dist/policy_engine-0.1.0.tar.gz",
+      "sha256": "f1912d0c099bc12da3511fdd6aea99f65a3cc195f1f2186a1856f7d600c3b3d7",
+      "bytes": 65763017,
+      "file_members": 8637,
+      "source_mapped_members": 8636,
+      "source_byte_matches": 8636,
+      "source_mismatches": [],
+      "generated_unmapped_members": [
+        {
+          "path": "policy_engine-0.1.0/PKG-INFO",
+          "sha256": "15a8d72182829a71752fb8f168c84ad168ddc086ebe6b1a64fe35731ada1a2fc",
+          "bytes": 16125
+        }
+      ],
+      "configured_archive_product_source_files": 13848,
+      "source_files_excluded_from_sdist": 5212,
+      "product_readmes_source": 426,
+      "product_readmes_sdist": 426,
+      "missing_product_readmes": []
+    }
+  },
+  "base_only_profile": {
+    "fresh_env_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base",
+    "python": "3.14.0",
+    "sync": {
+      "name": "fresh offline frozen base-only sync (no dev/no extras/no project install)",
+      "result_json": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/base-sync-offline/result.json",
+      "result_json_sha256": "718bff45b75258457a1997567988d3d57e3deecf3cb3a93d8b5785b08051defa",
+      "argv": [
+        "/opt/homebrew/bin/uv",
+        "sync",
+        "--offline",
+        "--frozen",
+        "--no-dev",
+        "--no-install-project",
+        "--python",
+        "/opt/homebrew/bin/python3.14"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source/policy-engine",
+      "exit_code": 0,
+      "environment": {
+        "UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/_cache/uv",
+        "UV_PROJECT_ENVIRONMENT": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base",
+        "UV_OFFLINE": "1",
+        "PYTHONPATH": null,
+        "VIRTUAL_ENV": null
+      },
+      "stdout": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/base-sync-offline/stdout.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/base-sync-offline/stderr.bin",
+        "bytes": 3218,
+        "sha256": "069a5ceff530f7daa514ab46ad2da11c2114c8f41e35e180fe93790c98bf2d44"
+      },
+      "started_unix_ns": 1791362113012693000,
+      "finished_unix_ns": 1791362113425376000
+    },
+    "wheel_install": {
+      "name": "exact wheel installed without no-deps flag; normal dependency resolver active, offline cache satisfied requirements",
+      "result_json": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/wheel-install-offline/result.json",
+      "result_json_sha256": "fa1fbbaca74916f890322d39622f8fe30de30037eb1a03056321921561a33fa2",
+      "argv": [
+        "/opt/homebrew/bin/uv",
+        "pip",
+        "install",
+        "--offline",
+        "--python",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/bin/python",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/dist/policy_engine-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "/private/tmp",
+      "exit_code": 0,
+      "environment": {
+        "UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/_cache/uv",
+        "UV_OFFLINE": "1",
+        "PYTHONPATH": null,
+        "VIRTUAL_ENV": null
+      },
+      "stdout": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/wheel-install-offline/stdout.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/wheel-install-offline/stderr.bin",
+        "bytes": 444,
+        "sha256": "26ba7d6aa3f9c94bdbaa07d98239bdb254adf77da04de67e5cbae79cc340869c"
+      },
+      "started_unix_ns": 1791362140454111000,
+      "finished_unix_ns": 1791362140891013000
+    },
+    "packages_after_sync": 126,
+    "packages_after_wheel_install": 127,
+    "pytest_present": false,
+    "hnswlib_present": false,
+    "PYTHONPATH": null,
+    "isolated_python": true,
+    "safe_path": true,
+    "jsonschema_version": "4.25.1",
+    "jsonschema_origin": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/lib/python3.14/site-packages/jsonschema/__init__.py",
+    "wheel_requires_dist": {
+      "requirement": "jsonschema[format-nongpl]>=4.25.1",
+      "marker": null,
+      "asserted_unconditional": true
+    },
+    "origin_and_direct_semantic_probe": {
+      "name": "isolated installed module origin/hash and JSON Schema Draft 2020-12/FormatChecker behavior",
+      "result_json": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/profile-origin/result.json",
+      "result_json_sha256": "ea2658e6951143baf8f1be91f4e62dfe05520903ff2e425f6ad53572412599fc",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/bin/python",
+        "-I",
+        "-B",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/profile-origin-probe.py"
+      ],
+      "cwd": "/private/tmp",
+      "exit_code": 0,
+      "environment": {
+        "PYTHONPATH": null,
+        "PYTHONHOME": null,
+        "VIRTUAL_ENV": null,
+        "UV_PROJECT_ENVIRONMENT": null,
+        "UV_CACHE_DIR": null
+      },
+      "stdout": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/profile-origin/stdout.bin",
+        "bytes": 3347,
+        "sha256": "add133fa691ab17c1a200b9d5b637bf1df33017dddccf64d55ad0384eb2edb8d"
+      },
+      "stderr": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/profile-origin/stderr.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "started_unix_ns": 1791362260405864000,
+      "finished_unix_ns": 1791362268936114000
+    },
+    "module_origin_probe_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/profile-origin-probe.py",
+    "module_origin_probe_sha256": "19c5ce30c47b726bfb03829728d67be4d0e4cf4f69142e9f58903158c38fbdea",
+    "validator_consumer_positive": {
+      "step": {
+        "name": "actual workspace Atlas health-source validator, positive real repository owners",
+        "result_json": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/atlas-validator-positive/result.json",
+        "result_json_sha256": "f04b2bc0c0691a1f0c0b9c21e2c1f7e018580bf4c0affb3fdb63318bac0cc227",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/bin/python",
+          "-I",
+          "-B",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source/policy-engine/apps/runtime-dashboard/scripts/validate_atlas_health_sources.py"
+        ],
+        "cwd": "/private/tmp",
+        "exit_code": 0,
+        "environment": {
+          "PYTHONPATH": null,
+          "PYTHONHOME": null,
+          "VIRTUAL_ENV": null,
+          "UV_PROJECT_ENVIRONMENT": null,
+          "UV_CACHE_DIR": null
+        },
+        "stdout": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/atlas-validator-positive/stdout.bin",
+          "bytes": 3244,
+          "sha256": "da2a325c20cc1cd0c233e243b7853ad6500a6d5447fb049a288c23a393b1988c"
+        },
+        "stderr": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/atlas-validator-positive/stderr.bin",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "started_unix_ns": 1791362282661550000,
+        "finished_unix_ns": 1791362283893066000
+      },
+      "producer_summary": {
+        "adoption": {
+          "as_of": "2026-07-16T00:00:00+03:00",
+          "entry_count": 233,
+          "source_refs": [
+            {
+              "path": "architecture/atlas_surfaces/atlas-v15-adoption-ledger.json",
+              "role": "complete_component_maturity_population",
+              "sha256": "8e253a971d87119c7685efdf64895a364ffb253d19694dbc743dd697b4057545"
+            },
+            {
+              "path": "architecture/atlas_surfaces/adoption-ledger.schema.json",
+              "role": "adoption_owner_schema",
+              "sha256": "5ae69e709ed569dcae677b5b9778c96f783b1e61c587f161cd68222cffc62085"
+            },
+            {
+              "path": "architecture/atlas_surfaces/surface-readiness-ledger.schema.json",
+              "role": "adoption_external_schema_dependency",
+              "sha256": "f884cc3b9522b5a291f7b3d1a1e4256a243df603d9d16aa6510d183582d9beab"
+            }
+          ],
+          "stable_component_count": 0,
+          "stable_with_browser_and_at_count": 0
+        },
+        "audience": {
+          "proxy_test_count": 7,
+          "source_refs": [
+            {
+              "path": "tests/unit/runtime/http/test_authorization_audience_denials.py",
+              "role": "incomplete_server_denial_proxy_set",
+              "sha256": "3cf7160a1a05fc05a4dd116cb8a65184ca279f08fc0a94654b0a2c3b168ee315"
+            }
+          ]
+        },
+        "cluster": {
+          "cell_count": 27,
+          "closure_contract_count": 0,
+          "implemented_but_not_orchestrated_count": 0,
+          "implemented_cell_count": 27,
+          "open_cell_count": 0,
+          "open_or_incomplete_count": 0,
+          "source_refs": [
+            {
+              "path": "architecture/policy_design_case/cluster_ownership_map.toml",
+              "role": "complete_cluster_map_owner",
+              "sha256": "b9409bc276d77d60919fab996ced4d01189c276eb38edad1eaa23e831edd69f4"
+            },
+            {
+              "path": "architecture/policy_design_case/inventory.json",
+              "role": "cluster_inventory_dependency",
+              "sha256": "4ef296dfee0acb7a7023b69445a9794d815ffff181cfd7dc1054ba5c86e71c56"
+            },
+            {
+              "path": "architecture/policy_design_case/capability_reality_report.json",
+              "role": "capability_ratchet_dependency",
+              "sha256": "9a0a8baf637a886a059729b36902cad56b33443cf05cfa59adb32ccbd1dc20c6"
+            },
+            {
+              "path": "docs/reference/policy-design-case-failure-patterns.md",
+              "role": "failure_vocabulary_dependency",
+              "sha256": "64f9fa40453980d9128443ee34a4bf3298b71c157a5ebcc3bd6cb786abeb090a"
+            },
+            {
+              "path": "tools/quality/validation/check_policy_design_case_cluster_ownership_map.py",
+              "role": "subordinate_recomputation",
+              "sha256": "296ef4a8608102812b47a3494300f867882ade244b4c133847ac1cb0e0662db8"
+            }
+          ],
+          "surface_missing_count": 0
+        },
+        "producer": {
+          "implementation_ref": {
+            "path": "apps/runtime-dashboard/scripts/validate_atlas_health_sources.py",
+            "role": "canonical_source_validator",
+            "sha256": "64353d796f9de3d2d3ebb44a3802f77c340e99d1755898f035a42292c3e63105"
+          },
+          "jsonschema_version": "4.25.1",
+          "producer_id": "polisyos.atlas.health_source_validator",
+          "producer_version": "1.0.0",
+          "python_executable": "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+          "python_version": "3.14.0",
+          "schema_dialect": "https://json-schema.org/draft/2020-12/schema"
+        },
+        "projection_schema": {
+          "id": "polisyos.atlas.health-source-projection",
+          "version": "1.0.0"
+        },
+        "readiness": {
+          "as_of": "2026-07-16T18:00:00+03:00",
+          "entry_count": 261,
+          "implemented_entry_count": 5,
+          "machine_audience_count": 193,
+          "source_refs": [
+            {
+              "path": "architecture/atlas_surfaces/live-application-readiness-ledger.json",
+              "role": "complete_readiness_population",
+              "sha256": "4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13"
+            },
+            {
+              "path": "architecture/atlas_surfaces/surface-readiness-ledger.schema.json",
+              "role": "readiness_owner_schema",
+              "sha256": "f884cc3b9522b5a291f7b3d1a1e4256a243df603d9d16aa6510d183582d9beab"
+            }
+          ]
+        }
+      }
+    },
+    "validator_consumer_corruption": {
+      "step": {
+        "name": "actual workspace Atlas validator corruption probes",
+        "result_json": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/atlas-validator-corruption/result.json",
+        "result_json_sha256": "d6b858d0fcc5316d37d7e5662192b24dfd6703cc562c4b0120354d48bf606cfd",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/bin/python",
+          "-I",
+          "-B",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source/policy-engine/apps/runtime-dashboard/scripts/validate_atlas_health_sources.py",
+          "--corruption-probes"
+        ],
+        "cwd": "/private/tmp",
+        "exit_code": 0,
+        "environment": {
+          "PYTHONPATH": null,
+          "PYTHONHOME": null,
+          "VIRTUAL_ENV": null,
+          "UV_PROJECT_ENVIRONMENT": null,
+          "UV_CACHE_DIR": null
+        },
+        "stdout": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/atlas-validator-corruption/stdout.bin",
+          "bytes": 255,
+          "sha256": "6d6f4186f6f91d54ff36e95dcc8368fc6b28b286597d188ac8e42e99156329cd"
+        },
+        "stderr": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/atlas-validator-corruption/stderr.bin",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "started_unix_ns": 1791362292423458000,
+        "finished_unix_ns": 1791362293912104000
+      },
+      "result": {
+        "ok": true,
+        "probes": [
+          "readiness_required",
+          "readiness_additional_property",
+          "readiness_unique_audience",
+          "readiness_datetime_format",
+          "readiness_duplicate_surface_id",
+          "adoption_enum",
+          "adoption_date_format",
+          "adoption_stable_evidence",
+          "adoption_duplicate_id"
+        ]
+      }
+    }
+  },
+  "stream_consumer": {
+    "corrected_probe_step": {
+      "name": "fresh base-only installed EventStream/CAS/CursorStore/ConnectorRegistry real consumer scenarios",
+      "result_json": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer-corrected/result.json",
+      "result_json_sha256": "9b277bb7a1715e879d553ae752b09ed6f6f74499dc14541613b213ad308a704b",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/bin/python",
+        "-I",
+        "-B",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer-probe.py"
+      ],
+      "cwd": "/private/tmp",
+      "exit_code": 0,
+      "environment": {
+        "PYTHONPATH": null,
+        "PYTHONHOME": null,
+        "VIRTUAL_ENV": null,
+        "UV_PROJECT_ENVIRONMENT": null,
+        "UV_CACHE_DIR": null
+      },
+      "stdout": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer-corrected/stdout.bin",
+        "bytes": 4601,
+        "sha256": "5a7b8dec65801ced77da2e928f4f252befe230b85048aa84649c8dbb9ef743e9"
+      },
+      "stderr": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer-corrected/stderr.bin",
+        "bytes": 4355,
+        "sha256": "1d1c6e0447ee9929cec1264ecb35d287d728465c1923b8ecff2a1186074d9128"
+      },
+      "started_unix_ns": 1791362508711541000,
+      "finished_unix_ns": 1791362510827537000
+    },
+    "probe_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer-probe.py",
+    "probe_sha256": "2a789e2c39e8a9676f7106ee320740310e7359f0cb4cd0bdca2a66669f705d4b",
+    "failure_and_cancellation_and_commit_reopen": {
+      "actual_commit_and_reopen_readback": {
+        "cas_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-fixtures/frontier-crash-after-commit-cas",
+        "chunk_refs": [
+          "sha256:04fedf36f130a62b8955bb7411019d352421b254479ea9c7287d9741bc0b5488",
+          "sha256:6285d88ee9673bfaa1d11f9e6bfb159d56f359ac03a9c3ba3db6f1cd0509d72e",
+          "sha256:5ce9c35f14fe22edba3ca356d57e2affc87a21854b4bf53b647892833b83ad3f"
+        ],
+        "crash_state": "committed checkpoint and cursor persisted after first frontier",
+        "expected_rows": [
+          {
+            "_message_id": "a",
+            "event_id": "a",
+            "value": 1
+          },
+          {
+            "_message_id": "b",
+            "event_id": "b",
+            "value": 2
+          },
+          {
+            "_message_id": "c",
+            "event_id": "c",
+            "value": 3
+          }
+        ],
+        "latest_checkpoint_equals_final_result": true,
+        "pre_resume_chunk_rows": [
+          {
+            "_message_id": "a",
+            "event_id": "a",
+            "value": 1
+          }
+        ],
+        "raw_source_sha256": "fe513c0444b11d2521ea98f9f730a7277e149b2361d6160d5c228fac029e6425",
+        "reopened_chunk_indexes": [
+          0,
+          1,
+          2
+        ],
+        "reopened_cursor_watermark": "2",
+        "resumed_source_reads": 2,
+        "status": "pass",
+        "window_memberships": [
+          [
+            "a",
+            "b"
+          ],
+          [
+            "c"
+          ]
+        ],
+        "window_refs": [
+          "sha256:11406b6e35d49490c83a8f8df63d87dfc6934e9183deed68b989c867f0005cb3",
+          "sha256:a7434d6cee04d633764d2b62ceccd4d71f2b60e2abc77163fb92553e264c6235"
+        ]
+      },
+      "cancellation_cleanup_same_handle_retry": {
+        "cancel_after_actual_source_yield": true,
+        "cas_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-fixtures/actual-task-cancel-cas",
+        "disconnect_attempts": 2,
+        "registry_retry_owner_cleared": true,
+        "same_physical_handle_retry": true,
+        "source_reads": 1,
+        "status": "pass"
+      },
+      "failure_cleanup_same_handle_retry": {
+        "cas_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-fixtures/cleanup-recovery-cas",
+        "disconnect_attempts": 3,
+        "primary_error_identity_preserved": true,
+        "registry_retry_owner_cleared": true,
+        "same_physical_handle_all_attempts": true,
+        "source_reads": 1,
+        "status": "pass"
+      },
+      "profile": {
+        "PYTHONPATH": null,
+        "executable": "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+        "hnswlib_imported": false,
+        "isolated": true,
+        "module_identity": {
+          "cursor_store": {
+            "byte_match": true,
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/lib/python3.14/site-packages/polisyos/fabric/data_plane/cursor_store.py",
+            "sha256": "e52018d556972e60932490fa7c7e9510ad66f2c72a694b429f4eb1e9bebc3405",
+            "wheel_member": "polisyos/fabric/data_plane/cursor_store.py"
+          },
+          "event_stream": {
+            "byte_match": true,
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/lib/python3.14/site-packages/polisyos/fabric/connectors/sources/event_stream.py",
+            "sha256": "63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48",
+            "wheel_member": "polisyos/fabric/connectors/sources/event_stream.py"
+          },
+          "polisyos": {
+            "byte_match": true,
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/lib/python3.14/site-packages/polisyos/__init__.py",
+            "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c",
+            "wheel_member": "polisyos/__init__.py"
+          },
+          "registry": {
+            "byte_match": true,
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/lib/python3.14/site-packages/polisyos/fabric/connectors/registry.py",
+            "sha256": "9b1d8efbd3dcff030db88ab7a28080beb0877adf1ac78e270292cf26b45ded05",
+            "wheel_member": "polisyos/fabric/connectors/registry.py"
+          },
+          "streaming": {
+            "byte_match": true,
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/lib/python3.14/site-packages/polisyos/fabric/data_plane/streaming.py",
+            "sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119",
+            "wheel_member": "polisyos/fabric/data_plane/streaming.py"
+          }
+        },
+        "pytest_imported": false,
+        "python": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+        "sys_path": [
+          "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python314.zip",
+          "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14",
+          "/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/lib-dynload",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/lib/python3.14/site-packages"
+        ]
+      }
+    },
+    "mutant_control_step": {
+      "name": "process-local no-op owner-retention mutation, marker preserved",
+      "result_json": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-mutant/result.json",
+      "result_json_sha256": "aee0cdfa2c53d73ce3df768bcc64c4ad4d299e8c7cbb7631c03d6950927c1afa",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/bin/python",
+        "-I",
+        "-B",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-owner-removal-mutant.py"
+      ],
+      "cwd": "/private/tmp",
+      "exit_code": 0,
+      "environment": {
+        "PYTHONPATH": null,
+        "PYTHONHOME": null,
+        "VIRTUAL_ENV": null,
+        "UV_PROJECT_ENVIRONMENT": null,
+        "UV_CACHE_DIR": null
+      },
+      "stdout": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-mutant/stdout.bin",
+        "bytes": 332,
+        "sha256": "7c3781e910136c03e9050aaf79ca2270e63a12454657ec99bab1fcbab8d2d89c"
+      },
+      "stderr": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-mutant/stderr.bin",
+        "bytes": 1227,
+        "sha256": "6997a1ae6f50be146b24ab281cb559d0edcae097e4acc37992ad1caa6ee9a40c"
+      },
+      "started_unix_ns": 1791362729700166000,
+      "finished_unix_ns": 1791362731954381000
+    },
+    "mutant_probe_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-owner-removal-mutant.py",
+    "mutant_probe_sha256": "a6f51b607f67aa07bd82fb85fb5df22b3d4f70b4ef3f840d7c10a16bc8b3bfcb",
+    "mutant_result": {
+      "PYTHONPATH": null,
+      "cleanup_marker_still_present": true,
+      "mutant": "replaced ConnectorRegistry._retain_pending_startup_cleanup with no-op for this process only",
+      "owner_property_assertion_failed_as_expected": true,
+      "pytest_imported": false,
+      "registry_owner_count_after_mutation": 0,
+      "same_pool_still_has_pending_handle": true,
+      "status": "pass"
+    },
+    "initial_harness_attempt": {
+      "step": {
+        "name": "discarded probe attempt caused only by escaped JSONL fixture newline",
+        "result_json": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer/result.json",
+        "result_json_sha256": "875594f16e2c5771b4adb8d62bde49464050230bd20989b4d05f6e1f6fcfc011",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/bin/python",
+          "-I",
+          "-B",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer-probe.py"
+        ],
+        "cwd": "/private/tmp",
+        "exit_code": 1,
+        "environment": {
+          "PYTHONPATH": null,
+          "PYTHONHOME": null,
+          "VIRTUAL_ENV": null,
+          "UV_PROJECT_ENVIRONMENT": null,
+          "UV_CACHE_DIR": null
+        },
+        "stdout": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer/stdout.bin",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer/stderr.bin",
+          "bytes": 5418,
+          "sha256": "f5e42cae870ef53013d70c6211c3ab62ddba89e971f75294df5f4e30fa5dd397"
+        },
+        "started_unix_ns": 1791362458517692000,
+        "finished_unix_ns": 1791362460798048000
+      },
+      "probe_copy_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer-probe-attempt1.py",
+      "probe_copy_sha256": "f5ab0a2158350487a0c2cc861f1790697916a8a654946728bee731ee27653b76",
+      "classification": "harness input-escaping error; EventStream rejected literal backslash-n fixture before sanitizer; logs preserved, corrected raw fixture reran successfully"
+    }
+  },
+  "evidence_boundaries": {
+    "positive_stream_fixture": "local EventStream JSONL and private FileSystemCAS; actual installed EventStream reader, process_stream_dataset, CursorStore, ConnectorRegistry, async cancellation/failure cleanup and commit/reopen path exercised",
+    "jsonschema_script_boundary": "Atlas validator is a workspace script outside wheel; executed from exact extracted source archive using the fresh installed base environment under python -I. Its subordinate cluster-validator import adds archive workspace root to sys.path; jsonschema is imported before this injection. Independent -I probe proves jsonschema and polisyos modules resolve from site-packages; no PYTHONPATH/source-site masking.",
+    "profile_boundary": "Base closure only; pytest and hnswlib absent; no vector-search/test/dev extras; no production source/data, external service, model weights, or numeric workload.",
+    "not_run": "pytest/suite, full production stream/data/backend/performance/RSS, TypeScript tools, CAN follow-up (not merged/authorized for this package wave)"
+  },
+  "commands": {
+    "archive": "git archive --format=tar --output <receipt-root>/source.tar 07bbb61ffa6d53709942bcda87c37daef1a04651 (cwd admitted worktree)",
+    "build_offline_attempt": "uv build --offline --python /opt/homebrew/bin/python3.14 --out-dir <receipt-root>/dist <receipt-root>/source/policy-engine; exit 2 because hatchling>=1.27 missing from cache; no artifact output",
+    "build_success": "uv build --python /opt/homebrew/bin/python3.14 --clear --out-dir <receipt-root>/dist <receipt-root>/source/policy-engine; exit 0; built sdist then wheel",
+    "base_sync": "uv sync --offline --frozen --no-dev --no-install-project --python /opt/homebrew/bin/python3.14; cwd exact archive policy-engine; project env private scratch; no extras selected",
+    "wheel_install": "uv pip install --offline --python <private-base-venv>/bin/python <exact-wheel>; cwd /tmp; dependency resolution active"
+  }
+}

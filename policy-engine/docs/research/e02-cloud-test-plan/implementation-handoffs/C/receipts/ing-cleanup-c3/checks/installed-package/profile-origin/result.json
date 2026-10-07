@@ -1,0 +1,26 @@
+{
+  "step": "fresh-base-only-installed-module-origin-byte-and-jsonschema-consumer-probe",
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/bin/python",
+    "-I",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/profile-origin-probe.py"
+  ],
+  "cwd": "/private/tmp",
+  "exit_code": 0,
+  "started_unix_ns": 1791362260405864000,
+  "finished_unix_ns": 1791362268936114000,
+  "environment": {
+    "PYTHONPATH": null,
+    "PYTHONHOME": null,
+    "VIRTUAL_ENV": null,
+    "UV_PROJECT_ENVIRONMENT": null,
+    "UV_CACHE_DIR": null
+  },
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/profile-origin/stdout.bin",
+  "stdout_bytes": 3347,
+  "stdout_sha256": "add133fa691ab17c1a200b9d5b637bf1df33017dddccf64d55ad0384eb2edb8d",
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/profile-origin/stderr.bin",
+  "stderr_bytes": 0,
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -1,0 +1,177 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_process_failure_keeps_real_private_pool_reachable_for_same_handle_retry[RuntimeError-primary sanitizer failure] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-620/test_process_failure_keeps_rea0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x112c0cfc0>
+failure_type = <class 'RuntimeError'>
+failure_message = 'primary sanitizer failure'
+
+    @pytest.mark.parametrize(
+        ("failure_type", "failure_message"),
+        [
+            (RuntimeError, "primary sanitizer failure"),
+            (asyncio.CancelledError, "primary stream cancellation"),
+        ],
+    )
+    @pytest.mark.asyncio
+    async def test_process_failure_keeps_real_private_pool_reachable_for_same_handle_retry(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        failure_type: type[BaseException],
+        failure_message: str,
+    ) -> None:
+        """A cleanup fault cannot mask the primary error or orphan its physical handle."""
+        dataset_id = "cleanup-recovery"
+        source_path = tmp_path / f"{dataset_id}.jsonl"
+        source_path.write_text('{"_message_id":"event-a","value":1}\n', encoding="utf-8")
+        config = ConnectionConfig(
+            url=source_path.as_uri(),
+            headers={"X-Stream-ChunkSize": "1"},
+            max_connections=1,
+        )
+        connector = _DisconnectOnceEventStream()
+        registry = ConnectorRegistry()
+        registry.register(EventStreamConnector, config=config, factory=lambda: connector)
+        sessions: list[StreamingSourceSession] = []
+        original_create = StreamingSourceSession.create
+    
+        async def _capture_created_session(
+            cls: type[StreamingSourceSession],
+            **kwargs: Any,
+        ) -> StreamingSourceSession:
+            session = await original_create(**kwargs)
+            sessions.append(session)
+            return session
+    
+        monkeypatch.setattr(
+            StreamingSourceSession,
+            "create",
+            classmethod(_capture_created_session),
+        )
+    
+        def _fail_sanitization(batch: Any, **kwargs: Any):
+            del batch, kwargs
+            raise failure_type(failure_message)
+    
+        store = FileSystemCAS(tmp_path / "cas")
+        try:
+            with pytest.raises(failure_type, match=failure_message) as caught:
+                await process_stream_dataset(
+                    connector_id="stream.jsonl",
+                    dataset_id=dataset_id,
+                    store=store,
+                    cursor_store=CursorStore(store),
+                    sanitize_rows=_fail_sanitization,
+                    runtime_options=StreamRuntimeOptions(batch_size=1),
+                    registry=registry,
+                )
+    
+            assert len(sessions) == 1
+            session = sessions[0]
+            assert connector.stream_reads == 1
+            assert len(connector.connect_handles) == 1
+            handle = connector.connect_handles[0]
+            assert connector.disconnect_handles == [handle]
+            assert any(
+                "stream session final cleanup failed" in note
+                and "Connection cleanup remains pending for the closed pool" in note
+                for note in getattr(caught.value, "__notes__", ())
+            )
+    
+            pending_owners = tuple(registry._pending_startup_cleanup.values())
+>           assert len(pending_owners) == 1, "registry must retain the failed private stream pool"
+E           AssertionError: registry must retain the failed private stream pool
+E           assert 0 == 1
+E            +  where 0 = len(())
+
+tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py:128: AssertionError
+_ test_process_failure_keeps_real_private_pool_reachable_for_same_handle_retry[CancelledError-primary stream cancellation] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-620/test_process_failure_keeps_rea1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x112bd5b50>
+failure_type = <class 'asyncio.exceptions.CancelledError'>
+failure_message = 'primary stream cancellation'
+
+    @pytest.mark.parametrize(
+        ("failure_type", "failure_message"),
+        [
+            (RuntimeError, "primary sanitizer failure"),
+            (asyncio.CancelledError, "primary stream cancellation"),
+        ],
+    )
+    @pytest.mark.asyncio
+    async def test_process_failure_keeps_real_private_pool_reachable_for_same_handle_retry(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        failure_type: type[BaseException],
+        failure_message: str,
+    ) -> None:
+        """A cleanup fault cannot mask the primary error or orphan its physical handle."""
+        dataset_id = "cleanup-recovery"
+        source_path = tmp_path / f"{dataset_id}.jsonl"
+        source_path.write_text('{"_message_id":"event-a","value":1}\n', encoding="utf-8")
+        config = ConnectionConfig(
+            url=source_path.as_uri(),
+            headers={"X-Stream-ChunkSize": "1"},
+            max_connections=1,
+        )
+        connector = _DisconnectOnceEventStream()
+        registry = ConnectorRegistry()
+        registry.register(EventStreamConnector, config=config, factory=lambda: connector)
+        sessions: list[StreamingSourceSession] = []
+        original_create = StreamingSourceSession.create
+    
+        async def _capture_created_session(
+            cls: type[StreamingSourceSession],
+            **kwargs: Any,
+        ) -> StreamingSourceSession:
+            session = await original_create(**kwargs)
+            sessions.append(session)
+            return session
+    
+        monkeypatch.setattr(
+            StreamingSourceSession,
+            "create",
+            classmethod(_capture_created_session),
+        )
+    
+        def _fail_sanitization(batch: Any, **kwargs: Any):
+            del batch, kwargs
+            raise failure_type(failure_message)
+    
+        store = FileSystemCAS(tmp_path / "cas")
+        try:
+            with pytest.raises(failure_type, match=failure_message) as caught:
+                await process_stream_dataset(
+                    connector_id="stream.jsonl",
+                    dataset_id=dataset_id,
+                    store=store,
+                    cursor_store=CursorStore(store),
+                    sanitize_rows=_fail_sanitization,
+                    runtime_options=StreamRuntimeOptions(batch_size=1),
+                    registry=registry,
+                )
+    
+            assert len(sessions) == 1
+            session = sessions[0]
+            assert connector.stream_reads == 1
+            assert len(connector.connect_handles) == 1
+            handle = connector.connect_handles[0]
+            assert connector.disconnect_handles == [handle]
+            assert any(
+                "stream session final cleanup failed" in note
+                and "Connection cleanup remains pending for the closed pool" in note
+                for note in getattr(caught.value, "__notes__", ())
+            )
+    
+            pending_owners = tuple(registry._pending_startup_cleanup.values())
+>           assert len(pending_owners) == 1, "registry must retain the failed private stream pool"
+E           AssertionError: registry must retain the failed private stream pool
+E           assert 0 == 1
+E            +  where 0 = len(())
+
+tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py:128: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py::test_process_failure_keeps_real_private_pool_reachable_for_same_handle_retry[RuntimeError-primary sanitizer failure]
+FAILED tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py::test_process_failure_keeps_real_private_pool_reachable_for_same_handle_retry[CancelledError-primary stream cancellation]

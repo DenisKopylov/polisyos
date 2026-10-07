@@ -1,0 +1,202 @@
+{
+  "task": "C3 Oct 7 finite-criteria carryover and code-admission read-only audit",
+  "scope": "FED B138-B145 and CLI LA-043/LA-044; no source/test/environment/worktree/commit changes.",
+  "carrier": {
+    "branch": "codex/e02-C-continuation-20261006",
+    "head": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+    "tree": "573063f560533e73518ef87d29acc1a46959cf33",
+    "role": "evidence carrier, not combined runtime; candidate-only source changes are not present here"
+  },
+  "base": {
+    "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+  },
+  "C54": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.json",
+    "sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc",
+    "status": "final_root_adjudicated",
+    "counts": {
+      "closed": 31,
+      "limited": 9,
+      "held": 14
+    },
+    "original_criteria": {
+      "CD01": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+      },
+      "CD02": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+      }
+    },
+    "historical_status": "historical owner/G97/Appendix C status and historical_test=UNRUN remain separate from root verdict"
+  },
+  "ten_root_closed_rows": [
+    {
+      "id": "B138",
+      "bundle": "FED-01",
+      "ref": "CD01 3666-3679",
+      "criterion_sha256": "49c4975a2baded3458be043b1ebd9f1cf32d24ed164d5f5399050948dcd2988a",
+      "bounded_acceptance": "Three-source sequential JOIN preserves per-cell lineage and correct B source attribution before comparing with C; independent grouping result; persisted mixed-result readback; declared tie/FIRST_AVAILABLE order retained.",
+      "evidence": "R01 /findings/0; test_join_preserves_cell_lineage_across_three_sources; test_join_mixed_cell_lineage_survives_saved_result_readback; independent per-cell oracle and local DuckDB readback.",
+      "limit": "Not all production routes or public lineage surface.",
+      "root_verdict": "closed"
+    },
+    {
+      "id": "B139",
+      "bundle": "FED-02",
+      "ref": "CD01 3680-3693",
+      "criterion_sha256": "d1353bf48e6cdc812134fd89fd4f27ab51e6f91be1eb5970126835dad92f148b",
+      "bounded_acceptance": "Actual DataComposer.compose(JOIN,SUMMARY), frame/sample/get_last_merge_summary at caps 1/3 and FULL/NONE; independent event/counter/seeded top-k and tied-rank oracle.",
+      "evidence": "R01 /findings/1; test_join_summary_is_bounded_and_matches_independent_relational_oracle; test_join_summary_repeated_row_key_ties_keep_stream_occurrence_order; 80 repeated keys/equal ranks; cap 1/3; frame parity. Delta pytest @4f8bc54b9bf791fd1f5488b98259854d436df139210ca171e2fdc713d4bdd180; reversal-removal control KILLED @6e15e5d7d83f4d46aa9c967843ec47dbc3e12413261ac1f7b9b040b4ab151467.",
+      "limit": "Fixed input-stream occurrence tie order only; no permutation-invariant event ID. Existing compose summary is criterion surface; HTTP/export surface_out_of_scope.",
+      "root_verdict": "closed"
+    },
+    {
+      "id": "B140",
+      "bundle": "FED-01",
+      "ref": "CD01 3694-3707",
+      "criterion_sha256": "6e0cf734d51f26b1fe39d6d4fb1b36468e76f02aa1bdbb1eab06e2b1e9b577e6",
+      "bounded_acceptance": "JOIN enforces declared cardinality, explicit bounded many-to-many, unmatched rows, and null/unknown identity semantics.",
+      "evidence": "R01 /findings/2; independent relational/cardinality/null fixtures, including pre-materialization refusal and explicit null category control.",
+      "limit": "Declared request contract only; not universal domain identity policy.",
+      "root_verdict": "closed"
+    },
+    {
+      "id": "B141",
+      "bundle": "FED-01",
+      "ref": "CD01 3708-3721",
+      "criterion_sha256": "a7db3efa3ae885c9376ce8a64cc9becfddca245127cb488ad4be966c5f03227a",
+      "bounded_acceptance": "Generated/internal/suffix-like names do not collide with user fields across UNION/JOIN/OVERLAY/CONSENSUS and SQL readback.",
+      "evidence": "R01 /findings/3; test_generated_looking_fields_survive_all_strategies_and_sql_readback and focused collision tests.",
+      "limit": "Fixture schemas/readback only; no global naming policy.",
+      "root_verdict": "closed"
+    },
+    {
+      "id": "B142",
+      "bundle": "FED-02",
+      "ref": "CD01 3722-3735",
+      "criterion_sha256": "ea79349098bc8829ed81cf3b2c0a0aaf6e4aca7d8848dddb842b418023de41f3",
+      "bounded_acceptance": "Valid typed-empty UNION retains declared fields/dtypes; absent sources and read failures remain distinct.",
+      "evidence": "R01 /findings/4; typed-empty DuckDB persist/reopen (BIGINT/DOUBLE/VARCHAR, zero rows); no sources raises FederationError.",
+      "limit": "Isolated DuckDB fixture, not deployed DB.",
+      "root_verdict": "closed"
+    },
+    {
+      "id": "B143",
+      "bundle": "FED-02",
+      "ref": "CD01 3736-3749",
+      "criterion_sha256": "67533d3fcc342efea26ac675a680171e5d423c11009a79517e574e0c77a222f7",
+      "bounded_acceptance": "Bound live detail objects during active UNION, independently of complete counters.",
+      "evidence": "R01 /findings/5; test_union_summary_measures_active_detail_liveness_and_transient_list_mutant; baseline peak 2 vs unnamed transient full-list mutant 80 at 80 conflicts/cap1.",
+      "limit": "Live MergeLogEntry refs inside _union only, not RSS/pandas memory/global O(1).",
+      "root_verdict": "closed"
+    },
+    {
+      "id": "B144",
+      "bundle": "FED-02",
+      "ref": "CD01 3750-3763",
+      "criterion_sha256": "e3729b6792cc0671e52a2bb13980fcf28818d00a019c61cc48594c6fa5eb79f0",
+      "bounded_acceptance": "OVERLAY prepares input indexes once, skips detail construction at NONE, matches separate nested-loop row/audit oracle.",
+      "evidence": "R01 /findings/6; three sources, null/primary preservation, exactly three set_index calls.",
+      "limit": "Operation count, not wall-time or production-memory speedup.",
+      "root_verdict": "closed"
+    },
+    {
+      "id": "B145",
+      "bundle": "FED-01",
+      "ref": "CD01 3764-3777",
+      "criterion_sha256": "f11de96fd0b85b71279516181152c16e1c0a8bc7bd3c3c12b9453a9485bd33ab",
+      "bounded_acceptance": "Strict CONSENSUS reports actual finite participants/exclusion reasons, rejects invalid/non-finite values, retains [10,14]→12.",
+      "evidence": "R01 /findings/7; strict finite participant oracle and three composer tests.",
+      "limit": "No global independence, unit comparability, measurement validity or general admissibility claim.",
+      "root_verdict": "closed"
+    },
+    {
+      "id": "LA-043",
+      "bundle": "CLI-01",
+      "ref": "CD02 2933-2967",
+      "criterion_sha256": "f13d739e3f0345f9c5130d175def7afc61eea825bcb7b4f6e65bfd68934f8d34",
+      "bounded_acceptance": "Bounded compatibility migration for public canonical package exports and remaining generated consumers/artifacts with behavior and freshness negative controls.",
+      "evidence": "R10 /baseline_findings/0; package frozen install, 9 package tests, 3 packed Dashboard/Atlas consumer tests, app typechecks, Dashboard contract, Atlas 85 tests, corrupt-output and removed-operation controls.",
+      "limit": "No external filesystem census, all-operation/deployed endpoint/production authorization/hosted CI claim; static shell outside assertion.",
+      "root_verdict": "closed"
+    },
+    {
+      "id": "LA-044",
+      "bundle": "CLI-01",
+      "ref": "CD02 2968-2998",
+      "criterion_sha256": "c682108a422e6fbfba931556b2c06179dca3857c702aa73e37f282ea2576c20b",
+      "bounded_acceptance": "Bounded package-owned generator/schema-tool ownership and three outputs with omission/corruption controls.",
+      "evidence": "R10 /baseline_findings/1, same frozen package/client evidence; independent review inspects outputs and six controls. Generator/dependency/lock were already at base; source candidate adds tests, README, architecture checker, dashboard TS path.",
+      "limit": "No workspace generator failure or runtime import-cycle claim.",
+      "root_verdict": "closed"
+    }
+  ],
+  "candidate_source_and_review": {
+    "FED": {
+      "implementation": "575e7b16b59d374fc09e74563ba5dd2698877c64",
+      "tree": "621286c1c9a06059d3ecce983fffc7e2d1eead65",
+      "handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/federation.json@sha256:03f7ff6db7c8e8780e4d72c70a0213c27abd211d3dbe969a66c3e060d8a98575",
+      "review": "C2 independent delta/coverage review GO for bounded B138-B145, not closure; 35 focused tests, tie-test rerun, Ruff, reversal mutant killed.",
+      "production_change": "Only typed-empty UNION declared dtype restoration in composer.py; other FED diff is regression evidence."
+    },
+    "CLI": {
+      "implementation": "c21584f390ae0e53602833df34571a0d9545f13e",
+      "tree": "70fbd5436efe077f046c18272e2ab64d3e178ad8",
+      "handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/client-c2-20261006.json@sha256:6f377d5ccbe5a21fda904e988c4f0190172f6fec26bdce42ad015512bc1fa602",
+      "review": "Read-only independent GO for bounded evidence, not closure; reviewed exact diff, installed tarball consumers and generated-family removal test; no tests rerun by reviewer.",
+      "known_limits": "Runtime job-status integration fixture ERROR due missing production_data dataset_catalog.duckdb; OpenAPI comparison FAIL committed 1489 vs generated 1491; exact base replay absent, so neither inherited nor product failure established."
+    },
+    "C54 delta review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/review/v10-independent-delta-review.md@sha256:1b3bea51419bbc9b434b3641547ccd6130118898e6628fbf384cc6c30c92d256; bookkeeping/pointer/count controls only, not semantic retest of all 54."
+  },
+  "fresh_admission": {
+    "branch": "codex/e02-C-federation-20261006",
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-federation-20261006/polisyos",
+    "create_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/federation-create.json@sha256:16d4d9796d10dee3ef61badd6d819a186cdf512851072dad63ce4c2fd9a59aac",
+    "resume_receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/federation-resume.json@sha256:54c86996c05bd851699d79d15345841799608951f3a88d465e68ca77af0e3ebb",
+    "result": "Both exact branch/path raw receipts status=admitted, complete_verdict=true, findings=[], unresolved_inputs=[]; handoff records invocation_exit_code=0.",
+    "old_exception": "Not current; prior stale-registration exit-2 is historical only. No stale record changed."
+  },
+  "G_code_admission": {
+    "branch": "codex/e02-integration",
+    "head": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+    "tree": "f27a36aa7eae9d6e329e0602ea40b6169a5bcf35",
+    "checkpoint": "policy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-13.json@sha256:5e9b5c2cdc2f9a427807766f58eedec0979050084f2c70e1ef7d1c7c1585290a",
+    "accepted_slices": [],
+    "finding_closures": [],
+    "meaning": "Checkpoint says no source merge; C.md recommendation lists all 10 as finite/hash-bound closed but explicitly separates formal closure and G integration admission. Candidate FED and CLI commits are not ancestors of G head."
+  },
+  "G_upstream_delta": {
+    "changed_producer": "ControlPlaneStore transaction admission/fencing/lease renewal and atomic job lifecycle publication (G commits b552534d1 and 73a055e03).",
+    "unchanged_client_inputs": [
+      "policy-engine/src/polisyos/fabric/connectors/federation/composer.py",
+      "policy-engine/src/polisyos/fabric/connectors/federation/resolver.py",
+      "policy-engine/src/polisyos/fabric/connectors/federation/types.py",
+      "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+      "policy-engine/schemas/runtime_api_v1.openapi.json",
+      "policy-engine/tools/ops_runners/runtime/export_runtime_openapi.py",
+      "policy-engine/packages/runtime-api-client/scripts/generate-runtime-api-client.sh",
+      "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "policy-engine/packages/runtime-api-client/types.ts",
+      "policy-engine/architecture/generated_artifacts.toml",
+      "policy-engine/apps/runtime-dashboard/scripts/generate-api-client.sh",
+      "policy-engine/packages/runtime-api-client/package.json",
+      "policy-engine/apps/runtime-dashboard/package.json",
+      "policy-engine/packages/atlas-ui/package.json",
+      "policy-engine/pnpm-lock.yaml",
+      "policy-engine/pyproject.toml",
+      "policy-engine/uv.lock"
+    ],
+    "only_targeted_consumer_rerun": "If this G ControlPlaneStore delta is admitted into the runtime branch, rerun only tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py::test_generated_runtime_api_client_job_status_contract_hits_runtime_control_service once fixture data is available: it POSTs /api/v1/control/runs then generated-client GETs /api/v1/control/jobs/{job_id}. Existing attempt stopped during fixture construction on missing production_data/.../dataset_catalog.duckdb; not a product failure or green witness.",
+    "no_client_rebuild": "No OpenAPI/generated-client/package manifest/lock inputs changed; no pnpm install, generation or broad rerun is indicated by the source diff.",
+    "other_open_limit": "OpenAPI comparison drift above was not replayed at exact slice base; remains not_established."
+  },
+  "lane_execution": {
+    "tests_run": [],
+    "source_mutations": [],
+    "ignored_scratch_only": true
+  }
+}

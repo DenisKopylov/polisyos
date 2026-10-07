@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "-m",
+    "tools.cli",
+    "architecture",
+    "guardrails",
+    "check",
+    "--skip-generated-checks"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+  "env_overrides": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine"
+  },
+  "exit_code": 1,
+  "wall_s": 19.424893499992322,
+  "stdout_sha256": "2d50e5772e0c04bfffc0d29b052c28b110b1ef653246e53e953b2da6c72d1eed",
+  "candidate": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+  "scope": "architecture static checks; freshness explicitly omitted; G owns broad generated replay"
+}

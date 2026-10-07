@@ -1,0 +1,26 @@
+{
+  "step": "isolated-installed-owner-removal-mutant-property-control",
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/venv-base/bin/python",
+    "-I",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-owner-removal-mutant.py"
+  ],
+  "cwd": "/private/tmp",
+  "exit_code": 0,
+  "started_unix_ns": 1791362729700166000,
+  "finished_unix_ns": 1791362731954381000,
+  "environment": {
+    "PYTHONPATH": null,
+    "PYTHONHOME": null,
+    "VIRTUAL_ENV": null,
+    "UV_PROJECT_ENVIRONMENT": null,
+    "UV_CACHE_DIR": null
+  },
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-mutant/stdout.bin",
+  "stdout_bytes": 332,
+  "stdout_sha256": "7c3781e910136c03e9050aaf79ca2270e63a12454657ec99bab1fcbab8d2d89c",
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/stream-mutant/stderr.bin",
+  "stderr_bytes": 1227,
+  "stderr_sha256": "6997a1ae6f50be146b24ab281cb559d0edcae097e4acc37992ad1caa6ee9a40c"
+}

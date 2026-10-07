@@ -1,0 +1,927 @@
+{
+  "schema": "policyos.e02.c3.receipt-evidence-index.v1",
+  "candidate_commit": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+  "candidate_tree": "4bb3d7ef227f7745ab22a23f41f4618766e8b350",
+  "entries": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/README.md",
+      "bytes": 5727,
+      "sha256": "b05788c958f27de11a0024d37a145b84c3bc5fb115633c45b57b55608e5a3362",
+      "source": "generated evidence guide",
+      "role": "compact guide"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/.gitattributes",
+      "bytes": 60,
+      "sha256": "dc56bc5a49c0657de75b7907c2896efa6718cb95aed0983e2b4a0d3eef1bd9d0",
+      "source": "authored receipt metadata",
+      "role": "preserve exact captured JSONL fixture bytes through Git checkout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/architecture-guardrails/command.json",
+      "bytes": 874,
+      "sha256": "835524f5e4002f4b14f61d598f10347c68739c562c9552acb00b3f13873ac1d0",
+      "source": ".tmp/e02-C3/raw/ing-architecture/command.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/architecture-guardrails/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/ing-architecture/stderr.txt",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/architecture-guardrails/stdout.txt",
+      "bytes": 114719,
+      "sha256": "2d50e5772e0c04bfffc0d29b052c28b110b1ef653246e53e953b2da6c72d1eed",
+      "source": ".tmp/e02-C3/raw/ing-architecture/stdout.txt",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/c158-baseline-two-red/exit.txt",
+      "bytes": 7,
+      "sha256": "cf205dbb8cea84897b488abcc281bf96698d5e94b1096b16657b4caba9082a22",
+      "source": ".tmp/e02-C3/raw/ing-oracle/baseline-cleanup-v2/exit.txt",
+      "role": "historical C158 baseline witness; exact original command/hash not retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/c158-baseline-two-red/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/ing-oracle/baseline-cleanup-v2/stderr.txt",
+      "role": "historical C158 baseline witness; exact original command/hash not retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/c158-baseline-two-red/stdout.txt",
+      "bytes": 8081,
+      "sha256": "5830110a82a1110ca6fc37f8c37ab3ffb331ee1b13a87c39db00de2dc8e2fc7c",
+      "source": ".tmp/e02-C3/raw/ing-oracle/baseline-cleanup-v2/stdout.txt",
+      "role": "historical C158 baseline witness; exact original command/hash not retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/focused-cleanup-6/environment.txt",
+      "bytes": 1150,
+      "sha256": "0a3e045653ad96b6e66a7929a9e056cdfb70bd2591b1b478d0b9c2f5e8862af5",
+      "source": ".tmp/e02-C3/raw/ing-oracle/review-v3-20261007/environment.txt",
+      "role": "focused cleanup test output; original argv not retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/focused-cleanup-6/exit.txt",
+      "bytes": 14,
+      "sha256": "a589fb135cc49e1dd1462a45e1394bfa71fa20ffca282d444ae7f7d857ad39a3",
+      "source": ".tmp/e02-C3/raw/ing-oracle/review-v3-20261007/exit.txt",
+      "role": "focused cleanup test output; original argv not retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/focused-cleanup-6/filehashes.txt",
+      "bytes": 413,
+      "sha256": "a8e021f87289af9f82cf8938a7412cc8a8a35a77e94762273c5b2258a5fd8b72",
+      "source": ".tmp/e02-C3/raw/ing-oracle/review-v3-20261007/filehashes.txt",
+      "role": "focused cleanup test output; original argv not retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/focused-cleanup-6/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/ing-oracle/review-v3-20261007/stderr.txt",
+      "role": "focused cleanup test output; original argv not retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/focused-cleanup-6/stdout.txt",
+      "bytes": 80,
+      "sha256": "700bc0322b00f8e8db3ce495047983b54ab27ab59ed1fedac05f3aeba47dae24",
+      "source": ".tmp/e02-C3/raw/ing-oracle/review-v3-20261007/stdout.txt",
+      "role": "focused cleanup test output; original argv not retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/atlas-validator-corruption-spec.json",
+      "bytes": 820,
+      "sha256": "e62bd0436f5958419ab9c91c7050ae5662f68e2a94539e32d72a3ae4b4308cdc",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/atlas-validator-corruption-spec.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/atlas-validator-corruption/result.json",
+      "bytes": 1351,
+      "sha256": "d6b858d0fcc5316d37d7e5662192b24dfd6703cc562c4b0120354d48bf606cfd",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/atlas-validator-corruption/result.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/atlas-validator-corruption/stderr.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/atlas-validator-corruption/stderr.bin",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/atlas-validator-corruption/stdout.bin",
+      "bytes": 255,
+      "sha256": "6d6f4186f6f91d54ff36e95dcc8368fc6b28b286597d188ac8e42e99156329cd",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/atlas-validator-corruption/stdout.bin",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/atlas-validator-positive-spec.json",
+      "bytes": 797,
+      "sha256": "2211894c063e3b1f794f6d021c3cbfd91b29650afc15cda0c32ff8e33f0fcea5",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/atlas-validator-positive-spec.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/atlas-validator-positive/result.json",
+      "bytes": 1322,
+      "sha256": "f04b2bc0c0691a1f0c0b9c21e2c1f7e018580bf4c0affb3fdb63318bac0cc227",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/atlas-validator-positive/result.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/atlas-validator-positive/stderr.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/atlas-validator-positive/stderr.bin",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/atlas-validator-positive/stdout.bin",
+      "bytes": 3244,
+      "sha256": "da2a325c20cc1cd0c233e243b7853ad6500a6d5447fb049a288c23a393b1988c",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/atlas-validator-positive/stdout.bin",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/base-sync-offline-spec.json",
+      "bytes": 915,
+      "sha256": "134fc02712a6004038a8a78b9117964753fa30a8ea2dc0e2095a515f5105206a",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/base-sync-offline-spec.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/base-sync-offline/result.json",
+      "bytes": 1442,
+      "sha256": "718bff45b75258457a1997567988d3d57e3deecf3cb3a93d8b5785b08051defa",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/base-sync-offline/result.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/base-sync-offline/stderr.bin",
+      "bytes": 3218,
+      "sha256": "069a5ceff530f7daa514ab46ad2da11c2114c8f41e35e180fe93790c98bf2d44",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/base-sync-offline/stderr.bin",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/base-sync-offline/stdout.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/base-sync-offline/stdout.bin",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/build-online-spec.json",
+      "bytes": 1033,
+      "sha256": "e5d01b04e92b86d1c4f65b82cdbb62fa4122323c5bacfc5b7aa464fe9c01bfe5",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/build-online-spec.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/build-online/result.json",
+      "bytes": 1509,
+      "sha256": "ef5984a48f9f7d5fd313ffdc7d288e60e0e98d8820cc013882b180a89cc806a7",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/build-online/result.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/build-online/stderr.bin",
+      "bytes": 271,
+      "sha256": "180d625223dd8196e17537eef5dca354606650ee39cf052abf85109382c59068",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/build-online/stderr.bin",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/build-online/stdout.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/build-online/stdout.bin",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/build-spec.json",
+      "bytes": 894,
+      "sha256": "5641cd1231cb3d757e098c20ad29f065d46f289c591fa2ab6e9d9273f1a49903",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/build-spec.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/build/result.json",
+      "bytes": 1407,
+      "sha256": "f47b13f96a0587b54bdb958dc65eceea64ceaa02463f278a046633ec0ff6723d",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/build/result.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/build/stderr.bin",
+      "bytes": 664,
+      "sha256": "f9dfac738312bbcb3d4a8f3e9f4799fce8bdd7055595a87a927b2d1980e01450",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/build/stderr.bin",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/build/stdout.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/build/stdout.bin",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/final-receipt.json",
+      "bytes": 40446,
+      "sha256": "a1645d0f1d589c1148de63de9d3e59f43464a21167d7ba154f9fa4d5709c91d4",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/final-receipt.json",
+      "role": "complete installed-package machine receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/profile-origin-probe.py",
+      "bytes": 4185,
+      "sha256": "19c5ce30c47b726bfb03829728d67be4d0e4cf4f69142e9f58903158c38fbdea",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/profile-origin-probe.py",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/profile-origin-spec.json",
+      "bytes": 732,
+      "sha256": "d1f242ca93882d7ac4d62f492a166b565d99cd4d8c111de2e916ae2368da40e0",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/profile-origin-spec.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/profile-origin/result.json",
+      "bytes": 1247,
+      "sha256": "ea2658e6951143baf8f1be91f4e62dfe05520903ff2e425f6ad53572412599fc",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/profile-origin/result.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/profile-origin/stderr.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/profile-origin/stderr.bin",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/profile-origin/stdout.bin",
+      "bytes": 3347,
+      "sha256": "add133fa691ab17c1a200b9d5b637bf1df33017dddccf64d55ad0384eb2edb8d",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/profile-origin/stdout.bin",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-consumer-corrected-spec.json",
+      "bytes": 786,
+      "sha256": "91bf0d909c4a19ef49c5b23e1ad64582736a780da8104b0715edcd4daa1c8cc7",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer-corrected-spec.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-consumer-corrected/result.json",
+      "bytes": 1315,
+      "sha256": "9b277bb7a1715e879d553ae752b09ed6f6f74499dc14541613b213ad308a704b",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer-corrected/result.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-consumer-corrected/stderr.bin",
+      "bytes": 4355,
+      "sha256": "1d1c6e0447ee9929cec1264ecb35d287d728465c1923b8ecff2a1186074d9128",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer-corrected/stderr.bin",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-consumer-corrected/stdout.bin",
+      "bytes": 4601,
+      "sha256": "5a7b8dec65801ced77da2e928f4f252befe230b85048aa84649c8dbb9ef743e9",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer-corrected/stdout.bin",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-consumer-probe-attempt1.py",
+      "bytes": 15399,
+      "sha256": "f5ab0a2158350487a0c2cc861f1790697916a8a654946728bee731ee27653b76",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer-probe-attempt1.py",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-consumer-probe.py",
+      "bytes": 15393,
+      "sha256": "2a789e2c39e8a9676f7106ee320740310e7359f0cb4cd0bdca2a66669f705d4b",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer-probe.py",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-consumer-probe.sha256",
+      "bytes": 133,
+      "sha256": "1394bc2018ecf44b83e99a8c095d4cce35fabb18fc843e8a69dee704863dee68",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer-probe.sha256",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-consumer-spec.json",
+      "bytes": 758,
+      "sha256": "00c27f11cd3c83a3441dd5bdc72264d9b7f6810866504706b1ea6a383edc8542",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer-spec.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-consumer/result.json",
+      "bytes": 1274,
+      "sha256": "875594f16e2c5771b4adb8d62bde49464050230bd20989b4d05f6e1f6fcfc011",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer/result.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-consumer/stderr.bin",
+      "bytes": 5418,
+      "sha256": "f5e42cae870ef53013d70c6211c3ab62ddba89e971f75294df5f4e30fa5dd397",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer/stderr.bin",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-consumer/stdout.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/stream-consumer/stdout.bin",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-fixtures/actual-task-cancel.jsonl",
+      "bytes": 36,
+      "sha256": "b6bd10495126fe51ebd3986f22c9de07b54050b183216cee904cf94f7469efa3",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/stream-fixtures/actual-task-cancel.jsonl",
+      "role": "synthetic JSONL input to installed runtime probe"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-fixtures/cleanup-recovery.jsonl",
+      "bytes": 36,
+      "sha256": "b6bd10495126fe51ebd3986f22c9de07b54050b183216cee904cf94f7469efa3",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/stream-fixtures/cleanup-recovery.jsonl",
+      "role": "synthetic JSONL input to installed runtime probe"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-fixtures/frontier-crash-after-commit.jsonl",
+      "bytes": 165,
+      "sha256": "fe513c0444b11d2521ea98f9f730a7277e149b2361d6160d5c228fac029e6425",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/stream-fixtures/frontier-crash-after-commit.jsonl",
+      "role": "synthetic JSONL input to installed runtime probe"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-mutant/result.json",
+      "bytes": 1236,
+      "sha256": "aee0cdfa2c53d73ce3df768bcc64c4ad4d299e8c7cbb7631c03d6950927c1afa",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/stream-mutant/result.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-mutant/stderr.bin",
+      "bytes": 1227,
+      "sha256": "6997a1ae6f50be146b24ab281cb559d0edcae097e4acc37992ad1caa6ee9a40c",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/stream-mutant/stderr.bin",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-mutant/stdout.bin",
+      "bytes": 332,
+      "sha256": "7c3781e910136c03e9050aaf79ca2270e63a12454657ec99bab1fcbab8d2d89c",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/stream-mutant/stdout.bin",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-owner-removal-mutant-spec.json",
+      "bytes": 720,
+      "sha256": "ab29487f11f6fd57a7bfd77e4e1c907f57c9887a1bb5c28e3ec5d9f61cc31992",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/stream-owner-removal-mutant-spec.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/stream-owner-removal-mutant.py",
+      "bytes": 4006,
+      "sha256": "a6f51b607f67aa07bd82fb85fb5df22b3d4f70b4ef3f840d7c10a16bc8b3bfcb",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/stream-owner-removal-mutant.py",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/wheel-install-offline-spec.json",
+      "bytes": 863,
+      "sha256": "cebc928b685756a12d7f8b91cb26796cf35d814bce8c98eb070dc6091202e789",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/wheel-install-offline-spec.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/wheel-install-offline/result.json",
+      "bytes": 1415,
+      "sha256": "fa1fbbaca74916f890322d39622f8fe30de30037eb1a03056321921561a33fa2",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/wheel-install-offline/result.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/wheel-install-offline/stderr.bin",
+      "bytes": 444,
+      "sha256": "26ba7d6aa3f9c94bdbaa07d98239bdb254adf77da04de67e5cbae79cc340869c",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/wheel-install-offline/stderr.bin",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/installed-package/wheel-install-offline/stdout.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/installed-current/07bbb61/wheel-install-offline/stdout.bin",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/property-removal-four-red/command.txt",
+      "bytes": 1705,
+      "sha256": "d61e42bf2e0af6ecb8ca5453fc9778e91f106fa8ef155de8c26dab5acbcc5fec",
+      "source": ".tmp/e02-C3/raw/ing-oracle/removal-control-v1-20261007/command.txt",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/property-removal-four-red/environment.txt",
+      "bytes": 994,
+      "sha256": "0cbe1fb5c3bb300020c4c1f870b2e727939827635f77d394d88810fe1f8e3942",
+      "source": ".tmp/e02-C3/raw/ing-oracle/removal-control-v1-20261007/environment.txt",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/property-removal-four-red/exit.txt",
+      "bytes": 14,
+      "sha256": "25d0f7d25acb9996e3d5a451dde5907c6b896419eac5fbd433d5a9afb98847b3",
+      "source": ".tmp/e02-C3/raw/ing-oracle/removal-control-v1-20261007/exit.txt",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/property-removal-four-red/filehashes.txt",
+      "bytes": 413,
+      "sha256": "a8e021f87289af9f82cf8938a7412cc8a8a35a77e94762273c5b2258a5fd8b72",
+      "source": ".tmp/e02-C3/raw/ing-oracle/removal-control-v1-20261007/filehashes.txt",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/property-removal-four-red/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/ing-oracle/removal-control-v1-20261007/stderr.txt",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/property-removal-four-red/stdout.txt",
+      "bytes": 15559,
+      "sha256": "b19ba8a555872393da3f3888bc2b06771fcda31234a0221d5d52371bb98fdf18",
+      "source": ".tmp/e02-C3/raw/ing-oracle/removal-control-v1-20261007/stdout.txt",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/ruff-focused-final/exit.txt",
+      "bytes": 12,
+      "sha256": "dc29a0a64402e0cbb8f86cc412bde848d0a7e9175bb97efb0d92065748546349",
+      "source": ".tmp/e02-C3/raw/ing-oracle/review-v3-ruff-20261007/exit.txt",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/ruff-focused-final/filehashes.txt",
+      "bytes": 215,
+      "sha256": "3d6bf8cdaa04c8ae8adfb707cddf7cfc7a7c6998519d1a123c579d23cfd24e87",
+      "source": ".tmp/e02-C3/raw/ing-oracle/review-v3-ruff-20261007/filehashes.txt",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/ruff-focused-final/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/ing-oracle/review-v3-ruff-20261007/stderr.txt",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/ruff-focused-final/stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "source": ".tmp/e02-C3/raw/ing-oracle/review-v3-ruff-20261007/stdout.txt",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/ruff-source/0.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/ing-source-lint/0.stderr",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/ruff-source/0.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "source": ".tmp/e02-C3/raw/ing-source-lint/0.stdout",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/ruff-source/1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/ing-source-lint/1.stderr",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/ruff-source/1.stdout",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "source": ".tmp/e02-C3/raw/ing-source-lint/1.stdout",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/ruff-source/commands.json",
+      "bytes": 1074,
+      "sha256": "10863a8d547529d9950e3101a3ea16074802d8bab345fe65abad8a29cb875d64",
+      "source": ".tmp/e02-C3/raw/ing-source-lint/commands.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/static-production-invocation/command.json",
+      "bytes": 1118,
+      "sha256": "758732d7e031922ccfbf0dd8629c460db7b9fa31cff6b8e905635822fba7b0ff",
+      "source": ".tmp/e02-C3/raw/ing-production-invocation/command.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/static-production-invocation/source-audit.json",
+      "bytes": 2138,
+      "sha256": "9f6ce29f6e702ebb74c501d81be397aed780b336ae105353dea8bd18acbb1ccd",
+      "source": ".tmp/e02-C3/raw/ing-production-invocation/source-audit.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/static-production-invocation/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/ing-production-invocation/stderr.txt",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/static-production-invocation/stdout.json",
+      "bytes": 1410,
+      "sha256": "0ad522a77710eb362290c798c8b532b25006e15d6da8ed4035d69a29e4ea0452",
+      "source": ".tmp/e02-C3/raw/ing-production-invocation/stdout.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/targeted-128/command.json",
+      "bytes": 1583,
+      "sha256": "78e2e9ce7cd405e6c9a908925dc9c8c8231406e7cdc1d3a5467ed68b20f0beeb",
+      "source": ".tmp/e02-C3/raw/ing-early-current/command.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/targeted-128/native.xml",
+      "bytes": 22997,
+      "sha256": "473c99f3d9a753b0d32cd5e519a83a03e0a9e13fb1553bb037c926c6cdb2b533",
+      "source": ".tmp/e02-C3/raw/ing-early-current/native.xml",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/targeted-128/result.json",
+      "bytes": 1812,
+      "sha256": "d8993098aecf51f442e82fb36fe5e0299387f68c563d577611094f1b2fc8808f",
+      "source": ".tmp/e02-C3/raw/ing-early-current/result.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/targeted-128/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/ing-early-current/stderr.txt",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/checks/targeted-128/stdout.txt",
+      "bytes": 706,
+      "sha256": "c18e121f4b8b81edc1ed20d468f4ec23f5541b1641ca5bf2248d862eadfcb19a",
+      "source": ".tmp/e02-C3/raw/ing-early-current/stdout.txt",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/create-c54-original-console.command.json",
+      "bytes": 761,
+      "sha256": "89dc6440e196615a01d8b9b4df0bb57cf347734dac415c9c06f3da6eeb023065",
+      "source": ".tmp/e02-C3/raw/admission/create-c54-original-console.command.json",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/create-c54-original-console.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/admission/create-c54-original-console.stderr.txt",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/create-c54-original-console.stdout.json",
+      "bytes": 149971,
+      "sha256": "3f4d54b068a2e5f910713c4a5070a3badf151a73e85e88dfb34507f1557ebbbe",
+      "source": ".tmp/e02-C3/raw/admission/create-c54-original-console.stdout.json",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/create-c54.command.json",
+      "bytes": 806,
+      "sha256": "911e8c424fdb24ff5dd7b38a3ec5bbc3a6480a755a7ec11af373a0860ebd15bd",
+      "source": ".tmp/e02-C3/raw/admission/create-c54.command.json",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/create-c54.stderr.txt",
+      "bytes": 93,
+      "sha256": "842a9be1d15518352596722b96e84d6e58736e680b985baedacaa9c219d10440",
+      "source": ".tmp/e02-C3/raw/admission/create-c54.stderr.txt",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/create-c54.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/admission/create-c54.stdout.json",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/create-net-ing.command.json",
+      "bytes": 741,
+      "sha256": "e6b5b90a53e2be2492d3d68297a32b6c3a80a17f84d429cbf638323e3a6edaf6",
+      "source": ".tmp/e02-C3/raw/admission/create-net-ing.command.json",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/create-net-ing.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/admission/create-net-ing.stderr.txt",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/create-net-ing.stdout.json",
+      "bytes": 121534,
+      "sha256": "8183487c87285cd265d736ca10fc00d3eb59f0ee29f6e550118ff71e5f0167fd",
+      "source": ".tmp/e02-C3/raw/admission/create-net-ing.stdout.json",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/resume-c54.command.json",
+      "bytes": 761,
+      "sha256": "9c3372d84d08395fe518e07373bb0f5f6737b8b053e48eff6e89445951aa6b61",
+      "source": ".tmp/e02-C3/raw/admission/resume-c54.command.json",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/resume-c54.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/admission/resume-c54.stderr.txt",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/resume-c54.stdout.json",
+      "bytes": 156859,
+      "sha256": "123f926c563d71d9477625f3ceb8b33f46d5e7518aae3d45a5d3fb87b94142f3",
+      "source": ".tmp/e02-C3/raw/admission/resume-c54.stdout.json",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/resume-can.command.json",
+      "bytes": 733,
+      "sha256": "542366be6387d321c79dbbca4a9be23409628dd886fdb86e11c21bd6d1558578",
+      "source": ".tmp/e02-C3/raw/admission/resume-can.command.json",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/resume-can.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/admission/resume-can.stderr.txt",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/resume-can.stdout.json",
+      "bytes": 174103,
+      "sha256": "c0678627f1cc577245d0aae9f14efcbea17f3450c200d1666fff54edd164f80c",
+      "source": ".tmp/e02-C3/raw/admission/resume-can.stdout.json",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/resume-net-ing.command.json",
+      "bytes": 741,
+      "sha256": "5470706c280075cffd9c7861d1a1aded3165bcc1d3cf5e57bb5eb95b376004a1",
+      "source": ".tmp/e02-C3/raw/admission/resume-net-ing.command.json",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/resume-net-ing.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/admission/resume-net-ing.stderr.txt",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/resume-net-ing.stdout.json",
+      "bytes": 128266,
+      "sha256": "cb40877f43192e10661931b72f9abddee6bc42dd76e87cc0a055ac310dea0bd4",
+      "source": ".tmp/e02-C3/raw/admission/resume-net-ing.stdout.json",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/resume-root-c158.command.json",
+      "bytes": 981,
+      "sha256": "bd51d93a817286ddc4fccffc786d1dcaeeb24bc60adafc46cd4fd528ccb20159",
+      "source": ".tmp/e02-C3/raw/admission/resume-root-c158.command.json",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/resume-root-c158.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C3/raw/admission/resume-root-c158.stderr.txt",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/admission/resume-root-c158.stdout.json",
+      "bytes": 174166,
+      "sha256": "edec410ff7db4b0efe14346d864ffa9e148d51ea7e1e95f86ab4f468b6259cd3",
+      "source": ".tmp/e02-C3/raw/admission/resume-root-c158.stdout.json",
+      "role": "complete captured admission command/result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/intake-refresh-ebae.json",
+      "bytes": 1473,
+      "sha256": "8eb7b9135ff45588215572893826c7c23d31980156a7e13c21a1eb47ba7cfdb5",
+      "source": ".tmp/e02-C3/raw/intake-refresh-ebae.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/intake.json",
+      "bytes": 3175,
+      "sha256": "a7176505fade12ce1c98e0f9de1942a94f8f91cec626c5957e28797f5cd51137",
+      "source": ".tmp/e02-C3/raw/intake.json",
+      "role": "complete raw command/result input or output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/procedure-audit/fed-cli-c3-closure.json",
+      "bytes": 13889,
+      "sha256": "c7fe710bdcbd500089336540e865a47e072adfc85c9eb8a7277d6b9a62de5269",
+      "source": ".tmp/e02-C3/raw/closed-carryover/fed-cli-c3-closure.json",
+      "role": "verbatim ignored G-side audit/carryover record; context only"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/inputs/procedure-audit/procedure-deviation.json",
+      "bytes": 740,
+      "sha256": "60d64c7b1665bff1f73b8de407591034ac9b9114bc2f0384cf2e83c61b89238e",
+      "source": ".tmp/e02-C3/raw/closed-carryover/procedure-deviation.json",
+      "role": "verbatim ignored G-side audit/carryover record; context only"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-cleanup-c3/review/07bbb61-independent-source-review.md",
+      "bytes": 3508,
+      "sha256": "358768d122e4ef0f029184d3f9dfeb4d11db17a871d6fad1ba6228ccc84e98e9",
+      "source": ".tmp/e02-C3/raw/ing-review/07bbb61-independent-review.md",
+      "role": "independent source/test-diff review"
+    }
+  ],
+  "excluded_ignored_artifacts": [
+    {
+      "path": ".tmp/e02-C3/raw/installed-current/07bbb61/source.tar",
+      "bytes": 462776320,
+      "sha256": "b2b6f26b23ac6c9f1210c71ec70b28aed7c8b7813f12e4d2489b6313d718a87c",
+      "reason": "large exact Git archive; reproducible from pinned commit"
+    },
+    {
+      "path": ".tmp/e02-C3/raw/installed-current/07bbb61/dist/policy_engine-0.1.0-py3-none-any.whl",
+      "bytes": 15023663,
+      "sha256": "3d89ec345519e6b1f0392467f542786e651c09ae49055e73266700d5b10335f1",
+      "reason": "binary distribution; metadata and complete moderate command outputs are preserved"
+    },
+    {
+      "path": ".tmp/e02-C3/raw/installed-current/07bbb61/dist/policy_engine-0.1.0.tar.gz",
+      "bytes": 65763017,
+      "sha256": "f1912d0c099bc12da3511fdd6aea99f65a3cc195f1f2186a1856f7d600c3b3d7",
+      "reason": "distribution artifact; metadata and complete moderate command outputs are preserved"
+    },
+    {
+      "path": ".tmp/e02-C3/raw/installed-current/07bbb61/source-input-census.json",
+      "bytes": 2939372,
+      "sha256": "fcfa225c20d3dd4b33e8b4ab85b30920159fb65b7bc30bb9b8ac52b535c2bcede",
+      "reason": "derived census map; omitted per evidence-minimization rule"
+    },
+    {
+      "path": ".tmp/e02-C3/raw/installed-current/07bbb61/artifact-census.json",
+      "bytes": 4870151,
+      "sha256": "a155c8c644f2f4424b36b671dd9822f7a9d477c9c4973976f733889d8c9920d0",
+      "reason": "derived census map; omitted per evidence-minimization rule"
+    },
+    {
+      "path": ".tmp/e02-C3/raw/installed-current/07bbb61/venv-base",
+      "reason": "isolated environment; rebuildable from pinned source and lock"
+    }
+  ],
+  "source_and_gate_refs": {
+    "tracked_c_source_and_tests": {
+      "streaming": {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "commit": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+        "git_blob": "80af60d90e2eb6aeed0d335c4dbe5d80c8c24c7c",
+        "sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119"
+      },
+      "new_test": {
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py",
+        "commit": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+        "git_blob": "17bf265469fcd8455c96c2f775c5ff0a619c9c08",
+        "sha256": "88e35f698a7f4a8dc1a8b6ac8e11d89981640a07dabeed6d1f6e699afafd7d3d"
+      },
+      "importer_tests": {
+        "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py": {
+          "path": "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+          "commit": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+          "git_blob": "5148d6b6aeaec3ce7a5fc26267189ba0647060d9",
+          "sha256": "a6b28c8a79fa60fdfd018728947d6e67ea71af1c906d7238e0582396409488f3"
+        },
+        "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py": {
+          "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+          "commit": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+          "git_blob": "a944f83978c6b970d0dab9a9b3209059006e630e",
+          "sha256": "59344c8fac40eb73b6d793b9dd955c9c7acf16067cc9cf3de860790a6502a742"
+        }
+      }
+    },
+    "admission_and_criterion_documents": {
+      "root_AGENTS": {
+        "path": "AGENTS.md",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+        "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50"
+      },
+      "contributing": {
+        "path": "policy-engine/CONTRIBUTING.md",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+        "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783"
+      },
+      "failure_register": {
+        "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "7f4cc9ab9541a44c26e4648a2c08326e53743492",
+        "sha256": "64f9fa40453980d9128443ee34a4bf3298b71c157a5ebcc3bd6cb786abeb090a"
+      },
+      "execution_handoff_protocol": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e",
+        "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b"
+      },
+      "closure_decisions_C": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md",
+        "commit": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+        "git_blob": "a59c77310081e620a12113c9fb16a157a6a7ce5c",
+        "sha256": "83c987d9a26807f4e5947677b384643b505b83b510f58add5053f0dbb3399eca"
+      },
+      "C_root_final": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C-root-final-20261006.json",
+        "commit": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+        "git_blob": "7995dd9c2128c5c4be165ce2cda53ba24934f804",
+        "sha256": "795e17eef8ac5d27f3d1c6cdc377630fb67cb5a3af677a978d7de8a6c95fd651"
+      },
+      "C54_final": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.json",
+        "commit": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+        "git_blob": "61e1abe90ae5f81e37077e2dc8e92f7e4de0cb76",
+        "sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc"
+      },
+      "C54_final_handoff": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/final-handoff.json",
+        "commit": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+        "git_blob": "2f5fa1c369f9714e63118523ae98af0844ab4156",
+        "sha256": "8936eb2b12f69f601c11c42086b7378f446fca73c802c20db05a0fa46f7212ef"
+      },
+      "previous_ing_handoff": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ing-streaming-c2.json",
+        "commit": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+        "git_blob": "02dd791e0679ea57e739c7a850853f3c3ac5f8e9",
+        "sha256": "82eae00e0d3a3615a0adef5696526838ed4ea69f5f4ca8b1d4de76e7a466a5a0"
+      }
+    },
+    "latest_g_storage_notes": {
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/README.md": {
+        "commit": "ebae80eaa25482d84bc6ad2e78721bc318bc0228",
+        "tree": "4bc0ca606eaf5145e23769da3968a673d99a9abf",
+        "git_blob": "d5b6254b4df6836a86b5e54c92d3e7d5bde953af",
+        "sha256": "f8c20e509e23b48b3baf5cb11a2ab5dd84f19b040686838ddfde3a603a104b16"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/storage/2026-10-07/C-source-disposition.md": {
+        "commit": "ebae80eaa25482d84bc6ad2e78721bc318bc0228",
+        "tree": "4bc0ca606eaf5145e23769da3968a673d99a9abf",
+        "git_blob": "d7a8cf66d39fb589561d956493925c9643e44fee",
+        "sha256": "70678494855d7740bb81527a1a66fbb05d7389bfd0e95fb76ed743d4ef0253ee"
+      }
+    }
+  }
+}

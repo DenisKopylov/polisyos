@@ -1,0 +1,31 @@
+{
+  "step": "uv-build-wheel-and-sdist-from-exact-git-archive-online-after-offline-cache-miss",
+  "argv": [
+    "/opt/homebrew/bin/uv",
+    "build",
+    "--python",
+    "/opt/homebrew/bin/python3.14",
+    "--clear",
+    "--out-dir",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/dist",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/source/policy-engine"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+  "exit_code": 0,
+  "started_unix_ns": 1791361871396869000,
+  "finished_unix_ns": 1791361888044981000,
+  "environment": {
+    "UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/_cache/uv",
+    "UV_OFFLINE": null,
+    "PYTHONPATH": null,
+    "VIRTUAL_ENV": null,
+    "UV_INDEX_URL": null,
+    "UV_DEFAULT_INDEX": null
+  },
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/build-online/stdout.bin",
+  "stdout_bytes": 0,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-current/07bbb61/build-online/stderr.bin",
+  "stderr_bytes": 271,
+  "stderr_sha256": "180d625223dd8196e17537eef5dca354606650ee39cf052abf85109382c59068"
+}

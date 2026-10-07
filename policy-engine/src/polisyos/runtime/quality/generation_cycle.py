@@ -14373,7 +14373,7 @@ def _collect_strangle_source_census(repo_root: Path) -> _StrangleSourceCensus:
 
     root = repo_root.resolve()
     source_root = root / "src" / "polisyos"
-    if source_root.is_symlink():
+    if (root / "src").is_symlink() or source_root.is_symlink():
         return _StrangleSourceCensus(
             status="not_established",
             source_state="not_established",

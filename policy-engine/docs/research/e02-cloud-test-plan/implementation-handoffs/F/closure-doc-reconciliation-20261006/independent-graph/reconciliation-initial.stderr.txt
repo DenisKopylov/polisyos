@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/review_docs.py", line 15, in <module>
+    assert not git('status','--porcelain');paths=git('diff','--name-only',BASE,SHA).decode().splitlines();assert set(paths)=={P+x for x in ['F.md','method-decisions.md','runtime-profiles.md']}
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

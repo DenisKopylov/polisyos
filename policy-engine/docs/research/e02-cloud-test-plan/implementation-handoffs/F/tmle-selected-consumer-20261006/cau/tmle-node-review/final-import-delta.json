@@ -1,0 +1,27 @@
+{
+  "schema": "e02-independent-tmle-public-import-delta-v1",
+  "check": "PASS",
+  "decision": "GO_BOUNDED",
+  "candidate_sha": "12dce5675edfd345663591fd3219f2f8ea5e4fc2",
+  "candidate_tree": "264d51adc56f21b1113a1065093b6553802a1cc5",
+  "previous_numeric_review_sha": "d09e2b546f5ccf2ed1c297e9578661358270f92b",
+  "node_before": {
+    "bytes": 69908,
+    "sha256": "4593ac298f517153f63e98539c2e9853baf1adab7c23f0238f1910b6a581d0e9"
+  },
+  "node_after": {
+    "bytes": 69843,
+    "sha256": "5f87ad9bd88f8f6209b860bff5f19055492866657c3663e74d367b330f7c2069"
+  },
+  "unchanged_top_level_function_and_class_count": 32,
+  "all_function_and_class_AST_equal": true,
+  "new_import": "from polisyos.foundry.methods.causal import TMLEEstimator",
+  "actual_alias_identity_witness": "Fresh native import at12: Node/public/canonical TMLE classes and factory same object, factory pickle identity preserved. No numerical fit rerun.",
+  "numerical_retests": "UNRUN_not_needed; import-only delta leaves every function/class body unchanged. No source retarget of native d09 receipts.",
+  "authority_and_budget": "UNRUN/unestablished as before.",
+  "actual_independent_identity_execution": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/final-import.execution.json",
+    "bytes": 2709,
+    "sha256": "be5729b971cac91ddd97526a55956c4f8f29088e6ec1598b1a23d96cba6073b9"
+  }
+}

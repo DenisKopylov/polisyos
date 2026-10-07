@@ -1,0 +1,68 @@
+{
+  "cas_root": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/cas",
+  "source_ref": {
+    "artifact_id": "sha256:f8d86d03a2ea2f122bb20daf16d7351c8b35c7a798281e62a65db3f526621f1b",
+    "kind": "ir.observational_data",
+    "media_type": "application/json"
+  },
+  "bundle_ref": {
+    "artifact_id": "sha256:90940e4f67c0f8903e9d2d3f67c1d65104f399899c8c0fbf365cfa8d442edaca",
+    "kind": "scientist.method_result.causal.treatment_effects",
+    "media_type": "application/json"
+  },
+  "evidence_ref": {
+    "artifact_id": "sha256:996f56136d05fbec24e7ce38022f3593a1f96fa605f789e85828a17f41dce16d",
+    "kind": "scientist.method_evidence",
+    "media_type": "application/json"
+  },
+  "report_ref": {
+    "artifact_id": "sha256:d671d21736330644711d4455492ed337aa31101ff6f7667c598e233b843d8e42",
+    "kind": "ir.causal_effect_report",
+    "media_type": "application/json"
+  },
+  "envelope_ref": {
+    "artifact_id": "sha256:5377227d0c43143de6be6a39c616719323b8f69c580b17ce7ba32e42390df62f",
+    "kind": "ir.uncertainty_envelope",
+    "media_type": "application/json"
+  },
+  "forged_ref": {
+    "artifact_id": "sha256:6ee48bbda9709d4cdff0a3e089c01966434664e0853b04c33236879e012b2e34",
+    "kind": "ir.uncertainty_envelope",
+    "media_type": "application/json"
+  },
+  "simulation_refs": {
+    "healthy": {
+      "artifact_id": "sha256:53d90fdc25334c266ac0fd88aaa0b9318dec41d8c400c348ba227f2854831225",
+      "kind": "foundry.simulation_result",
+      "media_type": "application/json"
+    },
+    "corrupt": {
+      "artifact_id": "sha256:021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96",
+      "kind": "foundry.simulation_result",
+      "media_type": "application/json"
+    },
+    "wrong_model": {
+      "artifact_id": "sha256:426568b2688b0c93206aca68a2c393f49a577b368e8e436de0b9255e475e1f7c",
+      "kind": "foundry.simulation_result",
+      "media_type": "application/json"
+    },
+    "missing": {
+      "artifact_id": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+      "kind": "foundry.simulation_result",
+      "media_type": "application/json"
+    }
+  },
+  "method_wall_ms": 4753.564459999325,
+  "params": {
+    "propensity_backend": "logistic",
+    "outcome_backend": "linear",
+    "calibration_mode": "none",
+    "outcome_scaling": "raw",
+    "crossfit_folds": 2,
+    "n_repeats": 1,
+    "random_seed": 18,
+    "ci_mode": "wald",
+    "inference_profile": "regular_iid",
+    "coverage_guard": "off"
+  }
+}

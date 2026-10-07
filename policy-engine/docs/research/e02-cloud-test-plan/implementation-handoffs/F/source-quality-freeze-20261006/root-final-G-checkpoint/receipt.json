@@ -1,0 +1,13 @@
+{
+  "fresh_main_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "fresh_main_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "fresh_G_sha": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+  "fresh_G_tree": "759daf4ccbd6e72230de8bda36e1522ffa8fe3e4",
+  "previous_G_sha": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+  "G_delta_paths": [],
+  "root_head": "d5ae668fe6079bfa81bd7448aa911fa4bee4e03b",
+  "root_tree": "299a64a56f84ae9ce0044032dba78f014ceec60e",
+  "anchor_ancestor_check": "PASS",
+  "read_only_fetch": true,
+  "root_no_auto_integration_of_fresh_G": true
+}

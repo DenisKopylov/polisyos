@@ -61,3 +61,27 @@ P35 — полный знаменатель; P40 — исправлять кла
 P41 — атрибутировать red только по exact slice-base replay. Acceptance поручения:
 вся owner-очередь получает row-level решение с реальным deciding evidence,
 а не только план, refusal или число PASS.
+
+## Возобновление E после PR38
+
+[Дополнительный промпт E](E-resume-after-pr38.md) задаёт конкретное продолжение
+после frozen source `58e2d97965c0826c44843a78dcb2f8698d9950a3` и receipt head
+`be947056728a24d50432d32fbb9feabee7dfeffc`.
+[Независимый разбор G](../../integration/reviews/E-pr38-continuation-audit-2026-10-06.md)
+сверяет полный набор findings, deciding outputs, математические остатки,
+default consumers и внешние owner decisions. Это дополнение к исходному E.md;
+оно не принимает E код и не меняет finding ledger.
+
+## Возобновление D и F после финальных передач
+
+[Промпт D после PR47](D-resume-after-pr47.md) и
+[аудит D](../../integration/reviews/D-pr47-continuation-audit-2026-10-06.md)
+сверяют все 45 IDs/46 occurrences, отделяют старые lineages от fresh checks
+и задают math, ledger/factory, transfer, service и permit work.
+
+[Промпт F после PR65](F-resume-after-pr65.md) и
+[аудит F](../../integration/reviews/F-pr65-continuation-audit-2026-10-06.md)
+сверяют все 35 IDs, сохраняют bounded numerical proofs и задают shared
+consumer/authority, graph-profile, original-card, migration и companion work.
+Это дополнения к исходным D.md/F.md. Рекомендации авторов о closure не становятся
+formal closure G; source acceptance и finding decisions ведутся отдельно.

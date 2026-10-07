@@ -1,0 +1,40 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "reviewer": "F root",
+  "source_sha": "d86a085f07a2d49855f465fe762ef20259b67dc3",
+  "tree": "212c90557672fe51228942026fc3c8e1d9b8981d",
+  "result": "GO",
+  "checks": [
+    {
+      "name": "dowhy-frozen-final",
+      "pass_count": 15,
+      "skip_count": 0,
+      "error_count": 0
+    }
+  ],
+  "evidence": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/root-review/dowhy-frozen-final.json",
+      "sha256": "b24a756a8295cc212b30d8d838a12d7d43aa3acdfaae7b6f35eaa021e2388ec6",
+      "bytes": 1022
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/root-review/dowhy-frozen-final.stdout",
+      "sha256": "c864abf7a85b15cfe1c93cc64e3371862af713c6f941faa5390e7a2cabacb102",
+      "bytes": 2422
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/root-review/dowhy-frozen-final.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ],
+  "limitations": [
+    "True selected Python3.12 DoWhy0.14 parent MethodJob/CAS/fresh3.14reader is numerical witness only.",
+    "Raw dispatch port monitor warnings do not negate canonical dematerializer alias ABI, and remain declared diagnostics.",
+    "DoWhy/EconML absent from application3.14 profile is not a positive backend witness.",
+    "Full production Scientist evaluation needs genuine grounded real-world input/EvalSafety authority; engine projected-source family unresolved."
+  ],
+  "predicate_basis": "independently_reconciled",
+  "source_note": "Earlier overlapping test-authoring run is development-only; final exact d86 clean native replay is deciding. Subsequent cbb release-TOML-only delta has identical tested runtime/test/lock blobs."
+}

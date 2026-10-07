@@ -1,0 +1,56 @@
+{
+  "schema": "policyos.e02.historical-blob-availability-probe.v1",
+  "observed_utc": "2026-10-06T13:28:54.629400+00:00",
+  "git_blob": "175c1ed4db37589e8adaf14af6700ad639edb2c8",
+  "check": "UNRUN",
+  "classification": "unavailable_historical_non_deciding",
+  "local_git_probe": {
+    "command": [
+      "git",
+      "cat-file",
+      "-t",
+      "175c1ed4db37589e8adaf14af6700ad639edb2c8"
+    ],
+    "cwd": "/workspace/e02-F-graph-20261006",
+    "exit_code": 128,
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/historical-blob-local-git.stdout.txt",
+      "name": "historical-blob-local-git.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete local Git probe stdout"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/historical-blob-local-git.stderr.txt",
+      "name": "historical-blob-local-git.stderr.txt",
+      "bytes": 47,
+      "sha256": "93051ef5e7bf1424b70ed514d3f012953c936894eec9c3018251c6cfb674dd83",
+      "role": "complete local Git probe stderr"
+    }
+  },
+  "github_read_only_probe": {
+    "command": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/git/blobs/175c1ed4db37589e8adaf14af6700ad639edb2c8"
+    ],
+    "exit_code": 1,
+    "http_status": 404,
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/historical-blob-gh-response.json",
+      "name": "historical-blob-gh-response.json",
+      "bytes": 110,
+      "sha256": "9d380191985c8adc745313e4ed277e0541c2995a7f86276c76a4e012f4d8f379",
+      "role": "complete original GitHub blob probe stdout"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/historical-blob-gh-stderr.txt",
+      "name": "historical-blob-gh-stderr.txt",
+      "bytes": 25,
+      "sha256": "d2c8985c89b29a842ac4946d13bdbc297709f44f20bb968faf9682664b211db6",
+      "role": "complete original GitHub blob probe stderr"
+    },
+    "capture_metadata_limit": "Original cwd/timing were not captured; no values inferred. This is the one completed read-only GitHub probe, not a second request."
+  },
+  "scope": "Original record explicitly excludes current finding-status/behavior evidence. No unavailable source is treated as PASS and no ledger is modified."
+}

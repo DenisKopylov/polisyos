@@ -87,6 +87,7 @@
         "forest_dr",
         "causal_bcf",
         "double_ml",
+        "tmle",
         "s_learner",
         "t_learner",
         "x_learner",
@@ -1438,7 +1439,7 @@
     }
   },
   "additionalProperties": false,
-  "description": "Canonical causal effect artifact emitted by Foundry methods.\n\nCombines the estimand, point estimate, uncertainty, diagnostics, placebo\nchecks, and transportability context needed by Scientist governance and\ndownstream reporting.",
+  "description": "Canonical causal effect artifact emitted by Foundry methods.\n\nCombines the estimand, point estimate, uncertainty, diagnostics, placebo\nchecks, and transportability context needed by Scientist governance and\ndownstream reporting. ``SUCCESS`` describes numerical estimation, not\nindependently verified causal identification. Its uncertainty projection\nremains a non-gating candidate until an accepted identification owner can\nverify the current source, graph, estimand, and target binding.",
   "properties": {
     "assumptions": {
       "additionalProperties": {

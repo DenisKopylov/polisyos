@@ -1,0 +1,42 @@
+{
+  "source_root": "/workspace/e02-F-economics-20261006",
+  "target_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/prototype_loader.py",
+    "candidate",
+    "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/lowprecision_matrix.py",
+    "lowprecision-candidate"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/lowprecision-candidate-run",
+  "artifact_paths": [
+    "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/lowprecision-candidate.json"
+  ],
+  "tree_sha": "c5df6b6873b95006780f5b0ce78158c6a11a805c",
+  "source_status_before": " M policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py\n?? policy-engine/docs/reference/foundry/fiscal-calculation-dtype.md\n?? policy-engine/release-fragments/unreleased/2026-10-06-economic-fiscal-calculation-dtype.toml\n?? policy-engine/tests/unit/foundry/execute/mechanisms/test_fiscal_precision.py\n",
+  "elapsed_seconds": 8.923290967941284,
+  "exit_code": 0,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/lowprecision-candidate-run.stdout",
+    "bytes": 415,
+    "sha256": "83f1d1aff3ccf2a0c7e0156c3205319f127a2538122b280ceed8ca6d9faa6588"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/lowprecision-candidate-run.stderr",
+    "bytes": 1776,
+    "sha256": "ac8cc56f2a25551d0af60882b5e1efc917fee41dc04d4c4434e5261dbf39b1c5"
+  },
+  "source_status_after": " M policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py\n?? policy-engine/docs/reference/foundry/fiscal-calculation-dtype.md\n?? policy-engine/release-fragments/unreleased/2026-10-06-economic-fiscal-calculation-dtype.toml\n?? policy-engine/tests/unit/foundry/execute/mechanisms/test_fiscal_precision.py\n",
+  "artifacts": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/lowprecision-candidate.json",
+      "bytes": 52591,
+      "sha256": "65fe1a35f12280dca39b7aeb0b120c63aaaaf3eeadca9f5de15fed6fa12e5646"
+    }
+  ]
+}

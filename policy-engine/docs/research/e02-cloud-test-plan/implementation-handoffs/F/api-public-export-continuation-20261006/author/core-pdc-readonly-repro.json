@@ -1,0 +1,112 @@
+{
+  "scope": "native exact449 helper representation/resolution negative only; no authority-positive",
+  "source_sha": "449d32909928caf39382f4ff02ac74b0adf277eb",
+  "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/api/core-pdc-readonly-repro.py"
+  ],
+  "env": {
+    "PYTHONPATH": "src:."
+  },
+  "exit_code": 0,
+  "observations": {
+    "source_sha": "449d32909928caf39382f4ff02ac74b0adf277eb",
+    "actual_import": "/workspace/e02-F-api-20261006/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+    "actual_import_sha256": "12bdb46a7dc26bd4f18075ad88d054f2cd1666d3cd0e3b370314f6ee8b6f3934",
+    "source_ref": {
+      "artifact_id": "sha256:1636000df5c20a62396ba79b0be0cb9fd93bb7ef26fe063fd8c5411d14153e67",
+      "kind": "tests.selected_causal_input",
+      "media_type": "application/json"
+    },
+    "physical_byte_hash": "sha256:1636000df5c20a62396ba79b0be0cb9fd93bb7ef26fe063fd8c5411d14153e67",
+    "manifest": {
+      "manifest_schema_version": "v3",
+      "artifact_id": "sha256:1636000df5c20a62396ba79b0be0cb9fd93bb7ef26fe063fd8c5411d14153e67",
+      "kind": "tests.selected_causal_input",
+      "media_type": "application/json",
+      "byte_size": 252,
+      "created_at": "2026-10-06T15:04:57Z",
+      "schema": null,
+      "canon": {
+        "name": "polisyos.canon.json",
+        "version": "0.2.0",
+        "forbid_floats": false,
+        "forbid_nan_inf": true,
+        "exclude_none": true,
+        "max_depth": 128,
+        "sort_keys": true,
+        "separators": [
+          ",",
+          ":"
+        ],
+        "ensure_ascii": false
+      },
+      "inputs": [],
+      "producer": null,
+      "env": null,
+      "governance": null,
+      "tenant_context": null,
+      "same_input_closure": null,
+      "authority": null,
+      "integrity": {
+        "sha256": "1636000df5c20a62396ba79b0be0cb9fd93bb7ef26fe063fd8c5411d14153e67",
+        "optional": null
+      },
+      "warnings": []
+    },
+    "public_pdc_from_payload": {
+      "artifact_id": "sha256:1636000df5c20a62396ba79b0be0cb9fd93bb7ef26fe063fd8c5411d14153e67",
+      "artifact_type": "tests.selected_causal_input",
+      "content_hash": "sha256:0dfcf97e2b9f650ec6dbd12607c5dc69f264aed48abdd0e0907dc63b0560c207",
+      "schema_ref": "tests.selected_causal_input",
+      "uri": "cas://sha256:1636000df5c20a62396ba79b0be0cb9fd93bb7ef26fe063fd8c5411d14153e67",
+      "version": "test-only"
+    },
+    "helper_observed": [
+      [
+        "sha256:1636000df5c20a62396ba79b0be0cb9fd93bb7ef26fe063fd8c5411d14153e67",
+        "sha256:1636000df5c20a62396ba79b0be0cb9fd93bb7ef26fe063fd8c5411d14153e67"
+      ]
+    ],
+    "ghost_observed": [
+      [
+        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ]
+    ],
+    "real_cas_ghost_read": "FileNotFoundError",
+    "classification": "bounded source helper never resolves inputs; generic PDC representation can have distinct ID/hash; no supported-source semantic-policy or whole-node authority positive claimed"
+  },
+  "original_harness_error": {
+    "exit_code": 1,
+    "reason": "incorrect ExperimentState module import; corrected to actual public polisyos.scientist facade; no source change"
+  },
+  "full_outputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/core-pdc-readonly-repro.py",
+      "sha256": "a54e3ece7c64eb8bc15d20c67fe2f9607b090cef2bf836b90345a64a4cf0f583",
+      "bytes": 2857
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/core-pdc-readonly-repro.stdout",
+      "sha256": "250d235a5b74f8b4d5ce7b97f703f15b2658f5558b26f8d19f56fd9f887983bc",
+      "bytes": 2621
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/core-pdc-readonly-repro.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/core-pdc-readonly-repro-first-import-error.py",
+      "sha256": "e76cc1d9e9e776c95e550b70fa5dc37a1952b5000d4e8605ab75b37e0d504875",
+      "bytes": 2863
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/api/core-pdc-readonly-repro-first-import-error.stderr",
+      "sha256": "e011332de04a9cdb5755f08824aa7132735a53735f7afa4c8c9a0cae8914578e",
+      "bytes": 250
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+To https://github.com/DenisKopylov/polisyos.git
+   3ad29e43a..9824e04d6  HEAD -> codex/e02-F-graph-20261006

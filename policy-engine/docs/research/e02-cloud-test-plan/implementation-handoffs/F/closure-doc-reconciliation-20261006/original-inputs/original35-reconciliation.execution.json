@@ -1,0 +1,29 @@
+{
+  "command": [
+    "python3",
+    "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.replayer.py"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006",
+  "exit": 0,
+  "seconds": 1.2220427989959717,
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+  },
+  "script": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.replayer.py",
+    "bytes": 41994,
+    "sha256": "b493f41a7b8fa4c2410dd4310281383c446d1b69eb856ac9ee217d9813e706f6"
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.stdout.txt",
+    "bytes": 421,
+    "sha256": "c380fdf67d8ce318bd9fbfa3331f12d88a0de780454c57b27e4379a9a75219a5"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/original35-reconciliation.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "initial_locator_errors": "Initial readonly locator hypotheses were wrong (worker symbol/DiD request source/patch facade/Lex source); complete initial outputs retained; no product/test failure inferred. Later execution resolved all4 exact locators."
+}

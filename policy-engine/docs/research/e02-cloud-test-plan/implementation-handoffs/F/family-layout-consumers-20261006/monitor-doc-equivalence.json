@@ -1,0 +1,130 @@
+{
+  "candidate_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+  "scientific_source_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+  "monitor_source_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+  "doc_only_changed_paths": [
+    "policy-engine/src/polisyos/foundry/methods/lifecycle/README.md",
+    "policy-engine/src/polisyos/foundry/methods/lifecycle/output_monitor.py"
+  ],
+  "monitor_raw_source_hashes": {
+    "ec6944c8c5b4807f291c96919309472de60de127": "ad022d58a722940ecd83df576c9db3e5229c502e16b740bbbc0db1fa9c6f9af4",
+    "3e1819173f0593ce93d257c3c62cdb2fa627e426": "e678cf8c5131318578cb38aa3cd25ef3ba895f1035b6c480322c62fd85b7bbbf"
+  },
+  "executable_ast_without_docstrings_sha256": "347a21f0254590aca1d0a0be637867e01435c30187ac8606da4323115072ddf1",
+  "executable_ast_equal": true,
+  "unchanged_scientific_and_docs_inputs": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "source_sha": "ec6944c8c5b4807f291c96919309472de60de127",
+      "candidate_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+      "bytes": 37674,
+      "sha256": "3a90df93dcb75cd6bab79abbd10f57f438913bb9aed11e07074c29b38418e259",
+      "byte_equivalent": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py",
+      "source_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "candidate_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+      "bytes": 11681,
+      "sha256": "3abfcab5247de83372f956d0974a86a12c3d2cf30826cbcbc6821bd78fc00555",
+      "byte_equivalent": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+      "source_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "candidate_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+      "bytes": 8646,
+      "sha256": "e8a26613978c76c52c8deeff620f82b81a9b033f5d2661baed7d5d78df4f4092",
+      "byte_equivalent": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/mechanisms/test_mechanism_design.py",
+      "source_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "candidate_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+      "bytes": 947,
+      "sha256": "7f9cfc895b5abad2df04e9a53289e1a353b8ffbafb0e75b3ce4c373ed14144a9",
+      "byte_equivalent": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+      "source_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "candidate_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+      "bytes": 4626,
+      "sha256": "475e5f0d195c9facbfbc56feef13b9cf385ec734de6b5b6a1b0beb8e5c5b1901",
+      "byte_equivalent": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py",
+      "source_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "candidate_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+      "bytes": 16866,
+      "sha256": "d8da13a8a19f53f4357456ef6c4da09060c900a910ba8f4d1712776e2ded1e37",
+      "byte_equivalent": true
+    },
+    {
+      "path": "policy-engine/docs/reference/foundry/state.md",
+      "source_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "candidate_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+      "bytes": 4810,
+      "sha256": "008b08d202406a570cc837a2c6f78c6f68bedcefb59057b7d0cdd269ba3a90a9",
+      "byte_equivalent": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/kernel/slots.py",
+      "source_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "candidate_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+      "bytes": 18445,
+      "sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81",
+      "byte_equivalent": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/contracts/state.py",
+      "source_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "candidate_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+      "bytes": 16421,
+      "sha256": "40ef94643b25a00ab5dd2d8eb4db97dca2dcfb646a0eda855869c91de05f9338",
+      "byte_equivalent": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/executor.py",
+      "source_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "candidate_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+      "bytes": 2305,
+      "sha256": "7577afbd9236d6a7e2670888c923f7a79f98df39521e967919eb56b2ebe788db",
+      "byte_equivalent": true
+    },
+    {
+      "path": "policy-engine/mkdocs.yml",
+      "source_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "candidate_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+      "bytes": 221,
+      "sha256": "6c0f5281f0d25246dde5a3963dfcbfa1c6f7d6e6ae9df36fd457973bb6d4e567",
+      "byte_equivalent": true
+    },
+    {
+      "path": "policy-engine/architecture/tooling/mkdocs/generated.yml",
+      "source_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "candidate_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+      "bytes": 29832,
+      "sha256": "c121a8014d24456bc9158b63af0d69fc14401b329d4806021ba6606b638c1851",
+      "byte_equivalent": true
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "source_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "candidate_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "byte_equivalent": true
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "source_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "candidate_sha": "3e1819173f0593ce93d257c3c62cdb2fa627e426",
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "byte_equivalent": true
+    }
+  ],
+  "scope": "No numerical replay; executable monitor AST and exact native/docs consumer inputs unchanged after Args/Returns and README wording companion."
+}

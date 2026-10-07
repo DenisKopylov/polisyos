@@ -1,0 +1,68 @@
+{
+  "source_sha": "449d32909928caf39382f4ff02ac74b0adf277eb",
+  "actual_import": "/workspace/e02-F-api-20261006/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+  "actual_import_sha256": "12bdb46a7dc26bd4f18075ad88d054f2cd1666d3cd0e3b370314f6ee8b6f3934",
+  "source_ref": {
+    "artifact_id": "sha256:1636000df5c20a62396ba79b0be0cb9fd93bb7ef26fe063fd8c5411d14153e67",
+    "kind": "tests.selected_causal_input",
+    "media_type": "application/json"
+  },
+  "physical_byte_hash": "sha256:1636000df5c20a62396ba79b0be0cb9fd93bb7ef26fe063fd8c5411d14153e67",
+  "manifest": {
+    "manifest_schema_version": "v3",
+    "artifact_id": "sha256:1636000df5c20a62396ba79b0be0cb9fd93bb7ef26fe063fd8c5411d14153e67",
+    "kind": "tests.selected_causal_input",
+    "media_type": "application/json",
+    "byte_size": 252,
+    "created_at": "2026-10-06T15:04:57Z",
+    "schema": null,
+    "canon": {
+      "name": "polisyos.canon.json",
+      "version": "0.2.0",
+      "forbid_floats": false,
+      "forbid_nan_inf": true,
+      "exclude_none": true,
+      "max_depth": 128,
+      "sort_keys": true,
+      "separators": [
+        ",",
+        ":"
+      ],
+      "ensure_ascii": false
+    },
+    "inputs": [],
+    "producer": null,
+    "env": null,
+    "governance": null,
+    "tenant_context": null,
+    "same_input_closure": null,
+    "authority": null,
+    "integrity": {
+      "sha256": "1636000df5c20a62396ba79b0be0cb9fd93bb7ef26fe063fd8c5411d14153e67",
+      "optional": null
+    },
+    "warnings": []
+  },
+  "public_pdc_from_payload": {
+    "artifact_id": "sha256:1636000df5c20a62396ba79b0be0cb9fd93bb7ef26fe063fd8c5411d14153e67",
+    "artifact_type": "tests.selected_causal_input",
+    "content_hash": "sha256:0dfcf97e2b9f650ec6dbd12607c5dc69f264aed48abdd0e0907dc63b0560c207",
+    "schema_ref": "tests.selected_causal_input",
+    "uri": "cas://sha256:1636000df5c20a62396ba79b0be0cb9fd93bb7ef26fe063fd8c5411d14153e67",
+    "version": "test-only"
+  },
+  "helper_observed": [
+    [
+      "sha256:1636000df5c20a62396ba79b0be0cb9fd93bb7ef26fe063fd8c5411d14153e67",
+      "sha256:1636000df5c20a62396ba79b0be0cb9fd93bb7ef26fe063fd8c5411d14153e67"
+    ]
+  ],
+  "ghost_observed": [
+    [
+      "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    ]
+  ],
+  "real_cas_ghost_read": "FileNotFoundError",
+  "classification": "bounded source helper never resolves inputs; generic PDC representation can have distinct ID/hash; no supported-source semantic-policy or whole-node authority positive claimed"
+}

@@ -1,0 +1,286 @@
+{
+  "schema": "policyos.e02.output_transport.v1",
+  "complete_companions": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/review.json.gz",
+      "bytes": 19023,
+      "sha256": "c66599128e90f0987372166a22ff92e79872512ae7710b772afe241863c7dcaf",
+      "decoded_bytes": 119698,
+      "decoded_sha256": "71f1c71ba204a538a70c042e9d4a11e4a1fe960df5dc1bd3f33ed133acf9b8d8",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/review.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/semantic_decisions.json.gz",
+      "bytes": 7637,
+      "sha256": "f324fdcfcaf0396d02b61944f7361906ebdec78bc62725cc7c02e1b55a76dffc",
+      "decoded_bytes": 19972,
+      "decoded_sha256": "55bdebe9039c6b7d0b7b1c03c9597f9b74cfc5502980f6e530cd43631cdb41cd",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/semantic_decisions.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/strict-template-audit.json.gz",
+      "bytes": 4083,
+      "sha256": "7586c9f55c00ef19c52b348a7fec04f00147e075aa30f1f3ac8c0578bb379829",
+      "decoded_bytes": 65542,
+      "decoded_sha256": "5a18910e9ba920aa08fc9d98e755d61cf09a9849503d81a6229f59cd163c7f00",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/strict-template-audit.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/strict-template-audit.stdout.txt",
+      "bytes": 185,
+      "sha256": "7a1660bd10d800dc9e2c505a0d4e67bb9854cd20c28696687b177af4f9d77a6b",
+      "decoded_bytes": 185,
+      "decoded_sha256": "7a1660bd10d800dc9e2c505a0d4e67bb9854cd20c28696687b177af4f9d77a6b",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/strict-template-audit.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/strict-template-audit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/strict-template-audit.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/audit_template.py.gz",
+      "bytes": 1224,
+      "sha256": "89424ca0c0de0eb775bc5d044dca8b06da7cebf8cb6d8a6f804d4d03bd72cfae",
+      "decoded_bytes": 2803,
+      "decoded_sha256": "43bdc7fd005de8eb9c3a1c696a07690b94ca291615330483fcbef06d67bc3891",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/audit_template.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/bind_inputs.py.gz",
+      "bytes": 2957,
+      "sha256": "54f9665080710262bd23ce8a995099ee9fdcecea470caaf47778c83f8d13c525",
+      "decoded_bytes": 8589,
+      "decoded_sha256": "46f3ae7515e65d8d0827e8ddb105896e0e04bf80a0c7844fe3b1e33e89bd9217",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind_inputs.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/bind_inputs_initial.py.gz",
+      "bytes": 2562,
+      "sha256": "90fc8fab8d6e092fe61c8bd2389fdb7887c176c92f276d06fb2f01a379bb35aa",
+      "decoded_bytes": 7355,
+      "decoded_sha256": "beaa62514bba9cacbf3c07e30d311bd725b63ff0858cac70058ae7bc16384d9c",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind_inputs_initial.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/bind_inputs_intermediate.py.gz",
+      "bytes": 2559,
+      "sha256": "149fa68ec8cf43158f6e55d113e5081e0f5bcc4a644aff70e1b2cf2777b0b5e9",
+      "decoded_bytes": 7348,
+      "decoded_sha256": "63ee285109ffe64b99c652a4386da6ca599d67eafd4aae3948ce53efadb0fb5a",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind_inputs_intermediate.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/bind_inputs_scratch_bound.py.gz",
+      "bytes": 2582,
+      "sha256": "15c38d56d119e5ad5ed43271441e5978df577cc425e7371f1374b61cf2d136bc",
+      "decoded_bytes": 7451,
+      "decoded_sha256": "daac20c60d37e75aef385a9d35e5d23c5fd0030a949dfbe5016614fd48c749b9",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind_inputs_scratch_bound.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/bind-inputs.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind-inputs.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/bind-inputs.stderr.txt",
+      "bytes": 262,
+      "sha256": "aea4af92da42f161faefc738a2c1c2320241ed141fb202e67d37e3dc11126127",
+      "decoded_bytes": 262,
+      "decoded_sha256": "aea4af92da42f161faefc738a2c1c2320241ed141fb202e67d37e3dc11126127",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind-inputs.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/bind-inputs-corrected.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind-inputs-corrected.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/bind-inputs-corrected.stderr.txt.gz",
+      "bytes": 396,
+      "sha256": "a2349900bc9b46174309bb32d33b85f085aa73b73bfcbe77f6a90b438717271a",
+      "decoded_bytes": 802,
+      "decoded_sha256": "8ff5eef97dd0a5b08383f854002981d99c4ef8880f8437716c78458331ab7961",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind-inputs-corrected.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/bind-inputs-final.stdout.txt",
+      "bytes": 240,
+      "sha256": "e3e96bf9841fc07cfcb1d88cef38bb380597a443827c121e9de54a12e4edf16c",
+      "decoded_bytes": 240,
+      "decoded_sha256": "e3e96bf9841fc07cfcb1d88cef38bb380597a443827c121e9de54a12e4edf16c",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind-inputs-final.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/bind-inputs-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/bind-inputs-final.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/git-only-reconstruction.stdout.txt",
+      "bytes": 264,
+      "sha256": "9c62006f572c7876208712165ca01b1a36c53f4798a12d1f2e9061cc48e08b30",
+      "decoded_bytes": 264,
+      "decoded_sha256": "9c62006f572c7876208712165ca01b1a36c53f4798a12d1f2e9061cc48e08b30",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/git-only-reconstruction.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/git-only-reconstruction.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/git-only-reconstruction.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/git-only-reconstruction-proof.json",
+      "bytes": 590,
+      "sha256": "2ccce38b6ae93e2f0467adeec64a981a8265905cf0277d054150269252369d62",
+      "decoded_bytes": 590,
+      "decoded_sha256": "2ccce38b6ae93e2f0467adeec64a981a8265905cf0277d054150269252369d62",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/git-only-reconstruction-proof.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/assemble_review.py.gz",
+      "bytes": 4057,
+      "sha256": "274572a7f590adc4dc9f7f74209c1a97a4f8da3dbea23a6c140b76d5ca6a7435",
+      "decoded_bytes": 10088,
+      "decoded_sha256": "719f94309b82a09f73222e29261ccd10b227bd2c543b6cae037840a8955e1524",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/assemble_review.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/assemble-review-final.stdout.txt",
+      "bytes": 404,
+      "sha256": "50101e9ffa73129ceae95c2fb67317a92f912c5ffa51f48e5d552418b303b45a",
+      "decoded_bytes": 404,
+      "decoded_sha256": "50101e9ffa73129ceae95c2fb67317a92f912c5ffa51f48e5d552418b303b45a",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/assemble-review-final.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/assemble-review-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/assemble-review-final.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/read_published_api.py.gz",
+      "bytes": 1103,
+      "sha256": "66172fde57d80254fa9465783f8a4e9576578cb498912b0effa4be96233d1231",
+      "decoded_bytes": 2219,
+      "decoded_sha256": "8a54f5d9e0ce7d2c4d800b897b454bfb58001a7f3f20459eef6b6058293be4f8",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/read_published_api.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/published-api-readback.stdout.txt.gz",
+      "bytes": 578,
+      "sha256": "a85c78869443b9848b4f037197bf0594cc77c739d81925dadd4bf36259fcd1b5",
+      "decoded_bytes": 1322,
+      "decoded_sha256": "4379eb98d9bbb071d20d52bea87886a22fc9db298ba19326628aabf103f0bbfc",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/published-api-readback.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/published-api-readback.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "raw",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/published-api-readback.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/latest-published-inputs.json.gz",
+      "bytes": 827,
+      "sha256": "c61028459a0e4c803a07d11c68e7ce873a3ee0740ccfb2c1b5e4c5b9a4c11d2a",
+      "decoded_bytes": 1819,
+      "decoded_sha256": "df94ea917c6851f8d2a0776c394d3f50f8fbb74ab46686b50a97bc156cece3ad",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/latest-published-inputs.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/finalize_selection.py.gz",
+      "bytes": 1787,
+      "sha256": "83dea1bf3967cf2ecf5246b2d9fed999acace5518d815dc42748c540b65c2ed0",
+      "decoded_bytes": 3977,
+      "decoded_sha256": "c2b4c92de7f6a41f5fa50979059d9d02f643f274db8c3c91a0b4181086b9818f",
+      "encoding": "gzip",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/finalize_selection.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/transfer-selection.json",
+      "bytes": 11177,
+      "sha256": "9e143d4e1021be8b69d0f3bd1ee363925109ec0b9fd04bc527750df1c40f8b0f",
+      "encoding": "raw"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/initial-publisher-observer-error.json",
+      "bytes": 1038,
+      "sha256": "bab0525ea23bc93f5dc60839514fd8c925ac133825e3287f4d5141469739da23",
+      "encoding": "raw"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/reviews/semantic/corrected-publisher.py",
+      "bytes": 3185,
+      "sha256": "5d0ec81ccf8882e8554f89e31ecc08de33a253dbe792bf5fff20b1bbf14b2d1d",
+      "encoding": "raw"
+    }
+  ],
+  "reconstruction_only_inputs": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261006/fit-final35-review/input-bindings.json",
+      "bytes": 418258,
+      "sha256": "23246162782cbef3b130747f3c507128a446f227915c1d677285f46afa7a496f",
+      "replayer": "bind_inputs.py",
+      "command": "python3 bind_inputs.py --repository-root <fetched-repository> --output-directory <unique-local-output>",
+      "immutable_receipt_roots": [
+        "613a55a5946bdeff2dc849f2488fb88c81b01360",
+        "15a04c4400497374416e167a5f61ebc12f61b8e4",
+        "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+        "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d"
+      ],
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "reason": "Deterministic Git-derived35/36 criterion metadata and25primary check headers; all11sitepacket inputs decoded from existing Foundry immutable Git. Exact418258byte reconstruction was actually verified without/tmp input reads.",
+      "proof": "git-only-reconstruction-proof.json",
+      "copy_to_Git": false
+    }
+  ],
+  "role": "Independent complete original35 semantic review; exact frozen code/Git refs, not institutional authority or native scientific reruns"
+}

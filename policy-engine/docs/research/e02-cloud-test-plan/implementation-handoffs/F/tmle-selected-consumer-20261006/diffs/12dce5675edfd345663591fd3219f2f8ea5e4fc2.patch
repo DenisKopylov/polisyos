@@ -1,0 +1,28 @@
+commit 12dce5675edfd345663591fd3219f2f8ea5e4fc2
+Author:     Денис Копылов <skvidvard167m@gmail.com>
+AuthorDate: Tue Oct 6 16:57:16 2026 +0000
+Commit:     Денис Копылов <skvidvard167m@gmail.com>
+CommitDate: Tue Oct 6 16:57:16 2026 +0000
+
+    Use the maintained TMLE facade at the causal node bridge
+
+diff --git a/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py b/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py
+index 6bd6d9ead..d4997734d 100644
+--- a/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py
++++ b/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py
+@@ -25,7 +25,6 @@ from polisyos.foundry.methods import MethodRegistry
+ from polisyos.foundry.methods.catalog import (
+     ensure_all_methods_registered as ensure_causal_methods_registered,
+ )
+-from polisyos.foundry.methods.catalog.causal.treatment_effects import TMLEEstimator
+ from polisyos.foundry.methods.causal import (
+     DoWhyIdentifyEstimate,
+     GraphCausalData,
+@@ -35,6 +34,7 @@ from polisyos.foundry.methods.causal import (
+     RDDObservationalData,
+     StaggeredDifferenceInDifferences,
+     StandardDifferenceInDifferences,
++    TMLEEstimator,
+ )
+ from polisyos.ir.analytics.causal import (
+     CausalEffectReport,

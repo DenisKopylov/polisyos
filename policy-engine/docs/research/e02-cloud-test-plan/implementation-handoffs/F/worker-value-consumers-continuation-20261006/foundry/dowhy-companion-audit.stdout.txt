@@ -1,0 +1,229 @@
+{
+  "source_sha": "386b361865fb22d6da241716481d919b6ebd8249",
+  "source_tree": "4fe794fb3b1a57b4771594cf91e5f1202d73eccf",
+  "slice_base_sha": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+  "implementation_commits": [
+    "47a2ff90186628afafa4c01ecf7158325b0026fc",
+    "46932cd30935b08e1da795f505a9b443c9dc668a",
+    "386b361865fb22d6da241716481d919b6ebd8249"
+  ],
+  "changed_paths": [
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py"
+  ],
+  "source_refs": [
+    {
+      "git_sha": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "tree": "63cdae9393a55b3acda824ab955fd89e3ca1c8b9",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "bytes": 16553,
+      "sha256": "3ab405d256bd4ff53b2d4e04afadc7f1ae3ebe50d5d029f290862f1bb259c095"
+    },
+    {
+      "git_sha": "47a2ff90186628afafa4c01ecf7158325b0026fc",
+      "tree": "d7f5e47193b7049fd06b7a59e0a759b796e0934a",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "bytes": 16768,
+      "sha256": "b6548852447e62975283aee7519a175e98bce4ffd6180e1769976f8e7fecfb7b"
+    },
+    {
+      "git_sha": "46932cd30935b08e1da795f505a9b443c9dc668a",
+      "tree": "77443e1dfa6cc82cce2560793239daf4b5436117",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "bytes": 16785,
+      "sha256": "e8ab139583d771c50ffdbc2f245498f51eaac05c567665b7307b5be6aaeabede"
+    },
+    {
+      "git_sha": "386b361865fb22d6da241716481d919b6ebd8249",
+      "tree": "4fe794fb3b1a57b4771594cf91e5f1202d73eccf",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "bytes": 16846,
+      "sha256": "5a479bc577181020b229be26415ece9453d5b54c5b83188ae39b5dbe21fc17ac"
+    }
+  ],
+  "exact_footprint": "one test,5 insertions1 deletion across3 append-only commits",
+  "unchanged_pipeline_and_other_test_ast": true,
+  "unchanged_inner_reader_ast_outside_reviewed_candidate_projection_assertions": true,
+  "product_provider_worker_lock_catalog_schema_changes": [],
+  "observations": [
+    {
+      "name": "root-composed-boundaries",
+      "target_sha": "4a038c2ebf0c4fd79dcc084c983ed7b76756a488",
+      "target_tree": "63cdae9393a55b3acda824ab955fd89e3ca1c8b9",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -o addopts= -q -o cache_dir=/tmp/e02-F-continuation-20261006/root-composed-boundaries/cache --basetemp /tmp/e02-F-continuation-20261006/root-composed-boundaries/tmp tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_gcm_job_persisted_fresh_reader_and_scientist_consumer tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader tests/unit/foundry/methods/backends/test_dispatch_output_contract.py tests/unit/ir/analytics/test_causal_identification_candidate.py tests/unit/scientist/governance/test_causal_confidence_candidate.py tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+        "TMPDIR": "/tmp"
+      },
+      "input_closure": "Exact authored real selected worker/MethodJob/CAS/fresh Python3.14 report reader path; oldwave also includes all7 declared native consumer selections.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 70.58392945899686,
+      "output": "/tmp/e02-F-continuation-20261006/root-composed-boundaries/stdout",
+      "output_refs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/root-composed-boundaries/stdout",
+          "bytes": 5879,
+          "sha256": "127a2f5ded1db5fdc8db0228ffa16eb1d301ca996c4e4c9ca9ef1715e43a7ddd"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/root-composed-boundaries/stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "interpretation": "old positive identification gate assertion",
+      "role": "Existing author actual run independently read and reconciled; no reviewer worker rerun"
+    },
+    {
+      "name": "root-composed-worker-candidate",
+      "target_sha": "47a2ff90186628afafa4c01ecf7158325b0026fc",
+      "target_tree": "d7f5e47193b7049fd06b7a59e0a759b796e0934a",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -o addopts= -q -o cache_dir=/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/cache --basetemp /tmp/e02-F-continuation-20261006/root-composed-worker-candidate/tmp tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+        "TMPDIR": "/tmp"
+      },
+      "input_closure": "Exact authored real selected worker/MethodJob/CAS/fresh Python3.14 report reader path; oldwave also includes all7 declared native consumer selections.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 20.828501987998607,
+      "output": "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/stdout",
+      "output_refs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/stdout",
+          "bytes": 6347,
+          "sha256": "a5679ad9bd15e21727c1dec9ddbbb4f3c9c80c6b7da3d7150aaf0d57a53a3f9c"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "interpretation": "nonexistent UncertaintyEnvelope.ci attribute",
+      "role": "Existing author actual run independently read and reconciled; no reviewer worker rerun"
+    },
+    {
+      "name": "root-composed-worker-corrected",
+      "target_sha": "46932cd30935b08e1da795f505a9b443c9dc668a",
+      "target_tree": "77443e1dfa6cc82cce2560793239daf4b5436117",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -o addopts= -q -o cache_dir=/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/cache --basetemp /tmp/e02-F-continuation-20261006/root-composed-worker-corrected/tmp tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+        "TMPDIR": "/tmp"
+      },
+      "input_closure": "Exact authored real selected worker/MethodJob/CAS/fresh Python3.14 report reader path; oldwave also includes all7 declared native consumer selections.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "wall_seconds": 18.34697806100303,
+      "output": "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/stdout",
+      "output_refs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/stdout",
+          "bytes": 6134,
+          "sha256": "f5ae61e5c9d7d0daa9e41193997abc001a4adb93477e826a4f32ee27f31b1a27"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "interpretation": "raw equality against declared12-decimal canonicalization",
+      "role": "Existing author actual run independently read and reconciled; no reviewer worker rerun"
+    },
+    {
+      "name": "root-composed-worker-policy",
+      "target_sha": "386b361865fb22d6da241716481d919b6ebd8249",
+      "target_tree": "4fe794fb3b1a57b4771594cf91e5f1202d73eccf",
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -o addopts= -q -o cache_dir=/tmp/e02-F-continuation-20261006/root-composed-worker-policy/cache --basetemp /tmp/e02-F-continuation-20261006/root-composed-worker-policy/tmp tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+        "TMPDIR": "/tmp"
+      },
+      "input_closure": "Exact authored real selected worker/MethodJob/CAS/fresh Python3.14 report reader path; oldwave also includes all7 declared native consumer selections.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 18.72357058399939,
+      "output": "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/stdout",
+      "output_refs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/stdout",
+          "bytes": 99,
+          "sha256": "99c0ab52b603515602dfc1ee4946e6a859c1e7f6ee04df01903a95e2e018848f"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/stderr",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "interpretation": "corrected canonical interval and non-gating candidate assertions",
+      "role": "Existing author actual run independently read and reconciled; no reviewer worker rerun"
+    }
+  ],
+  "external_full_refs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-boundaries/receipt.json",
+      "bytes": 1905,
+      "sha256": "059a187ddba4f04fe93bd6b80f99821132e346a05bdfb2047899e93a16944df9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-boundaries/stdout",
+      "bytes": 5879,
+      "sha256": "127a2f5ded1db5fdc8db0228ffa16eb1d301ca996c4e4c9ca9ef1715e43a7ddd"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-boundaries/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/receipt.json",
+      "bytes": 1217,
+      "sha256": "3ee42a9f62839cbffa3c2544a5603049912d5dc5cda63bcd01805fafc4d67bad"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/stdout",
+      "bytes": 6347,
+      "sha256": "a5679ad9bd15e21727c1dec9ddbbb4f3c9c80c6b7da3d7150aaf0d57a53a3f9c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/receipt.json",
+      "bytes": 1392,
+      "sha256": "b811f2b810bd84ca7b3621add647b96a1071cc63d44096dce5c9064b9a49bfce"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/stdout",
+      "bytes": 6134,
+      "sha256": "f5ae61e5c9d7d0daa9e41193997abc001a4adb93477e826a4f32ee27f31b1a27"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/receipt.json",
+      "bytes": 1378,
+      "sha256": "fe41f552de42b7e307ca5c73aa993159c45ff70d465d039d3f9d6e8726555aca"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/stdout",
+      "bytes": 99,
+      "sha256": "99c0ab52b603515602dfc1ee4946e6a859c1e7f6ee04df01903a95e2e018848f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "reviewer_worker_reexecution": false,
+  "outcome": "PASS"
+}

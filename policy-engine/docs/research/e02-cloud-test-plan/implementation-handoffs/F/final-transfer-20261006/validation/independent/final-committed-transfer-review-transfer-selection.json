@@ -1,0 +1,148 @@
+{
+  "schema": "policyos.e02.F.independent_transfer_review_selection.v1",
+  "check": "PASS",
+  "reviewer": "F/cau independent direct leaf",
+  "candidate_sha": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+  "candidate_tree": "86845947252bee585eb7293d49f3d0b333a5c6f0",
+  "scope": "Frozen full independent doc-only reviewer/actual native and six negative process outputs/replayer/execution; no source or ledger mutation",
+  "items": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-replayer.py",
+      "bytes": 12298,
+      "sha256": "e0cb3431b1796ba06e36d3fec4b5ab2ada806b80f4f323cb743ccb32d82246dc",
+      "encoding": "unchanged complete original bytes"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review.json",
+      "bytes": 125693,
+      "sha256": "d3dc0ac768aab2badcf271335d14a4a2dff64bbfc1d08ab4698cbe58e062ead9",
+      "encoding": "unchanged complete original bytes"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review.stdout",
+      "bytes": 593,
+      "sha256": "3ac79f784c1d0e19a8219319340de27d55d84f7cba25682ca6fc53fedcaeb4d2",
+      "encoding": "unchanged complete original bytes"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "unchanged complete original bytes"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review.execution.json",
+      "bytes": 1133,
+      "sha256": "f4f1c82f57ca936b216206c0fceb4bd012c3dadf23c569f17fcaf7f9bc52d6ec",
+      "encoding": "unchanged complete original bytes"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-native.stdout",
+      "bytes": 584,
+      "sha256": "04e69ff012c23914d8ec2cb42e02223e89959c9687f7089f2ced654457dac0db",
+      "encoding": "unchanged complete original bytes"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-native.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "unchanged complete original bytes"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-missing_component.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "unchanged complete original bytes"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-missing_component.stderr",
+      "bytes": 523,
+      "sha256": "3eb1338ae1c41475ebf49f2a5c85bdca8f2fe7564590683db3c075327b0b7c4e",
+      "encoding": "unchanged complete original bytes"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-wrong_owner.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "unchanged complete original bytes"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-wrong_owner.stderr",
+      "bytes": 626,
+      "sha256": "42228767dae0f7b6724345b91604d90a2ca46c186284f05e71fbc0fc734a0970",
+      "encoding": "unchanged complete original bytes"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-stale_transport_hash.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "unchanged complete original bytes"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-stale_transport_hash.stderr",
+      "bytes": 710,
+      "sha256": "2b6973447cc88fd98952af16c45baa678c93a9add924438670815dd19c902f9b",
+      "encoding": "unchanged complete original bytes"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-coherent_open.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "unchanged complete original bytes"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-coherent_open.stderr",
+      "bytes": 535,
+      "sha256": "05d9b27cb857264a862f45376d05753a00574612b0ecfa9ffc422fcf74829ef2",
+      "encoding": "unchanged complete original bytes"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-coherent_pending.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "unchanged complete original bytes"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-coherent_pending.stderr",
+      "bytes": 504,
+      "sha256": "a952b8b4cd87d2747492e724db1fc975eeeabb0d52f41377c9d732c7b0770f8f",
+      "encoding": "unchanged complete original bytes"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-swapped_source_cards.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "unchanged complete original bytes"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-swapped_source_cards.stderr",
+      "bytes": 588,
+      "sha256": "4195a860a7aa5c6da27bcd6a6796f8520cf4a3fb19d52b0d55b1d4be85828351",
+      "encoding": "unchanged complete original bytes"
+    }
+  ],
+  "item_count": 19,
+  "total_bytes": 143787,
+  "current_deciding_reference_check": "PASS",
+  "all_reference_custody_check": "UNRUN",
+  "negative_cases": [
+    "missing_component",
+    "wrong_owner",
+    "stale_transport_hash",
+    "coherent_open",
+    "coherent_pending",
+    "swapped_source_cards"
+  ],
+  "excluded": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-running.json",
+      "reason": "Ephemeral process status; no deciding property measurement"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-footprint.json",
+      "reason": "Pure immutable Git-derived106doc-path footprint; reconstruct with git diff --name-only92148340601ac6ea69f0dbd4764aae7428ad83d7 73f1e698f4271983ed8e83fba0314ca1f36b5a48, no unique observation."
+    }
+  ],
+  "formal_G_acceptance": "pending",
+  "scientific_reruns": 0
+}

@@ -98,6 +98,10 @@ routing, or decision artifact shape.
 
 ## Reference Docs
 
+- [Selected causal method consumers](../../../../docs/reference/scientist/causal-selected-consumers.md)
+  describes the numerical source/result reconciliation and the separate
+  evaluation-admission requirement.
+
 - Builtin node reference: [`../../../../docs/reference/scientist/nodes.md`](../../../../docs/reference/scientist/nodes.md)
 - Workflow catalog: [`../../../../docs/reference/scientist/workflows.md`](../../../../docs/reference/scientist/workflows.md)
 - Scientist reference index: [`../../../../docs/reference/scientist/index.md`](../../../../docs/reference/scientist/index.md)

@@ -1,0 +1,13 @@
+Memory-only actual value projector gate branch removed; native declaration, owner, method/signature/function identity, estimand/content binding and all report markers retained. No source writes.
+2026-10-06 16:40:25 [debug    ] method_dispatch_start          backend=numpy fqn=econometrics.timeseries.time_series@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 16:40:25 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=98.4 fqn=econometrics.timeseries.time_series@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+F
+=================================== FAILURES ===================================
+____ test_existing_native_noncausal_value_profile[HEURISTIC_POST_SELECTION] ____
+/tmp/e02-F-continuation-20261006/foundry/test_value_consumer_identification.py:181: in test_existing_native_noncausal_value_profile
+    assert isinstance(evidence, MethodValueRefusal)
+E   AssertionError: assert False
+E    +  where False = isinstance(MethodValueEvidence(status='contract_projection_ready', authority_scope='contract_only_nonproduction', production_valu...eipt=None, limitation_codes=(), content_hash='sha256:5a40336916a75b08f916e0559138c3e0974fd79f639c42e5922b53b94e820776'), MethodValueRefusal)
+=========================== short test summary info ============================
+FAILED ../../../tmp/e02-F-continuation-20261006/foundry/test_value_consumer_identification.py::test_existing_native_noncausal_value_profile[HEURISTIC_POST_SELECTION]
+1 failed, 4 deselected in 4.62s

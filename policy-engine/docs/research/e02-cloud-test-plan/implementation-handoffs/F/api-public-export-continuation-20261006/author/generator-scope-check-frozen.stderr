@@ -1,0 +1,5 @@
+ERROR: usage: python -m pytest [options] [file_or_dir] [file_or_dir] [...]
+python -m pytest: error: unrecognized arguments: --skip-generated-checks
+  inifile: /workspace/e02-F-api-20261006/policy-engine/pytest.ini
+  rootdir: /workspace/e02-F-api-20261006/policy-engine
+

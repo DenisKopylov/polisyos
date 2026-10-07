@@ -1,0 +1,34 @@
+FF.                                                                      [100%]
+=================================== FAILURES ===================================
+_______ test_actual_owned_origin_and_current_masked_pairwise_population ________
+
+    def test_actual_owned_origin_and_current_masked_pairwise_population():
+        owner=Path(inspect.getfile(compute_gini_hard)).resolve()
+        assert owner.is_relative_to(Path('/workspace/e02-F-economics-20261006/policy-engine/src'))
+        original=EconomicState.empty(n_agents=6,seed=71)
+        values=np.array([1.,np.nan,4.,-np.inf,9.,0.],dtype=np.float32)
+        active=np.array([1,0,1,0,1,1],dtype=bool)
+        current=original.replace(agents=original.agents.replace(wealth=jnp.asarray(values),active=jnp.asarray(active)))
+>       assert float(current.distributions.gini_wealth)==float(original.distributions.gini_wealth)==0.
+E       assert 0.5002772212028503 == 0.0
+E        +  where 0.5002772212028503 = float(Array(0.5002772, dtype=float32))
+E        +    where Array(0.5002772, dtype=float32) = EconomicDistributions(gini_wealth=Array(0.5002772, dtype=float32), gini_income=Array(0., dtype=float32), top_10_share=...rray(0.15157175, dtype=float32), median_wealth=Array(21255.502, dtype=float32), median_income=Array(0., dtype=float32)).gini_wealth
+E        +      where EconomicDistributions(gini_wealth=Array(0.5002772, dtype=float32), gini_income=Array(0., dtype=float32), top_10_share=...rray(0.15157175, dtype=float32), median_wealth=Array(21255.502, dtype=float32), median_income=Array(0., dtype=float32)) = EconomicState(agents=EconomicAgentState(active=Array([ True,  True,  True,  True,  True,  True], dtype=bool), age=Arra....355, dtype=float32), mean_income=Array(0., dtype=float32)), time_step=Array(0, dtype=int32), n_agents=6, max_agents=6).distributions
+
+/tmp/e02-F-continuation-20261006/api/eco-independent/test_current_reader_independent.py:19: AssertionError
+_______ test_current_population_refuses_signed_value_behind_valid_scalar _______
+
+    def test_current_population_refuses_signed_value_behind_valid_scalar():
+        original=EconomicState.empty(n_agents=4,seed=71)
+        current=original.replace(agents=original.agents.replace(wealth=jnp.asarray([-2.,1.,4.,4.])))
+>       assert float(current.distributions.gini_wealth)==0.
+E       assert 0.33984872698783875 == 0.0
+E        +  where 0.33984872698783875 = float(Array(0.33984873, dtype=float32))
+E        +    where Array(0.33984873, dtype=float32) = EconomicDistributions(gini_wealth=Array(0.33984873, dtype=float32), gini_income=Array(0., dtype=float32), top_10_share...e=Array(0.24374, dtype=float32), median_wealth=Array(28454.703, dtype=float32), median_income=Array(0., dtype=float32)).gini_wealth
+E        +      where EconomicDistributions(gini_wealth=Array(0.33984873, dtype=float32), gini_income=Array(0., dtype=float32), top_10_share...e=Array(0.24374, dtype=float32), median_wealth=Array(28454.703, dtype=float32), median_income=Array(0., dtype=float32)) = EconomicState(agents=EconomicAgentState(active=Array([ True,  True,  True,  True], dtype=bool), age=Array([33, 50, 39,....914, dtype=float32), mean_income=Array(0., dtype=float32)), time_step=Array(0, dtype=int32), n_agents=4, max_agents=4).distributions
+
+/tmp/e02-F-continuation-20261006/api/eco-independent/test_current_reader_independent.py:35: AssertionError
+=========================== short test summary info ============================
+FAILED ../../../tmp/e02-F-continuation-20261006/api/eco-independent/test_current_reader_independent.py::test_actual_owned_origin_and_current_masked_pairwise_population
+FAILED ../../../tmp/e02-F-continuation-20261006/api/eco-independent/test_current_reader_independent.py::test_current_population_refuses_signed_value_behind_valid_scalar
+2 failed, 1 passed in 8.92s

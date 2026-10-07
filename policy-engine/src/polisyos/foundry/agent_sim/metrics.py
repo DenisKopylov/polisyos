@@ -66,7 +66,8 @@ class MetricsBuffer:
         if name not in self.scalars:
             return self
         new_scalars = {
-            k: (v.at[idx].set(value) if k == name else v) for k, v in self.scalars.items()
+            k: (v.at[idx].set(jnp.asarray(value, dtype=v.dtype)) if k == name else v)
+            for k, v in self.scalars.items()
         }
         return self.replace(scalars=new_scalars)
 
@@ -90,7 +91,8 @@ class MetricsBuffer:
         hist, _ = jnp.histogram(safe_values, bins=bins, weights=weights)
         hist = hist / jnp.maximum(jnp.sum(hist), 1.0)
         new_histograms = {
-            k: (v.at[idx].set(hist) if k == name else v) for k, v in self.histograms.items()
+            k: (v.at[idx].set(hist.astype(v.dtype)) if k == name else v)
+            for k, v in self.histograms.items()
         }
         return self.replace(histograms=new_histograms)
 
@@ -164,6 +166,7 @@ class MetricsCollector:
 
 def standard_training_metrics() -> list[MetricDefinition]:
     """Declare the default state metrics tracked during agent training."""
+    from polisyos.foundry.agent_sim.distributions import compute_gini_hard
 
     def _active_mean(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
         active_f = active.astype(jnp.float32)
@@ -179,7 +182,9 @@ def standard_training_metrics() -> list[MetricDefinition]:
         MetricDefinition(
             name="gini_wealth",
             metric_type=MetricType.SCALAR,
-            compute_fn=lambda s: s.distributions.gini_wealth,
+            compute_fn=lambda s: compute_gini_hard(s.agents.wealth, s.agents.active).astype(
+                jnp.float32
+            ),
         ),
         MetricDefinition(
             name="gdp",

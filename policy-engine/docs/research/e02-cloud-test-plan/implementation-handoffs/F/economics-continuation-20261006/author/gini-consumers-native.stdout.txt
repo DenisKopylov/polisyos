@@ -1,0 +1,26 @@
+.....................................................................F.. [ 60%]
+...............................................                          [100%]
+=================================== FAILURES ===================================
+___ test_distribution_executor_exposes_dated_snapshot_not_current_population ___
+tests/unit/foundry/agent_sim/test_gini_consumers.py:150: in test_distribution_executor_exposes_dated_snapshot_not_current_population
+    first, metrics = executor.step(initial)
+                     ^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/distribution_executor.py:43: in step
+    state = maybe_update_distributions(state, self.distribution_config)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/distributions.py:94: in maybe_update_distributions
+    new_distributions = jax.lax.cond(
+E   TypeError: cond branches must have equal output types but they differ.
+E   
+E   true_fun is _update at /workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:91
+E   false_fun is <lambda> at /workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/distributions.py:97
+E   
+E     * the output of true_fun at path .consumption_quantiles has type float32[2] but the corresponding output of false_fun has type float32[10], so the shapes do not match;
+E     * the output of true_fun at path .income_quantiles has type float32[2] but the corresponding output of false_fun has type float32[10], so the shapes do not match;
+E     * the output of true_fun at path .wealth_quantiles has type float32[2] but the corresponding output of false_fun has type float32[10], so the shapes do not match.
+E   
+E   Revise true_fun and/or false_fun so that all output types match.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/agent_sim/test_gini_consumers.py::test_distribution_executor_exposes_dated_snapshot_not_current_population

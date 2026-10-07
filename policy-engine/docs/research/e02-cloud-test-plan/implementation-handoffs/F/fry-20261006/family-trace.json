@@ -1,0 +1,60 @@
+{
+  "scope": "family-to-runtime admission refusal only; not economic semantics",
+  "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "source_files": [
+    {
+      "path": "src/polisyos/foundry/_registry.py",
+      "sha256": "f9a3b8ef31a5be5a3b0010b2bc25ffb75fb6e2c5c7d567b75f1bac0c021de9a9",
+      "bytes": 11685
+    },
+    {
+      "path": "src/polisyos/foundry/methods/catalog/mechanism/families.py",
+      "sha256": "f2d93bcbf6af0623f2d3b7290cb6dddcf3b776ef235ee37072fb26e3686cd019",
+      "bytes": 3839
+    },
+    {
+      "path": "src/polisyos/scientist/validation/verification/ic/service.py",
+      "sha256": "8c29a0639c5ccadefd69cda575e690bbb846bc3a770dcd0f2345ef9df049497d",
+      "bytes": 87657
+    }
+  ],
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "runtime_ids": [
+    "adaptive_agent",
+    "income_tax",
+    "labor_market",
+    "queue",
+    "tax_subsidy"
+  ],
+  "families": [
+    {
+      "family_id": "bayes_tax_affine_v1",
+      "exception": "MissingRuntimeMechanismSupportError",
+      "message": "Mechanism is registered in IR but not executable in Foundry runtime: 'bayes_tax_affine_v1'. Available runtime mechanisms: [adaptive_agent, income_tax, labor_market, queue, tax_subsidy]",
+      "runtime_state_operation": "unavailable"
+    },
+    {
+      "family_id": "bayes_tax_pl_v1",
+      "exception": "MissingRuntimeMechanismSupportError",
+      "message": "Mechanism is registered in IR but not executable in Foundry runtime: 'bayes_tax_pl_v1'. Available runtime mechanisms: [adaptive_agent, income_tax, labor_market, queue, tax_subsidy]",
+      "runtime_state_operation": "unavailable"
+    },
+    {
+      "family_id": "license_myerson_score_v1",
+      "exception": "MissingRuntimeMechanismSupportError",
+      "message": "Mechanism is registered in IR but not executable in Foundry runtime: 'license_myerson_score_v1'. Available runtime mechanisms: [adaptive_agent, income_tax, labor_market, queue, tax_subsidy]",
+      "runtime_state_operation": "unavailable"
+    },
+    {
+      "family_id": "license_scoring_reserve_v1",
+      "exception": "MissingRuntimeMechanismSupportError",
+      "message": "Mechanism is registered in IR but not executable in Foundry runtime: 'license_scoring_reserve_v1'. Available runtime mechanisms: [adaptive_agent, income_tax, labor_market, queue, tax_subsidy]",
+      "runtime_state_operation": "unavailable"
+    }
+  ],
+  "native_stdout": "2026-10-06 10:50:13 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.adaptive_agent@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['adaptive-agent', 'builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'runtime', 'structural'] version=1.0.0\n2026-10-06 10:50:13 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.income_tax@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'tax'] version=1.0.0\n2026-10-06 10:50:13 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.labor_market@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'labor', 'mechanism', 'runtime', 'structural'] version=1.0.0\n2026-10-06 10:50:13 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.queue@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'queue', 'runtime', 'structural'] version=1.0.0\n2026-10-06 10:50:13 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.tax_subsidy@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'subsidy'] version=1.0.0\n",
+  "finding_state": "limited",
+  "outcome": "PASS",
+  "missing_input": "Owner-ratified family certificate-to-state operation mapping; native IC certificate evidence remains separate"
+}

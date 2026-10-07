@@ -1,0 +1,199 @@
+{
+  "schema": "e02-independent-tmle-selected-node-review-v1",
+  "reviewer": "F/CAU independent leaf",
+  "candidate_sha": "d09e2b546f5ccf2ed1c297e9578661358270f92b",
+  "candidate_tree": "ede8862d0204d6d8d34fceb4f425929bd5c093ed",
+  "execution_checkout_sha": "8f69812ec28098385b2063db89f7e04d354c18cb",
+  "execution_checkout_kind": "Append-only otherreceipts/testregex; notsamefulltree asd09. Nine definingblobs exactlyd09 atbegin/end.",
+  "decision": "GO_BOUNDED",
+  "check": "PASS",
+  "outcome": "limited",
+  "blocking_numerical_source_issues": [],
+  "checks": [
+    {
+      "id": "original-native",
+      "kind": "native",
+      "check": "FAIL",
+      "output": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native.stdout.txt",
+        "bytes": 10959,
+        "sha256": "1f2da8b74740d742ff3b35ece627eb83ee690b19af69d40cfa68ccd0a0ceb50a"
+      },
+      "summary": "Initial 17 selectors: 16 PASS and 1 reviewer regex FAIL. Raw ATE +0.25 was correctly refused by CausalEffectReport because the point fell outside its unchanged CI; the probe expected the later projection error. The seven owner tests, full source/fold/JSON ABI observation, five input refusals before job, raw SE refusal, real DiD, and selected DoWhy 500-row OLS consumer all passed.",
+      "actual_counts": {
+        "passed": 16,
+        "failed": 1,
+        "skipped": 0,
+        "errors": 0,
+        "warnings": 1
+      }
+    },
+    {
+      "id": "corrected-native",
+      "kind": "native",
+      "check": "PASS",
+      "output": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native-corrected.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native-corrected.stdout.txt",
+        "bytes": 1459,
+        "sha256": "9255586f0289996f3e46e95851020f8b8bc6990a2f0a870125a914f7d253dab2"
+      },
+      "summary": "Two corrected attacks pass their refusal oracle. Each observer executes the real run_job first. Raw ATE +0.01 stays inside the actual CI and fails the numerical projection comparison; raw SE +0.25 also fails. Original CAS result/report/envelope remain unchanged.",
+      "actual_counts": {
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "errors": 0
+      }
+    },
+    {
+      "id": "projection-property-removal",
+      "kind": "property_removal",
+      "check": "PASS",
+      "output": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal-projection.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal-projection.stdout.txt",
+        "bytes": 4940,
+        "sha256": "b34f44025440e2e602899ae36f64d742aa39db8181aa450be9f6e00d82a1b62a"
+      },
+      "summary": "Removing only the canonical verifier body in memory yields four expected native FAILs (DID NOT RAISE): changed SE, sample size, inference profile, and interval. Function identity, signature, producer, results and markers remain intact.",
+      "actual_counts": {
+        "failed": 4,
+        "passed": 0,
+        "skipped": 0,
+        "errors": 0,
+        "warnings": 2,
+        "exit_code": 1
+      }
+    },
+    {
+      "id": "source-property-removal",
+      "kind": "property_removal",
+      "check": "PASS",
+      "output": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal-source.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal-source.stdout.txt",
+        "bytes": 2589,
+        "sha256": "7ebc88315c7cc2d860197c00daea84ea18bcb44bf7e60ad9242472afcf989206"
+      },
+      "summary": "Removing only the current source/materialization equality refusal lets the genuine job run on changed W. Typed checks, source resolution and numerical projection remain intact. The source refusal test gives one expected DID NOT RAISE FAIL.",
+      "actual_counts": {
+        "failed": 1,
+        "passed": 0,
+        "skipped": 0,
+        "errors": 0,
+        "warnings": 2,
+        "exit_code": 1
+      }
+    },
+    {
+      "id": "producer-dependency-identity",
+      "kind": "static_source",
+      "check": "PASS",
+      "output": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/static-scope.json",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/static-scope.json",
+        "bytes": 2686,
+        "sha256": "b864a3b3c6b8e83f14531ac495a7dc118536a080ed16505f0214b036282f190a"
+      },
+      "summary": "Four producer/core/IR/test blobs are byte-identical to reviewed 6c; the 45 producer cases were retained without repeating. The two executed legacy DiD/DoWhy function bodies are unchanged from d09. Exact 8f sibling file binding is recorded; no whole-gate inheritance claim.",
+      "actual_counts": {
+        "producer_blobs": 4,
+        "sibling_function_bodies": 2
+      }
+    }
+  ],
+  "actual_consumer_path": "Selected TMLE FQN → typed HTE source loader → comparison with current materialization before job → genuine _run_primary_causal_job/run_job → native TMLE → MethodJob result/evidence in CAS → offered/persisted report and envelope JSON ABI comparison → producer report_from_result comparison → fresh Python reader. The internal numerical helper assumes its caller has admitted execution; these tests do not manufacture that permission.",
+  "oracles": {
+    "source_intake": "The actual 400×2 X-then-W matrix was observed by forwarding the canonical native fitter. Six genuine folds complete every 400-row held-out partition once for seeds 18 and 1015. CAS manifest inputs contain the selected source artifact.",
+    "input_negatives": "Same-shape changes in covariates, confounders, outcome, treatment and sample IDs refuse before any job call. Current source/ref, parameters and profile markers remain the same.",
+    "report_contract": "Whole report JSON projection is compared. Changed SE, sample size, inference profile and CI retaining the result and success markers are refused. The real job preserves tuples in nested Any fields; fresh CAS represents them as lists. Both compare as the same JSON ABI.",
+    "raw_result_numeric_negatives": "The observer forwards the real job, then amends only its offered raw ATE or SE. Original persisted CAS bytes remain untouched. The numerical projection refuses both.",
+    "sibling_regressions": "A real 12-unit staggered DiD job/CAS/fresh reader and the real pinned DoWhy 0.14 worker with 500-row OLS parity passed. No Python 3.14 optional backend absence or marker bypass was counted as a witness.",
+    "synthetic_point": 0.275000574595452,
+    "data_scope": "Known randomized synthetic DGP, 400 rows. No admitted real observations or calibration of repeated-sampling coverage is claimed."
+  },
+  "environment": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/environment.json",
+    "bytes": 26155,
+    "sha256": "b7fbc6b99899014e5c7f25478ca511d0b2e926efb12094d3b7d5e8225b2d13f9"
+  },
+  "source_custody": {
+    "defining_blob_count": 9,
+    "execution_files": [
+      {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native-corrected.execution.json",
+        "bytes": 9656,
+        "sha256": "cb263b12808474d77ec56a7cb03478829e39832176ffea25d56565739039386d"
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native.execution.json",
+        "bytes": 10490,
+        "sha256": "3b5b87cbd8045ebdda806221ff288c0326d13e2c6d811ca949797582eb78e649"
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal-projection.execution.json",
+        "bytes": 10193,
+        "sha256": "0db3d53145b2197fd1c19d2616c3ddc0feda152123fc3a9b8825b1111ca0cc92"
+      },
+      {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal-source.execution.json",
+        "bytes": 10162,
+        "sha256": "7ef4d0498cc8744ff59b8bcffa30fd0467878b913906825d395fc032e6a7defd"
+      }
+    ],
+    "source_begin_end_all_defining_blobs_equal": true,
+    "sibling_execution_source": "8f69812ec28098385b2063db89f7e04d354c18cb",
+    "sibling_file_sha256": "0b3f300693f67b2bd23201b46b0e44b0eb8bef5975b2984b39ebaf7aa43484ba",
+    "source_writes": false,
+    "git_mutations": false,
+    "environment_mutations": false,
+    "full_gate_input_denominator": "not_established; noP41"
+  },
+  "harness_observation": {
+    "raw_native_result": "16PASS1FAIL1warning",
+    "classification": "Probe regex error after an actual earlier validator refusal. The failed assertion is preserved; no product escape or native PASS is inferred from it.",
+    "original_probe": {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/test_independent_tmle_node_initial.py",
+      "bytes": 5470,
+      "sha256": "5c93709e699d0d069fadf781720baf6034eb4fc8e81c755ef3fef99c7fa74eee"
+    },
+    "correction": "ATE amendment reduced from +0.25 to +0.01 with an explicit assertion that it stays inside the real CI. Status, profile and interval remain intact. Corrected two-case projection refusal run passes. Original stdout/stderr and execution-time scripts remain retained."
+  },
+  "public_provider_followup": {
+    "check": "PASS",
+    "owner": "root",
+    "action": "Rootagreed append-only importTMLEEstimator viaexistingpublic polisyos.foundry.methods.causal importblock insteadinternalcatalogpath afterreviewreadrelease. No newfacade/shim required.",
+    "identity_evidence": "Producerreview6c alias/pickle0exit existingpublic/catalogclassandfactorysameobject.",
+    "source_release": "ExplicitsourceREADCOMPLETE sentroot afterallnative/controlsourceendcaptures.",
+    "not_retargeted": "Originalnativechecks remain d09; import-only12 delta has its own exact source/tree/identity.",
+    "completed_source_sha": "12dce5675edfd345663591fd3219f2f8ea5e4fc2",
+    "completed_delta_ref": {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/final-import-delta.json",
+      "bytes": 1376,
+      "sha256": "d3cb6e204920e69432131b37862054e0d52e250a674901e9ac9569234a7a89ee"
+    }
+  },
+  "limits": [
+    "WholeRunCausalEvaluationNodeEvalSafety authoritypositive andactualcommonpool allstudyworkloadbudget remainUNRUN. Thisfiniteinternalnumericalconsumer witness doesnot establishacceptedexecution or causalidentification.",
+    "Reports remainnongating and identified_estimandNone under consumerassertedregularIID assumptions; observedDGP/projection/samepointCI isnotrealdataexchangeability or populationpositivity admission.",
+    "Verifierprojectsdeclaredreport fields fromnativeproducerresult, withoutindependentre-estimation; completeauxiliaryrawdiagnosticsdictionary bytecomparison isnotclaimed.",
+    "Rootschema/catalog/clientgenerateddeployments andinstalledcombinedfinalcandidate areseparateownergates. No wholeCI/architecture/genericgatePASS asserted.",
+    "Historicalproducer45case/coremath evidence retainedat6c only after4exactbyte-identicalblobs demonstrated, not relabeledtofullcurrentrootruntime tree.",
+    "Initialoriginalregexfailure and2warning-mutant rawoutputs retained; warnings arepytestcacheconfiguration andassertionrewritediagnostics, not backend/authorityPASS."
+  ],
+  "full_output_policy": "Complete moderate stdout/stderr, execution/source/environment andin-memoryremoval/replayers retained. No quotas, fakepool, authorityissuer, estimator/backend shim, newworktree or source edits.",
+  "final_import_only_candidate": {
+    "source_sha": "12dce5675edfd345663591fd3219f2f8ea5e4fc2",
+    "source_tree": "264d51adc56f21b1113a1065093b6553802a1cc5",
+    "check": "PASS",
+    "decision": "GO_BOUNDED",
+    "delta_ref": {
+      "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/final-import-delta.json",
+      "bytes": 1376,
+      "sha256": "d3cb6e204920e69432131b37862054e0d52e250a674901e9ac9569234a7a89ee"
+    },
+    "scope": "All32function/classASTs unchanged fromd09. Maintainedpublicimport actualidentity verified. Nativecheckoutputs stayd09-bound; no numerical rerun/retarget."
+  }
+}

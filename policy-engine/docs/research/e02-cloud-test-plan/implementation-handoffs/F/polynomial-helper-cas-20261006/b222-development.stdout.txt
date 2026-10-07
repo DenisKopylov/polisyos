@@ -1,0 +1,51 @@
+FFFF
+=================================== FAILURES ===================================
+_ test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[additive_noise-4.0] _
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py:135: in test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader
+    source, model_ref, model = _fit_and_persist(store, family=family)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py:73: in _fit_and_persist
+    NodeMechanism(
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for NodeMechanism
+E     Value error, family_params must be JSON-serializable: Object of type ArtifactID is not JSON serializable [type=value_error, input_value={'variable': 'X', 'family..._FITTED: 'data_fitted'>}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_ test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[linear-7.0] _
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py:135: in test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader
+    source, model_ref, model = _fit_and_persist(store, family=family)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py:73: in _fit_and_persist
+    NodeMechanism(
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for NodeMechanism
+E     Value error, family_params must be JSON-serializable: Object of type ArtifactID is not JSON serializable [type=value_error, input_value={'variable': 'X', 'family..._FITTED: 'data_fitted'>}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+_ test_existing_polynomial_fit_helper_shared_residual_twin_cas_and_fresh_reader _
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py:188: in test_existing_polynomial_fit_helper_shared_residual_twin_cas_and_fresh_reader
+    _source, model_ref, model = _fit_and_persist(store)
+                                ^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py:73: in _fit_and_persist
+    NodeMechanism(
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for NodeMechanism
+E     Value error, family_params must be JSON-serializable: Object of type ArtifactID is not JSON serializable [type=value_error, input_value={'variable': 'X', 'family..._FITTED: 'data_fitted'>}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+__ test_declared_polynomial_payload_missing_coefficients_refuses_native_query __
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py:243: in test_declared_polynomial_payload_missing_coefficients_refuses_native_query
+    _source, _ref, model = _fit_and_persist(store)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py:73: in _fit_and_persist
+    NodeMechanism(
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for NodeMechanism
+E     Value error, family_params must be JSON-serializable: Object of type ArtifactID is not JSON serializable [type=value_error, input_value={'variable': 'X', 'family..._FITTED: 'data_fitted'>}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[additive_noise-4.0]
+FAILED tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[linear-7.0]
+FAILED tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_fit_helper_shared_residual_twin_cas_and_fresh_reader
+FAILED tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_declared_polynomial_payload_missing_coefficients_refuses_native_query
+4 failed, 1 warning in 5.37s

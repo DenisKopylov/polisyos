@@ -1,0 +1,98 @@
+{
+  "source_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+  "actual_full_check_outcome": "FAIL",
+  "paths": [
+    "schemas/snapshots/ir/feedback_solve_result.schema.json",
+    "schemas/snapshots/ir/_manifest.json"
+  ],
+  "differences": [
+    {
+      "path": "/$defs/EquilibriumMultiplicityReportRef/properties/manifest_profile_sha256",
+      "old": null,
+      "current": {
+        "anyOf": [
+          {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Manifest Profile Sha256"
+      }
+    },
+    {
+      "path": "/$defs/FeedbackConvergenceCertificateRef/properties/manifest_profile_sha256",
+      "old": null,
+      "current": {
+        "anyOf": [
+          {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Manifest Profile Sha256"
+      }
+    },
+    {
+      "path": "/$defs/FeedbackJacobianDiagnosticsRef/properties/manifest_profile_sha256",
+      "old": null,
+      "current": {
+        "anyOf": [
+          {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Manifest Profile Sha256"
+      }
+    },
+    {
+      "path": "/$defs/FeedbackTraceRef/properties/manifest_profile_sha256",
+      "old": null,
+      "current": {
+        "anyOf": [
+          {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Manifest Profile Sha256"
+      }
+    },
+    {
+      "path": "/$defs/ParameterOverrideBundleRef/properties/manifest_profile_sha256",
+      "old": null,
+      "current": {
+        "anyOf": [
+          {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Manifest Profile Sha256"
+      }
+    }
+  ],
+  "baseline_sha256": "00d1fac4d9059783c0107cb3d39b772115bfab8847267fadafc80ca5c7d27b42",
+  "generated_sha256": "27dad4e3ca52c016d9203c5d70b27299bfbb38698fc6f64f4e2bc7377d2045d3",
+  "disposition": "unowned observed drift; no fix and no inherited/P41/global green claim"
+}

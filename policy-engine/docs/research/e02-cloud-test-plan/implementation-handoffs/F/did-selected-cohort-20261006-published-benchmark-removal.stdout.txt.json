@@ -1,0 +1,6 @@
+{
+  "encoding": "utf8-json-string",
+  "decoded_bytes": 826,
+  "decoded_sha256": "b940e746fe4bbc697d0d1be3da48dba6922ead4d20eab5da36433ab466505f65",
+  "text": "{\n  \"outcome\": \"EXPECTED_REMOVAL_REJECTION\",\n  \"consumers\": [\n    {\n      \"consumer\": \"benchmarks.interference.policy_did_interference._runner_did\",\n      \"native_ATT\": 3.0000000000000018,\n      \"native_status\": \"success\",\n      \"removal\": \"REJECTED\",\n      \"actual_consumer_rejection\": \"Actual maintained caller reached historical aggregate producer\",\n      \"canonical_registered_fqn\": \"causal.inference.did.standard@1.0.0\"\n    },\n    {\n      \"consumer\": \"benchmarks.natural_experiments.policy_natural_experiments._runner_standard_did\",\n      \"native_ATT\": 3.0000000000000018,\n      \"native_status\": \"success\",\n      \"removal\": \"REJECTED\",\n      \"actual_consumer_rejection\": \"Actual maintained caller reached historical aggregate producer\",\n      \"canonical_registered_fqn\": \"causal.inference.did.standard@1.0.0\"\n    }\n  ]\n}\n"
+}

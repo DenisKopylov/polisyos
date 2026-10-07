@@ -1,0 +1,15 @@
+
+==================================== ERRORS ====================================
+_ ERROR collecting tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py _
+ImportError while importing test module '/workspace/e02-F-tmle-20261006/policy-engine/tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py:44: in <module>
+    from polisyos.ir.analytics.refs import CausalEffectReportRef
+E   ModuleNotFoundError: No module named 'polisyos.ir.analytics.refs'
+=========================== short test summary info ============================
+ERROR tests/unit/scientist/governance/test_tmle_persisted_evidence_consumers.py
+1 error in 5.48s

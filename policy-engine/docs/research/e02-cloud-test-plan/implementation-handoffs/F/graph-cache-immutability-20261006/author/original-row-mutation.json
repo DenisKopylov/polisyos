@@ -1,0 +1,45 @@
+{
+  "schema": "policyos.e02.execution.v1",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-"
+  ],
+  "stdin_replayer": {
+    "path": "/workspace/e02-F-20261006-receipts/graph/b220/original-row-mutation.py",
+    "bytes": 1109,
+    "sha256": "77b77ba99f8ecf0cf7680c242abf0504f98ba038fc03cf8d19a31b934f60621f"
+  },
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "target_sha": "a0a050d24c137b4893a7b52b2f83ea710da46471",
+  "candidate_scientific_source_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "python_version": "3.14.7"
+  },
+  "exit_code": 1,
+  "outcome": "FAIL",
+  "property": "Caller mutation of returned cached graph row must not change later export relative to graph dump/cold graph",
+  "input_closure": "Known synthetic X\u2192Y graph; actual nativeprovider and cachedrow reader; live KuzuDB UNRUN",
+  "P40": "same topology/cache mutation class one level deeper in returned derived rows",
+  "P41": "not_established; no inherited claim",
+  "source_binding": {
+    "sha": "a0a050d24c137b4893a7b52b2f83ea710da46471",
+    "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+    "git_blob": "8787cd95d63b342b5d9f5e760ffc8d73b1b8985d",
+    "bytes": 20114,
+    "sha256": "121f33acc4b5bbc0541b3bb5cc331c3e77d9a3f2e684359af58211e56f44e1a1"
+  },
+  "full_outputs": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/graph/b220/original-row-mutation.stdout.txt",
+      "bytes": 1933,
+      "sha256": "17bae615a9d84e8c97676ae6fe26075632e06dfffc038deb929f3948aa46679e"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/graph/b220/original-row-mutation.stderr.txt",
+      "bytes": 164,
+      "sha256": "99c8516f1b76d8cd8186bbe58ee780e17780b1d23f67dce57bd40c55fffe5bf1"
+    }
+  ]
+}

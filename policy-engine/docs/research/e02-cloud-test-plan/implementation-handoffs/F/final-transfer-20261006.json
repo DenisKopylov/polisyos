@@ -1,0 +1,674 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "final-transfer-20261006",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "B204",
+    "B205",
+    "B206",
+    "B207",
+    "B208",
+    "B209",
+    "B210",
+    "B211",
+    "B212",
+    "B213",
+    "B214",
+    "B215",
+    "B216",
+    "B217",
+    "B218",
+    "B219",
+    "B220",
+    "B221",
+    "B222",
+    "B223",
+    "B224",
+    "B225",
+    "B54",
+    "B56",
+    "LA-001",
+    "LA-002",
+    "LA-003",
+    "LA-004",
+    "LA-007",
+    "LA-016",
+    "LA-017",
+    "LA-019",
+    "LA-020",
+    "LA-035",
+    "LA-037"
+  ],
+  "bundle_ids": [
+    "API-01",
+    "CAU-01",
+    "CAU-02",
+    "CAU-03",
+    "CAU-04",
+    "CAU-05",
+    "ECO-01",
+    "FIT-01",
+    "FRY-01",
+    "FRY-03",
+    "GRF-01",
+    "GRF-02",
+    "GRF-03",
+    "LEX-01",
+    "SCM-01",
+    "SCM-02",
+    "SCM-03"
+  ],
+  "slice_base_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+  "implementation_commits": [
+    "73f1e698f4271983ed8e83fba0314ca1f36b5a48"
+  ],
+  "candidate_sha": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+  "candidate_tree_sha": "86845947252bee585eb7293d49f3d0b333a5c6f0",
+  "branch": "codex/e02-F-closeout-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/65",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/G-local-causal-reruns.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/G-source-integration-order.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/REPORT.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/api-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/api-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/cau-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/cau-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/dowhy-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/dowhy-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/economics-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/economics-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/fry-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/fry-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/graph-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/graph-intake-admission-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/graph-intake-admission-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/graph-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/graph-review-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/graph-review-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/installed-worker-admission-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/installed-worker-admission-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/lex-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/lex-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/rdd-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/rdd-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/root-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/root-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/tmle-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/admission/tmle-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/artifact-transports.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/B206-rdd-supplemental-source-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/G-recipe-independent/final-transfer-G-source-review.execution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/G-recipe-independent/final-transfer-G-source-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/G-recipe-independent/final-transfer-G-source-review.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/G-recipe-independent/final-transfer-G-source-review.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/G-recipe-independent/final_transfer_G_source_review.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/base-results-refresh.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/baseline-navigation/F-failures.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/baseline-navigation/F-failures.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/baseline-navigation/import-check.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/baseline-navigation/import-check.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-inputs/F-final35-protocol-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-inputs/fresh-local-refs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-inputs/fresh-remote-verification.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-inputs/pending-scientific-blockers.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/intake-boundary-companions/probe_reverse_boundary.initial-harness.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/intake-boundary-companions/probe_reverse_boundary.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/intake-boundary-companions/reverse-boundary-consumer-final.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/intake-boundary-companions/reverse-boundary-consumer-final.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/intake-boundary-companions/reverse-boundary-final.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/intake-boundary-companions/reverse-boundary-final.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/intake-boundary-companions/reverse-boundary.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/intake-boundary-companions/reverse-boundary.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/intake-reverse-profile-boundary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/apply-scoped-historical-custody.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/audit.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/audit_all.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/audit_companions.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/audit_incremental.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/canonical-receipt-inventory.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/canonical_inventory.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/consolidate.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/final-canonical-inventory.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/final-canonical-inventory.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/final-consolidation.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/final-consolidation.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/final-full.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/final-full.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/final-reference-forms.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/final-reference-forms.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/final-scoped-reference-check.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/final-scoped-reference-check.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/finalize_transfer.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/historical-blob-gh-response.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/historical-blob-gh-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/historical-blob-local-git.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/historical-blob-local-git.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/historical-blob-probe.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/large-source-json-hash-ref-denominator.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/large-source-source-path-alias-check.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/remote-heads.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/replay_final_protocol_audit.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-transfer-selection.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/published-protocol-audit.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/published-protocol-audit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/scm-shared-projection-final-delta-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/selectors/final-root/b220-author-evidence/build-handoff.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/selectors/final-root/coverage-selector-generator.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/selectors/final-root/coverage-selector-generator.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/selectors/final-root/coverage-selector-generator.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/selectors/final-root/graph-selector-source-equivalence.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/selectors/final-root/selector-audit-owner-snapshot.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/selectors/final-root/selector-equivalence-audit.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/selectors/final-root/selector-finalize-current-components.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/selectors/final-root/selector-finalize-current-components.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/selectors/final-root/selector_audit_replayer.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/selectors/final-root/selector_equivalence_finalize.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/selectors/final-root/selector_transfer_finalize.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/selectors/transfer-selection.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/source-integration/G-source-integration-order.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/source-integration/audit_G_source_order.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/trash-availability.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/cleanup-candidates.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/verify_transfer.py"
+  ],
+  "source_bindings": [
+    {
+      "git_ref": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/index.json",
+      "bytes": 183524,
+      "sha256": "b93305c6c589ff054a649511a8fb2dccef371449a2e95169a16e7d76e5bb17c2",
+      "git_blob": "da9f91be3427c722a52de13beb86bcfb0e19d071"
+    },
+    {
+      "git_ref": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/REPORT.md",
+      "bytes": 10871,
+      "sha256": "3e0a5a0efb822969d8aee7aa1eb16f79299dffe075c947e18e9a8afd527ac981",
+      "git_blob": "ccd093577f4e83b055b697479c2a7b9d4ee5c9b8"
+    },
+    {
+      "git_ref": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/artifact-transports.json",
+      "bytes": 75738,
+      "sha256": "cb455930b0f593652dace4fb0f5ad890fbe63ef69f3ab9b72db397b2e06bef63",
+      "git_blob": "8c647b47ba88e57d5fcf6d3cd86d9cbe5d1c6a93"
+    },
+    {
+      "git_ref": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/verify_transfer.py",
+      "bytes": 7435,
+      "sha256": "cc32fe9d3c8408508cb8e24f677bc57ea2736b3bcb6fd836c9f813e58a6950fe",
+      "git_blob": "2fb0537dee0549dde663f0fc7f85605abe565d1b"
+    },
+    {
+      "git_ref": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/G-local-causal-reruns.json",
+      "bytes": 113434,
+      "sha256": "8ff0a7758c216bf66b60ac9b1b7008b6bcb37fdbe4942f35e4c9c82ab676de43",
+      "git_blob": "83ddeed4104f322b33c895ab4f94cee9bd89e45c"
+    },
+    {
+      "git_ref": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/G-source-integration-order.json",
+      "bytes": 47193,
+      "sha256": "633e411bf7b88874e7ae24da4b8e7546edfcceb465f016d1e5d0561744483e0c",
+      "git_blob": "ad64043072152421bad51020626b5f6daaa9a139"
+    },
+    {
+      "git_ref": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/published-protocol-audit.json.gz",
+      "bytes": 1567719,
+      "sha256": "95698a9ad239be857b5f130e78898fe5fd9900445374038c1b0caddc8d0e5bfe",
+      "git_blob": "262a405ab7b2ceb082a748f6107709eb33925cdc"
+    },
+    {
+      "git_ref": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+      "bytes": 1907435,
+      "sha256": "d0247643ec46aeb4d3d0812ae9000a957f8b3caf5b2d65f2627d3b7f12676a5a",
+      "git_blob": "85df69f3806281a55e1ab2ebad23326a6be327df"
+    },
+    {
+      "git_ref": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/cleanup-candidates.json",
+      "bytes": 9814,
+      "sha256": "84b2d3f27ee2fe3ab9202b3a11ea66b113535771bd3688170d67718610aae434",
+      "git_blob": "07e4467c35fb32286c1fbdda18cc9f7f6ec0863a"
+    }
+  ],
+  "full_implementation_diff": {
+    "base_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+    "candidate_sha": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+    "command": [
+      "git",
+      "diff",
+      "--binary",
+      "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "73f1e698f4271983ed8e83fba0314ca1f36b5a48"
+    ],
+    "bytes": 9920115,
+    "sha256": "00983f09ef5c22e9c5942b867e6c82f9de448fa47be71892f8c72be8a4f59de1",
+    "transport": "Immutable Git source and full diff; no copied derived patch dump."
+  },
+  "common_source_base": {
+    "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+    "anchor_ancestor_verified": true,
+    "G97_audit_only": {
+      "sha": "97c85fae2d4505ec8248540d98b9556296244208",
+      "tree": "e77c0741d3b19acb43e07a0de2bdb97c8fa98ee3"
+    }
+  },
+  "baseline_cells": [],
+  "baseline_grade": "transfer/navigation-only, raw archives absent. Baseline results import --check/query outputs are preserved at the final index; no baseline PASS establishes this candidate. Original cells/selectors remain in immutable individual source receipts and complete original-card audit.",
+  "checks": [
+    {
+      "name": "committed-final-transfer-verification",
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/verify_transfer.py --candidate 73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "target_sha": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "target_tree": "86845947252bee585eb7293d49f3d0b333a5c6f0",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/root/final-transfer-environment.json",
+      "input_closure": "Exact committed final index/transport/card bindings at 73f1e698f4271983ed8e83fba0314ca1f36b5a48;15 pinned source components/12 topics,35 IDs/17 bundles,36 source-card bindings/35 unique cards and137 full-byte transports. No old baseline PASS or ignored historical archive supplies closure.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 2.4592841809935635,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/root/committed-transfer-verification.stdout.txt",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/root/committed-transfer-verification.stderr.txt",
+      "execution": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/root/committed-transfer-verification.execution.json"
+    },
+    {
+      "name": "independent-final-transfer-review",
+      "command": "python3 /workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-replayer.py --candidate 73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "target_sha": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/root/final-transfer-environment.json",
+      "input_closure": "Exact committed final index/transport/card bindings at 73f1e698f4271983ed8e83fba0314ca1f36b5a48;15 pinned source components/12 topics,35 IDs/17 bundles,36 source-card bindings/35 unique cards and137 full-byte transports. No old baseline PASS or ignored historical archive supplies closure. Independent criterion IDs/headings, owners, full Git bytes, SHA/tree and finite authority/coverage limits checked.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review.json",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review.stdout",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review.stderr",
+      "execution": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review.execution.json"
+    },
+    {
+      "name": "transfer-negative-missing_component",
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 /workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-replayer.py --candidate 73f1e698f4271983ed8e83fba0314ca1f36b5a48 --case missing_component",
+      "target_sha": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/root/final-transfer-environment.json",
+      "input_closure": "Original committed 73f1e698f4271983ed8e83fba0314ca1f36b5a48 is read without mutation. The independent replayer intercepts Git reads to inject the declared invalid metadata variant in memory only. Coherent open changes counts; coherent pending changes its transport hash too. The defining property is refusal of invalid transfer; scientific code is not re-executed.",
+      "outcome": "PASS",
+      "property_rejection_observation": "FAIL / AssertionError as expected, not setup/KeyError/Git failure",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-missing_component.stderr",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-missing_component.stdout",
+      "wall_s_observed_until_wait": 3.739244222640991
+    },
+    {
+      "name": "transfer-negative-wrong_owner",
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 /workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-replayer.py --candidate 73f1e698f4271983ed8e83fba0314ca1f36b5a48 --case wrong_owner",
+      "target_sha": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/root/final-transfer-environment.json",
+      "input_closure": "Original committed 73f1e698f4271983ed8e83fba0314ca1f36b5a48 is read without mutation. The independent replayer intercepts Git reads to inject the declared invalid metadata variant in memory only. Coherent open changes counts; coherent pending changes its transport hash too. The defining property is refusal of invalid transfer; scientific code is not re-executed.",
+      "outcome": "PASS",
+      "property_rejection_observation": "FAIL / AssertionError as expected, not setup/KeyError/Git failure",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-wrong_owner.stderr",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-wrong_owner.stdout",
+      "wall_s_observed_until_wait": 3.73885178565979
+    },
+    {
+      "name": "transfer-negative-stale_transport_hash",
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 /workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-replayer.py --candidate 73f1e698f4271983ed8e83fba0314ca1f36b5a48 --case stale_transport_hash",
+      "target_sha": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/root/final-transfer-environment.json",
+      "input_closure": "Original committed 73f1e698f4271983ed8e83fba0314ca1f36b5a48 is read without mutation. The independent replayer intercepts Git reads to inject the declared invalid metadata variant in memory only. Coherent open changes counts; coherent pending changes its transport hash too. The defining property is refusal of invalid transfer; scientific code is not re-executed.",
+      "outcome": "PASS",
+      "property_rejection_observation": "FAIL / AssertionError as expected, not setup/KeyError/Git failure",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-stale_transport_hash.stderr",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-stale_transport_hash.stdout",
+      "wall_s_observed_until_wait": 3.7386250495910645
+    },
+    {
+      "name": "transfer-negative-coherent_open",
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 /workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-replayer.py --candidate 73f1e698f4271983ed8e83fba0314ca1f36b5a48 --case coherent_open",
+      "target_sha": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/root/final-transfer-environment.json",
+      "input_closure": "Original committed 73f1e698f4271983ed8e83fba0314ca1f36b5a48 is read without mutation. The independent replayer intercepts Git reads to inject the declared invalid metadata variant in memory only. Coherent open changes counts; coherent pending changes its transport hash too. The defining property is refusal of invalid transfer; scientific code is not re-executed.",
+      "outcome": "PASS",
+      "property_rejection_observation": "FAIL / AssertionError as expected, not setup/KeyError/Git failure",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-coherent_open.stderr",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-coherent_open.stdout",
+      "wall_s_observed_until_wait": 3.738398790359497
+    },
+    {
+      "name": "transfer-negative-coherent_pending",
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 /workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-replayer.py --candidate 73f1e698f4271983ed8e83fba0314ca1f36b5a48 --case coherent_pending",
+      "target_sha": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/root/final-transfer-environment.json",
+      "input_closure": "Original committed 73f1e698f4271983ed8e83fba0314ca1f36b5a48 is read without mutation. The independent replayer intercepts Git reads to inject the declared invalid metadata variant in memory only. Coherent open changes counts; coherent pending changes its transport hash too. The defining property is refusal of invalid transfer; scientific code is not re-executed.",
+      "outcome": "PASS",
+      "property_rejection_observation": "FAIL / AssertionError as expected, not setup/KeyError/Git failure",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-coherent_pending.stderr",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-coherent_pending.stdout",
+      "wall_s_observed_until_wait": 3.7381582260131836
+    },
+    {
+      "name": "transfer-negative-swapped_source_cards",
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3 /workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-replayer.py --candidate 73f1e698f4271983ed8e83fba0314ca1f36b5a48 --case swapped_source_cards",
+      "target_sha": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/root/final-transfer-environment.json",
+      "input_closure": "Original committed 73f1e698f4271983ed8e83fba0314ca1f36b5a48 is read without mutation. The independent replayer intercepts Git reads to inject the declared invalid metadata variant in memory only. Coherent open changes counts; coherent pending changes its transport hash too. The defining property is refusal of invalid transfer; scientific code is not re-executed.",
+      "outcome": "PASS",
+      "property_rejection_observation": "FAIL / AssertionError as expected, not setup/KeyError/Git failure",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-swapped_source_cards.stderr",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-swapped_source_cards.stdout",
+      "wall_s_observed_until_wait": 3.7296669483184814
+    },
+    {
+      "name": "unavailable-historical-non-deciding-custody",
+      "command": "UNRUN: historical Git blob175c1ed4db37589e8adaf14af6700ad639edb2c8 is unavailable; inspect complete original local-Git/GitHub read-only probe and HTTP404 streams. No input bytes are inferred.",
+      "target_sha": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/root/final-transfer-environment.json",
+      "input_closure": "One explicitly historical N-card provenance blob, four references; no current F35 criterion uses it.",
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/protocol-replayers/historical-blob-probe.json",
+      "next_owner": "G/D historical source custodian only if this historical audit is invoked"
+    },
+    {
+      "name": "whole-gate-P41-attribution",
+      "command": "UNRUN: no complete exact slice-base replay and full disjoint whole-gate denominator established; measured FAIL/ERROR/SKIP remain in original pinned component receipts.",
+      "target_sha": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/root/final-transfer-environment.json",
+      "input_closure": "Whole architecture/static/docs/EMP gates and unavailable prerequisites are distinct from bounded numerical/backend controls.",
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/index.json",
+      "predicate_basis": "not_established"
+    },
+    {
+      "name": "G-local-data-law-history-authority-reruns",
+      "command": "UNRUN: G must compose its candidate and supply exact owner-issued local refs for the committed read-only rerun recipe. No unresolved placeholders were executed.",
+      "target_sha": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/root/final-transfer-environment.json",
+      "input_closure": "Full production inputs remain local-only; exact actual Node/admission/current-law/economic norm and external migration denominator are unavailable here.",
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/G-local-causal-reruns.json",
+      "next_owner": "G and original semantic/consumer owners"
+    }
+  ],
+  "property": {
+    "statement": "Every one of35 original F IDs has exactly one source-card-bound technical decision with criterion, actual consumer, science SHA/tree, measured check, separate finding outcome and finite limitation/next owner. Every deciding artifact is reachable through exact Git bytes; unavailable historical provenance and real-input remainders are explicit.",
+    "runtime_path": [
+      "F owned scientific producers and real backend consumers at15 pinned component candidates",
+      "complete immutable Git receipts/source cards/oracle and removal outputs",
+      "final35 index + exact full-byte transport + independent verifier",
+      "G fetch/review/source-only integration and local read-only reruns"
+    ],
+    "proxy_divergence": "Importability, marker/schema/refusal and an old PASS can coexist with a missing backend/consumer or scientific defect. Original B220 cached-row mutation and three stale installed source carries were detected and corrected in their owned topics. Coherent open/pending/source-card swaps remain checksum-valid but are rejected by semantic transfer guards.",
+    "negative_controls": [
+      "missing_component",
+      "wrong_owner",
+      "stale_transport_hash",
+      "coherent_open",
+      "coherent_pending",
+      "swapped_source_cards"
+    ],
+    "authority_purpose": "F source/evidence transfer and original-criterion technical recommendations only; no production admission, legal/economic authority, G formal ledger closure or main publisher authority."
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_basis_by_quantity": {
+    "final35_card_code_receipt_transport": "independently_reconciled",
+    "bounded_scientific_properties": "Use exact per-ID/per-check bases at each pinned source receipt; a fresh documentation check is not a numerical backend rerun.",
+    "whole_gate_inherited_red_P41": "not_established",
+    "unavailable_historical_blob": "not_established",
+    "G_composed_production_admission": "not_established"
+  },
+  "capability_state_or_finding_state": "F technical recommendations17closed/16limited/2held; G code integration/formal ledger acceptance pending. This documentation transfer closes no finding by itself.",
+  "finding_decisions": {
+    "git_ref": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/index.json",
+    "findings": 35,
+    "bundles": 17,
+    "bounded_check_counts": {
+      "PASS": 33,
+      "UNRUN": 2
+    },
+    "technical_outcome_counts": {
+      "closed": 17,
+      "limited": 16,
+      "held": 2
+    },
+    "original_card_bindings": 36,
+    "unique_original_card_blocks": 35,
+    "science_components": 15,
+    "finding_bearing_components": 14,
+    "ancillary_historical_native_components": 1,
+    "source_topics": 12,
+    "formal_G_acceptance": "pending",
+    "this_final_transfer_receipt_role": "Separate documentation courier receipt; not a16th scientific component and not another primary finding owner."
+  },
+  "environment_identity": {
+    "document_verifier": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/root/final-transfer-environment.json",
+    "application_backend_profiles": {
+      "baseline": "Python 3.14; DoWhy/EconML excluded markers are not backend witnesses",
+      "dowhy": "Real pinned Python 3.12 DoWhy 0.14 locked worker, strict versioned JSON, no worker PolicyOS/CAS/authority",
+      "rdd": "Clean-room CCT production implementation; rdrobust 2.1.0 numerical dev oracle only; no GPL distribution conclusion from subprocess",
+      "graph": "Actual NetworkX 3.6.1 mixed MultiDiGraph readback",
+      "production": "No production data loaded; intrinsically source/law/history/authority-dependent inputs unavailable and typed UNRUN/limited/held"
+    }
+  },
+  "scientific_input_scope": "Known analytic/synthetic DGP/graph/native declared profiles only. No full production data, law/history corpus or invented semantic norm loaded. Exact property/profile distinctions are retained per original criterion.",
+  "source_fidelity": "Science SHA/tree stays at each immutable owned topic candidate, not retargeted to final transfer documentation SHA. All code source commits are already published; no old branch accepted code is reapplied. One full custody output is lossless gzip, decoded bytes/hash bound. Two derivable tracked-card/navigation copies intentionally omitted with reconstruction identities.",
+  "content_refs": [
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-replayer.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-replayer.py",
+      "bytes": 12298,
+      "sha256": "e0cb3431b1796ba06e36d3fec4b5ab2ada806b80f4f323cb743ccb32d82246dc"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review.json",
+      "bytes": 125693,
+      "sha256": "d3dc0ac768aab2badcf271335d14a4a2dff64bbfc1d08ab4698cbe58e062ead9"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review.stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review.stdout",
+      "bytes": 593,
+      "sha256": "3ac79f784c1d0e19a8219319340de27d55d84f7cba25682ca6fc53fedcaeb4d2"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review.stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review.execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review.execution.json",
+      "bytes": 1133,
+      "sha256": "f4f1c82f57ca936b216206c0fceb4bd012c3dadf23c569f17fcaf7f9bc52d6ec"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-native.stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-native.stdout",
+      "bytes": 584,
+      "sha256": "04e69ff012c23914d8ec2cb42e02223e89959c9687f7089f2ced654457dac0db"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-native.stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-native.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-missing_component.stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-missing_component.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-missing_component.stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-missing_component.stderr",
+      "bytes": 523,
+      "sha256": "3eb1338ae1c41475ebf49f2a5c85bdca8f2fe7564590683db3c075327b0b7c4e"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-wrong_owner.stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-wrong_owner.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-wrong_owner.stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-wrong_owner.stderr",
+      "bytes": 626,
+      "sha256": "42228767dae0f7b6724345b91604d90a2ca46c186284f05e71fbc0fc734a0970"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-stale_transport_hash.stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-stale_transport_hash.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-stale_transport_hash.stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-stale_transport_hash.stderr",
+      "bytes": 710,
+      "sha256": "2b6973447cc88fd98952af16c45baa678c93a9add924438670815dd19c902f9b"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-coherent_open.stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-coherent_open.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-coherent_open.stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-coherent_open.stderr",
+      "bytes": 535,
+      "sha256": "05d9b27cb857264a862f45376d05753a00574612b0ecfa9ffc422fcf74829ef2"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-coherent_pending.stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-coherent_pending.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-coherent_pending.stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-coherent_pending.stderr",
+      "bytes": 504,
+      "sha256": "a952b8b4cd87d2747492e724db1fc975eeeabb0d52f41377c9d732c7b0770f8f"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-swapped_source_cards.stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-swapped_source_cards.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-swapped_source_cards.stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-swapped_source_cards.stderr",
+      "bytes": 588,
+      "sha256": "4195a860a7aa5c6da27bcd6a6796f8520cf4a3fb19d52b0d55b1d4be85828351"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-transfer-selection.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/independent/final-committed-transfer-review-transfer-selection.json",
+      "bytes": 6614,
+      "sha256": "0f051810ccb59ed987788ac5df79bdaa77666dc097411b320a23b2361d0eb957"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/committed-transfer-verification.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/root/committed-transfer-verification.stdout.txt",
+      "bytes": 584,
+      "sha256": "04e69ff012c23914d8ec2cb42e02223e89959c9687f7089f2ced654457dac0db"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/committed-transfer-verification.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/root/committed-transfer-verification.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/committed-transfer-verification.execution.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/root/committed-transfer-verification.execution.json",
+      "bytes": 911,
+      "sha256": "6b61d34b8031f7647e9de3f6cd81dda71adb9e057d1d7724ce237cefddd64ff7"
+    },
+    {
+      "original_path": "/workspace/e02-F-20261006-receipts/final-root/final-transfer-environment.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/validation/root/final-transfer-environment.json",
+      "bytes": 461,
+      "sha256": "3be6e4cab9971237a261112322f14fbfc7eb747df8c35e0752891f806c9bca15"
+    }
+  ],
+  "receipt_transport_map": {
+    "scope": "Complete unchanged validation bytes appended with this separate receipt commit; original absolute paths are provenance only. All106 implementation docs and137 original transports are pinned at implementation73f1; validation companions are reachable from the current handoff carrier.",
+    "files_field": "content_refs: the single complete validation transport map in this receipt"
+  },
+  "dependencies": {
+    "source_registry_ref": {
+      "git_ref": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/index.json"
+    },
+    "source_integration_order": {
+      "git_ref": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/G-source-integration-order.json"
+    },
+    "cross_unit": "After graph contract integration rerun A EMP-01; after E uncertainty integration rerun F CAU-04/SCM-01. C retains plugin/consumer contracts; E owns propagate_uncertainty.py. All12 topics are unmerged drafts; do not apply cumulative dependency carries blindly."
+  },
+  "authority_purpose": "G alone integrates/reviews/accepts formal ledger changes. Main publication needs new explicit human authorization for the particular publication. No other user chat handoff is assumed.",
+  "time_roles": {
+    "science_observations": "Original execution/observation times are preserved in each immutable source receipt and complete outputs.",
+    "final_doc_candidate": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+    "final_doc_receipt": "Separate later commit; no self-reference to a future commit SHA.",
+    "historical_custody": "Historical provenance only; not a current finding-status/input authority."
+  },
+  "pattern_pass": {
+    "P38": "Actual scientific property-removal tests retained full outputs and markers; final semantic transfer variants preserve byte/card/check structure where specified.",
+    "P40": "Repeated worker/report/model projection escapes widened to whole canonical payload equality; B220 widened to complete node/edge cached-row deep immutability, copy and weakref class controls.",
+    "P41": "not_established; no attribution of measured red to inherited base without exact slice-base and full disjoint denominator."
+  },
+  "integration_state": {
+    "status": "G_pending",
+    "main_published": false,
+    "main_authorized": false,
+    "source_receipt_heads": "Exact12 frozen source topic heads and15 receipts are inside index. The closeout topic may append this courier; its pinned source receipt at921483 remains immutable and an ancestor.",
+    "future_G_target": "G must record its composed candidate SHA/tree, fresh affected consumers, actual backend versions and owner-issued local refs."
+  },
+  "limitations_and_next_owner": [
+    "B207/B208/B209/B212/B213/B56 remain limited until G exact admitted full Node/budget/data consumer reruns; preserved generic synthetic successes are not admitted real-data conclusions.",
+    "LA-004/LA-035 held: welfare norm and actual historical optimizer/consumer require original economic owner/G; do not invent a norm or alter historical income>=1 score=-1.",
+    "LA-017 limited: actual duplicate-ref plan property measured; current-law/source legal authority and full original criterion remain local-only G/legal owner.",
+    "LA-002/LA-003/LA-007/LA-016/LA-019/LA-020/LA-037 and B214/B218 retain source-specific full consumer/migration/graph identification denominators as limited/UNRUN; G/C/A and original owners.",
+    "One historical175c blob with four provenance-only refs missing locally and GitHub404: historical/all-reference custody UNRUN. All15 current source/evidence reference checks PASS, and no F35 closure uses the blob. Historical source custodian G/D only if invoked.",
+    "Whole architecture prerequisite UNRUN and measured docs/static/EMP FAIL/ERROR/SKIP remain explicit; P41 not_established. Optional baseline DoWhy/EconML absence is not a backend witness.",
+    "No G integration/ledger acceptance/main publication asserted. Exact clean-up candidates remain; cloud has no native Trash, no permanent removal or registration prune performed."
+  ],
+  "cleanup": {
+    "native_trash_available": false,
+    "permanent_deletion_performed": false,
+    "git_prune_performed": false,
+    "candidates": {
+      "git_ref": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/cleanup-candidates.json"
+    },
+    "preserve": "All code, useful docs, unique deciding data/outputs, full production data local-only and all worktree registrations retained."
+  }
+}

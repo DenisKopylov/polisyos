@@ -1,0 +1,38 @@
+ERROR:2026-10-06 15:30:11,299:jax._src.callback:94: jax.pure_callback failed
+Traceback (most recent call last):
+  File "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/callback.py", line 92, in pure_callback_impl
+    return tree_util.tree_map(np.asarray, callback(*args))
+                                          ~~~~~~~~^^^^^^^
+  File "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/callback.py", line 70, in __call__
+    return tree_util.tree_leaves(self.callback_func(*args, **kwargs))
+                                 ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/equinox/_errors.py", line 88, in raises
+    raise _EquinoxRuntimeError(
+    ...<9 lines>...
+    )
+equinox._errors._EquinoxRuntimeError: classical Gini requires finite nonnegative active values
+
+
+--------------------
+An error occurred during the runtime of your JAX program! Unfortunately you do not appear to be using `equinox.filter_jit` (perhaps you are using `jax.jit` instead?) and so further information about the error cannot be displayed. (Probably you are seeing a very large but uninformative error message right now.) Please wrap your program with `equinox.filter_jit`.
+--------------------
+
+ERROR:2026-10-06 15:30:11,302:jax._src.callback:94: jax.pure_callback failed
+Traceback (most recent call last):
+  File "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/callback.py", line 92, in pure_callback_impl
+    return tree_util.tree_map(np.asarray, callback(*args))
+                                          ~~~~~~~~^^^^^^^
+  File "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/callback.py", line 70, in __call__
+    return tree_util.tree_leaves(self.callback_func(*args, **kwargs))
+                                 ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/equinox/_errors.py", line 88, in raises
+    raise _EquinoxRuntimeError(
+    ...<9 lines>...
+    )
+equinox._errors._EquinoxRuntimeError: classical Gini requires finite nonnegative active values
+
+
+--------------------
+An error occurred during the runtime of your JAX program! Unfortunately you do not appear to be using `equinox.filter_jit` (perhaps you are using `jax.jit` instead?) and so further information about the error cannot be displayed. (Probably you are seeing a very large but uninformative error message right now.) Please wrap your program with `equinox.filter_jit`.
+--------------------
+

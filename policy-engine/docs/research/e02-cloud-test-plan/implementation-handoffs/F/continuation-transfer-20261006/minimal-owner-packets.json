@@ -1,0 +1,174 @@
+{
+  "schema": "F-current35-minimal-missing-owner-inputs/1",
+  "not_scientific_closure_prerequisites_for_all_rows": true,
+  "no_authority_self_issue": true,
+  "packets": [
+    {
+      "packet_id": "runtime-causal-admission",
+      "owners": [
+        "Runtime/C",
+        "PDC semantic owner",
+        "G local runner"
+      ],
+      "check": "UNRUN",
+      "scope": "Actual production route DurableControlWorker → RunLifecycle → run_experiment → sync_run_causal_full and RunCausalEvaluationNode authority/intake, separate from internal numerical run_primary and finite ArtifactRef byte resolver",
+      "required": [
+        "Exact candidate SHA/deployment interpreter and real registered study/HTE input view with original CAS manifests and selected raw arrays",
+        "Current EvalSafetyContext plus real accepted issuer/verifier, rights/revision/appointment and unchanged fresh challenge",
+        "Actual PDC distinct semantic hash profile with exact current input basis and source owner; byte-identical ArtifactRef view resolution is not semantic admission"
+      ],
+      "consumer_falsifiers": [
+        "Change only current diagnostic input time_treatment with selected-target markers retained must recompute/refuse",
+        "Same-shape TMLE X/W/Y/A/sample-ID change must refuse before job",
+        "Missing/stale/duplicate/wrong-view CAS manifest identity and semantic-profile mismatch must reject"
+      ],
+      "not_required": "No issuer can be invented by F; no broad production data upload",
+      "not_source_freeze_blocker": true
+    },
+    {
+      "packet_id": "B56-common-budget",
+      "owners": [
+        "Runtime/C",
+        "G local runner"
+      ],
+      "ids": [
+        "B56"
+      ],
+      "check": "UNRUN",
+      "scope": "Actual production DurableControlWorker → RunLifecycle → run_experiment → sync_run_causal_full admitted shared competing-study workload and budget",
+      "required": [
+        "Real current EvalSafety context/verifier ingress and supported typed HTE→registered study route",
+        "Named multiple study workloads/folds/repeats/seeds, actual deployment common CPU/memory/admission budget and competing jobs",
+        "Full observed active/wait/wall/memory/admitted/finished/lost result measurements, exact per-study native fit counts and numerical/provenance comparison"
+      ],
+      "already_measured_separate": "Configured real6/default15-fold MethodJob/CAS/freshreader and internal numerical projection; attempted common causal LocalWorkerPool FAIL execution_context_missing before0fits; old four-studies24fold fixture is bounded historical evidence, no production LocalWorkerPool/TaskRouter constructor witness",
+      "falsifier": "Nested/global admission removal must cause an actual common-budget violation while preserving numerical/source markers; no fake pool or quota on independent cloud tests",
+      "not_source_freeze_blocker": true
+    },
+    {
+      "packet_id": "Lex-current-local-law",
+      "owners": [
+        "Lex legal semantic owner",
+        "G local data runner"
+      ],
+      "ids": [
+        "LA-017"
+      ],
+      "check": "UNRUN",
+      "scope": "Selected current local law/jurisdiction/corpus and supported caller/config migration",
+      "required": [
+        "Exact selected NormPack/current_manifest_ref/original norms input basis, jurisdiction/edition and explicit as_of time; lawful semantic applicability supplied by the legal owner",
+        "Named supported caller/config/CLI/reader window, old persisted corpus samples and exact root candidate",
+        "Real local selected producer→CAS→fresh consumer outputs with full law-dependent deciding residual"
+      ],
+      "already_measured_separate": "Synthetic LegalPass/impact/dedupe consumer and Lex code-only G acceptance",
+      "no_broad_authority_propagation": true,
+      "not_source_freeze_blocker": true,
+      "published_owner_packet_and_quality_ref": {
+        "head": "613a55a5946bdeff2dc849f2488fb88c81b01360",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006.json",
+        "bytes": 75400,
+        "sha256": "ba0914774ffa573f16517b3ec20fae283bc06eb749104b496c2abcd85ebd60fd",
+        "implementation_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "candidate_tree_sha": "724a77c88d4e6699ffead58a5e3e3990fb88640a"
+      }
+    },
+    {
+      "packet_id": "LA035-optimizer-intent",
+      "owners": [
+        "Economics semantic owner",
+        "Maintained optimizer owner"
+      ],
+      "ids": [
+        "LA-035"
+      ],
+      "check": "UNRUN",
+      "outcome": "held",
+      "scope": "Actual maintained optimizer and normative unit/population/time/sign intent",
+      "required": [
+        "Named actual maintained optimizer caller, finite expected caller/state/config and source SHA",
+        "Normative unit/population/time/sign intent for the selected objective, including meaning of income>=1 historical constant−1",
+        "Selected optimizer JIT/gradient/guardrail actual consumer and bounded finite oracle"
+      ],
+      "already_measured_separate": "Historical normalized_income_budget_loss baseline, aliases/JIT/grad/replay profile; not whole original/current semantic acceptance",
+      "not_source_freeze_blocker": true,
+      "published_owner_packet_and_quality_ref": {
+        "head": "613a55a5946bdeff2dc849f2488fb88c81b01360",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006.json",
+        "bytes": 75400,
+        "sha256": "ba0914774ffa573f16517b3ec20fae283bc06eb749104b496c2abcd85ebd60fd",
+        "implementation_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "candidate_tree_sha": "724a77c88d4e6699ffead58a5e3e3990fb88640a"
+      }
+    },
+    {
+      "packet_id": "Core-Feedback-schema-projections",
+      "owners": [
+        "Canonical Core/IR Feedback schema owner",
+        "99-schema owner"
+      ],
+      "check": "UNRUN",
+      "not_source_freeze_blocker": true,
+      "scope": "Exact FeedbackSolveResult and IR manifest snapshot drift; five nested optional manifest_profile_sha256 projections",
+      "required": [
+        "Actual schema owner review of the five optional properties and exact generator/manifest contract at current source",
+        "Regenerate through the canonical owner and retain full99-schema check outputs; no F blanket schema patch"
+      ],
+      "observed_global_check": "FAIL at feedback_solve_result.schema.json and _manifest.json; Ruff/native consumer PASS does not clear it",
+      "source_quality_receipt_ref": {
+        "head": "613a55a5946bdeff2dc849f2488fb88c81b01360",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006.json",
+        "bytes": 75400,
+        "sha256": "ba0914774ffa573f16517b3ec20fae283bc06eb749104b496c2abcd85ebd60fd",
+        "implementation_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "candidate_tree_sha": "724a77c88d4e6699ffead58a5e3e3990fb88640a"
+      }
+    },
+    {
+      "packet_id": "A-C-graph-policy-contract",
+      "owners": [
+        "A policy/EMP owner",
+        "C graph intake producer/contract owner",
+        "G local runner"
+      ],
+      "check": "UNRUN",
+      "not_source_freeze_blocker": true,
+      "scope": "Policy gate graph intake, temporal/endpoint contract and actual EMP-01 metadata expectations",
+      "required": [
+        "Actual appointed source graph/data/prior/config/seed basis and upstream producer→CAS/request lineage",
+        "Owner decision for unresolved PAG/circles/lag before static identification and current EMP input profile",
+        "Exact same original EMP command/input denominator at the slice base and current source before any P41 attribution"
+      ],
+      "bounded_F_property": "Canonical existing reconcile owner resolves current CAS/request input and refuses unsupported static scope; no global graph-writer ownership or propagated E authority",
+      "source_quality_receipt_ref": {
+        "head": "613a55a5946bdeff2dc849f2488fb88c81b01360",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006.json",
+        "bytes": 75400,
+        "sha256": "ba0914774ffa573f16517b3ec20fae283bc06eb749104b496c2abcd85ebd60fd",
+        "implementation_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "candidate_tree_sha": "724a77c88d4e6699ffead58a5e3e3990fb88640a"
+      }
+    },
+    {
+      "packet_id": "A-ABM-diagnostic-semantics",
+      "owners": [
+        "A ABM diagnostic semantic owner"
+      ],
+      "check": "UNRUN",
+      "not_source_freeze_blocker": true,
+      "scope": "Actual retained ABM diagnostic FAIL is separate from the finite native fiscal/labor migration and x64 precision profile",
+      "required": [
+        "Canonical diagnostic intent/allowed contextual and protective fields, exact failing actual consumer inputs and authoritative expected behavior",
+        "Owner behavioral oracle/removal and current finite run; no alteration of fiscal law to change the separate diagnostic outcome; P41 not_established"
+      ],
+      "source_quality_receipt_ref": {
+        "head": "613a55a5946bdeff2dc849f2488fb88c81b01360",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/source-quality-freeze-20261006.json",
+        "bytes": 75400,
+        "sha256": "ba0914774ffa573f16517b3ec20fae283bc06eb749104b496c2abcd85ebd60fd",
+        "implementation_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+        "candidate_tree_sha": "724a77c88d4e6699ffead58a5e3e3990fb88640a"
+      }
+    }
+  ]
+}

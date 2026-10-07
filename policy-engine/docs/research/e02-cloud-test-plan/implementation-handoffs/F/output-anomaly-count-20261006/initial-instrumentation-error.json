@@ -1,0 +1,31 @@
+{
+  "source_sha": "e00dd3799cf2cdd14baf4b26e175ba1e848c3a6a",
+  "source_tree": "e3b5d33af335747d5b5aa932adc54e3b8dc62870",
+  "exit_code": 1,
+  "outcome": "ERROR",
+  "census": {
+    "error": 5,
+    "deselected": 15
+  },
+  "pytest_seconds": 1.1,
+  "wall_seconds": null,
+  "reason": "Installed OTel SDK was not yet activated; fixture errored before dispatcher execution. No property result measured.",
+  "refs": {
+    "base-e00.stdout.txt": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/anomaly-count/base-e00.stdout.txt",
+      "sha256": "46895e7759698c44e1a3fb8144cc37e85306a15de684f01cd3fe4cbf55ff10df",
+      "size_bytes": 2817
+    },
+    "base-e00.stderr.txt": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/anomaly-count/base-e00.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    "test_output_anomaly_count.py": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/anomaly-count/test_output_anomaly_count.py",
+      "sha256": "08b235d2a47ac65b20c1377952fb0b7bb9fb5019f2331f49fc674f0931cc8fc3",
+      "size_bytes": 6574,
+      "historical_hash_only": true
+    }
+  }
+}

@@ -1,0 +1,62 @@
+[
+  {
+    "lane": "api",
+    "ref": "refs/heads/codex/e02-F-api-20261006",
+    "head": "449d32909928caf39382f4ff02ac74b0adf277eb"
+  },
+  {
+    "lane": "cau",
+    "ref": "refs/heads/codex/e02-F-cau-20261006",
+    "head": "4c5a11ff8050c6108f6753177b96e6714cef401f"
+  },
+  {
+    "lane": "dowhy",
+    "ref": "refs/heads/codex/e02-F-dowhy-20261006",
+    "head": "c8c2319d6c48f23f90103322da8cd63bc959da6f"
+  },
+  {
+    "lane": "economics",
+    "ref": "refs/heads/codex/e02-F-economics-20261006",
+    "head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f"
+  },
+  {
+    "lane": "fry",
+    "ref": "refs/heads/codex/e02-F-fry-20261006",
+    "head": "f4fa51e6dd247cfd967450263579d67233a743d6"
+  },
+  {
+    "lane": "graph",
+    "ref": "refs/heads/codex/e02-F-graph-20261006",
+    "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f"
+  },
+  {
+    "lane": "graph-intake",
+    "ref": "refs/heads/codex/e02-F-graph-intake-20261006",
+    "head": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31"
+  },
+  {
+    "lane": "lex",
+    "ref": "refs/heads/codex/e02-F-lex-20261006",
+    "head": "77166daa0ff8b9659e3978447f9016c691694266"
+  },
+  {
+    "lane": "rdd",
+    "ref": "refs/heads/codex/e02-F-rdd-20261006",
+    "head": "15a04c4400497374416e167a5f61ebc12f61b8e4"
+  },
+  {
+    "lane": "tmle",
+    "ref": "refs/heads/codex/e02-F-tmle-20261006",
+    "head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76"
+  },
+  {
+    "lane": "installed-worker",
+    "ref": "refs/heads/codex/e02-F-installed-worker-20261006",
+    "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb"
+  },
+  {
+    "lane": "closeout",
+    "ref": "refs/heads/codex/e02-F-closeout-20261006",
+    "head": "92148340601ac6ea69f0dbd4764aae7428ad83d7"
+  }
+]

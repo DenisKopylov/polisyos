@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.structural_causal_model import (
@@ -29,6 +30,7 @@ def _minimal_graph() -> CausalGraphModel:
 def test_structural_model_allows_root_without_mechanism() -> None:
     graph = _minimal_graph()
     model = StructuralCausalModelSpec(
+        schema_version="1.0",
         graph=graph,
         mechanisms=[
             NodeMechanism(

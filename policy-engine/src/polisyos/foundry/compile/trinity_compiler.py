@@ -27,7 +27,7 @@ from polisyos.core.contracts.foundry import (
     ProgramGraphRef,
 )
 from polisyos.core.registry import load_registry_bundle_content
-from polisyos.foundry.compile.randomization import build_treasury_plan
+from polisyos.foundry.compile.randomization import TREASURY_SALTS_PROFILE, build_treasury_plan
 from polisyos.foundry.methods.cost_model import CostBudget, CostModel
 from polisyos.foundry.validation.conflict_checker import CompileTimeConflictChecker
 from polisyos.ir.kernel.slots import build_slot_layout
@@ -215,6 +215,21 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
     )
     program_graph_ref = ProgramGraphRef(artifact_id=program_ref.artifact_id)
 
+    treasury_plan = build_treasury_plan(
+        program_graph, root_seed=request.compile_config.random_seed or 0
+    )
+    treasury_plan_ref = store.put_json(
+        treasury_plan,
+        PutOptions(
+            kind="foundry.treasury_plan",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.foundry.TreasuryPlan", version=treasury_plan.schema_version
+            ),
+            inputs=[input_ref_from_artifact_ref(program_ref, role="program_graph")],
+        ),
+    )
+
     order = build_exec_order(program_graph)
     exec_plan = ExecPlan(
         program_ref=program_graph_ref,
@@ -227,7 +242,7 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
         mode=request.compile_config.mode,
         jit=request.compile_config.jit,
         max_steps=request.compile_config.max_steps,
-        notes=semantic_notes,
+        notes=_merge_notes(semantic_notes, [TREASURY_SALTS_PROFILE]),
     )
     exec_plan_payload_ref = store.put_json(
         exec_plan,
@@ -235,7 +250,10 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
             kind="foundry.exec_plan",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.ExecPlan", version="0.2.0"),
-            inputs=[input_ref_from_artifact_ref(program_graph_ref, role="program_graph")],
+            inputs=[
+                input_ref_from_artifact_ref(program_ref, role="program_graph"),
+                input_ref_from_artifact_ref(treasury_plan_ref, role="treasury_plan"),
+            ],
         ),
     )
     exec_plan_ref = ExecPlanRef(artifact_id=exec_plan_payload_ref.artifact_id)
@@ -250,19 +268,6 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
                 name="polisyos.foundry.SlotLayout", version=slot_layout.schema_version
             ),
             inputs=[input_ref_from_artifact_ref(program_graph_ref, role="program_graph")],
-        ),
-    )
-
-    treasury_plan = build_treasury_plan(program_graph)
-    treasury_plan_ref = store.put_json(
-        treasury_plan,
-        PutOptions(
-            kind="foundry.treasury_plan",
-            media_type="application/json",
-            schema=SchemaInfo(
-                name="polisyos.foundry.TreasuryPlan", version=treasury_plan.schema_version
-            ),
-            inputs=[input_ref_from_artifact_ref(program_ref, role="program_graph")],
         ),
     )
 

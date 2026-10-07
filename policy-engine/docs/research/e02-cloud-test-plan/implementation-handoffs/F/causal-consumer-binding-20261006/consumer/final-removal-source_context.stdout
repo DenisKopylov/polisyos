@@ -1,0 +1,62 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____________ test_real_dowhy_primary_binding_and_canonical_consumer ____________
+
+execution_context = ExecutionContext(store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x7f92cd404c20>, run=RunContext(store=<p...one, memory=None, eval_safety_execution_context=None, eval_safety_verifier=None, epoch_certificate_issuance_owner=None)
+minimal_state = ExperimentState(schema_version='1.3', run_id='R_test', inputs={'registry_bundle_ref': ArtifactRef(artifact_id=Artifact...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f9152bd2b10>
+
+    def test_real_dowhy_primary_binding_and_canonical_consumer(
+        execution_context,
+        minimal_state,
+        monkeypatch,
+    ):
+        worker = os.environ.get("E02_TEST_DOWHY_WORKER_PYTHON")
+        assert worker and Path(worker).is_file(), "selected backend is required; absence is no PASS"
+        monkeypatch.setenv("POLISYOS_DOWHY_WORKER_PYTHON", worker)
+        data = _graph_data()
+        state, source = _admit_source(execution_context, minimal_state, data, DoWhyIdentifyEstimate)
+        result = _run_primary_causal_job(
+            ctx=execution_context,
+            state=state,
+            observational_data=data,
+            spec=JobSpec(job_kind="method", method_fqn=state.causal_method_fqn, seed=13),
+        )
+        assert not result.issues
+        report = CausalEffectReport.model_validate(result.final_state["report"])
+>       assert report.status is EstimationStatus.SUCCESS, report.status_reason
+E       AssertionError: DoWhy worker requires a source-resolved method-job context
+E       assert <EstimationStatus.NUMERICAL_FAILURE: 'numerical_failure'> is <EstimationStatus.SUCCESS: 'success'>
+E        +  where <EstimationStatus.NUMERICAL_FAILURE: 'numerical_failure'> = CausalEffectReport(schema_version='1.0', method=<CausalMethod.DOWHY_BACKDOOR: 'dowhy_backdoor'>, status=<EstimationSta...s a source-resolved method-job context'}, sample_size=500, n_treated=227, n_control=273, pre_periods=0, post_periods=0).status
+E        +  and   <EstimationStatus.SUCCESS: 'success'> = EstimationStatus.SUCCESS
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py:183: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 11:11:23 [info     ] method_registered              backend=numpy fqn=causal.inference.dowhy_identify_estimate@2.0.0 lazy=False namespace=causal.inference override=True tags=['causal', 'cross-section', 'dowhy', 'estimate', 'estimation', 'identification', 'identify', 'structural', 'tabular'] version=2.0.0
+2026-10-06 11:11:23 [debug    ] method_dispatch_start          backend=numpy fqn=causal.inference.dowhy_identify_estimate@2.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 11:11:23 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=12.64 fqn=causal.inference.dowhy_identify_estimate@2.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_real_dowhy_primary_binding_and_canonical_consumer
+  /workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] report: unexpected_key — Key 'report' not declared in output slots
+    result = backend.run(
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_real_dowhy_primary_binding_and_canonical_consumer
+  /workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    result = backend.run(
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_real_dowhy_primary_binding_and_canonical_consumer
+  /workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] warnings: unexpected_key — Key 'warnings' not declared in output slots
+    result = backend.run(
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_real_dowhy_primary_binding_and_canonical_consumer
+  /workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [ERROR] causal_effect_report: missing_key — Declared output slot 'causal_effect_report' missing from result
+    result = backend.run(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_real_dowhy_primary_binding_and_canonical_consumer
+1 failed, 9 deselected, 5 warnings in 0.39s

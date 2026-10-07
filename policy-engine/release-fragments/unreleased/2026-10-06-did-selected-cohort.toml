@@ -1,0 +1,30 @@
+id = "2026-10-06-did-selected-cohort"
+title = "Bind staggered DiD inference to selected-cohort participation"
+type = "fixed"
+component = "foundry-causal"
+owner = "team-polisyos"
+summary = "Staggered DiD estimates fixed within-cohort eligible-period averages with estimated ever-treated cohort shares and one centered unit-level Mammen inference law."
+evidence = ["tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py", "tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py", "tests/unit/remediation/test_cau_02.py", "tests/unit/remediation/test_cau_05.py"]
+compatibility = "The existing staggered FQN now estimates theta_sel rather than weighting cohort-time cells by their follow-up count. Its influence includes estimated cohort shares; p-values and confidence intervals use the same centered studentized scalar test. Historical standard 2x2 OLS, HC1 and CR0 calculations remain unchanged."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry; existing registered DiD methods and persisted causal reports"
+migration = "Choose study_horizon and eligible_periods before estimation; preserve the recomputable target binding and original unit identities. Supply integer treatment timing and anticipation and enough multiplier draws for the requested confidence level. Read null_rejected or the recorded integer tail-count rule; do not substitute p_value < 1 - confidence_level at floating-point boundary values. Use dedicated StandardDifferenceInDifferences or StaggeredDifferenceInDifferences; the aggregate direct-import adapter remains historical replay only."
+api = "The existing staggered method FQN and report schema are retained with intentionally changed scientific behavior. Reports record the fixed target contract, input digest, centered test, finite-B order and large-independent-unit inference scope. The dedicated method exposes target_contract for actual consumer recomputation."
+limitations = "Pointwise scalar large-independent-unit inference on the admitted finite profile; no small-cluster guarantee, simultaneous band or real-data identification claim. Missing requested baseline/control support refuses the whole target. Pretrend non-rejection is descriptive; inadequate pre-periods are not_testable. Python 3.14 DoWhy/EconML marker exclusions are not backend witnesses; independent native Statsmodels HC1/CR0 checks cover only standard DiD."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "selected-cohort-scalar-inference"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: causal.inference.did.staggered@1.0.0 and causal effect report consumers"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "Immediate scientific correction; historical persisted reports remain readable but must not be reinterpreted as the new estimand."
+release_note = "Unequal cohort follow-up now estimates theta_sel, with cohort-share uncertainty and a centered finite-B test/closed-interval inversion. Two maintained benchmarks call the dedicated standard method without changing their DGP or scoring."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md"]
+runbook_docs = []

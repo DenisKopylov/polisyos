@@ -1,0 +1,1030 @@
+{
+  "schema": "policyos.e02.unique_output_bindings.v1",
+  "candidate_sha": "8d94a937ca6e3f886ada9ad5c1f76dadb049da84",
+  "scientific_source_sha": "0c81614f5aa737a4b26c6c74044955a842b26cf4",
+  "files": [
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/admission-before-freeze.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/admission-before-freeze.json.gz",
+      "bytes": 11852,
+      "sha256": "7c3a707000b5c36f135842fa1fa9a713302f2da4774da4f64338c7938bfa2686",
+      "encoding": "gzip",
+      "decoded_bytes": 147911,
+      "decoded_sha256": "a8e0b2b8ca579460a90c3fb159f0c0f1353d8bad5bbb821153c6787adc05b50a",
+      "restored_relative_path": "author/admission-before-freeze.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/admission-before-freeze.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/admission-before-freeze.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "restored_relative_path": "author/admission-before-freeze.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/archive-inputs.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/archive-inputs.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "restored_relative_path": "author/archive-inputs.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/archive-inputs.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/archive-inputs.stdout.txt",
+      "bytes": 207,
+      "sha256": "eabed45ae4d29f2fbb6300537ea0a5154784e2c51da0f4e9972edbcddba052e0",
+      "encoding": "verbatim",
+      "decoded_bytes": 207,
+      "decoded_sha256": "eabed45ae4d29f2fbb6300537ea0a5154784e2c51da0f4e9972edbcddba052e0",
+      "restored_relative_path": "author/archive-inputs.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/archive_synthetic_inputs.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/archive_synthetic_inputs.py",
+      "bytes": 1667,
+      "sha256": "86ec9f799f537f7cad8334bcf40529bacff65b8a853a263b4a5093afcada6612",
+      "encoding": "verbatim",
+      "decoded_bytes": 1667,
+      "decoded_sha256": "86ec9f799f537f7cad8334bcf40529bacff65b8a853a263b4a5093afcada6612",
+      "restored_relative_path": "author/archive_synthetic_inputs.py"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/assemble_handoff.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/assemble_handoff.py",
+      "bytes": 22502,
+      "sha256": "d3d58c23a06e548bf2b8a84218fd10c921581e0e4398395100ec01c77bf6c533",
+      "encoding": "verbatim",
+      "decoded_bytes": 22502,
+      "decoded_sha256": "d3d58c23a06e548bf2b8a84218fd10c921581e0e4398395100ec01c77bf6c533",
+      "restored_relative_path": "author/assemble_handoff.py"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/cas-input-manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/cas-input-manifest.json",
+      "bytes": 12637,
+      "sha256": "884d2150a682e75c51eb0b7a442c60bb12afa0ad2336d3cc0cb17da2bec2c6d9",
+      "encoding": "verbatim",
+      "decoded_bytes": 12637,
+      "decoded_sha256": "884d2150a682e75c51eb0b7a442c60bb12afa0ad2336d3cc0cb17da2bec2c6d9",
+      "restored_relative_path": "author/cas-input-manifest.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/causal_role-spec.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/causal_role-spec.json",
+      "bytes": 1670,
+      "sha256": "0a51127c767cc5a35f5240fe97b6f15e31fdde5f502e93a7bbd5c1803e3e1f64",
+      "encoding": "verbatim",
+      "decoded_bytes": 1670,
+      "decoded_sha256": "0a51127c767cc5a35f5240fe97b6f15e31fdde5f502e93a7bbd5c1803e3e1f64",
+      "restored_relative_path": "author/causal_role-spec.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/causal_role.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/causal_role.json",
+      "bytes": 4980,
+      "sha256": "f7c791c58bcaebdbe19e0cb3a509f4659b1b0fee75c21b4fc0b5f165f1325c58",
+      "encoding": "verbatim",
+      "decoded_bytes": 4980,
+      "decoded_sha256": "f7c791c58bcaebdbe19e0cb3a509f4659b1b0fee75c21b4fc0b5f165f1325c58",
+      "restored_relative_path": "author/causal_role.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/causal_role.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/causal_role.stderr.txt",
+      "bytes": 408,
+      "sha256": "d209c4b747ac6fce806d42fb0c8a77a093db28886f13588d6777d6f3301200ca",
+      "encoding": "verbatim",
+      "decoded_bytes": 408,
+      "decoded_sha256": "d209c4b747ac6fce806d42fb0c8a77a093db28886f13588d6777d6f3301200ca",
+      "restored_relative_path": "author/causal_role.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/causal_role.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/causal_role.stdout.txt",
+      "bytes": 3198,
+      "sha256": "66af09661bc00aff9e8022b92f3810112a29724f692f2e01d4dc7da47ec558b5",
+      "encoding": "verbatim",
+      "decoded_bytes": 3198,
+      "decoded_sha256": "66af09661bc00aff9e8022b92f3810112a29724f692f2e01d4dc7da47ec558b5",
+      "restored_relative_path": "author/causal_role.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/census.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "restored_relative_path": "author/census.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/census.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/census.stdout.txt",
+      "bytes": 229,
+      "sha256": "0ead6e45f85e687db43fce87040eaa92977d9e7910b22053b1330db6f166e607",
+      "encoding": "verbatim",
+      "decoded_bytes": 229,
+      "decoded_sha256": "0ead6e45f85e687db43fce87040eaa92977d9e7910b22053b1330db6f166e607",
+      "restored_relative_path": "author/census.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/census_replay.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/census_replay.py",
+      "bytes": 3261,
+      "sha256": "518e4df434656663c25a8e6e32feaf92aa5bf46d2a85ffc6eca7c5968e25622e",
+      "encoding": "verbatim",
+      "decoded_bytes": 3261,
+      "decoded_sha256": "518e4df434656663c25a8e6e32feaf92aa5bf46d2a85ffc6eca7c5968e25622e",
+      "restored_relative_path": "author/census_replay.py"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/collection_drop-spec.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/collection_drop-spec.json",
+      "bytes": 1674,
+      "sha256": "fe049f002ad022fda550b872be49c8df8c718b38c1d172b51724aa7c61daa605",
+      "encoding": "verbatim",
+      "decoded_bytes": 1674,
+      "decoded_sha256": "fe049f002ad022fda550b872be49c8df8c718b38c1d172b51724aa7c61daa605",
+      "restored_relative_path": "author/collection_drop-spec.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/collection_drop.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/collection_drop.json",
+      "bytes": 4993,
+      "sha256": "ff2a53b39529a2f0bb9d9cec3015223689477e78e54273f2135bff7ec2ef25d8",
+      "encoding": "verbatim",
+      "decoded_bytes": 4993,
+      "decoded_sha256": "ff2a53b39529a2f0bb9d9cec3015223689477e78e54273f2135bff7ec2ef25d8",
+      "restored_relative_path": "author/collection_drop.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/collection_drop.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/collection_drop.stderr.txt",
+      "bytes": 1339,
+      "sha256": "9c8f8ece48bebdb6ae90c0aef30d2d3f3ab014ac64a2f97f6bcb07588f84ddcf",
+      "encoding": "verbatim",
+      "decoded_bytes": 1339,
+      "decoded_sha256": "9c8f8ece48bebdb6ae90c0aef30d2d3f3ab014ac64a2f97f6bcb07588f84ddcf",
+      "restored_relative_path": "author/collection_drop.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/collection_drop.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/collection_drop.stdout.txt",
+      "bytes": 3205,
+      "sha256": "405ddc6d28f3f3f621fe590f10c5b7df6864932881c729db046e458ee178819a",
+      "encoding": "verbatim",
+      "decoded_bytes": 3205,
+      "decoded_sha256": "405ddc6d28f3f3f621fe590f10c5b7df6864932881c729db046e458ee178819a",
+      "restored_relative_path": "author/collection_drop.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/environment-frozen-spec.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/environment-frozen-spec.json",
+      "bytes": 1439,
+      "sha256": "c130dc26f0e516c94b6c95dcd82c34d2f1e6bf7f0bf06d9ce6c6c0a47bf2eeeb",
+      "encoding": "verbatim",
+      "decoded_bytes": 1439,
+      "decoded_sha256": "c130dc26f0e516c94b6c95dcd82c34d2f1e6bf7f0bf06d9ce6c6c0a47bf2eeeb",
+      "restored_relative_path": "author/environment-frozen-spec.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/environment-frozen.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/environment-frozen.json",
+      "bytes": 4761,
+      "sha256": "22f4d62a029c05632105fcf1150921929d81aa27338b7a8e950f45294a5bf1c0",
+      "encoding": "verbatim",
+      "decoded_bytes": 4761,
+      "decoded_sha256": "22f4d62a029c05632105fcf1150921929d81aa27338b7a8e950f45294a5bf1c0",
+      "restored_relative_path": "author/environment-frozen.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/environment-frozen.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/environment-frozen.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "restored_relative_path": "author/environment-frozen.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/environment-frozen.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/environment-frozen.stdout.txt",
+      "bytes": 2268,
+      "sha256": "b12a5890f900d18d65eb7e1b4ca27e1916fbcc96a28e4d042347879b71aee2d5",
+      "encoding": "verbatim",
+      "decoded_bytes": 2268,
+      "decoded_sha256": "b12a5890f900d18d65eb7e1b4ca27e1916fbcc96a28e4d042347879b71aee2d5",
+      "restored_relative_path": "author/environment-frozen.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/environment_probe.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/environment_probe.py",
+      "bytes": 1379,
+      "sha256": "4d90acd205882eb8cad2d172a0c53306f626b24bba52318013a752923f95af99",
+      "encoding": "verbatim",
+      "decoded_bytes": 1379,
+      "decoded_sha256": "4d90acd205882eb8cad2d172a0c53306f626b24bba52318013a752923f95af99",
+      "restored_relative_path": "author/environment_probe.py"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/format-check.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/format-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "restored_relative_path": "author/format-check.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/format-check.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/format-check.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "encoding": "verbatim",
+      "decoded_bytes": 25,
+      "decoded_sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "restored_relative_path": "author/format-check.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/format-frozen-spec.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/format-frozen-spec.json",
+      "bytes": 1505,
+      "sha256": "74bad16fb09cb329b4f7b76b29d6db6de336dc1f56fd72e8d167c571cf9a9a39",
+      "encoding": "verbatim",
+      "decoded_bytes": 1505,
+      "decoded_sha256": "74bad16fb09cb329b4f7b76b29d6db6de336dc1f56fd72e8d167c571cf9a9a39",
+      "restored_relative_path": "author/format-frozen-spec.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/format-frozen.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/format-frozen.json",
+      "bytes": 4816,
+      "sha256": "2a63286e0f3385066bdba3b401db4bab2be4b2f14d7ab52aeb1e0382388e5641",
+      "encoding": "verbatim",
+      "decoded_bytes": 4816,
+      "decoded_sha256": "2a63286e0f3385066bdba3b401db4bab2be4b2f14d7ab52aeb1e0382388e5641",
+      "restored_relative_path": "author/format-frozen.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/format-frozen.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/format-frozen.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "restored_relative_path": "author/format-frozen.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/format-frozen.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/format-frozen.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "encoding": "verbatim",
+      "decoded_bytes": 25,
+      "decoded_sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "restored_relative_path": "author/format-frozen.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/format.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "restored_relative_path": "author/format.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/format.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/format.stdout.txt",
+      "bytes": 19,
+      "sha256": "413a709001976657cb743636fd34e48fc41d8d302d665460d3f874b3313da127",
+      "encoding": "verbatim",
+      "decoded_bytes": 19,
+      "decoded_sha256": "413a709001976657cb743636fd34e48fc41d8d302d665460d3f874b3313da127",
+      "restored_relative_path": "author/format.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/fragment-corrected-spec.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment-corrected-spec.json",
+      "bytes": 1651,
+      "sha256": "94627a4d476fbf0a0d24b90b7ff999107aabbb50bac98eed6f87f49f9c8e42e6",
+      "encoding": "verbatim",
+      "decoded_bytes": 1651,
+      "decoded_sha256": "94627a4d476fbf0a0d24b90b7ff999107aabbb50bac98eed6f87f49f9c8e42e6",
+      "restored_relative_path": "author/fragment-corrected-spec.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/fragment-corrected.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment-corrected.json",
+      "bytes": 5542,
+      "sha256": "89160817ccd6b5a8639057e0975c83e604333aab614a2f9858213749f3e35011",
+      "encoding": "verbatim",
+      "decoded_bytes": 5542,
+      "decoded_sha256": "89160817ccd6b5a8639057e0975c83e604333aab614a2f9858213749f3e35011",
+      "restored_relative_path": "author/fragment-corrected.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/fragment-corrected.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "restored_relative_path": "author/fragment-corrected.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/fragment-corrected.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment-corrected.stdout.txt",
+      "bytes": 1740,
+      "sha256": "33f11030f5884995043beb618cd09d1e1a30ed81f0556f99b7be531c6cabe0dd",
+      "encoding": "verbatim",
+      "decoded_bytes": 1740,
+      "decoded_sha256": "33f11030f5884995043beb618cd09d1e1a30ed81f0556f99b7be531c6cabe0dd",
+      "restored_relative_path": "author/fragment-corrected.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/fragment-origin-note.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment-origin-note.json",
+      "bytes": 405,
+      "sha256": "0f46bbd8b0796646f909dafb0632d161216f1c9ea53501cb92a5bffd99510dc8",
+      "encoding": "verbatim",
+      "decoded_bytes": 405,
+      "decoded_sha256": "0f46bbd8b0796646f909dafb0632d161216f1c9ea53501cb92a5bffd99510dc8",
+      "restored_relative_path": "author/fragment-origin-note.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/fragment-spec.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment-spec.json",
+      "bytes": 1436,
+      "sha256": "20d294ddb2b1feae67698e2190a438599b4158687dd220b1c8ab4cf072eaaea5",
+      "encoding": "verbatim",
+      "decoded_bytes": 1436,
+      "decoded_sha256": "20d294ddb2b1feae67698e2190a438599b4158687dd220b1c8ab4cf072eaaea5",
+      "restored_relative_path": "author/fragment-spec.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/fragment-tool-source-equivalence.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment-tool-source-equivalence.json",
+      "bytes": 746,
+      "sha256": "0a8524658ca5300b93d40ca11e43647488cf62feeb1e764d80d98c2900ce6f72",
+      "encoding": "verbatim",
+      "decoded_bytes": 746,
+      "decoded_sha256": "0a8524658ca5300b93d40ca11e43647488cf62feeb1e764d80d98c2900ce6f72",
+      "restored_relative_path": "author/fragment-tool-source-equivalence.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/fragment.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment.json",
+      "bytes": 4740,
+      "sha256": "779cf9cf53270a9089d8e0139b6e05d4b609e3dac3e97793687a57c6a93f404e",
+      "encoding": "verbatim",
+      "decoded_bytes": 4740,
+      "decoded_sha256": "779cf9cf53270a9089d8e0139b6e05d4b609e3dac3e97793687a57c6a93f404e",
+      "restored_relative_path": "author/fragment.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/fragment.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment.stderr.txt",
+      "bytes": 675,
+      "sha256": "5a98e0b12f0b56d7716fe38a49c5cc241622259b03849b17e6749e9b070ab248",
+      "encoding": "verbatim",
+      "decoded_bytes": 675,
+      "decoded_sha256": "5a98e0b12f0b56d7716fe38a49c5cc241622259b03849b17e6749e9b070ab248",
+      "restored_relative_path": "author/fragment.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/fragment.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment.stdout.txt",
+      "bytes": 173,
+      "sha256": "60c30f161592169cb091857a39bae3abbd0edf1e41c94f3fd98c5e227c42ea71",
+      "encoding": "verbatim",
+      "decoded_bytes": 173,
+      "decoded_sha256": "60c30f161592169cb091857a39bae3abbd0edf1e41c94f3fd98c5e227c42ea71",
+      "restored_relative_path": "author/fragment.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/fragment_check.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fragment_check.py",
+      "bytes": 1022,
+      "sha256": "c0b4e681e8928a0da2734b855a870813b60373f9e33094b2ffd3857948203cfc",
+      "encoding": "verbatim",
+      "decoded_bytes": 1022,
+      "decoded_sha256": "c0b4e681e8928a0da2734b855a870813b60373f9e33094b2ffd3857948203cfc",
+      "restored_relative_path": "author/fragment_check.py"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/fresh-reader-corrected.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fresh-reader-corrected.stderr.txt",
+      "bytes": 657,
+      "sha256": "f6a3376aae5001a8c5ea9e233bba9a510dcc93ab263e0ff10592f78b5df000bd",
+      "encoding": "verbatim",
+      "decoded_bytes": 657,
+      "decoded_sha256": "f6a3376aae5001a8c5ea9e233bba9a510dcc93ab263e0ff10592f78b5df000bd",
+      "restored_relative_path": "author/fresh-reader-corrected.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/fresh-reader-corrected.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fresh-reader-corrected.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "restored_relative_path": "author/fresh-reader-corrected.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/fresh-reader-normalized.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fresh-reader-normalized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "restored_relative_path": "author/fresh-reader-normalized.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/fresh-reader-normalized.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/fresh-reader-normalized.stdout.txt",
+      "bytes": 1669,
+      "sha256": "b786b78dedf04fb7479041ac5ef9625be307b816e659ea049b52a19a10a5722e",
+      "encoding": "verbatim",
+      "decoded_bytes": 1669,
+      "decoded_sha256": "b786b78dedf04fb7479041ac5ef9625be307b816e659ea049b52a19a10a5722e",
+      "restored_relative_path": "author/fresh-reader-normalized.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/lint-fix.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/lint-fix.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "restored_relative_path": "author/lint-fix.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/lint-fix.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/lint-fix.stdout.txt",
+      "bytes": 38,
+      "sha256": "aac3a0503d8b95052cc85fb9f1717dc82b74aa55853a5aa9749b41e30275d472",
+      "encoding": "verbatim",
+      "decoded_bytes": 38,
+      "decoded_sha256": "aac3a0503d8b95052cc85fb9f1717dc82b74aa55853a5aa9749b41e30275d472",
+      "restored_relative_path": "author/lint-fix.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/lint-frozen-spec.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/lint-frozen-spec.json",
+      "bytes": 1489,
+      "sha256": "4347ccae2fb058fe01d552af852c138581118d5798f1bc846d1521a52eddda71",
+      "encoding": "verbatim",
+      "decoded_bytes": 1489,
+      "decoded_sha256": "4347ccae2fb058fe01d552af852c138581118d5798f1bc846d1521a52eddda71",
+      "restored_relative_path": "author/lint-frozen-spec.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/lint-frozen.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/lint-frozen.json",
+      "bytes": 4796,
+      "sha256": "032babc0202af7047cfa740bfbe164c8310267662ba64f94d3284b532acd7b96",
+      "encoding": "verbatim",
+      "decoded_bytes": 4796,
+      "decoded_sha256": "032babc0202af7047cfa740bfbe164c8310267662ba64f94d3284b532acd7b96",
+      "restored_relative_path": "author/lint-frozen.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/lint-frozen.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/lint-frozen.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "restored_relative_path": "author/lint-frozen.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/lint-frozen.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/lint-frozen.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "encoding": "verbatim",
+      "decoded_bytes": 19,
+      "decoded_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "restored_relative_path": "author/lint-frozen.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/lint.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/lint.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "restored_relative_path": "author/lint.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/lint.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/lint.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "encoding": "verbatim",
+      "decoded_bytes": 19,
+      "decoded_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "restored_relative_path": "author/lint.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/native-cas-input.tar.gz",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native-cas-input.tar.gz",
+      "bytes": 19059,
+      "sha256": "40dd54bfbde420fae54cee173bab49e6d5c9c77b3cff28990e04284201d3aa50",
+      "encoding": "verbatim",
+      "decoded_bytes": 19059,
+      "decoded_sha256": "40dd54bfbde420fae54cee173bab49e6d5c9c77b3cff28990e04284201d3aa50",
+      "restored_relative_path": "author/native-cas-input.tar.gz"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/native-census.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native-census.json",
+      "bytes": 22082,
+      "sha256": "fbc4a11bb14435d58e72d5fa145f5ada638cdaa846e1c17cc0f2703da74f8bdb",
+      "encoding": "verbatim",
+      "decoded_bytes": 22082,
+      "decoded_sha256": "fbc4a11bb14435d58e72d5fa145f5ada638cdaa846e1c17cc0f2703da74f8bdb",
+      "restored_relative_path": "author/native-census.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/native-spec.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native-spec.json",
+      "bytes": 1665,
+      "sha256": "9684eac2acd95fb7f40bf82ef385e2b3538d5d08fe67da63b52fd6dc2c210e52",
+      "encoding": "verbatim",
+      "decoded_bytes": 1665,
+      "decoded_sha256": "9684eac2acd95fb7f40bf82ef385e2b3538d5d08fe67da63b52fd6dc2c210e52",
+      "restored_relative_path": "author/native-spec.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/native.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native.json",
+      "bytes": 4965,
+      "sha256": "236b2307a68003fa08dae7d46bfd3aff4abdf695f88566529e26c3d3376e6f60",
+      "encoding": "verbatim",
+      "decoded_bytes": 4965,
+      "decoded_sha256": "236b2307a68003fa08dae7d46bfd3aff4abdf695f88566529e26c3d3376e6f60",
+      "restored_relative_path": "author/native.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/native.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "restored_relative_path": "author/native.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/native.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native.stdout.txt.gz",
+      "bytes": 15299,
+      "sha256": "8113b23c593515d645399581b3727817b682f32c565cd7592e6498395cc4a627",
+      "encoding": "gzip",
+      "decoded_bytes": 273625,
+      "decoded_sha256": "f61a5d5f5e330aa12b13bc4d780a81c435f5668434583b95e46eee3fab51ccb7",
+      "restored_relative_path": "author/native.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/native.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/native.xml",
+      "bytes": 11339,
+      "sha256": "b7d8f030a30e8016b0de939dc07e2026f77d1cbd04d1a5e39b072e7134c53e8f",
+      "encoding": "verbatim",
+      "decoded_bytes": 11339,
+      "decoded_sha256": "b7d8f030a30e8016b0de939dc07e2026f77d1cbd04d1a5e39b072e7134c53e8f",
+      "restored_relative_path": "author/native.xml"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/probe-corrected.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/probe-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "restored_relative_path": "author/probe-corrected.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/probe-corrected.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/probe-corrected.stdout.txt.gz",
+      "bytes": 12902,
+      "sha256": "9b870c44827bf15bf5e17c70266ed1cbedfe199b3d42d863e4475526c2f82bc7",
+      "encoding": "gzip",
+      "decoded_bytes": 134405,
+      "decoded_sha256": "f63480e3f28e4ed42a07b6cd4a325bd82ac19bcb326c47397aa7681adf815f09",
+      "restored_relative_path": "author/probe-corrected.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/probe.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/probe.stderr.txt",
+      "bytes": 211,
+      "sha256": "6d0cab1d77273e050565582bd2760adfe9d97556efcd3228da409e0a0dfad64d",
+      "encoding": "verbatim",
+      "decoded_bytes": 211,
+      "decoded_sha256": "6d0cab1d77273e050565582bd2760adfe9d97556efcd3228da409e0a0dfad64d",
+      "restored_relative_path": "author/probe.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/probe.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/probe.stdout.txt",
+      "bytes": 1074,
+      "sha256": "359aae886456a60e60ae714c7966c5a709a3a551651e20d7c842f9f6e6c1a98b",
+      "encoding": "verbatim",
+      "decoded_bytes": 1074,
+      "decoded_sha256": "359aae886456a60e60ae714c7966c5a709a3a551651e20d7c842f9f6e6c1a98b",
+      "restored_relative_path": "author/probe.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/removal_replay.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/removal_replay.py",
+      "bytes": 2979,
+      "sha256": "ffcce6436bc00d4f24ef2a0f7660686e4267442ce3e1ca05b8272c90f4901bce",
+      "encoding": "verbatim",
+      "decoded_bytes": 2979,
+      "decoded_sha256": "ffcce6436bc00d4f24ef2a0f7660686e4267442ce3e1ca05b8272c90f4901bce",
+      "restored_relative_path": "author/removal_replay.py"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/run_check.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/run_check.py",
+      "bytes": 2916,
+      "sha256": "88cf3967a20236fba9fcb252be118c0b8dd3e6abca0af361ede0bf195fae80ab",
+      "encoding": "verbatim",
+      "decoded_bytes": 2916,
+      "decoded_sha256": "88cf3967a20236fba9fcb252be118c0b8dd3e6abca0af361ede0bf195fae80ab",
+      "restored_relative_path": "author/run_check.py"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/source-and-owner-packet.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-and-owner-packet.json",
+      "bytes": 20639,
+      "sha256": "f7c5c617d83f86c968698adba53bb57841b45b3d7802da4163735618d1622870",
+      "encoding": "verbatim",
+      "decoded_bytes": 20639,
+      "decoded_sha256": "f7c5c617d83f86c968698adba53bb57841b45b3d7802da4163735618d1622870",
+      "restored_relative_path": "author/source-and-owner-packet.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/source-audit.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-audit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "restored_relative_path": "author/source-audit.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/source-audit.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-audit.stdout.txt",
+      "bytes": 207,
+      "sha256": "3a2c74dc5d271c02326dc64017c3fabb606eee5eb750d39c3e35cc30f7cc19db",
+      "encoding": "verbatim",
+      "decoded_bytes": 207,
+      "decoded_sha256": "3a2c74dc5d271c02326dc64017c3fabb606eee5eb750d39c3e35cc30f7cc19db",
+      "restored_relative_path": "author/source-audit.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/source-diff-check.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-diff-check.json",
+      "bytes": 861,
+      "sha256": "e363bc76ca8c1bc9546165c0cd2d93c264701ef9a711e594ff80b43b8d489b5f",
+      "encoding": "verbatim",
+      "decoded_bytes": 861,
+      "decoded_sha256": "e363bc76ca8c1bc9546165c0cd2d93c264701ef9a711e594ff80b43b8d489b5f",
+      "restored_relative_path": "author/source-diff-check.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/source-diff-check.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-diff-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "restored_relative_path": "author/source-diff-check.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/source-diff-check.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source-diff-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "restored_relative_path": "author/source-diff-check.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/source_audit.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/source_audit.py",
+      "bytes": 7491,
+      "sha256": "901aa74f453ac695099e8c95615091000ade3b07fc057174bf71883c5ad30e65",
+      "encoding": "verbatim",
+      "decoded_bytes": 7491,
+      "decoded_sha256": "901aa74f453ac695099e8c95615091000ade3b07fc057174bf71883c5ad30e65",
+      "restored_relative_path": "author/source_audit.py"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/staged-raw-diff-check.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/staged-raw-diff-check.json",
+      "bytes": 836,
+      "sha256": "a8a403b03adeac612eb8824e3146106d75fb7c6f6af3329a220343e6db5f4c9c",
+      "encoding": "verbatim",
+      "decoded_bytes": 836,
+      "decoded_sha256": "a8a403b03adeac612eb8824e3146106d75fb7c6f6af3329a220343e6db5f4c9c",
+      "restored_relative_path": "author/staged-raw-diff-check.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/staged-raw-diff-check.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/staged-raw-diff-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "restored_relative_path": "author/staged-raw-diff-check.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/staged-raw-diff-check.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/staged-raw-diff-check.stdout.txt",
+      "bytes": 330,
+      "sha256": "d9fab99bce94f6a95c1dd67686cc979de14798c200c2f633be60b58a3587e847",
+      "encoding": "verbatim",
+      "decoded_bytes": 330,
+      "decoded_sha256": "d9fab99bce94f6a95c1dd67686cc979de14798c200c2f633be60b58a3587e847",
+      "restored_relative_path": "author/staged-raw-diff-check.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/tmle/native/tmle-consumers0/producer-packet.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/author/producer-packet.json",
+      "bytes": 2461,
+      "sha256": "7d467be8108bf3a569fbfecaf1da72e9e9c3ef8dacc7b68d7dd9568ab0aaa46d",
+      "encoding": "verbatim",
+      "decoded_bytes": 2461,
+      "decoded_sha256": "7d467be8108bf3a569fbfecaf1da72e9e9c3ef8dacc7b68d7dd9568ab0aaa46d",
+      "restored_relative_path": "author/producer-packet.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/capture_native.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/capture_native.py",
+      "bytes": 2247,
+      "sha256": "c460e5a23a9f2ac0e9667c0752d3eb8982828d773cf06bbf873890868fb8c393",
+      "encoding": "verbatim",
+      "decoded_bytes": 2247,
+      "decoded_sha256": "c460e5a23a9f2ac0e9667c0752d3eb8982828d773cf06bbf873890868fb8c393",
+      "restored_relative_path": "independent/capture_native.py"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-command.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native-command.json",
+      "bytes": 1843,
+      "sha256": "344eb68db07ad844f3fd10d7175855d9ad6df9841dd2a2d8f45e73d5ee942dcd",
+      "encoding": "verbatim",
+      "decoded_bytes": 1843,
+      "decoded_sha256": "344eb68db07ad844f3fd10d7175855d9ad6df9841dd2a2d8f45e73d5ee942dcd",
+      "restored_relative_path": "independent/native-command.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-result.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native-result.json",
+      "bytes": 2367,
+      "sha256": "addcdc4997608b6efc04438b77d4d520a5d97d0400d931935533e121e3f7fe2e",
+      "encoding": "verbatim",
+      "decoded_bytes": 2367,
+      "decoded_sha256": "addcdc4997608b6efc04438b77d4d520a5d97d0400d931935533e121e3f7fe2e",
+      "restored_relative_path": "independent/native-result.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native.stdout.txt.gz",
+      "bytes": 15244,
+      "sha256": "68028b932c161c9b36d191fe78c234f9f8dc3be8faf178e07e658cb805d8a4f1",
+      "encoding": "gzip",
+      "decoded_bytes": 275541,
+      "decoded_sha256": "533a0c9d0d456bb3b64506a16f3253a4d95b4263b6ae3eb5e83e77e7c566c7c0",
+      "restored_relative_path": "independent/native.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "verbatim",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "restored_relative_path": "independent/native.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native.xml",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native.xml",
+      "bytes": 11339,
+      "sha256": "0bb63be55c0a708e5630da393784f43f01b16a4cebf7e2aed72e613a133a60e0",
+      "encoding": "verbatim",
+      "decoded_bytes": 11339,
+      "decoded_sha256": "0bb63be55c0a708e5630da393784f43f01b16a4cebf7e2aed72e613a133a60e0",
+      "restored_relative_path": "independent/native.xml"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/capture_mixed.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/capture_mixed.py",
+      "bytes": 2912,
+      "sha256": "b16ee889c3de70dcba70de8219c0291d353c7a5772dc272dbfe7b21237bc585a",
+      "encoding": "verbatim",
+      "decoded_bytes": 2912,
+      "decoded_sha256": "b16ee889c3de70dcba70de8219c0291d353c7a5772dc272dbfe7b21237bc585a",
+      "restored_relative_path": "independent/capture_mixed.py"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/check_mixed_native_consumer.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/check_mixed_native_consumer.py",
+      "bytes": 4898,
+      "sha256": "4cb29ba8caff118c77a4c951d3c62d4757fd96460698788656168b96f4a9d941",
+      "encoding": "verbatim",
+      "decoded_bytes": 4898,
+      "decoded_sha256": "4cb29ba8caff118c77a4c951d3c62d4757fd96460698788656168b96f4a9d941",
+      "restored_relative_path": "independent/check_mixed_native_consumer.py"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/mixed-controls.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/mixed-controls.json",
+      "bytes": 7492,
+      "sha256": "83cf84bffbf33593397fc855de9f0914601e389c19d2c9710b239482ad208d7d",
+      "encoding": "verbatim",
+      "decoded_bytes": 7492,
+      "decoded_sha256": "83cf84bffbf33593397fc855de9f0914601e389c19d2c9710b239482ad208d7d",
+      "restored_relative_path": "independent/mixed-controls.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/cas-input-manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/cas-input-manifest.json",
+      "bytes": 18281,
+      "sha256": "9dc8030ade92919154ed5638b36e190306e5c13699f9a9398431f1a24924f022",
+      "encoding": "verbatim",
+      "decoded_bytes": 18281,
+      "decoded_sha256": "9dc8030ade92919154ed5638b36e190306e5c13699f9a9398431f1a24924f022",
+      "restored_relative_path": "independent/cas-input-manifest.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-cas-input.tar.gz",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native-cas-input.tar.gz",
+      "bytes": 18922,
+      "sha256": "88b506fe8bf8ee767032b9e879c66bb608c6de989d1713c3ff3b8666690a069b",
+      "encoding": "verbatim",
+      "decoded_bytes": 18922,
+      "decoded_sha256": "88b506fe8bf8ee767032b9e879c66bb608c6de989d1713c3ff3b8666690a069b",
+      "restored_relative_path": "independent/native-cas-input.tar.gz"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/review.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/review.json",
+      "bytes": 13199,
+      "sha256": "ae3e0d37552c0d9a7f14c0565d23211705e32d0c04607a9d380846bd864e2150",
+      "encoding": "verbatim",
+      "decoded_bytes": 13199,
+      "decoded_sha256": "ae3e0d37552c0d9a7f14c0565d23211705e32d0c04607a9d380846bd864e2150",
+      "restored_relative_path": "independent/review.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/finish_review.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/finish_review.py",
+      "bytes": 8280,
+      "sha256": "a39a373aa6229710e3589ee9c6fb3a38bc567a099db77f53651cfaa6fdabbc73",
+      "encoding": "verbatim",
+      "decoded_bytes": 8280,
+      "decoded_sha256": "a39a373aa6229710e3589ee9c6fb3a38bc567a099db77f53651cfaa6fdabbc73",
+      "restored_relative_path": "independent/finish_review.py"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/mixed_priority.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/mixed_priority.json",
+      "bytes": 2212,
+      "sha256": "9898e269b972c6bfe01c63ae9c0cb970ced7212519f3ea28404ebdf08a7b3a16",
+      "encoding": "verbatim",
+      "decoded_bytes": 2212,
+      "decoded_sha256": "9898e269b972c6bfe01c63ae9c0cb970ced7212519f3ea28404ebdf08a7b3a16",
+      "restored_relative_path": "independent/mixed_priority.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/mixed_priority.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/mixed_priority.stdout.txt",
+      "bytes": 2314,
+      "sha256": "c42e74a155fda84df4e75d8bc20877c424943fc3210da0acd49973b86ecc2efb",
+      "encoding": "verbatim",
+      "decoded_bytes": 2314,
+      "decoded_sha256": "c42e74a155fda84df4e75d8bc20877c424943fc3210da0acd49973b86ecc2efb",
+      "restored_relative_path": "independent/mixed_priority.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/mixed_priority.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/mixed_priority.stderr.txt",
+      "bytes": 716,
+      "sha256": "0469400ed660ce7320d9d7c4f6be6e53689b9f00ce5eef5bd57d338b9d9a8b86",
+      "encoding": "verbatim",
+      "decoded_bytes": 716,
+      "decoded_sha256": "0469400ed660ce7320d9d7c4f6be6e53689b9f00ce5eef5bd57d338b9d9a8b86",
+      "restored_relative_path": "independent/mixed_priority.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/malformed_top.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/malformed_top.json",
+      "bytes": 2208,
+      "sha256": "966bd98af313f80900932a5556015379ace89c5110fe8da7ddfdd3b8316e454e",
+      "encoding": "verbatim",
+      "decoded_bytes": 2208,
+      "decoded_sha256": "966bd98af313f80900932a5556015379ace89c5110fe8da7ddfdd3b8316e454e",
+      "restored_relative_path": "independent/malformed_top.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/malformed_top.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/malformed_top.stdout.txt",
+      "bytes": 1686,
+      "sha256": "c0e2e41feae41f88d2cfab8f7b747e3646b298a08d507a5036751ed57ab867ac",
+      "encoding": "verbatim",
+      "decoded_bytes": 1686,
+      "decoded_sha256": "c0e2e41feae41f88d2cfab8f7b747e3646b298a08d507a5036751ed57ab867ac",
+      "restored_relative_path": "independent/malformed_top.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/malformed_top.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/malformed_top.stderr.txt",
+      "bytes": 848,
+      "sha256": "56b8dd844cac73bf5ba7311b8a72dac7436897854514b2f647c36ddbff8a2cb2",
+      "encoding": "verbatim",
+      "decoded_bytes": 848,
+      "decoded_sha256": "56b8dd844cac73bf5ba7311b8a72dac7436897854514b2f647c36ddbff8a2cb2",
+      "restored_relative_path": "independent/malformed_top.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/remove_role_issue.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/remove_role_issue.json",
+      "bytes": 2253,
+      "sha256": "6bae19200c515151601468191cd1285ed1c079b81025e88b4a9864b990810c19",
+      "encoding": "verbatim",
+      "decoded_bytes": 2253,
+      "decoded_sha256": "6bae19200c515151601468191cd1285ed1c079b81025e88b4a9864b990810c19",
+      "restored_relative_path": "independent/remove_role_issue.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/remove_role_issue.stdout.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/remove_role_issue.stdout.txt",
+      "bytes": 1850,
+      "sha256": "9f0f87cad057b7ee8159bbebbdd4b287ad48654529bd8077cd847bc39bd584aa",
+      "encoding": "verbatim",
+      "decoded_bytes": 1850,
+      "decoded_sha256": "9f0f87cad057b7ee8159bbebbdd4b287ad48654529bd8077cd847bc39bd584aa",
+      "restored_relative_path": "independent/remove_role_issue.stdout.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/remove_role_issue.stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/remove_role_issue.stderr.txt",
+      "bytes": 1792,
+      "sha256": "2d879bff517ef7d5555c152b583403dfef8471f0318c0d3da52d24a02443b3d3",
+      "encoding": "verbatim",
+      "decoded_bytes": 1792,
+      "decoded_sha256": "2d879bff517ef7d5555c152b583403dfef8471f0318c0d3da52d24a02443b3d3",
+      "restored_relative_path": "independent/remove_role_issue.stderr.txt"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/native-tmp/tmle-consumers0/producer-packet.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/native-tmp/tmle-consumers0/producer-packet.json",
+      "bytes": 2488,
+      "sha256": "17c25ebb61d81592d7d60f90fa0095afaca21aef11922f9eed740c031792d5cd",
+      "encoding": "verbatim",
+      "decoded_bytes": 2488,
+      "decoded_sha256": "17c25ebb61d81592d7d60f90fa0095afaca21aef11922f9eed740c031792d5cd",
+      "restored_relative_path": "independent/native-tmp/tmle-consumers0/producer-packet.json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/fit-composed-review/transfer-selection.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-persisted-consumers-20261007/independent/transfer-selection.json",
+      "bytes": 5396,
+      "sha256": "f3772424fe6e483199056be840db9f60c457d7be90a38527f4ddb6d2978d78cf",
+      "encoding": "verbatim",
+      "decoded_bytes": 5396,
+      "decoded_sha256": "f3772424fe6e483199056be840db9f60c457d7be90a38527f4ddb6d2978d78cf",
+      "restored_relative_path": "independent/transfer-selection.json"
+    }
+  ],
+  "complete_files": 102,
+  "stored_bytes": 374979,
+  "decoded_bytes": 1151164
+}

@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/workspace/e02-F-20261006-receipts/api/wheel-env/bin/python",
+    "-I",
+    "/workspace/e02-F-20261006-receipts/api/installed_binding_replayer.py"
+  ],
+  "cwd": "/workspace/e02-F-20261006-receipts/api/wheel-consumer",
+  "source_sha_start": "729d137279b7d6334230045e420255762fe55f08",
+  "source_sha_end": "729d137279b7d6334230045e420255762fe55f08",
+  "environment": {
+    "PYTHONPATH": "src:."
+  },
+  "exit": 0,
+  "wall_s": 7.407238729996607,
+  "rss_kib": 573116
+}

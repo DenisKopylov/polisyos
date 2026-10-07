@@ -1,0 +1,39 @@
+{
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "machine": "x86_64",
+  "logical_cpu_count": 5,
+  "packages": {
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "opentelemetry-api": "1.39.1",
+    "opentelemetry-sdk": "1.39.1",
+    "jax": "0.8.2",
+    "jsonschema": "4.25.1",
+    "dowhy": "not_installed",
+    "econml": "not_installed"
+  },
+  "origins": {
+    "polisyos": "/workspace/e02-F-fry-20261006/policy-engine/src/polisyos/__init__.py",
+    "polisyos.foundry.methods.backends.dispatch": "/workspace/e02-F-fry-20261006/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+    "polisyos.foundry.methods.lifecycle.output_monitor": "/workspace/e02-F-fry-20261006/policy-engine/src/polisyos/foundry/methods/lifecycle/output_monitor.py",
+    "polisyos.foundry.methods.components.io": "/workspace/e02-F-fry-20261006/policy-engine/src/polisyos/foundry/methods/components/io.py",
+    "numpy": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+    "opentelemetry.sdk.metrics": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/opentelemetry/sdk/metrics/__init__.py"
+  },
+  "task_environment": {
+    "PYTHONPATH": "/workspace/e02-F-fry-20261006/policy-engine:/workspace/e02-F-fry-20261006/policy-engine/src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_ADDOPTS": null,
+    "OTEL_EXPORTER_OTLP_ENDPOINT": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "POLISYOS_DOWHY_WORKER_PYTHON": null
+  },
+  "runtime": "Actual NUMPY MethodDispatcher+registry and configured in-memory OpenTelemetry SDK counter. Shared interpreter read-only, own PYTHONPATH.",
+  "backend_limits": "DoWhy/EconML are absent in this baseline app profile and not invoked by this bounded monitor mechanism suite; no positive witness inferred. Genuine configured DoWhy/GCM/TMLE installed composition is pending the later common freeze."
+}

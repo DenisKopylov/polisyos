@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/graph/replay-resolved-neighbors-base.py"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "source_sha": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+  "source_tree_sha": "6dc2d0dae35d4e9152bbfaf9914f34193dbf2f21",
+  "exit_code": 1,
+  "wall_s": 8.584799094998743,
+  "rss_kib": 590276,
+  "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+  "outputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/resolved-neighbors-base-memory.stdout.txt",
+      "bytes": 6406,
+      "sha256": "33e0bfa9a76f5b5811e397021d13a7b4f4c01a7682acf097e103ed170fee1e43"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/resolved-neighbors-base-memory.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "check": "FAIL"
+}

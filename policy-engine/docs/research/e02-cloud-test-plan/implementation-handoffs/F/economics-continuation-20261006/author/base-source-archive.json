@@ -1,0 +1,14 @@
+{
+  "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+  "tree_sha": "f432371c0745de7e30df8892b0a2e563c8bbdd23",
+  "paths": [
+    "policy-engine/src",
+    "policy-engine/tools",
+    "policy-engine/tests",
+    "policy-engine/pyproject.toml"
+  ],
+  "archive_bytes": 104509440,
+  "archive_sha256": "497b05cb2ff152544e33f0ec013a1c62a21c66eb171fd60eac69c862487e9b24",
+  "path": "/tmp/e02-F-continuation-20261006/economics/base-source-archive",
+  "kind": "immutable Git source archive in scratch; no git checkout/worktree created"
+}

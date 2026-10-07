@@ -1,0 +1,53 @@
+{
+  "source_root": "/workspace/e02-F-economics-20261006",
+  "target_sha": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "JAX_ENABLE_X64": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/foundry/execute/mechanisms/test_fiscal_precision.py",
+    "tests/unit/foundry/mechanisms/test_fiscal.py",
+    "tests/unit/foundry/mechanisms/test_gradients.py",
+    "tests/unit/foundry/runtime/test_jit_stability.py",
+    "tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py",
+    "tests/unit/foundry/methods/catalog/mechanism/test_runtime.py",
+    "tests/unit/foundry/methods/test_foundry_v2_unified_runtime.py",
+    "tests/unit/foundry/plugins/test_economic_profiles.py",
+    "-vv",
+    "--tb=short",
+    "-rA",
+    "--junitxml=/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-native-frozen.xml"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-native-frozen",
+  "artifact_paths": [
+    "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-native-frozen.xml"
+  ],
+  "tree_sha": "dc4b6a932a11cba4470b9bbcf299d2d2f51b2301",
+  "source_status_before": "",
+  "elapsed_seconds": 126.3122308254242,
+  "exit_code": 1,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-native-frozen.stdout",
+    "bytes": 1722666,
+    "sha256": "62eb6051fdda1878ddf5ea7f2c835abdc66566a5c433245e774b22f329004983"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-native-frozen.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_status_after": "",
+  "artifacts": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-native-frozen.xml",
+      "bytes": 23616,
+      "sha256": "c9b8f20e92bfbf973b77891248713611a8bdf679aa0d6318afbae808e63d1b75"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "lane": "api_final_installed",
+    "head": "90c72b51155321684c788cd5a03fbb70fc001d53",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-installed-final-20261006.json",
+    "bytes": 50455,
+    "sha256": "b01b2dd3d1083298b700beab9f4b97d7837f5172eeae4758bd902bdadaf5fa29"
+  },
+  {
+    "lane": "foundry_final_installed",
+    "head": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-final-consumer-20261006.json",
+    "bytes": 60843,
+    "sha256": "4d57c791f685a12d637564e35255fc6142915b154eae6e152bd9b480c1457ab8"
+  }
+]

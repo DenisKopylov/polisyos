@@ -1,0 +1,28 @@
+{
+  "outcome": "ERROR",
+  "scope": "author trace harness, not fiscal scientific failure",
+  "cause": "jax.jit called on bound Equinox method with unhashable dynamic rate; corrected wrapper lambda closes module. Generic runner then tried absent output artifact. Initial script also had unreached ProgramGraph import corrected in second script.",
+  "source_unchanged": true,
+  "artifacts": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/trace_fiscal_precision.second.py",
+      "bytes": 11220,
+      "sha256": "364fe75f938018efe51e7ab24976e3bfd50b2c74ca73a2634f76ce83243419fc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-precision-trace-second.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-precision-trace-second.stderr",
+      "bytes": 1066,
+      "sha256": "cd91b0965296a4884f7c4faefce4e4c30041c2192b20f5116295c4c7ff89173c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-precision-trace-second-spec.json",
+      "bytes": 769,
+      "sha256": "e436810d183e9132449c6cc6651be1b95406205e4b8a34376b93accfdf71fbf6"
+    }
+  ]
+}

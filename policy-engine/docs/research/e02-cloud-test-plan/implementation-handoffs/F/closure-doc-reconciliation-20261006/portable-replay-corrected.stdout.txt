@@ -1,0 +1,26 @@
+{
+  "outcome": "PASS",
+  "draft_path": "/tmp/e02-F-continuation-20261006/economics/docs-reconciliation/portable-replay/current35-doc-ledger-draft.json",
+  "bytes": 162818,
+  "sha256": "748a1b486b47b885d4a77c1f1c0fb44fc93075dd9177935a4b68b3f5b0b7d5cf",
+  "denominator": {
+    "finding_ids": 35,
+    "bundle_ids": 17,
+    "original_card_bindings": 36,
+    "unique_original_card_blocks": 35,
+    "LA016_duplicate_binding": "two coverage bindings to the SAME source block, not two different cards"
+  },
+  "technical": {
+    "closed": 26,
+    "limited": 8,
+    "held": 1
+  },
+  "current": {
+    "closed": 21,
+    "limited": 13,
+    "held": 1
+  },
+  "current_receipts_verified": 10,
+  "checks_verified": 148,
+  "scientific_reruns": false
+}

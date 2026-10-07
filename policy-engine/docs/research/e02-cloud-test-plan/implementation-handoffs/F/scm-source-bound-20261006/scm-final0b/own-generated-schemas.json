@@ -1,0 +1,49 @@
+{
+  "source_sha": "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+  "source_tree": "1219bb1ba83a5cfec5f966687c13e848b3f04162",
+  "canonical_generator": "tools.quality.diagnostics.gen_schema._generate_model_schema/_json_dump/_schema_hash/_strip_metadata",
+  "records": [
+    {
+      "abi_key": "causal_query_result",
+      "class": "polisyos.ir.analytics.causal_queries.CausalQueryResult",
+      "snapshot": "schemas/snapshots/ir/causal_query_result.schema.json",
+      "snapshot_bytes": 12179,
+      "snapshot_sha256": "b86f113bcc605935333601130f235242849ee7ff8bc418954ef3ea32b33bb775",
+      "manifest_entry": {
+        "aliases": [],
+        "compat_mode": "strict",
+        "fqn": "polisyos.ir.analytics.causal_queries.CausalQueryResult",
+        "lifecycle": "active",
+        "priority": "p1",
+        "schema_file": "causal_query_result.schema.json",
+        "schema_version": "1.2",
+        "sha256_full": "1f6abcfcd37e031090a75e78d3e81c03207b42b280ffee7d937c6395c460e06d",
+        "sha256_semantic": "010d5c6fbf5d426ff6717e047e839bde00e57da58274b6f1e79c596c3a4677ac",
+        "version_field": "schema_version"
+      },
+      "check": "PASS"
+    },
+    {
+      "abi_key": "structural_causal_model_spec",
+      "class": "polisyos.ir.analytics.structural_causal_model.StructuralCausalModelSpec",
+      "snapshot": "schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+      "snapshot_bytes": 15243,
+      "snapshot_sha256": "6af18c2cdb9901cd54568d0b1e83676ced66d809dc7851817c6efc1def40fde5",
+      "manifest_entry": {
+        "aliases": [],
+        "compat_mode": "strict",
+        "fqn": "polisyos.ir.analytics.structural_causal_model.StructuralCausalModelSpec",
+        "lifecycle": "active",
+        "priority": "p1",
+        "schema_file": "structural_causal_model_spec.schema.json",
+        "schema_version": "1.0",
+        "sha256_full": "371fb54bb46ea64fb2dc2537953e204cbcb5104600fa549fa33b843e100b98d3",
+        "sha256_semantic": "c1a5c16bcf04ff43e3e3ee266f16be208ffc259d43e8f439c2f39313349b8bd4",
+        "version_field": "schema_version"
+      },
+      "check": "PASS"
+    }
+  ],
+  "manifest_internal_content_hash": "PASS",
+  "full_generator_check": "FAIL at1e: feedback_solve_result + wholemanifest mismatch; own two entries are not a full generator PASS"
+}

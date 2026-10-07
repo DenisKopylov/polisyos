@@ -311,7 +311,7 @@ class TestFileBudgetLedger:
         ledger.load_or_bootstrap(_budget(max_usd="100", spent="10"))
 
         original_persist = ledger._persist_snapshot
-        truncated = threading.Event()
+        publication_ready = threading.Event()
         resume = threading.Event()
         reader_started = threading.Event()
         allow_reader = threading.Event()
@@ -319,23 +319,22 @@ class TestFileBudgetLedger:
         reader_errors: list[BaseException] = []
         reader_states: list[BudgetState] = []
 
-        def pause_after_truncate(fd: int, snapshot: object) -> object:
-            os.ftruncate(fd, 0)
-            truncated.set()
+        def pause_before_publication(snapshot: object) -> object:
+            publication_ready.set()
             if not resume.wait(timeout=10):
                 raise AssertionError("writer was not released")
-            return original_persist(fd, snapshot)
+            return original_persist(snapshot)
 
         original_read_text = Path.read_text
 
         def gate_reader(self: Path, *args: object, **kwargs: object) -> str:
-            if self == path:
+            if self == path and threading.current_thread().name == "budget-ledger-reader":
                 reader_started.set()
                 if not allow_reader.wait(timeout=2):
                     raise AssertionError("reader was not released")
             return original_read_text(self, *args, **kwargs)
 
-        monkeypatch.setattr(ledger, "_persist_snapshot", pause_after_truncate)
+        monkeypatch.setattr(ledger, "_persist_snapshot", pause_before_publication)
         monkeypatch.setattr(Path, "read_text", gate_reader)
 
         def write_once() -> None:
@@ -346,7 +345,7 @@ class TestFileBudgetLedger:
 
         writer = threading.Thread(target=write_once)
         writer.start()
-        assert truncated.wait(timeout=2)
+        assert publication_ready.wait(timeout=2)
 
         def read_once() -> None:
             try:
@@ -354,7 +353,7 @@ class TestFileBudgetLedger:
             except BaseException as exc:  # pragma: no cover - reported below
                 reader_errors.append(exc)
 
-        reader = threading.Thread(target=read_once)
+        reader = threading.Thread(target=read_once, name="budget-ledger-reader")
         reader.start()
         reader_saw_publication_window = reader_started.wait(timeout=2)
         if reader_saw_publication_window:

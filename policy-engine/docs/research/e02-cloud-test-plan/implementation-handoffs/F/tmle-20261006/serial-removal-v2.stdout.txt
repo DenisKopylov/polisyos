@@ -1,0 +1,225 @@
+{"mode": "serial", "module": "/workspace/e02-F-tmle-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py", "function": "_fit_crossfit_nuisance_bundle_uncached", "original_function_sha256": "913b2835df757e098b59199b40bd9fcf902872ea32b68822ab3b32efe3ef3903", "mutated_function_sha256": "8d41e09137da9c1e7bbb9f88e80705743acf2a9e3275a94c695de001c9e471e9", "selector": "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout[1]", "mutation_scope": "memory-only; markers and test unchanged"}
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-F-tmle-20261006/policy-engine
+configfile: pytest.ini
+plugins: langsmith-0.6.0, jaxtyping-0.3.4, xdist-3.8.0, anyio-4.12.0, asyncio-1.3.0, benchmark-5.2.3, hypothesis-6.151.2
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 1 item
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py F
+
+=================================== FAILURES ===================================
+_ test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout[1] _
+
+budget = 1
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f7fb76d9350>
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-54/test_native_studies_wait_in_ac0')
+
+    @pytest.mark.parametrize("budget", [1, 2])
+    def test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout(
+        budget: int,
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path,
+    ) -> None:
+        """Run real node dispatch, native models and CAS readback under pool pressure."""
+        from polisyos.core.artifacts.manifest import ArtifactRef
+        from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+        from polisyos.core.canon import CanonSpec
+        from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+        from polisyos.scientist.orchestration.engine import registry
+        from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
+        from polisyos.scientist.orchestration.engine.runner.local_pool import LocalWorkerPool
+        from polisyos.scientist.orchestration.engine.runner.serialization import (
+            deserialize_outcome,
+            serialize_state,
+        )
+        from polisyos.scientist.orchestration.engine.runner.worker_pool import NodeTask
+        from polisyos.scientist.orchestration.engine.state import ExperimentState
+    
+        release = threading.Event()
+        lock = threading.Lock()
+        active = peak = 0
+        calls = []
+        native = core._fit_crossfit_fold
+    
+        class StudyNode:
+            spec = NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse("scientist.tests.tmle_pool@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    capabilities=Capability.SCIENTIST_NODE,
+                    abi_targets={},
+                ),
+                state_reads=["params"],
+                state_writes=["artifacts_index"],
+                produces=["tmle_result"],
+            )
+    
+            def execute(self, ctx, state):
+                x, a, y = _dgp(seed=state.params["study_seed"], n=120)
+                result = TMLEEstimator.pure_step(
+                    {"X": x, "treatment": a, "outcome": y},
+                    _params(__disable_shared_nuisance_cache=True),
+                )["result"]
+                ref = ctx.store.put_json(
+                    result,
+                    PutOptions(kind="test.tmle_result", media_type="application/json"),
+                    canon_spec=CanonSpec(forbid_floats=False),
+                )
+                state.artifacts_index["tmle_result"] = ref
+                return NodeOutcome(status="ok", state=state, artifacts=[ref])
+    
+        node = StudyNode()
+        monkeypatch.setattr(registry, "discover_nodes", lambda actual: actual.register(node))
+    
+        async def run():
+            nonlocal active, peak
+            loop = asyncio.get_running_loop()
+            admitted = asyncio.Event()
+    
+            def observe(**kwargs):
+                nonlocal active, peak
+                with lock:
+                    active += 1
+                    peak = max(peak, active)
+                    calls.append((kwargs["rep_seed"], kwargs["fold_id"], kwargs["test_idx"].copy()))
+                    if active == budget:
+                        loop.call_soon_threadsafe(admitted.set)
+                try:
+                    assert release.wait(timeout=20), "pool barrier was not released"
+                    return native(**kwargs)
+                finally:
+                    with lock:
+                        active -= 1
+    
+            monkeypatch.setattr(core, "_fit_crossfit_fold", observe)
+            pool = LocalWorkerPool(max_workers=budget)
+            try:
+                futures = []
+                for study in range(4):
+                    state = ExperimentState(run_id=f"study-{study}", params={"study_seed": study + 71})
+                    futures.append(
+                        await pool.submit(
+                            NodeTask(
+                                node_id=str(node.spec.metadata.component_id),
+                                alias=f"study-{study}",
+                                params={},
+                                state_bytes=serialize_state(state),
+                                trace_carrier={},
+                                context_meta={
+                                    "run_id": state.run_id,
+                                    "store_backend": "filesystem",
+                                    "store_root": str(tmp_path / "cas"),
+                                },
+                            )
+                        )
+                    )
+                await asyncio.wait_for(admitted.wait(), timeout=20)
+                capacity = await pool.current_capacity()
+                assert capacity.active_tasks == budget
+                assert capacity.queue_depth == 4 - budget
+                assert peak == budget
+                release.set()
+                results = await asyncio.wait_for(asyncio.gather(*futures), timeout=60)
+                assert len(calls) == 24  # all 4 studies × 2 repeats × 3 folds actually executed
+                assert peak <= budget
+                reader = FileSystemCAS(tmp_path / "cas")
+                for result_bytes in results:
+                    outcome = deserialize_outcome(result_bytes)
+                    assert outcome.status == "ok"
+                    ref = ArtifactRef.model_validate(outcome.state.artifacts_index["tmle_result"])
+                    payload = json.loads(reader.get_bytes(ref))
+                    assert payload["targeting_summary"]["converged"]
+                    for repeat in payload["nuisance_diagnostics"]["split_manifest"]:
+                        held_out = [i for fold in repeat["folds"] for i in fold["test_indices"]]
+                        assert sorted(held_out) == list(range(120))
+                    assert (
+                        payload["nuisance_diagnostics"]["execution_policy"]["effective_fold_workers"]
+                        == 1
+                    )
+            finally:
+                release.set()
+                await pool.shutdown()
+    
+>       asyncio.run(run())
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:448: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:205: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:128: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py:720: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def run():
+        nonlocal active, peak
+        loop = asyncio.get_running_loop()
+        admitted = asyncio.Event()
+    
+        def observe(**kwargs):
+            nonlocal active, peak
+            with lock:
+                active += 1
+                peak = max(peak, active)
+                calls.append((kwargs["rep_seed"], kwargs["fold_id"], kwargs["test_idx"].copy()))
+                if active == budget:
+                    loop.call_soon_threadsafe(admitted.set)
+            try:
+                assert release.wait(timeout=20), "pool barrier was not released"
+                return native(**kwargs)
+            finally:
+                with lock:
+                    active -= 1
+    
+        monkeypatch.setattr(core, "_fit_crossfit_fold", observe)
+        pool = LocalWorkerPool(max_workers=budget)
+        try:
+            futures = []
+            for study in range(4):
+                state = ExperimentState(run_id=f"study-{study}", params={"study_seed": study + 71})
+                futures.append(
+                    await pool.submit(
+                        NodeTask(
+                            node_id=str(node.spec.metadata.component_id),
+                            alias=f"study-{study}",
+                            params={},
+                            state_bytes=serialize_state(state),
+                            trace_carrier={},
+                            context_meta={
+                                "run_id": state.run_id,
+                                "store_backend": "filesystem",
+                                "store_root": str(tmp_path / "cas"),
+                            },
+                        )
+                    )
+                )
+            await asyncio.wait_for(admitted.wait(), timeout=20)
+            capacity = await pool.current_capacity()
+            assert capacity.active_tasks == budget
+            assert capacity.queue_depth == 4 - budget
+            assert peak == budget
+            release.set()
+            results = await asyncio.wait_for(asyncio.gather(*futures), timeout=60)
+            assert len(calls) == 24  # all 4 studies × 2 repeats × 3 folds actually executed
+>           assert peak <= budget
+E           assert 4 <= 1
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:429: AssertionError
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout[1]
+========================= 1 failed, 1 warning in 7.84s =========================

@@ -1,0 +1,37 @@
+id = "2026-10-06-dowhy-worker-profile"
+title = "Execute selected DoWhy linear ATE through an isolated pinned worker"
+type = "fixed"
+component = "foundry-causal"
+owner = "team-policyos-runtime"
+surface_classification = "internal"
+change_class = "internal"
+summary = "Route the selected causal method profile through real Python 3.12 DoWhy 0.14 identification and linear estimation, with source-bound JSON and strict 95% intervals. Share the same worker owner for genuine explicit GCM fitting."
+evidence = ["tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py", "workers/dowhy-014/tests/test_worker.py"]
+compatibility = "The application remains Python 3.14. Selected production execution requires a configured standalone interpreter and actual source-resolved job context. Existing direct in-process callers must explicitly select legacy-inprocess; unsupported estimands and targets receive typed refusals."
+limitations = "Known Gaussian synthetic DGP checks do not establish real-data causal assumptions or publishable authority. EconML, mediation and other estimators are outside this profile. The worker never owns CAS or scientific authority."
+
+[[compatibility_change]]
+id = "causal-dowhy-selected-worker-default"
+change_class = "internal"
+impact = "changed"
+surface = "registered causal.inference.dowhy_identify_estimate@2.0.0 execution profile"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "Existing internal in-process callers retain the explicitly selected legacy-inprocess profile."
+release_note = "The selected default uses an isolated source-resolved DoWhy 0.14 worker; unsupported estimands and unconfigured callers receive typed limitations."
+migration_docs = ["workers/dowhy-014/README.md"]
+runbook_docs = ["workers/dowhy-014/README.md"]
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "causal-dowhy-complete-report-projection"
+change_class = "internal"
+impact = "added"
+surface = "DoWhyIdentifyEstimate.report_from_worker_result on existing exported class"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "Not applicable: this additive pure method preserves existing class, function and producer output addresses."
+release_note = "Producer and source-validating consumer share one complete pure typed-report projection; existing class and function pickle addresses remain canonical."
+migration_docs = ["workers/dowhy-014/README.md"]
+runbook_docs = ["workers/dowhy-014/README.md"]
+generated_client_compatibility = "not_applicable"

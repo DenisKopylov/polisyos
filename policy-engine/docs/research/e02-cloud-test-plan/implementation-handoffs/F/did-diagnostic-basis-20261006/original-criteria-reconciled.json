@@ -1,0 +1,114 @@
+{
+  "B204": {
+    "check": "PASS",
+    "outcome": "closed",
+    "criterion": {
+      "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5094,
+        5105
+      ],
+      "sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+      "exact_acceptance_text": "**Приёмка и положительные контроли.** Известный ATT=3 на корректной панели восстановлен. Нечисловой outcome и повторное поперечное сечение отвергнуты действительными перенесёнными валидаторами; отсутствие control — существующим методом. Новый контроль должен исключить только неидентифицированный DiD-контраст, не сломав эти пути. Ненулевой pre-период необходим, но сам по себе не доказывает параллельные тренды.",
+      "source_is_original_card": true
+    },
+    "criterion_ref_source": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+    "source_bytes": 3579
+  },
+  "B205": {
+    "check": "PASS",
+    "outcome": "closed",
+    "criterion": {
+      "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5106,
+        5119
+      ],
+      "sha256": "ac0680b5d70af76383c9aac15ab1c58437abd9118b0c7dba427dfe837ba3d5dc",
+      "exact_acceptance_text": "**Приёмка.** Совпадение точечного ATT; совпадение действительного HC1 с statsmodels — уже положительный локальный контроль. Для исправления нужны unit-cluster эталон, перестановка строк, неизменность при чистом техническом повторении и честный ответ на неизвестную cluster-переменную. Маловыборочные поправки могут менять значения: контроль использовал CR0 именно для отделения их от повторной информации.",
+      "source_is_original_card": true
+    },
+    "criterion_ref_source": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+    "source_bytes": 4088
+  },
+  "B206": {
+    "check": "PASS",
+    "outcome": "closed",
+    "criterion": {
+      "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5120,
+        5131
+      ],
+      "sha256": "f405d3e2327c1cc0d64e6de308412c81eebe210af6ae5968af830b7e032fa0a1",
+      "exact_acceptance_text": "**Приёмка и граница.** 95% сохраняет прежний результат; повышение уровня при том же положительном SE расширяет интервал; недопустимый уровень отвергается адресно. Эта правка не исправляет неправильный SE из B205 или отсутствие bias correction из B210. Её нельзя представить как доказательство покрытия всей семейной реализации.",
+      "source_is_original_card": true
+    },
+    "criterion_ref_source": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+    "source_bytes": 2372
+  },
+  "B207": {
+    "check": "PASS",
+    "outcome": "limited",
+    "criterion": {
+      "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5132,
+        5145
+      ],
+      "sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+      "exact_acceptance_text": "**Приёмка.** Одна ячейка с варьирующими единицами не вырождается только из-за числа ячеек; постоянный модельный эффект сохраняется; идентичности единиц и повторов записаны. Затем нужны независимые симуляционные проверки покрытия при серийной корреляции и нескольких когортах. Официальная реализация did использует единичные influence-вклады и multiplier/cluster-процедуры; она не запускалась здесь. [C20.E01]",
+      "source_is_original_card": true
+    },
+    "criterion_ref_source": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+    "source_bytes": 3913
+  },
+  "B208": {
+    "check": "PASS",
+    "outcome": "limited",
+    "criterion": {
+      "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5146,
+        5157
+      ],
+      "sha256": "2df281351c22b1e79c6b0400c5ca6ccb312fc43666fd3ebc9e4e66031381d78d",
+      "exact_acceptance_text": "**Приёмка.** Увеличение реального эффекта при фиксированном шуме не должно механически удерживать p около 1/2. Проверять null-калибровку, мощность и соответствие интервалу на одних единицах. Больше bootstrap-повторов стабилизирует ошибочную формулу, но не исправляет её; +1 исправляет разрешение счётчика, а не выбор распределения.",
+      "source_is_original_card": true
+    },
+    "criterion_ref_source": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+    "source_bytes": 2624
+  },
+  "B209": {
+    "check": "PASS",
+    "outcome": "limited",
+    "criterion": {
+      "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5158,
+        5169
+      ],
+      "sha256": "b774fd7cd4f1653c0771ee5e20e7d3ee990c14bb47cc698b284e581ac75cc44f",
+      "exact_acceptance_text": "**Производительность и приёмка.** Подготовить cohort-time eligibility один раз и использовать также при повторных выборках. Не запрещать not-yet-treated или anticipation вообще: они полезны при корректных условиях. Контроль должен охватить границу g=t+a, никогда не treated, недостаточный baseline и case a=0. Внешняя документация определяет anticipation как период возможного влияния до назначения; это не подтверждение любой эмпирической гипотезы о его длине. [C20.E01]",
+      "source_is_original_card": true
+    },
+    "criterion_ref_source": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+    "source_bytes": 2656
+  },
+  "LA-016": {
+    "check": "PASS",
+    "outcome": "limited",
+    "criterion": {
+      "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        513,
+        539
+      ],
+      "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+      "exact_acceptance_text": "**Приёмочная проверка.** Одинаковые эффективные запросы обеих оболочек дают одинаковый результат и warnings; registry не предлагает старую generic route для нового планирования; старые replay inputs обрабатываются согласованно.",
+      "source_is_original_card": true
+    },
+    "criterion_ref_source": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+    "source_bytes": 3048
+  }
+}

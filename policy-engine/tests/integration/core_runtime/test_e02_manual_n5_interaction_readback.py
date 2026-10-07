@@ -6,11 +6,15 @@ the recorded N4 proposal-only path (which does not invoke K_ref), the configured
 synthetic candidate profile, the real V5 source/input/execution owners, the
 canonical N5 port, Core's owned compiled artifact, and the ordinary fresh GET
 consumer. Candidate-only values remain limited and cannot carry N9 authority.
+Set ``POLISYOS_E02_CANDIDATE_LIMITER_REMOVAL=1`` for the paired removal probe:
+it uses this same POST/N5/CAS/fresh-GET witness and strips only the N5 limiter
+from the real typed simulation observation before persisted replay.
 """
 
 from __future__ import annotations
 
 import asyncio
+import os
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
@@ -40,6 +44,14 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Fresh GET replays the actual one-atom N5 trajectory and its bounded grid."""
+
+    limiter_removal_probe = os.environ.get(
+        "POLISYOS_E02_CANDIDATE_LIMITER_REMOVAL"
+    )
+    if limiter_removal_probe not in {None, "1"}:
+        raise ValueError(
+            "POLISYOS_E02_CANDIDATE_LIMITER_REMOVAL must be unset or '1'"
+        )
 
     pytest.importorskip("fastapi.testclient")
     from fastapi.testclient import TestClient
@@ -78,6 +90,7 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
     from polisyos.runtime.quality.generation_cycle import (
         GenerationCycleController,
         JointSimulationPort,
+        SimulationPortObservation,
         ValuePortObservation,
         _DefaultSimulationBoundFoundryValuePort,
         load_joint_simulation_result,
@@ -154,13 +167,35 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
     )
     n5_calls: list[str] = []
     n8_calls: list[ValuePortObservation] = []
+    limiter_removal_applied: list[str] = []
     original_n5 = JointSimulationPort.__call__
     original_n8 = _DefaultSimulationBoundFoundryValuePort.__call__
 
-    def observe_n5(port: object, *args: Any, **kwargs: Any) -> object:
+    def observe_n5(
+        port: object, *args: Any, **kwargs: Any
+    ) -> SimulationPortObservation:
         candidate = kwargs.get("candidate")
         n5_calls.append(str(getattr(candidate, "candidate_id", "")))
-        return original_n5(port, *args, **kwargs)
+        observation = original_n5(port, *args, **kwargs)
+        assert type(observation) is SimulationPortObservation
+        if limiter_removal_probe == "1":
+            blockers = observation.authority_blockers
+            assert blockers.count("candidate_scenario_n5_only") == 1
+            stripped = observation.model_copy(
+                update={
+                    "authority_blockers": tuple(
+                        blocker
+                        for blocker in blockers
+                        if blocker != "candidate_scenario_n5_only"
+                    )
+                }
+            )
+            assert stripped.model_dump(mode="json", exclude={"authority_blockers"}) == (
+                observation.model_dump(mode="json", exclude={"authority_blockers"})
+            )
+            limiter_removal_applied.append("candidate_scenario_n5_only")
+            return stripped
+        return observation
 
     def observe_n8(
         port: object, *args: Any, **kwargs: Any
@@ -528,6 +563,9 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
     assert len(n5_calls) == 1
     assert len(n8_calls) == 1
     assert n5_calls[0] == input_record.original_candidate_id
+    assert limiter_removal_applied == (
+        ["candidate_scenario_n5_only"] if limiter_removal_probe == "1" else []
+    )
 
     fresh_context = build_runtime_api_context(
         cas_root=cas_root,
@@ -567,45 +605,57 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
         )
         assert row["world_model_record_id"] == str(world_model_record_id)
         observation = row["observation"]
-        assert observation["status"] == "value_conditional"
-        assert observation["value_ref"] == str(n5_result_ref.artifact_id)
-        assert "candidate_scenario_n5_only" in observation["authority_blockers"]
-        assert observation["evaluation_mode"] == "simulate_only"
-        assert observation["predicate_basis"] == "recomputed"
-        assert observation["authority_purpose"] == "conditional_simulation_only"
+        if limiter_removal_probe == "1":
+            assert observation["status"] == "value_blocked", observation
+            assert observation["predicate_basis"] == "not_established", observation
+            assert observation.get("conditional_interaction_evidence") is None, observation
+            assert "conditional_simulation_replay_refused" in observation[
+                "authority_blockers"
+            ], observation
+            expected_n8_calls = 1
+        else:
+            assert observation["status"] == "value_conditional", observation
+            assert observation["value_ref"] == str(n5_result_ref.artifact_id), observation
+            assert "candidate_scenario_n5_only" in observation["authority_blockers"]
+            assert observation["evaluation_mode"] == "simulate_only"
+            assert observation["predicate_basis"] == "recomputed"
+            assert observation["authority_purpose"] == "conditional_simulation_only"
 
-        evidence = observation["conditional_interaction_evidence"]
-        horizon = input_record.profile.n5.horizon
-        requested_steps = tuple(horizon.steps())
-        observed_steps = tuple(
-            point.step
-            for trajectory in n5_result.trajectories
-            if trajectory.run_level == "joint"
-            for point in trajectory.points
-        )
-        assert evidence["schema_version"] == (
-            "policyos.runtime.conditional_simulation_interaction_evidence.v1"
-        )
-        assert evidence["horizon_start"] == horizon.start
-        assert evidence["horizon_end"] == horizon.end
-        assert evidence["horizon_step"] == horizon.step
-        assert evidence["requested_steps"] == list(requested_steps)
-        assert evidence["observed_steps"] == list(observed_steps)
-        assert evidence["trajectory_scope_count"] == len(n5_result.trajectories)
-        assert evidence["checked_interaction_orders"] == [1]
-        assert evidence["max_checked_interaction_order"] == 1
-        assert evidence["higher_order_residuals"] == {}
-        assert evidence["residual_scope"] == "no_higher_order"
-        assert evidence["predicate_provenance"] == "recomputed"
-        assert evidence["authority_purpose"] == "conditional_simulation_only"
-        assert evidence["unit_binding_status"] == "not_established"
-        assert evidence["time_binding_status"] == "not_established"
-        assert evidence["sampling_uncertainty_status"] == "not_established"
-        assert len(n8_calls) == 2
+            evidence = observation["conditional_interaction_evidence"]
+            horizon = input_record.profile.n5.horizon
+            requested_steps = tuple(horizon.steps())
+            observed_steps = tuple(
+                point.step
+                for trajectory in n5_result.trajectories
+                if trajectory.run_level == "joint"
+                for point in trajectory.points
+            )
+            assert evidence["schema_version"] == (
+                "policyos.runtime.conditional_simulation_interaction_evidence.v1"
+            )
+            assert evidence["horizon_start"] == horizon.start
+            assert evidence["horizon_end"] == horizon.end
+            assert evidence["horizon_step"] == horizon.step
+            assert evidence["requested_steps"] == list(requested_steps)
+            assert evidence["observed_steps"] == list(observed_steps)
+            assert evidence["trajectory_scope_count"] == len(n5_result.trajectories)
+            assert evidence["checked_interaction_orders"] == [1]
+            assert evidence["max_checked_interaction_order"] == 1
+            assert evidence["higher_order_residuals"] == {}
+            assert evidence["residual_scope"] == "no_higher_order"
+            assert evidence["predicate_provenance"] == "recomputed"
+            assert evidence["authority_purpose"] == "conditional_simulation_only"
+            assert evidence["unit_binding_status"] == "not_established"
+            assert evidence["time_binding_status"] == "not_established"
+            assert evidence["sampling_uncertainty_status"] == "not_established"
+            expected_n8_calls = 2
+
         assert len(n5_calls) == 1
-        readback_evidence = n8_calls[1].conditional_interaction_evidence
-        assert readback_evidence is not None
-        assert readback_evidence.model_dump(mode="json") == evidence
+        assert len(n8_calls) == expected_n8_calls
+        if limiter_removal_probe is None:
+            readback_evidence = n8_calls[1].conditional_interaction_evidence
+            assert readback_evidence is not None
+            assert readback_evidence.model_dump(mode="json") == evidence
 
         foreign_claims = build_fixture_identity_claims().model_copy(
             update={
@@ -626,4 +676,4 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
         )
         assert foreign_response.status_code == 403, foreign_response.text
         assert foreign_response.json()["code"] == "tenant_not_found"
-        assert len(n8_calls) == 2
+        assert len(n8_calls) == expected_n8_calls

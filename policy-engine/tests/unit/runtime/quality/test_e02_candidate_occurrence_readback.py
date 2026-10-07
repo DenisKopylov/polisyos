@@ -408,9 +408,34 @@ async def test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readba
         capture_gate,
     )
     final_cycle = replayed_run.cycles[-1]
+    active_problem = (
+        replayed_run.cycles[-2].revision_request.revised_problem
+        if len(replayed_run.cycles) > 1
+        else replayed.design_problem
+    )
+    assert (
+        gy_content_hash(active_problem.model_dump(mode="json"))
+        == final_cycle.design_problem_basis_ref
+    )
+    next_problem = final_cycle.revision_request.revised_problem
+    assert gy_content_hash(next_problem.model_dump(mode="json")) != (
+        final_cycle.design_problem_basis_ref
+    )
+    basis_mismatch = consumer._promote_completed_generation(
+        summaries=replayed_run.candidate_summaries,
+        problem=next_problem,
+        design_problem_basis_ref=final_cycle.design_problem_basis_ref,
+        deployment_identity=replayed_run.deployment_identity,
+    )
+    assert basis_mismatch.reason == (
+        "epoch_validity_refused:generation_cycle_promotion_basis_mismatch"
+    )
+    assert prepared_calls == []
+    assert gate_calls == []
+
     refusal = consumer._promote_completed_generation(
         summaries=replayed_run.candidate_summaries,
-        problem=final_cycle.revision_request.revised_problem,
+        problem=active_problem,
         design_problem_basis_ref=final_cycle.design_problem_basis_ref,
         deployment_identity=replayed_run.deployment_identity,
     )

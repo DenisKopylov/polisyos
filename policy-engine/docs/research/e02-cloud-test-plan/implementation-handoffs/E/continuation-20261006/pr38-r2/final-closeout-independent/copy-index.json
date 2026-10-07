@@ -117,7 +117,7 @@
       "sha256": "47354a2e71153a6c06bfeeceefb5794dc70988f981f13b6f239ce9b836402fbf"
     },
     {
-      "path": "independent-recompute-attempt1.stdout.json",
+      "path": "independent-recompute-attempt1.stdout.txt",
       "bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -127,7 +127,7 @@
       "sha256": "6be4c3158cf52a48f220b937142b28c633236c26ca614aa59ff8caf16f378b39"
     },
     {
-      "path": "independent-recompute-attempt2.stdout.json",
+      "path": "independent-recompute-attempt2.stdout.txt",
       "bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -137,7 +137,7 @@
       "sha256": "5c1b88a350f06e5c7f2fa87cb31e7d30f4593201c59235b1cf74cf2758543893"
     },
     {
-      "path": "independent-recompute-attempt3.stdout.json",
+      "path": "independent-recompute-attempt3.stdout.txt",
       "bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -147,7 +147,7 @@
       "sha256": "8755ee7e83584aacb5c2b1e09d89a83f157b7b877941e1cde6c73d53b48f7aa0"
     },
     {
-      "path": "independent-recompute-attempt4.stdout.json",
+      "path": "independent-recompute-attempt4.stdout.txt",
       "bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -261,5 +261,12 @@
   "total_bytes": 4087148,
   "index_self_excluded": true,
   "ready_self_excluded": true,
-  "rule": "Exact Git inputs captured before read-only validation; executed failed/corrected helper copies and full stdout/stderr retained. Original source/receipt bytes unchanged. Corrections require distinct append-only review version; metadata GO is neither product/fullCI/finding acceptance."
+  "rule": "Exact Git inputs captured before read-only validation; executed failed/corrected helper copies and full stdout/stderr retained. Original source/receipt bytes unchanged. Corrections require distinct append-only review version; metadata GO is neither product/fullCI/finding acceptance.",
+  "publication_path_correction_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/stdout-document-role-correction/current-publication-map.json",
+  "historical_original_index": {
+    "repository_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/copy-index.json",
+    "bytes": 9476,
+    "sha256": "d24d07792368c0e9c96e754309aebea174b670b825bd649f85d1acc38e9c302b"
+  }
 }

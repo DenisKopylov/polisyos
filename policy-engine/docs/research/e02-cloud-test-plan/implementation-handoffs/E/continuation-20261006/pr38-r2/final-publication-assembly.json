@@ -23,8 +23,8 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/portable-copy-index.json",
       "records": 51,
-      "bytes": 23275,
-      "sha256": "3527fc58995eacece111d821068d4944b1371b595780ae7d126d1702fc08a63b"
+      "bytes": 24234,
+      "sha256": "74508f2bafcb22e480e9dd1f13f57b89d25fb682a93ddce3a009eae2f884023b"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-refbinding-independent/portable-copy-index.json",
@@ -90,9 +90,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/copy-index.json",
       "status": "A",
-      "bytes": 9476,
-      "sha256": "d24d07792368c0e9c96e754309aebea174b670b825bd649f85d1acc38e9c302b",
-      "index_git_blob": "75806c8eab38a8f668d63fd71b05912161143072"
+      "bytes": 10054,
+      "sha256": "b19970300724cbabe800761906e23b9b7d05ced3df71b71179812927417e0218",
+      "index_git_blob": "91a582c7a7af0cde3d11ed7bf046cbee7c9b12ab",
+      "historical_index_git_blob": "75806c8eab38a8f668d63fd71b05912161143072"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/exact-Git-inputs/README.md",
@@ -228,7 +229,7 @@
       "index_git_blob": "015bb40090a74cdd266c9961b6079b4dd5484f45"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt1.stdout.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt1.stdout.txt",
       "status": "A",
       "bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -242,7 +243,7 @@
       "index_git_blob": "013cc3c6ebe5baf63132851e2ee12567b0cd05d7"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt2.stdout.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt2.stdout.txt",
       "status": "A",
       "bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -256,7 +257,7 @@
       "index_git_blob": "18eedaab8061e530b111e2970ae6aca342a57cf3"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt3.stdout.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt3.stdout.txt",
       "status": "A",
       "bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -270,7 +271,7 @@
       "index_git_blob": "e2abe3b037a7766c2355b29d699d88b9c56e5705"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt4.stdout.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt4.stdout.txt",
       "status": "A",
       "bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -328,9 +329,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/portable-copy-index.json",
       "status": "A",
-      "bytes": 23275,
-      "sha256": "3527fc58995eacece111d821068d4944b1371b595780ae7d126d1702fc08a63b",
-      "index_git_blob": "25242c9ce787a159659f08c2e322eb50a485c414"
+      "bytes": 24234,
+      "sha256": "74508f2bafcb22e480e9dd1f13f57b89d25fb682a93ddce3a009eae2f884023b",
+      "index_git_blob": "8792020707a46c2674e21d5b93938d499dd3fc5e",
+      "historical_index_git_blob": "25242c9ce787a159659f08c2e322eb50a485c414"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/postreview-integrity-and-availability.json",
@@ -643,9 +645,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-review-refbindings.json",
       "status": "A",
-      "bytes": 2233,
-      "sha256": "63dc6362551f2c3bbe389b60e73d4ef028a8d79896e5ef3708fefdeff1fba689",
-      "index_git_blob": "9b7d2218cdf8e7c5900a535cb2fc8032ab0331d2"
+      "bytes": 2993,
+      "sha256": "6b266c8abe7bfc186b7be1ff8fc340618322d6019f8f571e60f9273abd5ec7da",
+      "index_git_blob": "eb8d333f63b14388b6df0445295e29f14d87ec9e",
+      "historical_index_git_blob": "9b7d2218cdf8e7c5900a535cb2fc8032ab0331d2"
     }
   ],
   "assembly_receipt_self_excluded": true,
@@ -661,5 +664,15 @@
   "numeric": "1441PASS4FAIL0ERROR0SKIP;numericHOLD7globalFAIL13+23UNRUN",
   "finding_updates": 0,
   "cleanup": "No deletion or nativeTrash action;46temporary/cache declarations and5ineligible receipt-derivedenvironment paths",
-  "publication_identity": "Obtain commit/tree after commit; exactremote fetch/readback required. This receipt does not self-name an impossible future GitSHA."
+  "publication_identity": "Obtain commit/tree after commit; exactremote fetch/readback required. This receipt does not self-name an impossible future GitSHA.",
+  "publication_path_correction_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/stdout-document-role-correction/current-publication-map.json",
+  "historical_original_assembly": {
+    "repository_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-publication-assembly.json",
+    "bytes": 36263,
+    "sha256": "7dffdaa7094ec192761a43bea685e2b9a8c6308fc6ba585c33084d807cfbfbaa"
+  },
+  "historical_observation_scope": "Original numerical/gate/count/PASS fields describe their recorded historical publication, not this correction candidate. Only current copied paths and direct derivative index identities are normalized here; the separate handoff records current checks.",
+  "current_archive_review_record_bytes": 4536004,
+  "staged_footprint_role": "Current archive paths/byte identities projected from historical staging receipt; per-row status values and original numeric/check observations remain historical."
 }

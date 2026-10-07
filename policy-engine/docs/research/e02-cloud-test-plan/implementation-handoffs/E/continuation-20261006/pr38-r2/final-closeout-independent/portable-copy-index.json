@@ -137,7 +137,7 @@
     },
     {
       "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/final-a9-9954/independent-recompute-attempt1.stdout.json",
-      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt1.stdout.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt1.stdout.txt",
       "bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -149,7 +149,7 @@
     },
     {
       "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/final-a9-9954/independent-recompute-attempt2.stdout.json",
-      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt2.stdout.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt2.stdout.txt",
       "bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -161,7 +161,7 @@
     },
     {
       "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/final-a9-9954/independent-recompute-attempt3.stdout.json",
-      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt3.stdout.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt3.stdout.txt",
       "bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -173,7 +173,7 @@
     },
     {
       "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/final-a9-9954/independent-recompute-attempt4.stdout.json",
-      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt4.stdout.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt4.stdout.txt",
       "bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
@@ -306,8 +306,14 @@
     {
       "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/final-a9-9954/copy-index.json",
       "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/copy-index.json",
-      "bytes": 9476,
-      "sha256": "d24d07792368c0e9c96e754309aebea174b670b825bd649f85d1acc38e9c302b"
+      "bytes": 10054,
+      "sha256": "b19970300724cbabe800761906e23b9b7d05ced3df71b71179812927417e0218",
+      "historical_source_identity": {
+        "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/final-a9-9954/copy-index.json",
+        "bytes": 9476,
+        "sha256": "d24d07792368c0e9c96e754309aebea174b670b825bd649f85d1acc38e9c302b"
+      },
+      "source_relation": "publication-path metadata derivative; original source_index stays immutable"
     },
     {
       "source_path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/final-a9-9954/READY-review.json",
@@ -317,6 +323,13 @@
     }
   ],
   "file_count": 51,
-  "total_bytes": 4097412,
-  "rule": "Immutable originals unchanged; independent bounded review GO is separate from numerical HOLD/globalFAIL/finding owner decisions."
+  "total_bytes": 4097990,
+  "rule": "Immutable originals unchanged; independent bounded review GO is separate from numerical HOLD/globalFAIL/finding owner decisions.",
+  "publication_path_correction_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/stdout-document-role-correction/current-publication-map.json",
+  "historical_original_index": {
+    "repository_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/portable-copy-index.json",
+    "bytes": 23275,
+    "sha256": "3527fc58995eacece111d821068d4944b1371b595780ae7d126d1702fc08a63b"
+  }
 }

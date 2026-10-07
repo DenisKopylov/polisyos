@@ -1,0 +1,103 @@
+{
+  "schema": "policyos.e02.E.stdout_publication_role_correction.v1",
+  "base_repository_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "historical_original_index_refs": [
+    {
+      "repository_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/copy-index.json",
+      "bytes": 9476,
+      "sha256": "d24d07792368c0e9c96e754309aebea174b670b825bd649f85d1acc38e9c302b"
+    },
+    {
+      "repository_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/portable-copy-index.json",
+      "bytes": 23275,
+      "sha256": "3527fc58995eacece111d821068d4944b1371b595780ae7d126d1702fc08a63b"
+    },
+    {
+      "repository_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-publication-assembly.json",
+      "bytes": 36263,
+      "sha256": "7dffdaa7094ec192761a43bea685e2b9a8c6308fc6ba585c33084d807cfbfbaa"
+    },
+    {
+      "repository_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-review-refbindings.json",
+      "bytes": 2233,
+      "sha256": "63dc6362551f2c3bbe389b60e73d4ef028a8d79896e5ef3708fefdeff1fba689"
+    }
+  ],
+  "stdout_corrections": [
+    {
+      "historical_original": {
+        "repository_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt1.stdout.json",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "current_publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt1.stdout.txt",
+      "current_bytes": 0,
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "content_type": "text/plain; charset=utf-8",
+      "historical_attempt_outcome": "ERROR; stderr retained, no result JSON emitted",
+      "reason": "The executed observer wrote JSON only after all assertions; its failed attempt produced empty stdout."
+    },
+    {
+      "historical_original": {
+        "repository_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt2.stdout.json",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "current_publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt2.stdout.txt",
+      "current_bytes": 0,
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "content_type": "text/plain; charset=utf-8",
+      "historical_attempt_outcome": "ERROR; stderr retained, no result JSON emitted",
+      "reason": "The executed observer wrote JSON only after all assertions; its failed attempt produced empty stdout."
+    },
+    {
+      "historical_original": {
+        "repository_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt3.stdout.json",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "current_publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt3.stdout.txt",
+      "current_bytes": 0,
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "content_type": "text/plain; charset=utf-8",
+      "historical_attempt_outcome": "ERROR; stderr retained, no result JSON emitted",
+      "reason": "The executed observer wrote JSON only after all assertions; its failed attempt produced empty stdout."
+    },
+    {
+      "historical_original": {
+        "repository_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "repository_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt4.stdout.json",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "current_publication_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt4.stdout.txt",
+      "current_bytes": 0,
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "content_type": "text/plain; charset=utf-8",
+      "historical_attempt_outcome": "ERROR; stderr retained, no result JSON emitted",
+      "reason": "The executed observer wrote JSON only after all assertions; its failed attempt produced empty stdout."
+    }
+  ],
+  "current_index_cascade": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/portable-copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-review-refbindings.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-publication-assembly.json"
+  ],
+  "historical_observation_files_unchanged": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-refbinding-independent/input-snapshot.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-refbinding-independent/verified-67-copies.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/initial-git-identity.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/lint-utility-repair/independent/criteria/candidate-f3ec-source-census.json"
+  ],
+  "replay_rule": "Historical reader/reviewer/compiler replays use their recorded immutable Git refs and original names. Current archive readers use corrected copied paths; no historical observation becomes a new candidate result.",
+  "validation_scope": "Current publication role/path custody only. No product code, parser exception, numerical result, owner disposition, or finding closure changes.",
+  "new_check_results": "Recorded in the separate candidate-pinned handoff after the implementation commit; this map makes no future-SHA or full-gate PASS claim."
+}

@@ -22,6 +22,7 @@ from pydantic import BaseModel
 
 from polisyos.core import canon
 from polisyos.core.artifacts import ArtifactID, ArtifactRef
+from polisyos.core.contracts import ConditionalSimulationInteractionEvidence
 from polisyos.foundry.methods.selection import MethodSelectionReceipt
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality import generation_cycle as generation
@@ -757,6 +758,76 @@ def test_v3_history_projects_n5_artifact_root_model_as_scalar_wire() -> None:
         )
 
 
+def test_v3_history_preserves_typed_conditional_interaction_evidence() -> None:
+    """Retain the complete N5 interaction owner through the v3 history graph."""
+
+    evidence = ConditionalSimulationInteractionEvidence.model_validate(
+        {
+            "horizon_start": 0,
+            "horizon_end": 1,
+            "horizon_step": 1,
+            "requested_steps": [0, 1],
+            "observed_steps": [0, 1],
+            "trajectory_scope_count": 7,
+            "checked_interaction_orders": [1, 2, 3],
+            "max_checked_interaction_order": 3,
+            "higher_order_residuals": {
+                "firm_survival": {"0": 0.125, "1": -0.25},
+            },
+            "residual_scope": "third_order",
+        }
+    )
+    observation = generation.ValuePortObservation(
+        status="value_conditional",
+        candidate_id="candidate_conditional",
+        value_ref="sha256:" + "a" * 64,
+        authority_blockers=("simulation_only_k_sim_not_world_evidence",),
+        evaluation_mode="simulate_only",
+        decision_grade="low",
+        conditional_interaction_evidence=evidence,
+    )
+    wire = observation.model_dump(mode="json")
+    restored = generation.ValuePortObservation.model_validate(wire)
+
+    projection = generation._historical_generation_cycle_field_tree(
+        restored,
+        wire,
+        version="v3",
+    )
+    assert isinstance(projection, dict)
+    spec = canon.CanonSpec(forbid_floats=False)
+    assert canon.to_canonical_bytes(projection, spec) == canon.to_canonical_bytes(
+        wire, spec
+    )
+    assert projection["conditional_interaction_evidence"] == wire[
+        "conditional_interaction_evidence"
+    ]
+    assert projection["conditional_interaction_evidence"]["higher_order_residuals"] == {
+        "firm_survival": {"0": 0.125, "1": -0.25},
+    }
+    assert restored.conditional_interaction_evidence == evidence
+
+    class _UnmappedInteractionEvidence(BaseModel):
+        marker: str
+
+    forged = restored.model_copy(
+        update={
+            "conditional_interaction_evidence": _UnmappedInteractionEvidence(
+                marker="same wire key, different typed owner"
+            )
+        }
+    )
+    with pytest.raises(
+        ValueError,
+        match="generation_cycle_history_typed_owner_unmapped",
+    ):
+        generation._historical_generation_cycle_field_tree(
+            forged,
+            wire,
+            version="v3",
+        )
+
+
 def test_v3_blocked_terminal_semantics_remain_enforced_in_history() -> None:
     """Changing the persisted blocked terminal marker makes v3 history red."""
 
@@ -799,8 +870,8 @@ def test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph() -> N
     """Freeze aliases/Enums across every map class and exclude computed wire keys."""
 
     frozen = generation.FROZEN_N6_HISTORY_SCHEMA
-    expected_field_counts = {"v1": 76, "v2": 82, "v3": 92}
-    expected_model_counts = {"v1": 59, "v2": 60, "v3": 64}
+    expected_field_counts = {"v1": 76, "v2": 82, "v3": 99}
+    expected_model_counts = {"v1": 59, "v2": 60, "v3": 65}
     assert {version: len(models) for version, models in frozen.items()} == expected_model_counts
     for version, models in frozen.items():
         assert sum(
@@ -850,6 +921,19 @@ def test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph() -> N
     assert strategies[0]["type"] == (
         "polisyos.runtime.quality.acquisition_planner.AcquisitionStrategy"
     )
+    interaction_field = frozen["v3"][
+        "polisyos.runtime.quality.generation_cycle.ValuePortObservation"
+    ]
+    interaction_owner = (
+        "polisyos.core.contracts.runtime.ConditionalSimulationInteractionEvidence"
+    )
+    assert interaction_field["typed_model_edges"]["conditional_interaction_evidence"] == [
+        [["union:0"], interaction_owner]
+    ]
+    assert "conditional_interaction_evidence" in interaction_field["wire_fields"]
+    assert frozen["v3"][interaction_owner]["opaque_fields"] == [
+        "higher_order_residuals"
+    ]
 
 
 def test_v1_projection_removal_probe_rejects_post_v1_field_with_markers_retained() -> None:

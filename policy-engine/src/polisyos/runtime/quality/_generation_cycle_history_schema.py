@@ -2322,6 +2322,126 @@ _v3_history_models[
         "eligibility_source",
     ],
 }
+# v3 also carries recomputed N5 interaction coverage on candidate-grade N8
+# observations. Keep this optional owner explicit: old v3/v4 wires omit it,
+# while current non-null values must survive historical replay in full.
+_value_port_shape = _v3_history_models[
+    "polisyos.runtime.quality.generation_cycle.ValuePortObservation"
+]
+_value_port_shape["declared_fields"].insert(
+    _value_port_shape["declared_fields"].index("wall_time_ms"),
+    "conditional_interaction_evidence",
+)
+_value_port_shape["wire_fields"].insert(
+    _value_port_shape["wire_fields"].index("wall_time_ms"),
+    "conditional_interaction_evidence",
+)
+_value_port_shape["typed_model_edges"]["conditional_interaction_evidence"] = [
+    [
+        ["union:0"],
+        "polisyos.core.contracts.runtime.ConditionalSimulationInteractionEvidence",
+    ]
+]
+_v3_history_models[
+    "polisyos.core.contracts.runtime.ConditionalSimulationInteractionEvidence"
+] = {
+    "computed_fields": [],
+    "declared_fields": [
+        "schema_version",
+        "horizon_start",
+        "horizon_end",
+        "horizon_step",
+        "requested_steps",
+        "observed_steps",
+        "trajectory_scope_count",
+        "checked_interaction_orders",
+        "max_checked_interaction_order",
+        "higher_order_residuals",
+        "residual_scope",
+        "predicate_provenance",
+        "authority_purpose",
+        "unit_binding_status",
+        "time_binding_status",
+        "sampling_uncertainty_status",
+    ],
+    "excluded_fields": [],
+    "field_vocabulary": {
+        "schema_version": [{
+            "kind": "literal",
+            "path": [],
+            "type": None,
+            "values": ["policyos.runtime.conditional_simulation_interaction_evidence.v1"],
+        }],
+        "residual_scope": [{
+            "kind": "literal",
+            "path": [],
+            "type": None,
+            "values": ["no_higher_order", "third_order", "aggregate_three_plus"],
+        }],
+        "predicate_provenance": [{
+            "kind": "literal",
+            "path": [],
+            "type": None,
+            "values": ["recomputed"],
+        }],
+        "authority_purpose": [{
+            "kind": "literal",
+            "path": [],
+            "type": None,
+            "values": ["conditional_simulation_only"],
+        }],
+        "unit_binding_status": [{
+            "kind": "literal",
+            "path": [],
+            "type": None,
+            "values": ["not_established"],
+        }],
+        "time_binding_status": [{
+            "kind": "literal",
+            "path": [],
+            "type": None,
+            "values": ["not_established"],
+        }],
+        "sampling_uncertainty_status": [{
+            "kind": "literal",
+            "path": [],
+            "type": None,
+            "values": ["not_established"],
+        }],
+    },
+    "literal_values": {
+        "schema_version": [
+            "policyos.runtime.conditional_simulation_interaction_evidence.v1"
+        ],
+        "residual_scope": ["no_higher_order", "third_order", "aggregate_three_plus"],
+        "predicate_provenance": ["recomputed"],
+        "authority_purpose": ["conditional_simulation_only"],
+        "unit_binding_status": ["not_established"],
+        "time_binding_status": ["not_established"],
+        "sampling_uncertainty_status": ["not_established"],
+    },
+    "nullable_literal_fields": [],
+    "opaque_fields": ["higher_order_residuals"],
+    "typed_model_edges": {},
+    "wire_fields": [
+        "schema_version",
+        "horizon_start",
+        "horizon_end",
+        "horizon_step",
+        "requested_steps",
+        "observed_steps",
+        "trajectory_scope_count",
+        "checked_interaction_orders",
+        "max_checked_interaction_order",
+        "higher_order_residuals",
+        "residual_scope",
+        "predicate_provenance",
+        "authority_purpose",
+        "unit_binding_status",
+        "time_binding_status",
+        "sampling_uncertainty_status",
+    ],
+}
 FROZEN_N6_HISTORY_SCHEMA: Final[dict[str, dict[str, dict[str, object]]]] = {
     **json.loads(_FROZEN_SCHEMA_JSON),
     "v3": _v3_history_models,

@@ -712,6 +712,10 @@ async def test_default_cycle_preserves_simulation_only_result_and_history(
         assert restored.value_port.evaluation_mode == "simulate_only"
         assert expected_limitations.issubset(restored.value_port.authority_blockers)
         assert restored.value_port.value_ref == str(simulation.simulation_result_ref.artifact_id)
+        assert restored.value_port.conditional_interaction_evidence is not None
+        assert restored.value_port.conditional_interaction_evidence.model_dump(mode="json") == (
+            run.value_port.conditional_interaction_evidence.model_dump(mode="json")
+        )
         assert generation_cycle.validate_generation_cycle_run_history(persisted) == ()
 
         tampered = json.loads(persisted_path.read_text(encoding="utf-8"))

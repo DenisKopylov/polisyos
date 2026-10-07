@@ -1,0 +1,37 @@
+{
+  "schema": "policyos.e02.decisions_prereqs_claim_admission_correction.v2",
+  "historical_candidate": "72049b1f4af560703eb0278289e888dc938f1d93",
+  "historical_tree": "e6e145d7aab4cf5241d1461784008b8d587d7810",
+  "historical_copier_sha256": "e663d9bc1edf8c160a093e6ba3a857be84cbdcf55df6c887244b304d05c7dc44",
+  "historical_exact_red": {
+    "path": "correction/current-claim-counterexamples-72049.json",
+    "bytes": 7810,
+    "sha256": "43cfa25a1c14156aea94d3765b6837bbddb57913869949e5d0fe529fb160032f",
+    "outcome": "CHANGE_REQUIRED: actual normal/-O CLI admitted boolTrue ledger integer, forgedROOT_afterSHA and false execution flag"
+  },
+  "corrected_copier": {
+    "path": "copy-decisions-prereqs.py.txt",
+    "bytes": 14138,
+    "sha256": "f73d90f484d38b6b7d5c3f82316a9d9a053d7e53e29b5c06dbf28bb7ff98e62e"
+  },
+  "class_fix": [
+    "Canonical recursive typed comparison preserves bool/int/float distinctions.",
+    "Admit complete fixed schema/source/tree/base/prefix/before-after/flags/exclusion/history header and reject unknown asserted metadata.",
+    "Admit exact complete selector vector including key/count types; preserve all original members/aliases.",
+    "Require integer denominators, boolean alias claims, complete row keys and typed canonical carrier vector."
+  ],
+  "payloads_or_original_selectors_changed": false,
+  "logical_members": 237,
+  "payload_files": 168,
+  "payload_bytes": 8218180,
+  "aliases": 69,
+  "own_actual_controls": {
+    "normal_and_optimized": "PASS healthy plus19 pre-write corrupt refusals per mode",
+    "fixed_header_removal": "Same forged ROOT_after with counts/payloads/markers unchanged is admitted when only fixed-header predicate is removed; source-claim defining propertyFAIL",
+    "output_source": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-claim-admission-controls-v2.json"
+  },
+  "source_native_backend_gate_reexecuted": false,
+  "ROOT_source_env_locks_changed": false,
+  "finding_closure": false,
+  "future_correction_commit": "Excluded; independent reviewer will bind immutable append candidate after commit."
+}

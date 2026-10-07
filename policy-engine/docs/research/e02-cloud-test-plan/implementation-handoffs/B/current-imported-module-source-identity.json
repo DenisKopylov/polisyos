@@ -19,10 +19,13 @@
     "5bbbc90d7aa7f5bdf0c07517a17a7a03d2656197",
     "5deffd11efd0bba0db6e78d47259601149d3ae0b",
     "eb4a86032a5b787114c597c8a105a1f501e4abe4",
-    "b9406000f57f6cdbff458a156142a8ca6bb95186"
+    "b9406000f57f6cdbff458a156142a8ca6bb95186",
+    "de457686c6477e240978f9c5280f7c7d76890523",
+    "815c6ad22e02e1fd987ec6390f733c988d864134",
+    "d26d687c6f8e2a0baf7de2148781ef0f2fa84453"
   ],
-  "implementation_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
-  "candidate_tree_sha": "b6639d158cadc1d6d7f52fa5d2b4806c7918a2cf",
+  "implementation_sha": "d26d687c6f8e2a0baf7de2148781ef0f2fa84453",
+  "candidate_tree_sha": "e8157094978b8cd0ac84d238a5966c3642c08c8d",
   "production_source_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
   "production_source_tree_sha": "0b7134be3ac0fa5c7cbe07d4783f6d31a65c3e3e",
   "branch": "codex/e02-B-current-composition",
@@ -31,17 +34,20 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/baseline-2a/module-origins.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/baseline-2a/native.xml",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/baseline-2a/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/baseline-2a/stdout.lossless.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/baseline-2a/stdout.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/baseline-2a/wrapper.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/baseline-resolution.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-5de/module-origins.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-5de/native.xml",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-5de/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-5de/stdout.lossless.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-5de/stdout.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-5de/wrapper.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-eb4/module-origins.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-eb4/native.xml",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-eb4/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-eb4/stdout.lossless.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-eb4/stdout.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-eb4/wrapper.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/fixture-closure.json",
@@ -65,6 +71,42 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/foreign-object-readback.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/format-eb4.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/format-eb4.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/format-frame.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/format-frame.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-eb4/frame-falsifier.py.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-eb4/input-closure.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-eb4/measurement.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-eb4/module-origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-eb4/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-eb4/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-eb4/run-frame.py.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-eb4/stdout.lossless.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-eb4/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/effects.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/fixture/cas/artifacts/sha256/1f/6c/1f6cc535d545c493085d9554876926bc5d383fa72eccc2826d5ca3b8b5d8456b.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/fixture/cas/artifacts/sha256/1f/6c/1f6cc535d545c493085d9554876926bc5d383fa72eccc2826d5ca3b8b5d8456b.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/fixture/cas/artifacts/sha256/1f/6c/1f6cc535d545c493085d9554876926bc5d383fa72eccc2826d5ca3b8b5d8456b.view.d0781446623cb15730b4660e7370ed2ca39352fe447b4d3e3a1d88d7f371ba33.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/fixture/cas/artifacts/sha256/4e/9e/4e9e9062c4cb2d1a3310dc8b4819525800efc4f5e77f367c8e9d02870cf004ae.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/fixture/cas/artifacts/sha256/4e/9e/4e9e9062c4cb2d1a3310dc8b4819525800efc4f5e77f367c8e9d02870cf004ae.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/fixture/cas/artifacts/sha256/4e/9e/4e9e9062c4cb2d1a3310dc8b4819525800efc4f5e77f367c8e9d02870cf004ae.view.53a935e13bbbbeb42a838d3ecf0e62e36d144df455d207dd38603afe6c9860a5.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/fixture/cas/artifacts/sha256/50/d1/50d1cf2bfffe543934cd0ccc0d3a8c28489f7077e03514ba87464865f5a4d8b1.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/fixture/cas/artifacts/sha256/50/d1/50d1cf2bfffe543934cd0ccc0d3a8c28489f7077e03514ba87464865f5a4d8b1.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/fixture/cas/artifacts/sha256/50/d1/50d1cf2bfffe543934cd0ccc0d3a8c28489f7077e03514ba87464865f5a4d8b1.view.4b8ca8fe00bdb4d5112c9cac2a4d34cb617352cc8a712f90e837e862b1585b61.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/fixture/cas/artifacts/sha256/54/af/54afd0d590e6b277d9cd1ce46e5480f683682e43b6b480f7d24906d9e935e44c.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/fixture/cas/artifacts/sha256/54/af/54afd0d590e6b277d9cd1ce46e5480f683682e43b6b480f7d24906d9e935e44c.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/fixture/cas/artifacts/sha256/54/af/54afd0d590e6b277d9cd1ce46e5480f683682e43b6b480f7d24906d9e935e44c.view.896bcd82a984d8e7891171c414f6b97cba69e2b564de5bd0169995bf6a0bdfc3.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/fixture/cas/artifacts/sha256/82/ef/82efa4cadfd760a830325f23095d858a8288960861a180431111b7780ca6c0eb.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/fixture/cas/artifacts/sha256/82/ef/82efa4cadfd760a830325f23095d858a8288960861a180431111b7780ca6c0eb.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/fixture/cas/artifacts/sha256/82/ef/82efa4cadfd760a830325f23095d858a8288960861a180431111b7780ca6c0eb.view.90007d2337069532f2676129c26e41573a24489a9943362b152fcdad96108754.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/fixture/checkpoints/.checkpoint_5618c4f9_0000_20261007T082646.json.generations/753ae7d72d6640738ae14e3aa3a1b098/snapshot.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/fixture/checkpoints/checkpoint_5618c4f9_0000_20261007T082646.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/input-closure.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/measurement.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/module-origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/stdout.lossless.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/wrapper.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/index.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/mypy-5bb.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/mypy-5bb.txt",
@@ -76,8 +118,12 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/pytest-child.py.source.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/query-B74.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/query-unit-B-failures.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/representation-retirements.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/ruff-eb4.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/ruff-eb4.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/ruff-frame.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/ruff-frame.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/run-mirrored-frame.py.source.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/run-native.py.source.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/run-static-corrected.py.source.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/run-static.py.source.txt",
@@ -1316,10 +1362,357 @@
         "deciding_literal": "Actual defining test FAIL/DIDNOTRAISE. WRONGLY_RESUMED_TOTAL107; REPLACEMENT_EFFECTS [original,replacement]. Only in-memory selected-member quantity removed; actual CAS selected ref/history/source/version markers and physical calls retained."
       },
       "qualification": "Expected mutation FAIL establishes the defining guard quantity; it is not a clean product test PASS. Independent CAS run/source review; source canonical projection eb4, actual own merge1970 is kept distinct."
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/pytest-child.py",
+        "/workspace/e02-B-current-composition",
+        "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/frame-eb4/module-origins.json",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/frame-falsifier.py",
+        "-vv",
+        "--tb=short",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/dev/shm/e02-B-module-frame-eb4-747353",
+        "--junitxml",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/frame-eb4/native.xml"
+      ],
+      "target_sha": "164d7267628f83866c3440df3128352b181fe313",
+      "environment": {
+        "argv": [
+          "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/pytest-child.py",
+          "/workspace/e02-B-current-composition",
+          "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+          "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/frame-eb4/module-origins.json",
+          "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/frame-falsifier.py",
+          "-vv",
+          "--tb=short",
+          "--import-mode=importlib",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "/dev/shm/e02-B-module-frame-eb4-747353",
+          "--junitxml",
+          "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/frame-eb4/native.xml"
+        ],
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "source_before": {
+          "sha": "164d7267628f83866c3440df3128352b181fe313",
+          "tree": "d473ccc81b8b76a3f005d9d3917f61808e50c3c7",
+          "status": ""
+        },
+        "environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src:/workspace/e02-B-current-composition/policy-engine/product",
+          "POLISYOS_METRICS_PORT": "0",
+          "XLA_FLAGS": null,
+          "JAX_NUM_THREADS": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "RAYON_NUM_THREADS": null,
+          "TF_NUM_INTEROP_THREADS": null,
+          "TF_NUM_INTRAOP_THREADS": null,
+          "NUMBA_NUM_THREADS": null,
+          "LOKY_MAX_CPU_COUNT": null,
+          "PYTEST_XDIST_AUTO_NUM_WORKERS": null
+        },
+        "python_version": "Python 3.14.2",
+        "fixture": "/dev/shm/e02-B-module-frame-eb4-747353",
+        "fixtures_preserved": true,
+        "no_caps_added": true,
+        "test_input_bytes": [
+          {
+            "path": "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/frame-falsifier.py",
+            "bytes": 2779,
+            "sha256": "52e528a8059de2293bb261b431e61801c0d65ad9e1dc0ccc6cb9b6c5946e3905"
+          }
+        ]
+      },
+      "input_closure": {
+        "record": {
+          "git_sha": "d26d687c6f8e2a0baf7de2148781ef0f2fa84453",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-eb4/input-closure.json",
+          "bytes": 1274,
+          "sha256": "6c6f8ab47fba04c0f5223d8d1a89efc62608b1445448d31078f4ac1e14f24725"
+        },
+        "module_origins": {
+          "git_sha": "d26d687c6f8e2a0baf7de2148781ef0f2fa84453",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-eb4/module-origins.json",
+          "bytes": 66433,
+          "sha256": "39eebc819a1ad7a2ed93b5070e50b5436497d8ef7d2bd6a148d21518e86af4a1"
+        },
+        "source_before_after_equal": true,
+        "production_py_pyi_byte_projection": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+        "qualification": "Actual target HEAD/tree retained. Original source fixture dependency exacted4; mirrored target ownedtest815; file-backed module origins and finite fixtures, not universal input closure."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "stdout": {
+          "git_sha": "d26d687c6f8e2a0baf7de2148781ef0f2fa84453",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-eb4/stdout.lossless.json",
+          "bytes": 9649,
+          "sha256": "d54605e4ab4e6872e142ac7e996bb2411085869ddf33a420d08673f2d9789ab4"
+        },
+        "native_xml": {
+          "git_sha": "d26d687c6f8e2a0baf7de2148781ef0f2fa84453",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-eb4/native.xml",
+          "bytes": 1050,
+          "sha256": "8d9d91b957cd1c5cdba8a52bb518e56205a4bdb0fc192bedfae3af59e5dfbf05"
+        },
+        "wrapper": {
+          "git_sha": "d26d687c6f8e2a0baf7de2148781ef0f2fa84453",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-eb4/wrapper.json",
+          "bytes": 1643,
+          "sha256": "9e55fe1b99193aeb4ec512efaf46fa48b324724c60b251c50583877856f2f9fb"
+        },
+        "measurement": {
+          "git_sha": "d26d687c6f8e2a0baf7de2148781ef0f2fa84453",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-eb4/measurement.json",
+          "bytes": 281,
+          "sha256": "413d372db243d70054a2a11ff774a3f53842730ce93019e6e9b404d718401c1b"
+        },
+        "observed": {
+          "original": 7,
+          "unchanged_resume": 7,
+          "before_effects": [
+            "original",
+            "original"
+          ],
+          "refusal": null,
+          "changed_resume": 107,
+          "history_complete": true,
+          "pointer_unchanged": true,
+          "actual_effects": [
+            "original",
+            "original",
+            "replacement"
+          ]
+        },
+        "native_case_count": 1,
+        "native_failure_count": 1
+      },
+      "actual_exit_code": 1,
+      "wall_seconds": 3.1003170629846863,
+      "max_rss_kib": 169128,
+      "qualification": "Real strict checkpoint saves completed producer6, fresh CAS/readback executes unchanged remaining consumer7. Replaced helper reached through sys._getframe().f_globals[math] executes107 and writes replacement, with history_complete=true and pointer unchanged. No xfail; original ignored probe and mirrored native case kept separately."
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/pytest-child.py",
+        "/workspace/e02-B-current-composition",
+        "815c6ad22e02e1fd987ec6390f733c988d864134",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/frame-mirrored/module-origins.json",
+        "tests/unit/foundry/methods/backends/test_module_source_identity.py::test_returned_frame_namespace_refuses_before_replacement_effect",
+        "-vv",
+        "--tb=short",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/dev/shm/e02-B-module-frame-mirrored-749328",
+        "--junitxml",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/frame-mirrored/native.xml"
+      ],
+      "target_sha": "815c6ad22e02e1fd987ec6390f733c988d864134",
+      "environment": {
+        "argv": [
+          "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/pytest-child.py",
+          "/workspace/e02-B-current-composition",
+          "815c6ad22e02e1fd987ec6390f733c988d864134",
+          "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/frame-mirrored/module-origins.json",
+          "tests/unit/foundry/methods/backends/test_module_source_identity.py::test_returned_frame_namespace_refuses_before_replacement_effect",
+          "-vv",
+          "--tb=short",
+          "--import-mode=importlib",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "/dev/shm/e02-B-module-frame-mirrored-749328",
+          "--junitxml",
+          "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/frame-mirrored/native.xml"
+        ],
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "source_before": {
+          "sha": "815c6ad22e02e1fd987ec6390f733c988d864134",
+          "tree": "053cf4aa9b631a5bfaf98d8a7d788fc57f4e97f7",
+          "status": ""
+        },
+        "environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src:/workspace/e02-B-current-composition/policy-engine/product",
+          "POLISYOS_METRICS_PORT": "0",
+          "XLA_FLAGS": null,
+          "JAX_NUM_THREADS": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "RAYON_NUM_THREADS": null,
+          "TF_NUM_INTEROP_THREADS": null,
+          "TF_NUM_INTRAOP_THREADS": null,
+          "NUMBA_NUM_THREADS": null,
+          "LOKY_MAX_CPU_COUNT": null,
+          "PYTEST_XDIST_AUTO_NUM_WORKERS": null
+        },
+        "python_version": "Python 3.14.2",
+        "fixture": "/dev/shm/e02-B-module-frame-mirrored-749328",
+        "fixtures_preserved": true,
+        "no_caps_added": true,
+        "test_input_bytes": [
+          {
+            "path": "tests/unit/foundry/methods/backends/test_module_source_identity.py::test_returned_frame_namespace_refuses_before_replacement_effect",
+            "bytes": 14768,
+            "sha256": "535e5e825bf1df6c154bea4970bade973d05b9901f9969b89a0ffc5e7cf83e50"
+          }
+        ]
+      },
+      "input_closure": {
+        "record": {
+          "git_sha": "d26d687c6f8e2a0baf7de2148781ef0f2fa84453",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/input-closure.json",
+          "bytes": 8530,
+          "sha256": "8df4cd1d5ad7b01c2e951b3524ab1b74ae4a47f0d534a058f9de519c02f884c4"
+        },
+        "module_origins": {
+          "git_sha": "d26d687c6f8e2a0baf7de2148781ef0f2fa84453",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/module-origins.json",
+          "bytes": 70853,
+          "sha256": "f62cce011e572a947a60c335320476e53642c4f2432e98efda9098f68c8dee82"
+        },
+        "source_before_after_equal": true,
+        "production_py_pyi_byte_projection": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+        "qualification": "Actual target HEAD/tree retained. Original source fixture dependency exacted4; mirrored target ownedtest815; file-backed module origins and finite fixtures, not universal input closure."
+      },
+      "outcome": "FAIL",
+      "output": {
+        "stdout": {
+          "git_sha": "d26d687c6f8e2a0baf7de2148781ef0f2fa84453",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/stdout.lossless.json",
+          "bytes": 5656,
+          "sha256": "be7a23690f950d66a267fb9ad100f953b7b9cff993a497cf4594f23022352f46"
+        },
+        "native_xml": {
+          "git_sha": "d26d687c6f8e2a0baf7de2148781ef0f2fa84453",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/native.xml",
+          "bytes": 900,
+          "sha256": "65d4b042cbd6bbef740f696001956c292e84e0650727c97af2b2436c390fb98a"
+        },
+        "wrapper": {
+          "git_sha": "d26d687c6f8e2a0baf7de2148781ef0f2fa84453",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/wrapper.json",
+          "bytes": 1663,
+          "sha256": "d2506fec4f77be9c2bfaeb81babacdbe215d7a14d173ea8667e065f66401ab37"
+        },
+        "measurement": {
+          "git_sha": "d26d687c6f8e2a0baf7de2148781ef0f2fa84453",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/frame-mirrored/measurement.json",
+          "bytes": 281,
+          "sha256": "413d372db243d70054a2a11ff774a3f53842730ce93019e6e9b404d718401c1b"
+        },
+        "observed": {
+          "original": 7,
+          "unchanged_resume": 7,
+          "before_effects": [
+            "original",
+            "original"
+          ],
+          "refusal": null,
+          "changed_resume": 107,
+          "history_complete": true,
+          "pointer_unchanged": true,
+          "actual_effects": [
+            "original",
+            "original",
+            "replacement"
+          ]
+        },
+        "native_case_count": 1,
+        "native_failure_count": 1
+      },
+      "actual_exit_code": 1,
+      "wall_seconds": 3.4247012510022614,
+      "max_rss_kib": 175080,
+      "qualification": "Real strict checkpoint saves completed producer6, fresh CAS/readback executes unchanged remaining consumer7. Replaced helper reached through sys._getframe().f_globals[math] executes107 and writes replacement, with history_complete=true and pointer unchanged. No xfail; original ignored probe and mirrored native case kept separately."
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "tests/unit/foundry/methods/backends/test_module_source_identity.py"
+      ],
+      "target_sha": "815c6ad22e02e1fd987ec6390f733c988d864134",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python"
+      },
+      "input_closure": {
+        "test_source_sha256": "535e5e825bf1df6c154bea4970bade973d05b9901f9969b89a0ffc5e7cf83e50",
+        "metadata": {
+          "git_sha": "d26d687c6f8e2a0baf7de2148781ef0f2fa84453",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/ruff-frame.json",
+          "bytes": 708,
+          "sha256": "51c2b8fb0f6765379f653f817c65cbc93a64bd1d1d41339b8f521ebc3d418151"
+        }
+      },
+      "outcome": "PASS",
+      "output": {
+        "git_sha": "d26d687c6f8e2a0baf7de2148781ef0f2fa84453",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/ruff-frame.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "actual_exit_code": 0,
+      "qualification": "Narrow mirrored-test style check; no code graph/gate/runtime result implied."
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tests/unit/foundry/methods/backends/test_module_source_identity.py"
+      ],
+      "target_sha": "815c6ad22e02e1fd987ec6390f733c988d864134",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python"
+      },
+      "input_closure": {
+        "test_source_sha256": "535e5e825bf1df6c154bea4970bade973d05b9901f9969b89a0ffc5e7cf83e50",
+        "metadata": {
+          "git_sha": "d26d687c6f8e2a0baf7de2148781ef0f2fa84453",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/format-frame.json",
+          "bytes": 724,
+          "sha256": "7467847e3c5fab514a8d1450ea93b9971679344cf872a77f77b1dc3d52852d1c"
+        }
+      },
+      "outcome": "PASS",
+      "output": {
+        "git_sha": "d26d687c6f8e2a0baf7de2148781ef0f2fa84453",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/format-frame.txt",
+        "bytes": 25,
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+      },
+      "actual_exit_code": 0,
+      "qualification": "Narrow mirrored-test style check; no code graph/gate/runtime result implied."
     }
   ],
   "property": {
-    "statement": "For strict supported checkpoint/compiler graph identity, bind actual statically selected imported ModuleType members (including nested Python code references), so same module name/distribution version cannot admit stale prefix reuse or stale specialization after a supported selected helper/constant replacement. Unsupported dynamic namespace lookup refuses before strict execution.",
+    "statement": "Bind actual statically selected imported ModuleType members and nested referenced Python graph before checkpoint/compiler reuse. Direct captured namespace/import capability controls refuse within their tested finite boundary. Builtin-returned runtime context is NOT closed: the real frame-based remaining consumer admits replacement107 and a filesystem effect, so B74 remains LIMITED.",
     "runtime_path": [
       "current MethodRegistry implementation → canonical implementation_identity_projection strict supported-code-graph-v2",
       "checkpointing._capture_execution_identity → guarded current exact ArtifactRef/context and immutable generation/pointer",
@@ -1327,14 +1720,15 @@
       "actual supported imported helper selected by remaining consumer → independently observed filesystem effect; refusal preserves pointer/effects",
       "MethodCompiler._implementation_digest/current handle reconciliation consume the SAME canonical projection; actual eager/JAX prepared dtype importer controls"
     ],
-    "proxy_divergence": "Old module name/Python version stayed equal while selected helper changed; real cold/resume replacement body produced107 and wrote replacement after original persisted producer6. Module-version proxy measured the wrong quantity. Narrow property removal retains profile/schema/CAS/refs/identity checks but restores this107/physical effect; current gate refuses before replacement.",
+    "proxy_divergence": "Old module name/Python version stayed equal while selected helper changed; real cold/resume replacement body produced107 and wrote replacement after original persisted producer6. Module-version proxy measured the wrong quantity. Narrow property removal retains profile/schema/CAS/refs/identity checks but restores this107/physical effect; current gate refuses before replacement. The current selected-module graph itself diverges for sys._getframe returned Frame.f_globals: it captures the builtin Python/version leaf without the returned namespace selected math helper. Original7/unchanged7 becomes107 with replacement filesystem effect and no typed refusal.",
     "negative_controls": [
       "Author2a:actual1FAIL1PASS, original/unchanged7; changedcold10; stale prefix falsely admitted.",
       "Independentf796/f4 static case actual2PASS1FAIL with original/replacement physical effects.",
       "Intermediate5bb dynamic __import__ actual1FAIL resumed107 and replacement effect; originaldynamiccoldwaswronglyadmitted.",
       "Finaleb4 actual4 independentPASS; exact static changed helper refusal before effect, unchanged ordinary/builtin parity, dynamic strict cold refusal before all bodies.",
       "Finaleb4 independent selected-member removal actual1FAIL/107 and replacement filesystem effect.",
-      "Finaleb4 own12 defining cases distinguish helper/constant/nestedmodule/nestedCodeType mutation, unused-member positive, reflection/transport/mutablemember/dynamicimport/localimport/namespacealias strict refusals, all through actual executor/CAS."
+      "Finaleb4 own12 defining cases distinguish helper/constant/nestedmodule/nestedCodeType mutation, unused-member positive, reflection/transport/mutablemember/dynamicimport/localimport/namespacealias strict refusals, all through actual executor/CAS.",
+      "Original ignored frame probe and committed mirrored ordinary native frame case each actual1FAIL (no xfail): pointer markers and history_complete remain while actual replacement executes107 and writes replacement."
     ]
   },
   "predicate_basis": "recomputed",
@@ -1344,22 +1738,25 @@
     "fixture_scope_artifact_context": "consumer_asserted",
     "installed_external_mutable_internals": "not_established",
     "production_invocation_complete_verdict": "not_established",
-    "baseline_behavior": "not_established"
+    "baseline_behavior": "not_established",
+    "builtin_returned_context_closure": "not_established",
+    "frame_counterexample_arithmetic_effects": "recomputed"
   },
-  "capability_state_or_finding_state": "B74 LIMITED: concrete imported selected-member identity class implemented and independently verified in finite supported static Python graph; formal ROOT/G closure/admission remains separate",
+  "capability_state_or_finding_state": "B74 LIMITED: supported static imported-member identity is implemented and independently verified; actual builtin-returned frame namespace remains admitted and the genuine mirrored criterion case FAILS; no formal closure or global acceptance",
   "formal_closure": false,
   "pattern_pass": {
     "P27": "one existing canonical source graph and owner source hash; checkpoint/compiler share projection, no parallel graph/hash",
     "P29_P37_P38": "actual persisted prefix readback and physical replacement consumer; removal detects lost quantity with marker fields intact",
-    "P40": "SAME source-identity class deeper: previousclasshelper descriptor, now importedModuleType versionproxy and dynamic namespace sibling. One static-selection/captured-namespace admission invariant; unsupported capabilities typedrefuse rather than helper-name patches.",
+    "P40": "SAME source-identity class one level deeper: class helpers → module version proxy → direct dynamic namespace sibling → builtin-returned frame namespace. Static selected graph/direct captured capability invariant widened once. Frame is a worked residual, retained actual1FAIL in mirrorednative; no third per-helper source patch.",
     "P41": "No inherited attribution. Current3JAXFAIL and typing diagnostics preserved; corrected scannerSIGKILL/cause and zero-denominator first input not_established; no near-base waiver."
   },
   "finite_profile": {
     "supported": "ordinary inspectable Python functions/classes/captures; static global/nonlocal module member paths; recursive nested code referenced globals; selected actual supported helper/immutable value graph",
-    "unsupported_strict": "bare module transport/alias, mutable selected members, reflective/namespace builtins including aliases, local/dynamic imports, namespace introspection/class-held modules/non-module path traversal",
+    "unsupported_strict": "Direct captured named namespace/import builtins (including their aliases), tested local import bytecodes/function/class namespace attributes, bare static module transport/class-held modules/mutable selected members/non-module static traversal refuse. This is finite admission evidence, not universal reflection refusal.",
     "opaque_external_boundary": "selected installed numerical callable source/type/FQN/version, builtin Python/distribution version. Mutable installed internals/transitive code/external effects/hostile concurrent hot reload not secured.",
-    "finite_falsifier": "An installed callable can mutate its opaque internal state with unchanged selectedsource/type/FQN/version; this profile does not attest that property. Static selected caller replacement with source-readable Python helper does change or refuses identity, proved by checkpoint controls.",
-    "smallest_missing_capability": "Canonical owner-backed transitive implementation/resource/binary identity or behavioral validity evidence for opaque external internals; unavailable here, no new authority fabricated."
+    "finite_falsifier": "Real saved prefix after producer6; unchanged suffix7; replace actual same-version math member; remaining consumer resolves it through returned frame namespace and produces107 plus replacement fileeffect. Existing graph admits, no typed refusal. Separate opaque external internal mutation boundary remains unproved.",
+    "smallest_missing_capability": "Canonical dependency declaration/projection or generic typed refusal strategy for builtin-returned runtime-context capabilities; current static bytecode selected-member/capture graph has neither runtime returned-value dependency tracking nor this admission refusal. Next B owner, no helper-name patch. Opaque external transitive/binary/resource identity remains separate.",
+    "builtin_returned_runtime_context": "NOT_ESTABLISHED closure; actual sys._getframe().f_globals[math] helper selection is admitted. Same-source/version original7/unchanged7→replacement107 with physical effect. Known canonical native FAIL retained."
   },
   "independent_review": {
     "reviewer": "/root/cas_probe",
@@ -1377,13 +1774,14 @@
       "bytes": 11650,
       "sha256": "e6cf36291b91d426755afa41d461163935a2f5050c2188a422026166b1a5fc01"
     },
-    "author_self_review": false
+    "author_self_review": false,
+    "new_boundary_delta": "CAS source/test/docs delta review requested at815; old peer ed4 runtime4PASS/removal1FAIL facts remain exactly scoped, do not attest arbitrary frame/reflection closure."
   },
   "evidence_index": {
-    "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+    "git_sha": "d26d687c6f8e2a0baf7de2148781ef0f2fa84453",
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/index.json",
-    "bytes": 19430,
-    "sha256": "7dcd16051db6dd7deb06808ae44cb1fe874b308f0b19bce3217224307b70e8f7"
+    "bytes": 33153,
+    "sha256": "3cf261da4f57aaffaa0b2fb11f8ae3e6f5c8ab5427773fa755347181f67f553e"
   },
   "fixture_closure": {
     "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
@@ -1398,6 +1796,7 @@
     "sha256": "e55cea08b7a44f6b7489416f7c8e6d28afe8c0cc3bbc499005de10b93e9ff725"
   },
   "limitations_and_next_owner": [
+    "Next B canonical identity owner: actual builtin-returned frame namespace residual is code/mechanism-limited; preserve real native FAIL, add generic declared dependency or typed refusal strategy before proposing full B74. G runs exact test_module_source_identity.py::test_returned_frame_namespace_refuses_before_replacement_effect at current candidate; source identity code remains byteequaleb4. A/C sources untouched.",
     "ROOT/G fetch exact topic/source and independent CASreceipt; ownauthor does not claim all-B/formalclosure or globalsourcequalitygreen. Current corrected scanner execution incomplete SIGKILL9, cause not_established; ROOT combined frozen-base198 gate is separate future execution.",
     "Opaque external numerical mutableinternals/transitivecode, arbitrary hostile Python/hotreload/concurrentnamespace mutation and in-memory/resource/network/childinputclosure are not attested; strict=False legacy unavailable markers do not carry complete source closure.",
     "Graph profilev2 requires checkpoint/compiler recomputation; prior v1 snapshots cannot be silently treated as supported selected-member identity. No historical source publication/permission/billing/scientificprefix law is granted.",
@@ -1414,10 +1813,62 @@
   "per_premise_qualifications": {
     "fixture_scope_artifact_context": "consumer_asserted operational fixture premise; actual CAS bytes/profile/scope independently guarded, no institutional authority",
     "installed_external_mutable_internals": "not_established explicit finite opaque boundary",
-    "baseline_behavior": "not_established source_reported text only"
+    "baseline_behavior": "not_established source_reported text only",
+    "builtin_returned_context_closure": "Not merely missing backend: existing actual builtin-returned Frame namespace admission produces107 and replacement physical effect; smallest canonical generic capability is absent here."
   },
   "metadata_correction": {
-    "predecessor_receipt_sha": "528f40cf6da8b50d3b96a0d9d76e5f3d015200f1",
-    "reason": "Keep every P37 predicate-basis label one exact registered enum; original descriptive qualifications separately retained. No source/evidence/implementationfootprint/check outcome change."
+    "predecessor_receipt_sha": "164d7267628f83866c3440df3128352b181fe313",
+    "reason": "Narrow universal reflection claim to actual supported/static and direct capability controls; append original+mirrored builtin-returned frame actualFAIL. Three raw whitespace payloads retired through exact lossless JSON.text, immutable originalb940 refs retained. Source graph unchangedeb4."
+  },
+  "receipt_history": {
+    "previous_canonical_receipt": {
+      "git_sha": "164d7267628f83866c3440df3128352b181fe313",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity.json",
+      "sha256": "a7659ee8ec3dd547371d80ddb06b7539be10380be645d32a93f7f883e7efb0e4"
+    },
+    "preserved_original_receipt": "528f40cf6da8b50d3b96a0d9d76e5f3d015200f1",
+    "history_rewrite": false,
+    "receipt_only_commits_not_implementation_footprint": [
+      "528f40cf6da8b50d3b96a0d9d76e5f3d015200f1",
+      "164d7267628f83866c3440df3128352b181fe313"
+    ]
+  },
+  "representation_retirements": {
+    "git_sha": "d26d687c6f8e2a0baf7de2148781ef0f2fa84453",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/representation-retirements.json",
+    "bytes": 2692,
+    "sha256": "5a7bb993576959b68ac80f77a9ad6c1c76ec1f4224bec37b21973cde07cb0bbf"
+  },
+  "current_known_criterion_failure": {
+    "finding_id": "B74",
+    "source_code_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+    "test_source_sha": "815c6ad22e02e1fd987ec6390f733c988d864134",
+    "selector": "tests/unit/foundry/methods/backends/test_module_source_identity.py::test_returned_frame_namespace_refuses_before_replacement_effect",
+    "outcome": "FAIL",
+    "actual_changed_resume": 107,
+    "expected_unchanged_control": 7,
+    "physical_effect": [
+      "original",
+      "original",
+      "replacement"
+    ],
+    "marker_fields_preserved": {
+      "history_complete": true,
+      "pointer_unchanged": true
+    },
+    "no_xfail": true,
+    "G_invocation": {
+      "cwd": "policy-engine",
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/methods/backends/test_module_source_identity.py::test_returned_frame_namespace_refuses_before_replacement_effect",
+        "-vv",
+        "--tb=short"
+      ],
+      "fixture": "fresh unique basetemp/CAS, metrics0; actual finalshared env perG; no production dataset needed"
+    },
+    "old_109_binding": "Actual109PASS only ateb4 and original12case file. New mirrored case alone fails815; no future combinedPASS."
   }
 }

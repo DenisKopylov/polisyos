@@ -12,7 +12,7 @@ pytest.importorskip("SALib", reason="Morris admission controls need the native S
 
 from SALib.analyze import morris
 
-from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core import artifacts as core_artifacts
 from polisyos.scientist.methods.doe import analysis, designs
 from polisyos.scientist.methods.doe._receipt import _load_analysis, _persist_analysis
 from polisyos.scientist.methods.doe.designs import SensitivityPlan
@@ -144,7 +144,7 @@ def test_fresh_receipt_reopen_binds_actual_work_and_refuses_forged_smaller_plan(
     plan = _plan(trajectories=2)
     result = analysis.analyze_sensitivity(plan, samples, outputs)
     ref = _persist_analysis(store, plan, samples, outputs, result)
-    fresh = FileSystemCAS(store.root)
+    fresh = core_artifacts.FileSystemCAS(store.root)
     reopened = _load_analysis(fresh, ref)
 
     assert reopened == result

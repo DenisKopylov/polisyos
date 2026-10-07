@@ -1,0 +1,112 @@
+{
+  "schema": "policyos.e02.C.B_stream_oracle_owner_packet.v1",
+  "unit": "C",
+  "next_owner": "B connector/pool cross-unit oracle owner",
+  "status": "owner_input_pending",
+  "role": "Tracked Git request; not B implementation, source acceptance or finding closure",
+  "root_slice_base": {
+    "commit": "dbe1fb24b33201c7ff967a3227ab88e512e185d4",
+    "tree": "c161f86f7265fd90be66361cfd7ec89aa775c249"
+  },
+  "pins": {
+    "C_source": {
+      "commit": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+      "tree": "4bb3d7ef227f7745ab22a23f41f4618766e8b350"
+    },
+    "B_supplier": {
+      "commit": "121fcf450757086ffcc506dabca33fbe28dcd661",
+      "tree": "630ca6416fe2276e6bd1794edb4ee1f5ac1c80df"
+    },
+    "B_current": {
+      "commit": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+      "tree": "dc4ebd99afba72d13c60a46e77cd8fc99a002e60"
+    },
+    "composition": {
+      "commit": "c694daaf888657ec261988fa2066df792fd77110",
+      "tree": "bf1e231b53c1f68f7fce176792ea0011636a83f8"
+    },
+    "C_test": {
+      "commit": "0979fae4edaea61f3ae602241423d5cd96b091de",
+      "tree": "0ae7f83ad99321e0b83343a3eb3e02f7454d8bc4"
+    },
+    "G_input": {
+      "commit": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+      "tree": "dc1a7697f506b23f2db0f1c80bf929fd2d6a2e0d"
+    }
+  },
+  "oracle_target": {
+    "commit": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+    "path": "policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py",
+    "git_blob": "7ddc6b5bbe7b09c8db0ccaecf75852d9cee252a7",
+    "sha256": "e1d4fca7abf7934f38bd789c5dcb6c4a461ba59a4e65a731bdff9104630e512d",
+    "bytes": 8699
+  },
+  "requested_change": {
+    "canonical_writer": "B",
+    "write_scope": [
+      "policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py"
+    ],
+    "helper": "_pending_checkpoint",
+    "property": "The fixture must independently compare persisted event-key field/value identities after canonical JSON decoding. Production key serialization and semantics remain unchanged.",
+    "divergence": "Valid fixture event-ID values become canonical JSON key-pairs in C; legacy string equality fails during setup before either budget assertion.",
+    "minimal_action": "Replace legacy string equality with json.loads of each key and exact ordered pair/value comparison. Reject malformed or mismatched field/value identity; do not alter production keys to fit this fixture.",
+    "reference": "0979fae4edaea61f3ae602241423d5cd96b091de:policy-engine/tests/unit/fabric/data_plane/test_net_ing_current_frontier.py::_assert_source_key_identity",
+    "not_authorized_here": [
+      "C editing the B-owned test",
+      "changing production key representation",
+      "B87 or C54 closure",
+      "hard RSS/physical network FD claims"
+    ]
+  },
+  "requested_exact_replay": {
+    "source": "Exact normal-merge composition c694 plus C0979 and B-owned decoder-only test commit after its handoff; selected current B supplier bytes match B121/c694, later unrelated B paths are separate scope",
+    "selectors": [
+      "policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+      "policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_admitted_recovery_emits_two_sessions_once_with_original_lineage"
+    ],
+    "witness": "Persist two-row frontier under cap3; cap1 restore refuses before poll, flush, commit, CAS write and preserves predecessor checkpoint/cursor/index/manifest/lease; cap3 resumes original ordered rows and refs once",
+    "required_receipt": "B implementation/test SHA and tree; exact composition source/module identities, command/profile/inputs; complete deciding stdout/stderr/XML; negative control; limits. C validates consumer on that immutable composition. No rerun of the old setup-broken sixteen-case wave."
+  },
+  "separate_cleanup_acceptance": {
+    "C_owner": "process/session consumer and streaming.py",
+    "B_owner": "pool/registry/CAS and B consumer test",
+    "C_current_stream_blob": "80af60d90e2eb6aeed0d335c4dbe5d80c8c24c7c",
+    "historical_B_G_stream_blob": "0915a4e9bc52ed97048d7e9f135ab8d3dfccbff6",
+    "property": "Same failed pool/handle remains reachable by registry retry owner, primary exception preserved, pending_permit=false/semaphore=1 without second return; retry completes and fresh session does not erase old obligation",
+    "current_C_work": "Narrow C frontier/cleanup plus one pending-owner/fresh-session overlap test on c694 source; B failure selector separately replayed. No new C mechanism unless current80af behavior actually fails."
+  },
+  "historical_receipts": [
+    {
+      "name": "current-pool-stream-contract.json",
+      "test_candidate": "46656d88103f8cb289da78d92411f2d58f01df4a",
+      "outcome": "1 PASS / 1 FAIL",
+      "stdout_sha256": "be5c46ca96dc39b6360d7cb837e6b8a2eac373ecae76f83bfba24f7879f7ca66",
+      "source_limit": "Old0915stream and pre-current CAS72127/a664d; not current B+C execution"
+    },
+    {
+      "name": "current-stream-cleanup-consumer-oracle.json",
+      "test_candidate": "a6ddddc114e195c7f1686042cf7c63ad99b9d5af",
+      "runtime": "f131958a71413154785823abeb0765d40499bad2",
+      "outcome": "7 PASS / 1 FAIL",
+      "stdout_sha256": "a457b623d95800965be657f2f4cae8723e4d2e15d5bd0ef1bc429b064b67252f",
+      "source_limit": "Four module fingerprints include old0915stream; CAS is not fingerprinted. Separate run, not a ten-case wave on1862 or execution on G."
+    }
+  ],
+  "predicate_basis": {
+    "selected_source_identity": "recomputed",
+    "independent_source_census": "independently_reconciled",
+    "B_decoder_receipt": "not_established",
+    "source_event_version_authority": "not_established"
+  },
+  "limitations": [
+    "B decoder-only owner handoff is pending; two original B pool cases must not be counted PASS from C independent tests",
+    "B79/B80 content binder and B83 source-owned event/version authority remain unresolved; synthetic offset keys do not admit source authority",
+    "C54/G formal closure is not modified by this request",
+    "file:// JSONL local fixture cannot establish network FD or hard global physical-capacity guarantee"
+  ],
+  "independent_census": {
+    "path": ".tmp/e02-C4/raw/stream-source-census/independent-census.md",
+    "sha256": "1649051d300ac797cd095f43d0cc112cc4ff28ee12f8f904498e732390fd61de",
+    "role": "Local independent read-only source/receipt audit; all exact Git identities above are portable inputs"
+  }
+}

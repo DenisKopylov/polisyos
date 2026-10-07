@@ -1,0 +1,62 @@
+{
+  "source_root": "/workspace/e02-F-api-20261006",
+  "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+  "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+  "branch": "codex/e02-F-api-20261006",
+  "scratch": "/tmp/e02-F-continuation-20261006/api/installed-final-8236",
+  "app_python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "dependency_site": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages",
+  "worker_python": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+  "carrier_paths": {
+    "abi_facade": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+    "abi_consumers": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py",
+    "worker_profile": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py",
+    "dowhy_fixture": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+    "gcm_fixture": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+    "normalized_slots": "policy-engine/tests/unit/foundry/methods/backends/test_dispatch_output_contract.py",
+    "anomaly_count": "policy-engine/tests/unit/foundry/methods/backends/test_output_anomaly_count.py",
+    "confidence_accumulation": "policy-engine/tests/unit/scientist/governance/test_confidence_issue_accumulation.py",
+    "configured_default_tmle": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py",
+    "b220_rows": "policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py",
+    "b220_performance": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py",
+    "related_id_engine": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+    "related_causal_contracts": "policy-engine/tests/unit/foundry/methods/catalog/causal/test__causal_engine_contracts.py",
+    "related_interference_contracts": "policy-engine/tests/unit/foundry/methods/catalog/causal/test__interference_contracts.py"
+  },
+  "selectors": [
+    "test_installed_facade_contract.py",
+    "test_facade_consumer_continuation.py",
+    "test_installed_worker_profile.py",
+    "test_dispatch_output_contract.py",
+    "test_output_anomaly_count.py",
+    "test_confidence_issue_accumulation.py",
+    "test_id_engine_extensions.py",
+    "test__causal_engine_contracts.py",
+    "test__interference_contracts.py",
+    "test_tmle_common_report.py::test_real_configured_method_job_projects_exact_native_eif_and_cas_reader",
+    "test_tmle_common_report.py::test_real_default_method_job_uses_current_public_contract_and_all_folds",
+    "test_causal_graph_cache_rows.py",
+    "test_performance_primitives.py::test_cached_adjacency_reuse",
+    "test_performance_primitives.py::test_cached_adjacency_eviction",
+    "test_performance_primitives.py::test_published_graph_rejects_nested_topology_mutation",
+    "test_performance_primitives.py::test_warmed_derived_rows_are_not_reused_after_copy_update"
+  ],
+  "selection_expression": "not case_insensitive and not computed_import",
+  "api_launcher": "/tmp/e02-F-continuation-20261006/api/launch_installed_final_wave.py",
+  "review_scratch": "/tmp/e02-F-continuation-20261006/foundry/installed-final-wave/8236-review",
+  "independent_boundaries_sha256": "94ab10cf0c664eecde748f42008c76e5d0a13601657606e9c62d947a1c13bbfa",
+  "stage": "Final reviewed AST-equivalent source; prior d5 setup historical only, native UNRUN.",
+  "archives": {
+    "wheel": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/dist-source/policy_engine-0.1.0-py3-none-any.whl",
+    "sdist": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/dist-source/policy_engine-0.1.0.tar.gz",
+    "rebuilt_wheel": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/dist-rebuilt/policy_engine-0.1.0-py3-none-any.whl"
+  },
+  "sites": {
+    "wheel": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/lib/python3.14/site-packages",
+    "sdist": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/lib/python3.14/site-packages"
+  },
+  "installed_pythons": {
+    "wheel": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/wheel-env/bin/python",
+    "sdist": "/tmp/e02-F-continuation-20261006/api/installed-final-8236/sdist-env/bin/python"
+  }
+}

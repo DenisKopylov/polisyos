@@ -1,0 +1,16 @@
+policy-engine/src/polisyos/foundry/agent_sim/analysis.py
+policy-engine/src/polisyos/foundry/agent_sim/credit_assignment.py
+policy-engine/src/polisyos/foundry/agent_sim/distributions.py
+policy-engine/src/polisyos/foundry/agent_sim/government_policy.py
+policy-engine/src/polisyos/foundry/agent_sim/metrics.py
+policy-engine/src/polisyos/foundry/agent_sim/modes.py
+policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py
+policy-engine/src/polisyos/foundry/plugins/economics/README.md
+policy-engine/src/polisyos/foundry/plugins/economics/objectives.py
+policy-engine/src/polisyos/foundry/plugins/economics/plugin.py
+policy-engine/tests/unit/foundry/agent_sim/test_gini_science.py
+release-fragments/unreleased/2026-10-06-economic-gini-domain.toml
+tests/unit/foundry/agent_sim/test_gini_consumers.py
+tests/unit/foundry/agent_sim/test_gini_domain.py
+tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py
+tests/unit/foundry/plugins/test_economic_profile_consumers.py

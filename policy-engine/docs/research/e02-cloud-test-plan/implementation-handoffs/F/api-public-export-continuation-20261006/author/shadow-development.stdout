@@ -1,0 +1,358 @@
+........................FFF.F...FF.....                                  [100%]
+=================================== FAILURES ===================================
+__ test_public_surface_inventory_enumerates_every_supported_entrypoint_facade __
+
+    def test_public_surface_inventory_enumerates_every_supported_entrypoint_facade() -> None:
+        manifest = tomllib.loads(
+            (REPO_ROOT / "architecture/public_surface/contract.toml").read_text(encoding="utf-8")
+        )
+        expected = {
+            entrypoint
+            for package in manifest["package"]
+            for entrypoint in package["supported_entrypoints"]
+        }
+>       observed = {entrypoint.module for package in _inventory() for entrypoint in package.entrypoints}
+                                                     ^^^^^^^^^^^^
+
+tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py:19: in _inventory
+    return guardrails.build_public_surface_inventory(policies)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/devx/architecture/guardrails.py:777: in build_public_surface_inventory
+    entrypoints = tuple(
+                  ^^^^^
+tools/devx/architecture/guardrails.py:778: in <genexpr>
+    _entrypoint_inventory(entrypoint) for entrypoint in policy.supported_entrypoints
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/devx/architecture/guardrails.py:747: in _entrypoint_inventory
+    exports = _extract_exports(tree, source_file)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/devx/architecture/guardrails.py:712: in _extract_exports
+    exports = _StaticExportResolver(source, tree).resolve(source, "__all__")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <tools.devx.architecture.guardrails._StaticExportResolver object at 0x7fe8739c3530>
+source = PosixPath('/workspace/e02-F-api-20261006/policy-engine/src/polisyos/fabric/world/__init__.py')
+symbol = '__all__'
+
+    def resolve(self, source: Path, symbol: str) -> object:
+        key = (source, symbol)
+        if key in self._active:
+            raise ValueError(f"Unresolved export declaration cycle: {source}:{symbol}")
+        self._active.add(key)
+        try:
+            tree = self._tree(source)
+            direct_nodes = {id(node) for node in tree.body}
+            for node in _symbol_binding_nodes(tree, symbol):
+                supported_assignment = (
+                    isinstance(node, (ast.Assign, ast.AnnAssign))
+                    and any(
+                        isinstance(target, ast.Name) and target.id == symbol
+                        for target in (node.targets if isinstance(node, ast.Assign) else [node.target])
+                    )
+                )
+                supported_import = isinstance(node, ast.ImportFrom) and all(
+                    alias.name != "*" for alias in node.names
+                )
+                if id(node) not in direct_nodes or not (supported_assignment or supported_import):
+>                   raise ValueError(f"Unresolved conditional/mutated exports: {source}:{symbol}")
+E                   ValueError: Unresolved conditional/mutated exports: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/fabric/world/__init__.py:__all__
+E                   {"complete_verdict": false, "finding_coverage": "explicit file-reader operations only", "inputs": [{"operation": "is_file", "path": "src/polisyos/fabric/world.py", "result": false, "status": "absent"}, {"operation": "is_file", "path": "src/polisyos/fabric/world/__init__.py", "result": true, "status": "present"}, {"bytes": 4178, "operation": "read_bytes", "path": "src/polisyos/fabric/world/__init__.py", "sha256": "a619518516504923c5a42a7406b04e99d07dc5aeeae0e290a7fdd7e29ff4f45e", "status": "read"}], "unresolved_by_construction": ["Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."]}
+
+tools/devx/architecture/guardrails.py:613: ValueError
+___ test_supported_entrypoint_inventory_resolves_module_and_package_facades ____
+
+    def test_supported_entrypoint_inventory_resolves_module_and_package_facades() -> None:
+        entrypoints = {
+            entrypoint.module: entrypoint
+>           for package in _inventory()
+                           ^^^^^^^^^^^^
+            for entrypoint in package.entrypoints
+        }
+
+tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py:19: in _inventory
+    return guardrails.build_public_surface_inventory(policies)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/devx/architecture/guardrails.py:777: in build_public_surface_inventory
+    entrypoints = tuple(
+                  ^^^^^
+tools/devx/architecture/guardrails.py:778: in <genexpr>
+    _entrypoint_inventory(entrypoint) for entrypoint in policy.supported_entrypoints
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/devx/architecture/guardrails.py:747: in _entrypoint_inventory
+    exports = _extract_exports(tree, source_file)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/devx/architecture/guardrails.py:712: in _extract_exports
+    exports = _StaticExportResolver(source, tree).resolve(source, "__all__")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <tools.devx.architecture.guardrails._StaticExportResolver object at 0x7fe87393ec30>
+source = PosixPath('/workspace/e02-F-api-20261006/policy-engine/src/polisyos/fabric/world/__init__.py')
+symbol = '__all__'
+
+    def resolve(self, source: Path, symbol: str) -> object:
+        key = (source, symbol)
+        if key in self._active:
+            raise ValueError(f"Unresolved export declaration cycle: {source}:{symbol}")
+        self._active.add(key)
+        try:
+            tree = self._tree(source)
+            direct_nodes = {id(node) for node in tree.body}
+            for node in _symbol_binding_nodes(tree, symbol):
+                supported_assignment = (
+                    isinstance(node, (ast.Assign, ast.AnnAssign))
+                    and any(
+                        isinstance(target, ast.Name) and target.id == symbol
+                        for target in (node.targets if isinstance(node, ast.Assign) else [node.target])
+                    )
+                )
+                supported_import = isinstance(node, ast.ImportFrom) and all(
+                    alias.name != "*" for alias in node.names
+                )
+                if id(node) not in direct_nodes or not (supported_assignment or supported_import):
+>                   raise ValueError(f"Unresolved conditional/mutated exports: {source}:{symbol}")
+E                   ValueError: Unresolved conditional/mutated exports: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/fabric/world/__init__.py:__all__
+E                   {"complete_verdict": false, "finding_coverage": "explicit file-reader operations only", "inputs": [{"operation": "is_file", "path": "src/polisyos/fabric/world.py", "result": false, "status": "absent"}, {"operation": "is_file", "path": "src/polisyos/fabric/world/__init__.py", "result": true, "status": "present"}, {"bytes": 4178, "operation": "read_bytes", "path": "src/polisyos/fabric/world/__init__.py", "sha256": "a619518516504923c5a42a7406b04e99d07dc5aeeae0e290a7fdd7e29ff4f45e", "status": "read"}], "unresolved_by_construction": ["Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."]}
+
+tools/devx/architecture/guardrails.py:613: ValueError
+__ test_foundry_public_surface_exposes_only_embedding_contract_from_backends ___
+
+    def test_foundry_public_surface_exposes_only_embedding_contract_from_backends() -> None:
+>       foundry = next(package for package in _inventory() if package.module == "polisyos.foundry")
+                                              ^^^^^^^^^^^^
+
+tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py:56: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py:19: in _inventory
+    return guardrails.build_public_surface_inventory(policies)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/devx/architecture/guardrails.py:777: in build_public_surface_inventory
+    entrypoints = tuple(
+                  ^^^^^
+tools/devx/architecture/guardrails.py:778: in <genexpr>
+    _entrypoint_inventory(entrypoint) for entrypoint in policy.supported_entrypoints
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/devx/architecture/guardrails.py:747: in _entrypoint_inventory
+    exports = _extract_exports(tree, source_file)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/devx/architecture/guardrails.py:712: in _extract_exports
+    exports = _StaticExportResolver(source, tree).resolve(source, "__all__")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <tools.devx.architecture.guardrails._StaticExportResolver object at 0x7fe8739c1b50>
+source = PosixPath('/workspace/e02-F-api-20261006/policy-engine/src/polisyos/fabric/world/__init__.py')
+symbol = '__all__'
+
+    def resolve(self, source: Path, symbol: str) -> object:
+        key = (source, symbol)
+        if key in self._active:
+            raise ValueError(f"Unresolved export declaration cycle: {source}:{symbol}")
+        self._active.add(key)
+        try:
+            tree = self._tree(source)
+            direct_nodes = {id(node) for node in tree.body}
+            for node in _symbol_binding_nodes(tree, symbol):
+                supported_assignment = (
+                    isinstance(node, (ast.Assign, ast.AnnAssign))
+                    and any(
+                        isinstance(target, ast.Name) and target.id == symbol
+                        for target in (node.targets if isinstance(node, ast.Assign) else [node.target])
+                    )
+                )
+                supported_import = isinstance(node, ast.ImportFrom) and all(
+                    alias.name != "*" for alias in node.names
+                )
+                if id(node) not in direct_nodes or not (supported_assignment or supported_import):
+>                   raise ValueError(f"Unresolved conditional/mutated exports: {source}:{symbol}")
+E                   ValueError: Unresolved conditional/mutated exports: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/fabric/world/__init__.py:__all__
+E                   {"complete_verdict": false, "finding_coverage": "explicit file-reader operations only", "inputs": [{"operation": "is_file", "path": "src/polisyos/fabric/world.py", "result": false, "status": "absent"}, {"operation": "is_file", "path": "src/polisyos/fabric/world/__init__.py", "result": true, "status": "present"}, {"bytes": 4178, "operation": "read_bytes", "path": "src/polisyos/fabric/world/__init__.py", "sha256": "a619518516504923c5a42a7406b04e99d07dc5aeeae0e290a7fdd7e29ff4f45e", "status": "read"}], "unresolved_by_construction": ["Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."]}
+
+tools/devx/architecture/guardrails.py:613: ValueError
+________ test_runtime_quality_inventory_contains_human_decision_record _________
+
+    def test_runtime_quality_inventory_contains_human_decision_record() -> None:
+        entrypoint = next(
+            entrypoint
+>           for package in _inventory()
+                           ^^^^^^^^^^^^
+            for entrypoint in package.entrypoints
+            if entrypoint.module == "polisyos.runtime.quality"
+        )
+
+tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py:97: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py:19: in _inventory
+    return guardrails.build_public_surface_inventory(policies)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/devx/architecture/guardrails.py:777: in build_public_surface_inventory
+    entrypoints = tuple(
+                  ^^^^^
+tools/devx/architecture/guardrails.py:778: in <genexpr>
+    _entrypoint_inventory(entrypoint) for entrypoint in policy.supported_entrypoints
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/devx/architecture/guardrails.py:747: in _entrypoint_inventory
+    exports = _extract_exports(tree, source_file)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/devx/architecture/guardrails.py:712: in _extract_exports
+    exports = _StaticExportResolver(source, tree).resolve(source, "__all__")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <tools.devx.architecture.guardrails._StaticExportResolver object at 0x7fe8739c32f0>
+source = PosixPath('/workspace/e02-F-api-20261006/policy-engine/src/polisyos/fabric/world/__init__.py')
+symbol = '__all__'
+
+    def resolve(self, source: Path, symbol: str) -> object:
+        key = (source, symbol)
+        if key in self._active:
+            raise ValueError(f"Unresolved export declaration cycle: {source}:{symbol}")
+        self._active.add(key)
+        try:
+            tree = self._tree(source)
+            direct_nodes = {id(node) for node in tree.body}
+            for node in _symbol_binding_nodes(tree, symbol):
+                supported_assignment = (
+                    isinstance(node, (ast.Assign, ast.AnnAssign))
+                    and any(
+                        isinstance(target, ast.Name) and target.id == symbol
+                        for target in (node.targets if isinstance(node, ast.Assign) else [node.target])
+                    )
+                )
+                supported_import = isinstance(node, ast.ImportFrom) and all(
+                    alias.name != "*" for alias in node.names
+                )
+                if id(node) not in direct_nodes or not (supported_assignment or supported_import):
+>                   raise ValueError(f"Unresolved conditional/mutated exports: {source}:{symbol}")
+E                   ValueError: Unresolved conditional/mutated exports: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/fabric/world/__init__.py:__all__
+E                   {"complete_verdict": false, "finding_coverage": "explicit file-reader operations only", "inputs": [{"operation": "is_file", "path": "src/polisyos/fabric/world.py", "result": false, "status": "absent"}, {"operation": "is_file", "path": "src/polisyos/fabric/world/__init__.py", "result": true, "status": "present"}, {"bytes": 4178, "operation": "read_bytes", "path": "src/polisyos/fabric/world/__init__.py", "sha256": "a619518516504923c5a42a7406b04e99d07dc5aeeae0e290a7fdd7e29ff4f45e", "status": "read"}], "unresolved_by_construction": ["Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."]}
+
+tools/devx/architecture/guardrails.py:613: ValueError
+___________ test_generated_inventory_serializes_each_resolved_facade ___________
+
+    def test_generated_inventory_serializes_each_resolved_facade() -> None:
+>       payload = json.loads(guardrails.render_public_surface_json(_inventory()))
+                                                                   ^^^^^^^^^^^^
+
+tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py:231: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py:19: in _inventory
+    return guardrails.build_public_surface_inventory(policies)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/devx/architecture/guardrails.py:777: in build_public_surface_inventory
+    entrypoints = tuple(
+                  ^^^^^
+tools/devx/architecture/guardrails.py:778: in <genexpr>
+    _entrypoint_inventory(entrypoint) for entrypoint in policy.supported_entrypoints
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/devx/architecture/guardrails.py:747: in _entrypoint_inventory
+    exports = _extract_exports(tree, source_file)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/devx/architecture/guardrails.py:712: in _extract_exports
+    exports = _StaticExportResolver(source, tree).resolve(source, "__all__")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <tools.devx.architecture.guardrails._StaticExportResolver object at 0x7fe7521617f0>
+source = PosixPath('/workspace/e02-F-api-20261006/policy-engine/src/polisyos/fabric/world/__init__.py')
+symbol = '__all__'
+
+    def resolve(self, source: Path, symbol: str) -> object:
+        key = (source, symbol)
+        if key in self._active:
+            raise ValueError(f"Unresolved export declaration cycle: {source}:{symbol}")
+        self._active.add(key)
+        try:
+            tree = self._tree(source)
+            direct_nodes = {id(node) for node in tree.body}
+            for node in _symbol_binding_nodes(tree, symbol):
+                supported_assignment = (
+                    isinstance(node, (ast.Assign, ast.AnnAssign))
+                    and any(
+                        isinstance(target, ast.Name) and target.id == symbol
+                        for target in (node.targets if isinstance(node, ast.Assign) else [node.target])
+                    )
+                )
+                supported_import = isinstance(node, ast.ImportFrom) and all(
+                    alias.name != "*" for alias in node.names
+                )
+                if id(node) not in direct_nodes or not (supported_assignment or supported_import):
+>                   raise ValueError(f"Unresolved conditional/mutated exports: {source}:{symbol}")
+E                   ValueError: Unresolved conditional/mutated exports: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/fabric/world/__init__.py:__all__
+E                   {"complete_verdict": false, "finding_coverage": "explicit file-reader operations only", "inputs": [{"operation": "is_file", "path": "src/polisyos/fabric/world.py", "result": false, "status": "absent"}, {"operation": "is_file", "path": "src/polisyos/fabric/world/__init__.py", "result": true, "status": "present"}, {"bytes": 4178, "operation": "read_bytes", "path": "src/polisyos/fabric/world/__init__.py", "sha256": "a619518516504923c5a42a7406b04e99d07dc5aeeae0e290a7fdd7e29ff4f45e", "status": "read"}], "unresolved_by_construction": ["Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."]}
+
+tools/devx/architecture/guardrails.py:613: ValueError
+____________ test_ddm_facade_policy_matches_observed_lazy_boundary _____________
+
+    def test_ddm_facade_policy_matches_observed_lazy_boundary() -> None:
+>       ddm = next(package for package in _inventory() if package.module == "polisyos.ddm")
+                                          ^^^^^^^^^^^^
+
+tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py:241: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py:19: in _inventory
+    return guardrails.build_public_surface_inventory(policies)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/devx/architecture/guardrails.py:777: in build_public_surface_inventory
+    entrypoints = tuple(
+                  ^^^^^
+tools/devx/architecture/guardrails.py:778: in <genexpr>
+    _entrypoint_inventory(entrypoint) for entrypoint in policy.supported_entrypoints
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/devx/architecture/guardrails.py:747: in _entrypoint_inventory
+    exports = _extract_exports(tree, source_file)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/devx/architecture/guardrails.py:712: in _extract_exports
+    exports = _StaticExportResolver(source, tree).resolve(source, "__all__")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <tools.devx.architecture.guardrails._StaticExportResolver object at 0x7fe752162510>
+source = PosixPath('/workspace/e02-F-api-20261006/policy-engine/src/polisyos/fabric/world/__init__.py')
+symbol = '__all__'
+
+    def resolve(self, source: Path, symbol: str) -> object:
+        key = (source, symbol)
+        if key in self._active:
+            raise ValueError(f"Unresolved export declaration cycle: {source}:{symbol}")
+        self._active.add(key)
+        try:
+            tree = self._tree(source)
+            direct_nodes = {id(node) for node in tree.body}
+            for node in _symbol_binding_nodes(tree, symbol):
+                supported_assignment = (
+                    isinstance(node, (ast.Assign, ast.AnnAssign))
+                    and any(
+                        isinstance(target, ast.Name) and target.id == symbol
+                        for target in (node.targets if isinstance(node, ast.Assign) else [node.target])
+                    )
+                )
+                supported_import = isinstance(node, ast.ImportFrom) and all(
+                    alias.name != "*" for alias in node.names
+                )
+                if id(node) not in direct_nodes or not (supported_assignment or supported_import):
+>                   raise ValueError(f"Unresolved conditional/mutated exports: {source}:{symbol}")
+E                   ValueError: Unresolved conditional/mutated exports: /workspace/e02-F-api-20261006/policy-engine/src/polisyos/fabric/world/__init__.py:__all__
+E                   {"complete_verdict": false, "finding_coverage": "explicit file-reader operations only", "inputs": [{"operation": "is_file", "path": "src/polisyos/fabric/world.py", "result": false, "status": "absent"}, {"operation": "is_file", "path": "src/polisyos/fabric/world/__init__.py", "result": true, "status": "present"}, {"bytes": 4178, "operation": "read_bytes", "path": "src/polisyos/fabric/world/__init__.py", "sha256": "a619518516504923c5a42a7406b04e99d07dc5aeeae0e290a7fdd7e29ff4f45e", "status": "read"}], "unresolved_by_construction": ["Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."]}
+
+tools/devx/architecture/guardrails.py:613: ValueError
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py::test_public_surface_inventory_enumerates_every_supported_entrypoint_facade
+FAILED tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py::test_supported_entrypoint_inventory_resolves_module_and_package_facades
+FAILED tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py::test_foundry_public_surface_exposes_only_embedding_contract_from_backends
+FAILED tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py::test_runtime_quality_inventory_contains_human_decision_record
+FAILED tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py::test_generated_inventory_serializes_each_resolved_facade
+FAILED tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py::test_ddm_facade_policy_matches_observed_lazy_boundary
+6 failed, 33 passed, 1 warning in 23.58s

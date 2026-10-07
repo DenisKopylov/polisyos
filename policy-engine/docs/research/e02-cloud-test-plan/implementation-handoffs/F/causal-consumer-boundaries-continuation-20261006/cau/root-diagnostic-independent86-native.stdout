@@ -1,0 +1,102 @@
+.........F.............                                                  [100%]
+=================================== FAILURES ===================================
+________ test_selected_typed_view_survives_resolver_loader_and_lineage _________
+
+execution_context = ExecutionContext(store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x7f5171d57b50>, run=RunContext(store=<p...one, memory=None, eval_safety_execution_context=None, eval_safety_verifier=None, epoch_certificate_issuance_owner=None)
+minimal_state = ExperimentState(schema_version='1.3', run_id='R_test', inputs={'registry_bundle_ref': ArtifactRef(artifact_id=Artifact...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+
+    def test_selected_typed_view_survives_resolver_loader_and_lineage(execution_context, minimal_state):
+        import numpy as np
+    
+        from polisyos.foundry.methods.causal import PanelObservationalData
+        from polisyos.ir.observation import OBSERVATION_METHOD_INPUT_KIND
+    
+        data = PanelObservationalData(
+            outcome=np.arange(12, dtype=float).reshape(4, 3),
+            treatment=np.array([1, 1, 0, 0]),
+            time_treatment=1,
+        )
+        store = execution_context.store
+        first = store.put_json(
+            data.model_dump(mode="json"),
+            PutOptions(kind=OBSERVATION_METHOD_INPUT_KIND, media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        selected = store.put_json(
+            data.model_dump(mode="json"),
+            PutOptions(kind="ir.observational_data", media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        assert first.artifact_id == selected.artifact_id
+        assert store.get_manifest(selected.artifact_id).kind == first.kind
+        assert store.get_manifest(selected).kind == selected.kind
+        state = _state(minimal_state, selected)
+        assert _actual_causal_input_identities(state, store=store)
+>       loaded = _load_observational_data(
+            execution_context, state, "causal.inference.did.standard@1.0.0"
+        )
+
+tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ctx = ExecutionContext(store=<polisyos.core.artifacts.store.FileSystemCAS object at 0x7f5171d57b50>, run=RunContext(store=<p...one, memory=None, eval_safety_execution_context=None, eval_safety_verifier=None, epoch_certificate_issuance_owner=None)
+state = ExperimentState(schema_version='1.3', run_id='R_test', inputs={}, artifacts_index={}, reports_index={}, params={}, bud...ef=None, policy_output_bundle_ref=None, policy_brief_ref=None, champion_policy_dossier_ref=None, memory_index_ref=None)
+method_fqn = 'causal.inference.did.standard@1.0.0'
+
+    def _load_observational_data(
+        ctx: ExecutionContext,
+        state: ExperimentState,
+        method_fqn: str,
+    ) -> (
+        PanelObservationalData
+        | RDDObservationalData
+        | HTEObservationalData
+        | GraphCausalData
+        | GraphCausalDataV1
+    ):
+        if state.observational_data_ref is None:
+            raise ValueError("observational_data_ref is required for causal evaluation")
+        ref = _to_core_artifact_ref(state.observational_data_ref)
+        assert ref is not None
+        payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
+        manifest = ctx.store.get_manifest(ref.artifact_id)
+        envelope_fields = ObservationMethodInputEnvelope.model_fields
+        schema_namespace = envelope_fields["schema_version"].default.rsplit(".", 1)[0] + "."
+        discriminator = payload.get("schema_version") if isinstance(payload, dict) else None
+        envelope_supplied = (
+            ref.kind == OBSERVATION_METHOD_INPUT_KIND
+            or manifest.kind == OBSERVATION_METHOD_INPUT_KIND
+            or (
+                isinstance(payload, dict)
+                and bool((envelope_fields.keys() - {"schema_version"}) & payload.keys())
+            )
+            or (isinstance(discriminator, str) and discriminator.startswith(schema_namespace))
+        )
+        if envelope_supplied:
+            if (
+                ref.kind != OBSERVATION_METHOD_INPUT_KIND
+                or manifest.kind != ref.kind
+                or ref.media_type != "application/json"
+                or manifest.media_type != ref.media_type
+                or not ctx.store.verify(ref.artifact_id).ok
+            ):
+>               raise ValueError("observational_envelope_artifact_identity_mismatch")
+E               ValueError: observational_envelope_artifact_identity_mismatch
+
+86e7f9afe25e5f171a0fb03669ce0d9cb5269624:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py:651: ValueError
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py::test_real_method_job_and_fresh_reader_validate_complete_diagnostic[StandardDifferenceInDifferences]
+tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py::test_real_method_job_and_fresh_reader_validate_complete_diagnostic[StaggeredDifferenceInDifferences]
+tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py::test_changed_only_diagnostic_window_refuses_in_actual_primary_job
+  /workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    result = backend.run(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py::test_selected_typed_view_survives_resolver_loader_and_lineage
+1 failed, 22 passed, 4 warnings in 31.19s

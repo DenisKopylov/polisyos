@@ -1,0 +1,32 @@
+{
+  "candidate_sha": "73f1e698f4271983ed8e83fba0314ca1f36b5a48",
+  "command": [
+    "python3",
+    "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-replayer.py",
+    "--candidate",
+    "73f1e698f4271983ed8e83fba0314ca1f36b5a48"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006",
+  "process_exit_code": 0,
+  "wall_seconds": 4.5521156787872314,
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "dependencies": "stdlib only",
+    "thread_cpu_quotas": "none"
+  },
+  "oracle": {
+    "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-replayer.py",
+    "bytes": 12298,
+    "sha256": "e0cb3431b1796ba06e36d3fec4b5ab2ada806b80f4f323cb743ccb32d82246dc"
+  },
+  "stdout": {
+    "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review.stdout",
+    "bytes": 593,
+    "sha256": "3ac79f784c1d0e19a8219319340de27d55d84f7cba25682ca6fc53fedcaeb4d2"
+  },
+  "stderr": {
+    "path": "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,1007 @@
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF..FFFFFFFFFFFF                             [100%]
+=================================== FAILURES ===================================
+_ test_classical_gini_refuses_invalid_active_population[values0-eager-compute_gini_hard] _
+
+function = <function compute_gini_hard at 0x7f8d4b9e0ca0>, compiled = False
+values = [-2.0, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values0-eager-compute_gini_soft] _
+
+function = <function compute_gini_soft at 0x7f8d4b9e0e00>, compiled = False
+values = [-2.0, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values0-eager-compute_gini_proxy] _
+
+function = <function compute_gini_proxy at 0x7f8d4b9e0f60>, compiled = False
+values = [-2.0, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values0-jit-compute_gini_hard] _
+
+function = <function compute_gini_hard at 0x7f8d4b9e0ca0>, compiled = True
+values = [-2.0, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values0-jit-compute_gini_soft] _
+
+function = <function compute_gini_soft at 0x7f8d4b9e0e00>, compiled = True
+values = [-2.0, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values0-jit-compute_gini_proxy] _
+
+function = <function compute_gini_proxy at 0x7f8d4b9e0f60>, compiled = True
+values = [-2.0, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values1-eager-compute_gini_hard] _
+
+function = <function compute_gini_hard at 0x7f8d4b9e0ca0>, compiled = False
+values = [-1.0, 2.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values1-eager-compute_gini_soft] _
+
+function = <function compute_gini_soft at 0x7f8d4b9e0e00>, compiled = False
+values = [-1.0, 2.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values1-eager-compute_gini_proxy] _
+
+function = <function compute_gini_proxy at 0x7f8d4b9e0f60>, compiled = False
+values = [-1.0, 2.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values1-jit-compute_gini_hard] _
+
+function = <function compute_gini_hard at 0x7f8d4b9e0ca0>, compiled = True
+values = [-1.0, 2.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values1-jit-compute_gini_soft] _
+
+function = <function compute_gini_soft at 0x7f8d4b9e0e00>, compiled = True
+values = [-1.0, 2.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values1-jit-compute_gini_proxy] _
+
+function = <function compute_gini_proxy at 0x7f8d4b9e0f60>, compiled = True
+values = [-1.0, 2.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values2-eager-compute_gini_hard] _
+
+function = <function compute_gini_hard at 0x7f8d4b9e0ca0>, compiled = False
+values = [-1.0, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values2-eager-compute_gini_soft] _
+
+function = <function compute_gini_soft at 0x7f8d4b9e0e00>, compiled = False
+values = [-1.0, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values2-eager-compute_gini_proxy] _
+
+function = <function compute_gini_proxy at 0x7f8d4b9e0f60>, compiled = False
+values = [-1.0, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values2-jit-compute_gini_hard] _
+
+function = <function compute_gini_hard at 0x7f8d4b9e0ca0>, compiled = True
+values = [-1.0, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values2-jit-compute_gini_soft] _
+
+function = <function compute_gini_soft at 0x7f8d4b9e0e00>, compiled = True
+values = [-1.0, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values2-jit-compute_gini_proxy] _
+
+function = <function compute_gini_proxy at 0x7f8d4b9e0f60>, compiled = True
+values = [-1.0, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values3-eager-compute_gini_hard] _
+
+function = <function compute_gini_hard at 0x7f8d4b9e0ca0>, compiled = False
+values = [nan, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values3-eager-compute_gini_soft] _
+
+function = <function compute_gini_soft at 0x7f8d4b9e0e00>, compiled = False
+values = [nan, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values3-eager-compute_gini_proxy] _
+
+function = <function compute_gini_proxy at 0x7f8d4b9e0f60>, compiled = False
+values = [nan, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values3-jit-compute_gini_hard] _
+
+function = <function compute_gini_hard at 0x7f8d4b9e0ca0>, compiled = True
+values = [nan, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values3-jit-compute_gini_soft] _
+
+function = <function compute_gini_soft at 0x7f8d4b9e0e00>, compiled = True
+values = [nan, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values3-jit-compute_gini_proxy] _
+
+function = <function compute_gini_proxy at 0x7f8d4b9e0f60>, compiled = True
+values = [nan, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values4-eager-compute_gini_hard] _
+
+function = <function compute_gini_hard at 0x7f8d4b9e0ca0>, compiled = False
+values = [inf, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values4-eager-compute_gini_soft] _
+
+function = <function compute_gini_soft at 0x7f8d4b9e0e00>, compiled = False
+values = [inf, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values4-eager-compute_gini_proxy] _
+
+function = <function compute_gini_proxy at 0x7f8d4b9e0f60>, compiled = False
+values = [inf, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values4-jit-compute_gini_hard] _
+
+function = <function compute_gini_hard at 0x7f8d4b9e0ca0>, compiled = True
+values = [inf, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values4-jit-compute_gini_soft] _
+
+function = <function compute_gini_soft at 0x7f8d4b9e0e00>, compiled = True
+values = [inf, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_classical_gini_refuses_invalid_active_population[values4-jit-compute_gini_proxy] _
+
+function = <function compute_gini_proxy at 0x7f8d4b9e0f60>, compiled = True
+values = [inf, 1.0]
+
+    @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])
+    @pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0], [-1.0, 1.0],
+                                       [np.nan, 1.0], [np.inf, 1.0]])
+    def test_classical_gini_refuses_invalid_active_population(function, compiled, values) -> None:
+        evaluate = jax.jit(function) if compiled else function
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:30: Failed
+_ test_invalid_metric_is_refused_before_actual_consumer_publication[aggregate-values0] _
+
+values = [-2.0, 1.0], consumer = 'aggregate'
+
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0]])
+    @pytest.mark.parametrize("consumer", ["aggregate", "executor", "native-distribution",
+                                         "plugin-income", "plugin-wealth"])
+    def test_invalid_metric_is_refused_before_actual_consumer_publication(values, consumer) -> None:
+        if consumer in {"aggregate", "executor"}:
+            state = AgentSimState.empty(n_agents=2, seed=7)
+            state = state.replace(agents=state.agents.replace(wealth=jnp.asarray(values)))
+            if consumer == "aggregate":
+                evaluate = lambda: jax.jit(lambda a: compute_aggregates(a, compute_gini=True))(
+                    state.agents
+                )
+            else:
+                evaluate = lambda: PureExecutor([], aggregate_every=1, compute_gini=True).run(state, 2)
+            # Signed resource simulation remains possible when Gini is not requested.
+            unmeasured, _ = PureExecutor([], aggregate_every=1, compute_gini=False).run(state, 2)
+            np.testing.assert_array_equal(unmeasured.agents.wealth, values)
+        elif consumer == "native-distribution":
+            state = GlobalState.empty(n_agents=2, n_firms=1)
+            state = state.replace(agents=state.agents.replace(income=jnp.asarray(values)))
+            evaluate = lambda: jax.jit(lambda s: _compute_distribution_state(s, n_quantiles=2))(state)
+        else:
+            state = EconomicState.empty(n_agents=2, seed=7)
+            slot = "income" if consumer == "plugin-income" else "wealth"
+            state = state.replace(agents=state.agents.replace(**{slot: jnp.asarray(values)}))
+            objective = EconomicsPlugin().get_objectives()["gini"]
+            # The genuine aggregate refresh must refuse before the objective sees a scalar.
+            evaluate = lambda: objective.evaluate(jax.jit(EconomicState.update_aggregates)(state))
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:74: Failed
+_ test_invalid_metric_is_refused_before_actual_consumer_publication[aggregate-values1] _
+
+values = [-1.0, 2.0], consumer = 'aggregate'
+
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0]])
+    @pytest.mark.parametrize("consumer", ["aggregate", "executor", "native-distribution",
+                                         "plugin-income", "plugin-wealth"])
+    def test_invalid_metric_is_refused_before_actual_consumer_publication(values, consumer) -> None:
+        if consumer in {"aggregate", "executor"}:
+            state = AgentSimState.empty(n_agents=2, seed=7)
+            state = state.replace(agents=state.agents.replace(wealth=jnp.asarray(values)))
+            if consumer == "aggregate":
+                evaluate = lambda: jax.jit(lambda a: compute_aggregates(a, compute_gini=True))(
+                    state.agents
+                )
+            else:
+                evaluate = lambda: PureExecutor([], aggregate_every=1, compute_gini=True).run(state, 2)
+            # Signed resource simulation remains possible when Gini is not requested.
+            unmeasured, _ = PureExecutor([], aggregate_every=1, compute_gini=False).run(state, 2)
+            np.testing.assert_array_equal(unmeasured.agents.wealth, values)
+        elif consumer == "native-distribution":
+            state = GlobalState.empty(n_agents=2, n_firms=1)
+            state = state.replace(agents=state.agents.replace(income=jnp.asarray(values)))
+            evaluate = lambda: jax.jit(lambda s: _compute_distribution_state(s, n_quantiles=2))(state)
+        else:
+            state = EconomicState.empty(n_agents=2, seed=7)
+            slot = "income" if consumer == "plugin-income" else "wealth"
+            state = state.replace(agents=state.agents.replace(**{slot: jnp.asarray(values)}))
+            objective = EconomicsPlugin().get_objectives()["gini"]
+            # The genuine aggregate refresh must refuse before the objective sees a scalar.
+            evaluate = lambda: objective.evaluate(jax.jit(EconomicState.update_aggregates)(state))
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:74: Failed
+_ test_invalid_metric_is_refused_before_actual_consumer_publication[executor-values0] _
+
+values = [-2.0, 1.0], consumer = 'executor'
+
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0]])
+    @pytest.mark.parametrize("consumer", ["aggregate", "executor", "native-distribution",
+                                         "plugin-income", "plugin-wealth"])
+    def test_invalid_metric_is_refused_before_actual_consumer_publication(values, consumer) -> None:
+        if consumer in {"aggregate", "executor"}:
+            state = AgentSimState.empty(n_agents=2, seed=7)
+            state = state.replace(agents=state.agents.replace(wealth=jnp.asarray(values)))
+            if consumer == "aggregate":
+                evaluate = lambda: jax.jit(lambda a: compute_aggregates(a, compute_gini=True))(
+                    state.agents
+                )
+            else:
+                evaluate = lambda: PureExecutor([], aggregate_every=1, compute_gini=True).run(state, 2)
+            # Signed resource simulation remains possible when Gini is not requested.
+            unmeasured, _ = PureExecutor([], aggregate_every=1, compute_gini=False).run(state, 2)
+            np.testing.assert_array_equal(unmeasured.agents.wealth, values)
+        elif consumer == "native-distribution":
+            state = GlobalState.empty(n_agents=2, n_firms=1)
+            state = state.replace(agents=state.agents.replace(income=jnp.asarray(values)))
+            evaluate = lambda: jax.jit(lambda s: _compute_distribution_state(s, n_quantiles=2))(state)
+        else:
+            state = EconomicState.empty(n_agents=2, seed=7)
+            slot = "income" if consumer == "plugin-income" else "wealth"
+            state = state.replace(agents=state.agents.replace(**{slot: jnp.asarray(values)}))
+            objective = EconomicsPlugin().get_objectives()["gini"]
+            # The genuine aggregate refresh must refuse before the objective sees a scalar.
+            evaluate = lambda: objective.evaluate(jax.jit(EconomicState.update_aggregates)(state))
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:74: Failed
+_ test_invalid_metric_is_refused_before_actual_consumer_publication[executor-values1] _
+
+values = [-1.0, 2.0], consumer = 'executor'
+
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0]])
+    @pytest.mark.parametrize("consumer", ["aggregate", "executor", "native-distribution",
+                                         "plugin-income", "plugin-wealth"])
+    def test_invalid_metric_is_refused_before_actual_consumer_publication(values, consumer) -> None:
+        if consumer in {"aggregate", "executor"}:
+            state = AgentSimState.empty(n_agents=2, seed=7)
+            state = state.replace(agents=state.agents.replace(wealth=jnp.asarray(values)))
+            if consumer == "aggregate":
+                evaluate = lambda: jax.jit(lambda a: compute_aggregates(a, compute_gini=True))(
+                    state.agents
+                )
+            else:
+                evaluate = lambda: PureExecutor([], aggregate_every=1, compute_gini=True).run(state, 2)
+            # Signed resource simulation remains possible when Gini is not requested.
+            unmeasured, _ = PureExecutor([], aggregate_every=1, compute_gini=False).run(state, 2)
+            np.testing.assert_array_equal(unmeasured.agents.wealth, values)
+        elif consumer == "native-distribution":
+            state = GlobalState.empty(n_agents=2, n_firms=1)
+            state = state.replace(agents=state.agents.replace(income=jnp.asarray(values)))
+            evaluate = lambda: jax.jit(lambda s: _compute_distribution_state(s, n_quantiles=2))(state)
+        else:
+            state = EconomicState.empty(n_agents=2, seed=7)
+            slot = "income" if consumer == "plugin-income" else "wealth"
+            state = state.replace(agents=state.agents.replace(**{slot: jnp.asarray(values)}))
+            objective = EconomicsPlugin().get_objectives()["gini"]
+            # The genuine aggregate refresh must refuse before the objective sees a scalar.
+            evaluate = lambda: objective.evaluate(jax.jit(EconomicState.update_aggregates)(state))
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:74: Failed
+_ test_invalid_metric_is_refused_before_actual_consumer_publication[native-distribution-values0] _
+
+values = [-2.0, 1.0], consumer = 'native-distribution'
+
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0]])
+    @pytest.mark.parametrize("consumer", ["aggregate", "executor", "native-distribution",
+                                         "plugin-income", "plugin-wealth"])
+    def test_invalid_metric_is_refused_before_actual_consumer_publication(values, consumer) -> None:
+        if consumer in {"aggregate", "executor"}:
+            state = AgentSimState.empty(n_agents=2, seed=7)
+            state = state.replace(agents=state.agents.replace(wealth=jnp.asarray(values)))
+            if consumer == "aggregate":
+                evaluate = lambda: jax.jit(lambda a: compute_aggregates(a, compute_gini=True))(
+                    state.agents
+                )
+            else:
+                evaluate = lambda: PureExecutor([], aggregate_every=1, compute_gini=True).run(state, 2)
+            # Signed resource simulation remains possible when Gini is not requested.
+            unmeasured, _ = PureExecutor([], aggregate_every=1, compute_gini=False).run(state, 2)
+            np.testing.assert_array_equal(unmeasured.agents.wealth, values)
+        elif consumer == "native-distribution":
+            state = GlobalState.empty(n_agents=2, n_firms=1)
+            state = state.replace(agents=state.agents.replace(income=jnp.asarray(values)))
+            evaluate = lambda: jax.jit(lambda s: _compute_distribution_state(s, n_quantiles=2))(state)
+        else:
+            state = EconomicState.empty(n_agents=2, seed=7)
+            slot = "income" if consumer == "plugin-income" else "wealth"
+            state = state.replace(agents=state.agents.replace(**{slot: jnp.asarray(values)}))
+            objective = EconomicsPlugin().get_objectives()["gini"]
+            # The genuine aggregate refresh must refuse before the objective sees a scalar.
+            evaluate = lambda: objective.evaluate(jax.jit(EconomicState.update_aggregates)(state))
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:74: Failed
+_ test_invalid_metric_is_refused_before_actual_consumer_publication[native-distribution-values1] _
+
+values = [-1.0, 2.0], consumer = 'native-distribution'
+
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0]])
+    @pytest.mark.parametrize("consumer", ["aggregate", "executor", "native-distribution",
+                                         "plugin-income", "plugin-wealth"])
+    def test_invalid_metric_is_refused_before_actual_consumer_publication(values, consumer) -> None:
+        if consumer in {"aggregate", "executor"}:
+            state = AgentSimState.empty(n_agents=2, seed=7)
+            state = state.replace(agents=state.agents.replace(wealth=jnp.asarray(values)))
+            if consumer == "aggregate":
+                evaluate = lambda: jax.jit(lambda a: compute_aggregates(a, compute_gini=True))(
+                    state.agents
+                )
+            else:
+                evaluate = lambda: PureExecutor([], aggregate_every=1, compute_gini=True).run(state, 2)
+            # Signed resource simulation remains possible when Gini is not requested.
+            unmeasured, _ = PureExecutor([], aggregate_every=1, compute_gini=False).run(state, 2)
+            np.testing.assert_array_equal(unmeasured.agents.wealth, values)
+        elif consumer == "native-distribution":
+            state = GlobalState.empty(n_agents=2, n_firms=1)
+            state = state.replace(agents=state.agents.replace(income=jnp.asarray(values)))
+            evaluate = lambda: jax.jit(lambda s: _compute_distribution_state(s, n_quantiles=2))(state)
+        else:
+            state = EconomicState.empty(n_agents=2, seed=7)
+            slot = "income" if consumer == "plugin-income" else "wealth"
+            state = state.replace(agents=state.agents.replace(**{slot: jnp.asarray(values)}))
+            objective = EconomicsPlugin().get_objectives()["gini"]
+            # The genuine aggregate refresh must refuse before the objective sees a scalar.
+            evaluate = lambda: objective.evaluate(jax.jit(EconomicState.update_aggregates)(state))
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:74: Failed
+_ test_invalid_metric_is_refused_before_actual_consumer_publication[plugin-income-values0] _
+
+values = [-2.0, 1.0], consumer = 'plugin-income'
+
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0]])
+    @pytest.mark.parametrize("consumer", ["aggregate", "executor", "native-distribution",
+                                         "plugin-income", "plugin-wealth"])
+    def test_invalid_metric_is_refused_before_actual_consumer_publication(values, consumer) -> None:
+        if consumer in {"aggregate", "executor"}:
+            state = AgentSimState.empty(n_agents=2, seed=7)
+            state = state.replace(agents=state.agents.replace(wealth=jnp.asarray(values)))
+            if consumer == "aggregate":
+                evaluate = lambda: jax.jit(lambda a: compute_aggregates(a, compute_gini=True))(
+                    state.agents
+                )
+            else:
+                evaluate = lambda: PureExecutor([], aggregate_every=1, compute_gini=True).run(state, 2)
+            # Signed resource simulation remains possible when Gini is not requested.
+            unmeasured, _ = PureExecutor([], aggregate_every=1, compute_gini=False).run(state, 2)
+            np.testing.assert_array_equal(unmeasured.agents.wealth, values)
+        elif consumer == "native-distribution":
+            state = GlobalState.empty(n_agents=2, n_firms=1)
+            state = state.replace(agents=state.agents.replace(income=jnp.asarray(values)))
+            evaluate = lambda: jax.jit(lambda s: _compute_distribution_state(s, n_quantiles=2))(state)
+        else:
+            state = EconomicState.empty(n_agents=2, seed=7)
+            slot = "income" if consumer == "plugin-income" else "wealth"
+            state = state.replace(agents=state.agents.replace(**{slot: jnp.asarray(values)}))
+            objective = EconomicsPlugin().get_objectives()["gini"]
+            # The genuine aggregate refresh must refuse before the objective sees a scalar.
+            evaluate = lambda: objective.evaluate(jax.jit(EconomicState.update_aggregates)(state))
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:74: Failed
+_ test_invalid_metric_is_refused_before_actual_consumer_publication[plugin-income-values1] _
+
+values = [-1.0, 2.0], consumer = 'plugin-income'
+
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0]])
+    @pytest.mark.parametrize("consumer", ["aggregate", "executor", "native-distribution",
+                                         "plugin-income", "plugin-wealth"])
+    def test_invalid_metric_is_refused_before_actual_consumer_publication(values, consumer) -> None:
+        if consumer in {"aggregate", "executor"}:
+            state = AgentSimState.empty(n_agents=2, seed=7)
+            state = state.replace(agents=state.agents.replace(wealth=jnp.asarray(values)))
+            if consumer == "aggregate":
+                evaluate = lambda: jax.jit(lambda a: compute_aggregates(a, compute_gini=True))(
+                    state.agents
+                )
+            else:
+                evaluate = lambda: PureExecutor([], aggregate_every=1, compute_gini=True).run(state, 2)
+            # Signed resource simulation remains possible when Gini is not requested.
+            unmeasured, _ = PureExecutor([], aggregate_every=1, compute_gini=False).run(state, 2)
+            np.testing.assert_array_equal(unmeasured.agents.wealth, values)
+        elif consumer == "native-distribution":
+            state = GlobalState.empty(n_agents=2, n_firms=1)
+            state = state.replace(agents=state.agents.replace(income=jnp.asarray(values)))
+            evaluate = lambda: jax.jit(lambda s: _compute_distribution_state(s, n_quantiles=2))(state)
+        else:
+            state = EconomicState.empty(n_agents=2, seed=7)
+            slot = "income" if consumer == "plugin-income" else "wealth"
+            state = state.replace(agents=state.agents.replace(**{slot: jnp.asarray(values)}))
+            objective = EconomicsPlugin().get_objectives()["gini"]
+            # The genuine aggregate refresh must refuse before the objective sees a scalar.
+            evaluate = lambda: objective.evaluate(jax.jit(EconomicState.update_aggregates)(state))
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:74: Failed
+_ test_invalid_metric_is_refused_before_actual_consumer_publication[plugin-wealth-values0] _
+
+values = [-2.0, 1.0], consumer = 'plugin-wealth'
+
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0]])
+    @pytest.mark.parametrize("consumer", ["aggregate", "executor", "native-distribution",
+                                         "plugin-income", "plugin-wealth"])
+    def test_invalid_metric_is_refused_before_actual_consumer_publication(values, consumer) -> None:
+        if consumer in {"aggregate", "executor"}:
+            state = AgentSimState.empty(n_agents=2, seed=7)
+            state = state.replace(agents=state.agents.replace(wealth=jnp.asarray(values)))
+            if consumer == "aggregate":
+                evaluate = lambda: jax.jit(lambda a: compute_aggregates(a, compute_gini=True))(
+                    state.agents
+                )
+            else:
+                evaluate = lambda: PureExecutor([], aggregate_every=1, compute_gini=True).run(state, 2)
+            # Signed resource simulation remains possible when Gini is not requested.
+            unmeasured, _ = PureExecutor([], aggregate_every=1, compute_gini=False).run(state, 2)
+            np.testing.assert_array_equal(unmeasured.agents.wealth, values)
+        elif consumer == "native-distribution":
+            state = GlobalState.empty(n_agents=2, n_firms=1)
+            state = state.replace(agents=state.agents.replace(income=jnp.asarray(values)))
+            evaluate = lambda: jax.jit(lambda s: _compute_distribution_state(s, n_quantiles=2))(state)
+        else:
+            state = EconomicState.empty(n_agents=2, seed=7)
+            slot = "income" if consumer == "plugin-income" else "wealth"
+            state = state.replace(agents=state.agents.replace(**{slot: jnp.asarray(values)}))
+            objective = EconomicsPlugin().get_objectives()["gini"]
+            # The genuine aggregate refresh must refuse before the objective sees a scalar.
+            evaluate = lambda: objective.evaluate(jax.jit(EconomicState.update_aggregates)(state))
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:74: Failed
+_ test_invalid_metric_is_refused_before_actual_consumer_publication[plugin-wealth-values1] _
+
+values = [-1.0, 2.0], consumer = 'plugin-wealth'
+
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0]])
+    @pytest.mark.parametrize("consumer", ["aggregate", "executor", "native-distribution",
+                                         "plugin-income", "plugin-wealth"])
+    def test_invalid_metric_is_refused_before_actual_consumer_publication(values, consumer) -> None:
+        if consumer in {"aggregate", "executor"}:
+            state = AgentSimState.empty(n_agents=2, seed=7)
+            state = state.replace(agents=state.agents.replace(wealth=jnp.asarray(values)))
+            if consumer == "aggregate":
+                evaluate = lambda: jax.jit(lambda a: compute_aggregates(a, compute_gini=True))(
+                    state.agents
+                )
+            else:
+                evaluate = lambda: PureExecutor([], aggregate_every=1, compute_gini=True).run(state, 2)
+            # Signed resource simulation remains possible when Gini is not requested.
+            unmeasured, _ = PureExecutor([], aggregate_every=1, compute_gini=False).run(state, 2)
+            np.testing.assert_array_equal(unmeasured.agents.wealth, values)
+        elif consumer == "native-distribution":
+            state = GlobalState.empty(n_agents=2, n_firms=1)
+            state = state.replace(agents=state.agents.replace(income=jnp.asarray(values)))
+            evaluate = lambda: jax.jit(lambda s: _compute_distribution_state(s, n_quantiles=2))(state)
+        else:
+            state = EconomicState.empty(n_agents=2, seed=7)
+            slot = "income" if consumer == "plugin-income" else "wealth"
+            state = state.replace(agents=state.agents.replace(**{slot: jnp.asarray(values)}))
+            objective = EconomicsPlugin().get_objectives()["gini"]
+            # The genuine aggregate refresh must refuse before the objective sees a scalar.
+            evaluate = lambda: objective.evaluate(jax.jit(EconomicState.update_aggregates)(state))
+>       with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative active values"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'RuntimeError'>
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:74: Failed
+_ test_distributional_report_api_preserves_existing_typed_unavailable_metric[values0] _
+
+values = [-2.0, 1.0]
+
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0]])
+    def test_distributional_report_api_preserves_existing_typed_unavailable_metric(values) -> None:
+>       report = build_distributional_report([], incomes_before=np.asarray(values),
+                                             incomes_after=np.asarray(values))
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+breakdowns = []
+
+    def build_distributional_report(
+        breakdowns: Sequence[DimensionBreakdown],
+        *,
+        incomes_before: np.ndarray | None = None,
+        incomes_after: np.ndarray | None = None,
+        ordinal_poverty_summary: dict[str, Any] | None = None,
+        source_simulation_ref: str | None = None,
+        methodology: str = "agent_aggregation",
+        metadata: dict[str, Any] | None = None,
+    ) -> DistributionalReport:
+        """Build distributional report."""
+        report_metadata = dict(metadata or {})
+        overall_gini_before = None
+        overall_gini_after = None
+        palma_before = None
+        palma_after = None
+    
+        if incomes_before is not None and incomes_after is not None:
+            arr_before = np.asarray(incomes_before, dtype=np.float64)
+            arr_after = np.asarray(incomes_after, dtype=np.float64)
+            report_metadata["negative_values_present"] = bool(
+                np.any(arr_before < 0) or np.any(arr_after < 0)
+            )
+            overall_gini_before = compute_gini(arr_before)
+            overall_gini_after = compute_gini(arr_after)
+            palma_before = compute_palma_ratio(arr_before)
+            palma_after = compute_palma_ratio(arr_after)
+    
+        winners_losers = build_winners_losers_table(breakdowns)
+>       return DistributionalReport(
+            breakdowns=list(breakdowns),
+            winners_losers=winners_losers,
+            overall_gini_before=overall_gini_before,
+            overall_gini_after=overall_gini_after,
+            palma_ratio_before=palma_before,
+            palma_ratio_after=palma_after,
+            ordinal_poverty_summary=dict(ordinal_poverty_summary or {}),
+            source_simulation_ref=source_simulation_ref,
+            methodology=methodology,
+            metadata=report_metadata,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for DistributionalReport
+E       breakdowns
+E         List should have at least 1 item after validation, not 0 [type=too_short, input_value=[], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/too_short
+
+src/polisyos/foundry/analysis/distributional.py:269: ValidationError
+_ test_distributional_report_api_preserves_existing_typed_unavailable_metric[values1] _
+
+values = [-1.0, 2.0]
+
+    @pytest.mark.parametrize("values", [[-2.0, 1.0], [-1.0, 2.0]])
+    def test_distributional_report_api_preserves_existing_typed_unavailable_metric(values) -> None:
+>       report = build_distributional_report([], incomes_before=np.asarray(values),
+                                             incomes_after=np.asarray(values))
+
+tests/unit/foundry/agent_sim/test_gini_domain.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+breakdowns = []
+
+    def build_distributional_report(
+        breakdowns: Sequence[DimensionBreakdown],
+        *,
+        incomes_before: np.ndarray | None = None,
+        incomes_after: np.ndarray | None = None,
+        ordinal_poverty_summary: dict[str, Any] | None = None,
+        source_simulation_ref: str | None = None,
+        methodology: str = "agent_aggregation",
+        metadata: dict[str, Any] | None = None,
+    ) -> DistributionalReport:
+        """Build distributional report."""
+        report_metadata = dict(metadata or {})
+        overall_gini_before = None
+        overall_gini_after = None
+        palma_before = None
+        palma_after = None
+    
+        if incomes_before is not None and incomes_after is not None:
+            arr_before = np.asarray(incomes_before, dtype=np.float64)
+            arr_after = np.asarray(incomes_after, dtype=np.float64)
+            report_metadata["negative_values_present"] = bool(
+                np.any(arr_before < 0) or np.any(arr_after < 0)
+            )
+            overall_gini_before = compute_gini(arr_before)
+            overall_gini_after = compute_gini(arr_after)
+            palma_before = compute_palma_ratio(arr_before)
+            palma_after = compute_palma_ratio(arr_after)
+    
+        winners_losers = build_winners_losers_table(breakdowns)
+>       return DistributionalReport(
+            breakdowns=list(breakdowns),
+            winners_losers=winners_losers,
+            overall_gini_before=overall_gini_before,
+            overall_gini_after=overall_gini_after,
+            palma_ratio_before=palma_before,
+            palma_ratio_after=palma_after,
+            ordinal_poverty_summary=dict(ordinal_poverty_summary or {}),
+            source_simulation_ref=source_simulation_ref,
+            methodology=methodology,
+            metadata=report_metadata,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for DistributionalReport
+E       breakdowns
+E         List should have at least 1 item after validation, not 0 [type=too_short, input_value=[], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/too_short
+
+src/polisyos/foundry/analysis/distributional.py:269: ValidationError
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values0-eager-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values0-eager-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values0-eager-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values0-jit-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values0-jit-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values0-jit-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values1-eager-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values1-eager-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values1-eager-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values1-jit-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values1-jit-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values1-jit-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values2-eager-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values2-eager-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values2-eager-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values2-jit-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values2-jit-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values2-jit-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values3-eager-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values3-eager-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values3-eager-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values3-jit-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values3-jit-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values3-jit-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values4-eager-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values4-eager-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values4-eager-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values4-jit-compute_gini_hard]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values4-jit-compute_gini_soft]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_classical_gini_refuses_invalid_active_population[values4-jit-compute_gini_proxy]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_invalid_metric_is_refused_before_actual_consumer_publication[aggregate-values0]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_invalid_metric_is_refused_before_actual_consumer_publication[aggregate-values1]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_invalid_metric_is_refused_before_actual_consumer_publication[executor-values0]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_invalid_metric_is_refused_before_actual_consumer_publication[executor-values1]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_invalid_metric_is_refused_before_actual_consumer_publication[native-distribution-values0]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_invalid_metric_is_refused_before_actual_consumer_publication[native-distribution-values1]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_invalid_metric_is_refused_before_actual_consumer_publication[plugin-income-values0]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_invalid_metric_is_refused_before_actual_consumer_publication[plugin-income-values1]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_invalid_metric_is_refused_before_actual_consumer_publication[plugin-wealth-values0]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_invalid_metric_is_refused_before_actual_consumer_publication[plugin-wealth-values1]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_distributional_report_api_preserves_existing_typed_unavailable_metric[values0]
+FAILED tests/unit/foundry/agent_sim/test_gini_domain.py::test_distributional_report_api_preserves_existing_typed_unavailable_metric[values1]

@@ -1,0 +1,107 @@
+[
+  {
+    "name": "fetch",
+    "command": [
+      "git",
+      "fetch",
+      "origin"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit_code": 0,
+    "stdout_bytes": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 115,
+    "stderr_sha256": "900dac9b60523b1697e0ed15159c9c7c57a3b66a87109a7af300e5d2aec64cfe"
+  },
+  {
+    "name": "status",
+    "command": [
+      "git",
+      "status",
+      "--porcelain=v1",
+      "--branch"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit_code": 0,
+    "stdout_bytes": 74,
+    "stdout_sha256": "9ed32f4f79ae14dfafbced65dd1a8270a354279ba1f35c5045346b2e1ec85dcd",
+    "stderr_bytes": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "refs",
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD",
+      "HEAD^{tree}",
+      "origin/main",
+      "origin/main^{tree}",
+      "origin/codex/e02-integration",
+      "origin/codex/e02-integration^{tree}"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit_code": 0,
+    "stdout_bytes": 246,
+    "stdout_sha256": "a884193a905fd9d307dc232cc96330b8d1df3b15b72ead6a9251ce8336897009",
+    "stderr_bytes": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "anchor",
+    "command": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "1ddcd7b3905e52c0d19db091823a64830139fa64",
+      "origin/main"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit_code": 0,
+    "stdout_bytes": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "product-drift",
+    "command": [
+      "git",
+      "diff",
+      "--name-status",
+      "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "HEAD",
+      "--",
+      "policy-engine/src",
+      "policy-engine/tests",
+      "policy-engine/tools",
+      "policy-engine/hatch_build.py",
+      "policy-engine/workers",
+      "policy-engine/pyproject.toml",
+      "policy-engine/uv.lock"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit_code": 0,
+    "stdout_bytes": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "pr-before",
+    "command": [
+      "gh",
+      "pr",
+      "view",
+      "65",
+      "--json",
+      "url,title,headRefName,headRefOid,baseRefName,state,isDraft,mergedAt,body"
+    ],
+    "cwd": "/workspace/e02-F-closeout-20261006",
+    "exit_code": 0,
+    "stdout_bytes": 4397,
+    "stdout_sha256": "f2be6ee33fb1e7a3c4f9c46e73dafa775eb00d8638dd8f99f0e2e3d162a1c400",
+    "stderr_bytes": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

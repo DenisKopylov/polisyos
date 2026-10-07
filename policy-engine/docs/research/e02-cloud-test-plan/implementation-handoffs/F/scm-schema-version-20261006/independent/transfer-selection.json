@@ -1,0 +1,275 @@
+{
+  "schema": "policyos.e02.transfer-selection.v1",
+  "source_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/review.json",
+      "bytes": 40910,
+      "sha256": "7c298dc807e0ac28400307eefe16b473c3a47a61c8913963680dce13924c71f2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/audit.json",
+      "bytes": 1354,
+      "sha256": "8dde9ed114b316e09d49aab8c30ea0f5f26d8c758a72f07956558f186b28a6a2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/audit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/audit.stdout.txt",
+      "bytes": 2297,
+      "sha256": "d60cbaa346a5ff0f0772086e42cbaa417b4b452d355d1e5e3c2850433f380a99"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/canonical-controls.json",
+      "bytes": 5874,
+      "sha256": "8d32e16c15463c267b8ab463a60d9a1d78b43d0e07872ee7bcdec9c4d93910e5"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/environment-application.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/environment-application.stdout.txt",
+      "bytes": 307,
+      "sha256": "b62fac634dbcaa34b989cb66d0d33723e0223a98aaac4e727a28f8c2adf7fbfa"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/environment-selected_worker.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/environment-selected_worker.stdout.txt",
+      "bytes": 306,
+      "sha256": "92db3c90e3553f5301bfd2264b2c34408485348d14ff02b06aabca73e7d35c5a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/environment.json",
+      "bytes": 987,
+      "sha256": "51b4e2b8f2b43adda6779981886b105d9fff2478038cc4cd30e55cb1522991b6"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/fragment-final.json",
+      "bytes": 7368,
+      "sha256": "f1c00241c80c93262f93aa6afb90c7a7ec220e7b2841272db591fd589ba0e25d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/fragment-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/fragment-final.stdout.txt",
+      "bytes": 3489,
+      "sha256": "dcf1471686a2893f5c5392d12b61833dcf3d9afa98860eff41d9bae4d7028f56"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/initial-fragment-harness.json",
+      "bytes": 1258,
+      "sha256": "2164b81d51695fba5356ac69d0e7606ccd4ff2fd0aea2b5e0809e002dc9930d3"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/initial-fragment-harness.stderr.txt",
+      "bytes": 455,
+      "sha256": "8a9d0e7032914ad682e35349144a90f4c7e5f6c98549d2e1bc29f4217a4756ce"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/initial-fragment-harness.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_old_version.json",
+      "bytes": 1429,
+      "sha256": "c2c2a4e9d03922fdbfae3f416d184d452cc8decc88553c55ed46e7b9f845669a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_old_version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_old_version.stdout.txt",
+      "bytes": 672,
+      "sha256": "bcbda8180beef01a314cdf1f354545d25d1f582f48b1428f78dfb818ea975c6b"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_stale_hash.json",
+      "bytes": 1423,
+      "sha256": "04877438d63ce0e2c028367ca721a361b4d3a5e4d2cdf20df013ddd98bd96d5c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_stale_hash.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/manifest_stale_hash.stdout.txt",
+      "bytes": 671,
+      "sha256": "63761872df4a7a0888d2575b761e555b3d7c58398b50d9756ab3087c288f0fad"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/native15.json",
+      "bytes": 1692,
+      "sha256": "ec7b5c94190c71c1e9f8587db37624ad64a5cd05952e6c5f9091117fd2213e09"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/native15.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/native15.stdout.txt",
+      "bytes": 6253,
+      "sha256": "3bd00aa75a9a3b77d280a9d141a8f1d092bd90580ddb440985fdc5c2e38cfb33"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/public-reader9.json",
+      "bytes": 1538,
+      "sha256": "bc7fd4ba604e215767723083637c62678c3fead4694bb26e6ef5ee48afe11770"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/public-reader9.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/public-reader9.stdout.txt",
+      "bytes": 98,
+      "sha256": "74d7a209fd8baf93be2e5e9d8e56a1f9328017a131c3c2fe1c4d3f1f40c452d7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/replay_final_fragment.py",
+      "bytes": 4484,
+      "sha256": "3c297380c5239f2eb2e9a569a39751eace7f7924101a1d655484639de2bffa2c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/replay_schema_review.py",
+      "bytes": 7238,
+      "sha256": "3b60976f9324abab71cf526392f06167e37f94e410b326710132a1a7a54bc192"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/snapshot_old_default.json",
+      "bytes": 1429,
+      "sha256": "177bb7b808a7a67a0b9861ac72542a2fb84f3bbb522206494f8ae86de0cae5d6"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/snapshot_old_default.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/snapshot_old_default.stdout.txt",
+      "bytes": 724,
+      "sha256": "97c410f2a1563ed75713daa1eb0799d9ab80b137c5d29f2d7b0919ed1ab128cf"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/schema-review/test_scm_schema_reader_adversarial.py",
+      "bytes": 4340,
+      "sha256": "5e6220a6c85d0f43972003694406f8bbf7aa362bf1f5299992fc71347e0f5a73"
+    }
+  ],
+  "source_refs": [
+    {
+      "path": "policy-engine/docs/reference/ir/schema-catalog.md",
+      "git_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 1641843,
+      "sha256": "8cb5795e0a5c2228b83267b8231aafdd30124b409418e63edf3fa0ce21d572cb"
+    },
+    {
+      "path": "policy-engine/docs/reference/schemas.md",
+      "git_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 29376,
+      "sha256": "914dc3f70a4044ac4a70b7859270ca9b4d6e5247cb0603320b3c957ef586bc22"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-scm-schema-catalog-version.toml",
+      "git_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 2011,
+      "sha256": "eefa64331fb42dcfde9727b3420b283777a79d7deb103d3a57b470d5c35cbb7e"
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+      "git_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 52447,
+      "sha256": "0fa78f82d255b20801be81c7d739714e4e9f0f2b17bd2675be1448c3f6b44617"
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+      "git_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 15243,
+      "sha256": "e0709ef298134086b4f57c279ac1cdd5cb173afaf1b8577a458bccca31387df4"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "git_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 9400,
+      "sha256": "a936c74eb1a43b632639468da0dfc7d9bca50b3bd63e97b9fb64960d24902725"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+      "git_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 14857,
+      "sha256": "9ab530f92781aae2f00bb0151858ccca41a2c0bc93b94c0bc2da1dfaf503f6fa"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/migrations/schema_registry.py",
+      "git_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 4619,
+      "sha256": "4cb64745aa35507563c3b5fe18095f6d18eeea36ff4089295c3198a44798b1f2"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_structural_causal_model_contract.py",
+      "git_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 3517,
+      "sha256": "21410938f015718a1e655ba1db046552b41de2abf3ca8c6fb23549fd0f244b90"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_structural_causal_model_versions.py",
+      "git_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 6732,
+      "sha256": "3f7fa0a0b9e20935954ee7f368c8d4e89380ee192424828638370c4f4b82ad8a"
+    }
+  ],
+  "external_author_refs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/scm-version-full-generator-check.json",
+      "bytes": 993,
+      "sha256": "a130e95797d23679d9a538933be0b3ba17aa8f731ba1f4ddb79d6044d4afc28c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/scm-version-full-generator-check.stdout.txt",
+      "bytes": 265,
+      "sha256": "66c4356a4fb36b8cd6dea0fb5dd6783ec02ec2af22cf62a51b75dd85f0a5b2ed"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/scm-version-full-generator-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/scm-version-public-fragment.json",
+      "bytes": 1003,
+      "sha256": "1c8b564541ebd5c8da058facff5a28dd9f4c2cfdf995f67c789ea5e85a68151a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/scm-version-public-fragment.stdout.txt",
+      "bytes": 3718,
+      "sha256": "5a5a73445f9d119e626752efc1d1f45d59386107ba27f1002f20bd487640f24e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/scm-version-public-fragment.stderr.txt",
+      "bytes": 271,
+      "sha256": "b7990afd7f8b960593e20d3c0252c09e466f4512e570a8c8d882255466a5a0e6"
+    }
+  ],
+  "exclusions": [
+    "No generated full reference/snapshot/cache views or temporary CAS copied",
+    "No tracked source/card/manifest bodies copied"
+  ],
+  "total_unique_bytes": 96596
+}

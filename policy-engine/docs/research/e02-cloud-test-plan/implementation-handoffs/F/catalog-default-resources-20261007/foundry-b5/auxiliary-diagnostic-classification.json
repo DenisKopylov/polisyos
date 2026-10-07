@@ -1,0 +1,49 @@
+{
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+  "cwd": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-consumer",
+  "environment": "same installed wheel3.14.7 profile, -I; relative executable prefix warnings retained only in diagnostic",
+  "actual_unchanged_selector": "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py::test_query_only_replay_recomputes_operational_cache",
+  "attempts": [
+    {
+      "argv": [
+        "../wheel-env/bin/python",
+        "-I",
+        "../diagnose_graph.py",
+        "../installed-config.json"
+      ],
+      "outcome": "ERROR",
+      "exit_code": 2,
+      "input_script_actual_path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-consumer/diagnose_graph.py",
+      "reason": "auxiliary wrong scratch script parent path; no graph test launched",
+      "stdout": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/graph-diagnostic.stdout.txt",
+      "stderr": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/graph-diagnostic.stderr.txt"
+    },
+    {
+      "argv": [
+        "../wheel-env/bin/python",
+        "-I",
+        "diagnose_graph.py",
+        "../installed-config.json"
+      ],
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "pytest_seconds": 7.84,
+      "actual_cases": 1,
+      "stdout": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/graph-diagnostic-v2.stdout.txt",
+      "stderr": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/graph-diagnostic-v2.stderr.txt",
+      "reason": "real existing defaultseed YAML missing; no source/asset injection"
+    }
+  ],
+  "warning_classifier_gap": {
+    "initial_input": "census.py",
+    "initial_complete_output": "census.stdout.json",
+    "initial_json": "native-census.json",
+    "gap": "obsolete method_output_anomaly event keyword does not measure actual AnomalyFlag warnings; zero not used as absence proof",
+    "corrected_input": "census_v2.py",
+    "corrected_complete_output": "census-v2.stdout.json",
+    "corrected_json": "native-census-v2.json",
+    "corrected_rule": "actual AnomalyFlag.__str__ [severity] key: declaredreason format at exact source b5 lifecycle/output_monitor.py",
+    "numeric_native_replayed": false
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "policy-engine/tools/devx/workspace/doctor.py",
+    "--worktree-admission",
+    "resume",
+    "--branch",
+    "codex/e02-F-tmle-20261006",
+    "--path",
+    "/workspace/e02-F-tmle-20261006"
+  ],
+  "cwd": "/workspace/e02-F-tmle-20261006",
+  "exit_code": 1,
+  "wall_seconds": 0.0926317240082426,
+  "stdout": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/admission-resume.stdout.json",
+  "stderr": "/tmp/e02-F-continuation-20261006/tmle-common-report/recovery/admission-resume.stderr.txt"
+}

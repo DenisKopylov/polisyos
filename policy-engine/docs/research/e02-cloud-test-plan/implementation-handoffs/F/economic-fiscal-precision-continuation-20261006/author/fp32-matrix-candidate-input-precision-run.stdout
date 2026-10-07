@@ -1,0 +1,2 @@
+{"mode": "candidate", "counterfactual": true, "canonical_source_sha256": "bc52074e63f5aa72c977b1fa3b1cdba98683a31294fc8209eaba546b4b190425", "executed_source_sha256": "ed0daf0927e4685aa740dce293520b9acf5761225a37fe4c0caed39a8c1068da", "override_target": "polisyos.foundry.execute.mechanisms.fiscal"}
+{"output": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fp32-matrix-candidate-input-precision.json", "cases": 24, "all_complete_state_patch_key_bytes_recorded": true}

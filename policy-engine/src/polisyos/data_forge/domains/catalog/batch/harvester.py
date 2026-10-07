@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Any
 import aiohttp
 
 from polisyos.common.logger import get_logger
+from polisyos.data_forge.domains.catalog._resources import catalog_default_resource_path
 from polisyos.data_forge.domains.catalog.batch.checkpoints import (
     hash_payload,
     load_json,
@@ -852,12 +853,7 @@ def _wvs_raw_dir() -> Path:
 
 
 def _wvs_registry_path() -> Path:
-    return (
-        Path(__file__).resolve().parents[6]
-        / "data"
-        / "dataset_catalog"
-        / "wvs_indicator_registry.yaml"
-    )
+    return catalog_default_resource_path("wvs_indicator_registry.yaml")
 
 
 def _wvs_variable_catalog_path() -> Path:

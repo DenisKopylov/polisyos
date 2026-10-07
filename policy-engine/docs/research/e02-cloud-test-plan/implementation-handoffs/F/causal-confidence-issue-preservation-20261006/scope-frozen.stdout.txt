@@ -1,0 +1,66 @@
+{
+  "scope": "four owned paths; unchanged import AST; validate return denominator; five unchanged scientific owners",
+  "base_sha": "6fe6e352ad5aff4055b490a7892ae123dad1c0ab",
+  "candidate_sha": "df5057dd3816885fc5bfacd9a9f1ee772df9ac51",
+  "candidate_tree": "e49bf230bbf7b6a52da0243693ef700620a82e03",
+  "actual_changed_paths": [
+    "policy-engine/docs/reference/scientist/causal-confidence-issue-preservation.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-causal-confidence-issue-preservation.toml",
+    "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+    "policy-engine/tests/unit/scientist/governance/test_confidence_issue_accumulation.py"
+  ],
+  "validate_return_sites": 5,
+  "all_return_sites_preserve_accumulated_issues": true,
+  "runtime_provider_origin": "/workspace/e02-F-tmle-20261006/policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+  "validate_signature": "(self, ctx: 'PassContext') -> 'list[ComplianceIssue]'",
+  "scientific_owner_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "git_blob": "9a0447fa7a66b45e045352377abe8e2855268781",
+      "bytes": 76429,
+      "sha256": "c7c6e0d382ce4d671ff1c783726a422464873bf7b3d93a602109f919222b7af7",
+      "equality_to_slice_base": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7",
+      "bytes": 84428,
+      "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7",
+      "equality_to_slice_base": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+      "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+      "bytes": 59964,
+      "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+      "equality_to_slice_base": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+      "git_blob": "cff094ea943bb51bbb238e684e1075eff9514d7e",
+      "bytes": 22295,
+      "sha256": "92fb3ac07d2363197d3bd642562985a59386562e7798272dfd6cd9987a6ad86d",
+      "equality_to_slice_base": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+      "git_blob": "06fa2013eae4b8232ba0680da2fabdadd6a8a962",
+      "bytes": 31756,
+      "sha256": "d8d0057a48beb6cbbfb1659890af37f3e8ed78303e49ffaa0df514610689b331",
+      "equality_to_slice_base": true
+    }
+  ],
+  "g_original_owner_action": {
+    "git_ref": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/F-delta-owner-actions-2026-10-06.md",
+    "bytes": 10651,
+    "sha256": "dfb72de43231dcad851d18927eb92ad7e7660eae47a558052741427d6130176d"
+  },
+  "environment": {
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "python": "3.14.7",
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5"
+  },
+  "limitations": "This source-bound scope audit is not a runtime authority, whole architecture, estimator, or production budget witness."
+}

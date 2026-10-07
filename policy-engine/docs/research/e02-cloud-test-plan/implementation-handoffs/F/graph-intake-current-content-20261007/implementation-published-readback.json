@@ -1,0 +1,9 @@
+{
+  "check": "PASS",
+  "branch": "refs/heads/codex/e02-F-graph-20261006",
+  "remote": "origin",
+  "implementation_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+  "observed_remote_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+  "command": "git ls-remote origin refs/heads/codex/e02-F-graph-20261006",
+  "publication": "ordinary topic push; main/force/history rewrite unused"
+}

@@ -1,0 +1,38 @@
+{
+  "source_root": "/workspace/e02-F-api-20261006",
+  "target_sha": "0c522b88cff658aa4cdf4990ada70dd363989e0d",
+  "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/repo_quality/architecture/test_public_surface_export_resolution.py::test_actual_analytics_mapping_is_not_reported_as_empty",
+    "-q",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/composed-analytics-final-native",
+  "tree_sha": "0b308e5f5993121db26e1b3d0a3347817ef371c5",
+  "source_status_before": "",
+  "elapsed_seconds": 1.5806634426116943,
+  "exit_code": 0,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/api/composed-analytics-final-native.stdout",
+    "bytes": 618,
+    "sha256": "bceb11d94bbac4f57553698eff042fd66c6cbeb98816722664e02e5853a8ba02"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/api/composed-analytics-final-native.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_status_after": "",
+  "artifacts": []
+}

@@ -1,0 +1,24 @@
+{
+  "source_root": "/workspace/e02-F-economics-20261006",
+  "target_sha": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "JAX_ENABLE_X64": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/frozen_fiscal_control.py",
+    "calculation64",
+    "tests/unit/foundry/execute/mechanisms/test_fiscal_precision.py::test_float32_calculation_keeps_declared_output_dtype_with_precise_source",
+    "-vv",
+    "--tb=short",
+    "-rA",
+    "--junitxml=/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-control-calculation64.xml"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-control-calculation64",
+  "artifact_paths": [
+    "/tmp/e02-F-continuation-20261006/economics/fiscal-precision/fiscal-control-calculation64.xml"
+  ]
+}

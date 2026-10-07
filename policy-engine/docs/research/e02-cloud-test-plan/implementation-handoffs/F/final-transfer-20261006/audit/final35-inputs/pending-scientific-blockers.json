@@ -1,0 +1,31 @@
+{
+  "status": "resolved",
+  "items": [
+    {
+      "finding_id": "B220",
+      "reported_by": "F root",
+      "prior_receipt_head": "a0a050d24c137b4893a7b52b2f83ea710da46471",
+      "prior_implementation_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "check": "FAIL",
+      "scope": "Confirmed returned graph node/edge cache mutation. Original B220 criterion requires topology-derived dump/ancestors/export consistency and immutable returned derived rows. Existing closed recommendation is historical and cannot establish this newly failing predicate.",
+      "next_owner": "F graph_scm narrow cache node/edge freeze with nested/weakref controls; root final source/receipt approval",
+      "resolution_source_sha": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+      "resolution_receipt_head": "dea737b1ae2bd9a0e974dfc64920da396e3d345c",
+      "resolution_check": "PASS",
+      "resolution_runtime_sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+      "resolution_scope": "Published unique B220 primary, actual75 native/23 independent controls and marker-preserving negative removals; earlier mutationFAIL retained in source-bound historical receipts."
+    },
+    {
+      "finding_id": null,
+      "component": "installed-latest-dependencies",
+      "check": "PASS",
+      "scope": "New installed latest dependency source5cd is frozen but complete new wheel/sdist/native consumer receipt is pending; no new installed PASS inferred from earlier ab56 companion.",
+      "next_owner": "F installed author/root",
+      "resolution_source_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "resolution_receipt_head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "resolution_check": "PASS",
+      "resolution_scope": "Published source5cd latest installed companion: genuine wheel/sdist author3+19 each, graph25/FIT36 independent native controls; complete112companions/25canonicalchecks; prior setupERROR/removalFAIL/production authorityUNRUN retained. No primary outcome changed."
+    }
+  ],
+  "final_graph_metadata_head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f"
+}

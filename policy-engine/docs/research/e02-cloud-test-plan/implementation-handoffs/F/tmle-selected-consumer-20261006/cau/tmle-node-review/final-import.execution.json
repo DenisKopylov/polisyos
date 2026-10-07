@@ -1,0 +1,49 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-c",
+    "import inspect,json,pickle\nfrom polisyos.scientist.nodes.builtins.simulate import run_causal_evaluation as node\nfrom polisyos.foundry.methods import causal as public\nfrom polisyos.foundry.methods.catalog.causal.treatment_effects import TMLEEstimator\nassert node.TMLEEstimator is public.TMLEEstimator is TMLEEstimator\nassert node.TMLEEstimator.report_from_result is public.TMLEEstimator.report_from_result\nassert pickle.loads(pickle.dumps(public.TMLEEstimator.report_from_result)) is node.TMLEEstimator.report_from_result\nprint(json.dumps({'node_public_canonical_class_identity':True,'factory_identity':True,'factory_pickle_identity':True,'node_source':node.__file__,'fqn':node.TMLEEstimator.signature.fqn,'factory_signature':str(inspect.signature(node.TMLEEstimator.report_from_result))}))\n"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "environment_overrides": {
+    "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "source_begin": {
+    "sha": "12dce5675edfd345663591fd3219f2f8ea5e4fc2",
+    "tree": "264d51adc56f21b1113a1065093b6553802a1cc5",
+    "checkout_head": "12dce5675edfd345663591fd3219f2f8ea5e4fc2",
+    "node": {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "bytes": 69843,
+      "sha256": "5f87ad9bd88f8f6209b860bff5f19055492866657c3663e74d367b330f7c2069"
+    }
+  },
+  "source_end": {
+    "sha": "12dce5675edfd345663591fd3219f2f8ea5e4fc2",
+    "tree": "264d51adc56f21b1113a1065093b6553802a1cc5",
+    "checkout_head": "12dce5675edfd345663591fd3219f2f8ea5e4fc2",
+    "node": {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "bytes": 69843,
+      "sha256": "5f87ad9bd88f8f6209b860bff5f19055492866657c3663e74d367b330f7c2069"
+    }
+  },
+  "elapsed_seconds": 10.635138988494873,
+  "exit_code": 0,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/final-import.stdout.txt",
+    "bytes": 451,
+    "sha256": "b3ee74fac443d4e7ccf3224a7cede8ea6e3c1d74e8dc4f341f23364be453517a"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/final-import.stderr.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "replayer": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/final_import_replay.py",
+    "bytes": 2480,
+    "sha256": "58df92bcac6a5636816822868d9febe44b1bb63be6b544f7e660c03291f69d13"
+  }
+}

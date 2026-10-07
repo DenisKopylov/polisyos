@@ -1,0 +1,46 @@
+{
+  "source_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+  "source_tree": "dc15f1956e861cd87bc0610ac03cb05d44077a17",
+  "after_sha_tree": [
+    "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+    "dc15f1956e861cd87bc0610ac03cb05d44077a17"
+  ],
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/foundry/methods/backends/test_dispatch_output_contract.py",
+    "tests/unit/foundry/methods/test_output_monitor.py",
+    "tests/unit/foundry/methods/backends/test_backends.py",
+    "tests/unit/foundry/methods/backends/test_output_anomaly_count.py",
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "--tb=short",
+    "--basetemp=/tmp/e02-F-continuation-20261006/foundry/anomaly-count/frozen-native-tmp"
+  ],
+  "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+  "environment": {
+    "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-F-fry-20261006/policy-engine:/workspace/e02-F-fry-20261006/policy-engine/src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "otel": "Native explicitactivation, actual installedSDK MeterProvider/InMemoryMetricReader counter. No external collector claimed."
+  },
+  "exit_code": 0,
+  "wall_seconds": 13.666204066001228,
+  "refs": {
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/anomaly-count/frozen-native.stdout.txt",
+      "sha256": "78bb77d8fa84b71dcad4070ee45818d7c77c17b4472391e315e5338663146739",
+      "size_bytes": 90201
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/anomaly-count/frozen-native.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    }
+  }
+}

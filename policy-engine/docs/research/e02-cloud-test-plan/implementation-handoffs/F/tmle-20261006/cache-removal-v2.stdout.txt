@@ -1,0 +1,125 @@
+{"mode": "cache", "module": "/workspace/e02-F-tmle-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py", "function": "_shared_nuisance_cache_key", "original_function_sha256": "f3c981d992aa40bcec4af1966c4eff42a12ebdcd4f1708daa92d36dafffea7aa", "mutated_function_sha256": "ccfd920e724f4c151e13afe5eda56663ca9754b0ee35ca291d4f85bac9403cbb", "selector": "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_same_caller_label_does_not_bypass_fit_identity", "mutation_scope": "memory-only; markers and test unchanged"}
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-F-tmle-20261006/policy-engine
+configfile: pytest.ini
+plugins: langsmith-0.6.0, jaxtyping-0.3.4, xdist-3.8.0, anyio-4.12.0, asyncio-1.3.0, benchmark-5.2.3, hypothesis-6.151.2
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 7 items
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py FFF....
+
+=================================== FAILURES ===================================
+____________ test_same_caller_label_does_not_bypass_fit_identity[X] ____________
+
+axis = 'X'
+
+    @pytest.mark.parametrize("axis", ["X", "T", "Y", "seed", "folds", "model", "split"])
+    def test_same_caller_label_does_not_bypass_fit_identity(axis: str) -> None:
+        x, a, y = _dgp(n=120)
+        params = _params(__shared_nuisance_key="same-label", n_repeats=1)
+        contract = core.ATENuisanceContract.from_params(params)
+        original = core.fit_crossfit_nuisance_bundle(x, a, y, contract, params)
+        x2, a2, y2 = x.copy(), a.copy(), y.copy()
+        updated = contract
+        if axis == "X":
+            x2[0] += 0.25
+        elif axis == "T":
+            a2[0] = 1 - a2[0]
+        elif axis == "Y":
+            y2[0] = 1 - y2[0]
+        elif axis == "seed":
+            updated = replace(contract, random_seed=41)
+        elif axis == "folds":
+            updated = replace(contract, crossfit_folds=4)
+        elif axis == "model":
+            updated = replace(contract, outcome_backend="elastic_net")
+        elif axis == "split":
+            updated = replace(contract, calibration_fraction=0.3)
+        changed = core.fit_crossfit_nuisance_bundle(x2, a2, y2, updated, params)
+>       assert changed.fit_identity != original.fit_identity
+E       assert "9d09cee5fd1c5ec8c40596ab720e96d5::302329489c8cea9dee7663e0073daf5b::a3b96304b33e675dee567fe6cc93d4b1::('competitive', 'logistic', (), 'linear', (), 'causal_risk', 'causal_risk', 'none', 3, 1, 18, (), 0.01, 0.02, 'raw', 0.2, 24)" != "9d09cee5fd1c5ec8c40596ab720e96d5::302329489c8cea9dee7663e0073daf5b::a3b96304b33e675dee567fe6cc93d4b1::('competitive', 'logistic', (), 'linear', (), 'causal_risk', 'causal_risk', 'none', 3, 1, 18, (), 0.01, 0.02, 'raw', 0.2, 24)"
+E        +  where "9d09cee5fd1c5ec8c40596ab720e96d5::302329489c8cea9dee7663e0073daf5b::a3b96304b33e675dee567fe6cc93d4b1::('competitive', 'logistic', (), 'linear', (), 'causal_risk', 'causal_risk', 'none', 3, 1, 18, (), 0.01, 0.02, 'raw', 0.2, 24)" = ATENuisanceBundle(propensity=array([0.49510859, 0.57270661, 0.56437956, 0.57270661, 0.57270661,\n       0.54599772, 0.5...itive', 'logistic', (), 'linear', (), 'causal_risk', 'causal_risk', 'none', 3, 1, 18, (), 0.01, 0.02, 'raw', 0.2, 24)").fit_identity
+E        +  and   "9d09cee5fd1c5ec8c40596ab720e96d5::302329489c8cea9dee7663e0073daf5b::a3b96304b33e675dee567fe6cc93d4b1::('competitive', 'logistic', (), 'linear', (), 'causal_risk', 'causal_risk', 'none', 3, 1, 18, (), 0.01, 0.02, 'raw', 0.2, 24)" = ATENuisanceBundle(propensity=array([0.49510859, 0.57270661, 0.56437956, 0.57270661, 0.57270661,\n       0.54599772, 0.5...itive', 'logistic', (), 'linear', (), 'causal_risk', 'causal_risk', 'none', 3, 1, 18, (), 0.01, 0.02, 'raw', 0.2, 24)").fit_identity
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:110: AssertionError
+____________ test_same_caller_label_does_not_bypass_fit_identity[T] ____________
+
+axis = 'T'
+
+    @pytest.mark.parametrize("axis", ["X", "T", "Y", "seed", "folds", "model", "split"])
+    def test_same_caller_label_does_not_bypass_fit_identity(axis: str) -> None:
+        x, a, y = _dgp(n=120)
+        params = _params(__shared_nuisance_key="same-label", n_repeats=1)
+        contract = core.ATENuisanceContract.from_params(params)
+        original = core.fit_crossfit_nuisance_bundle(x, a, y, contract, params)
+        x2, a2, y2 = x.copy(), a.copy(), y.copy()
+        updated = contract
+        if axis == "X":
+            x2[0] += 0.25
+        elif axis == "T":
+            a2[0] = 1 - a2[0]
+        elif axis == "Y":
+            y2[0] = 1 - y2[0]
+        elif axis == "seed":
+            updated = replace(contract, random_seed=41)
+        elif axis == "folds":
+            updated = replace(contract, crossfit_folds=4)
+        elif axis == "model":
+            updated = replace(contract, outcome_backend="elastic_net")
+        elif axis == "split":
+            updated = replace(contract, calibration_fraction=0.3)
+        changed = core.fit_crossfit_nuisance_bundle(x2, a2, y2, updated, params)
+>       assert changed.fit_identity != original.fit_identity
+E       assert "9d09cee5fd1c5ec8c40596ab720e96d5::302329489c8cea9dee7663e0073daf5b::a3b96304b33e675dee567fe6cc93d4b1::('competitive', 'logistic', (), 'linear', (), 'causal_risk', 'causal_risk', 'none', 3, 1, 18, (), 0.01, 0.02, 'raw', 0.2, 24)" != "9d09cee5fd1c5ec8c40596ab720e96d5::302329489c8cea9dee7663e0073daf5b::a3b96304b33e675dee567fe6cc93d4b1::('competitive', 'logistic', (), 'linear', (), 'causal_risk', 'causal_risk', 'none', 3, 1, 18, (), 0.01, 0.02, 'raw', 0.2, 24)"
+E        +  where "9d09cee5fd1c5ec8c40596ab720e96d5::302329489c8cea9dee7663e0073daf5b::a3b96304b33e675dee567fe6cc93d4b1::('competitive', 'logistic', (), 'linear', (), 'causal_risk', 'causal_risk', 'none', 3, 1, 18, (), 0.01, 0.02, 'raw', 0.2, 24)" = ATENuisanceBundle(propensity=array([0.49510859, 0.57270661, 0.56437956, 0.57270661, 0.57270661,\n       0.54599772, 0.5...itive', 'logistic', (), 'linear', (), 'causal_risk', 'causal_risk', 'none', 3, 1, 18, (), 0.01, 0.02, 'raw', 0.2, 24)").fit_identity
+E        +  and   "9d09cee5fd1c5ec8c40596ab720e96d5::302329489c8cea9dee7663e0073daf5b::a3b96304b33e675dee567fe6cc93d4b1::('competitive', 'logistic', (), 'linear', (), 'causal_risk', 'causal_risk', 'none', 3, 1, 18, (), 0.01, 0.02, 'raw', 0.2, 24)" = ATENuisanceBundle(propensity=array([0.49510859, 0.57270661, 0.56437956, 0.57270661, 0.57270661,\n       0.54599772, 0.5...itive', 'logistic', (), 'linear', (), 'causal_risk', 'causal_risk', 'none', 3, 1, 18, (), 0.01, 0.02, 'raw', 0.2, 24)").fit_identity
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:110: AssertionError
+____________ test_same_caller_label_does_not_bypass_fit_identity[Y] ____________
+
+axis = 'Y'
+
+    @pytest.mark.parametrize("axis", ["X", "T", "Y", "seed", "folds", "model", "split"])
+    def test_same_caller_label_does_not_bypass_fit_identity(axis: str) -> None:
+        x, a, y = _dgp(n=120)
+        params = _params(__shared_nuisance_key="same-label", n_repeats=1)
+        contract = core.ATENuisanceContract.from_params(params)
+        original = core.fit_crossfit_nuisance_bundle(x, a, y, contract, params)
+        x2, a2, y2 = x.copy(), a.copy(), y.copy()
+        updated = contract
+        if axis == "X":
+            x2[0] += 0.25
+        elif axis == "T":
+            a2[0] = 1 - a2[0]
+        elif axis == "Y":
+            y2[0] = 1 - y2[0]
+        elif axis == "seed":
+            updated = replace(contract, random_seed=41)
+        elif axis == "folds":
+            updated = replace(contract, crossfit_folds=4)
+        elif axis == "model":
+            updated = replace(contract, outcome_backend="elastic_net")
+        elif axis == "split":
+            updated = replace(contract, calibration_fraction=0.3)
+        changed = core.fit_crossfit_nuisance_bundle(x2, a2, y2, updated, params)
+>       assert changed.fit_identity != original.fit_identity
+E       assert "9d09cee5fd1c5ec8c40596ab720e96d5::302329489c8cea9dee7663e0073daf5b::a3b96304b33e675dee567fe6cc93d4b1::('competitive', 'logistic', (), 'linear', (), 'causal_risk', 'causal_risk', 'none', 3, 1, 18, (), 0.01, 0.02, 'raw', 0.2, 24)" != "9d09cee5fd1c5ec8c40596ab720e96d5::302329489c8cea9dee7663e0073daf5b::a3b96304b33e675dee567fe6cc93d4b1::('competitive', 'logistic', (), 'linear', (), 'causal_risk', 'causal_risk', 'none', 3, 1, 18, (), 0.01, 0.02, 'raw', 0.2, 24)"
+E        +  where "9d09cee5fd1c5ec8c40596ab720e96d5::302329489c8cea9dee7663e0073daf5b::a3b96304b33e675dee567fe6cc93d4b1::('competitive', 'logistic', (), 'linear', (), 'causal_risk', 'causal_risk', 'none', 3, 1, 18, (), 0.01, 0.02, 'raw', 0.2, 24)" = ATENuisanceBundle(propensity=array([0.49510859, 0.57270661, 0.56437956, 0.57270661, 0.57270661,\n       0.54599772, 0.5...itive', 'logistic', (), 'linear', (), 'causal_risk', 'causal_risk', 'none', 3, 1, 18, (), 0.01, 0.02, 'raw', 0.2, 24)").fit_identity
+E        +  and   "9d09cee5fd1c5ec8c40596ab720e96d5::302329489c8cea9dee7663e0073daf5b::a3b96304b33e675dee567fe6cc93d4b1::('competitive', 'logistic', (), 'linear', (), 'causal_risk', 'causal_risk', 'none', 3, 1, 18, (), 0.01, 0.02, 'raw', 0.2, 24)" = ATENuisanceBundle(propensity=array([0.49510859, 0.57270661, 0.56437956, 0.57270661, 0.57270661,\n       0.54599772, 0.5...itive', 'logistic', (), 'linear', (), 'causal_risk', 'causal_risk', 'none', 3, 1, 18, (), 0.01, 0.02, 'raw', 0.2, 24)").fit_identity
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:110: AssertionError
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_same_caller_label_does_not_bypass_fit_identity[X]
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_same_caller_label_does_not_bypass_fit_identity[T]
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_same_caller_label_does_not_bypass_fit_identity[Y]
+==================== 3 failed, 4 passed, 1 warning in 0.87s ====================

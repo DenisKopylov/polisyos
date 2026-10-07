@@ -1,0 +1,1076 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "causal-neighbor-fixtures-20261006",
+  "role": "companion_consumer_fixture_migration",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "B216"
+  ],
+  "bundle_ids": [
+    "GRF-01"
+  ],
+  "slice_base_sha": "b52c64c36504e17da9ae3f70f5551bfd1e01a5d5",
+  "entry_source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+  "accepted_shared_dependency_sha": "7185572917f7a3db5e93385a176cb611b35aff42",
+  "implementation_commits": [
+    "9824e04d630d42765ed44b9ff88702fcff885e08"
+  ],
+  "candidate_tree_sha": "9aeed3f6a3ed62594062ab8cb10b24d719335753",
+  "branch": "codex/e02-F-graph-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/62",
+  "changed_paths": [
+    "policy-engine/docs/reference/foundry/causal-neighbor-fixtures.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-causal-neighbor-fixtures.toml",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py"
+  ],
+  "source_bindings": [
+    {
+      "source_path": "policy-engine/docs/reference/foundry/causal-neighbor-fixtures.md",
+      "source_sha": "9824e04d630d42765ed44b9ff88702fcff885e08",
+      "bytes": 3055,
+      "sha256": "b0c7af5940177aac14464ab0938094c954561033c0c103901df012879afde116"
+    },
+    {
+      "source_path": "policy-engine/release-fragments/unreleased/2026-10-06-causal-neighbor-fixtures.toml",
+      "source_sha": "9824e04d630d42765ed44b9ff88702fcff885e08",
+      "bytes": 1930,
+      "sha256": "d2792db15b98d83d960120c266849fb54ca8212a91adb939af52972e2d1bde8f"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py",
+      "source_sha": "9824e04d630d42765ed44b9ff88702fcff885e08",
+      "bytes": 5330,
+      "sha256": "d5d8594766e238f34de5b3a090a6460792b6c807f5ae67318f51776c253dbe3a"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+      "source_sha": "9824e04d630d42765ed44b9ff88702fcff885e08",
+      "bytes": 54891,
+      "sha256": "86b7e9790db9699e8839b569af049cf2d61c634c921347a5e738c5e9896ce51f"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py",
+      "source_sha": "9824e04d630d42765ed44b9ff88702fcff885e08",
+      "bytes": 8434,
+      "sha256": "8eb4e9a16e2f77dc6bec50ffa62c55cbea89e401c3a7b1e151bb4e58b40b79c4"
+    }
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "name": "original-five",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py::test_amn_cross_world_separation",
+        "tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py::TestSIDAlgorithm::test_sid_non_identified_when_base_non_identified",
+        "tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py::TestSIDAlgorithm::test_conditional_intervention_non_id_graph",
+        "tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py::TestDoCalculusPrePass::test_with_graph_does_not_raise",
+        "tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py::TestDoCalculusPrePass::test_do_calculus_proof_steps_merged"
+      ],
+      "target_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "source_tree": "7f46ae30a0882a6f86ba4800100ea95960e3c75b",
+      "environment": {
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine/tools:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "shared_environment_readonly": true
+      },
+      "input_closure": "Finite synthetic graphs and exact pytest selectors; immutable source_begin/source_end hashes in execution receipt. No admitted production inputs. This is not a complete P41 dependency denominator.",
+      "outcome": "FAIL",
+      "check": "FAIL",
+      "exit_code": 1,
+      "wall_s": 9.746807214003638,
+      "rss_kib": 591860,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/original-five.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/original-five.stdout.txt",
+          "bytes": 4035,
+          "sha256": "3155d5176eb15f69290bd561abb1ba1bbb8f26dcacf80370a2c10312f16fb91d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/original-five.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/original-five.json",
+      "role": "historical_source_fixture_characterization",
+      "expected_negative": false
+    },
+    {
+      "name": "pre-edit-oracles",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/pre_edit_oracles.py"
+      ],
+      "target_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "source_tree": "7f46ae30a0882a6f86ba4800100ea95960e3c75b",
+      "environment": {
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine/tools:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "shared_environment_readonly": true
+      },
+      "input_closure": "Finite synthetic graphs and exact pytest selectors; immutable source_begin/source_end hashes in execution receipt. No admitted production inputs. This is not a complete P41 dependency denominator.",
+      "outcome": "PASS",
+      "check": "PASS",
+      "exit_code": 0,
+      "wall_s": 6.541715462997672,
+      "rss_kib": 557740,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/pre-edit-oracles.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/pre-edit-oracles.stdout.txt",
+          "bytes": 2935,
+          "sha256": "3ef5fa39c17df83117e37ed942dd5a639e6f682a7ac5b0d73077a452d6fb2a15"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/pre-edit-oracles.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/pre-edit-oracles.json",
+      "role": "independent_pre_edit_analytic_and_native_oracles",
+      "expected_negative": false
+    },
+    {
+      "name": "frozen-neighbors",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-ra",
+        "--tb=short",
+        "tests/unit/foundry/methods/catalog/causal/test_sigma_calculus_standalone.py",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_s_ops.py",
+        "tests/unit/foundry/methods/catalog/causal/test_ctf_calculus.py",
+        "tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py",
+        "tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+        "tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py"
+      ],
+      "target_sha": "9824e04d630d42765ed44b9ff88702fcff885e08",
+      "source_tree": "9aeed3f6a3ed62594062ab8cb10b24d719335753",
+      "environment": {
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine/tools:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "shared_environment_readonly": true
+      },
+      "input_closure": "Finite synthetic graphs and exact pytest selectors; immutable source_begin/source_end hashes in execution receipt. No admitted production inputs. This is not a complete P41 dependency denominator.",
+      "outcome": "PASS",
+      "check": "PASS",
+      "exit_code": 0,
+      "wall_s": 9.438801844997215,
+      "rss_kib": 595340,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-neighbors.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-neighbors.stdout.txt",
+          "bytes": 780,
+          "sha256": "e891a885aa27af9f9f95bfd8a7174d8c3837d3d7875a7fb9728bc011c8d2fbf6"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-neighbors.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-neighbors.json",
+      "role": "current_deciding_native_consumers",
+      "expected_negative": false
+    },
+    {
+      "name": "prepass-removal",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/remove_compiler_prepass.py"
+      ],
+      "target_sha": "9824e04d630d42765ed44b9ff88702fcff885e08",
+      "source_tree": "9aeed3f6a3ed62594062ab8cb10b24d719335753",
+      "environment": {
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine/tools:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "shared_environment_readonly": true
+      },
+      "input_closure": "Finite synthetic graphs and exact pytest selectors; immutable source_begin/source_end hashes in execution receipt. No admitted production inputs. This is not a complete P41 dependency denominator.",
+      "outcome": "FAIL",
+      "check": "FAIL",
+      "exit_code": 1,
+      "wall_s": 8.523331393007538,
+      "rss_kib": 585968,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/prepass-removal.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/prepass-removal.stdout.txt",
+          "bytes": 2106,
+          "sha256": "7efbf20e7b104dea423caa72531fe474ceba9d69a0dbbfe6fbdd71944eedda23"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/prepass-removal.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/prepass-removal.json",
+      "role": "marker_retaining_property_removal",
+      "expected_negative": true
+    },
+    {
+      "name": "owned-fragment",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/check_owned_fragment.py"
+      ],
+      "target_sha": "9824e04d630d42765ed44b9ff88702fcff885e08",
+      "source_tree": "9aeed3f6a3ed62594062ab8cb10b24d719335753",
+      "environment": {
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine/tools:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "shared_environment_readonly": true
+      },
+      "input_closure": "Finite synthetic graphs and exact pytest selectors; immutable source_begin/source_end hashes in execution receipt. No admitted production inputs. This is not a complete P41 dependency denominator.",
+      "outcome": "PASS",
+      "check": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.07758089499839116,
+      "rss_kib": 19932,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/owned-fragment.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/owned-fragment.stdout.txt",
+          "bytes": 2146,
+          "sha256": "70ccdfd025ac12f7d93cd557affb31a3270716beb320f9800a06d0f79f63a4bd"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/owned-fragment.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/owned-fragment.json",
+      "role": "scoped_canonical_compatibility_record",
+      "expected_negative": false
+    },
+    {
+      "name": "frozen-quality",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+        "tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py",
+        "tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py"
+      ],
+      "target_sha": "9824e04d630d42765ed44b9ff88702fcff885e08",
+      "source_tree": "9aeed3f6a3ed62594062ab8cb10b24d719335753",
+      "environment": {
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine/tools:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "shared_environment_readonly": true
+      },
+      "input_closure": "Finite synthetic graphs and exact pytest selectors; immutable source_begin/source_end hashes in execution receipt. No admitted production inputs. This is not a complete P41 dependency denominator.",
+      "outcome": "PASS",
+      "check": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.04536547700990923,
+      "rss_kib": 585968,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-quality.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-quality.stdout.txt",
+          "bytes": 19,
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-quality.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-quality.json",
+      "role": "scoped_lint",
+      "expected_negative": false
+    },
+    {
+      "name": "frozen-format",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+        "tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py",
+        "tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py"
+      ],
+      "target_sha": "9824e04d630d42765ed44b9ff88702fcff885e08",
+      "source_tree": "9aeed3f6a3ed62594062ab8cb10b24d719335753",
+      "environment": {
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine/tools:/workspace/e02-F-graph-20261006/policy-engine",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "shared_environment_readonly": true
+      },
+      "input_closure": "Finite synthetic graphs and exact pytest selectors; immutable source_begin/source_end hashes in execution receipt. No admitted production inputs. This is not a complete P41 dependency denominator.",
+      "outcome": "PASS",
+      "check": "PASS",
+      "exit_code": 0,
+      "wall_s": 0.039926265002577566,
+      "rss_kib": 22872,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-format.stdout.txt",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-format.stdout.txt",
+          "bytes": 26,
+          "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-format.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-format.json",
+      "role": "scoped_format",
+      "expected_negative": false
+    },
+    {
+      "name": "independent-root-native",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+        "tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py",
+        "tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py",
+        "--junitxml=/tmp/e02-F-continuation-20261006/root-neighbor-review/junit.xml"
+      ],
+      "target_sha": "9824e04d630d42765ed44b9ff88702fcff885e08",
+      "source_tree": "9aeed3f6a3ed62594062ab8cb10b24d719335753",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine/tools",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python"
+      },
+      "input_closure": "Exact three changed native test modules, 108 cases; full independent review and JUnit preserved. Finite supported graph profile only.",
+      "outcome": "PASS",
+      "check": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/independent-root--stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/independent-root--review.json",
+      "role": "independent_review",
+      "expected_negative": false
+    },
+    {
+      "name": "independent-root-analytic-oracle",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/root-neighbor-review/independent_oracle.py"
+      ],
+      "target_sha": "9824e04d630d42765ed44b9ff88702fcff885e08",
+      "source_tree": "9aeed3f6a3ed62594062ab8cb10b24d719335753",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine/tools",
+        "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python"
+      },
+      "input_closure": "Independent Gaussian pairs beta=9/4,-2, observed-U collider/descendant controls, actual native SID/conditional-ID and actual unsupported CPDAG refusal.",
+      "outcome": "PASS",
+      "check": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/independent-root--oracle.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/independent-root--review.json",
+      "role": "independent_analytic_and_native_control",
+      "expected_negative": false
+    },
+    {
+      "name": "interrupted-authorized-forward-merge",
+      "command": [
+        "git",
+        "merge",
+        "--no-edit",
+        "7185572917f7a3db5e93385a176cb611b35aff42"
+      ],
+      "target_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "environment": {
+        "cwd": "/workspace/e02-F-graph-20261006",
+        "resource_failure": "overlay filesystem ENOSPC"
+      },
+      "input_closure": "Authorized exact forward merge; 947 actual partial files subsequently preserved and verified. No scientific test ran in partial state.",
+      "outcome": "ERROR",
+      "check": "ERROR",
+      "exit_code": 128,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/forward-718.stderr.txt",
+      "role": "historical_engineering_resource_error",
+      "expected_negative": false
+    },
+    {
+      "name": "append-only-checkout-recovery",
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "b52c64c36504e17da9ae3f70f5551bfd1e01a5d5",
+        "7185572917f7a3db5e93385a176cb611b35aff42",
+        "--"
+      ],
+      "target_sha": "b52c64c36504e17da9ae3f70f5551bfd1e01a5d5",
+      "environment": {
+        "cwd": "/workspace/e02-F-graph-20261006",
+        "mode": "already-target 947 files custody commit, ordinary no-ff merge, same-pair resume"
+      },
+      "input_closure": "Every actual partial file compared to its immutable root718 target; restored final tree exactly equals root718. Complete per-file binding and recovery/admission logs preserved. Actual full-tree git diff and both immutable tree hashes reconcile every accepted target path; custody/admission operations are additionally retained in recovery metadata and full logs.",
+      "outcome": "PASS",
+      "check": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/recovery-tree-check.json",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/recovery-final.json",
+      "role": "engineering_custody_reconciliation",
+      "expected_negative": false
+    }
+  ],
+  "property": {
+    "statement": "Finite supported consumers must execute the intended typed graph and disjoint query, and compiler tests must witness actual rewriting and transferred proofs rather than unavailable skips or non-raising calls.",
+    "runtime_path": [
+      "Typed CausalGraphModel",
+      "Native SID/conditional-ID and AMN separation",
+      "Actual rewrite_estimand with typed EstimandAST",
+      "compile_estimand consumed rewrite and ExecutorGraph proof steps"
+    ],
+    "proxy_divergence": "The old tuple-edge constructor raised with an available model and was converted into SKIP. A compiler that merely returned an ExecutorGraph could pass the old non-raising test without executing Rule1; the marker-kept no-op rewriter now fails the real consumer test.",
+    "negative_controls": [
+      "Native two-node latent bow produces HEDGE with real certificate/proof",
+      "Observed-U collider remains distinct identified positive and reverses separation when U/descendant conditioned",
+      "Old AMN endpoint-conditioning request remains explicitFalse",
+      "Independent full-support Gaussian laws have identical observed covariance but distinct intervention means",
+      "Actual unsupported CPDAG refusal",
+      "Marker-retaining compiler prepass removal gives actual1FAIL"
+    ],
+    "mechanism_owner": "Existing SID/conditional-ID, AMN and estimand compiler native consumers; only test fixtures/documentation changed.",
+    "producer_artifact_bridge_consumer": "Typed CausalGraphModel → maintained SID/conditional-ID and AMN; actual rewrite_estimand → rewritten EstimandAST → compile_estimand → ExecutorGraph proof steps. No new CAS/worker/authority path is introduced.",
+    "before": "Original five selectors at exact3ad produced3FAIL/2SKIP; bow fixtures actually contained observed-U bidirected colliders, AMN conditioned on an endpoint, and tuple-edge constructor errors were caught as unavailable.",
+    "after": "147 native neighbor cases PASS,0FAIL/SKIP/ERROR; two typed latent-bow controls return HEDGE_FOUND plus native certificate/proof, old observed-U collider remains identified, AMN uses disjoint conditioning and independent latent moralization, compiler performs true Rule1 and exact proof transfer/order.",
+    "independent_oracle": "Author hand latent moralization and full-support Gaussian pair beta1/2,3/2; reviewer independently uses beta9/4,-2 and actual native consumer controls. AMN Gaussian covariance computed from independent-source loading vectors.",
+    "removal": "Memory-only no-op rewrite preserves callable name/module/docstring and all graph/AST/provider source markers; the real compiler consumer test fails because Z remains in conditioning. Source restored in finally.",
+    "P40_bucket": "Verification-fixture semantic mismatch, not a numerical algorithm defect. Correct the fixture to its declared graph/domain and retain the old malformed fixture as characterization.",
+    "P41": "not_established; no disjoint full-input denominator is claimed.",
+    "production_source_delta": []
+  },
+  "per_id": {
+    "B216": {
+      "check": "PASS",
+      "outcome": "limited",
+      "scope": "Finite supported native consumer fixture migration only; existing primary finding decisions are not superseded.",
+      "full_original_criterion_reassessment": "UNRUN",
+      "closure_proposed": false,
+      "negative_control": "Marker-kept prepass removal gives actual1FAIL; independent collider/conditioned-descendant and CPDAG refusal controls retained.",
+      "next_owner": "Root/G original-criterion adjudication and integrated checkpoint; no new local production-data requirement for this finite graph property."
+    }
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_bases": {
+    "fixture_intent": "independently_reconciled",
+    "actual_consumer_walk": "recomputed",
+    "analytic_reference": "independently_reconciled",
+    "real_data_identification_authority": "not_established"
+  },
+  "capability_state_or_finding_state": "consumer fixture correction finished; no automatic finding closure, general ID completeness or real-data causal authority",
+  "compatibility": {
+    "change_class": "internal",
+    "impact": "compatible",
+    "public_exports_changed": false,
+    "IR_schema_changed": false,
+    "worker_profile_changed": false,
+    "production_algorithms_changed": false,
+    "generated_inventory_changed": false,
+    "canonical_fragment_check": "PASS"
+  },
+  "historical_input_receipts": [
+    {
+      "artifact_git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json",
+      "bytes": 50088,
+      "sha256": "d71112938c6ee404c4436979df7139a2b6c7948d34fea1597de48ec2d0704818",
+      "role": "historical_prior_bounded_native_profile_not_new_closure"
+    },
+    {
+      "artifact_git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/profile-frozen-neighbors.stdout.txt",
+      "bytes": 4128,
+      "sha256": "9fbd3316466dee71f11f46930e37cc3ea0ab9f1391f22e15775656a2f840dc7f",
+      "role": "historical_original133PASS3FAIL2SKIP_not_P41"
+    },
+    {
+      "artifact_git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-01.md",
+      "bytes": 23779,
+      "sha256": "d0e6425341ae3d336729a58aa9f0e330d4b71d0c40f7a760f760dd1e7fa3e7a3",
+      "role": "canonical_original_criterion"
+    }
+  ],
+  "evidence_transfer": {
+    "mode": "Git via fetched topic/PR; chats are not inputs",
+    "manifest": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/G-owner-action.md",
+        "bytes": 10651,
+        "sha256": "dfb72de43231dcad851d18927eb92ad7e7660eae47a558052741427d6130176d",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/G-owner-action.md"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/actual-topic-pr.json",
+        "bytes": 131,
+        "sha256": "c7bcf30ee2ad143248b9b04fd10187a87f8388a986df464f57ce22dd26d13507",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/actual-topic-pr.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/actual-topic-pr.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/actual-topic-pr.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/admission.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/admission.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/admission.stdout.json",
+        "bytes": 147926,
+        "sha256": "ea43364befe0c470ed7411a20f6f7e3bbc3b718d58515e3f2238d54ce7d60458",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/admission.stdout.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/baseline-B216.json",
+        "bytes": 12498,
+        "sha256": "531353c75914404f32bee1b9320a0947a23942b1f31b45a1a88ff0de9a5241d7",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/baseline-B216.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/baseline-F08-P048.json",
+        "bytes": 36355,
+        "sha256": "dcb08523ea7435c9b62d623fee4086bc2e2b46a0087e3f3a17ae2657be3dda7a",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/baseline-F08-P048.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/build_handoff.py",
+        "bytes": 13270,
+        "sha256": "577f042d6cbf14b7bba053931cf21b85268d7e7fa4ab93228f385605adcf4b83",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/build_handoff.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/check_owned_fragment.py",
+        "bytes": 950,
+        "sha256": "0e0d95dd0b18ba53fac2eb04f01cd34ebc3be0ff4827a4d325605a102596a330",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/check_owned_fragment.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/check_recovery_tree.py",
+        "bytes": 1173,
+        "sha256": "22f9aee829d8359fa2ed0d5a630040d1c9eff0e172e6527ea1862cad45c9f1da",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/check_recovery_tree.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/failed-forward-full-byte-bindings.json",
+        "bytes": 705095,
+        "sha256": "457c951b8b691be22412d11dc0efb45019fb95d6e6b23d387d138d85bb4e7f81",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/failed-forward-full-byte-bindings.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/failed-forward-status.txt",
+        "bytes": 27983,
+        "sha256": "7985ccfb1d369caf9f0279d1753c3719d8a9d054f4d2eb9cbb6addbcb2de82cb",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/failed-forward-status.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/forward-718.stderr.txt",
+        "bytes": 184,
+        "sha256": "fd2f48d4bbf263f8eb5a48c79de96f71347a78a428674dab8514b47ccd2c5c07",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/forward-718.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/forward-718.stdout.txt",
+        "bytes": 30,
+        "sha256": "f04e4a7d5f024074c27a045e5c3717776e50f4cd9530d9247f3b2fa11b8d58e8",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/forward-718.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-format.json",
+        "bytes": 7706,
+        "sha256": "021cad0363c7e59dfec97eaae855ce0425c7fe6cffee130d083162a876d76500",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/frozen-format.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-format.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/frozen-format.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-format.stdout.txt",
+        "bytes": 26,
+        "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/frozen-format.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-neighbors.json",
+        "bytes": 8007,
+        "sha256": "0828ece0f580eb629e1cccc379bd613062c504bbb5b5bd42936f33111bd2697b",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/frozen-neighbors.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-neighbors.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/frozen-neighbors.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-neighbors.stdout.txt",
+        "bytes": 780,
+        "sha256": "e891a885aa27af9f9f95bfd8a7174d8c3837d3d7875a7fb9728bc011c8d2fbf6",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/frozen-neighbors.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-quality.json",
+        "bytes": 7693,
+        "sha256": "3447810b3f009a1ec7ef29ed438c2b4b4a683e777553c0416796dc54134790d3",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/frozen-quality.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-quality.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/frozen-quality.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/frozen-quality.stdout.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/frozen-quality.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/historical-profile-neighbors.txt",
+        "bytes": 4128,
+        "sha256": "9fbd3316466dee71f11f46930e37cc3ea0ab9f1391f22e15775656a2f840dc7f",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/historical-profile-neighbors.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/implementation-commit.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/implementation-commit.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/implementation-commit.stdout.txt",
+        "bytes": 349,
+        "sha256": "91bdd93bcccd377f019cd4e45eba934fffa1cc19c8e5c8e4e1d62fe5243c23d0",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/implementation-commit.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/implementation-freeze.json",
+        "bytes": 816,
+        "sha256": "0576589040826c4ade20b2439766abdf91b9f4378100aa76d202f6386f16f49e",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/implementation-freeze.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/implementation-push.stderr.txt",
+        "bytes": 108,
+        "sha256": "0766944dc0223a1d68c2fa6120dd7850f69ba9a24972a9fa745d0d7e35026513",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/implementation-push.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/implementation-push.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/implementation-push.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/implementation-remote-readback.txt",
+        "bytes": 79,
+        "sha256": "622b271cc6698aac1fa5b54b7d9c4cdb3820fd25273b447498c57975652a3720",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/implementation-remote-readback.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/implementation.patch",
+        "bytes": 23087,
+        "sha256": "69833a1c2f7d23bbe8161a455234d49f548e492107a8867c7c8cf256d1096035",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/implementation.patch"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/original-five.json",
+        "bytes": 8228,
+        "sha256": "53b7ef21dbe8a0e02d90eb7d4a1840603f2db3e556dc21454dfbdecbfb974d12",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/original-five.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/original-five.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/original-five.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/original-five.stdout.txt",
+        "bytes": 4035,
+        "sha256": "3155d5176eb15f69290bd561abb1ba1bbb8f26dcacf80370a2c10312f16fb91d",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/original-five.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/owned-fragment.json",
+        "bytes": 7503,
+        "sha256": "bd355659d920c553cff58a4b17d3be31009e5ebb72c194e25c0eba69aacf69bc",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/owned-fragment.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/owned-fragment.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/owned-fragment.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/owned-fragment.stdout.txt",
+        "bytes": 2146,
+        "sha256": "70ccdfd025ac12f7d93cd557affb31a3270716beb320f9800a06d0f79f63a4bd",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/owned-fragment.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/partial-target-paths.nul",
+        "bytes": 134900,
+        "sha256": "fae44362e1675de8fdf717256d41c9fc4e49702492700e202aa2ab8baed7d65f",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/partial-target-paths.nul"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/pre-edit-oracles.json",
+        "bytes": 7504,
+        "sha256": "7d0b66c594983e09f871aca984d55a29270be3a097b3b31ab0bccd02118c0c0a",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/pre-edit-oracles.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/pre-edit-oracles.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/pre-edit-oracles.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/pre-edit-oracles.stdout.txt",
+        "bytes": 2935,
+        "sha256": "3ef5fa39c17df83117e37ed942dd5a639e6f682a7ac5b0d73077a452d6fb2a15",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/pre-edit-oracles.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/pre-merge-admission.json",
+        "bytes": 147926,
+        "sha256": "b744d822cecb833299d79dd745ca99063249a27d5734d50d8922bb9c2c66c71c",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/pre-merge-admission.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/pre_edit_oracles.py",
+        "bytes": 5314,
+        "sha256": "fde00aed4ef0253a9e647d023e1fa88613678ad8a38e315e723ac0bbda7c23b5",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/pre_edit_oracles.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/prepass-removal.json",
+        "bytes": 7508,
+        "sha256": "c0f38602b0813957aa629afbd5d509f5ebf9686dcb5eeba45dfd7e40d2ab328b",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/prepass-removal.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/prepass-removal.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/prepass-removal.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/prepass-removal.stdout.txt",
+        "bytes": 2106,
+        "sha256": "7efbf20e7b104dea423caa72531fe474ceba9d69a0dbbfe6fbdd71944eedda23",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/prepass-removal.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/python-version.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/python-version.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/python-version.stdout.txt",
+        "bytes": 14,
+        "sha256": "0366d77cc1f1ac88ea458231ba4f639323d5caf34de0d50b7618277fd4395f1f",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/python-version.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/query.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/query.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/query.stdout.json",
+        "bytes": 19253,
+        "sha256": "23a1055d9986961c3130b79f72aa924bec7788f4f5c0670eb49caa1e3b139201",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/query.stdout.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/recovery-commit-message.txt",
+        "bytes": 482,
+        "sha256": "2e907da14d9a025b347cd50621067455fb7be489eefe62182aaa0dcddb8f9e4c",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/recovery-commit-message.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/recovery-custody-commit.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/recovery-custody-commit.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/recovery-custody-commit.stdout.txt",
+        "bytes": 153164,
+        "sha256": "58bd0ef7df1f886e3599c67e7fb039dfe94e5777f92049fb05fa22c220673878",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/recovery-custody-commit.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/recovery-final.json",
+        "bytes": 469,
+        "sha256": "0c576bfccbb2fc58042009a194eb42978fb18c33efb9b8e1e914d1f292e8b409",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/recovery-final.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/recovery-forward-718.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/recovery-forward-718.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/recovery-forward-718.stdout.txt",
+        "bytes": 134098,
+        "sha256": "65870f78dfa179b1780f6086347ba31fe5bf121c25361e90728274d4635855c3",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/recovery-forward-718.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/recovery-post-admission.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/recovery-post-admission.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/recovery-post-admission.stdout.txt",
+        "bytes": 147926,
+        "sha256": "3bd41e7f6421caf2d46101c0b814f70355eccb4c401f265a7e1df8c79aee2fbc",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/recovery-post-admission.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/recovery-pre-admission.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/recovery-pre-admission.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/recovery-pre-admission.stdout.txt",
+        "bytes": 147926,
+        "sha256": "ffd7891bfffa32d9a2955f3044953f29aa5f95759823c74289d2eede80748b94",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/recovery-pre-admission.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/recovery-stage.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/recovery-stage.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/recovery-stage.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/recovery-stage.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/recovery-tree-check.json",
+        "bytes": 955,
+        "sha256": "66f46a808cd16866cb3682bce9831be4b5d2b7fd805f8b92ee2fb89453d6d15e",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/recovery-tree-check.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/recovery-tree-check.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/recovery-tree-check.stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/recovery-tree-check.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/recovery-tree-check.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/remove_compiler_prepass.py",
+        "bytes": 1178,
+        "sha256": "a28ed45118315ee0b4b544a5b7b6e27c5e3cf53f1a6612802578480d4b6d59e1",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/remove_compiler_prepass.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/run_check.py",
+        "bytes": 2283,
+        "sha256": "04d63484a559e29e60e7e0f4d1249df84c4062c5e235f089910141c9fc7c5654",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/run_check.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/independent-root--review.json",
+        "bytes": 4121,
+        "sha256": "4f9a040fd29e4089ff8e49702f0d3bc48aa9aec113bdc493c927f59235016d39",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/root-neighbor-review/review.json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/independent-root--stdout.txt",
+        "bytes": 109,
+        "sha256": "514c228d2f441d31d222a0deec21a994c8d9f376dbd3f242fbcfdcb06a013d87",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/root-neighbor-review/stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/independent-root--stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/root-neighbor-review/stderr.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/independent-root--junit.xml",
+        "bytes": 18662,
+        "sha256": "9ba7cb7f7d0e62fa95b391bbf686e08fe817d3e5971bf9f17bec4fcb47b40b1f",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/root-neighbor-review/junit.xml"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/independent-root--independent_oracle.py",
+        "bytes": 2480,
+        "sha256": "063e47daf59a69406fa03f4c58cce95b0e75c97c9cc32de35d60104475901f69",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/root-neighbor-review/independent_oracle.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/independent-root--oracle.stdout.txt",
+        "bytes": 616,
+        "sha256": "e040a3e42cae54f2e0dc1d9fc8d33a6751df4747cf668670bb6125831a720f37",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/root-neighbor-review/oracle.stdout.txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-neighbor-fixtures-20261006/independent-root--oracle.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "raw",
+        "scratch_original": "/tmp/e02-F-continuation-20261006/root-neighbor-review/oracle.stderr.txt"
+      }
+    ],
+    "complete_outputs": true,
+    "lossless": true,
+    "original_output_bytes_preserved": true
+  },
+  "limitations_and_next_owner": [
+    "General ID/IDC/PAG/CPDAG/temporal completeness is not established by these finite graphs.",
+    "No real-data causal effect or positive authority admission is measured.",
+    "Historical sourceFAIL/SKIP, engineeringENOSPC ERROR and expected property-removalFAIL are separately retained, never converted into PASS.",
+    "No new full architecture/schema/docs/wheel/worker wave was run for this test-only delta. Existing primary receipts retain their source-specific scopes.",
+    "G remains publisher of integrated acceptance/formal original-criterion decisions; this companion proposes closure_ids=[]."
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "tools/quality/validation/check_production_invocation.py",
+    "--repo-root",
+    ".",
+    "--base",
+    "4c5a11ff8050c6108f6753177b96e6714cef401f",
+    "--receipt",
+    "/tmp/e02-F-continuation-20261006/cau/production-invocation-full.json"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+  "source_sha": "759c984f475d07c982c0f22f747588706ac752e8",
+  "source_tree": "c809bbf602705c045add1728bc31573447382d61",
+  "utc": "2026-10-06T15:06:41.934290+00:00",
+  "elapsed_s": 234.00826743799553,
+  "exit_code": 3,
+  "environment": {
+    "python": "3.14.7",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "src:.:tools"
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/production-invocation.stdout",
+    "bytes": 1434,
+    "sha256": "7504b209be5c643dcd3b47920a2821c2c3fde52950ea03725d09d32f052b69bd"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/production-invocation.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

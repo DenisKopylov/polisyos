@@ -1,0 +1,65 @@
+{
+  "source_sha": "66588374da9f407a870880be675b5c751aef44da",
+  "source_tree": "d7f5e47193b7049fd06b7a59e0a759b796e0934a",
+  "source_clean": false,
+  "input_closure": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+      "bytes": 31756,
+      "sha256": "d8d0057a48beb6cbbfb1659890af37f3e8ed78303e49ffaa0df514610689b331"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+      "bytes": 59964,
+      "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+      "bytes": 22295,
+      "sha256": "92fb3ac07d2363197d3bd642562985a59386562e7798272dfd6cd9987a6ad86d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+      "bytes": 89157,
+      "sha256": "250497e0024481a5bdc4e0b941fb31e57eaeb841702164490874f3978a3134c1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "bytes": 76429,
+      "sha256": "c7c6e0d382ce4d671ff1c783726a422464873bf7b3d93a602109f919222b7af7"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py",
+      "bytes": 14029,
+      "sha256": "55c54291cf8af4c65a8435aec1a52b269ce58e90c6f3992ada090dac6d0224a2"
+    }
+  ],
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py",
+    "-o",
+    "addopts=",
+    "-o",
+    "cache_dir=/tmp/e02-F-continuation-20261006/tmle-common-report/native-draft-v2/cache",
+    "-q",
+    "-ra",
+    "--basetemp=/tmp/e02-F-continuation-20261006/tmle-common-report/native-draft-v2/pytest-tmp",
+    "--junitxml=/tmp/e02-F-continuation-20261006/tmle-common-report/native-draft-v2.junit.xml"
+  ],
+  "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+  "environment": {
+    "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+    "TMPDIR": "/tmp",
+    "inherited_environment": true,
+    "artificial_cloud_quota": false,
+    "python": "3.14.7"
+  },
+  "exit_code": 0,
+  "wall_seconds": 18.02692358099739,
+  "output": "/tmp/e02-F-continuation-20261006/tmle-common-report/native-draft-v2.stdout.txt",
+  "stderr": "/tmp/e02-F-continuation-20261006/tmle-common-report/native-draft-v2.stderr.txt",
+  "junit": "/tmp/e02-F-continuation-20261006/tmle-common-report/native-draft-v2.junit.xml"
+}

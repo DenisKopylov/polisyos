@@ -1,0 +1,545 @@
+{
+  "scope": "complete tracked literal native fiscal public-symbol producer/consumer census; generic dynamic, external and production consumers not claimed",
+  "source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+  "full_tracked_python_denominator": 5466,
+  "matched_files": 18,
+  "rows": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/mechanisms/__init__.py",
+      "bytes": 586,
+      "sha256": "05bbd0447d29e6f61e63b9f92174888e96132a104f1bcf055ab8791ad9ab3592",
+      "source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+      "lines": [
+        {
+          "line": 9,
+          "text": "    IncomeTax,"
+        },
+        {
+          "line": 10,
+          "text": "    TaxSubsidy,"
+        },
+        {
+          "line": 11,
+          "text": "    compute_income_tax,"
+        },
+        {
+          "line": 12,
+          "text": "    compute_tax,"
+        },
+        {
+          "line": 17,
+          "text": "    \"IncomeTax\","
+        },
+        {
+          "line": 19,
+          "text": "    \"TaxSubsidy\","
+        },
+        {
+          "line": 20,
+          "text": "    \"compute_income_tax\","
+        },
+        {
+          "line": 21,
+          "text": "    \"compute_tax\","
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py",
+      "bytes": 4831,
+      "sha256": "bc52074e63f5aa72c977b1fa3b1cdba98683a31294fc8209eaba546b4b190425",
+      "source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+      "lines": [
+        {
+          "line": 37,
+          "text": "def compute_tax(state: GlobalState, rate: jnp.ndarray) -> jnp.ndarray:"
+        },
+        {
+          "line": 47,
+          "text": "def compute_income_tax(state: GlobalState, rate: jnp.ndarray) -> jnp.ndarray:"
+        },
+        {
+          "line": 48,
+          "text": "    \"\"\"Alias `compute_tax()` for fiscal APIs that explicitly expect income-tax semantics.\"\"\""
+        },
+        {
+          "line": 49,
+          "text": "    return compute_tax(state, rate)"
+        },
+        {
+          "line": 52,
+          "text": "class TaxSubsidy(Mechanism):"
+        },
+        {
+          "line": 59,
+          "text": "        self.rate = _validate_rate(rate, label=\"subsidy rate\")"
+        },
+        {
+          "line": 73,
+          "text": "        subsidy_amount = state.agents.income * self.rate * self.target_sector_mask"
+        },
+        {
+          "line": 79,
+          "text": "            jax.debug.print(\"TaxSubsidy rate={r}, total_cost={c}\", r=self.rate, c=total_cost)"
+        },
+        {
+          "line": 98,
+          "text": "class IncomeTax(Mechanism):"
+        },
+        {
+          "line": 104,
+          "text": "        self.rate = _validate_rate(rate, label=\"income tax rate\")"
+        },
+        {
+          "line": 117,
+          "text": "        tax_amount = compute_tax(state, self.rate)"
+        },
+        {
+          "line": 123,
+          "text": "            jax.debug.print(\"IncomeTax rate={r}, total_revenue={t}\", r=self.rate, t=total_revenue)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/mechanisms/__init__.py",
+      "bytes": 559,
+      "sha256": "10697d800d7265bd7728f80a20e2a5d26f717b69ecba24713c937c9bf5deffab",
+      "source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+      "lines": [
+        {
+          "line": 4,
+          "text": "    IncomeTax,"
+        },
+        {
+          "line": 5,
+          "text": "    TaxSubsidy,"
+        },
+        {
+          "line": 6,
+          "text": "    compute_income_tax,"
+        },
+        {
+          "line": 7,
+          "text": "    compute_tax,"
+        },
+        {
+          "line": 13,
+          "text": "    \"IncomeTax\","
+        },
+        {
+          "line": 15,
+          "text": "    \"TaxSubsidy\","
+        },
+        {
+          "line": 18,
+          "text": "    \"compute_income_tax\","
+        },
+        {
+          "line": 19,
+          "text": "    \"compute_tax\","
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/mechanisms/fiscal.py",
+      "bytes": 282,
+      "sha256": "a055451e6d6bc553c266970f8595d936715de4252074820e73f3cf45efac97d2",
+      "source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+      "lines": [
+        {
+          "line": 4,
+          "text": "    IncomeTax,"
+        },
+        {
+          "line": 5,
+          "text": "    TaxSubsidy,"
+        },
+        {
+          "line": 6,
+          "text": "    compute_income_tax,"
+        },
+        {
+          "line": 7,
+          "text": "    compute_tax,"
+        },
+        {
+          "line": 10,
+          "text": "__all__ = [\"IncomeTax\", \"TaxSubsidy\", \"compute_income_tax\", \"compute_tax\"]"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/__init__.py",
+      "bytes": 1023,
+      "sha256": "3456c8a6197ae276957b6eb4459ac6da80cbf7e84813f2b8a04f513559c43f75",
+      "source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+      "lines": [
+        {
+          "line": 11,
+          "text": "    IncomeTaxMechanismMethod,"
+        },
+        {
+          "line": 14,
+          "text": "    TaxSubsidyMechanismMethod,"
+        },
+        {
+          "line": 25,
+          "text": "    \"IncomeTaxMechanismMethod\","
+        },
+        {
+          "line": 28,
+          "text": "    \"TaxSubsidyMechanismMethod\","
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/_registry_boot.py",
+      "bytes": 635,
+      "sha256": "80bbb5134e0a73639fed2848472c8827f5c9bec395a402feaf444484c233b271",
+      "source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+      "lines": [
+        {
+          "line": 7,
+          "text": "    IncomeTaxMechanismMethod,"
+        },
+        {
+          "line": 10,
+          "text": "    TaxSubsidyMechanismMethod,"
+        },
+        {
+          "line": 18,
+          "text": "        TaxSubsidyMechanismMethod,"
+        },
+        {
+          "line": 19,
+          "text": "        IncomeTaxMechanismMethod,"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/runtime.py",
+      "bytes": 21006,
+      "sha256": "f2c622c699f85375925582d2d66ff683f40d3a925834f4ed523b2203d3ac8a23",
+      "source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+      "lines": [
+        {
+          "line": 168,
+          "text": "class TaxSubsidyMechanismMethod:"
+        },
+        {
+          "line": 181,
+          "text": "    runtime_mechanism_class_path: ClassVar[str] = \"polisyos.foundry.execute.mechanisms:TaxSubsidy\""
+        },
+        {
+          "line": 231,
+          "text": "class IncomeTaxMechanismMethod:"
+        },
+        {
+          "line": 244,
+          "text": "    runtime_mechanism_class_path: ClassVar[str] = \"polisyos.foundry.execute.mechanisms:IncomeTax\""
+        },
+        {
+          "line": 522,
+          "text": "    \"IncomeTaxMechanismMethod\","
+        },
+        {
+          "line": 526,
+          "text": "    \"TaxSubsidyMechanismMethod\","
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/welfare/bounds.py",
+      "bytes": 21687,
+      "sha256": "03bbb6bbb3bddfebec5bf14bd90e51c007363761052b4f9beb7b79017b29fd12",
+      "source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+      "lines": [
+        {
+          "line": 157,
+          "text": "        return _compute_income_tax_report("
+        },
+        {
+          "line": 166,
+          "text": "        return _compute_tax_subsidy_report("
+        },
+        {
+          "line": 283,
+          "text": "def _compute_income_tax_report("
+        },
+        {
+          "line": 430,
+          "text": "def _compute_tax_subsidy_report("
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/mechanism_design.py",
+      "bytes": 30226,
+      "sha256": "40a58363f5b019c0b01153872c9f784fcc19909692e1b40c3a84a8c691cd8123",
+      "source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+      "lines": [
+        {
+          "line": 109,
+          "text": "def _compute_tax_utilities_and_consumption("
+        },
+        {
+          "line": 133,
+          "text": "def _compute_tax_profitable_deviation_max("
+        },
+        {
+          "line": 391,
+          "text": "    utilities, consumption = _compute_tax_utilities_and_consumption(grid, schedule, u0=float(u0))"
+        },
+        {
+          "line": 400,
+          "text": "    profitable_deviation_max = _compute_tax_profitable_deviation_max(grid, schedule, consumption)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/property/foundry/methods/catalog/mechanism/test_mechanism_properties.py",
+      "bytes": 3623,
+      "sha256": "70506de593cdeb542ffccb9b6f4b5013b68879682888383030dc8891136ee9d0",
+      "source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+      "lines": [
+        {
+          "line": 42,
+          "text": "class TestTaxSubsidyProperties:"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/mechanisms/test_fiscal.py",
+      "bytes": 4814,
+      "sha256": "59a54f8c242c819e782ec6395e7c026cd5c6cc98d8467af3414e7edf0ea9bff5",
+      "source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+      "lines": [
+        {
+          "line": 6,
+          "text": "from polisyos.foundry.mechanisms.fiscal import IncomeTax, TaxSubsidy, compute_tax"
+        },
+        {
+          "line": 22,
+          "text": "    tax_mech = IncomeTax(n_agents=n_agents, rate=0.10)"
+        },
+        {
+          "line": 34,
+          "text": "    subsidy_mech = TaxSubsidy(n_agents=n_agents, rate=0.50)"
+        },
+        {
+          "line": 58,
+          "text": "    mech = IncomeTax(n_agents=n_agents, rate=0.2)"
+        },
+        {
+          "line": 60,
+          "text": "    tax_amount = compute_tax(state, mech.rate)"
+        },
+        {
+          "line": 69,
+          "text": "        IncomeTax(n_agents=2, rate=rate)"
+        },
+        {
+          "line": 75,
+          "text": "        TaxSubsidy(n_agents=2, rate=rate)"
+        },
+        {
+          "line": 78,
+          "text": "def test_compute_tax_rejects_invalid_rate_input() -> None:"
+        },
+        {
+          "line": 81,
+          "text": "        compute_tax(state, jnp.array(1.5, dtype=jnp.float32))"
+        },
+        {
+          "line": 92,
+          "text": "    patches, _ = IncomeTax(n_agents=3, rate=0.1).emit_patches("
+        },
+        {
+          "line": 117,
+          "text": "    patches, _ = TaxSubsidy(n_agents=3, rate=0.5).emit_patches("
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/mechanisms/test_gradients.py",
+      "bytes": 2324,
+      "sha256": "67e3d962ce047596998c6b8216f20939bec8d3027cfd567bb3c3f7f7fd42028f",
+      "source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+      "lines": [
+        {
+          "line": 6,
+          "text": "from polisyos.foundry.mechanisms.fiscal import TaxSubsidy"
+        },
+        {
+          "line": 16,
+          "text": "    policy = TaxSubsidy(rate=0.10, n_agents=n_agents)"
+        },
+        {
+          "line": 33,
+          "text": "    assert bool(jnp.isclose(grads.rate, -1000.0))"
+        },
+        {
+          "line": 42,
+          "text": "    mech = TaxSubsidy(rate=0.1, n_agents=n_agents)"
+        },
+        {
+          "line": 58,
+          "text": "    assert grads.rate is not None"
+        },
+        {
+          "line": 59,
+          "text": "    assert float(grads.rate) < 0.0"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_runtime.py",
+      "bytes": 2268,
+      "sha256": "ac4d4f4efa53ac1c469a74d19e93df92a36e4989f632477d7f7809317393594d",
+      "source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+      "lines": [
+        {
+          "line": 18,
+          "text": "class TestTaxSubsidyRuntime:"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_foundry_v2_unified_runtime.py",
+      "bytes": 4541,
+      "sha256": "6d74ca2e6f20b3107fd2d64dff1c0331c6d2cf393c6f36b0cc4b1b2fa0fcc158",
+      "source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+      "lines": [
+        {
+          "line": 38,
+          "text": "    assert descriptor.mechanism_class_path == \"polisyos.foundry.execute.mechanisms:IncomeTax\""
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/plugins/test_economic_profiles.py",
+      "bytes": 16074,
+      "sha256": "02eda95ab8abe859f08e44aa5c56417b992f6985199417480ef621fd64c03b5b",
+      "source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+      "lines": [
+        {
+          "line": 17,
+          "text": "    IncomeTaxMechanismMethod,"
+        },
+        {
+          "line": 19,
+          "text": "    TaxSubsidyMechanismMethod,"
+        },
+        {
+          "line": 86,
+          "text": "        (\"income_tax\", IncomeTaxMechanismMethod, [-20.0, 0.0, 0.0, -10.0], 30.0),"
+        },
+        {
+          "line": 87,
+          "text": "        (\"tax_subsidy\", TaxSubsidyMechanismMethod, [25.0, 0.0, 0.0, 20.0], -45.0),"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/runtime/test_jit_stability.py",
+      "bytes": 2463,
+      "sha256": "6247c99d16acc14106d47015e63c0d284b6dd60ddd0658cf469aba9715f516c4",
+      "source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+      "lines": [
+        {
+          "line": 6,
+          "text": "from polisyos.foundry.mechanisms.fiscal import IncomeTax, TaxSubsidy"
+        },
+        {
+          "line": 28,
+          "text": "    mech = TaxSubsidy(rate=0.1, n_agents=n_agents)"
+        },
+        {
+          "line": 60,
+          "text": "    mech = IncomeTax(rate=0.2, n_agents=n_agents)"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_eco_01.py",
+      "bytes": 5593,
+      "sha256": "f0dd85cfd6f0f2c2a92c643b3cf3fb73ab708e984a54d5510fd375f6235b44ad",
+      "source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+      "lines": [
+        {
+          "line": 11,
+          "text": "from polisyos.foundry.execute.mechanisms.fiscal import compute_tax"
+        },
+        {
+          "line": 102,
+          "text": "        compute_tax(state, jnp.asarray(0.2, dtype=jnp.float32)),"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_fry_03.py",
+      "bytes": 7824,
+      "sha256": "b4c9c5f22bdb39d59e229d34051d9ac4863ddbc1a956b19078fe9e0fec7050ba",
+      "source_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+      "lines": [
+        {
+          "line": 75,
+          "text": "    assert fiscal.IncomeTax is legacy_fiscal.IncomeTax"
+        },
+        {
+          "line": 76,
+          "text": "    assert fiscal.TaxSubsidy is legacy_fiscal.TaxSubsidy"
+        },
+        {
+          "line": 78,
+          "text": "    assert package.IncomeTax is fiscal.IncomeTax"
+        },
+        {
+          "line": 79,
+          "text": "    assert package.TaxSubsidy is fiscal.TaxSubsidy"
+        },
+        {
+          "line": 89,
+          "text": "        \"income_tax\": (\"polisyos.foundry.execute.mechanisms:IncomeTax\", package.IncomeTax),"
+        },
+        {
+          "line": 90,
+          "text": "        \"tax_subsidy\": (\"polisyos.foundry.execute.mechanisms:TaxSubsidy\", package.TaxSubsidy),"
+        },
+        {
+          "line": 102,
+          "text": "        package.IncomeTax"
+        },
+        {
+          "line": 118,
+          "text": "        (legacy_fiscal.IncomeTax, fiscal.IncomeTax, {\"rate\": 0.2, \"n_agents\": 4}),"
+        },
+        {
+          "line": 119,
+          "text": "        (legacy_fiscal.TaxSubsidy, fiscal.TaxSubsidy, {\"rate\": 0.1, \"n_agents\": 4}),"
+        },
+        {
+          "line": 131,
+          "text": "    patches, next_key = fiscal.IncomeTax(rate=0.2, n_agents=3).emit_patches("
+        },
+        {
+          "line": 172,
+          "text": "    jit_tax = jax.jit(lambda rate: fiscal.compute_tax(state, rate))"
+        },
+        {
+          "line": 174,
+          "text": "    gradient = jax.grad(lambda rate: jnp.sum(fiscal.compute_tax(state, rate)))(jnp.array(0.2))"
+        }
+      ]
+    }
+  ],
+  "actual_rate_attribute_consumers": "canonical arithmetic; native gradient/JIT tests; standard eqx tree mutation/pickle covered in prototype; registered descriptors resolve original publicclass names",
+  "compatibility_record": {
+    "same_fields_and_eqx_tree_structure": true,
+    "rate_scalar_jaxarray_stays": true,
+    "default_x64_off_rate_float32_stays": true,
+    "x64_pythonfloat_and_explicitfloat64_source_rate_dtype": "float64 now preserved, prior float32 changed explicitly",
+    "float32_income_subsidy_output_under_x64": "now float32 at receiving dtype; prior sectorweight defaultfloat64 promotion fixed explicitly"
+  },
+  "parameter_observation_boundary": "execute.graph::_tax_rate_for_step separately explicitly encodes existing global.tax_rate float32 observation; untouched. No promise of decimal-exact actor observation or production calibration."
+}

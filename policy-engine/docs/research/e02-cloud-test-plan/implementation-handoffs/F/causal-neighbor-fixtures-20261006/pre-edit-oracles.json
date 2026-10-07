@@ -1,0 +1,168 @@
+{
+  "name": "pre-edit-oracles",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/pre_edit_oracles.py"
+  ],
+  "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+  "source_tree": "7f46ae30a0882a6f86ba4800100ea95960e3c75b",
+  "environment": {
+    "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+    "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine/tools:/workspace/e02-F-graph-20261006/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "shared_environment_readonly": true
+  },
+  "exit_code": 0,
+  "check": "PASS",
+  "wall_s": 6.541715462997672,
+  "rss_kib": 557740,
+  "source_begin": [
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 51514,
+      "sha256": "f1425cc5c9d00de03ffb01e1ccfe8a3c7abfdb1318e459159f9a3f5ba56d57b6"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 3900,
+      "sha256": "908818d78d19b1143d8bd8c1406eea44e6fcddf430ca5641619183238a8d0381"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 4494,
+      "sha256": "cb957e6bb27101e001a5209a7439a0b0f5794687b5d1ef5728f82e888bea5bd3"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 41585,
+      "sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 16141,
+      "sha256": "06ce594a304d9823a373ad37bb787a7953cc8bd3651bd65e1ff3c2476fd4a38e"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/amn.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 11087,
+      "sha256": "af743f3493cf99c62a7715a4be20dfb5631a7564363e382d9cac31cb24ca0172"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 81116,
+      "sha256": "f1974d6f7e7d44023f3be66df17a71271e8b657d6daccaf4da8fac54e4c99b3c"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 61466,
+      "sha256": "3b98ceacd57b4ba953432e7e1af0d9dc928c0b142ed4d6ba5f4a57510753c540"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/estimand_compiler.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 100160,
+      "sha256": "324f22d56a61ffd42999bf01e08aa4c662851b17946bfc67a17e9476d83a211b"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 20746,
+      "sha256": "b8cc85501f67668b61b6265abe7970026b5124dd9c2204205251697988bfb5cc"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/ir/analytics/estimand.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 79520,
+      "sha256": "4410e949c073bd12f0e1402979d464b9799f3bbf786169f612aaa5f5a6d6f7d5"
+    }
+  ],
+  "source_end": [
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 51514,
+      "sha256": "f1425cc5c9d00de03ffb01e1ccfe8a3c7abfdb1318e459159f9a3f5ba56d57b6"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 3900,
+      "sha256": "908818d78d19b1143d8bd8c1406eea44e6fcddf430ca5641619183238a8d0381"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_compile_estimand_do_calculus_prepass.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 4494,
+      "sha256": "cb957e6bb27101e001a5209a7439a0b0f5794687b5d1ef5728f82e888bea5bd3"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 41585,
+      "sha256": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 16141,
+      "sha256": "06ce594a304d9823a373ad37bb787a7953cc8bd3651bd65e1ff3c2476fd4a38e"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/amn.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 11087,
+      "sha256": "af743f3493cf99c62a7715a4be20dfb5631a7564363e382d9cac31cb24ca0172"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 81116,
+      "sha256": "f1974d6f7e7d44023f3be66df17a71271e8b657d6daccaf4da8fac54e4c99b3c"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 61466,
+      "sha256": "3b98ceacd57b4ba953432e7e1af0d9dc928c0b142ed4d6ba5f4a57510753c540"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/estimand_compiler.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 100160,
+      "sha256": "324f22d56a61ffd42999bf01e08aa4c662851b17946bfc67a17e9476d83a211b"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 20746,
+      "sha256": "b8cc85501f67668b61b6265abe7970026b5124dd9c2204205251697988bfb5cc"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/ir/analytics/estimand.py",
+      "source_sha": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "bytes": 79520,
+      "sha256": "4410e949c073bd12f0e1402979d464b9799f3bbf786169f612aaa5f5a6d6f7d5"
+    }
+  ],
+  "output_refs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/pre-edit-oracles.stdout.txt",
+      "bytes": 2935,
+      "sha256": "3ef5fa39c17df83117e37ed942dd5a639e6f682a7ac5b0d73077a452d6fb2a15"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/neighbor-fixtures/pre-edit-oracles.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

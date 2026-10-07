@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "uv",
+    "build",
+    "--wheel",
+    "--sdist",
+    "--out-dir",
+    "/workspace/e02-F-20261006-receipts/api/candidate-dist"
+  ],
+  "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+  "source_sha_start": "729d137279b7d6334230045e420255762fe55f08",
+  "source_sha_end": "729d137279b7d6334230045e420255762fe55f08",
+  "environment": {
+    "PYTHONPATH": "src:."
+  },
+  "exit": 0,
+  "wall_s": 23.776419817004353,
+  "rss_kib": 30880
+}

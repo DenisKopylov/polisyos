@@ -1,0 +1,81 @@
+{
+  "check": "FAIL",
+  "scope": "Exact historical loader body analyzed with canonicalRuffconfig/currentstdinfilename; original all-ten-path gate not replayerP41 because three new files absent and changedpaths intersect. No inherited-greenclaim.",
+  "historical": [
+    {
+      "label": "slice-base370",
+      "source_sha": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+      "source_path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "source_bytes": 65426,
+      "source_sha256": "c017bc57b9d7759b3f549b23969ec6f2668f87de1ef1c0509e3fa4c0a43ff8a3",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--stdin-filename",
+        "src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+        "--output-format=json",
+        "-"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "exit": 1,
+      "diagnostics": 103,
+      "bycode": {
+        "F401": 41,
+        "TC001": 5,
+        "TC004": 11,
+        "ANN401": 31,
+        "S608": 6,
+        "SIM117": 3,
+        "RUF034": 1,
+        "E501": 2,
+        "F821": 3
+      }
+    },
+    {
+      "label": "scientific647",
+      "source_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+      "source_path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "source_bytes": 65426,
+      "source_sha256": "c017bc57b9d7759b3f549b23969ec6f2668f87de1ef1c0509e3fa4c0a43ff8a3",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--stdin-filename",
+        "src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+        "--output-format=json",
+        "-"
+      ],
+      "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+      "exit": 1,
+      "diagnostics": 103,
+      "bycode": {
+        "F401": 41,
+        "TC001": 5,
+        "TC004": 11,
+        "ANN401": 31,
+        "S608": 6,
+        "SIM117": 3,
+        "RUF034": 1,
+        "E501": 2,
+        "F821": 3
+      }
+    }
+  ],
+  "current_loader_diagnostics": 103,
+  "current_bycode": {
+    "F401": 41,
+    "TC001": 5,
+    "TC004": 11,
+    "ANN401": 31,
+    "S608": 6,
+    "SIM117": 3,
+    "RUF034": 1,
+    "E501": 2,
+    "F821": 3
+  },
+  "P41": "not_established"
+}

@@ -1,0 +1,401 @@
+{
+  "schema": "policyos.e02.output_transport.v1",
+  "companions": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/dowhy-companion-review/transfer-selection.json",
+      "bytes": 3705,
+      "sha256": "78c359fbc08a4a3c4e38dd55ff38189ebcf80b41ed486044c657314739eccd8f",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/dowhy-companion-review/transfer-selection.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/dowhy-companion-review/review.json",
+      "bytes": 17471,
+      "sha256": "39b54a997720070aa1f20cd689a3226fa161996e089c85bfa9223e7e74ca4d40",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/dowhy-companion-review/review.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/audit_dowhy_companion.py",
+      "bytes": 6091,
+      "sha256": "63095536c34cdd8b888405c101ae6792e1a0b1bac45f82cedaf052acc7c0a14c",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/audit_dowhy_companion.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/dowhy-companion-audit.stdout.txt",
+      "bytes": 12223,
+      "sha256": "eaa93d915e8ed3fea00a7ee70d6474d5ebbd0679911d6d4a9b7c2b3e2a804866",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/dowhy-companion-audit.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/dowhy-companion-audit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/dowhy-companion-audit.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-boundaries/receipt.json",
+      "bytes": 1905,
+      "sha256": "059a187ddba4f04fe93bd6b80f99821132e346a05bdfb2047899e93a16944df9",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-composed-boundaries/receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-boundaries/stdout",
+      "bytes": 5879,
+      "sha256": "127a2f5ded1db5fdc8db0228ffa16eb1d301ca996c4e4c9ca9ef1715e43a7ddd",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-composed-boundaries/stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-boundaries/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-composed-boundaries/stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-candidate/receipt.json",
+      "bytes": 1217,
+      "sha256": "3ee42a9f62839cbffa3c2544a5603049912d5dc5cda63bcd01805fafc4d67bad",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-candidate/stdout",
+      "bytes": 6347,
+      "sha256": "a5679ad9bd15e21727c1dec9ddbbb4f3c9c80c6b7da3d7150aaf0d57a53a3f9c",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-candidate/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-corrected/receipt.json",
+      "bytes": 1392,
+      "sha256": "b811f2b810bd84ca7b3621add647b96a1071cc63d44096dce5c9064b9a49bfce",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-corrected/stdout",
+      "bytes": 6134,
+      "sha256": "f5ae61e5c9d7d0daa9e41193997abc001a4adb93477e826a4f32ee27f31b1a27",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-corrected/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-policy/receipt.json",
+      "bytes": 1378,
+      "sha256": "fe41f552de42b7e307ca5c73aa993159c45ff70d465d039d3f9d6e8726555aca",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-policy/stdout",
+      "bytes": 99,
+      "sha256": "99c0ab52b603515602dfc1ee4946e6a859c1e7f6ee04df01903a95e2e018848f",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-policy/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/transfer-selection.json",
+      "bytes": 9968,
+      "sha256": "abf6c608ce014bc11b01971b1c047ac6af10691d6bffad0cfa762f50316ad0f1",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/transfer-selection.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/review.json",
+      "bytes": 34031,
+      "sha256": "eb84b4e31dc64d605595746d19e1700df1bc21eb88b692cd5aee1e77130f5e17",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/review.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/test_value_consumer_identification.py",
+      "bytes": 10456,
+      "sha256": "df82bf06472e9a0a64fc977f882c3a78ebbcb84218fe1cc7dbda9248d871195a",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/test_value_consumer_identification.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/environment.json",
+      "bytes": 1637,
+      "sha256": "0231fc594bb3d7bbcad74dbe8a9cbbc8bd4483ff36d39ffee4bffd60ff952d08",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/environment.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/environment.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/environment.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/environment.stdout.txt",
+      "bytes": 413,
+      "sha256": "e89934c8bbf194f323c79a1a19affd6df460a3018e822086c701985c31337a79",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/environment.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/initial-source-guard.json",
+      "bytes": 1259,
+      "sha256": "16177a65e956accbeb1bfc488d4373af7b3458ebaa182e61310460b23fc5c45a",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/initial-source-guard.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/initial-source-guard.stderr.txt",
+      "bytes": 130,
+      "sha256": "de4ff766e8e63f84ea33c29b2e18ac75927abbc47c90379ecd1c3f6fbe5bfccf",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/initial-source-guard.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/initial-source-guard.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/initial-source-guard.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/native-corrected.json",
+      "bytes": 5985,
+      "sha256": "0bd8e3c577ea956677df7bf6c3b3d9843b5b23d490877768945c81d47094b84b",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/native-corrected.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/native-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/native-corrected.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/native-corrected.stdout.txt",
+      "bytes": 3735,
+      "sha256": "ebfa3e073090fb7b1ae578bff52d9848cb292f0fe10b809edb64eff8b259d759",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/native-corrected.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/native.json",
+      "bytes": 5946,
+      "sha256": "a5aad372dfd238f3601c1397f9fe6e90a474ace3b215ffbcd84eb4d75c397ee5",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/native.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/native.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/native.stdout.txt",
+      "bytes": 4922,
+      "sha256": "30bbe789c2ea7491e644a6b0506431465f4c47fdcec12b5e4434cc78de2f2271",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/native.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/replay_value_consumer.py",
+      "bytes": 3405,
+      "sha256": "0b96a04008c4ff79a55589c695afb17b2dea4f7f3ff3689ae7257c478d0abed6",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/replay_value_consumer.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/report_cap-corrected.json",
+      "bytes": 5897,
+      "sha256": "f73b27e1758f432619b6026c72dbe8345fcc6d8cb1b99bbe2d0d8beb65ae92e4",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/report_cap-corrected.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/report_cap-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/report_cap-corrected.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/report_cap-corrected.stdout.txt",
+      "bytes": 3004,
+      "sha256": "cf234931448e25e592001c8b07b34fca3943933034a89e4f59da345fdace73a9",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/report_cap-corrected.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/report_cap.json",
+      "bytes": 5857,
+      "sha256": "51d96d40694c6aebbf3daf68d759c23e7862e3e5e9754e0496a9d0ef34ee1034",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/report_cap.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/report_cap.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/report_cap.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/report_cap.stdout.txt",
+      "bytes": 3240,
+      "sha256": "8da97001752b431ebcd59d3080f5d730d70e1a1aa18265f1352229afcfe24ea0",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/report_cap.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/run_value_checks.py",
+      "bytes": 5305,
+      "sha256": "a70eddd1b53404b9b2b98fbb2ec372e5ed4db1fa7fef8cce137234f128a710de",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/run_value_checks.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/value_guard-corrected.json",
+      "bytes": 5902,
+      "sha256": "afce344ffe0545ca10746e03e420f8986978b46aa76e75d5ff6e131ff15559b6",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/value_guard-corrected.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/value_guard-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/value_guard-corrected.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/value_guard-corrected.stdout.txt",
+      "bytes": 1582,
+      "sha256": "cfee9bd851913cc6903d9f0f5815f44203b40a498b701901021c61d24e4cc370",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/value_guard-corrected.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/value_guard.json",
+      "bytes": 5864,
+      "sha256": "24671cbde00b770a141491db15e8bb81f774860e6504e503b93805bb6bc2b5a7",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/value_guard.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/value_guard.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/value_guard.stderr.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/value_guard.stdout.txt",
+      "bytes": 1485,
+      "sha256": "76566823ad56f17c9a82b05bba5d58a17a4847e37b9f0834e9964ae9bdf61927",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/foundry/value-consumer/value_guard.stdout.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-remote-refresh-2/receipt.json",
+      "bytes": 2333,
+      "sha256": "cb21ef976db19cfda4fa9ead33a252df3a7117e3f1a303da18a3144c1fc4c1af",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-remote-refresh-2/receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-remote-refresh-2/stderr",
+      "bytes": 125,
+      "sha256": "fae98b4cf20224db118bb2a63cb0195e27c34977e5afc919a115cd546c035d5a",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-remote-refresh-2/stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-remote-refresh-2/stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-remote-refresh-2/stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-selected-worker-runtime-binding.json",
+      "bytes": 2024,
+      "sha256": "b0c1da69cf3aa2603dc7cce74b593cdfc36b8c7d676124b0eb8b54e15460f9d0",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-selected-worker-runtime-binding.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-admission-current.json",
+      "bytes": 147971,
+      "sha256": "cb3b9a175615063ef684e3ac48c53d44f768e207bfc42f008c2c180e924f1f3a",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-admission-current.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/relocate-active-git-objects.py",
+      "bytes": 2424,
+      "sha256": "fb92e9e8c72f65ff204f3e05bdc25118055b471c45651b9e9256c2a48e78cbaa",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/relocate-active-git-objects.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/active-git-storage-relocation.json.gz",
+      "bytes": 312681,
+      "sha256": "1cb28d1399af95f923ae015e3cf4854f60d9e71e8d45024d4427a4c03479b279",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/active-git-storage-relocation.json",
+      "encoding": "gzip",
+      "decoded_bytes": 811080,
+      "decoded_sha256": "7ce92496ba9be613fca729d07c41cdd603b277f39b3e84f1c6def007ce05e661"
+    }
+  ],
+  "complete_implementation_diffs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/diffs/47a2ff90186628afafa4c01ecf7158325b0026fc.patch",
+      "bytes": 1759,
+      "sha256": "bcb172fd081ff14aa4c5fc2980c9bc88b24e9f5cdc6cf26519fd9b4fca8d547d",
+      "implementation_sha": "47a2ff90186628afafa4c01ecf7158325b0026fc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/diffs/46932cd30935b08e1da795f505a9b443c9dc668a.patch",
+      "bytes": 1311,
+      "sha256": "89a86b7bbe04bad88beb8ea35e913e0e847eb747338a04d5e0849364c452a7eb",
+      "implementation_sha": "46932cd30935b08e1da795f505a9b443c9dc668a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/diffs/386b361865fb22d6da241716481d919b6ebd8249.patch",
+      "bytes": 1393,
+      "sha256": "89906068b73ee54e5c3434a6ac485eb94f0604b47563b0fad5cf5cbee755c282",
+      "implementation_sha": "386b361865fb22d6da241716481d919b6ebd8249"
+    }
+  ],
+  "path_translation": {
+    "/tmp/e02-F-continuation-20261006/foundry/dowhy-companion-review/transfer-selection.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/dowhy-companion-review/transfer-selection.json",
+    "/tmp/e02-F-continuation-20261006/foundry/dowhy-companion-review/review.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/dowhy-companion-review/review.json",
+    "/tmp/e02-F-continuation-20261006/foundry/audit_dowhy_companion.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/audit_dowhy_companion.py",
+    "/tmp/e02-F-continuation-20261006/foundry/dowhy-companion-audit.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/dowhy-companion-audit.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/dowhy-companion-audit.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/dowhy-companion-audit.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/root-composed-boundaries/receipt.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-boundaries/receipt.json",
+    "/tmp/e02-F-continuation-20261006/root-composed-boundaries/stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-boundaries/stdout",
+    "/tmp/e02-F-continuation-20261006/root-composed-boundaries/stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-boundaries/stderr",
+    "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/receipt.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-candidate/receipt.json",
+    "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-candidate/stdout",
+    "/tmp/e02-F-continuation-20261006/root-composed-worker-candidate/stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-candidate/stderr",
+    "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/receipt.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-corrected/receipt.json",
+    "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-corrected/stdout",
+    "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-corrected/stderr",
+    "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/receipt.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-policy/receipt.json",
+    "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-policy/stdout",
+    "/tmp/e02-F-continuation-20261006/root-composed-worker-policy/stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-composed-worker-policy/stderr",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/transfer-selection.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/transfer-selection.json",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/review.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/review.json",
+    "/tmp/e02-F-continuation-20261006/foundry/test_value_consumer_identification.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/test_value_consumer_identification.py",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/environment.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/environment.json",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/environment.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/environment.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/environment.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/environment.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/initial-source-guard.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/initial-source-guard.json",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/initial-source-guard.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/initial-source-guard.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/initial-source-guard.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/initial-source-guard.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/native-corrected.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/native-corrected.json",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/native-corrected.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/native-corrected.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/native-corrected.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/native-corrected.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/native.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/native.json",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/native.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/native.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/native.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/native.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/replay_value_consumer.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/replay_value_consumer.py",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/report_cap-corrected.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/report_cap-corrected.json",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/report_cap-corrected.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/report_cap-corrected.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/report_cap-corrected.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/report_cap-corrected.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/report_cap.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/report_cap.json",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/report_cap.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/report_cap.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/report_cap.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/report_cap.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/run_value_checks.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/run_value_checks.py",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/value_guard-corrected.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/value_guard-corrected.json",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/value_guard-corrected.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/value_guard-corrected.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/value_guard-corrected.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/value_guard-corrected.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/value_guard.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/value_guard.json",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/value_guard.stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/value_guard.stderr.txt",
+    "/tmp/e02-F-continuation-20261006/foundry/value-consumer/value_guard.stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/foundry/value-consumer/value_guard.stdout.txt",
+    "/tmp/e02-F-continuation-20261006/root-remote-refresh-2/receipt.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-remote-refresh-2/receipt.json",
+    "/tmp/e02-F-continuation-20261006/root-remote-refresh-2/stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-remote-refresh-2/stderr",
+    "/tmp/e02-F-continuation-20261006/root-remote-refresh-2/stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-remote-refresh-2/stdout",
+    "/tmp/e02-F-continuation-20261006/root-selected-worker-runtime-binding.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-selected-worker-runtime-binding.json",
+    "/tmp/e02-F-continuation-20261006/root-admission-current.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/root-admission-current.json",
+    "/tmp/e02-F-continuation-20261006/relocate-active-git-objects.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/relocate-active-git-objects.py",
+    "/tmp/e02-F-continuation-20261006/active-git-storage-relocation.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/worker-value-consumers-continuation-20261006/active-git-storage-relocation.json.gz"
+  }
+}

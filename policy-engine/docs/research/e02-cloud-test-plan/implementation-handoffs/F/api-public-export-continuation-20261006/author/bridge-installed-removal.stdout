@@ -1,0 +1,122 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_each_supported_patch_executes_native_algorithm_and_restores[mz_id_algorithm] _
+
+binding = 'mz_id_algorithm'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fa41a0acd60>
+
+    @pytest.mark.parametrize(
+        "binding",
+        ["mz_id_algorithm", "id_with_oracle_fallback", "id_star_algorithm", "idc_star_algorithm"],
+    )
+    def test_each_supported_patch_executes_native_algorithm_and_restores(binding, monkeypatch) -> None:
+        """Observe real algorithms through all four historical patch addresses."""
+        original = getattr(causal_engine, binding)
+        baseline = _identify(binding)
+        calls = []
+    
+        def observed(*args, **kwargs):
+            calls.append((args, kwargs))
+            return original(*args, **kwargs)
+    
+        with monkeypatch.context() as patch:
+            patch.setattr(causal_engine, binding, observed)
+            actual = _identify(binding)
+>           assert len(calls) == 1
+E           assert 0 == 1
+E            +  where 0 = len([])
+
+test_installed_facade_contract.py:109: AssertionError
+_ test_each_supported_patch_executes_native_algorithm_and_restores[id_with_oracle_fallback] _
+
+binding = 'id_with_oracle_fallback'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fa41a1e3e30>
+
+    @pytest.mark.parametrize(
+        "binding",
+        ["mz_id_algorithm", "id_with_oracle_fallback", "id_star_algorithm", "idc_star_algorithm"],
+    )
+    def test_each_supported_patch_executes_native_algorithm_and_restores(binding, monkeypatch) -> None:
+        """Observe real algorithms through all four historical patch addresses."""
+        original = getattr(causal_engine, binding)
+        baseline = _identify(binding)
+        calls = []
+    
+        def observed(*args, **kwargs):
+            calls.append((args, kwargs))
+            return original(*args, **kwargs)
+    
+        with monkeypatch.context() as patch:
+            patch.setattr(causal_engine, binding, observed)
+            actual = _identify(binding)
+>           assert len(calls) == 1
+E           assert 0 == 1
+E            +  where 0 = len([])
+
+test_installed_facade_contract.py:109: AssertionError
+_ test_each_supported_patch_executes_native_algorithm_and_restores[id_star_algorithm] _
+
+binding = 'id_star_algorithm'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fa419fe0160>
+
+    @pytest.mark.parametrize(
+        "binding",
+        ["mz_id_algorithm", "id_with_oracle_fallback", "id_star_algorithm", "idc_star_algorithm"],
+    )
+    def test_each_supported_patch_executes_native_algorithm_and_restores(binding, monkeypatch) -> None:
+        """Observe real algorithms through all four historical patch addresses."""
+        original = getattr(causal_engine, binding)
+        baseline = _identify(binding)
+        calls = []
+    
+        def observed(*args, **kwargs):
+            calls.append((args, kwargs))
+            return original(*args, **kwargs)
+    
+        with monkeypatch.context() as patch:
+            patch.setattr(causal_engine, binding, observed)
+            actual = _identify(binding)
+>           assert len(calls) == 1
+E           assert 0 == 1
+E            +  where 0 = len([])
+
+test_installed_facade_contract.py:109: AssertionError
+_ test_each_supported_patch_executes_native_algorithm_and_restores[idc_star_algorithm] _
+
+binding = 'idc_star_algorithm'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fa41a04b250>
+
+    @pytest.mark.parametrize(
+        "binding",
+        ["mz_id_algorithm", "id_with_oracle_fallback", "id_star_algorithm", "idc_star_algorithm"],
+    )
+    def test_each_supported_patch_executes_native_algorithm_and_restores(binding, monkeypatch) -> None:
+        """Observe real algorithms through all four historical patch addresses."""
+        original = getattr(causal_engine, binding)
+        baseline = _identify(binding)
+        calls = []
+    
+        def observed(*args, **kwargs):
+            calls.append((args, kwargs))
+            return original(*args, **kwargs)
+    
+        with monkeypatch.context() as patch:
+            patch.setattr(causal_engine, binding, observed)
+            actual = _identify(binding)
+>           assert len(calls) == 1
+E           assert 0 == 1
+E            +  where 0 = len([])
+
+test_installed_facade_contract.py:109: AssertionError
+=============================== warnings summary ===============================
+../../../../workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED test_installed_facade_contract.py::test_each_supported_patch_executes_native_algorithm_and_restores[mz_id_algorithm]
+FAILED test_installed_facade_contract.py::test_each_supported_patch_executes_native_algorithm_and_restores[id_with_oracle_fallback]
+FAILED test_installed_facade_contract.py::test_each_supported_patch_executes_native_algorithm_and_restores[id_star_algorithm]
+FAILED test_installed_facade_contract.py::test_each_supported_patch_executes_native_algorithm_and_restores[idc_star_algorithm]
+4 failed, 9 deselected, 1 warning in 0.27s

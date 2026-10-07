@@ -1,0 +1,77 @@
+{
+  "schema": "policyos.e02.economic_owner_input_packet.v1",
+  "original_criterion_refs": [
+    {
+      "finding_id": "LA-003",
+      "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        136,
+        166
+      ],
+      "bytes": 3450,
+      "sha256": "8e52a4ec93513e106070221058490c2c1c1d337ff27ddd7c453bb655e44710d5",
+      "original_full_criterion": "## LA-003. Fiscal/labor: живые kernels ранних базовых моделей\n\n**Перемещение по смысловой роли**\n\n**Статус.** Живой код; кандидат на уточнение профиля и перенос, не прямое удаление.\n\n**Точная область:**\n\n`src/polisyos/foundry/mechanisms/fiscal.py`\n\n`src/polisyos/foundry/mechanisms/labor.py`\n\n`src/polisyos/foundry/mechanisms/__init__.py`\n\n**Что установлено и почему это legacy-кандидат.** IncomeTax/TaxSubsidy эмитируют PatchMap; LaborMarketMechanism заново выбирает занятость по threshold и фирму из равномерного распределения. Это узкие модели, а не универсальный рынок труда. Но каталог уже вызывает эти классы через runtime_mechanism_class_path: это backend зарегистрированных методов, а не забытый независимый методовый каталог.\n\n**Что сохранить.** Patch-first ABI, active/target masks, фискальный баланс, employer IDs, firm labor counts, PRNG key progression и дешёвые контрольные модели. Существующий runtime-каталог уже ограничивает evidence/authority-scope этих методов.\n\n**Куда перенести / с чем объединить.** Предлагаемый src/polisyos/foundry/execute/mechanisms/{fiscal,labor}.py под существующим execute/ как низкоуровневый доменный backend. Методовые adapters остаются в methods/catalog/mechanism/runtime.py. До согласования import-direction допустимо оставить текущий путь, но явно назвать профиль baseline.\n\n**Порядок миграции.** Разделить relocation и изменение модели. Сначала эквивалентный перенос со старым method ID, затем при желании новая версия модели с иной динамикой. Обновить строковые class paths, registry descriptors и exports; не переносить численный код внутрь обёртки ради одного файла.\n\n**Приёмочная проверка.** Регистрация, создание по spec, одинаковые patches/key при фиксированных входах, masked/inactive cases, compiler/replay и существующие fiscal/labor/gradient tests. Новый содержательный закон требует отдельной версии, а не тех же fingerprints.\n\n**Приоритет.** Средняя цена. Выше приоритета косметического выравнивания дерева — точный статус baseline-модели.\n\n**Граница вывода.** Простая модель не является legacy только из-за простоты. Доказательств готовой эквивалентной замены и всех production-вызовов нет; смысловая граница уже частично защищена metadata.\n\n**Основания:** E01, E04, E05, E06.\n\n<!-- PAGEBREAK -->\n"
+    },
+    {
+      "finding_id": "LA-004",
+      "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        167,
+        197
+      ],
+      "bytes": 3498,
+      "sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a",
+      "original_full_criterion": "## LA-004. Две экономические реализации: согласовать, но не подменять\n\n**Слияние / разделение ответственности**\n\n**Статус.** Пересечение предмета подтверждено; эквивалентность опровергается кодом.\n\n**Точная область:**\n\n`src/polisyos/foundry/mechanisms/fiscal.py`\n\n`src/polisyos/foundry/mechanisms/labor.py`\n\n`src/polisyos/foundry/plugins/economics/mechanisms.py`\n\n**Что установлено и почему это legacy-кандидат.** Одинаковый класс LaborMarketMechanism означает разные модели: threshold-пересэмплирование с фирмами против find/separation transitions, wage shocks и EconomicState. Налоговая реализация plugin прогрессивная и меняет wealth; IncomeTax использует reported_income, меняет income и government.balance. Более богатая модель не является drop-in replacement.\n\n**Что сохранить.** Обе явно определённые модельные гипотезы, полезные численные операции и проверки законов сохранения. Уникальные fields и state contracts должны сохраниться до доказанной миграции.\n\n**Куда перенести / с чем объединить.** Общий доменный владелец может оставаться foundry/plugins/economics; shared pure kernels размещать там или в нижнем execution-слое только после выявления действительно одинаковой операции. Два adapter-слоя сохраняют PatchMap и EconomicState. Имена моделей/профилей следует развести.\n\n**Порядок миграции.** Сначала таблица соответствия состояния, единиц, временного шага, tax base, RNG и учета бюджета. Извлекать общий алгоритм лишь там, где контракты совпали. Остальные отличия оформить версиями модели. Старый профиль выводить после миграции сценариев, а не после механического переименования импортов.\n\n**Приёмочная проверка.** Сравнить специально заданные одинаковые regimes; отдельно проверить, что различающиеся regimes не стали считаться эквивалентными. Проверить бухгалтерские равенства, использование seed и сохранение наблюдаемых выходов.\n\n**Приоритет.** Средняя/высокая цена; полезнее локального объединения имён.\n\n**Граница вывода.** Не доказано, что plugin лучше откалиброван или подходит всем пользователям базового ABI. Полная миграция двух исполнителей в этом проходе не проектировалась.\n\n**Основания:** E04, E05, E07.\n\n<!-- PAGEBREAK -->\n"
+    },
+    {
+      "finding_id": "LA-035",
+      "source_sha": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        2066,
+        2102
+      ],
+      "bytes": 7176,
+      "sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69",
+      "original_full_criterion": "## LA-035. policy_loss_fn: ранний экономический baseline у общего method-владельца\n\n**R — перемещение по смысловой роли с отдельной идентичностью objective**\n\n**Точная область:**\n\n`src/polisyos/foundry/methods/_internal/loss.py`\n\n`src/polisyos/foundry/methods/loss.py`\n\n**Статус.** Конкретная экономическая функция и её legacy facade подтверждены; найден consumer-test. Готовая эквивалентная замена современным economic objective не установлена.\n\n**Что установлено.** За общим именем `policy_loss_fn` находится критерий по `GlobalState.agents.income` и `government_balance`, с default `min_balance=-1000` и коэффициентом штрафа `10`. Это не функция потерь arbitrary method и не общий интерфейс политического предпочтения. Физическое помещение в `methods/_internal` сохранило старую предметную обязанность. Старый публичный `methods/loss.py` только открывает её через reexport-helper. [E106–E109]\n\nCharacterization уточняет смысл самого критерия. До бюджетного штрафа он равен `-mean(income) / max(mean(abs(income)), 1)`. При неотрицательных доходах и среднем не меньше единицы это `-1`, независимо от абсолютного уровня дохода. На `[1000,2000,3000]`, десятикратном наборе и `[2,2,2]` получен тот же результат; локальный градиент в первом случае нулевой в пределах float32 tolerance. Это **математическое свойство нормализации**, не доказательство, что любой пользователь хотел максимизировать ненормированный доход. Но оно не позволяет безоговорочно называть функцию общим доходным optimization objective.\n\nБюджетный штраф и invalid-input checks действительно работают в проверенных локальных случаях: при balance `-2000` и min `-1000` итог `9`, при NaN-входе — infinity. Существующий repository-test проверяет finiteness и non-finite case, не сохранение ранжирования положительных доходов.\n\n**Что сохранить.** Определённый baseline-критерий, его sign/scale regimes, бюджетный штраф, numeric guardrails, поддержанные callers. Сохранить тесты численной защиты: переезд предметного loss не означает удаление общего `finite_loss_or_inf` или его публичного runtime facade.\n\n**Куда перенести / с чем объединить.** Семантический адрес — действующий economic objective-владелец `foundry/plugins/economics`. Предлагаемый `baselines.py` с явно названным GlobalState-profile — новый файл, не существующая готовая замена. При малом объёме допустим отдельный явно типизированный baseline в существующем `objectives.py`, если это не смешивает ABI и не утяжеляет импорт. Не переносить функцию в глобальный Common.\n\nПрочитанные `GDPObjective`, `SocialWelfareObjective`, `UtilitarianWelfare` и другие работают по **EconomicState** и выражают другие критерии. Они не drop-in successor старого normalized-income/budget loss. LA-004 сохраняет силу: соседство экономических моделей не доказывает их равенство. [E110]\n\n**Порядок миграции.** Сначала назвать и зафиксировать текущую формулу как baseline, затем найти все source/config/FQN consumers и перенести тело без изменения численного поведения. Для подтверждённого требования максимизировать доход ввести отдельный objective/version; исправление ранжирования не маскировать под переименование файла. Если полный census покажет, что функция нужна исключительно numeric fixtures, поместить соответствующий пример у тестов или benchmark-владельца, сохранив проверяемую numeric обязанность. Сам факт двух тестов не разрешает уже сейчас удалить функцию.\n\n**Фактическая проверка.** r04-P18–P22 исполняют точный loss-blob с настоящим JAX 0.9.0.1; state — простая fixture с нужными полями, `finite_loss_or_inf` — явно обозначенный identity helper. Поэтому проверены собственная формула и invalid-ветка loss, **не native GlobalState, JIT workflow или реальная реализация numeric guardrail**. Нативный autodiff использован только для выбранного локального input.\n\n**Приёмка.** Положительные/нулевые/отрицательные и смешанные доходы, размер популяции, scales, min_balance, breach, NaN/Inf; native State и guardrail, JIT/grad там, где это обещано. Различать equivalent relocation и новый критерий выбора политик. Проверить import side effects выбранного economic package.\n\n**Приоритет.** Умеренная цена, высокая семантическая ясность. Уточнение профиля и устранение misleading generic address можно отделить от содержательной переработки цели.\n\n**Граница вывода.** Не установлен production optimizer, фактически использующий этот loss, и не доказана потеря дохода в реальном решении. Полный caller census не выполнялся. Нормализация не удаляется лишь потому, что найден более богатый objective API.\n\n**Основания:** E106–E110. Локальные проверки: r04-P18–P22.\n\n<!-- PAGEBREAK -->\n"
+    }
+  ],
+  "semantic_decision": {
+    "finding_id": "LA-035",
+    "owner": "@foundry-owners / economics objective owner; policy principal for normative intent",
+    "state": "held",
+    "established": [
+      "canonical named GlobalState normalized_income_budget_loss unchanged",
+      "two lazy legacy facades preserve identity",
+      "all supplied population array entries participate historically, not active-mask filtering",
+      "nonnegative mean>=1 yields -1 independent of scale",
+      "actual optimizer caller not found in complete pinned literal census; no inference of universal external absence"
+    ],
+    "required_minimum": [
+      "named optimizer entrypoint and runnable terminus with exact source/config/FQN",
+      "versioned objective intent: normalization vs absolute income ranking, minimization sign, budget penalty",
+      "income flow unit and step duration, budget stock/currency, population selection including inactive/padding treatment",
+      "admitted source/profile and objective owner provenance before new version/substitution"
+    ],
+    "law_preservation": "No replacement welfare/GDP objective, no changed formula/aliases/JIT/grad; no fake optimizer built solely as a test."
+  },
+  "Gini_existing_domain": {
+    "owner": "@foundry-owners",
+    "source_sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+    "decision_path": "policy-engine/docs/reference/foundry/numeric-guardrails.md",
+    "lines": [
+      50,
+      56
+    ],
+    "decision": "Classical Gini and Palma remain unavailable for negative-value inputs.",
+    "prior_canonical_runtime": "analysis.distributional.compute_gini returnsNone; build_distributional_report carries negative_values_present",
+    "scope": "requested classical Gini metric active resource population; signed simulation laws unchanged"
+  },
+  "LA004_correction": {
+    "previous": "Gini norm hold under LA-004",
+    "corrected": "Distinct native PatchMap fiscal/labor vs EconomicState plugin profiles, matched regimes and deliberate non-equivalence; state/units/timestep/taxbase/RNG/budget/observed outputs. No welfare prerequisite.",
+    "G_acceptance": "not_claimed"
+  }
+}

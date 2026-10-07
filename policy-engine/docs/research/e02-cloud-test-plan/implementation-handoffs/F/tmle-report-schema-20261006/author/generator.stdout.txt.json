@@ -1,0 +1,6 @@
+{
+  "schema": "policyos.e02.lossless_utf8.v1",
+  "bytes": 758,
+  "sha256": "f6853e09159080e942f2aaa48bf223b592aa6c74350b2760c96e514b23776534",
+  "text": "{\"canonical_generator\": \"/workspace/e02-F-closeout-20261006/policy-engine/tools/quality/diagnostics/gen_schema.py\", \"canonical_docs_generator\": \"/workspace/e02-F-closeout-20261006/policy-engine/tools/quality/diagnostics/generate_ir_reference_catalog.py\", \"destination_only_redirect\": {\"ir\": \"/workspace/e02-F-closeout-20261006/policy-engine/docs/reference/ir/schema-catalog.md\", \"schemas\": \"/workspace/e02-F-closeout-20261006/policy-engine/docs/reference/schemas.md\"}, \"actual_destinations\": [\"/tmp/e02-F-continuation-20261006/tmle-generated/generated/docs/reference/ir/schema-catalog.md\", \"/tmp/e02-F-continuation-20261006/tmle-generated/generated/docs/reference/schemas.md\"]}\nGenerated ABI schema snapshots for 99 models (100 file updates, scan_mode=full)\n"
+}

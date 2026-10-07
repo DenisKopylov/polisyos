@@ -1,0 +1,14 @@
+[
+  "policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py",
+  "policy-engine/src/polisyos/foundry/mechanisms/fiscal.py",
+  "policy-engine/src/polisyos/foundry/_registry.py",
+  "policy-engine/src/polisyos/foundry/compile/api.py",
+  "policy-engine/src/polisyos/foundry/execute/api.py",
+  "policy-engine/src/polisyos/foundry/execute/executor.py",
+  "policy-engine/src/polisyos/foundry/contracts/state.py",
+  "policy-engine/src/polisyos/ir/kernel/slots.py",
+  "policy-engine/tests/unit/foundry/execute/mechanisms/test_fiscal_precision.py",
+  "policy-engine/tests/unit/foundry/mechanisms/test_fiscal.py",
+  "policy-engine/docs/reference/foundry/fiscal-calculation-dtype.md",
+  "policy-engine/release-fragments/unreleased/2026-10-06-economic-fiscal-calculation-dtype.toml"
+]

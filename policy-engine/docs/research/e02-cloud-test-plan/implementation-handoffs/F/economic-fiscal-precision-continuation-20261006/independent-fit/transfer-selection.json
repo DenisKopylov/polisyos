@@ -1,0 +1,142 @@
+{
+  "source_sha": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+  "source_tree": "dc4b6a932a11cba4470b9bbcf299d2d2f51b2301",
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/compiler-corrected.json",
+      "bytes": 2106,
+      "sha256": "f9c62418ebf0dfaec846b4791ab619583c95aa424c571cbf90401c1b317230aa"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/compiler-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/compiler-corrected.stdout.txt",
+      "bytes": 216832,
+      "sha256": "829aa38ce41cba3634578087eaae766c25674336b3bc91bc091e22a2bf4f5e43"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/compiler-final.json",
+      "bytes": 2237,
+      "sha256": "701c76a97ca30b0613aa7c29c99c7817dda5094020085c5651832eb75d621e44"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/compiler-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/compiler-final.stdout.txt",
+      "bytes": 216500,
+      "sha256": "a33538bcf2c869a614f96112b21879fe76e66ab3f2a7efc8ebce63134d0af591"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/harness-correction.json",
+      "bytes": 1026,
+      "sha256": "da46f345effecea589a4fd661ca123ff9efab3af7e0b0766acd30fc31c644735"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/native.json",
+      "bytes": 2058,
+      "sha256": "8b1c9031734457274d6ecfbc5806deee447d7a439c3f4f4e6421a6d9ae12a84c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/native.stdout.txt",
+      "bytes": 247075,
+      "sha256": "c771ffdbd0ecdaac895a02baae9e670820c3695525adb922ab2a01e110875c02"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/removal-corrected.json",
+      "bytes": 1800,
+      "sha256": "4746fefe6ad2247f459a7b6c83010a0242ed6dc10a6d0ad97092d75a1a9f8666"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/removal-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/removal-corrected.stdout.txt",
+      "bytes": 217169,
+      "sha256": "b658fb2ee268e250dbc53d2d8f8871a5172e940ef792c67720eb7b1719e83f43"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/removal-final.json",
+      "bytes": 1942,
+      "sha256": "9064cae0ee0442806d323f671622b418f255b8ac82d85154731424b8e1dd1b12"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/removal-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/removal-final.stdout.txt",
+      "bytes": 217619,
+      "sha256": "b7d4d43af84d65d474376a1e1764ebe040855cb8431d6721c2c5be76e5b7986d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/removal.json",
+      "bytes": 1671,
+      "sha256": "516826d87795c980aff925e5575cddfac4a1d9b065b890eaeb2ff25371322643"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/removal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/removal.stdout.txt",
+      "bytes": 217139,
+      "sha256": "740aef5d19722da6bb64566d3ef65a514b2fa31a8706ab9a03c5071f572361d7"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/remove_early_precision.py",
+      "bytes": 1320,
+      "sha256": "98aa1fe282a538ba4d953db30b27bd6944f9f2ecbadb8be633b3e5a3910227f3"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/review.json",
+      "bytes": 15958,
+      "sha256": "b7ec7a512892dacb72c4c2664b13ff4900c1e89da18fbf8a9c2bb5d62be91c3f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/run_review.py",
+      "bytes": 4786,
+      "sha256": "2a0438ef41f370fbef927b4e0d857bfd0b7c228fdcaf62b07264cb7d2c8c3475"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/source-bindings.json",
+      "bytes": 3260,
+      "sha256": "bcf4701868fb8db9b3f385a8961d60fefc2f031d9999d61f8e1d3c5c622fcc1c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/source-paths.json",
+      "bytes": 780,
+      "sha256": "ae684cfcf4ca1c082e21d8895fc9380735dcf99759df57efa55f12357b7f8024"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/test_fiscal_independent.py",
+      "bytes": 19194,
+      "sha256": "bfd96c0eab48776f31da643819c21a7dbd30ef5202175a1eb5144af191cf84b0"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/test_fiscal_independent_initial.py",
+      "bytes": 18806,
+      "sha256": "1ed534409ecec12b5b924f825237b0b77234a596257fc8842aa53ad99a1eafd0"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/fit-fiscal-review/test_fiscal_independent_wire_initial.py",
+      "bytes": 19150,
+      "sha256": "ff82395f53d11a7313b6073242898a473a7eba674ffb0ad8b69acea086ce8128"
+    }
+  ],
+  "policy": "Full unique measured logs/errors/replayers only, no trackedsource/fullGit-derived copies; moderate fullstdout may be losslessly compressed with decodedhash binding."
+}

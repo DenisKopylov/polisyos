@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "tools/quality/validation/check_production_invocation.py",
+    "--base",
+    "198076863e143dea9f89f02734b13d50dae3eed5",
+    "--receipt",
+    "/workspace/e02-F-20261006-receipts/cau/final-invocation-recomputed.json"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+  "source_before": {
+    "sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+    "tree": "82edaa3a3c8413c211e3b6aa9bc1bc3ba32aa059",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_after": {
+    "sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "exit": 3,
+  "duration_seconds": 306.2194230556488,
+  "maxrss_kib": 8578908,
+  "environment": {
+    "PYTHONPATH": "src:.:tools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "thread_cpu_quotas": "none"
+  },
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-invocation.stdout.txt",
+      "bytes": 1454,
+      "sha256": "ef4e7d9d10d3de2caabb15b0734889af70bcb8c0e555404cb08c093cca3d03f3"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/final-invocation.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

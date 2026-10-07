@@ -1,0 +1,83 @@
+{
+  "id": "corrected-frozen-native",
+  "repo": "/workspace/e02-F-graph-20261006",
+  "prefix": "/tmp/e02-F-continuation-20261007/graph/corrected-frozen-native",
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "target_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+  "env": {
+    "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine"
+  },
+  "source_paths": [
+    "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+    "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+    "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+    "policy-engine/src/polisyos/scientist/compute/runner.py"
+  ],
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+    "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+    "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+    "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+    "-q",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--junitxml",
+    "/tmp/e02-F-continuation-20261007/graph/corrected-frozen-native.xml"
+  ],
+  "input_closure": "Actual synthetic typed graphs and registered Numpy method producer; isolated pytest CAS roots; no empirical causal authority, no optional backend witness",
+  "target_tree_sha": "6b699cac11fb1fe5b317ed0ccfc76940e5958906",
+  "exit": 0,
+  "wall_s": 28.02642321586609,
+  "maxrss_kib": 1534084,
+  "outcome": "PASS",
+  "source_before": {
+    "policy-engine/docs/reference/scientist/causal-graph-intake.md": "f70150fd50f77e9beb3a9a90920e66b2e4218698e587982c0b4368af2886f67f",
+    "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml": "925e4b3cd2a3842b8169926757c0aca866f7128de1e7c541d206be20dbec7dac",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "559af61ee42f294bf28fe71beca620c9ce4091bcc2ffdc38c611f3a8da83ee44",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "4696b3597bf23b6dab8d3170cd846151d8c6d78b5c52d8dcc21a2d54aebe1253",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py": "0b5248df1126345364f780cf134f2a6716bb6a380643b9a82606c47b11d98539",
+    "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py": "250584c3c31cae1192cfcbf20ffe6610fec49668da2a4f2cb2a86daeae0f6df7",
+    "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py": "37df9399ff0acc0d0fa845af9f9eaa81614163ae74a88c23a14ea49b1bfd4dfc",
+    "policy-engine/src/polisyos/ir/analytics/causal_graph.py": "431b0c00ddbc0c33720c1b5ee61b85493a3c4bb1759e1487d2cbe5b016456dc7",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a",
+    "policy-engine/src/polisyos/scientist/compute/runner.py": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd"
+  },
+  "source_after": {
+    "policy-engine/docs/reference/scientist/causal-graph-intake.md": "f70150fd50f77e9beb3a9a90920e66b2e4218698e587982c0b4368af2886f67f",
+    "policy-engine/release-fragments/unreleased/2026-10-07-causal-graph-intake.toml": "925e4b3cd2a3842b8169926757c0aca866f7128de1e7c541d206be20dbec7dac",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": "559af61ee42f294bf28fe71beca620c9ce4091bcc2ffdc38c611f3a8da83ee44",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "4696b3597bf23b6dab8d3170cd846151d8c6d78b5c52d8dcc21a2d54aebe1253",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py": "0b5248df1126345364f780cf134f2a6716bb6a380643b9a82606c47b11d98539",
+    "policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py": "250584c3c31cae1192cfcbf20ffe6610fec49668da2a4f2cb2a86daeae0f6df7",
+    "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py": "37df9399ff0acc0d0fa845af9f9eaa81614163ae74a88c23a14ea49b1bfd4dfc",
+    "policy-engine/src/polisyos/ir/analytics/causal_graph.py": "431b0c00ddbc0c33720c1b5ee61b85493a3c4bb1759e1487d2cbe5b016456dc7",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py": "85c3ab8806f708ca2cd5bfb66ec6f105c76bb944704dd75b0cdcabfae98bef3a",
+    "policy-engine/src/polisyos/scientist/compute/runner.py": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd"
+  },
+  "source_unchanged": true,
+  "head_after": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+  "artifacts": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/corrected-frozen-native.stdout.txt",
+      "bytes": 700,
+      "sha256": "b96579496922904236e7993b50ac897214c71cf7b5c00e02f048ba38fc15d6dd"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/corrected-frozen-native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

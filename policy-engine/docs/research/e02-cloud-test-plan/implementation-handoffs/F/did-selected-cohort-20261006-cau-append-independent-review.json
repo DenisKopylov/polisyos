@@ -1,0 +1,95 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "source_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+  "tree_sha": "1d082fb1ff1a3f9f006e51712cc91efa736fc47f",
+  "review_verdict": "GO_bounded_append_delta",
+  "changed_paths": [
+    "policy-engine/benchmarks/interference/policy_did_interference.py",
+    "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+    "policy-engine/release-fragments/unreleased/2026-10-06-did-selected-cohort.toml",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py"
+  ],
+  "numerical_owner_and_selected_tests_unchanged_from": "c7d33a223e467964c589f61c8b097eb9175335c5",
+  "source_hashes": {
+    "policy-engine/benchmarks/interference/policy_did_interference.py": "3921e1db74bede01ff666b3d8f97a13c9cdfbfde6c7b7c994a3a8b68935e0b4f",
+    "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py": "e58553495f2f83554196125999bfad0eabc7e70d6a8d5760e5b677616ae9d007",
+    "policy-engine/release-fragments/unreleased/2026-10-06-did-selected-cohort.toml": "89673eb040d081ef521ed7d603767f5c77dbe09eeb6954830bd97530e17b895f",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py": "0d64f24b0812795de0400b5353c65a84d976b2b96e67945fcfa33d7bab01d0af"
+  },
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "versions": {
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "numpy": "2.3.5",
+      "equinox": "0.13.2",
+      "chex": "0.1.91",
+      "pytest": "9.0.2",
+      "ruff": "0.14.10",
+      "scipy": "1.16.3",
+      "scikit-learn": "1.8.0",
+      "dowhy": "ABSENT",
+      "econml": "ABSENT"
+    },
+    "jax_devices": [
+      "TFRT_CPU_0"
+    ],
+    "jax_enable_x64_default": false,
+    "imports": "candidate cwd+PYTHONPATH=src:tools:.",
+    "read_only_environment": "/workspace/e02-F-closeout-20261006/policy-engine/.venv",
+    "dowhy_econml_witness": "not exercised; absence or markers do not establish backend PASS",
+    "initial_orchestrator_errors": [
+      "/usr/bin/time absent; runner switched to subprocess plus resource.getrusage",
+      "Author test imported ComputeMode from wrong module; corrected collection ERROR2 precedes real source-negative run",
+      "First reviewer Lex pytest path did not exist; corrected ERROR4 precedes successful independent replay"
+    ],
+    "cleanup": "Scratch test/CAS caches retained; no permanent deletion; no production dataset copied"
+  },
+  "native_command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py",
+    "-o",
+    "addopts=",
+    "-v",
+    "--tb=short"
+  ],
+  "native_result": {
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "pytest_seconds": 20.03,
+    "wall_rss": "not separately measured in this direct bounded reviewer run"
+  },
+  "native_output": {
+    "path": "/workspace/e02-F-20261006-receipts/economics/cau-append-independent-native.txt",
+    "bytes": 3274,
+    "sha256": "b5f2a2c4a1d6b05870116d1c838ca11a39fcf2ea44e0f17b0cfaa585fcf80e28"
+  },
+  "controls_output": {
+    "path": "/workspace/e02-F-20261006-receipts/economics/cau-append-independent-controls.txt",
+    "bytes": 2504,
+    "sha256": "fce7d32c2205fbcbb5847da510dbd7a90e9142b6831db2ea281036684afc1a70"
+  },
+  "control_replay": {
+    "path": "/workspace/e02-F-20261006-receipts/economics/cau_append_controls.py",
+    "bytes": 2509,
+    "sha256": "a2a601e2ae6ee6f8c33584890e2630969be4e0cb4849af24dbae6213b358b05d"
+  },
+  "compatibility_fragment_validation": {
+    "breaking_class": "python-public-api",
+    "fragments": 1,
+    "errors": [],
+    "findings": []
+  },
+  "analytical_review": "Entire four-file append diff read: two literal maintained callers now directly call StandardDifferenceInDifferences; no DGP/checker/scoring changes. Two fresh-process native tests poison legacy adapter and consume actual benchmark report. Scientific breaking estimand change explicitly disclosed without treating historical persisted report as new target. Prior c7 boundary inversion and 53 native selected-target controls remain a distinct exact source witness, numerical bytes unchanged.",
+  "limitations": [
+    "Original natural clean rollout uses two preperiods: native report SUCCESS/ATT1.997217 but pretrend not_testable/passedFalse; existing checker correctly remains failing under this stricter diagnostic. This is a declared bounded compatibility residual, not a changed DGP or full benchmark PASS.",
+    "Four other actual benchmark checkers pass while historical aggregate adapter raises if invoked. Their pretrend not_testable is descriptive, not identification.",
+    "No real-data identification or small-cluster/large-independent-unit guarantee promotion."
+  ]
+}

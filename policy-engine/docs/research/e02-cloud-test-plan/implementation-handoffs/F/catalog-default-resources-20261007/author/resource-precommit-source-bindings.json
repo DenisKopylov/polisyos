@@ -1,0 +1,100 @@
+{
+  "workingtree_head": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+  "qualified_candidate": "14authoredworkingtreepaths beforeimplementationcommit; fullbytebindings and4originalunchangedYaml",
+  "files": [
+    {
+      "path": "policy-engine/docs/reference/data-forge/catalog-default-resources.md",
+      "bytes": 1936,
+      "sha256": "84e6699373a158860bbe373dbe8febf24045102d2ce6e0d8e3992d40d02c2fa2"
+    },
+    {
+      "path": "policy-engine/hatch.toml",
+      "bytes": 2194,
+      "sha256": "24ad192a85397fdf56e2722275e19adf79c10a27938640f5bc4f86353936efcd"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-catalog-default-resources.toml",
+      "bytes": 1778,
+      "sha256": "db6d2048f56de929bfa0738c42c3bbb50b58a1ebabf17fdf91eff0028d6e5d56"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/README.md",
+      "bytes": 1747,
+      "sha256": "5c0088a97bb962a4697f698db1224260233475494cf8e161f27a6dc63663d973"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+      "bytes": 1914,
+      "sha256": "6c36ffce957ade642ba1cc1dab2367c2620dd7c75d0219520c64b3eec94bf0a6"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "bytes": 9406,
+      "sha256": "a36c29470453ce0a5465a8f7ed9cb5c2c9f890c8d4bae098c05dd37fd2aa941b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "bytes": 65343,
+      "sha256": "fd7b207553fc7ec7e0747a5981ab93c3c9469639fbd214e9eda7edd423fb7574"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "bytes": 80809,
+      "sha256": "78d7666e95c310c6ef0e2651135377eb0ecdb71523d95506f4987f799d9b23c4"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "bytes": 5973,
+      "sha256": "589026e8fb6751b04039baed5794e4df152caa15d218805bbb7bffc8ada137fe"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+      "bytes": 18695,
+      "sha256": "bb547db9fee687f463b633b4f0d6ee24ab527c1b0ea207160aaffddf6c7d1422"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "bytes": 37750,
+      "sha256": "a77be622a7e8193b0c245d4a731fcf4128d84faa48b48e63460246db5673af47"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+      "bytes": 18202,
+      "sha256": "c1b45bd356f9ca7e0a65edf202f827b0145eb9421c89de07512e07de37256fc7"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_catalog_default_resources_packaging.py",
+      "bytes": 4539,
+      "sha256": "0219d8c046bdce189e574f7116aab478dff98d8f06a7c9072833f83c704e20e2"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py",
+      "bytes": 10467,
+      "sha256": "62f847792345f52f226481451867314520b6b794d7ce7e159663885e71215f89"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/seed_variable_alignments.yaml",
+      "bytes": 1309,
+      "sha256": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8",
+      "original_YAML_unchanged": true
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/proxy_metric_alignments.yaml",
+      "bytes": 293,
+      "sha256": "4c6c04bb99ea566b061c7b2d23540d22f8eb7c043067585a7e9b93ccaf87388b",
+      "original_YAML_unchanged": true
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/wvs_indicator_registry.yaml",
+      "bytes": 160329,
+      "sha256": "dabbadf04fdbf6c4658a720a6af5b63a60c69727b2350c0424368691399e413d",
+      "original_YAML_unchanged": true
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/metrics_map.yaml",
+      "bytes": 2163,
+      "sha256": "0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266",
+      "original_YAML_unchanged": true
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "source_sha": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+  "base_sha": "e84acb04fbe1fbebdfa5a54f87ff0fc72640a4ef",
+  "case": "tests/unit/foundry/methods/test_foundry_v2_unified_runtime.py::test_simulation_methods_dispatch_and_agent_sim_bridge_runs",
+  "source_bindings": [
+    {
+      "git_ref": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+      "path": "policy-engine/tests/unit/foundry/methods/test_foundry_v2_unified_runtime.py",
+      "bytes": 4541,
+      "sha256": "6d74ca2e6f20b3107fd2d64dff1c0331c6d2cf393c6f36b0cc4b1b2fa0fcc158",
+      "git_blob": "aa9131d7c2e769b5d980342fc220825bee21a622"
+    },
+    {
+      "git_ref": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+      "bytes": 37839,
+      "sha256": "63a2e796d1a279a4191b267599d1f344a36e3e944e1c238c2935b06aca132c96",
+      "git_blob": "26db61e0be81e97c550a822cfcefafa004ed3a0a"
+    },
+    {
+      "git_ref": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+      "path": "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+      "bytes": 48771,
+      "sha256": "f27ac7b81044bfa12d6b0aa889c2733a8926e3b70a7570924837ae2ee7b52108",
+      "git_blob": "aad1abdd89ac8dda43918981bc21f4a9755601a2"
+    },
+    {
+      "git_ref": "1324d2fcd7b75e448ad0fa1cce128a79101df1aa",
+      "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+      "bytes": 61265,
+      "sha256": "02a038f9e8272fe168f5c5a3d9ea46919e1f4309fa308693bb8fe63d08c0438d",
+      "git_blob": "bf726135da4552663c8e15e5be9fe341c85cf539"
+    }
+  ],
+  "failure": {
+    "line": 110,
+    "expected": "not_available",
+    "actual": "diagnostic_attached"
+  },
+  "chain": "PopulationDynamics method -> build_content_bound_abm_result -> generated diagnostics hash IdentifiabilityDiagnosticRef -> build_abm_result_from_simulation -> ABMIdentifiabilityCertificate -> test reader",
+  "semantic_issue": "Presence of a content-bound diagnostic ref sets diagnostic_attached and identified=True. Availability, identification strength and diagnostic authority require canonical A ABM/IR owner review; F does not infer verified identifiability from presence or change assertion.",
+  "input_context": {
+    "actual_python_imported_denominator": 901,
+    "all_imported_repository_bytes_equal_e84": true,
+    "native_fiscal_module_not_imported": true,
+    "memory_only_fiscal_restore_single_case": "1FAIL0ERROR/SKIP; exact e84 fiscal module import override was available but unused by this ABM case; all other runtime imports native132"
+  },
+  "attribution": "Current source-specific ABM assertion FAIL; P41 full-gate inherited status not_established because broad input set includes own changed fiscal paths and no full broad slice-base command.",
+  "next_owner": "A ABM/IR diagnostics semantics; root transfer. No F production/test source edit."
+}

@@ -1,0 +1,30 @@
+id = "2026-10-06-foundry-treasury-salts"
+title = "Bind compiled Treasury salts to native execution randomness"
+type = "fixed"
+component = "foundry-compile-execute"
+owner = "team-polisyos"
+summary = "New compiled plans bind their compile seed and Treasury CAS input to a versioned native per-node random stream."
+evidence = ["tests/unit/foundry/compile/test_treasury_execution.py", "tests/unit/foundry/compile/test_compile_artifact_contracts.py", "docs/reference/foundry/randomization-profile.md"]
+compatibility = "Unmarked historical plans retain their sequential RNG law and old Treasury bytes. New compilations explicitly mark treasury_salts_v1 and have new execution lineage/content; runtime seed overrides change only the effective base key."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry compile/execute and persisted ExecPlan consumer"
+migration = "Replay an old unmarked plan to retain historical draws; recompile to select the verified Treasury salt law. Use an explicit FoundryExecConfig.seed for a runtime base-key override."
+api = "ExecPlan and Treasury schemas keep their identities. ExecPlan.notes selects the versioned law and its manifest binds the Treasury input."
+limitations = "Bounded synthetic determinism only. Catalog family certificates do not imply executable state transitions; installed layout compatibility is separately checked."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/foundry/randomization-profile.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "treasury-salts-v1"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "public_stable: polisyos.foundry compile/execute"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "New compiled plans use validated persisted Treasury salts; unmarked plans preserve their existing random stream."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/foundry/randomization-profile.md"]
+runbook_docs = []

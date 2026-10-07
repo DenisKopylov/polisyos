@@ -1,0 +1,36 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-ra",
+    "tests/unit/runtime/quality/test_did_request_route.py",
+    "tests/unit/runtime/quality/test_proving_ground_causal_forecast_search.py",
+    "-k",
+    "maintained_default_request or foundry_method_registry_coverage or foundry_method_search or method_requirement_binding or method_validity_transport or validator_blocks_method_hardcode"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+  "source_sha": "856caddfa71423a439b1257d947d9657b6a29ff3",
+  "source_tree": "e729db0ac4214eefca4eb487ffb5bb4e08d0e784",
+  "utc": "2026-10-06T15:10:55.313924+00:00",
+  "elapsed_s": 37.77000504700118,
+  "exit_code": 0,
+  "environment": {
+    "python": "3.14.7",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "src:."
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/maintained-request-native.stdout",
+    "bytes": 653,
+    "sha256": "3bc7593315fa45dd61cdb1bf10d248fe5ae2d429ca21940b87884a1c447aa996"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/maintained-request-native.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

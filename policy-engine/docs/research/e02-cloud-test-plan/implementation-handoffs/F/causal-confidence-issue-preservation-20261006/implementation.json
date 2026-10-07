@@ -1,0 +1,13 @@
+{
+  "slice_base_sha": "6fe6e352ad5aff4055b490a7892ae123dad1c0ab",
+  "implementation_sha": "df5057dd3816885fc5bfacd9a9f1ee772df9ac51",
+  "tree": "e49bf230bbf7b6a52da0243693ef700620a82e03",
+  "branch": "refs/heads/codex/e02-F-tmle-20261006",
+  "changed_paths": [
+    "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+    "policy-engine/tests/unit/scientist/governance/test_confidence_issue_accumulation.py",
+    "policy-engine/docs/reference/scientist/causal-confidence-issue-preservation.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-causal-confidence-issue-preservation.toml"
+  ],
+  "status": ""
+}

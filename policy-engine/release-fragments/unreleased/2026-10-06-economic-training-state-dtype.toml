@@ -1,0 +1,12 @@
+id = "2026-10-06-economic-training-state-dtype"
+title = "Preserve declared simulation and training carry dtypes"
+type = "fixed"
+component = "foundry"
+owner = "team-policyos-runtime"
+summary = "Keep temporal neural consumption outputs in the corresponding incoming state-field dtype. Both real JIT trainers derive loss-carry storage from the actual abstract rollout/PPO result; scalar and histogram metrics explicitly encode their existing destination storage dtype."
+compatibility = "Preserve consumption equations, neural parameters, RNG draws, policy weights and model versions. Simulation fields retain their declared dtype; metric storage retains its declared precision. Loss carry follows actual arithmetic, including default float64 continuous-action draws when JAX x64 is enabled."
+surface_classification = "internal: agent_sim temporal transitions, PPO scan carries and MetricsBuffer writes"
+change_class = "internal"
+migration = "No model-law or configuration migration. Existing float32, float64 and mixed neural/state profiles retain state and parameter encodings."
+limitations = "The numeric profile controls use finite synthetic populations and the native CPU backend. They do not establish real-data calibration or a welfare objective, and do not alter unrelated fiscal decimal-rate precision."
+evidence = ["tests/unit/foundry/agent_sim/test_temporal_consumption_dtype.py", "tests/unit/foundry/agent_sim/test_training_dtype.py", "tests/unit/foundry/agent_sim/test_agent_simulation_step6.py", "tests/unit/foundry/agent_sim/test_jit_training.py"]

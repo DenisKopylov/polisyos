@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/cau/diagnostic-removal.py"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+  "source_sha": "759c984f475d07c982c0f22f747588706ac752e8",
+  "source_tree": "c809bbf602705c045add1728bc31573447382d61",
+  "utc": "2026-10-06T15:01:49.602687+00:00",
+  "elapsed_s": 9.32722790799744,
+  "exit_code": 1,
+  "environment": {
+    "python": "3.14.7",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "src:."
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/diagnostic-removal.stdout",
+    "bytes": 7584,
+    "sha256": "2c37aa641168efbb80b5b2893536880bbfd67df57ef77f89869c2c774869b3e3"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/diagnostic-removal.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

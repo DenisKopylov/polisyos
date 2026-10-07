@@ -1,0 +1,128 @@
+{
+  "implementation_sha": "08983d96395fdde81ffa9e88d0150fd12c13fe2e",
+  "candidate_tree_sha": "cc4c47d1c12fd3174b546d9622a0878d3b88361d",
+  "slice_base_sha": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+  "path_branch": [
+    "/workspace/e02-F-graph-20261006",
+    "codex/e02-F-graph-20261006"
+  ],
+  "paths": [
+    {
+      "path": "policy-engine/docs/reference/data-forge/catalog-default-resources.md",
+      "bytes": 1936,
+      "sha256": "84e6699373a158860bbe373dbe8febf24045102d2ce6e0d8e3992d40d02c2fa2",
+      "git_blob_sha": "919ea30de4ed5d87eec313f7c3a068aff9d6b7f8"
+    },
+    {
+      "path": "policy-engine/hatch.toml",
+      "bytes": 2194,
+      "sha256": "24ad192a85397fdf56e2722275e19adf79c10a27938640f5bc4f86353936efcd",
+      "git_blob_sha": "ab91c577cc1fc7beed00b78d29efd9c84ba7c9f7"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-catalog-default-resources.toml",
+      "bytes": 1778,
+      "sha256": "db6d2048f56de929bfa0738c42c3bbb50b58a1ebabf17fdf91eff0028d6e5d56",
+      "git_blob_sha": "48886fb1a1b4090d52d2a1dc71814bd20ceefc3b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/README.md",
+      "bytes": 1747,
+      "sha256": "5c0088a97bb962a4697f698db1224260233475494cf8e161f27a6dc63663d973",
+      "git_blob_sha": "4338b0bef1e529032fadd40ba5d6f25eae8b4691"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+      "bytes": 1914,
+      "sha256": "6c36ffce957ade642ba1cc1dab2367c2620dd7c75d0219520c64b3eec94bf0a6",
+      "git_blob_sha": "0867804c64b5468bff7025a5208574b2390b90ad"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "bytes": 9406,
+      "sha256": "a36c29470453ce0a5465a8f7ed9cb5c2c9f890c8d4bae098c05dd37fd2aa941b",
+      "git_blob_sha": "f688aee6a609a5d7e7c7f656cef89659928783c0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "bytes": 65343,
+      "sha256": "fd7b207553fc7ec7e0747a5981ab93c3c9469639fbd214e9eda7edd423fb7574",
+      "git_blob_sha": "fb6d0f4d9bbc52b20cbdf0ceec88e411348948ba"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+      "bytes": 80809,
+      "sha256": "78d7666e95c310c6ef0e2651135377eb0ecdb71523d95506f4987f799d9b23c4",
+      "git_blob_sha": "7f2da42fadbeb5a0ccd1ae8b1d3b2f0e9844a25d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+      "bytes": 5973,
+      "sha256": "589026e8fb6751b04039baed5794e4df152caa15d218805bbb7bffc8ada137fe",
+      "git_blob_sha": "e6dda2023438f9c65f3ee59c5959c154092b11fa"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+      "bytes": 18695,
+      "sha256": "bb547db9fee687f463b633b4f0d6ee24ab527c1b0ea207160aaffddf6c7d1422",
+      "git_blob_sha": "abe7878b7ccd24414349e660dd1664c1b7137ab5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "bytes": 37750,
+      "sha256": "a77be622a7e8193b0c245d4a731fcf4128d84faa48b48e63460246db5673af47",
+      "git_blob_sha": "2c72928690b4981542475bc0f7861bb808c921b1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+      "bytes": 18202,
+      "sha256": "c1b45bd356f9ca7e0a65edf202f827b0145eb9421c89de07512e07de37256fc7",
+      "git_blob_sha": "11da30a73e3286d145846701a32ff28503d614d2"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_catalog_default_resources_packaging.py",
+      "bytes": 4539,
+      "sha256": "0219d8c046bdce189e574f7116aab478dff98d8f06a7c9072833f83c704e20e2",
+      "git_blob_sha": "2097797d90b8dfb0f9fca9082c6f34b2d9ddcff7"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py",
+      "bytes": 10467,
+      "sha256": "62f847792345f52f226481451867314520b6b794d7ce7e159663885e71215f89",
+      "git_blob_sha": "d1345a0411d394a4136c0037553819a9f07620bf"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/seed_variable_alignments.yaml",
+      "bytes": 1309,
+      "sha256": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8",
+      "original_YAML_unchanged": true,
+      "git_blob_sha": "49d63f6e693ab9488fad50b25d75b042f3dff9dd"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/proxy_metric_alignments.yaml",
+      "bytes": 293,
+      "sha256": "4c6c04bb99ea566b061c7b2d23540d22f8eb7c043067585a7e9b93ccaf87388b",
+      "original_YAML_unchanged": true,
+      "git_blob_sha": "649cd9a249ca12745b4ed9c9871d2aca57eb0a61"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/wvs_indicator_registry.yaml",
+      "bytes": 160329,
+      "sha256": "dabbadf04fdbf6c4658a720a6af5b63a60c69727b2350c0424368691399e413d",
+      "original_YAML_unchanged": true,
+      "git_blob_sha": "e28c9dfc7e83f3c7d2fbf020312dcfdd66bee3a0"
+    },
+    {
+      "path": "policy-engine/data/dataset_catalog/metrics_map.yaml",
+      "bytes": 2163,
+      "sha256": "0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266",
+      "original_YAML_unchanged": true,
+      "git_blob_sha": "7f6cf78a02e4e58219353548af604de49e796442"
+    }
+  ],
+  "before_commit_checks": {
+    "resource_native41": "resource-development-native3.json",
+    "graph_native79": "resource-final-precommit-graph79.json",
+    "qualification": "Before-commit HEAD370 with exact fourteen workingtree bodies now committed; independent frozen-commit review pending."
+  }
+}

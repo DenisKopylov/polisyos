@@ -1,0 +1,24 @@
+{
+  "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "packages": {
+    "numpy": "2.3.5",
+    "jax": "0.8.2",
+    "jaxlib": "0.8.2",
+    "scipy": "1.16.3",
+    "scikit-learn": "1.8.0",
+    "statsmodels": "0.14.6",
+    "pytest": "9.0.2",
+    "pymc": "not_installed",
+    "dowhy": "not_installed",
+    "econml": "not_installed"
+  },
+  "thread_environment": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "XLA_FLAGS": null
+  },
+  "cloud_quota_introduced": false
+}

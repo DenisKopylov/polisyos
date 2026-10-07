@@ -1,0 +1,1179 @@
+{
+  "check": "PASS",
+  "packet_sha": "d645cea93fe5bde8419b5ecbe6b612209891e16d",
+  "actual_full_Git_per_ID_receipts": [
+    {
+      "finding_id": "B204",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B204.json",
+        "bytes": 44361,
+        "sha256": "81f3bf35075520c9e99a9ac254d6760139ed3df5250299a7b9825b2d4b516324"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B205",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B205.json",
+        "bytes": 46405,
+        "sha256": "d1dcf21cf28bfe7f3736e627f5d3af89788a149b1baf289796b77b80a82f6b8d"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B206",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B206.json",
+        "bytes": 40734,
+        "sha256": "ced938aa46c9d5e03812a70332a6801bb4c1262b54081cb4e50691848b28e9a6"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B207",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B207.json",
+        "bytes": 49840,
+        "sha256": "227f4010a241b5809552c8fdd651e328c06bb9c9b2c36e1c2a849df6036cb853"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B208",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B208.json",
+        "bytes": 41868,
+        "sha256": "59ebb3b778258224dec2b4cd46fa070d67c202d34f08c5a765e89de9f1accc08"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B209",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B209.json",
+        "bytes": 42366,
+        "sha256": "a1343215d08ea857b013351a3ffceafdb76eafc44f956c4cd5b7273a8ab64a63"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B210",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B210.json",
+        "bytes": 14453,
+        "sha256": "7feaba0f2aabb8a89c5cacf56b418cd83ab8d00cf55e0e4331020da125854b4e"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B211",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B211.json",
+        "bytes": 12775,
+        "sha256": "aaeb15dc62a0de03ad451b712b43b6ff768445fef6421014517352aa4c243843"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B212",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B212.json",
+        "bytes": 38413,
+        "sha256": "3c5981da16e5de5af899f3bedb3490862c50aa0875f498c35883fbd20a1db942"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B213",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B213.json",
+        "bytes": 37986,
+        "sha256": "9363a2528124b8424c4b6bbb7ca9e70fd9bd9687ca764576d9a19189412053ba"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B214",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B214.json",
+        "bytes": 39196,
+        "sha256": "86d2aa019daeac04e670e7cbdd09e940a8a0b035e3ce35763b0ae5da1c400329"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B215",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B215.json",
+        "bytes": 28871,
+        "sha256": "85a010065b051dee860c560db74a62999c64bd87830f4743dbe41556f8580d00"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B216",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B216.json",
+        "bytes": 35720,
+        "sha256": "882177b4d81243eb2b6755d81dc44bb308c63f79551b7c008bbc7f80cdb9341f"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B217",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B217.json",
+        "bytes": 31499,
+        "sha256": "4af960cddd5ac3c6f325e1f699455f62583aa30c33588710b197f0c9aa46d5a3"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B218",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B218.json",
+        "bytes": 39221,
+        "sha256": "0ab6efc4c76886ff1e55fba3f3b9eccf8899dd1bd2b7edc5e42a0c3035624cc5"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B219",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B219.json",
+        "bytes": 29456,
+        "sha256": "9daa83570a369de4ee18fda64f678bcc6422d369bbaa23019fa0c05dd3003ac1"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B220",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B220.json",
+        "bytes": 30698,
+        "sha256": "cc82c863862b29abeffc700d1ea52fe029e3573212591a84eeb26de07ff0351c"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 37,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B221",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B221.json",
+        "bytes": 42633,
+        "sha256": "d7fb37d9eb0846431e6cd4ac30eaa55ff57d1af8c209a707a97ce9fbe167135f"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B222",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B222.json",
+        "bytes": 34768,
+        "sha256": "469921f346d6d5a92e4e434322864ee4a0b130bd947a9c53d35239ca06e596ac"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B223",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B223.json",
+        "bytes": 42264,
+        "sha256": "12c8c67422e631d230bf5102b4616bd6ec57653a68abe3c11bdabddd599ae972"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B224",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B224.json",
+        "bytes": 31695,
+        "sha256": "6eabb8c5de2adfcb9045b4fb95c81e711e304a809cc9179db65533320b3fd1b0"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B225",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B225.json",
+        "bytes": 31669,
+        "sha256": "987e3cc923c87dc4d26e3051fb38d08c35e59b0b02882b5402d32ff42b3eab5c"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B54",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B54.json",
+        "bytes": 29339,
+        "sha256": "134b24824078b36eceecefd600ad987da37488627380c446fe4cd602436fe2f4"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "B56",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/B56.json",
+        "bytes": 33218,
+        "sha256": "e2280aa92513168f0be3372dee2b3b153be189284d9fa344f8fe7bb22d00ac5a"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "LA-001",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-001.json",
+        "bytes": 16571,
+        "sha256": "58372f00593539862022b310a04ee2c971ea318ef13eb88276bca227b817cab1"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "LA-002",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-002.json",
+        "bytes": 16977,
+        "sha256": "2cfb1f61120d5055281de8ab2836d77a785027de1382c8d9f3b8ca98540b7d47"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "LA-003",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-003.json",
+        "bytes": 33109,
+        "sha256": "0b4b5adcf7d0d2a916bbfe4bcf20b507c43a42c6aa0cacaeee06453af20a92ed"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 38,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "LA-004",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-004.json",
+        "bytes": 29614,
+        "sha256": "f3c48e3e79eceb5842bd1662991be0aa695dbc361902d15e3fc4bfbba60ecb3b"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "LA-007",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-007.json",
+        "bytes": 39411,
+        "sha256": "2c7115984fa6b173e69d0ece5c3e2752fbb1ace925f6bfda4c33c9aaff10261d"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 38,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "LA-016",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-016.json",
+        "bytes": 49845,
+        "sha256": "e372ee794ffd4c3822b3578ef36e6da88a948e76e0144564b2a8ff5d9704be3c"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "LA-017",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-017.json",
+        "bytes": 19616,
+        "sha256": "a012fe852b4f45ed49c1605655d9d26acab6d69d84c2a8dac5248bab65511391"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 37,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "LA-019",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-019.json",
+        "bytes": 40486,
+        "sha256": "b1062bb266bddf74d83d681808ed7039f14f8e140dc54cdb0951250fb893fa18"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 38,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "LA-020",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-020.json",
+        "bytes": 44124,
+        "sha256": "3c9271e584a877f8d371c6720dd9db92df3964803755a8465f1152ac89deffa7"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 37,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "LA-035",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-035.json",
+        "bytes": 41281,
+        "sha256": "45913702a12d057c96ce988aa535eb5eff7482aeebea047fd731df27b5391f63"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    },
+    {
+      "finding_id": "LA-037",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/per-ID/LA-037.json",
+        "bytes": 19761,
+        "sha256": "096099eb034c567a2ea6f9c5b6f1e5aee526ee161afdbed5cb031d587b34c3e1"
+      },
+      "bytes_hash_match": true,
+      "source_sha": "8236d9c368336a5ea20c1586f29aea7321db6536",
+      "source_tree": "724a77c88d4e6699ffead58a5e3e3990fb88640a",
+      "shared_row_fields": 36,
+      "mismatches": [],
+      "formal_G_acceptance": "not_issued",
+      "independent_packet_review_resolution": {
+        "check": "UNRUN at this immutable packet seal",
+        "resolution_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-closeout-20261006.json",
+        "meaning": "The independent check must target these exact committed packet bytes; its later signed receipt is appended without changing scientific source."
+      }
+    }
+  ],
+  "full_original_card_blocks": [
+    {
+      "finding_id": "B204",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5094,
+        5105
+      ],
+      "declared_bytes": 3579,
+      "declared_sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+      "actual_bytes": 3579,
+      "actual_sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B205",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5106,
+        5119
+      ],
+      "declared_bytes": 4088,
+      "declared_sha256": "ac0680b5d70af76383c9aac15ab1c58437abd9118b0c7dba427dfe837ba3d5dc",
+      "actual_bytes": 4088,
+      "actual_sha256": "ac0680b5d70af76383c9aac15ab1c58437abd9118b0c7dba427dfe837ba3d5dc",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B206",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5120,
+        5131
+      ],
+      "declared_bytes": 2372,
+      "declared_sha256": "f405d3e2327c1cc0d64e6de308412c81eebe210af6ae5968af830b7e032fa0a1",
+      "actual_bytes": 2372,
+      "actual_sha256": "f405d3e2327c1cc0d64e6de308412c81eebe210af6ae5968af830b7e032fa0a1",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B207",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5132,
+        5145
+      ],
+      "declared_bytes": 3913,
+      "declared_sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+      "actual_bytes": 3913,
+      "actual_sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B208",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5146,
+        5157
+      ],
+      "declared_bytes": 2624,
+      "declared_sha256": "2df281351c22b1e79c6b0400c5ca6ccb312fc43666fd3ebc9e4e66031381d78d",
+      "actual_bytes": 2624,
+      "actual_sha256": "2df281351c22b1e79c6b0400c5ca6ccb312fc43666fd3ebc9e4e66031381d78d",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B209",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5158,
+        5169
+      ],
+      "declared_bytes": 2656,
+      "declared_sha256": "b774fd7cd4f1653c0771ee5e20e7d3ee990c14bb47cc698b284e581ac75cc44f",
+      "actual_bytes": 2656,
+      "actual_sha256": "b774fd7cd4f1653c0771ee5e20e7d3ee990c14bb47cc698b284e581ac75cc44f",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B210",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5170,
+        5181
+      ],
+      "declared_bytes": 3218,
+      "declared_sha256": "3b72bb59c40ef347388195b3309dd81f188e96d3bb205b3e3be72c77b76ac010",
+      "actual_bytes": 3218,
+      "actual_sha256": "3b72bb59c40ef347388195b3309dd81f188e96d3bb205b3e3be72c77b76ac010",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B211",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5182,
+        5193
+      ],
+      "declared_bytes": 2695,
+      "declared_sha256": "cf651667294eca28d2feef026f185292e15f443e1d3f4e8d515b40b67835b674",
+      "actual_bytes": 2695,
+      "actual_sha256": "cf651667294eca28d2feef026f185292e15f443e1d3f4e8d515b40b67835b674",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B212",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5194,
+        5205
+      ],
+      "declared_bytes": 2849,
+      "declared_sha256": "dd369570f1235d66729b8c5526f88a5968905343594089f5a4c00da90631238f",
+      "actual_bytes": 2849,
+      "actual_sha256": "dd369570f1235d66729b8c5526f88a5968905343594089f5a4c00da90631238f",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B213",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5206,
+        5217
+      ],
+      "declared_bytes": 2615,
+      "declared_sha256": "6684013f61227644563e3dd6ac181b2546b5797168cd0b93fef3ef1bf75fe243",
+      "actual_bytes": 2615,
+      "actual_sha256": "6684013f61227644563e3dd6ac181b2546b5797168cd0b93fef3ef1bf75fe243",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B214",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5218,
+        5229
+      ],
+      "declared_bytes": 3537,
+      "declared_sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+      "actual_bytes": 3537,
+      "actual_sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B215",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5230,
+        5243
+      ],
+      "declared_bytes": 3763,
+      "declared_sha256": "285a9f3f9267aaf97e7844c252fffd271febbc5cfb5212bcbbdefd7252f119a9",
+      "actual_bytes": 3763,
+      "actual_sha256": "285a9f3f9267aaf97e7844c252fffd271febbc5cfb5212bcbbdefd7252f119a9",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B216",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5333,
+        5346
+      ],
+      "declared_bytes": 5017,
+      "declared_sha256": "5da65926eb9350c67aa4c305de165e0919a8ab5eff319562d1fa3d3b499bdcd2",
+      "actual_bytes": 5017,
+      "actual_sha256": "5da65926eb9350c67aa4c305de165e0919a8ab5eff319562d1fa3d3b499bdcd2",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B217",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5347,
+        5360
+      ],
+      "declared_bytes": 3662,
+      "declared_sha256": "347b041bb8cdd642f730dda6caa9fb11367ebb047cfe11abf095166f8730c443",
+      "actual_bytes": 3662,
+      "actual_sha256": "347b041bb8cdd642f730dda6caa9fb11367ebb047cfe11abf095166f8730c443",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B218",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5361,
+        5374
+      ],
+      "declared_bytes": 3861,
+      "declared_sha256": "8ce1868ddb2663580547f475288d03502e03ae6a4bc38923313bc069efb0a40a",
+      "actual_bytes": 3861,
+      "actual_sha256": "8ce1868ddb2663580547f475288d03502e03ae6a4bc38923313bc069efb0a40a",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B219",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5375,
+        5388
+      ],
+      "declared_bytes": 3117,
+      "declared_sha256": "c3c2613bd397c8dd5d252ccb15562a6aa2f4bee46e36fa86eff1b12bf7c30009",
+      "actual_bytes": 3117,
+      "actual_sha256": "c3c2613bd397c8dd5d252ccb15562a6aa2f4bee46e36fa86eff1b12bf7c30009",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B220",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5389,
+        5402
+      ],
+      "declared_bytes": 3831,
+      "declared_sha256": "d0c39288b089bc7e1a85c4eec40ffd1c4fa3273293734b758729b4bb7dc54b71",
+      "actual_bytes": 3831,
+      "actual_sha256": "d0c39288b089bc7e1a85c4eec40ffd1c4fa3273293734b758729b4bb7dc54b71",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B221",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5403,
+        5416
+      ],
+      "declared_bytes": 3594,
+      "declared_sha256": "e22ca23d5d49e736162b73f80d43ae77719ada061f0898f1ba083a31e54943e4",
+      "actual_bytes": 3594,
+      "actual_sha256": "e22ca23d5d49e736162b73f80d43ae77719ada061f0898f1ba083a31e54943e4",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B222",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5417,
+        5430
+      ],
+      "declared_bytes": 3359,
+      "declared_sha256": "b13339d3c9e2d80995027a0f1acbaf09ccad855a643deb0b283c065bc4232aa5",
+      "actual_bytes": 3359,
+      "actual_sha256": "b13339d3c9e2d80995027a0f1acbaf09ccad855a643deb0b283c065bc4232aa5",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B223",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5431,
+        5444
+      ],
+      "declared_bytes": 3092,
+      "declared_sha256": "2f7406d0704ebafed25947c6ebdc6e7e910da062e19fc8b62aed081343ffefcf",
+      "actual_bytes": 3092,
+      "actual_sha256": "2f7406d0704ebafed25947c6ebdc6e7e910da062e19fc8b62aed081343ffefcf",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B224",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5445,
+        5458
+      ],
+      "declared_bytes": 3959,
+      "declared_sha256": "854f9eab140c71438e188c91ef3d9792895b0402ab22c5866de3584683596ca1",
+      "actual_bytes": 3959,
+      "actual_sha256": "854f9eab140c71438e188c91ef3d9792895b0402ab22c5866de3584683596ca1",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B225",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5459,
+        5472
+      ],
+      "declared_bytes": 3659,
+      "declared_sha256": "9fc38772c0cd77e8bb8da7abd1d8423345cf151f598107387b177b4900860879",
+      "actual_bytes": 3659,
+      "actual_sha256": "9fc38772c0cd77e8bb8da7abd1d8423345cf151f598107387b177b4900860879",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B54",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        1379,
+        1394
+      ],
+      "declared_bytes": 5315,
+      "declared_sha256": "ea5c3023d7b4bec4ee7a1a32b5a258dcceb5c67e3e4f47d28dac84b84f149c9d",
+      "actual_bytes": 5315,
+      "actual_sha256": "ea5c3023d7b4bec4ee7a1a32b5a258dcceb5c67e3e4f47d28dac84b84f149c9d",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "B56",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        1409,
+        1424
+      ],
+      "declared_bytes": 4524,
+      "declared_sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b",
+      "actual_bytes": 4524,
+      "actual_sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "LA-001",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        82,
+        108
+      ],
+      "declared_bytes": 3007,
+      "declared_sha256": "35f63e8bacf3c27cd4148db8119837ff30df91a5de9f73d52ead6e4fc73d9dd0",
+      "actual_bytes": 3007,
+      "actual_sha256": "35f63e8bacf3c27cd4148db8119837ff30df91a5de9f73d52ead6e4fc73d9dd0",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "LA-002",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        109,
+        135
+      ],
+      "declared_bytes": 2982,
+      "declared_sha256": "3acebb36bff2fda1f1ec71e0afc3f42f8aa1b2c160bc41ab564f03004893a336",
+      "actual_bytes": 2982,
+      "actual_sha256": "3acebb36bff2fda1f1ec71e0afc3f42f8aa1b2c160bc41ab564f03004893a336",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "LA-003",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        136,
+        166
+      ],
+      "declared_bytes": 3450,
+      "declared_sha256": "8e52a4ec93513e106070221058490c2c1c1d337ff27ddd7c453bb655e44710d5",
+      "actual_bytes": 3450,
+      "actual_sha256": "8e52a4ec93513e106070221058490c2c1c1d337ff27ddd7c453bb655e44710d5",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "LA-004",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        167,
+        197
+      ],
+      "declared_bytes": 3498,
+      "declared_sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a",
+      "actual_bytes": 3498,
+      "actual_sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "LA-007",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        254,
+        280
+      ],
+      "declared_bytes": 2383,
+      "declared_sha256": "f0b3ae2a0552d0b28a06b02d50dad0aaefb418a5cf7bcd52d6a1664edd9c90e0",
+      "actual_bytes": 2383,
+      "actual_sha256": "f0b3ae2a0552d0b28a06b02d50dad0aaefb418a5cf7bcd52d6a1664edd9c90e0",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "LA-016",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        513,
+        539
+      ],
+      "declared_bytes": 3048,
+      "declared_sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+      "actual_bytes": 3048,
+      "actual_sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "LA-016",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        513,
+        539
+      ],
+      "declared_bytes": 3048,
+      "declared_sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+      "actual_bytes": 3048,
+      "actual_sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "LA-017",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        540,
+        570
+      ],
+      "declared_bytes": 3335,
+      "declared_sha256": "6d9ba04eca544917e9fce398fa9fce7a17ef81b1ae7f44216d74892c35ed072c",
+      "actual_bytes": 3335,
+      "actual_sha256": "6d9ba04eca544917e9fce398fa9fce7a17ef81b1ae7f44216d74892c35ed072c",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "LA-019",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        930,
+        959
+      ],
+      "declared_bytes": 3647,
+      "declared_sha256": "cbc1ce3fc94f7590d343300b41db34e53ac4b87e2a9c242ff20859423665c3aa",
+      "actual_bytes": 3647,
+      "actual_sha256": "cbc1ce3fc94f7590d343300b41db34e53ac4b87e2a9c242ff20859423665c3aa",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "LA-020",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        960,
+        989
+      ],
+      "declared_bytes": 4138,
+      "declared_sha256": "f87876bc9a834d23256c57f6aee11b5a6483cd8d159d816081db9404110ef3d5",
+      "actual_bytes": 4138,
+      "actual_sha256": "f87876bc9a834d23256c57f6aee11b5a6483cd8d159d816081db9404110ef3d5",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "LA-035",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        2066,
+        2102
+      ],
+      "declared_bytes": 7176,
+      "declared_sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69",
+      "actual_bytes": 7176,
+      "actual_sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69",
+      "check": "PASS"
+    },
+    {
+      "finding_id": "LA-037",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        2146,
+        2178
+      ],
+      "declared_bytes": 5602,
+      "declared_sha256": "79dc9efe37fc67c6b481db97f51d50a38d4aea4cff051ce0ffcf864ce049589c",
+      "actual_bytes": 5602,
+      "actual_sha256": "79dc9efe37fc67c6b481db97f51d50a38d4aea4cff051ce0ffcf864ce049589c",
+      "check": "PASS"
+    }
+  ],
+  "scope": "Index shared-field projection plus additional complete per-ID original text; no ignored decision difference.",
+  "prior_unprojected_comparison": "FAIL preserved: all35 differences were additional complete_original_block fields, not changed original refs or current decisions."
+}

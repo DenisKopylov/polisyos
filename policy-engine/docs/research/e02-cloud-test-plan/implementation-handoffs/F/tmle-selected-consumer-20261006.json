@@ -1,0 +1,463 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "tmle-selected-consumer-20261006",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "B54",
+    "B56"
+  ],
+  "bundle_ids": [
+    "FIT-01"
+  ],
+  "slice_base_sha": "a58d36299b35b6865d7640e09d7e0e3ee7e248bf",
+  "slice_base_tree_sha": "9f7bf7b9455bd09aa80094604cfdf12db7fac358",
+  "implementation_commits": [
+    "3e0c9595cf61cdb9b11292a40987f4b1f1c1ab30",
+    "336a59650ea035b3505e2334568ff85ed1ca8b95",
+    "d09e2b546f5ccf2ed1c297e9578661358270f92b",
+    "8f69812ec28098385b2063db89f7e04d354c18cb",
+    "12dce5675edfd345663591fd3219f2f8ea5e4fc2"
+  ],
+  "candidate_source_sha": "12dce5675edfd345663591fd3219f2f8ea5e4fc2",
+  "candidate_tree_sha": "264d51adc56f21b1113a1065093b6553802a1cc5",
+  "branch": "codex/e02-F-closeout-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/65",
+  "changed_paths": [
+    "policy-engine/docs/reference/scientist/causal-selected-consumers.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-tmle-selected-consumer.toml",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_tmle_selected_consumer.py"
+  ],
+  "baseline_cells": [],
+  "original_source_criterion_refs": [
+    {
+      "criterion_id": "B54",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        1379,
+        1394
+      ],
+      "bytes": 5315,
+      "sha256": "ea5c3023d7b4bec4ee7a1a32b5a258dcceb5c67e3e4f47d28dac84b84f149c9d",
+      "title": "## B54. Кэш вспомогательной оценки сохраняет старую политику диагностики и возвращает общий изменяемый объект"
+    },
+    {
+      "criterion_id": "B56",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "lines": [
+        1409,
+        1424
+      ],
+      "bytes": 4524,
+      "sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b",
+      "title": "## B56. Внутренняя параллельность folds не связана с общим ресурсом исследования"
+    }
+  ],
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-o",
+        "cache_dir=/tmp/e02-F-continuation-20261006/root-tmle-consumer/cache",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261006/root-tmle-consumer/tmp",
+        "tests/unit/scientist/nodes/builtins/simulate/test_tmle_selected_consumer.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py"
+      ],
+      "target_sha": "3e0c9595cf61cdb9b11292a40987f4b1f1c1ab30",
+      "environment": {
+        "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+          "TMPDIR": "/tmp"
+        },
+        "interpreter": "actualPython3.14.7 application; selectedpinnedPython3.12.14 DoWhy0.14worker"
+      },
+      "input_closure": "Actual synthetic typed HTE covariates/confounders/sample IDs/treatment/outcome, configured6foldnativeTMLE, actualCASpersistedresult/report/envelope/freshreader; stale source and numericprojection negatives; realDiD/DoWhysiblings.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer/stdout",
+      "summary": "Initial3FAIL27PASS exposes nestedAny tuple/list persisted report equality defect; corrected forward."
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-o",
+        "cache_dir=/tmp/e02-F-continuation-20261006/root-tmle-consumer-canonical/cache",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261006/root-tmle-consumer-canonical/tmp",
+        "tests/unit/scientist/nodes/builtins/simulate/test_tmle_selected_consumer.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py"
+      ],
+      "target_sha": "d09e2b546f5ccf2ed1c297e9578661358270f92b",
+      "environment": {
+        "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+          "TMPDIR": "/tmp"
+        },
+        "interpreter": "actualPython3.14.7 application; selectedpinnedPython3.12.14 DoWhy0.14worker"
+      },
+      "input_closure": "Actual synthetic typed HTE covariates/confounders/sample IDs/treatment/outcome, configured6foldnativeTMLE, actualCASpersistedresult/report/envelope/freshreader; stale source and numericprojection negatives; realDiD/DoWhysiblings.",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer-canonical/stdout",
+      "summary": "36PASS4FAIL: missing selectedworker environment3FAIL plus earlierdiagnosticboundary testexpectation1FAIL; explicit harness/environment failures retained."
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-o",
+        "cache_dir=/tmp/e02-F-continuation-20261006/root-tmle-consumer-selected-worker/cache",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261006/root-tmle-consumer-selected-worker/tmp",
+        "tests/unit/scientist/nodes/builtins/simulate/test_tmle_selected_consumer.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py"
+      ],
+      "target_sha": "8f69812ec28098385b2063db89f7e04d354c18cb",
+      "environment": {
+        "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+          "TMPDIR": "/tmp",
+          "E02_TEST_DOWHY_WORKER_PYTHON": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python"
+        },
+        "interpreter": "actualPython3.14.7 application; selectedpinnedPython3.12.14 DoWhy0.14worker"
+      },
+      "input_closure": "Actual synthetic typed HTE covariates/confounders/sample IDs/treatment/outcome, configured6foldnativeTMLE, actualCASpersistedresult/report/envelope/freshreader; stale source and numericprojection negatives; realDiD/DoWhysiblings.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-consumer-selected-worker/stdout",
+      "summary": "Actual configured typed TMLE and genuine pinnedDoWhy sibling consumers40PASS0SKIP/ERROR;2 intentional malformed DiagnosticTest serializationwarnings."
+    },
+    {
+      "id": "original-native",
+      "kind": "native",
+      "check": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/native.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native.stdout.txt",
+        "bytes": 10959,
+        "sha256": "1f2da8b74740d742ff3b35ece627eb83ee690b19af69d40cfa68ccd0a0ceb50a"
+      },
+      "summary": "Initial 17 selectors: 16 PASS and 1 reviewer regex FAIL. Raw ATE +0.25 was correctly refused by CausalEffectReport because the point fell outside its unchanged CI; the probe expected the later projection error. The seven owner tests, full source/fold/JSON ABI observation, five input refusals before job, raw SE refusal, real DiD, and selected DoWhy 500-row OLS consumer all passed.",
+      "actual_counts": {
+        "passed": 16,
+        "failed": 1,
+        "skipped": 0,
+        "errors": 0,
+        "warnings": 1
+      },
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "tests/unit/scientist/nodes/builtins/simulate/test_tmle_selected_consumer.py",
+        "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/test_independent_tmle_node.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_selected_scalar_job_persisted_target_fresh_reader",
+        "tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_real_dowhy_primary_binding_and_canonical_consumer"
+      ],
+      "target_sha": "d09e2b546f5ccf2ed1c297e9578661358270f92b",
+      "environment": {
+        "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "E02_TMLE_SOURCE_ROOT": "/workspace/e02-F-closeout-20261006/policy-engine",
+          "E02_TEST_DOWHY_WORKER_PYTHON": "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/bin/python"
+        }
+      },
+      "input_closure": "Initial 17 selectors: 16 PASS and 1 reviewer regex FAIL. Raw ATE +0.25 was correctly refused by CausalEffectReport because the point fell outside its unchanged CI; the probe expected the later projection error. The seven owner tests, full source/fold/JSON ABI observation, five input refusals before job, raw SE refusal, real DiD, and selected DoWhy 500-row OLS consumer all passed.",
+      "outcome": "FAIL",
+      "oracle_check": "FAIL"
+    },
+    {
+      "id": "corrected-native",
+      "kind": "native",
+      "check": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/native-corrected.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/native-corrected.stdout.txt",
+        "bytes": 1459,
+        "sha256": "9255586f0289996f3e46e95851020f8b8bc6990a2f0a870125a914f7d253dab2"
+      },
+      "summary": "Two corrected attacks pass their refusal oracle. Each observer executes the real run_job first. Raw ATE +0.01 stays inside the actual CI and fails the numerical projection comparison; raw SE +0.25 also fails. Original CAS result/report/envelope remain unchanged.",
+      "actual_counts": {
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "errors": 0
+      },
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/test_independent_tmle_node.py::test_genuine_job_raw_numeric_peer_change_rejected"
+      ],
+      "target_sha": "d09e2b546f5ccf2ed1c297e9578661358270f92b",
+      "environment": {
+        "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "E02_TMLE_SOURCE_ROOT": "/workspace/e02-F-closeout-20261006/policy-engine",
+          "E02_TEST_DOWHY_WORKER_PYTHON": "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/bin/python"
+        }
+      },
+      "input_closure": "Two corrected attacks pass their refusal oracle. Each observer executes the real run_job first. Raw ATE +0.01 stays inside the actual CI and fails the numerical projection comparison; raw SE +0.25 also fails. Original CAS result/report/envelope remain unchanged.",
+      "outcome": "PASS",
+      "oracle_check": "PASS"
+    },
+    {
+      "id": "projection-property-removal",
+      "kind": "property_removal",
+      "check": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/removal-projection.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal-projection.stdout.txt",
+        "bytes": 4940,
+        "sha256": "b34f44025440e2e602899ae36f64d742aa39db8181aa450be9f6e00d82a1b62a"
+      },
+      "summary": "Removing only the canonical verifier body in memory yields four expected native FAILs (DID NOT RAISE): changed SE, sample size, inference profile, and interval. Function identity, signature, producer, results and markers remain intact.",
+      "actual_counts": {
+        "failed": 4,
+        "passed": 0,
+        "skipped": 0,
+        "errors": 0,
+        "warnings": 2,
+        "exit_code": 1
+      },
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal.py",
+        "projection",
+        "tests/unit/scientist/nodes/builtins/simulate/test_tmle_selected_consumer.py::test_actual_persisted_reader_refuses_peer_report_change_retaining_result"
+      ],
+      "target_sha": "d09e2b546f5ccf2ed1c297e9578661358270f92b",
+      "environment": {
+        "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "E02_TMLE_SOURCE_ROOT": "/workspace/e02-F-closeout-20261006/policy-engine",
+          "E02_TEST_DOWHY_WORKER_PYTHON": "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/bin/python"
+        }
+      },
+      "input_closure": "Removing only the canonical verifier body in memory yields four expected native FAILs (DID NOT RAISE): changed SE, sample size, inference profile, and interval. Function identity, signature, producer, results and markers remain intact.",
+      "outcome": "FAIL",
+      "oracle_check": "PASS"
+    },
+    {
+      "id": "source-property-removal",
+      "kind": "property_removal",
+      "check": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/removal-source.stdout.txt",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal-source.stdout.txt",
+        "bytes": 2589,
+        "sha256": "7ebc88315c7cc2d860197c00daea84ea18bcb44bf7e60ad9242472afcf989206"
+      },
+      "summary": "Removing only the current source/materialization equality refusal lets the genuine job run on changed W. Typed checks, source resolution and numerical projection remain intact. The source refusal test gives one expected DID NOT RAISE FAIL.",
+      "actual_counts": {
+        "failed": 1,
+        "passed": 0,
+        "skipped": 0,
+        "errors": 0,
+        "warnings": 2,
+        "exit_code": 1
+      },
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/removal.py",
+        "source",
+        "tests/unit/scientist/nodes/builtins/simulate/test_tmle_selected_consumer.py::test_actual_primary_job_refuses_changed_adjustment_source"
+      ],
+      "target_sha": "d09e2b546f5ccf2ed1c297e9578661358270f92b",
+      "environment": {
+        "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+        "overrides": {
+          "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "E02_TMLE_SOURCE_ROOT": "/workspace/e02-F-closeout-20261006/policy-engine",
+          "E02_TEST_DOWHY_WORKER_PYTHON": "/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/bin/python"
+        }
+      },
+      "input_closure": "Removing only the current source/materialization equality refusal lets the genuine job run on changed W. Typed checks, source resolution and numerical projection remain intact. The source refusal test gives one expected DID NOT RAISE FAIL.",
+      "outcome": "FAIL",
+      "oracle_check": "PASS"
+    },
+    {
+      "id": "producer-dependency-identity",
+      "kind": "static_source",
+      "check": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/static-scope.json",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/tmle-node-review/static-scope.json",
+        "bytes": 2686,
+        "sha256": "b864a3b3c6b8e83f14531ac495a7dc118536a080ed16505f0214b036282f190a"
+      },
+      "summary": "Four producer/core/IR/test blobs are byte-identical to reviewed 6c; the 45 producer cases were retained without repeating. The two executed legacy DiD/DoWhy function bodies are unchanged from d09. Exact 8f sibling file binding is recorded; no whole-gate inheritance claim.",
+      "actual_counts": {
+        "producer_blobs": 4,
+        "sibling_function_bodies": 2
+      },
+      "command": "Read-only full defining-source AST/blob/environment audit; complete replay and outputs in committed independent review",
+      "target_sha": "d09e2b546f5ccf2ed1c297e9578661358270f92b",
+      "environment": "Read-only Git/AST/realPython3.14module origin audit",
+      "input_closure": "Four producer/core/IR/test blobs are byte-identical to reviewed 6c; the 45 producer cases were retained without repeating. The two executed legacy DiD/DoWhy function bodies are unchanged from d09. Exact 8f sibling file binding is recorded; no whole-gate inheritance claim.",
+      "outcome": "PASS",
+      "oracle_check": "PASS"
+    },
+    {
+      "command": "Actual public class identity and fulltop-level function/class AST comparison; exact replay/observations in committed root-tmle-public-import.json and independent review finaldelta",
+      "target_sha": "12dce5675edfd345663591fd3219f2f8ea5e4fc2",
+      "environment": "actualPython3.14 application/publicfacade and read-only GitAST",
+      "input_closure": "Import-only final2line delta to maintainedTMLEfacade; all32 function/class ASTs unchanged from independentlyreviewedd09.",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/root-tmle-public-import.json"
+    },
+    {
+      "command": "not_run: exact canonical admitted production workload/authority packet unavailable",
+      "target_sha": "12dce5675edfd345663591fd3219f2f8ea5e4fc2",
+      "environment": "G localread-only actualRuntime/C workload",
+      "input_closure": "Missing actualdeployment context/verifier/currentrevision/fullrefs and commonadmitted study/model/fold/repeat/seed/competingworkload budget binding.",
+      "outcome": "UNRUN",
+      "output": "No synthetic custompool/context or copiedseal is accepted as commonproduction admission."
+    }
+  ],
+  "property": {
+    "statement": "Canonical TMLE uses actual typed HTE input at the existing selected job consumer, binds complete X/W/data to selectedCAS beforejob, and reconciles persisted native descriptive result with its full report/envelope using the maintained publicfactory. JSONABI roundtrip representation differences do not invalidate equalreports; real numeric differences refuse.",
+    "runtime_path": [
+      "typed HTE observationalCAS/view -> beforejob fullmaterialization/source equality",
+      "canonicalcausal.treatment_effects.tmle@1.0.0 actualconfiguredMethodJob native6folds",
+      "nativelegacy result +CausalEffectReport/UncertaintyEnvelope -> methodCAS artifact",
+      "selectedprimaryconsumer -> publicTMLEEstimator.report_from_result -> freshPythonCASreader"
+    ],
+    "proxy_divergence": "Matching shape, params/status/slotmarkers and a causalpoint+interval do not bind actualadjustmentbasis or peer numericalreport; tuple/list Pythonrepresentation differs afterpersisted JSON and is not a semanticdifference.",
+    "negative_controls": [
+      "same-shape covariate/confounder/treatment/outcome/sampleID sourcechanges beforeanyjob",
+      "SE/sample/profile/CI substitution while status/result/slots retained",
+      "consumerprojectionbody removal4genuineFAIL",
+      "sourceequalityifremoved1genuineFAIL throughactualjob",
+      "limitedclusteredprofile remains point-free report with descriptiveresult and nongating envelope"
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "Technicalbridge code-ready; B54 original numerical/cache property retainedclosedrecommendation; B56 actualproductioncommonbudget/admission limited, no automaticclosure.",
+  "source_dependencies": [
+    {
+      "source_sha": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d",
+      "source_tree": "e035bb5cdf9bde154fe08bcb72a0341cfeb2a970",
+      "owner": "F canonicalTMLE producer",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-common-report-20261006.json",
+      "carrier_sha": "3ae04e86cc6d22a10d28abb163c1078a0bea6ba4",
+      "scope": "Native32ParameterSpecs/typedX+W projection/newscientificCausalMethod.TMLE; unchanged tmle_core/cache/inference law."
+    },
+    {
+      "source_sha": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77",
+      "owner": "F selectedinputconsumer",
+      "scope": "Actual CoretypedCASview preserved acrosscompleteintake/read/lineage; EvalSafetyadmission remains separate."
+    }
+  ],
+  "independent_review": {
+    "reviewer": "/root/cau",
+    "writer": "/root",
+    "decision": "GO_BOUNDED",
+    "source_sha": "d09e2b546f5ccf2ed1c297e9578661358270f92b",
+    "final_import_only_source_sha": "12dce5675edfd345663591fd3219f2f8ea5e4fc2",
+    "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/cau/tmle-node-review/review.json"
+  },
+  "limitations_and_next_owner": [
+    "B56 actualproductiondeployment/commonadmitted competingworkload andresourcebudget unavailable; existingLocalWorkerPool reconstructs contextwithoutcurrentRuntimeEvalSafety and is not a provenproductionconsumer. Minimalruntimepacket captured byproducerfeasibility receipt.",
+    "The directtypedHTE CAS route is supported. HTEDTO has no existingIRmethod contract_id; no newownerID/envelopeadmission or scheduler is fabricated.",
+    "RegularIID/casuallyrequired exchangeability/positivity/consistency are consumerasserted; binaryboundedTMLE/EIF profile remains native, unsupportedtrim/positivity/nonconverged regimes do not acquire fakeCI/gate.",
+    "GeneratedCausalMethod-dependentreport/HTE snapshots andactualnewassembledwheel/sdist finalreplay are separatependingcompanions; oldsourceinstall is not combinedGpackagingPASS.",
+    "GlobalFAIL/ERROR/SKIP and P41not_established preserved. Originalcards/owners remainbound; fullauthority/currentissuer challengepositive UNRUN."
+  ],
+  "complete_implementation_diffs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/diffs/3e0c9595cf61cdb9b11292a40987f4b1f1c1ab30.patch",
+      "bytes": 14703,
+      "sha256": "09dfa58887f1df4f0c595017b714a8ed0268fb3a5cc59d85de47b4873a7f2ece",
+      "implementation_sha": "3e0c9595cf61cdb9b11292a40987f4b1f1c1ab30"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/diffs/336a59650ea035b3505e2334568ff85ed1ca8b95.patch",
+      "bytes": 3952,
+      "sha256": "aea1755fe359f981c7cf67e4c90a4ab9b89ec69914849867ce606e6cabc50d92",
+      "implementation_sha": "336a59650ea035b3505e2334568ff85ed1ca8b95"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/diffs/d09e2b546f5ccf2ed1c297e9578661358270f92b.patch",
+      "bytes": 1131,
+      "sha256": "817837d7052b38320a286885524bc7f4ccb1c04d68875f46116acc9b202b3be2",
+      "implementation_sha": "d09e2b546f5ccf2ed1c297e9578661358270f92b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/diffs/8f69812ec28098385b2063db89f7e04d354c18cb.patch",
+      "bytes": 1449,
+      "sha256": "e54360e1f038dd26dfe18a73f7530032aa9220c2dbfd9ffe5b7248b88d86fb39",
+      "implementation_sha": "8f69812ec28098385b2063db89f7e04d354c18cb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/diffs/12dce5675edfd345663591fd3219f2f8ea5e4fc2.patch",
+      "bytes": 1363,
+      "sha256": "ebd3362a3a46885ffd10892a0adeb4241b1de6f69339d9a70f034db42d92d4b2",
+      "implementation_sha": "12dce5675edfd345663591fd3219f2f8ea5e4fc2"
+    }
+  ],
+  "full_output_transport": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/transport.json",
+  "patterns": {
+    "P01_P02": "GenuineMethodJob/CAS/complete typedsource/freshreader",
+    "P38": "Numericalprojection andbeforejob sourceproperty removed whilemarkersretained",
+    "P40": "One maintained factory andcommonJSONABI seam, no perestimatorgate/substitute scheduler",
+    "P41": "not_established for inheritedglobalred; exactsourceequivalence bounded todefiningblobs"
+  },
+  "cleanup": {
+    "native_trash_available": false,
+    "permanent_deletion_permitted": false,
+    "candidates_after_publication_readback_and_inactive_use": [
+      "/tmp/e02-F-continuation-20261006/root-tmle-consumer/tmp",
+      "/tmp/e02-F-continuation-20261006/root-tmle-consumer-canonical/tmp",
+      "/tmp/e02-F-continuation-20261006/root-tmle-consumer-selected-worker/tmp"
+    ],
+    "preserve": "AllGit/code/docs/uniqueinputs/decidingoutputs andactiveGitobjectstore retained; noTrash available."
+  }
+}

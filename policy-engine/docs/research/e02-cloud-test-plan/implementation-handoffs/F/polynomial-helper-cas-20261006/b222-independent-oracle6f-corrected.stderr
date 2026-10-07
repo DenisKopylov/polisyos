@@ -1,0 +1,10 @@
+/workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] query_result: unexpected_key — Key 'query_result' not declared in output slots
+  result = backend.run(
+/workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] warnings: unexpected_key — Key 'warnings' not declared in output slots
+  result = backend.run(
+/workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] estimator_envelope: unexpected_key — Key 'estimator_envelope' not declared in output slots
+  result = backend.run(
+/workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+  result = backend.run(
+/workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+  result = backend.run(

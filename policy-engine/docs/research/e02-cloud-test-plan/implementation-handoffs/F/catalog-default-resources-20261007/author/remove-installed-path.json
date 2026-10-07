@@ -1,0 +1,85 @@
+{
+  "id": "remove-installed-path",
+  "repo": "/workspace/e02-F-graph-20261006",
+  "prefix": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/remove-installed-path",
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "target_sha": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+  "env": {
+    "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/FRfxDH8nJU3psJuO:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/UiWY5OJhIS1bCbbj:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/rzzxdszJdjA2TxUF:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/jzraMA8hdiRZ6IzT:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5rluSUsE3KBgGB71:/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/uv-cache/archive-v0/5Ru6KSKyfVbEb5in",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "source_paths": [
+    "policy-engine/docs/reference/data-forge/catalog-default-resources.md",
+    "policy-engine/hatch.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-catalog-default-resources.toml",
+    "policy-engine/src/polisyos/data_forge/domains/README.md",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+    "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+    "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+    "policy-engine/tests/repo_quality/tools/test_catalog_default_resources_packaging.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py"
+  ],
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/remove_resource_property.py",
+    "installed-path",
+    "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/remove-installed-path-tmp"
+  ],
+  "input_closure": "Exactworkingtree14bodies; process-memory property deletion with original source/module/filenames/resource4paths markers retained. No actual file changes. Expected scientific/property FAIL, never aggregate PASS.",
+  "target_tree_sha": "014203f04f72a477407df231372775f403e0cefb",
+  "exit": 1,
+  "wall_s": 2.948784828186035,
+  "maxrss_kib": 252748,
+  "outcome": "FAIL",
+  "source_before": {
+    "policy-engine/docs/reference/data-forge/catalog-default-resources.md": "84e6699373a158860bbe373dbe8febf24045102d2ce6e0d8e3992d40d02c2fa2",
+    "policy-engine/hatch.toml": "24ad192a85397fdf56e2722275e19adf79c10a27938640f5bc4f86353936efcd",
+    "policy-engine/release-fragments/unreleased/2026-10-07-catalog-default-resources.toml": "db6d2048f56de929bfa0738c42c3bbb50b58a1ebabf17fdf91eff0028d6e5d56",
+    "policy-engine/src/polisyos/data_forge/domains/README.md": "5c0088a97bb962a4697f698db1224260233475494cf8e161f27a6dc63663d973",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py": "6c36ffce957ade642ba1cc1dab2367c2620dd7c75d0219520c64b3eec94bf0a6",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py": "a36c29470453ce0a5465a8f7ed9cb5c2c9f890c8d4bae098c05dd37fd2aa941b",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py": "fd7b207553fc7ec7e0747a5981ab93c3c9469639fbd214e9eda7edd423fb7574",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py": "78d7666e95c310c6ef0e2651135377eb0ecdb71523d95506f4987f799d9b23c4",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py": "589026e8fb6751b04039baed5794e4df152caa15d218805bbb7bffc8ada137fe",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py": "bb547db9fee687f463b633b4f0d6ee24ab527c1b0ea207160aaffddf6c7d1422",
+    "policy-engine/src/polisyos/data_forge/read_api/catalog.py": "a77be622a7e8193b0c245d4a731fcf4128d84faa48b48e63460246db5673af47",
+    "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py": "c1b45bd356f9ca7e0a65edf202f827b0145eb9421c89de07512e07de37256fc7",
+    "policy-engine/tests/repo_quality/tools/test_catalog_default_resources_packaging.py": "0219d8c046bdce189e574f7116aab478dff98d8f06a7c9072833f83c704e20e2",
+    "policy-engine/tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py": "62f847792345f52f226481451867314520b6b794d7ce7e159663885e71215f89"
+  },
+  "source_after": {
+    "policy-engine/docs/reference/data-forge/catalog-default-resources.md": "84e6699373a158860bbe373dbe8febf24045102d2ce6e0d8e3992d40d02c2fa2",
+    "policy-engine/hatch.toml": "24ad192a85397fdf56e2722275e19adf79c10a27938640f5bc4f86353936efcd",
+    "policy-engine/release-fragments/unreleased/2026-10-07-catalog-default-resources.toml": "db6d2048f56de929bfa0738c42c3bbb50b58a1ebabf17fdf91eff0028d6e5d56",
+    "policy-engine/src/polisyos/data_forge/domains/README.md": "5c0088a97bb962a4697f698db1224260233475494cf8e161f27a6dc63663d973",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py": "6c36ffce957ade642ba1cc1dab2367c2620dd7c75d0219520c64b3eec94bf0a6",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py": "a36c29470453ce0a5465a8f7ed9cb5c2c9f890c8d4bae098c05dd37fd2aa941b",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py": "fd7b207553fc7ec7e0747a5981ab93c3c9469639fbd214e9eda7edd423fb7574",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py": "78d7666e95c310c6ef0e2651135377eb0ecdb71523d95506f4987f799d9b23c4",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_penalties.py": "589026e8fb6751b04039baed5794e4df152caa15d218805bbb7bffc8ada137fe",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py": "bb547db9fee687f463b633b4f0d6ee24ab527c1b0ea207160aaffddf6c7d1422",
+    "policy-engine/src/polisyos/data_forge/read_api/catalog.py": "a77be622a7e8193b0c245d4a731fcf4128d84faa48b48e63460246db5673af47",
+    "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py": "c1b45bd356f9ca7e0a65edf202f827b0145eb9421c89de07512e07de37256fc7",
+    "policy-engine/tests/repo_quality/tools/test_catalog_default_resources_packaging.py": "0219d8c046bdce189e574f7116aab478dff98d8f06a7c9072833f83c704e20e2",
+    "policy-engine/tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py": "62f847792345f52f226481451867314520b6b794d7ce7e159663885e71215f89"
+  },
+  "source_unchanged": true,
+  "head_after": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+  "artifacts": [
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/remove-installed-path.stdout.txt",
+      "bytes": 10359,
+      "sha256": "f3d7b8619cc306673ed07b5822605c885ec221aae6d345b37d52fd7cd818d156"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/remove-installed-path.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

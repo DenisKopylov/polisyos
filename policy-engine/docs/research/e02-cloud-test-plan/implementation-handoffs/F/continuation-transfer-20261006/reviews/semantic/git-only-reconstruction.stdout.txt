@@ -1,0 +1,1 @@
+{"check": "PASS", "denominator": {"original_findings": 35, "criterion_bindings": 36, "bundles": 17}, "primary_receipts": 25, "installed_observations": 11, "output": "/tmp/e02-F-continuation-20261006/fit-final35-review/git-only-reconstruction/input-bindings.json"}

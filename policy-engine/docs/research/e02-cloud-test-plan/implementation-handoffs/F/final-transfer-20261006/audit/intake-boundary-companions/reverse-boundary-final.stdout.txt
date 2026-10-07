@@ -1,0 +1,59 @@
+{
+  "source_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+  "rows": [
+    {
+      "input_graph_type": "dag",
+      "input_marks": [
+        "arrow",
+        "tail"
+      ],
+      "source_coordinates": [
+        "X",
+        "Y"
+      ],
+      "IR_or_method_error": "ValidationError: 1 validation error for CausalGraphModel\n  Value error, DAG requires oriented edges with mark_src=tail, mark_dst=arrow [type=value_error, input_value={'graph_type': 'dag', 'no..., 'sources': ['data']}]}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+    },
+    {
+      "input_graph_type": "pag",
+      "input_marks": [
+        "arrow",
+        "tail"
+      ],
+      "source_coordinates": [
+        "X",
+        "Y"
+      ],
+      "IR_model_admission": "accepted",
+      "default_method_edges": [
+        [
+          "Y",
+          "X",
+          "tail",
+          "arrow"
+        ]
+      ],
+      "node_status": "fail",
+      "node_error": {
+        "code": "foundry.execute_failed",
+        "message": "reconcile_causal_graph execution failed: static graph intake requires a declared DAG, not a PAG/CPDAG/ADMG",
+        "details": {}
+      }
+    },
+    {
+      "equivalent_canonical_forward_coordinate_graph": [
+        "Y",
+        "X"
+      ],
+      "node_status": "ok",
+      "actual_fresh_edges": [
+        [
+          "Y",
+          "X",
+          "tail",
+          "arrow"
+        ]
+      ]
+    }
+  ],
+  "classification": "Default canonical method recognizes known reverse direction; static Scientist node accepts only declaredDAG canonicalTAIL-ARROW input and intentionally refuses noncanonical reverse representation. No claim allknownresolved node inputs supported; missing generalnormalizedintake positive remains B214limited, protected broader B218limited."
+}

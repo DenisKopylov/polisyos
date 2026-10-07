@@ -1,0 +1,347 @@
+FFFFFFFFFFFFF                                                            [100%]
+=================================== FAILURES ===================================
+______________ test_native_cold_warm_rebind_and_reader_isolation _______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2c8c321810>
+
+    def test_native_cold_warm_rebind_and_reader_isolation(monkeypatch: pytest.MonkeyPatch) -> None:
+        x, a, y = _dgp()
+        calls = []
+        native = core._fit_crossfit_fold
+    
+        def observe(**kwargs):
+            calls.append((kwargs["rep_seed"], kwargs["fold_id"]))
+            return native(**kwargs)
+    
+        monkeypatch.setattr(core, "_fit_crossfit_fold", observe)
+        params = _params(__shared_nuisance_key="study")
+        contract = core.ATENuisanceContract.from_params(params)
+        first = core.fit_crossfit_nuisance_bundle(x, a, y, contract, params)
+        assert len(calls) == 6
+        updated = replace(contract, min_effective_sample_size=1000, coverage_guard="ess_aware",
+                          overlap_diagnostic_policy="current-report-policy")
+        second = core.fit_crossfit_nuisance_bundle(x, a, y, updated, params)
+        assert len(calls) == 6
+        assert second.diagnostics()["min_effective_sample_size"] == 1000
+        assert second.contract is updated
+        assert first.contract is contract
+>       assert all(r["split_policy"] == "current-report-policy" for r in second.selection_manifest)
+E       assert False
+E        +  where False = all(<generator object test_native_cold_warm_rebind_and_reader_isolation.<locals>.<genexpr> at 0x7f2c8c1e1d80>)
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:66: AssertionError
+____________ test_same_caller_label_does_not_bypass_fit_identity[X] ____________
+
+axis = 'X'
+
+    @pytest.mark.parametrize("axis", ["X", "T", "Y", "seed", "folds", "model", "split"])
+    def test_same_caller_label_does_not_bypass_fit_identity(axis: str) -> None:
+        x, a, y = _dgp(n=120)
+        params = _params(__shared_nuisance_key="same-label", n_repeats=1)
+        contract = core.ATENuisanceContract.from_params(params)
+        original = core.fit_crossfit_nuisance_bundle(x, a, y, contract, params)
+        x2, a2, y2 = x.copy(), a.copy(), y.copy()
+        updated = contract
+        if axis == "X":
+            x2[0] += 0.25
+        elif axis == "T":
+            a2[0] = 1 - a2[0]
+        elif axis == "Y":
+            y2[0] = 1 - y2[0]
+        elif axis == "seed":
+            updated = replace(contract, random_seed=41)
+        elif axis == "folds":
+            updated = replace(contract, crossfit_folds=4)
+        elif axis == "model":
+            updated = replace(contract, outcome_backend="elastic_net")
+        elif axis == "split":
+            updated = replace(contract, calibration_fraction=0.3)
+        changed = core.fit_crossfit_nuisance_bundle(x2, a2, y2, updated, params)
+>       assert changed.fit_identity != original.fit_identity
+               ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'ATENuisanceBundle' object has no attribute 'fit_identity'
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:103: AttributeError
+____________ test_same_caller_label_does_not_bypass_fit_identity[T] ____________
+
+axis = 'T'
+
+    @pytest.mark.parametrize("axis", ["X", "T", "Y", "seed", "folds", "model", "split"])
+    def test_same_caller_label_does_not_bypass_fit_identity(axis: str) -> None:
+        x, a, y = _dgp(n=120)
+        params = _params(__shared_nuisance_key="same-label", n_repeats=1)
+        contract = core.ATENuisanceContract.from_params(params)
+        original = core.fit_crossfit_nuisance_bundle(x, a, y, contract, params)
+        x2, a2, y2 = x.copy(), a.copy(), y.copy()
+        updated = contract
+        if axis == "X":
+            x2[0] += 0.25
+        elif axis == "T":
+            a2[0] = 1 - a2[0]
+        elif axis == "Y":
+            y2[0] = 1 - y2[0]
+        elif axis == "seed":
+            updated = replace(contract, random_seed=41)
+        elif axis == "folds":
+            updated = replace(contract, crossfit_folds=4)
+        elif axis == "model":
+            updated = replace(contract, outcome_backend="elastic_net")
+        elif axis == "split":
+            updated = replace(contract, calibration_fraction=0.3)
+        changed = core.fit_crossfit_nuisance_bundle(x2, a2, y2, updated, params)
+>       assert changed.fit_identity != original.fit_identity
+               ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'ATENuisanceBundle' object has no attribute 'fit_identity'
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:103: AttributeError
+____________ test_same_caller_label_does_not_bypass_fit_identity[Y] ____________
+
+axis = 'Y'
+
+    @pytest.mark.parametrize("axis", ["X", "T", "Y", "seed", "folds", "model", "split"])
+    def test_same_caller_label_does_not_bypass_fit_identity(axis: str) -> None:
+        x, a, y = _dgp(n=120)
+        params = _params(__shared_nuisance_key="same-label", n_repeats=1)
+        contract = core.ATENuisanceContract.from_params(params)
+        original = core.fit_crossfit_nuisance_bundle(x, a, y, contract, params)
+        x2, a2, y2 = x.copy(), a.copy(), y.copy()
+        updated = contract
+        if axis == "X":
+            x2[0] += 0.25
+        elif axis == "T":
+            a2[0] = 1 - a2[0]
+        elif axis == "Y":
+            y2[0] = 1 - y2[0]
+        elif axis == "seed":
+            updated = replace(contract, random_seed=41)
+        elif axis == "folds":
+            updated = replace(contract, crossfit_folds=4)
+        elif axis == "model":
+            updated = replace(contract, outcome_backend="elastic_net")
+        elif axis == "split":
+            updated = replace(contract, calibration_fraction=0.3)
+        changed = core.fit_crossfit_nuisance_bundle(x2, a2, y2, updated, params)
+>       assert changed.fit_identity != original.fit_identity
+               ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'ATENuisanceBundle' object has no attribute 'fit_identity'
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:103: AttributeError
+__________ test_same_caller_label_does_not_bypass_fit_identity[seed] ___________
+
+axis = 'seed'
+
+    @pytest.mark.parametrize("axis", ["X", "T", "Y", "seed", "folds", "model", "split"])
+    def test_same_caller_label_does_not_bypass_fit_identity(axis: str) -> None:
+        x, a, y = _dgp(n=120)
+        params = _params(__shared_nuisance_key="same-label", n_repeats=1)
+        contract = core.ATENuisanceContract.from_params(params)
+        original = core.fit_crossfit_nuisance_bundle(x, a, y, contract, params)
+        x2, a2, y2 = x.copy(), a.copy(), y.copy()
+        updated = contract
+        if axis == "X":
+            x2[0] += 0.25
+        elif axis == "T":
+            a2[0] = 1 - a2[0]
+        elif axis == "Y":
+            y2[0] = 1 - y2[0]
+        elif axis == "seed":
+            updated = replace(contract, random_seed=41)
+        elif axis == "folds":
+            updated = replace(contract, crossfit_folds=4)
+        elif axis == "model":
+            updated = replace(contract, outcome_backend="elastic_net")
+        elif axis == "split":
+            updated = replace(contract, calibration_fraction=0.3)
+        changed = core.fit_crossfit_nuisance_bundle(x2, a2, y2, updated, params)
+>       assert changed.fit_identity != original.fit_identity
+               ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'ATENuisanceBundle' object has no attribute 'fit_identity'
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:103: AttributeError
+__________ test_same_caller_label_does_not_bypass_fit_identity[folds] __________
+
+axis = 'folds'
+
+    @pytest.mark.parametrize("axis", ["X", "T", "Y", "seed", "folds", "model", "split"])
+    def test_same_caller_label_does_not_bypass_fit_identity(axis: str) -> None:
+        x, a, y = _dgp(n=120)
+        params = _params(__shared_nuisance_key="same-label", n_repeats=1)
+        contract = core.ATENuisanceContract.from_params(params)
+        original = core.fit_crossfit_nuisance_bundle(x, a, y, contract, params)
+        x2, a2, y2 = x.copy(), a.copy(), y.copy()
+        updated = contract
+        if axis == "X":
+            x2[0] += 0.25
+        elif axis == "T":
+            a2[0] = 1 - a2[0]
+        elif axis == "Y":
+            y2[0] = 1 - y2[0]
+        elif axis == "seed":
+            updated = replace(contract, random_seed=41)
+        elif axis == "folds":
+            updated = replace(contract, crossfit_folds=4)
+        elif axis == "model":
+            updated = replace(contract, outcome_backend="elastic_net")
+        elif axis == "split":
+            updated = replace(contract, calibration_fraction=0.3)
+        changed = core.fit_crossfit_nuisance_bundle(x2, a2, y2, updated, params)
+>       assert changed.fit_identity != original.fit_identity
+               ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'ATENuisanceBundle' object has no attribute 'fit_identity'
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:103: AttributeError
+__________ test_same_caller_label_does_not_bypass_fit_identity[model] __________
+
+axis = 'model'
+
+    @pytest.mark.parametrize("axis", ["X", "T", "Y", "seed", "folds", "model", "split"])
+    def test_same_caller_label_does_not_bypass_fit_identity(axis: str) -> None:
+        x, a, y = _dgp(n=120)
+        params = _params(__shared_nuisance_key="same-label", n_repeats=1)
+        contract = core.ATENuisanceContract.from_params(params)
+        original = core.fit_crossfit_nuisance_bundle(x, a, y, contract, params)
+        x2, a2, y2 = x.copy(), a.copy(), y.copy()
+        updated = contract
+        if axis == "X":
+            x2[0] += 0.25
+        elif axis == "T":
+            a2[0] = 1 - a2[0]
+        elif axis == "Y":
+            y2[0] = 1 - y2[0]
+        elif axis == "seed":
+            updated = replace(contract, random_seed=41)
+        elif axis == "folds":
+            updated = replace(contract, crossfit_folds=4)
+        elif axis == "model":
+            updated = replace(contract, outcome_backend="elastic_net")
+        elif axis == "split":
+            updated = replace(contract, calibration_fraction=0.3)
+        changed = core.fit_crossfit_nuisance_bundle(x2, a2, y2, updated, params)
+>       assert changed.fit_identity != original.fit_identity
+               ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'ATENuisanceBundle' object has no attribute 'fit_identity'
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:103: AttributeError
+__________ test_same_caller_label_does_not_bypass_fit_identity[split] __________
+
+axis = 'split'
+
+    @pytest.mark.parametrize("axis", ["X", "T", "Y", "seed", "folds", "model", "split"])
+    def test_same_caller_label_does_not_bypass_fit_identity(axis: str) -> None:
+        x, a, y = _dgp(n=120)
+        params = _params(__shared_nuisance_key="same-label", n_repeats=1)
+        contract = core.ATENuisanceContract.from_params(params)
+        original = core.fit_crossfit_nuisance_bundle(x, a, y, contract, params)
+        x2, a2, y2 = x.copy(), a.copy(), y.copy()
+        updated = contract
+        if axis == "X":
+            x2[0] += 0.25
+        elif axis == "T":
+            a2[0] = 1 - a2[0]
+        elif axis == "Y":
+            y2[0] = 1 - y2[0]
+        elif axis == "seed":
+            updated = replace(contract, random_seed=41)
+        elif axis == "folds":
+            updated = replace(contract, crossfit_folds=4)
+        elif axis == "model":
+            updated = replace(contract, outcome_backend="elastic_net")
+        elif axis == "split":
+            updated = replace(contract, calibration_fraction=0.3)
+        changed = core.fit_crossfit_nuisance_bundle(x2, a2, y2, updated, params)
+>       assert changed.fit_identity != original.fit_identity
+               ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'ATENuisanceBundle' object has no attribute 'fit_identity'
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:103: AttributeError
+_________ test_precomputed_bundle_is_content_bound_and_reader_isolated _________
+
+    def test_precomputed_bundle_is_content_bound_and_reader_isolated() -> None:
+        x, a, y = _dgp(n=120)
+        params = _params(n_repeats=1)
+        contract = core.ATENuisanceContract.from_params(params)
+        bundle = core.fit_crossfit_nuisance_bundle(x, a, y, contract, params)
+        precomputed = {**params, "__shared_nuisance_bundle": bundle}
+        accepted = core.fit_crossfit_nuisance_bundle(x, a, y, contract, precomputed)
+>       assert accepted is not bundle
+E       AssertionError: assert ATENuisanceBundle(propensity=array([0.49510859, 0.57270661, 0.56437956, 0.57270661, 0.57270661,\n       0.54599772, 0.5...ty_backend': None, 'selected_outcome_backend': 'compat_linear_regression', 'calibration_modes': [], 'arm': 'control'}]) is not ATENuisanceBundle(propensity=array([0.49510859, 0.57270661, 0.56437956, 0.57270661, 0.57270661,\n       0.54599772, 0.5...ty_backend': None, 'selected_outcome_backend': 'compat_linear_regression', 'calibration_modes': [], 'arm': 'control'}])
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:114: AssertionError
+______________ test_native_binary_target_score_ate_and_eif_oracle ______________
+
+    def test_native_binary_target_score_ate_and_eif_oracle() -> None:
+        x, a, y = _dgp(n=3000)
+        result, bundle = core.fit_tmle_ate(x, a, y, _params())
+        summary = result.targeting_summary
+>       assert summary["fluctuation_link"] == "logit"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'fluctuation_link'
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:128: KeyError
+_____ test_poor_bounded_initial_predictions_use_logit_not_clipped_identity _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2c8c2efaf0>
+
+    def test_poor_bounded_initial_predictions_use_logit_not_clipped_identity(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        x, a, y = _dgp()
+        contract = core.ATENuisanceContract.from_params(_params())
+        native = core.fit_crossfit_nuisance_bundle(x, a, y, contract)
+        native.mu1 = np.full(y.size, 0.01)
+        native.mu0 = np.full(y.size, 0.99)
+        monkeypatch.setattr(core, "fit_crossfit_nuisance_bundle", lambda *args: native)
+        result, _ = core.fit_tmle_ate(x, a, y, _params(outcome_family="bounded"))
+        summary = result.targeting_summary
+>       assert summary["fluctuation_link"] == "logit"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'fluctuation_link'
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:153: KeyError
+____ test_observed_positivity_failure_is_limited_at_actual_method_consumer _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2c8b0dedd0>
+
+    def test_observed_positivity_failure_is_limited_at_actual_method_consumer(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        x, a, y = _dgp()
+        contract = core.ATENuisanceContract.from_params(_params())
+        native = core.fit_crossfit_nuisance_bundle(x, a, y, contract)
+        native.propensity = np.full(y.size, contract.propensity_clipping)
+        monkeypatch.setattr(core, "fit_crossfit_nuisance_bundle", lambda *args: native)
+        payload = TMLEEstimator.pure_step({"X": x, "treatment": a, "outcome": y}, _params())
+        output = payload["result"]
+>       assert output["status"] == "limited"
+               ^^^^^^^^^^^^^^^^
+E       KeyError: 'status'
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:169: KeyError
+_______ test_effective_fold_policy_retains_all_folds_and_native_results ________
+
+    def test_effective_fold_policy_retains_all_folds_and_native_results() -> None:
+        x, a, y = _dgp(n=240)
+        serial, _ = core.fit_tmle_ate(x, a, y, _params(parallel_folds=False))
+        requested_parallel, bundle = core.fit_tmle_ate(
+            x, a, y, _params(parallel_folds=True, max_parallel_folds=0,
+                            __disable_shared_nuisance_cache=True)
+        )
+>       assert bundle.diagnostics()["execution_policy"]["effective_fold_workers"] == 1
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'execution_policy'
+
+tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py:182: KeyError
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_native_cold_warm_rebind_and_reader_isolation
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_same_caller_label_does_not_bypass_fit_identity[X]
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_same_caller_label_does_not_bypass_fit_identity[T]
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_same_caller_label_does_not_bypass_fit_identity[Y]
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_same_caller_label_does_not_bypass_fit_identity[seed]
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_same_caller_label_does_not_bypass_fit_identity[folds]
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_same_caller_label_does_not_bypass_fit_identity[model]
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_same_caller_label_does_not_bypass_fit_identity[split]
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_precomputed_bundle_is_content_bound_and_reader_isolated
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_native_binary_target_score_ate_and_eif_oracle
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_poor_bounded_initial_predictions_use_logit_not_clipped_identity
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_observed_positivity_failure_is_limited_at_actual_method_consumer
+FAILED tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_effective_fold_policy_retains_all_folds_and_native_results

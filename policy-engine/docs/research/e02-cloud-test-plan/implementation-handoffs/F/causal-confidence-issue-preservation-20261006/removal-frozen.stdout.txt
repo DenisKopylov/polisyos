@@ -1,0 +1,30 @@
+{"changed_in_memory_only": true, "class": "polisyos.scientist.governance.passes.confidence_pass.ConfidencePass", "control": "replace accumulated issues with only the same degraded warning", "method_identity_retained": true, "preserved": ["class", "method object", "issue codes", "issue types", "source labels", "gate thresholds", "artifact reference values", "degraded-path emission"], "signature": "(self, ctx: 'PassContext') -> 'list[ComplianceIssue]'"}
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_simulation_load_failure_preserves_causal_blocker_and_warning[0.0-artifacts_index-missing_bytes] _
+
+tmp_path = PosixPath('/tmp/e02-F-continuation-20261006/confidence-issue-preservation/removal-tmp/test_simulation_load_failure_p0')
+failure = 'missing_bytes', location = 'artifacts_index', min_ratio = 0.0
+
+    @pytest.mark.parametrize("failure", ["missing_bytes", "malformed_json", "wrong_model"])
+    @pytest.mark.parametrize("location", ["artifacts_index", "top_level"])
+    @pytest.mark.parametrize("min_ratio", [0.0, 1.0])
+    def test_simulation_load_failure_preserves_causal_blocker_and_warning(
+        tmp_path: Path, failure: str, location: str, min_ratio: float
+    ) -> None:
+        writer = FileSystemCAS(tmp_path)
+        state = _state(location, _envelope(writer), _unloadable_simulation(writer, failure))
+        issues = ConfidencePass().validate(
+            _context(FileSystemCAS(tmp_path), state, min_ratio=min_ratio)
+        )
+        actual = json.dumps([issue.model_dump(mode="json") for issue in issues], sort_keys=True)
+>       assert len(_candidate_blockers(issues)) == 1, actual
+E       AssertionError: [{"code": "CONFIDENCE_SIM_RESULT_LOAD_FAILED", "input_value": null, "message": "Failed to load SimulationResult: Artifact not found: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "pass_id": "confidence", "path": ["artifacts_index", "simulation_result_ref"], "severity": "warning", "suggestion": null}]
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = _candidate_blockers([ComplianceIssue(pass_id='confidence', path=['artifacts_index', 'simulation_result_ref'], message='Failed to load Simu...erity=<IssueSeverity.WARNING: 'warning'>, code='CONFIDENCE_SIM_RESULT_LOAD_FAILED', suggestion=None, input_value=None)])
+
+tests/unit/scientist/governance/test_confidence_issue_accumulation.py:124: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/governance/test_confidence_issue_accumulation.py::test_simulation_load_failure_preserves_causal_blocker_and_warning[0.0-artifacts_index-missing_bytes]
+1 failed in 0.10s

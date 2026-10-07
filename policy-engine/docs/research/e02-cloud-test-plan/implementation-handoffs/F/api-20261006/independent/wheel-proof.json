@@ -1,0 +1,21 @@
+{
+  "kind": "wheel",
+  "python_executable": "/workspace/e02-F-20261006-receipts/api/wheel-env/bin/python",
+  "isolated": 1,
+  "cwd": "/workspace/e02-F-20261006-receipts/economics/api-review",
+  "sys_path": [
+    "/workspace/e02-F-20261006-receipts/economics/api-review",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python314.zip",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/lib-dynload",
+    "/workspace/e02-F-20261006-receipts/api/wheel-env/lib/python3.14/site-packages",
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages"
+  ],
+  "installed_site": "/workspace/e02-F-20261006-receipts/api/wheel-env/lib/python3.14/site-packages",
+  "loaded_product_modules": 776,
+  "origin_violations": {},
+  "pytest_exit": 0,
+  "test_sha256": "43ffef1dc0db7445a4eea648fb60c7523b38cf145d09412ef70855b83d11e73b",
+  "census_script_sha256": "b37d0f16ded8f7fe54690ab3d3bd0971a08765af99f6db7666a1ebc700655e88",
+  "source_sha": "729d137279b7d6334230045e420255762fe55f08"
+}

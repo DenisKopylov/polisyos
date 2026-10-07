@@ -1,0 +1,12 @@
+{
+  "checks": [
+    "docs-gate-readonly-env"
+  ],
+  "effective_environment": {
+    "UV_NO_SYNC": "1",
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-F-closeout-20261006/policy-engine/.venv",
+    "PYTHONPATH": "src:.:tools"
+  },
+  "purpose": "Exact externally supplied environment for full native docs gate; nested uv run reused existing installed environment without synchronization. Original docs-gate invocation attempted own environment synchronization and failed; preserved separately.",
+  "global_failure_provenance": "not_established; exact slice-base/full disjoint denominator was not measured."
+}

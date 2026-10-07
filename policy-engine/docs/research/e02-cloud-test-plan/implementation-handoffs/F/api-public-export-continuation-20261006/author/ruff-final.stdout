@@ -1,0 +1,45 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py:3:1
+   |
+ 1 |   """Supported library loader and source-configuration boundaries after PR65."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import importlib
+ 6 | | import importlib.util
+ 7 | | import pickle
+ 8 | | import runpy
+ 9 | | from pathlib import Path
+10 | |
+11 | | import pytest
+   | |_____________^
+   |
+help: Organize imports
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py:40:5
+   |
+39 |   def test_real_registry_keeps_canonical_method_and_public_engine_identities() -> None:
+40 | /     from polisyos.foundry.methods.causal import ensure_causal_methods_registered
+41 | |     from polisyos.foundry.methods.catalog.causal._registry_boot import register_causal_methods
+42 | |     from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
+43 | |     from polisyos.foundry.methods.catalog.causal.causal_engine.api import CausalEngine as Owner
+44 | |     from polisyos.foundry.methods.catalog.causal.symbolic_identify import SymbolicIdentify
+45 | |     from polisyos.foundry.methods.registry import MethodRegistry
+   | |________________________________________________________________^
+46 |
+47 |       methods = register_causal_methods()
+   |
+help: Organize imports
+
+S301 `pickle` and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue
+  --> tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py:52:12
+   |
+50 |     assert MethodRegistry.get_instance().get(SymbolicIdentify.signature.fqn) is SymbolicIdentify
+51 |     assert CausalEngine is Owner
+52 |     assert pickle.loads(pickle.dumps(CausalEngine)) is Owner
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+Found 3 errors.
+[*] 2 fixable with the `--fix` option.

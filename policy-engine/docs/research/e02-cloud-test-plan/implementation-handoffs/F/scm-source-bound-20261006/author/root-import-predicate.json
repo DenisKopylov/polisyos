@@ -1,0 +1,244 @@
+{
+  "canonical_classifier": "tools.devx.architecture.guardrails._maybe_add_deep_import/_check_deep_import_creep",
+  "complete_denominator": "all AST imports in actual query node, original classifier/policy/baseline unchanged",
+  "before": {
+    "import_targets": [
+      "__future__",
+      "collections.abc",
+      "contextlib",
+      "dataclasses",
+      "typing",
+      "pydantic",
+      "polisyos.common.serialization",
+      "polisyos.core.artifacts.ids",
+      "polisyos.core.artifacts.manifest",
+      "polisyos.core.canon",
+      "polisyos.core.components",
+      "polisyos.foundry.methods",
+      "polisyos.foundry.methods.catalog",
+      "polisyos.foundry.methods.catalog.causal.protocols",
+      "polisyos.ir.analytics.causal_queries",
+      "polisyos.ir.analytics.structural_causal_model",
+      "polisyos.ir.analytics.uncertainty",
+      "polisyos.ir.registry.refs",
+      "polisyos.scientist.compute.job_spec",
+      "polisyos.scientist.compute.runner",
+      "polisyos.scientist.nodes.builtins",
+      "polisyos.scientist.nodes.builtins.state_keys",
+      "polisyos.scientist.orchestration.engine.context",
+      "polisyos.scientist.orchestration.engine.protocol",
+      "polisyos.scientist.orchestration.engine.state",
+      "polisyos.scientist.orchestration.engine.state_branching"
+    ],
+    "targets_denominator": 26,
+    "current_edges": [
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.common.serialization",
+        "target_root": "common"
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.core.artifacts.ids",
+        "target_root": "core"
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.core.artifacts.manifest",
+        "target_root": "core"
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.core.canon",
+        "target_root": "core"
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.core.components",
+        "target_root": "core"
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.foundry.methods",
+        "target_root": "foundry"
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.foundry.methods.catalog",
+        "target_root": "foundry"
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.foundry.methods.catalog.causal.protocols",
+        "target_root": "foundry"
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.ir.analytics.causal_queries",
+        "target_root": "ir"
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.ir.analytics.structural_causal_model",
+        "target_root": "ir"
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.ir.analytics.uncertainty",
+        "target_root": "ir"
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.ir.registry.refs",
+        "target_root": "ir"
+      }
+    ],
+    "new_violations": [
+      {
+        "check": "deep_import",
+        "subject": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "message": "New deep-import creep detected: polisyos.scientist.nodes.builtins.causal.run_causal_queries -> polisyos.common.serialization (src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+        "detail": "polisyos.common.serialization",
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "target_module": "polisyos.common.serialization"
+      },
+      {
+        "check": "deep_import",
+        "subject": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "message": "New deep-import creep detected: polisyos.scientist.nodes.builtins.causal.run_causal_queries -> polisyos.core.canon (src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+        "detail": "polisyos.core.canon",
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "target_module": "polisyos.core.canon"
+      },
+      {
+        "check": "deep_import",
+        "subject": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "message": "New deep-import creep detected: polisyos.scientist.nodes.builtins.causal.run_causal_queries -> polisyos.foundry.methods (src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+        "detail": "polisyos.foundry.methods",
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "target_module": "polisyos.foundry.methods"
+      }
+    ]
+  },
+  "after": {
+    "import_targets": [
+      "__future__",
+      "collections.abc",
+      "contextlib",
+      "dataclasses",
+      "typing",
+      "pydantic",
+      "polisyos.common",
+      "polisyos.core",
+      "polisyos.core.artifacts.ids",
+      "polisyos.core.artifacts.manifest",
+      "polisyos.core.components",
+      "polisyos.foundry",
+      "polisyos.foundry.methods.catalog",
+      "polisyos.foundry.methods.catalog.causal.protocols",
+      "polisyos.ir.analytics.causal_queries",
+      "polisyos.ir.analytics.structural_causal_model",
+      "polisyos.ir.analytics.uncertainty",
+      "polisyos.ir.registry.refs",
+      "polisyos.scientist.compute.job_spec",
+      "polisyos.scientist.compute.runner",
+      "polisyos.scientist.nodes.builtins",
+      "polisyos.scientist.nodes.builtins.state_keys",
+      "polisyos.scientist.orchestration.engine.context",
+      "polisyos.scientist.orchestration.engine.protocol",
+      "polisyos.scientist.orchestration.engine.state",
+      "polisyos.scientist.orchestration.engine.state_branching"
+    ],
+    "targets_denominator": 26,
+    "current_edges": [
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.core.artifacts.ids",
+        "target_root": "core"
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.core.artifacts.manifest",
+        "target_root": "core"
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.core.components",
+        "target_root": "core"
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.foundry.methods.catalog",
+        "target_root": "foundry"
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.foundry.methods.catalog.causal.protocols",
+        "target_root": "foundry"
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.ir.analytics.causal_queries",
+        "target_root": "ir"
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.ir.analytics.structural_causal_model",
+        "target_root": "ir"
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.ir.analytics.uncertainty",
+        "target_root": "ir"
+      },
+      {
+        "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+        "source_root": "scientist",
+        "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+        "target_module": "polisyos.ir.registry.refs",
+        "target_root": "ir"
+      }
+    ],
+    "new_violations": []
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/cau/root-selected-views-independent.py",
+    "--removal"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "source_sha": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77",
+  "source_tree": "508884be8ea79e5b87844030ea4122c8e74d610a",
+  "utc": "2026-10-06T15:40:55.069993+00:00",
+  "elapsed_s": 10.792312101999414,
+  "exit_code": 1,
+  "environment": {
+    "python": "3.14.7",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/tmp/e02-F-continuation-20261006/cau/frozen-import:/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine:."
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-removal.stdout",
+    "bytes": 1608,
+    "sha256": "1d381267257816c5f29b6eb2abd772b43f91141e0958590a3af4c9b86da33c56"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-removal.stderr",
+    "bytes": 372,
+    "sha256": "a1837b5f85bd0b5ced4566c85fee8520ba53d5d60a7f86ab62ae966c4eb03471"
+  }
+}

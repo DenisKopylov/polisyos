@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/workspace/e02-F-20261006-receipts/cau/final-committed-transfer-review-replayer.py", line 92, in <module>
+    exec(compile(verifier_raw, namespace['__file__'], 'exec'), namespace)
+  File "/workspace/e02-F-closeout-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/verify_transfer.py", line 40, in <module>
+    assert len(raw) == ref['bytes'] and digest(raw) == ref['sha256'], ref['path']
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/published-protocol-audit.json.gz

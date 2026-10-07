@@ -1,0 +1,101 @@
+{"independent_frozen_owner": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77", "source_sha256": "b8699aaa117aa4912f5446ed880f874aca5c7d703274c66c5656b455f9c3f74b", "pid": 668940, "origin": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py"}
+{
+  "source_sha": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77",
+  "source_tree": "508884be8ea79e5b87844030ea4122c8e74d610a",
+  "owner_sha256": "b8699aaa117aa4912f5446ed880f874aca5c7d703274c66c5656b455f9c3f74b",
+  "python": "3.14.7",
+  "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "providers": [
+    {
+      "module": "numpy",
+      "file": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+      "version": "2.3.5"
+    },
+    {
+      "module": "scipy",
+      "file": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/scipy/__init__.py",
+      "version": "1.16.3"
+    },
+    {
+      "module": "statsmodels",
+      "file": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/statsmodels/__init__.py",
+      "version": "0.14.6"
+    },
+    {
+      "module": "pytest",
+      "file": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+      "version": "9.0.2"
+    },
+    {
+      "module": "pydantic",
+      "file": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__init__.py",
+      "version": "2.12.5"
+    },
+    {
+      "module": "polisyos.core.artifacts.store",
+      "file": "/workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/core/artifacts/store.py",
+      "version": null,
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "actual_sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+      "frozen_git_sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+      "matches_frozen_git": true
+    },
+    {
+      "module": "polisyos.core.artifacts",
+      "file": "/workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "version": null,
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "actual_sha256": "bf4757743e4618d1576f62a1a34a4469f0988b6f42a8708554f9b2696ba10a7f",
+      "frozen_git_sha256": "bf4757743e4618d1576f62a1a34a4469f0988b6f42a8708554f9b2696ba10a7f",
+      "matches_frozen_git": true
+    },
+    {
+      "module": "polisyos.foundry.methods.catalog.causal.did",
+      "file": "/workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "version": null,
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "actual_sha256": "0a352e6895e4683f07f8494b51508401fa98b7cb4d733d27365388de063c7919",
+      "frozen_git_sha256": "0a352e6895e4683f07f8494b51508401fa98b7cb4d733d27365388de063c7919",
+      "matches_frozen_git": true
+    },
+    {
+      "module": "polisyos.foundry.methods.registry",
+      "file": "/workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/foundry/methods/registry.py",
+      "version": null,
+      "path": "policy-engine/src/polisyos/foundry/methods/registry.py",
+      "actual_sha256": "62759ddce28378ddc340c04f64bf7ffdf64f18dcb9cc9722288d6afb7d0411e7",
+      "frozen_git_sha256": "62759ddce28378ddc340c04f64bf7ffdf64f18dcb9cc9722288d6afb7d0411e7",
+      "matches_frozen_git": true
+    },
+    {
+      "module": "polisyos.foundry.methods.components.io",
+      "file": "/workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/foundry/methods/components/io.py",
+      "version": null,
+      "path": "policy-engine/src/polisyos/foundry/methods/components/io.py",
+      "actual_sha256": "11fd5a3c49d0beb745d3007cb123671c9a53981f1856c1c1591ad909fcb6a621",
+      "frozen_git_sha256": "11fd5a3c49d0beb745d3007cb123671c9a53981f1856c1c1591ad909fcb6a621",
+      "matches_frozen_git": true
+    },
+    {
+      "module": "polisyos.scientist.compute.runner",
+      "file": "/workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/scientist/compute/runner.py",
+      "version": null,
+      "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+      "actual_sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd",
+      "frozen_git_sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd",
+      "matches_frozen_git": true
+    },
+    {
+      "module": "tests.unit.scientist.nodes.conftest",
+      "file": "/workspace/e02-F-closeout-20261006/policy-engine/tests/unit/scientist/nodes/conftest.py",
+      "version": null,
+      "path": "policy-engine/tests/unit/scientist/nodes/conftest.py",
+      "actual_sha256": "5efe0ef0510816c884b4ae09930fadeabd058eb8dfb16b1f3e281fdd5096d9b7",
+      "frozen_git_sha256": "5efe0ef0510816c884b4ae09930fadeabd058eb8dfb16b1f3e281fdd5096d9b7",
+      "matches_frozen_git": true
+    }
+  ],
+  "canonical_owner_bare_artifact_id_store_reads": [],
+  "working_tree_status_observed": "",
+  "profile": "Core CAS actual byte/selected-manifest identity; independent from PDC semantic identity and evaluation authority"
+}

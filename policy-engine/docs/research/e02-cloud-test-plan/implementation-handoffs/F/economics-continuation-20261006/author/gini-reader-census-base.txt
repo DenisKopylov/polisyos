@@ -1,0 +1,53 @@
+fb51511f:policy-engine/src/polisyos/data_forge/domains/academic/knowledge/runtime_canonical_registry.py:318:    "economic.gini_coefficient": RuntimeCanonicalEntry(
+fb51511f:policy-engine/src/polisyos/data_forge/domains/academic/knowledge/runtime_canonical_registry.py:319:        canonical_name="economic.gini_coefficient",
+fb51511f:policy-engine/src/polisyos/data_forge/domains/catalog/batch/normalizer.py:116:    ("gini_coefficient", ("gini", "income inequality", "gini coefficient", "współczynnik gini")),
+fb51511f:policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py:170:    ("worldbank", "gini_coefficient"): 0.20,
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/analysis.py:246:            "baseline_gini": baseline_final.distributions.gini_wealth,
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/analysis.py:247:            "counterfactual_gini": cf_final.distributions.gini_wealth,
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/analysis.py:249:            "gini_change": cf_final.distributions.gini_wealth
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/analysis.py:250:            - baseline_final.distributions.gini_wealth,
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/credit_assignment.py:155:        gini_wealth = state.distributions.gini_wealth
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/credit_assignment.py:156:        gini_income = state.distributions.gini_income
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/credit_assignment.py:173:                gini_wealth,
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/credit_assignment.py:174:                gini_income,
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/distribution_executor.py:47:                "gini_wealth": state.distributions.gini_wealth,
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/distribution_executor.py:48:                "gini_income": state.distributions.gini_income,
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/distributions.py:48:    gini_wealth: Float[Array, ""]
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/distributions.py:49:    gini_income: Float[Array, ""]
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/distributions.py:64:            gini_wealth=jnp.array(0.0, dtype=jnp.float32),
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/distributions.py:65:            gini_income=jnp.array(0.0, dtype=jnp.float32),
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/distributions.py:77:    gini_wealth: Float[Array, ""]
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/distributions.py:78:    gini_income: Float[Array, ""]
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/distributions.py:158:    gini_wealth = compute_gini(
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/distributions.py:164:    gini_income = compute_gini(
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/distributions.py:191:        gini_wealth=gini_wealth,
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/distributions.py:192:        gini_income=gini_income,
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/distributions.py:722:        gini_wealth=full_state.gini_wealth,
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/distributions.py:723:        gini_income=full_state.gini_income,
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/distributions.py:758:        gini = next_state.distributions.gini_wealth
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/government_policy.py:107:        total = total - welfare_weights.get("neg_gini", 0.0) * state.distributions.gini_wealth
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/metrics.py:180:            name="gini_wealth",
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/metrics.py:182:            compute_fn=lambda s: s.distributions.gini_wealth,
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/modes.py:109:        total = total - weights["neg_gini"] * state.distributions.gini_wealth
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/state.py:67:    gini_coefficient: Float[Array, ""]
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/state.py:147:            gini_coefficient=jnp.array(0.0, dtype=jnp.float32),
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/state.py:200:        gini_coefficient=gini,
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/visualization.py:364:        metrics: Sequence[str] = ("gdp", "gini_wealth", "mean_consumption"),
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/wiring/executors.py:275:        gini_wealth=compute_gini_hard(state.agents.savings, active),
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/wiring/executors.py:276:        gini_income=compute_gini_hard(state.agents.income, active),
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/wiring/executors.py:847:            "distribution/gini_income": distribution.gini_income,
+fb51511f:policy-engine/src/polisyos/foundry/agent_sim/wiring/executors.py:848:            "distribution/gini_wealth": distribution.gini_wealth,
+fb51511f:policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py:883:            "final_gini": final_state.distributions.gini_wealth,
+fb51511f:policy-engine/src/polisyos/foundry/methods/components/slot_schema.py:561:        name="gini_coefficient",
+fb51511f:policy-engine/src/polisyos/foundry/plugins/economics/objectives.py:36:        return state.distributions.gini_wealth
+fb51511f:policy-engine/src/polisyos/foundry/plugins/economics/objectives.py:89:            welfare = welfare - self.weights["neg_gini"] * state.distributions.gini_wealth
+fb51511f:policy-engine/src/polisyos/foundry/plugins/economics/plugin.py:146:        ax.set_title(f"Wealth Distribution (Gini: {float(state.distributions.gini_wealth):.3f})")
+fb51511f:policy-engine/src/polisyos/foundry/plugins/economics/state.py:92:    gini_wealth: jnp.ndarray
+fb51511f:policy-engine/src/polisyos/foundry/plugins/economics/state.py:93:    gini_income: jnp.ndarray
+fb51511f:policy-engine/src/polisyos/foundry/plugins/economics/state.py:180:        gini_wealth = compute_gini_hard(agents.wealth, active)
+fb51511f:policy-engine/src/polisyos/foundry/plugins/economics/state.py:181:        gini_income = compute_gini_hard(agents.income, active)
+fb51511f:policy-engine/src/polisyos/foundry/plugins/economics/state.py:188:            gini_wealth=gini_wealth,
+fb51511f:policy-engine/src/polisyos/foundry/plugins/economics/state.py:189:            gini_income=gini_income,
+fb51511f:policy-engine/src/polisyos/scientist/methods/search/objective.py:206:        return float(results.get("gini_coefficient", 0.5))
+fb51511f:policy-engine/src/polisyos/scientist/orchestration/orchestrator/decision_card.py:451:        ("gini_coefficient", "Gini Coefficient", 1.0, ""),
+fb51511f:policy-engine/src/polisyos/scientist/policy_design/objectives.py:550:    return _metric(metrics, "gini_delta", "gini_coefficient", default=0.0)

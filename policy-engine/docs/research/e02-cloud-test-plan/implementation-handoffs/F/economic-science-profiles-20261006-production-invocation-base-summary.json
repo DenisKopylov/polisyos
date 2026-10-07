@@ -1,0 +1,44 @@
+{
+  "raw_output": {
+    "path": "/workspace/e02-F-20261006-receipts/economics/production-invocation-base-report.json",
+    "bytes": 170870192,
+    "sha256": "dd62d080b54dd93e895bf2626d083b71f22995a4d89ad7e6f93a5a416ae150b9",
+    "transfer": "not_admitted_large_local"
+  },
+  "schema": null,
+  "status": null,
+  "coverage": "partial",
+  "source": {
+    "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.",
+    "unmeasured": [
+      "HTTP router dispatch",
+      "dependency injection/container dispatch",
+      "event-bus dispatch",
+      "registered callback invocation",
+      "deferred lambda/coroutine execution and generator resumption",
+      "reflection and dynamic receiver/factory resolution",
+      "runtime execution, persisted business receipts, and gate substance"
+    ],
+    "summary": "Partial coverage: Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies. Unmeasured: HTTP router dispatch; dependency injection/container dispatch; event-bus dispatch; registered callback invocation; deferred lambda/coroutine execution and generator resumption; reflection and dynamic receiver/factory resolution; runtime execution, persisted business receipts, and gate substance.",
+    "runtime_invocation_established": false,
+    "base": "198076863e143dea9f89f02734b13d50dae3eed5"
+  },
+  "complete_stdout": "production-invocation-base.txt",
+  "purpose": "Baseline partial static invocation diagnostic only; no runtime invocation/whole finding closure or P41 inherited-red attribution",
+  "scope_counts": {
+    "mechanisms": 13081,
+    "regressions": 0,
+    "new_unresolved_by_construction": 0,
+    "unresolved_by_construction": 9191,
+    "unresolved_receiver_calls": 139724,
+    "roots": 401
+  },
+  "denominator": {
+    "current_files": 5904,
+    "base_files": 5904,
+    "source_files": 2698,
+    "current_sha256": "a1ffd1bdd0c8b2549a5c0c7a8c4ce56dc6645e0416ba4dda5c95e43b274a84c5",
+    "base_sha256": "a1ffd1bdd0c8b2549a5c0c7a8c4ce56dc6645e0416ba4dda5c95e43b274a84c5"
+  },
+  "denominator_paths_reconstructible": "Complete raw paths remain local; git tree198 plus tracked source-file scope reproduce the census. This is not a disjointness or real-invocation witness."
+}

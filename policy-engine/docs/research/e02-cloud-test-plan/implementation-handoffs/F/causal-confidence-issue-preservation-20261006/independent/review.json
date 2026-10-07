@@ -1,0 +1,212 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "reviewer": "/root/foundry independent of FIT Confidence implementation",
+  "source_sha": "df5057dd3816885fc5bfacd9a9f1ee772df9ac51",
+  "source_tree": "e49bf230bbf7b6a52da0243693ef700620a82e03",
+  "slice_base_sha": "6fe6e352ad5aff4055b490a7892ae123dad1c0ab",
+  "verdict": "GO",
+  "scope": "Generic preservation of accumulated issues across degraded simulation reads, complete four-path diff and selected native consumers.",
+  "changed_paths": [
+    "policy-engine/docs/reference/scientist/causal-confidence-issue-preservation.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-causal-confidence-issue-preservation.toml",
+    "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+    "policy-engine/tests/unit/scientist/governance/test_confidence_issue_accumulation.py"
+  ],
+  "source_refs": [
+    {
+      "path": "policy-engine/docs/reference/scientist/causal-confidence-issue-preservation.md",
+      "git_sha": "df5057dd3816885fc5bfacd9a9f1ee772df9ac51",
+      "git_blob": "ce62de0a42682b08335a339c7496dd15aa9725a2",
+      "sha256": "241f0311dc21c8ee904c5f26fbd42bbb7f7df506ba835aea977f7f27030849b4",
+      "size_bytes": 2153
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-causal-confidence-issue-preservation.toml",
+      "git_sha": "df5057dd3816885fc5bfacd9a9f1ee772df9ac51",
+      "git_blob": "baa668d982ec98332060bdcaae36cbbe7dbedae4",
+      "sha256": "63151e3c08558b884788685bc2a4f1d145e9d000c9f9fa3ad8ea37eea8404177",
+      "size_bytes": 1943
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+      "git_sha": "df5057dd3816885fc5bfacd9a9f1ee772df9ac51",
+      "git_blob": "8e16e8d76aeb8f4efe05589c1e084111d4479ee7",
+      "sha256": "8859ef8c96a2db6b7ed99af5524815ff2027753a24a6b7e482367a14a8470f74",
+      "size_bytes": 10787
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/governance/test_confidence_issue_accumulation.py",
+      "git_sha": "df5057dd3816885fc5bfacd9a9f1ee772df9ac51",
+      "git_blob": "83088b9c00082081e6be050b362d61146f02d9bf",
+      "sha256": "6935a69fafdc97285f47cc3839cd13592731afe7e9a7a3f6d8bcf3f9b0170175",
+      "size_bytes": 7371
+    }
+  ],
+  "return_sites_checked": 5,
+  "unchanged_scientific_source": [
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "base_sha": "6fe6e352ad5aff4055b490a7892ae123dad1c0ab",
+      "source_sha": "df5057dd3816885fc5bfacd9a9f1ee772df9ac51",
+      "equal_git_blob": "9a0447fa7a66b45e045352377abe8e2855268781"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "base_sha": "6fe6e352ad5aff4055b490a7892ae123dad1c0ab",
+      "source_sha": "df5057dd3816885fc5bfacd9a9f1ee772df9ac51",
+      "equal_git_blob": "0a2495855d707a6548da6983bdef9abed9c4b0c7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+      "base_sha": "6fe6e352ad5aff4055b490a7892ae123dad1c0ab",
+      "source_sha": "df5057dd3816885fc5bfacd9a9f1ee772df9ac51",
+      "equal_git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+      "base_sha": "6fe6e352ad5aff4055b490a7892ae123dad1c0ab",
+      "source_sha": "df5057dd3816885fc5bfacd9a9f1ee772df9ac51",
+      "equal_git_blob": "06fa2013eae4b8232ba0680da2fabdadd6a8a962"
+    }
+  ],
+  "checks": [
+    {
+      "name": "native",
+      "outcome": "PASS",
+      "census": {
+        "passed": 58,
+        "failed": 0,
+        "skip": 0,
+        "error": 0,
+        "warnings": 1
+      },
+      "record": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/native.json",
+        "sha256": "6385c49af3179ef6c9755f693dba4c438fd35328288be2a8a2a0a8bdafbf43af",
+        "size_bytes": 1821
+      },
+      "exit_code": 0,
+      "wall_seconds": 9.841411934001371,
+      "child_peak_rss_kib": 608712,
+      "full_outputs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/native.stdout.txt",
+          "sha256": "d1b5ef9453784a53b87928abad5f8daacace9b082374a5d4247518d449bb9659",
+          "size_bytes": 615
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/native.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      ]
+    },
+    {
+      "name": "mixed-initial",
+      "outcome": "FAIL",
+      "census": {
+        "passed": 1,
+        "failed": 4,
+        "skip": 0,
+        "error": 0
+      },
+      "record": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/mixed-initial.json",
+        "sha256": "4f008b23137ec61fa662b89a260a2c0ee3ccc9414f75553166348e5f8d7e1c00",
+        "size_bytes": 1707
+      },
+      "exit_code": 1,
+      "wall_seconds": 2.644364462001249,
+      "child_peak_rss_kib": 143312,
+      "full_outputs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/mixed-initial.stdout.txt",
+          "sha256": "564b27b76465e4a06678ca74ab2d04b416d5833ad790f6ca4829700973b22301",
+          "size_bytes": 3821
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/mixed-initial.stderr.txt",
+          "sha256": "70a4d774191f7a4e2a9ae9a306a9f87b938938bb33ea3a3e2ab993880778c4d6",
+          "size_bytes": 633
+        }
+      ]
+    },
+    {
+      "name": "mixed-corrected",
+      "outcome": "PASS",
+      "census": {
+        "passed": 5,
+        "failed": 0,
+        "skip": 0,
+        "error": 0,
+        "warnings": 0
+      },
+      "record": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/mixed-corrected.json",
+        "sha256": "730386d89e4156d6931889edb6876caabfce73404357a78153883b0fc13dfbe4",
+        "size_bytes": 1748
+      },
+      "exit_code": 0,
+      "wall_seconds": 2.496133001986891,
+      "child_peak_rss_kib": 143760,
+      "full_outputs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/mixed-corrected.stdout.txt",
+          "sha256": "bc60b8b13eaf33fef31eca5e083498fd93abfa0c32f84bdd6ca24155a6d659fd",
+          "size_bytes": 3231
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/mixed-corrected.stderr.txt",
+          "sha256": "48721eb5cca777fd3a9206cdbe3ff4defee20b65cbcb2dcc7ddc6be569508902",
+          "size_bytes": 2828
+        }
+      ]
+    },
+    {
+      "name": "removal",
+      "outcome": "FAIL",
+      "census": {
+        "failed": 1,
+        "deselected": 4,
+        "skip": 0,
+        "error": 0
+      },
+      "record": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/removal.json",
+        "sha256": "700feb4c058c2ef553a03b7e44ba57b4e1b27c05c4bf85460fd32412d7305001",
+        "size_bytes": 1439
+      },
+      "exit_code": 1,
+      "wall_seconds": 2.598898273994564,
+      "child_peak_rss_kib": 143540,
+      "full_outputs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/removal.stdout.txt",
+          "sha256": "125e4047bea89130599632bdd5fe8b2ea6616bf41e983e127cb064520b9fbd6b",
+          "size_bytes": 1774
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/foundry/confidence-review/removal.stderr.txt",
+          "sha256": "ea3f816ae4377b95d27e900f6ed5f51a8def547ace624c77055350f6fbbba61b",
+          "size_bytes": 786
+        }
+      ]
+    }
+  ],
+  "independent_discriminators": [
+    "Actual top-level string ArtifactID for absent bytes, malformed JSON and schema-invalid boolean retains existing causal-role blocker plus degraded warning through fresh FileSystemCAS reader.",
+    "Index malformed simulation ref takes priority over healthy top-level string ref without losing accumulated blocker.",
+    "Noncausal healthy simulation referenced by string remains supported with no issues.",
+    "Memory-only __code__ removal keeps class/method identity, signature/doc/module/annotations and real degraded warning but test detects dropped blocker."
+  ],
+  "initial_harness_failure": "First mixed test run 4FAIL1PASS: four fixtures omitted mandatory PutOptions.media_type and stopped before affected consumer. Complete original stdout/stderr retained; corrected fixtures use actual public ArtifactWriteOptions. No product defect or whole positive inferred from initial run.",
+  "warnings": "Native58 has one existing governance.profiles DeprecationWarning; mixed controls retain genuine degraded-path logger warnings in full stderr. They are not suppressed.",
+  "predicate_basis": "independently_reconciled",
+  "limitations": [
+    "No accepted causal issuer/verifier/admitted Runtime execution-context or whole production Node positive witness.",
+    "No B56 common admitted production budget or fold-concurrency closure.",
+    "No full architecture/generated/global docs gate run or inherited-red attribution.",
+    "Author original immutable12FAIL/removal/native logs are existing owner evidence, not independently rerun baseline here."
+  ],
+  "selected_output_custody": "Every selecting check has complete stdout/stderr plus source-bound command/environment/timing/RSS; no tracked source copies included."
+}

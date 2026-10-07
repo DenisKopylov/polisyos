@@ -21,11 +21,16 @@
       "sha256": "e3a79cf869f1b8500d69c9a35c82bef14a8a92dbd218c3d6f55eb1d9b59771a2"
     },
     {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-consumer-owner-contracts-20261007/check-profile.json",
+      "bytes": 760,
+      "sha256": "2c7cf7255734bce0918e229485603b8c65a9effde32908625d0fac635c93dc44"
+    },
+    {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-consumer-owner-contracts-20261007/owner-packets.json",
       "bytes": 26728,
       "sha256": "958351580782c127584f6c30983d719ef054cb642fa815c557d83d46dd34a8a5"
     }
   ],
-  "bytes": 549577,
-  "purpose": "Full finite source/input equality and owner contract packet; no production/runtime acceptance"
+  "bytes": 550337,
+  "purpose": "Complete six payloads; self index separate. Source/input equality and owner proposals, no runtime acceptance."
 }

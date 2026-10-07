@@ -1,0 +1,18 @@
+2026-10-07 21:38:04.188 | INFO     | polisyos.common.logger:_call:120 - Lex local embed: entities=2 (skipped=0)
+2026-10-07 21:38:04.199 | INFO     | polisyos.common.logger:_call:120 - Lex local embed: facts=2 (skipped=0)
+2026-10-07 21:38:04.208 | INFO     | polisyos.common.logger:_call:120 - Lex local embed: provisions=2 (skipped=0)
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos/.tmp/e02-C5/raw/dfi-emb-prep/read-only-db-probe/db_readonly_probe.py", line 81, in <module>
+    results=[{"id": result.entity_id, "name": result.entity_name} for result in before_results],
+                                              ^^^^^^^^^^^^^^^^^^
+  File "/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py", line 1026, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'LegalSearchResult' object has no attribute 'entity_name'. Did you mean: 'entity_type'?
+{"cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos", "duckdb_version": "1.4.3", "event": "environment", "executable": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python", "python": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]", "pythonpath": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos/policy-engine", "source_hashes": {"policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py": "c131c2ccc6351d23d88807bdb89f443e211c7932f63fea374c91ec1c308233e3", "policy-engine/src/polisyos/data_forge/kernel/embeddings.py": "b774a86cb9b7741aed97297670781653d97d7fe65a7a53ae8f718281bdeaf86f", "policy-engine/src/polisyos/lex/knowledge/store.py": "b2b6057aa40bda9c0b9db983d4a91d0110ce3913e7bcf3f3c82364f3bee1a05e"}}
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos/.tmp/e02-C5/raw/dfi-emb-prep/read-only-db-probe/db_readonly_probe.py", line 81, in <module>
+    results=[{"id": result.entity_id, "name": result.entity_name} for result in before_results],
+                                              ^^^^^^^^^^^^^^^^^^
+  File "/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py", line 1026, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'LegalSearchResult' object has no attribute 'entity_name'. Did you mean: 'entity_type'?

@@ -1,0 +1,23 @@
+{"cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos", "duckdb_version": "1.4.3", "event": "environment", "executable": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python", "python": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]", "pythonpath": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos/policy-engine", "source_hashes": {"policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py": "c131c2ccc6351d23d88807bdb89f443e211c7932f63fea374c91ec1c308233e3", "policy-engine/src/polisyos/data_forge/kernel/embeddings.py": "b774a86cb9b7741aed97297670781653d97d7fe65a7a53ae8f718281bdeaf86f", "policy-engine/src/polisyos/lex/knowledge/store.py": "b2b6057aa40bda9c0b9db983d4a91d0110ce3913e7bcf3f3c82364f3bee1a05e"}}
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos/.tmp/e02-C5/raw/dfi-emb-prep/read-only-db-probe/db_readonly_probe.py", line 50, in <module>
+    helpers._prepare_lex_db(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        db_path,
+        ^^^^^^^^
+        entities=[("entity-target", "target entity"), ("entity-decoy", "decoy entity")],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos/policy-engine/tests/unit/remediation/test_emb_03.py", line 191, in _prepare_lex_db
+    con.execute(
+    ~~~~~~~~~~~^
+        "CREATE TABLE lex_entities ("
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "entity_id VARCHAR, name_en VARCHAR, name_uk VARCHAR, "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "entity_type VARCHAR, aliases_en VARCHAR, aliases_uk VARCHAR)"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+_duckdb.CatalogException: Catalog Error: Table with name "lex_entities" already exists!

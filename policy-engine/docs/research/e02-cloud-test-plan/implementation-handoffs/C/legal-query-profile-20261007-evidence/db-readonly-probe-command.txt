@@ -1,0 +1,3 @@
+CWD=/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$PWD/policy-engine/src:$PWD/policy-engine" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python .tmp/e02-C5/raw/dfi-emb-prep/read-only-db-probe/db_readonly_probe.py
+Exit status: 0

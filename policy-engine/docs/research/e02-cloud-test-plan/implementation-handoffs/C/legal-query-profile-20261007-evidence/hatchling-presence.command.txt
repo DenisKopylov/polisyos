@@ -1,0 +1,3 @@
+CWD=/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos
+/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -c "import importlib.util, importlib.metadata; s=importlib.util.find_spec('hatchling'); print({'origin': None if s is None else s.origin, 'distribution': (importlib.metadata.version('hatchling') if s is not None else None)})"
+Exit status: 0

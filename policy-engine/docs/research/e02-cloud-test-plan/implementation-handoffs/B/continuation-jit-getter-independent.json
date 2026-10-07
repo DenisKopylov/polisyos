@@ -1,0 +1,287 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "continuation-jit-getter-independent",
+  "closure_ids": [],
+  "bundle_ids": [
+    "JIT-01",
+    "RES-04"
+  ],
+  "finding_ids": [
+    "B49",
+    "B50",
+    "B53",
+    "B74"
+  ],
+  "slice_base_sha": "b61ed83242bb88fd2e1101751793f2a042545c1e",
+  "implementation_commits": [
+    "cc5de5db0c43f0981e821035b35d61f3d872e0a3"
+  ],
+  "candidate_tree_sha": "c338c7d1d94464cb302a90c88ced7fbd8451769a",
+  "branch": "codex/e02-B-current-durability",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/43",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/initial-index-premise/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/initial-index-premise/run_native.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/initial-index-premise/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/recording-property-premise/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/recording-property-premise/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/recording-property-premise/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/recording-property-premise/run_native.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/recording-property-premise/test_independent_getter_consumer.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/recording-property-premise/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/resource-after.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/run-native.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/test_independent_getter_consumer.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/wrapper.json"
+  ],
+  "production_changed_paths": [],
+  "test_changed_paths": [],
+  "test_input_role": "Independently executable literal test.source.txt retained as document under unique evidence namespace; exact /tmp .py file was runtime input. No mirrored canonical/native repository test edits.",
+  "baseline_cells": [],
+  "baseline_navigation": {
+    "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+    "pointer": "/all60_manual_rows exact finding_id B49/B50/B53/B74 plus /denominator",
+    "role": "historical source/cell/environment query navigation only; no baseline PASS proves8aa regression fix"
+  },
+  "checks": [
+    {
+      "id": "independent-getter-real-compiler-three",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-dur-getter-oracle-8aa69009572b/run_native.py",
+        "child"
+      ],
+      "target_sha": "8aa69009572bdec3b4906257208c601bed4fd9a6",
+      "environment": {
+        "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "environment": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src:/workspace/e02-B-current-composition/policy-engine/product",
+          "GIT_OBJECT_DIRECTORY": "/tmp/e02-B-jit-data-getattr-20261007/git-objects",
+          "GIT_ALTERNATE_OBJECT_DIRECTORIES": "/workspace/polisyos/.git/objects",
+          "GIT_INDEX_FILE": "/tmp/e02-B-jit-data-getattr-20261007/index",
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+        },
+        "versions": {
+          "pytest": "9.0.2",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "numpy": "2.3.5",
+          "pydantic": "2.12.5"
+        }
+      },
+      "input_closure": {
+        "test": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/test_independent_getter_consumer.source.txt",
+          "bytes": 5272,
+          "sha256": "c60de7f76a3671961b44c830e6e1632f4be3c787ccc13eec49947e8e495b5559",
+          "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3"
+        },
+        "literal_runner": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/run-native.source.txt",
+          "bytes": 4635,
+          "sha256": "7b69709c8b9da0957fb8e2ef3fb1010ef8fab5456b87a4b291d1f27a6c97068b",
+          "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3"
+        },
+        "actual_source_origins": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/profile.json",
+          "bytes": 38615,
+          "sha256": "b6adb5df1cb6156182dc0e70c0663564d206594dc3c7b9ef1062508b58042c4d",
+          "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3"
+        },
+        "expected_source_tree": "e6bfbe8e37f243bcb85d6097712e97a6832c52c7",
+        "actual_source_before": {
+          "sha": "8aa69009572bdec3b4906257208c601bed4fd9a6",
+          "tree": "e6bfbe8e37f243bcb85d6097712e97a6832c52c7",
+          "status": ""
+        },
+        "actual_source_after": {
+          "sha": "8aa69009572bdec3b4906257208c601bed4fd9a6",
+          "tree": "e6bfbe8e37f243bcb85d6097712e97a6832c52c7",
+          "status": ""
+        },
+        "fixture_root": "/tmp/e02-dur-getter-oracle-8aa69009572b/fixtures-final",
+        "fixture": "fresh MethodRegistry/CompilationCache real JAX eager and jitvector handles, independent Python vector arithmetic and real absent-body effect path; no source markers or mocks",
+        "file_backed_loaded_origins": 152,
+        "mismatch_count": 0,
+        "no_numeric_caps": true
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/native.txt",
+        "bytes": 3034,
+        "sha256": "fb949bce0d5f5741c1c850562215e659565b5a8cd86ff600796f2b83c42c4c0c",
+        "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/native.xml",
+        "bytes": 605,
+        "sha256": "4720e3a8d68aece69c55da3f7e0df77930bdc2f25b0c03540b751b4f2ea30538",
+        "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3"
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/wrapper.json",
+        "bytes": 1176,
+        "sha256": "f2d1b0a1d007e9ec6a08ed9089b6e4178ae460f790506dd881c6a06a0c5bdbbe",
+        "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3"
+      },
+      "actual_cases": {
+        "PASS": 3,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "wall_s": 2.4377803269890137,
+      "max_rss_kib": 200200,
+      "property": "actual vector results/defaults/dynamic override/warmkernel/oldhandle and actual module-reflection refusal-before-filesystem-body; no final source/cohort/gate claim"
+    },
+    {
+      "id": "initial-index-source-guard",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-dur-getter-oracle-8aa69009572b/run_native.py",
+        "child"
+      ],
+      "target_sha": "8aa69009572bdec3b4906257208c601bed4fd9a6",
+      "environment": "same independent sharedPython3.14; alternateobjects but actual owner GIT_INDEX_FILE omitted; standard index stale, actual tmpindex clean",
+      "input_closure": {
+        "literal_runner": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/initial-index-premise/run_native.source.txt",
+          "bytes": 4537,
+          "sha256": "902de6d6b853ed5c0cd7a1204a1aa0b40c56bbe95fb13144311aa27a06050d99",
+          "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3"
+        },
+        "test_same_body": "final test source before observerproperty2bytefix; no body reached",
+        "native_bodies": "UNRUN precollection"
+      },
+      "outcome": "ERROR",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/initial-index-premise/native.txt",
+        "bytes": 840,
+        "sha256": "5ca4e6c942dff8be8d21458b806aa77c3d4ea64fd545f8e496bbdba73218b78c",
+        "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3"
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/initial-index-premise/wrapper.json",
+        "bytes": 1175,
+        "sha256": "1502c8e3f9659dd8440d7e2e3b2585b2ea1d49590fe20726c7851565b98678c6",
+        "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3"
+      },
+      "qualification": "Sourceguard stopped beforepytest; harness input custody error, not new product failure. Corrected exact owner suppliedindex, no origin guard weakened."
+    },
+    {
+      "id": "recording-property-initial-native",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-dur-getter-oracle-8aa69009572b/run_native.py",
+        "child"
+      ],
+      "target_sha": "8aa69009572bdec3b4906257208c601bed4fd9a6",
+      "environment": "correct owner alternateobjects+index, Python3.14/JAX0.8.2; complete original152sourcebindings in historicalprofile",
+      "input_closure": {
+        "test": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/recording-property-premise/test_independent_getter_consumer.source.txt",
+          "bytes": 5274,
+          "sha256": "4dff86160af2406675f65f8099d84c5ed3bfd4779972315b435441c4faa00934",
+          "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3"
+        },
+        "runner": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/recording-property-premise/run_native.source.txt",
+          "bytes": 4629,
+          "sha256": "7548687bdcaef6f65c29a0314b41bf3d98e93c93d19626d13c75d4b3cfb6122a",
+          "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3"
+        },
+        "profile": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/recording-property-premise/profile.json",
+          "bytes": 38615,
+          "sha256": "e3ee8c16eb246124614bf1ca1ab5f219c89d34fc48bb9f1a852477df82691c38",
+          "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3"
+        },
+        "fixture_root": "/tmp/e02-dur-getter-oracle-8aa69009572b/fixtures"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/recording-property-premise/native.txt",
+        "bytes": 3224,
+        "sha256": "5639bf562783db2a2452b62d2799e39ec1a2c568361f9ed2c621ade27aa54aa0",
+        "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/recording-property-premise/native.xml",
+        "bytes": 1291,
+        "sha256": "95a411d83a87017aeefaca1026ea8d384af5a49e9051b14d60eac7174a7d6176",
+        "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3"
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/recording-property-premise/wrapper.json",
+        "bytes": 1176,
+        "sha256": "5b47c045d2df3bc2c772644348a95fb4ad4ab0c9c198c5a823ef4df5583c97c6",
+        "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3"
+      },
+      "actual_cases": {
+        "PASS": 1,
+        "FAIL": 2
+      },
+      "qualification": "All positive numerical/default/override/kernel assertions completed, then observer called cache.stats property dict asfunction; actualTypeError/nativeFAIL kept. Only .stats() -> .stats observer correction plus nonexisting fresh basetemp. No normative assertion weakened."
+    }
+  ],
+  "property": {
+    "statement": "Finite immutable public-field aliases on runtime NamedTuple output keep real JAX compiled numeric/dynamic/reuse behavior; captured ModuleType reflection does not acquire dependency identity and refuses before body.",
+    "runtime_path": [
+      "fresh real registry signature/current sourcegraph projection",
+      "MethodCompiler+CompilationCache real eager/JAXcompiledhandle",
+      "runtime vector state and dynamic parameter rebinding/override",
+      "actual dematerializer alias to builtin getattr and exact output values",
+      "captured realmath module reflection -> typedCompilationError beforephysicaleffectfile"
+    ],
+    "proxy_divergence": "Accepting getattr symbol/schema does not establish numeric execution or dynamic defaults. Equal FQN/cache key can coexist with wrong values; generic builtin allowance can transport a module without actual selected-member identity. This oracle measures numeric state and body refusal, not constructor or marker presence.",
+    "negative_controls": [
+      "Captured actual mathModuleType via aliased getattr refuses before its physical file body",
+      "Old handle remains numerically bound after dynamic warm handle and explicit override",
+      "Original inputguardERROR/observernativeFAIL remain separate actual outcomes; no future successor relabel"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_qualification": "Expected vector math is independent fixture Python arithmetic, not institutional/scientific authority. All152filebacked child origins are observed sourceclosure, not universal transitive resource/descriptor authority.",
+  "capability_state_or_finding_state": "NONBLOCKING finite independent8aa numeric/reflection consumer profile; closure_ids[] and no wholeJIT/B74/fullroot acceptance",
+  "limitations_and_next_owner": [
+    "CMP owns canonical getter/sourcegraph; current8aa held predecessor actual3PASS only. Symtable/rebinding successor is not executed by this packet.",
+    "Runtime target type/descriptors/internals deliberately not bound by classifier; positiveprofile uses ordinary NamedTuple and immutablepublicfields. No arbitrarydescriptor/runtime reflection/historical checkpoint permission or scientific law.",
+    "B74 actual frame returnednamespace107FAIL remains known separate code residual; these3PASS do not close it.",
+    "ROOT/G owns exact integrated candidate affectedcohort/gates/formal closure. No lowerbudgetreview, new checkout/helper, quota, source/service edits or cleanup.",
+    "Initialindex ERROR and recording2FAIL1PASS are preserved, not inheritedwaived or productfail claims. RSS/wall actualsingle child; aftercgroup snapshot is not peak or signalcause."
+  ],
+  "evidence_index": {
+    "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/index.json",
+    "bytes": 5535,
+    "sha256": "d4add41968a697b310f52fe4b4e60a7ede76869a9f58a05276cc4e5bbbd3889e"
+  },
+  "review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/review.json",
+    "bytes": 3294,
+    "sha256": "24934bb1225e0897bd88545bf7c46852e924ca3f6b977dbadcde6f9920cd6663",
+    "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3"
+  },
+  "resource_after": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-evidence/resource-after.json",
+    "bytes": 682,
+    "sha256": "3d5eb0bece7cd92649c10bd5ed48e99fa297b00e05495587dabc8a6b8df0218d",
+    "git_sha": "cc5de5db0c43f0981e821035b35d61f3d872e0a3"
+  },
+  "transport": "Overlay has0userfree; immutable commits assembled from exact moderatebytes using existing own Git repository with task/tmp objectdir/index. Normal topic push still required; local checkout HEAD stays originalbase if overlay prevents refwrite. No history rewrite/force/main push."
+}

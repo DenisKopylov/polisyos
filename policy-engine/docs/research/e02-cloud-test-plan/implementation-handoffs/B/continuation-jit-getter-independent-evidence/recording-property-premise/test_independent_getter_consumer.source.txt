@@ -1,0 +1,122 @@
+"""Independent numeric/physical MethodCompiler consumer, not source-marker tests."""
+from __future__ import annotations
+
+import math
+from dataclasses import replace
+from typing import ClassVar, NamedTuple
+
+import jax.numpy as jnp
+import pytest
+
+from polisyos.foundry.methods.base import (
+    ComplexityClass, FidelityLevel, MethodMetadata, MethodSignature,
+    ParameterSpec, SlotSpec, SlotType, Unit,
+)
+from polisyos.foundry.methods.compiler import CompilationCache, MethodCompiler
+from polisyos.foundry.methods.exceptions import CompilationError
+from polisyos.foundry.methods.selection.registry import MethodRegistry
+
+_FIELD_READER = getattr
+_PUBLIC_RESULT_NAMES = ("score", "spread")
+_MATH_OWNER = math
+
+def _slot(name):
+    return SlotSpec(name, SlotType.SCALAR, Unit("count", "1"), shape=())
+
+_SIGNATURE = MethodSignature(
+    name="two_output_affine_difference", namespace="tests.independent_getter_consumer",
+    version="1.0.0", input_slots=frozenset({_slot("left"), _slot("right")}),
+    output_slots=frozenset({_slot("score"), _slot("spread")}),
+    parameters=(ParameterSpec("scale", default=2.0, is_static=False),
+                ParameterSpec("offset", default=0.25, is_static=False)),
+    fidelity=FidelityLevel.LOW, complexity=ComplexityClass.O_1,
+)
+_METADATA = MethodMetadata(description="Independent affine-difference numeric consumer")
+
+class _VectorState(NamedTuple):
+    left: object
+    right: object
+    score: object
+    spread: object
+
+class _AffineDifference:
+    signature: ClassVar = _SIGNATURE
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, params):
+        difference = state.left - state.right
+        return state._replace(
+            score=difference * params["scale"] + params["offset"],
+            spread=state.left + state.right,
+        )
+
+    @staticmethod
+    def dematerialize_output(result):
+        return {name: _FIELD_READER(result, name) for name in _PUBLIC_RESULT_NAMES}
+
+@pytest.mark.parametrize("jit", [False, True])
+def test_real_two_output_getter_compiled_handles_preserve_dynamic_values(jit):
+    registry = MethodRegistry._create_fresh()
+    registry.register(_AffineDifference)
+    cache = CompilationCache()
+    compiler = MethodCompiler(registry=registry, cache=cache)
+    state = _VectorState(jnp.asarray([3.0, 8.0, -2.0]),
+                         jnp.asarray([1.5, 2.0, 0.5]),
+                         jnp.zeros(3), jnp.zeros(3))
+    sample = {"left": state.left, "right": state.right}
+    cold = compiler.compile(_SIGNATURE.fqn, params={"scale": 2.0, "offset": 0.25},
+                            sample_inputs=sample, jit=jit)
+    warm = compiler.compile(_SIGNATURE.fqn, params={"scale": -0.5, "offset": 3.0},
+                            sample_inputs=sample, jit=jit)
+    outputs = {}
+    for label, handle, dynamic, scale, offset in [
+        ("cold", cold, {}, 2.0, 0.25),
+        ("warm", warm, {}, -0.5, 3.0),
+        ("override", cold, {"scale": 4.0, "offset": -1.0}, 4.0, -1.0),
+        ("cold_again", cold, {}, 2.0, 0.25),
+    ]:
+        result = _AffineDifference.dematerialize_output(handle(state, dynamic))
+        score = result["score"].block_until_ready().tolist()
+        spread = result["spread"].block_until_ready().tolist()
+        expected = [(left - right) * scale + offset
+                    for left, right in zip([3.0, 8.0, -2.0], [1.5, 2.0, 0.5])]
+        assert score == pytest.approx(expected)
+        assert spread == pytest.approx([4.5, 10.0, -1.5])
+        outputs[label] = {"score": score, "spread": spread}
+    assert cold._kernel is warm._kernel
+    assert cold is not warm
+    print("GETTER_NUMERIC", {"jit": jit, "outputs": outputs,
+                             "same_kernel": cold._kernel is warm._kernel,
+                             "cache_stats": cache.stats()})
+
+class _ReflectedModuleBody:
+    signature: ClassVar = replace(
+        _SIGNATURE, name="captured_module_reflection",
+        parameters=(ParameterSpec("effect_path", default="", is_static=True),),
+    )
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, params):
+        with open(params["effect_path"], "a", encoding="utf-8") as physical_body:
+            physical_body.write("module-reflection-body\n")
+        operation = _FIELD_READER(_MATH_OWNER, "sqrt")
+        return state._replace(score=operation(16.0), spread=state.left + state.right)
+
+
+def test_real_compiler_refuses_captured_module_getter_before_physical_body(tmp_path):
+    registry = MethodRegistry._create_fresh()
+    registry.register(_ReflectedModuleBody)
+    compiler = MethodCompiler(registry=registry, cache=CompilationCache())
+    body_path = tmp_path / "reflective-method-effect.txt"
+    with pytest.raises(CompilationError) as refused:
+        compiler.compile(_ReflectedModuleBody.signature.fqn,
+                         params={"effect_path": str(body_path)},
+                         sample_inputs={"left": jnp.asarray(3.0), "right": jnp.asarray(1.5)},
+                         jit=True)
+    assert not body_path.exists()
+    print("GETTER_REFUSAL", {"type": type(refused.value).__name__,
+                            "reason": str(refused.value),
+                            "physical_body_exists": body_path.exists(),
+                            "path": str(body_path)})

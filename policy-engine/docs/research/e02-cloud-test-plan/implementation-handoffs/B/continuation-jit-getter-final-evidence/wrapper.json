@@ -1,0 +1,34 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/tmp/e02-dur-getter-oracle-0903e31d1b90/run_native.py",
+    "child"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "actual_exit": 0,
+  "wall_s": 2.6415889080089983,
+  "max_rss_kib": 200324,
+  "source_expected": "0903e31d1b9090560280c2e15aea0575da97ec20",
+  "tree_expected": "67f0998c3da674ab0a3836b22336016b82b348ed",
+  "input_files": [
+    {
+      "path": "/tmp/e02-dur-getter-oracle-0903e31d1b90/run_native.py",
+      "bytes": 4636,
+      "sha256": "14471cae1773ec25fcda6ca0e85dc3494177975e0b840fd9c81689e7c715759b"
+    },
+    {
+      "path": "/tmp/e02-dur-getter-oracle-0903e31d1b90/test_independent_getter_consumer.py",
+      "bytes": 5272,
+      "sha256": "c60de7f76a3671961b44c830e6e1632f4be3c787ccc13eec49947e8e495b5559"
+    }
+  ],
+  "numeric_caps": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "BLIS_NUM_THREADS": null
+  },
+  "scope": "independent3cases real JAX/compiler; source0903 held; no canonical writes, service, setup, quota or cleanup"
+}

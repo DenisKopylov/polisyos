@@ -3845,6 +3845,11 @@ class ControlPlaneService(
                 stop_node_ref=partial.budget_stop_node_ref,
                 authority_scope=partial.authority_scope,
                 verification_basis="resolved_core_cas_intrinsic",
+                leaf_promotion_statuses={
+                    node.node_ref: node.cycle_run.promotion_port.status
+                    for node in partial.leaf_nodes
+                    if node.cycle_run is not None
+                },
             )
         except (OSError, RuntimeError, TypeError, ValueError, KeyError):
             return None
@@ -6364,6 +6369,17 @@ class ControlPlaneService(
                             "execution_intent_limitation_code": None,
                             "compiled_recursive_generation_cycle_ref": compiled_ref,
                             "normative_disposition_status": "not_run",
+                            **(
+                                {
+                                    "root_n9_status": "not_run",
+                                    "leaf_promotion_statuses": {
+                                        node.node_ref: node.cycle_run.promotion_port.status
+                                        for node in compiled.recursive_run.leaf_nodes
+                                        if node.cycle_run is not None
+                                    },
+                                }
+                                if is_partial else {}
+                            ),
                             "s8_status": "not_run",
                             "publication_status": "not_run",
                             "run_id": run_id,

@@ -11,6 +11,7 @@ claim.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -36,14 +37,18 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
     from polisyos.core import canon
     from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
     from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.data_forge.read_api import catalog as catalog_api
     from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.http import jwt_auth_middleware
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.container import RuntimeContainerOverrides
     from polisyos.runtime.http.dependencies import build_runtime_api_context
+    from polisyos.runtime.http.security import build_fixture_identity_claims
     from polisyos.runtime.http.services.control.generation_cycle import (
         COMPILED_RECURSIVE_GENERATION_CYCLE_PARTIAL_SCHEMA_VERSION,
         CompiledRecursiveGenerationCycleRun,
     )
+    from polisyos.runtime.quality import substrate_registry
     from polisyos.runtime.quality.recursive_generation_cycle import (
         RecursiveCycleNode,
         RecursiveGenerationCyclePartialRunV2,
@@ -65,6 +70,33 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
         "POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix()
     )
     monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+
+    # App startup reads the substrate catalog even though this checkpoint path
+    # does not acquire data. Give startup its own real, bounded Slice 0 catalog.
+    catalog_root = tmp_path / "recursive-partial-catalog"
+    catalog_api.build_slice0_fixture_catalog_graph(catalog_root).close()
+    curated_root = tmp_path / "recursive-partial-curated"
+    curated_root.mkdir()
+    monkeypatch.setenv("POLISYOS_CURATED_DIR", curated_root.as_posix())
+    monkeypatch.setattr(
+        catalog_api,
+        "default_acquisition_overlay_path",
+        lambda _root: tmp_path / "absent-acquisition-overlay.duckdb",
+    )
+    default_catalog_paths = substrate_registry.default_substrate_catalog_paths
+    repo_root = Path(__file__).resolve().parents[3]
+    monkeypatch.setattr(
+        substrate_registry,
+        "default_substrate_catalog_paths",
+        lambda root: (
+            replace(
+                default_catalog_paths(root),
+                l1_dcat_path=catalog_root / "catalog.duckdb",
+            )
+            if Path(root).resolve() == repo_root
+            else default_catalog_paths(root)
+        ),
+    )
 
     root_ref, _child_refs, problems, _request, _graph = _recursive_fixture()
     problem = problems[root_ref]
@@ -91,6 +123,11 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
     compiled = CompiledRecursiveGenerationCycleRun.model_validate(
         {**compiled_payload, "content_hash": gy_content_hash(compiled_payload)}
     )
+    leaf_promotion_statuses = {
+        node.node_ref: node.cycle_run.promotion_port.status
+        for node in partial_result.leaf_nodes
+        if node.cycle_run is not None
+    }
 
     cas_root = tmp_path / ".polisyos"
     first_context = build_runtime_api_context(
@@ -119,28 +156,36 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
         accepted = accepted_response.json()
         assert accepted["status"] == "accepted"
         service = first_app.state._control_service
-        compiled_ref: ArtifactRef | None = None
+        compiled_refs: dict[str, ArtifactRef] = {}
 
-        def persist_manual_partial_through_owned_core_writer(_leased_snapshot: object) -> None:
-            nonlocal compiled_ref
-            admission = service._control_store.current_execution_job_admission()
+        def persist_manual_partial_for_owned_job(
+            owner_service: Any,
+            *,
+            expected_job_id: str,
+            expected_tenant_id: str,
+            expected_cell_id: str,
+        ) -> None:
+            admission = owner_service._control_store.current_execution_job_admission()
             job = admission.job
             scope = admission.scope
-            assert job.job_id == accepted["job_id"]
+            assert job.job_id == expected_job_id
             assert scope.status == "established"
-            assert (scope.tenant_id, scope.cell_id) == (TENANT_ID, CELL_ID)
+            assert (scope.tenant_id, scope.cell_id) == (
+                expected_tenant_id,
+                expected_cell_id,
+            )
 
-            with service._install_execution_scope(scope):
-                core_run_id, core_context = service._start_generation_run_context(
+            with owner_service._install_execution_scope(scope):
+                core_run_id, core_context = owner_service._start_generation_run_context(
                     job=job,
                     execution_scope=scope,
                 )
-                compiled_ref = service._put_json_artifact_ref(
+                compiled_ref = owner_service._put_json_artifact_ref(
                     compiled.model_dump(mode="json"),
                     kind="runtime.compiled_recursive_generation_cycle",
                     schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
                 )
-                core_manifest_ref = service._publish_generation_run(
+                core_manifest_ref = owner_service._publish_generation_run(
                     job=job,
                     payload={},
                     execution_scope=scope,
@@ -162,32 +207,39 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
                     ),
                     "n5_status": "not_run_for_budget_stopped_leaf",
                     "n8_status": "not_run",
-                    "n9_status": "not_run",
+                    "root_n9_status": "not_run",
+                    "leaf_promotion_statuses": leaf_promotion_statuses,
                     "publication_status": "not_run",
-                    **service._core_run_progress_fields(
+                    **owner_service._core_run_progress_fields(
                         job=job,
                         core_run_id=core_run_id,
                         manifest_ref=core_manifest_ref,
                     ),
                 }
-                service._control_store.complete_job(
+                owner_service._control_store.complete_job(
                     job_id=job.job_id,
                     run_id=job.run_id,
                     capability_manifest_ref=job.capability_manifest_ref,
                     progress=progress,
                 )
+                compiled_refs[job.job_id] = compiled_ref
 
         assert (
             dispatch_one_control_job(
                 store=service._control_store,
-                handler=persist_manual_partial_through_owned_core_writer,
+                handler=lambda _snapshot: persist_manual_partial_for_owned_job(
+                    service,
+                    expected_job_id=accepted["job_id"],
+                    expected_tenant_id=TENANT_ID,
+                    expected_cell_id=CELL_ID,
+                ),
                 expected_job_id=accepted["job_id"],
             )
             == accepted["job_id"]
         )
         completed = service._control_store.get_job(accepted["job_id"])
         assert completed is not None and completed.state == "completed"
-        assert compiled_ref is not None
+        compiled_ref = compiled_refs[accepted["job_id"]]
         core_run_id = str(completed.progress["core_run_id"])
 
     # Reopen both CAS and control state in a fresh runtime/API context. The
@@ -217,6 +269,8 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
         ]
         assert checkpoint["stop_node_ref"] == partial_result.budget_stop_node_ref
         assert checkpoint["root_design_problem_ref"] == problem_ref
+        assert checkpoint["root_n9_status"] == "not_run"
+        assert checkpoint["leaf_promotion_statuses"] == leaf_promotion_statuses
         projected_ref = ArtifactRef.model_validate(checkpoint["compiled_artifact_ref"])
         assert artifact_ref_identity_key(projected_ref) == artifact_ref_identity_key(
             compiled_ref
@@ -235,3 +289,64 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
         assert persisted.recursive_run.content_hash == partial_result.content_hash
         assert persisted.recursive_run.terminal is None
         assert persisted.recursive_run.frontier_node_refs == partial_result.frontier_node_refs
+
+        # Create a real completed Core attempt under another tenant, using the
+        # same bounded typed checkpoint only as foreign-owner input. The target
+        # run's resolver must not project this other job's Core output.
+        foreign_claims = build_fixture_identity_claims().model_copy(
+            update={
+                "tenant_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+                "cell_id": "cell-b",
+            }
+        )
+        monkeypatch.setattr(
+            jwt_auth_middleware,
+            "build_fixture_identity_claims",
+            lambda: foreign_claims,
+        )
+        foreign_accept_response = fresh_client.post(
+            "/api/v1/control/runs/nl",
+            json={
+                "request": "Record a bounded recursive checkpoint for inspection.",
+                "llm_model": "simulated-qwen",
+                "context": {
+                    "evaluation_safety_attempt": _valid_intake_for_mode(
+                        "simulate_only"
+                    ).model_dump(mode="json")
+                },
+            },
+        )
+        assert foreign_accept_response.status_code == 200, foreign_accept_response.text
+        foreign_job_id = foreign_accept_response.json()["job_id"]
+        foreign_service = fresh_app.state._control_service
+        assert (
+            dispatch_one_control_job(
+                store=foreign_service._control_store,
+                handler=lambda _snapshot: persist_manual_partial_for_owned_job(
+                    foreign_service,
+                    expected_job_id=foreign_job_id,
+                    expected_tenant_id=foreign_claims.tenant_id,
+                    expected_cell_id=foreign_claims.cell_id,
+                ),
+                expected_job_id=foreign_job_id,
+            )
+            == foreign_job_id
+        )
+        foreign_job = foreign_service._control_store.get_job(foreign_job_id)
+        assert foreign_job is not None and foreign_job.state == "completed"
+        foreign_projection = foreign_service.resolve_recursive_cycle_checkpoint(
+            core_run_id,
+            control_job_id=foreign_job_id,
+            expected_tenant_id=TENANT_ID,
+            expected_cell_id=CELL_ID,
+        )
+        assert foreign_projection is None
+
+        # An authenticated identity from that foreign tenant also cannot use
+        # the ordinary GET surface to read the target run.
+        denied = fresh_client.get(
+            f"/api/v1/runs/{core_run_id}",
+            headers={"X-Tenant-ID": foreign_claims.tenant_id},
+        )
+        assert denied.status_code == 403, denied.text
+        assert denied.json()["code"] == "tenant_not_found"

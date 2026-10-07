@@ -594,7 +594,7 @@ class RecursiveGenerationCyclePartialRunV2(_StrictModel):
             elif node.joint_simulation is not None:
                 expected_terminal = _blocked_parent_terminal("unsupported_coupling_gated")
             else:
-                expected_terminal = node.terminal
+                expected_terminal = _fold_uncomposed_partial_parent_terminal(node.terminal)
             if node.terminal != expected_terminal:
                 raise ValueError("recursive_run_parent_terminal_not_owner_derived")
 
@@ -922,6 +922,46 @@ def _blocked_parent_terminal(reason: str) -> SearchTerminalState:
         reason="Recursive parent lacks owner-proven coupling/composition inputs.",
         blocking_obligations=[reason],
     )
+
+
+_PARTIAL_UNCOMPOSED_PARENT_DIAGNOSTIC_CODES = frozenset(
+    {
+        "observed_coupling_evidence_missing",
+        "subdesign_contract_denominator_missing",
+        "recursive_coupling_design_ref_mismatch",
+        "recursive_coupling_child_denominator_mismatch",
+        "recursive_coupling_edge_unresolved",
+        "recursive_subdesign_denominator_mismatch",
+        "recursive_subdesign_terminal_binding_mismatch",
+        "recursive_n5_atom_problem_binding_mismatch",
+        "recursive_n5_outcome_problem_binding_mismatch",
+    }
+)
+
+
+def _fold_uncomposed_partial_parent_terminal(
+    terminal: SearchTerminalState,
+) -> SearchTerminalState:
+    """Admit only conservative blocked shape for bounded uncomposed parents.
+
+    The blocker codes are router diagnostics, not recomputed facts about the
+    source coupling graph or subdesign contracts. V2 does not persist enough
+    owner evidence to re-establish those predicates, so this helper preserves
+    only a blocked terminal with no acquisition, budget, or positive authority
+    fields; all other terminal shapes are refused.
+    """
+
+    if (
+        terminal.kind is not SearchTerminalKind.RECURSIVE_BLOCKED
+        or len(terminal.blocking_obligations) != 1
+        or terminal.blocking_obligations[0]
+        not in _PARTIAL_UNCOMPOSED_PARENT_DIAGNOSTIC_CODES
+    ):
+        raise ValueError("recursive_partial_parent_not_conservatively_blocked")
+    expected = _blocked_parent_terminal(terminal.blocking_obligations[0])
+    if terminal != expected:
+        raise ValueError("recursive_partial_parent_terminal_not_owner_derived")
+    return expected
 
 
 def _composition_claims_for_problem(

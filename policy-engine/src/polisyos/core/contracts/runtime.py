@@ -1990,6 +1990,8 @@ class RecursiveCycleCheckpoint(BaseModel):
     stop_node_ref: str
     authority_scope: Literal["production", "contract_testing"]
     verification_basis: Literal["resolved_core_cas_intrinsic"]
+    root_n9_status: Literal["not_run"] = "not_run"
+    leaf_promotion_statuses: dict[str, str]
     publication_authority: Literal[False] = False
 
 

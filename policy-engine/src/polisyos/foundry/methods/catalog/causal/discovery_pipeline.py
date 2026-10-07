@@ -1555,8 +1555,8 @@ class UnifiedCausalDiscovery:
         when_to_use=(
             "Use when you want a single PAG that pools evidence from multiple discovery "
             "algorithms. Particularly useful when you are uncertain which algorithm is "
-            "best suited for your data. Output is ready for id_algorithm() with any "
-            "pag_identification_policy."
+            "best suited for your data. The output retains partial graph semantics; "
+            "downstream identification requires a supported graph profile and policy."
         ),
         when_not_to_use=(
             "When you have strong domain knowledge about the correct algorithm, "

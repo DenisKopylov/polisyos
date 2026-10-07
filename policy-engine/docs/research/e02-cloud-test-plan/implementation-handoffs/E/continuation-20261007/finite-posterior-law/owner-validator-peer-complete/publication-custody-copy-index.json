@@ -1,0 +1,43 @@
+{
+  "schema": "policyos.e02.E.complete_peer_publication_custody_index.v1",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "files": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/publish-peer-complete-source.py.txt",
+      "portable_path": "owner-validator-peer-complete/publish-peer-complete-source.py.txt",
+      "bytes": 4983,
+      "sha256": "b1a10350576cd11afe72385e2bc16ad71bdca0f86fb42b71c4ec498d2a09a146"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/validate-peer-complete-source.py.txt",
+      "portable_path": "owner-validator-peer-complete/validate-peer-complete-source.py.txt",
+      "bytes": 2755,
+      "sha256": "0802636957b62467f75206ddd556dd8da9ede052b2a8d65826a45bede4c7b6c3"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/peer-complete-custody-normal.stdout.json",
+      "portable_path": "owner-validator-peer-complete/peer-complete-custody-normal.stdout.json",
+      "bytes": 841,
+      "sha256": "258dd101cafd257edc6933e1775344f2fdd7bc76facb932e8932032e1ecbd2c2"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/peer-complete-custody-normal.stderr.txt",
+      "portable_path": "owner-validator-peer-complete/peer-complete-custody-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/peer-complete-custody-optimized.stdout.json",
+      "portable_path": "owner-validator-peer-complete/peer-complete-custody-optimized.stdout.json",
+      "bytes": 841,
+      "sha256": "258dd101cafd257edc6933e1775344f2fdd7bc76facb932e8932032e1ecbd2c2"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/peer-complete-custody-optimized.stderr.txt",
+      "portable_path": "owner-validator-peer-complete/peer-complete-custody-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "scope": "Executed stdlib copying and source Git byte-custody observers; pure evidence, no active Python or native rerun."
+}

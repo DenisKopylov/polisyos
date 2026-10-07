@@ -1,0 +1,94 @@
+"""Independent bounded wrapper review; no common wave or actual runtime checker."""
+import argparse,ast,copy,hashlib,importlib.util,json,os,subprocess,sys
+from pathlib import Path
+from unittest.mock import patch
+ROOT=Path('/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3');ROOT.mkdir(exist_ok=False);AUTHOR=Path('/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007');REPO=Path('/workspace/e02-E-cal05-20261006');CANDIDATE='8fa11f569ebb2c952948e09d4db5c1f37be84b83';COMPARISON='198076863e143dea9f89f02734b13d50dae3eed5';PYTHON='/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python'
+WRAPPER=AUTHOR/'prepare_current_owner_wave.py';HOOK=AUTHOR/'retained_runtime_api_cli.py';EXPECTED={WRAPPER:'b225fb80d578a55d5a268a124315521fe390c5c023b1ca391abd0e613cb6c641',HOOK:'514257634b01416c608ba2a65723f3cd51fecaba6dd082e86350f75275f9a288'}
+def asset(p):
+ data=p.read_bytes();return {'path':str(p),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+def check(name,predicate,**details):
+ row={'name':name,'passed':bool(predicate),**details};results.append(row)
+ if not predicate:raise AssertionError(row)
+def load(path,name):
+ spec=importlib.util.spec_from_file_location(name,path);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module
+results=[];sources_before=[asset(p) for p in EXPECTED]
+for p,sha in EXPECTED.items():
+ if asset(p)['sha256']!=sha:raise AssertionError('reviewed source changed')
+wrapper=load(WRAPPER,'independent_current_wrapper')
+args=argparse.Namespace(repo=REPO,candidate=CANDIDATE,comparison_base=COMPARISON,output_root=ROOT/'never-created-wave',no_owner_packets=False)
+planner=wrapper.load_planner(args);original=planner.prepare(argparse.Namespace(**{**vars(args),'no_owner_packets':True}));plan=wrapper.prepare_current(args,planner)
+(ROOT/'independent-prepared-plan.json').write_text(json.dumps(plan,indent=2)+'\n');(ROOT/'independent-native-baseline-plan.json').write_text(json.dumps(original,indent=2)+'\n')
+check('preparation_writes_no_wave_root',not args.output_root.exists())
+check('all_seven_canonical_gates_retained',[(j['name'],j['kind']) for j in plan['jobs'] if j['kind']=='gate']==[(j['name'],j['kind']) for j in original['jobs'] if j['kind']=='gate'] and len([j for j in plan['jobs'] if j['kind']=='gate'])==7)
+check('all_native_path_denominator_retained',plan['native_test_path_count']==original['native_test_path_count']==124)
+packet=plan['owner_packet_extra_inputs'];binding=plan['current_A_owner_packet_binding'];job=next(j for j in plan['jobs'] if j.get('group')==wrapper.FRC_GROUP)
+expected_packet=subprocess.check_output(['/usr/bin/git','show',CANDIDATE+':'+wrapper.OWNER_PACKET_PATH],cwd=REPO)
+check('current_packet_content_bound',len(packet)==1 and packet[0]['source']==wrapper.OWNER_PACKET_PATH and packet[0]['sha256']==hashlib.sha256(expected_packet).hexdigest() and packet[0]['bytes']==len(expected_packet)==5982)
+check('current_packet_actually_selected_once',job['argv'].count(packet[0]['destination'])==1 and binding['expected_case_count_from_owner_packet']==7)
+check('no_retired_extra_inputs',len(packet)==1 and not binding['retired_packets_selected'])
+for j in plan['jobs']:
+ before=next(old for old in original['jobs'] if old['name']==j['name'])
+ if j['name'] in [job['name'],'runtime-api-contract']:continue
+ check('untouched_job_'+j['name'],j==before)
+check('runtime_checker_arguments_preserved',plan['operational_runtime_capture']['canonical_checker_main_arguments']==original['jobs'][[j['name'] for j in original['jobs']].index('runtime-api-contract')]['argv'][original['jobs'][[j['name'] for j in original['jobs']].index('runtime-api-contract')]['argv'].index('polisyos-tools')+3:])
+check('actual_execution_not_claimed',plan['operational_runtime_capture']['actual_check_outcome'].startswith('UNRUN') and binding['actual_case_outcome'].startswith('UNRUN'))
+# Exact selector-removal counterexample retains packet metadata and count fields.
+removed=copy.deepcopy(plan);target=next(j for j in removed['jobs'] if j.get('group')==wrapper.FRC_GROUP);target['argv'].remove(packet[0]['destination'])
+check('selector_property_removal_detected',target['argv'].count(packet[0]['destination'])==0 and removed['current_A_owner_packet_binding']==binding)
+# Whole ref inlet is pure even if a later ref is malformed.
+for field in ['candidate','comparison_base']:
+ for value in ['--output=outside',None,True,'a'*39,'a'*41]:
+  damaged=argparse.Namespace(**vars(args));setattr(damaged,field,value);callbacks=[]
+  with patch.object(wrapper,'read_candidate_asset',lambda *a:callbacks.append(a)),patch.object(wrapper.importlib.util,'spec_from_file_location',lambda *a:callbacks.append(a)):
+   try:wrapper.load_planner(damaged)
+   except ValueError:refused=True
+   else:refused=False
+  check('pure_ref_'+field+'_'+repr(value),refused and not callbacks,callback_count=len(callbacks))
+# Mirrored physical catalogs are plain copied fixtures, never Git checkouts.
+prep=Path(wrapper.PLANNER_PATH).parent;names=['plan_wave.py','run_check.py','collect_wave.py','uncapped_umbrella.py','proposal.json','original-wave-groups.json'];git_inputs={name:subprocess.check_output(['/usr/bin/git','show',CANDIDATE+':'+str(prep/name)],cwd=REPO) for name in names}
+def expected_bytes(repo,candidate,relative):
+ if candidate!=CANDIDATE:raise AssertionError('unexpected candidate')
+ return subprocess.check_output(['/usr/bin/git','show',candidate+':'+relative],cwd=REPO)
+for name in names:
+ fixture=ROOT/('physical-corruption-'+name.replace('.','_'));folder=fixture/prep;folder.mkdir(parents=True,exist_ok=False)
+ for other,data in git_inputs.items():(folder/other).write_bytes(data)
+ (folder/name).write_bytes(git_inputs[name]+b'\n# physical property falsifier\n')
+ damaged=argparse.Namespace(**{**vars(args),'repo':fixture});loads=[]
+ with patch.object(wrapper,'read_candidate_asset',expected_bytes),patch.object(wrapper.importlib.util,'spec_from_file_location',lambda *a:loads.append(a)):
+  try:wrapper.load_planner(damaged)
+  except RuntimeError:refused=True
+  else:refused=False
+ check('source_before_loader_'+name,refused and not loads,module_load_count=len(loads))
+# Remove only the exact byte-comparison predicate. Actual appended top-level code runs.
+fixture=ROOT/'effective-byte-comparison-removal';folder=fixture/prep;folder.mkdir(parents=True,exist_ok=False);marker=fixture/'actual-source-callback.marker'
+for name,data in git_inputs.items():(folder/name).write_bytes(data)
+(folder/'plan_wave.py').write_bytes(git_inputs['plan_wave.py']+('\nfrom pathlib import Path\nPath('+repr(str(marker))+').write_text("called")\n').encode())
+tree=ast.parse(WRAPPER.read_text());node=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='load_planner')
+class RemoveComparison(ast.NodeTransformer):
+ def visit_If(self,node):
+  if isinstance(node.test,ast.Compare) and ast.unparse(node.test)=='companion.read_bytes() != expected':return ast.copy_location(ast.Pass(),node)
+  return self.generic_visit(node)
+node=RemoveComparison().visit(node);namespace=dict(wrapper.__dict__);namespace['read_candidate_asset']=expected_bytes;exec(compile(ast.Module(body=[node],type_ignores=[]),'<independent-effective-byte-guard-removal>','exec'),namespace)
+try:namespace['load_planner'](argparse.Namespace(**{**vars(args),'repo':fixture}))
+except Exception as exc:removal_error=type(exc).__name__
+else:removal_error=None
+check('effective_source_guard_removal_detected',marker.exists(),actual_top_level_callback_count=1 if marker.exists() else 0,required_callback_zero_property=False,subsequent_error=removal_error)
+# Native tiny hook subprocesses check return bytes/exit and retention, never actual runtime main.
+for exit_code in [0,7]:
+ catalog=ROOT/('tiny-hook-exit-'+str(exit_code));catalog.mkdir(exist_ok=False);tmp=catalog/'tmp';tmp.mkdir();checker=catalog/'protocol_checker.py';callback=catalog/'checker-callback.marker'
+ rendered=json.dumps({'unicode':'π','a':1},ensure_ascii=False,sort_keys=True)+'\n'
+ checker.write_text('import argparse,json,tempfile\nfrom pathlib import Path\nPath('+repr(str(callback))+').write_text("called")\ncalls=0\ndef _canonical_json(payload):\n global calls\n calls+=1\n return json.dumps(payload,ensure_ascii=False,sort_keys=True)+"\\n"\ndef main():\n p=argparse.ArgumentParser();p.add_argument("--exit-code",type=int,required=True);args=p.parse_args()\n with tempfile.TemporaryDirectory(prefix="runtime_client_contract_") as directory:\n  for name in ["client.js","client.ts","types.ts"]:Path(directory,name).write_bytes((name+"\\n").encode())\n returned=_canonical_json({"unicode":"π","a":1})\n print(returned,end="")\n if returned!='+repr(rendered)+' or calls!=1:return 9\n return args.exit_code\n')
+ argv=[PYTHON,str(HOOK),'--checker',str(checker),'--expected-checker-sha256',asset(checker)['sha256'],'--catalog',str(catalog/'catalog.json'),'--','--exit-code',str(exit_code)]
+ completed=subprocess.run(argv,cwd=tmp,env={**os.environ,'TMPDIR':str(tmp)},stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+ (catalog/'stdout').write_bytes(completed.stdout);(catalog/'stderr').write_bytes(completed.stderr);data=json.loads((catalog/'catalog.json').read_text())
+ (catalog/'command.json').write_text(json.dumps({'argv':argv,'cwd':str(tmp),'TMPDIR':str(tmp),'exit_code':completed.returncode,'stdout':asset(catalog/'stdout'),'stderr':asset(catalog/'stderr')},indent=2)+'\n')
+ check('actual_hook_exit_'+str(exit_code),completed.returncode==exit_code and data['actual_checker_exit_code']==exit_code)
+ check('canonical_once_byte_equivalence_'+str(exit_code),completed.stdout==rendered.encode() and (tmp/'retained-runtime-openapi.raw.json').read_bytes()==rendered.encode() and data['canonical_json_capture_count']==1)
+ check('three_actual_client_files_retained_'+str(exit_code),len(data['complete_generated_client_outputs_raw_only'])==3 and all(Path(item['path']).is_file() and asset(Path(item['path']))['sha256']==item['sha256'] for item in data['complete_generated_client_outputs_raw_only']))
+# Wrong source hash is a pre-execution refusal; top-level callback must stay absent.
+catalog=ROOT/'wrong-hook-source';catalog.mkdir(exist_ok=False);tmp=catalog/'tmp';tmp.mkdir();checker=catalog/'checker.py';callback=catalog/'callback.marker';checker.write_text('from pathlib import Path\nPath('+repr(str(callback))+').write_text("called")\n')
+argv=[PYTHON,str(HOOK),'--checker',str(checker),'--expected-checker-sha256','0'*64,'--catalog',str(catalog/'catalog.json')];completed=subprocess.run(argv,cwd=tmp,env={**os.environ,'TMPDIR':str(tmp)},stdout=subprocess.PIPE,stderr=subprocess.PIPE);(catalog/'stdout').write_bytes(completed.stdout);(catalog/'stderr').write_bytes(completed.stderr)
+check('hook_hash_refusal_before_top_level_callback',completed.returncode!=0 and not callback.exists() and not (catalog/'catalog.json').exists(),actual_top_level_callback_count=0)
+sources_after=[asset(p) for p in EXPECTED];check('review_source_byte_stability',sources_before==sources_after)
+report={'independent_reviewer':'/root/lint_r4','author':'/root/doe_r4','candidate_sha':CANDIDATE,'candidate_tree_sha':'cf815e7dc87f7fbe7406f211feaf89ec1b71051b','source_before':sources_before,'source_after':sources_after,'checks':results,'count':len(results),'scope':'Bounded prepare/source inlet and actual tiny hook protocol. No broad wave, actual runtime checker, HTTP verifier or numerical candidate outcomes measured.','actual_IR_prepared_inclusion':'UNRUN: genuine new path absent at8fa; repeat on final merged source','CLI_registered_wrapper_preflight':'UNRUN: operational hook delegates exact checker main; canonical registered CLI preflight is not separately remeasured','verdict':'GO for bounded wrapper/helper behavior; final exact-source preparation and broad gates remain due'}
+(ROOT/'independent-wrapper-review.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps({'count':len(results),'all_pass':all(r['passed'] for r in results),'source_stable':sources_before==sources_after,'verdict':report['verdict']}))

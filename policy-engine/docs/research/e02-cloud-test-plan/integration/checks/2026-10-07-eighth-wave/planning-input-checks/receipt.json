@@ -1,0 +1,39 @@
+{
+  "utc": "2026-10-07T06:35:07.607375+00:00",
+  "scope": "inputintegrity andplanningbookkeepingonly;notsemanticproof",
+  "commands": [
+    {
+      "label": "coverage_initial_invalid_flag",
+      "argv": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/validate_coverage.py",
+        "--check"
+      ],
+      "outcome": "ERROR_CLI_ARGUMENT",
+      "actual_cli_exit": 2,
+      "scope": "argparse rejected before bookkeeping; corrected supported --self-check invocation below; not a product failure"
+    },
+    {
+      "label": "coverage",
+      "argv": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/validate_coverage.py",
+        "--self-check"
+      ],
+      "exit": 0,
+      "stdout_sha256": "46a173fcb04644e1f1c9ff0e7753b5f41d1360fe68204299eb58e91fbd86623a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "import",
+      "argv": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--check"
+      ],
+      "exit": 0,
+      "stdout_sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

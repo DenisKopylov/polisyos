@@ -1860,7 +1860,7 @@
         }
       ],
       "closure_now": "not_adjudicated",
-      "criterion_specific_acceptance_not_executed": "not_promoted returned before N9 is not proof N9 checked or refused.",
+      "criterion_specific_acceptance_not_executed": "A real N5 K_sim result traverses the runtime adapter into conditional simulation analysis while remaining unable to assert K_world, empirical effect, or external action; manually clearing its limitation is invalid.",
       "capability_label": "verification_missing"
     },
     {
@@ -2378,7 +2378,7 @@
         }
       ],
       "closure_now": "not_adjudicated",
-      "criterion_specific_acceptance_not_executed": "caller-asserted cost/spent or VOI score can proxy for resource use.",
+      "criterion_specific_acceptance_not_executed": "An informative permitted check runs while the bounded research budget remains even if the economic value-proxy is low or unknown; observed exhaustion stops it. Caller-asserted VOI/spend cannot substitute for actual budget use.",
       "capability_label": "bridge_missing"
     },
     {
@@ -4770,7 +4770,7 @@
         }
       ],
       "closure_now": "not_adjudicated",
-      "criterion_specific_acceptance_not_executed": "Actual admitted ETS forecast and paired held-out outcomes traverse strict CAS and the default gateway. A configured in-process verifier reruns ETS on training rows only, rejects leakage, independently recomputes held-out coverage/threshold/scope/time, and serves predictive-only support. Content-valid false receipt/control fails.",
+      "criterion_specific_acceptance_not_executed": "Pass task region/population and measurement semantics into the existing empirical profile/query before sorting, LIMIT, or aggregation; preserve source/unit, refuse unapproved mixed-unit averaging, distinguish a genuinely small sample from completeness, and make scope changes alter consumed-row identity.",
       "capability_label": "verification_missing"
     },
     {
@@ -7094,7 +7094,7 @@
         }
       ],
       "closure_now": "not_adjudicated",
-      "criterion_specific_acceptance_not_executed": "candidate ID/history row does not establish signature/current epoch.",
+      "criterion_specific_acceptance_not_executed": "Subject candidate identity is distinct from each per-iteration occurrence: preserve both in history, select one current occurrence, and bind the downstream result to the right version; blind deduplication loses evidence.",
       "capability_label": "verification_missing"
     },
     {
@@ -7152,7 +7152,7 @@
         }
       ],
       "closure_now": "not_adjudicated",
-      "criterion_specific_acceptance_not_executed": "whole checkout bytes or exit code proxy for deployed executable identity.",
+      "criterion_specific_acceptance_not_executed": "An absent/unavailable source denominator must not yield an empty successful result; distinguish parse errors from an actual forbidden caller, keep unrelated syntax errors out of the caller set, and verify the controlled source/deployment slice for actually executed code plus relevant loaded dependencies.",
       "capability_label": "producer_missing"
     },
     {
@@ -7181,7 +7181,7 @@
         }
       ],
       "closure_now": "not_adjudicated",
-      "criterion_specific_acceptance_not_executed": "field width or forcing mean inside credible interval changes statistical meaning.",
+      "criterion_specific_acceptance_not_executed": "Keep identification bounds separate from native statistical/model uncertainty for the same estimand/unit; zero-width identification is not zero total uncertainty, no arbitrary proxy width is allowed, and a mean need not be forced into an interval. Check the existing versioned carrier first; E B201/B202 quantile/joint-law/storage choices are separate.",
       "capability_label": "absent/unallocated"
     },
     {
@@ -9770,7 +9770,7 @@
         }
       ],
       "closure_now": "not_adjudicated",
-      "criterion_specific_acceptance_not_executed": "The legacy fiscal and labor profiles are non-equivalent; preserve their selectors, units, effect types and convergence semantics until a real optimizer/caller equivalence is shown. The caller/retirement seam is still open.",
+      "criterion_specific_acceptance_not_executed": "The frozen F paired-profile receipts cover a bounded comparison of the declared legacy and plugin fiscal/labor profiles across selected matched and divergent regimes, including state/units, timestep, tax, balance and RNG semantics. This is not whole-model or production-caller equivalence. Formal closure remains not adjudicated; no Gini/welfare sign-off or optimizer caller is required by LA-004. A possible C/PPO negative-wealth input into strict Gini remains a separate cross-edge without a combined runtime witness.",
       "method_decision_ref": "method-decisions.md#f-m14"
     },
     {
@@ -11026,7 +11026,7 @@
         }
       ],
       "closure_now": "not_adjudicated",
-      "criterion_specific_acceptance_not_executed": "`policy_loss_fn` is a live early economic baseline under the shared method owner. No equivalent modern economic objective or production optimizer caller is proven. Residual is objective/profile/compatibility equivalence and an actual optimizer consumer, not merely ECO fiscal/labor profile difference.",
+      "criterion_specific_acceptance_not_executed": "The unchanged historical `normalized_income_budget_loss` is preserved on its native `GlobalState` formula with legacy internal/public aliases and its guards/JIT/gradient behavior; frozen compatibility receipts cover the selected formula/import path. No normative-owner approval is required for this unchanged relocation. Formal closure remains not adjudicated. Production optimizer use and external/computed caller retirement are unestablished and remain a separate census/compatibility question; owner review is required only for a changed score/ranking or new objective.",
       "method_decision_ref": "method-decisions.md#f-m14"
     },
     {
@@ -11476,7 +11476,7 @@
         }
       ],
       "closure_now": "not_adjudicated",
-      "criterion_specific_acceptance_not_executed": "compiler-emitted requirement or recording resolver result proxies for admitted data.",
+      "criterion_specific_acceptance_not_executed": "Keep two acceptance occurrences for the same LA-046 source block/hash: ACQ-01 requires actual admitted N7 inputs to alter WMR (a recording resolver is insufficient); REQ-01 separately tests the generic compiler against an explicit named pilot profile, opaque scenario IDs, text/request, declared scope/date/jurisdiction, and negation. Neither occurrence closes the other; REQ-01 does not require N7 acquisition.",
       "capability_label": "verification_missing"
     },
     {

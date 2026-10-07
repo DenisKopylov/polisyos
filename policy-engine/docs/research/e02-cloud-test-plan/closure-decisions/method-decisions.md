@@ -819,17 +819,17 @@ fit/split seeds, среду и полный runtime call. Пока этого н
 
 **Finding IDs.** LA-004; LA-035
 
-**Свойство.** A score's units, sign, scale dependence, state variables and audience must match its declared normative/economic meaning; dtype correction does not ratify the objective.
+**Свойство.** A score's units, sign, scale dependence, state variables and audience must match its declared meaning when an objective or ranking changes; relocating an unchanged historical formula is a compatibility change, not a new normative objective.
 
-**Сегодняшнее расхождение.** normalized_income_budget_loss uses -mean(income)/max(mean(abs(income)),1)+10*budget_penalty. For nonnegative mean income >=1 the income term is exactly -1 at every income scale; progressive tax/wealth mechanics and live flat income-tax kernel also operate on different state/equation paths.
+**Сегодняшнее расхождение.** `normalized_income_budget_loss` uses `-mean(income)/max(mean(abs(income)),1)+10*budget_penalty`. For nonnegative mean income >=1 the income term is exactly -1 at every income scale. The frozen F receipts compare selected legacy and plugin fiscal/labor profiles across matched and divergent regimes; the state, units, tax/balance path and stochastic semantics differ, so the comparison does not establish whole-model or production-caller equivalence.
 
-**Выбранная реализация.** Retain this formula as a separately named historical baseline until its semantic owner ratifies units/sign/normalization. Keep distinct objective profiles for the economic plugin and world execution kernels; add a new scale-sensitive welfare/income objective only after explicit normative owner approval and test the actual consumer.
+**Выбранная реализация.** Keep the unchanged formula canonical as the historical `normalized_income_budget_loss` on its native `GlobalState`, preserving the existing `_internal.loss.policy_loss_fn` and public `methods.loss` aliases plus its guards/JIT/gradient behavior. No normative-owner approval is required to preserve or relocate that same score. Require a named normative owner and actual consumer only for changing its sign/scale/ranking or introducing a new welfare/income objective. Keep the plugin and world-execution profiles distinct where their laws differ.
 
-**Отвергнутый вариант.** Do not silently call the normalized score income maximization or welfare; do not merge wealth and income or progressive and flat tax paths by dtype or name.
+**Отвергнутый вариант.** Do not silently call the historical score income maximization or welfare; do not merge wealth and income or progressive and flat-tax paths by dtype or name. Treat the possible C/PPO negative-wealth input into strict Gini as a separate cross-edge, not evidence about these two criteria.
 
 **Canonical paths.** policy-engine/src/polisyos/foundry/plugins/economics/baselines.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/foundry/plugins/test_economics_dtype.py@97c85fae2d4505ec8248540d98b9556296244208; policy-engine/tests/unit/remediation/test_eco_01.py@97c85fae2d4505ec8248540d98b9556296244208
 
-**Зависимости.** No new package. A semantic owner decision and actual objective consumer are prerequisites for changing policy interpretation.
+**Зависимости.** No new package. An unchanged relocation needs compatibility evidence, not a new objective owner. A semantic owner and actual objective consumer are prerequisites only for a score/ranking change or new objective; production/external caller retirement remains a separate unestablished question.
 
 **Положительная функция и независимый oracle.** Hand-compute zero, subunit, unit, and >1 nonnegative income vectors plus budget penalties; scale income by 10 and verify the historical ratio is exactly invariant when both means exceed one. Consumer stores the result under the historical profile name.
 
@@ -837,7 +837,7 @@ fit/split seeds, среду и полный runtime call. Пока этого н
 
 **Границы.** Arithmetic and consumer binding only; no normative welfare judgment or empirical economic validity is inferred from synthetic examples.
 
-**Runtime.** Existing dtype path receipt shows 60 dtype tests plus consumer subsets. It does not establish semantic owner signoff or fiscal/labor kernel equivalence.
+**Runtime.** The dtype receipt covers its 60-case NumPy-oracle branch; the frozen F paired-profile receipts separately cover selected matched and divergent fiscal/labor regimes. They establish neither a universal equivalence nor production optimizer applicability. The unchanged-formula compatibility receipt covers the named baseline and aliases/guards/JIT/gradient path; external/computed caller retirement is not established. No owner sign-off is implied or needed for preserving the unchanged score.
 
 **Основания.** policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype.json@bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42#sha256=c7c0f21acfb3537c9c0a53ef39a36a762193a4b0bb3d0da07bd5c0653f173979; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-deciding.txt@bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42#sha256=879ece00b605c674668941c27eb018d15f1dcfd680d25bf7c30359fbc449ff3f
 

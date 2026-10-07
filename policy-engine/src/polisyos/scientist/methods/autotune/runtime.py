@@ -165,6 +165,8 @@ class SequenceCandidateGenerator:
 
     def __init__(self, candidates: list[dict[str, Any] | MutationArtifact]) -> None:
         self._candidates = list(candidates)
+        if not self._candidates:
+            raise ValueError("sequence_generator_requires_nonempty_corpus")
         self._index = 0
 
     def get_state(self) -> dict[str, Any]:
@@ -195,6 +197,8 @@ class SequenceCandidateGenerator:
         context: dict[str, Any],
     ) -> dict[str, Any]:
         del history, current_best, context
+        if not self._candidates:
+            raise ValueError("sequence_generator_requires_nonempty_corpus")
         if self._index >= len(self._candidates):
             last = self._candidates[-1]
             return (

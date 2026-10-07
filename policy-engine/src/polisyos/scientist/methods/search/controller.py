@@ -924,6 +924,14 @@ class SearchController:
                 current_best=self._best_candidate,
                 context=enriched,
             )
+        except _IMPORT_ERRORS as exc:
+            _search_degraded(
+                operation="build_generation_context",
+                reason="execution_plan_context_unavailable",
+                exc=exc,
+                details={"iteration": iteration},
+            )
+            return enriched
         except _SEARCH_DEGRADED_ERRORS as exc:
             _search_degraded(
                 operation="build_generation_context",

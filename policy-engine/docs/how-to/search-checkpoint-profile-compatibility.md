@@ -43,6 +43,32 @@ computed zero from an unavailable indicator, preserve coordinate IDs/schema and
 retain unassessed rows. Historical finite `1.0` reads remain supported; do not
 erase a version `2.0` assessment to serialize it as historical `1.0`.
 
+## Native service and sequential proposals
+
+`SequenceCandidateGenerator` implements the scalar candidate contract and
+requires a nonempty corpus. An empty corpus refuses with
+`sequence_generator_requires_nonempty_corpus` before native service activation.
+Removing a live corpus also refuses at the scalar generation boundary; it never
+invents a subject or uses `IndexError` as an exhaustion signal. Nonempty streams
+retain one proposal per scalar ask and their repeated terminal proposal.
+
+An empty sequence is an unsupported configuration, not a successful exhausted
+search. The existing batch-generator contract remains the supported empty-result
+path: the native service records bounded empty attempts and truthful partial or
+`generation_exhausted` state. Unit-batch/scalar routing is unchanged.
+
+Topology selection dependencies load when the existing topology-suggestion
+consumer activates. Ordinary scalar proposals do not initialize the selection
+advisor. If selection is unavailable at that boundary, generation keeps the
+existing `execution_plan_context_unavailable` degraded result; this does not
+establish a successful topology suggestion.
+
+Native `search-service.v2` replay binds the factory build and evaluator/model
+profile. Retain old artifacts; changed factory builds refuse old checkpoints.
+For exact continuation use the recorded source and its admitted profile, or
+start an explicitly new run. The nonempty sequence corpus/cursor wire format
+stays `sequence-generator.v1`; markers do not authorize cross-build resume.
+
 ## Operator checks
 
 Before restoration, record the source SHA, checkpoint profile and actual backend

@@ -20,10 +20,6 @@ from polisyos.core.contracts.execution_plan import (
 from polisyos.foundry.methods import MethodRegistry
 from polisyos.foundry.methods.base import parse_fqn
 from polisyos.foundry.methods.exceptions import FoundryMethodError, MethodNotFoundError
-from polisyos.foundry.methods.selection import (
-    suggest_adapter_methods,
-    suggest_plan_node_alternatives,
-)
 from polisyos.scientist.governance.report import GovernanceReport
 
 from .models import (
@@ -281,6 +277,11 @@ def suggest_execution_plan_topology_mutations(
     registry_provider: Callable[[], MethodRegistry] | None = None,
 ) -> list[TopologyMutation]:
     """Suggest execution plan topology mutations helper."""
+    from polisyos.foundry.methods.selection import (
+        suggest_adapter_methods,
+        suggest_plan_node_alternatives,
+    )
+
     reg = _resolve_registry(registry, registry_provider)
     mutations: list[TopologyMutation] = []
     seen: set[tuple[str, str, str, str]] = set()

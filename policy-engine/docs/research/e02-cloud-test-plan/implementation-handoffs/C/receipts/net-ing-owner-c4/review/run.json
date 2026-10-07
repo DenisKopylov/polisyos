@@ -1,0 +1,63 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine",
+  "elapsed_seconds": 1.715,
+  "environment": {
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/src"
+  },
+  "git_status": "## codex/e02-C-net-ing-20261007",
+  "post_hashes": {
+    "src/polisyos/fabric/connectors/_registry_lifecycle.py": "50871b4cae9d88a6426e9036572e58893f7fe9bec257be8d50e6244c00e42b31",
+    "src/polisyos/fabric/connectors/pool.py": "0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35",
+    "src/polisyos/fabric/connectors/sources/event_stream.py": "63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48",
+    "src/polisyos/fabric/data_plane/cursor_store.py": "e52018d556972e60932490fa7c7e9510ad66f2c72a694b429f4eb1e9bebc3405",
+    "src/polisyos/fabric/data_plane/streaming.py": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119",
+    "tests/unit/fabric/data_plane/test_net_ing_registry_cleanup.py": "e716a8b501dea4e88c805ff0b707e6bfe2084a735ee94d86d15c25e9691fc68c"
+  },
+  "post_head": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+  "post_tree": "267fef2e1a46aee7a7b2c1f6baaa00bf66e3cbd9",
+  "pre_hashes": {
+    "src/polisyos/fabric/connectors/_registry_lifecycle.py": "50871b4cae9d88a6426e9036572e58893f7fe9bec257be8d50e6244c00e42b31",
+    "src/polisyos/fabric/connectors/pool.py": "0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35",
+    "src/polisyos/fabric/connectors/sources/event_stream.py": "63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48",
+    "src/polisyos/fabric/data_plane/cursor_store.py": "e52018d556972e60932490fa7c7e9510ad66f2c72a694b429f4eb1e9bebc3405",
+    "src/polisyos/fabric/data_plane/streaming.py": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119",
+    "tests/unit/fabric/data_plane/test_net_ing_registry_cleanup.py": "e716a8b501dea4e88c805ff0b707e6bfe2084a735ee94d86d15c25e9691fc68c"
+  },
+  "pre_head": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+  "pre_post_git_identical": true,
+  "pre_post_hashes_identical": true,
+  "pre_tree": "267fef2e1a46aee7a7b2c1f6baaa00bf66e3cbd9",
+  "profile": "independent observed system Python 3.14.0 / pytest 9.0.2; not frozen/offline env",
+  "pytest_args": [
+    "-ra",
+    "-q",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--benchmark-storage=file://./_cache/benchmarks",
+    "-ra",
+    "-q",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-p",
+    "pytest_asyncio.plugin",
+    "-p",
+    "pytest_benchmark.plugin",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-C4/raw/net-independent/pytest-cache",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-C4/raw/net-independent/pytest-basetemp",
+    "tests/unit/fabric/data_plane/test_net_ing_registry_cleanup.py"
+  ],
+  "pytest_exit_code": 0,
+  "python_version": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-C4/raw/net-independent/pytest.stderr",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-C4/raw/net-independent/pytest.stdout",
+  "stdout_sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+}

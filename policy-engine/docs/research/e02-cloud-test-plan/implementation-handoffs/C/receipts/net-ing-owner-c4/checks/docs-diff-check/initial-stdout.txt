@@ -1,0 +1,18 @@
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/stdout.txt:19: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/stdout.txt:34: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/stdout.txt:37: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/stdout.txt:46: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/stdout.txt:52: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/stdout.txt:54: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/stdout.txt:58: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/stdout.txt:72: trailing whitespace.
++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/stdout.txt:81: trailing whitespace.
++    

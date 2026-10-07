@@ -1,0 +1,18 @@
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/initial-stdout.txt:2: trailing whitespace.
+++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/initial-stdout.txt:4: trailing whitespace.
+++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/initial-stdout.txt:6: trailing whitespace.
+++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/initial-stdout.txt:8: trailing whitespace.
+++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/initial-stdout.txt:10: trailing whitespace.
+++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/initial-stdout.txt:12: trailing whitespace.
+++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/initial-stdout.txt:14: trailing whitespace.
+++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/initial-stdout.txt:16: trailing whitespace.
+++    
+policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/initial-stdout.txt:18: trailing whitespace.
+++    

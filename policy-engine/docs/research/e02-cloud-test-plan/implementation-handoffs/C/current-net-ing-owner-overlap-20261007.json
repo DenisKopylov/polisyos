@@ -1,0 +1,500 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "net-owner-overlap-c4",
+  "branch": "codex/e02-C-net-ing-20261007",
+  "worktree_root": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos",
+  "status": "candidate_behavioral_evidence_only",
+  "slice_base_sha": "13c0cde6bd8275d5b8d0deb73affa198325aa7c0",
+  "slice_base_tree_sha": "1ced36ad643f4e59e20e5fad9892c1aafc683f97",
+  "criterion_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "criterion_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "required_anchor": {
+    "commit": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+    "tree": "498ff43267dfceaacdeb8de92b1e79cb38a44316",
+    "ancestor_of_candidate": true,
+    "verification": "git merge-base --is-ancestor 1ddcd7b3905e52c0d19db091823a64830139fa64 8580eb4a13cbd734e0a685069ea5bb16a1c5ee63; exit 0"
+  },
+  "analysis_sources": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-net-ing-20261007.json",
+      "commit": "13c0cde6bd8275d5b8d0deb73affa198325aa7c0",
+      "git_blob": "cd582f6ee06f812731b659e7d6d3a970dd3f10ec",
+      "sha256": "8f9c3e7caace89b4b0c130424608434448b187e61fe15660b6b3f6f60caf5c43",
+      "bytes": 43779,
+      "role": "prior C3 handoff; preserved unchanged"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.json",
+      "commit": "c694daaf888657ec261988fa2066df792fd77110",
+      "git_blob": "61e1abe90ae5f81e37077e2dc8e92f7e4de0cb76",
+      "sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc",
+      "bytes": 322414,
+      "role": "prior pinned C54 v10; no C4 verdict edit"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "commit": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+      "git_blob": "fa766a86b8bc6f0f60937001b7addc438fa55418",
+      "sha256": "03481f3fef76c5f6eab78a64febe95cb61d7c79555e18dcfc846c505c96d3bce",
+      "bytes": 551054,
+      "role": "finding/bundle mapping and B87 status source"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "commit": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+      "git_blob": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b",
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
+      "bytes": 12413,
+      "role": "canonical bundle owner map"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "commit": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+      "git_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+      "bytes": 9504,
+      "role": "canonical finding owner map"
+    },
+    {
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "commit": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+      "git_blob": "7f4cc9ab9541a44c26e4648a2c08326e53743492",
+      "sha256": "64f9fa40453980d9128443ee34a4bf3298b71c157a5ebcc3bd6cb786abeb090a",
+      "bytes": 61268,
+      "role": "P29/P40/P41 pattern register"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/stream-oracle-owner-packet-20261007.json",
+      "commit": "12d77b34ea845adde0bf27a653fa70fd2ea8ad35",
+      "git_blob": "74c22b32d16edf22631ece1166107bbff52271b6",
+      "sha256": "0822a809281977b2df75df791915b39f65993ac2247758dd8140db671ea0140c",
+      "bytes": 6508,
+      "role": "B decoder-only owner packet; separate acceptance pending"
+    }
+  ],
+  "candidate_sha": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+  "candidate_tree_sha": "267fef2e1a46aee7a7b2c1f6baaa00bf66e3cbd9",
+  "implementation_commits": [
+    "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63"
+  ],
+  "implementation_commits_product_only": [],
+  "candidate_parent": "13c0cde6bd8275d5b8d0deb73affa198325aa7c0",
+  "full_slice_changed_paths": [
+    "policy-engine/tests/unit/fabric/data_plane/test_net_ing_registry_cleanup.py"
+  ],
+  "mechanism_paths": [],
+  "test_paths": [
+    "policy-engine/tests/unit/fabric/data_plane/test_net_ing_registry_cleanup.py"
+  ],
+  "changed_paths": [
+    "policy-engine/tests/unit/fabric/data_plane/test_net_ing_registry_cleanup.py"
+  ],
+  "source_freeze": {
+    "candidate_commit": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+    "candidate_tree": "267fef2e1a46aee7a7b2c1f6baaa00bf66e3cbd9",
+    "slice_base": "13c0cde6bd8275d5b8d0deb73affa198325aa7c0",
+    "branch_attached": "refs/heads/codex/e02-C-net-ing-20261007",
+    "clean_at_frozen_candidate": true,
+    "test": {
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_net_ing_registry_cleanup.py",
+      "commit": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+      "git_blob": "0fcd3ad009d7e66d49075c64d0a4b7fa1d73fdff",
+      "sha256": "e716a8b501dea4e88c805ff0b707e6bfe2084a735ee94d86d15c25e9691fc68c",
+      "lines": 213,
+      "delta": "one added test file only"
+    },
+    "product_source": {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "commit": "c694daaf888657ec261988fa2066df792fd77110",
+      "git_blob": "80af60d90e2eb6aeed0d335c4dbe5d80c8c24c7c",
+      "sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119",
+      "changed_by_c4": false
+    },
+    "connector_source": {
+      "path": "policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+      "commit": "c694daaf888657ec261988fa2066df792fd77110",
+      "git_blob": "1d3e5c36215cb4f4ccda86a9ac7f05908a81fc1c",
+      "sha256": "63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48",
+      "observed_disconnect": "The async method body is del handle and performs no physical I/O; this is a local file:// JSONL connector only."
+    },
+    "composition": {
+      "commit": "c694daaf888657ec261988fa2066df792fd77110",
+      "tree": "bf1e231b53c1f68f7fce176792ea0011636a83f8",
+      "parents": [
+        "07bbb61ffa6d53709942bcda87c37daef1a04651",
+        "121fcf450757086ffcc506dabca33fbe28dcd661"
+      ],
+      "meaning": "C source plus the selected B provider; this C4 test does not admit or accept all B source."
+    },
+    "previous_c3_candidate": "0979fae4edaea61f3ae602241423d5cd96b091de",
+    "previous_c3_handoff_commit": "13c0cde6bd8275d5b8d0deb73affa198325aa7c0",
+    "production_and_build_inputs_unchanged_in_c4": true
+  },
+  "criterion_ids": [],
+  "affected_criterion_ids": [
+    "B81",
+    "B82",
+    "B84",
+    "B85"
+  ],
+  "affected_criterion_boundary": "These are narrow dependent current frontier/crash/restart-replay context only. The cleanup-overlap test does not establish the whole criteria, create a fresh-evidence basis for them, change their C54 rows, or close them. Root C54 adjudication owns any selector-level linkage.",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "external_owner_context": {
+    "finding_id": "B87",
+    "unit": "B",
+    "source_closure_owner": "NET-01",
+    "source_status": "partial",
+    "coverage_state": "closure_now=not_adjudicated",
+    "handoff_commit": "12d77b34ea845adde0bf27a653fa70fd2ea8ad35",
+    "handoff_tree": "a5a0199ac0ed470c76ab7afbe016020fd65247fb",
+    "handoff_sha256": "0822a809281977b2df75df791915b39f65993ac2247758dd8140db671ea0140c",
+    "boundary": "B87 is outside the C54 criterion list. C owns streaming.py and supplies this consumer-side witness; this is not B source acceptance, B87 closure, or G admission."
+  },
+  "findings": [],
+  "baseline_cells": [],
+  "finding_disposition_boundary": {
+    "prior_C54_v10": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.json",
+      "commit": "c694daaf888657ec261988fa2066df792fd77110",
+      "sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc"
+    },
+    "prior_C3_handoff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-net-ing-20261007.json",
+      "commit": "13c0cde6bd8275d5b8d0deb73affa198325aa7c0",
+      "sha256": "8f9c3e7caace89b4b0c130424608434448b187e61fe15660b6b3f6f60caf5c43"
+    },
+    "changed_by_C4": false,
+    "note": "No C54 row/verdict or criterion evidence basis is changed by this test-only handoff. Family version or presence in the focused selector is not a new/fresh criterion proof."
+  },
+  "baseline_replay": {
+    "C3_composition": "c694daaf888657ec261988fa2066df792fd77110 / tree bf1e231b53c1f68f7fce176792ea0011636a83f8",
+    "C3_composed_16_case_wave": {
+      "result": "16 collected, 14 passed, 2 B oracle setup failures before target assertions",
+      "classification": "legacy B key fixture expects string form; C uses canonical JSON field/value pairs; not product verdict",
+      "source_receipt": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/composed-16/native.txt@507ed15c57b0aac8b357aceefca06cf765467a22675442fdbd70cead00a1d693",
+      "not_repeated_in_C4": true
+    },
+    "C4_run_base": "13c0cde6bd8275d5b8d0deb73affa198325aa7c0",
+    "P41": "No inherited-red claim is made. The C4 targeted run is candidate verification, not a replay of the earlier C3 B oracle setup failures."
+  },
+  "property": {
+    "statement": "After a stream startup sanitizer failure and two controlled disconnect failures, the registry retains the exact old cleanup owner (connector ID, private pool, handle, pending permit state). A separate fresh stream with a distinct pool can complete and persist its own row/checkpoint without replacing the old obligation; registry shutdown retries that exact old handle and clears the retained owner.",
+    "runtime_path": [
+      "process_stream_dataset",
+      "StreamingSourceSession startup/close",
+      "real EventStreamConnector JSONL reader with test-only disconnect-failure override",
+      "ConnectorRegistry._pending_startup_cleanup",
+      "ConnectionPool pending handle/permit state",
+      "FileSystemCAS stream chunk and CursorStore checkpoint readback",
+      "ConnectorRegistry.shutdown_async retry"
+    ],
+    "negative_controls": [
+      "With test markers and source bytes retained, replace _retain_cleanup_owner with an in-memory no-op; the new test fails at the exact registry-retained-old-owner assertion before the fresh stream."
+    ],
+    "bounded_observation": "The primary sanitizer exception object remains authoritative; the old handle is attempted once during initial cleanup and once by registry shutdown (two attempts total), while the fresh handle is attempted once and succeeds. The fresh row and CLOSED checkpoint read back; the old pending_permit remains false and semaphore value remains one until the old owner is retried and cleared.",
+    "scope": "Registry-reachable cleanup ownership only. EventStreamConnector.disconnect is a no-op for local JSONL; subclass call counts do not establish physical socket/FD closure or a hard physical-capacity bound. Direct sessions without a registry remain caller-owned."
+  },
+  "predicate_basis": "recomputed",
+  "p37": {
+    "predicate": "The exact acquired old pool and handle remain reachable and retryable while a fresh pool completes, then registry shutdown clears that same owner.",
+    "basis": "recomputed from actual runtime object identity, registry owner mapping, pool pending state, disconnect call sequence, FileSystemCAS row/checkpoint readback, and final registry state; candidate-grade fixture evidence only."
+  },
+  "p38": {
+    "property": "Preservation and later retry of the exact failed session cleanup owner across a successful fresh session.",
+    "implementation_measures": "Object identity for the old ConnectorPool and ConnectionHandle, exact registry tuple, pending-cleanup mapping, pending_permit/semaphore state, disconnect attempt order, artifact-backed fresh row/checkpoint readback, and final registry/pool cleanup state.",
+    "divergent_case": "A successful new row or rows_emitted=1 could pass while the old handle is lost. The test asserts the old identity remains registered before and after the fresh run. A disconnect callback returning is also only a handle-level signal here because the base local JSONL disconnect is a no-op."
+  },
+  "p40": {
+    "class": "connector cleanup-owner retention and retry across lifecycle transitions",
+    "classification": "same cleanup-owner class as prior pool/registry retention probes; this is a fresh-session overlap witness, not a new runtime mechanism. B87 remains its separate B-owned NET-01 disposition.",
+    "second-level_residual": "Physical OS socket/FD cleanup and global capacity are outside the local file:// connector substrate; they require a connector with real external resources and platform/process-level evidence."
+  },
+  "checks": [
+    {
+      "id": "C4-focused-current-checks",
+      "target_sha": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+      "command": {
+        "record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/focused-v4/run.json",
+        "sha256": "31d49f2d6568d948e2f6d450b1623a297475696d6c1942528808f4d6a89d00a4"
+      },
+      "selectors": [
+        "tests/unit/fabric/data_plane/test_net_ing_current_frontier.py",
+        "tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py",
+        "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[process-disconnect-failure]",
+        "tests/unit/fabric/data_plane/test_net_ing_registry_cleanup.py"
+      ],
+      "outcome": "PASS",
+      "summary": "10 selected tests passed on the frozen 8580 candidate; existing frontier and cleanup checks plus the new one-test owner-overlap witness.",
+      "environment": "Observed system Python 3.14.0 / pytest 9.0.2; PYTHONPATH points at this checkout; Hypothesis disabled; not frozen/offline venv and not an installed wheel receipt.",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/focused-v4/stdout.txt",
+          "sha256": "356d99006d4b9f81770b1d6a6712fe34bbbd8d467c94f3249add75c06a7c8d17",
+          "bytes": 99
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/focused-v4/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ],
+      "junit_xml": {
+        "status": "not_generated",
+        "reason": "Captured pytest argv has no junitxml option."
+      },
+      "input_closure": "Full interpreter/profile, exact pytest_args, imported/source/test SHA-256s, pre/post Git identities, and unchanged filesystem hashes are in the tracked run.json."
+    },
+    {
+      "id": "Independent-C4-review-and-one-test-run",
+      "target_sha": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+      "command": {
+        "record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/review/run.json",
+        "sha256": "df326867323864ab57673cb7161b3ca7fd53405ce62fe3e31df58bcd13bf3875"
+      },
+      "outcome": "PASS",
+      "summary": "Independent read-only review: bounded GO for the registry cleanup-owner regression and same-pool transfer property. Independent runner executes the single test; stdout progress and exit 0 are preserved.",
+      "review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/review/independent-review.md",
+        "sha256": "af9f176d03c68ae22ef5b76f52bbc9ba76c82948e952afafd4633e1853b8e303"
+      },
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/review/stdout.txt",
+          "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d",
+          "bytes": 80
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/review/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ],
+      "scope_limit": "No B source acceptance, no B87 closure, no G admission, no C54 criterion promotion, no physical socket/FD proof."
+    },
+    {
+      "id": "remove-property-keep-test-control",
+      "target_sha": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+      "command": {
+        "record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/run.json",
+        "sha256": "46033b725b46660a5a87908ca314719d9a345d158a12f430fe1e1315824d78e1"
+      },
+      "outcome": "FAIL",
+      "verdict": "expected_property_removal_red; not a product failure",
+      "summary": "With the test and markers retained, the runner replaces StreamingSourceSession._retain_cleanup_owner with a no-op; the exact assertion that the registry retains the old cleanup obligation fails because the owner map is empty.",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/stdout.txt",
+          "sha256": "4fcf71ac812548e51c82d53a00326db5eecc25e18ea945fa256b57c77c6b3081",
+          "bytes": 4097
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ],
+      "isolation": "The captured runner records unchanged marker/test/source hashes and runs the mutation in its own process; no tracked source or test bytes were altered."
+    },
+    {
+      "id": "offline-frozen-venv-provision",
+      "target_sha": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+      "command": {
+        "record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/environment/uv-sync.json",
+        "sha256": "96f2dc81b4ad5096676052b85647b027d7a40276aa3d7567a7c448120c4419c7"
+      },
+      "outcome": "ERROR",
+      "summary": "uv sync --frozen --offline --extra test --extra runtime could not find cached jaxlib==0.8.2 CPython 3.14.3 macOS arm64 wheel. This is an environment/provisioning limit, not a product failure; the resulting partial venv was not used.",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/environment/uv-sync.stdout",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/environment/uv-sync.stderr",
+          "sha256": "1a8d8ac37e7d78a1f4ce2890ada52e0381641c548c01153a7d245857878b6db8",
+          "bytes": 468
+        }
+      ],
+      "partial_environment_state_at_capture": {
+        "path": "policy-engine/.venv",
+        "exists": true,
+        "used_for_tests": false,
+        "cleanup": "not removed by this docs-only task; root cleanup decision pending"
+      }
+    },
+    {
+      "id": "ruff-on-c4-test",
+      "target_sha": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+      "command": "UNRUN; no C4 Ruff output was present in the frozen evidence packet and no code was edited during receipt authoring.",
+      "outcome": "UNRUN",
+      "output": null
+    },
+    {
+      "id": "documentation-git-diff-check",
+      "target_sha": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+      "command": "git diff --check --cached",
+      "outcome": "PASS",
+      "summary": "The final full staged check passes with blank-at-EOL disabled only for three exact captured outputs: the property-removal traceback, the initial diff-check diagnostic, and the second diff-check diagnostic. No global whitespace exemption or log normalization.",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/stdout.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ],
+      "scope": "The first check reported trailing spaces in the captured property-removal traceback; after exempting only that exact output path, the second check reported trailing spaces in the first preserved diagnostic. Both full diagnostics are tracked, and each exact captured output has its own scoped exception."
+    },
+    {
+      "id": "documentation-git-diff-check-initial",
+      "target_sha": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+      "command": "git diff --check --cached",
+      "outcome": "FAIL",
+      "exit_code": 2,
+      "classification": "exact captured output whitespace; not a source failure",
+      "summary": "The initial default check reported trailing spaces in the exact property-removal pytest traceback. After only that captured output path was exempted, the second check reported trailing spaces in the first captured diagnostic. Both diagnostics remain byte-exact and tracked; the second exact capture path was then exempted before the final check.",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/initial-stdout.txt",
+          "sha256": "da3aca97ba2bd21771763e812679a92d794818ca8e6b7a37b922864187c4d8e0",
+          "bytes": 1521
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/initial-stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "id": "documentation-git-diff-check-second",
+      "target_sha": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+      "command": "git diff --check --cached",
+      "outcome": "FAIL",
+      "exit_code": 2,
+      "classification": "trailing spaces in preserved diagnostic output; not a source failure",
+      "summary": "After the first exact captured traceback path was exempted, the second full staged check reported trailing spaces in the first captured diff-check diagnostic. That diagnostic is retained byte-exact and its own exact output path was added to the scoped attributes before the final check.",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/second-stdout.txt",
+          "sha256": "f3e462adc88fd3596a3c5020dfc0544ec39d8fbfbc742e47d187e912bf992673",
+          "bytes": 1562
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/second-stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ]
+    }
+  ],
+  "predicate_basis_by_check": [
+    {
+      "check": "C4-focused-current-checks",
+      "basis": "recomputed"
+    },
+    {
+      "check": "Independent-C4-review-and-one-test-run",
+      "basis": "independently_reconciled"
+    },
+    {
+      "check": "remove-property-keep-test-control",
+      "basis": "recomputed"
+    },
+    {
+      "check": "offline-frozen-venv-provision",
+      "basis": "not_established for a frozen local environment; failure is environment-only"
+    },
+    {
+      "check": "ruff-on-c4-test",
+      "basis": "not_established"
+    }
+  ],
+  "dependency_and_provider_context": {
+    "B_owner_packet": {
+      "commit": "12d77b34ea845adde0bf27a653fa70fd2ea8ad35",
+      "tree": "a5a0199ac0ed470c76ab7afbe016020fd65247fb",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/stream-oracle-owner-packet-20261007.json",
+      "sha256": "0822a809281977b2df75df791915b39f65993ac2247758dd8140db671ea0140c",
+      "status": "owner_input_pending; decoder receipt not established",
+      "selected_B_supplier": {
+        "commit": "121fcf450757086ffcc506dabca33fbe28dcd661",
+        "tree": "630ca6416fe2276e6bd1794edb4ee1f5ac1c80df"
+      },
+      "selected_B_current": {
+        "commit": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+        "tree": "dc4ebd99afba72d13c60a46e77cd8fc99a002e60"
+      },
+      "supplier_note": "Per the pinned owner packet/root coordination, selected B supplier inputs match c694; seven later B paths are outside the selected supplier scope. This handoff does not claim full B provider acceptance.",
+      "unrun_selectors": [
+        "policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects",
+        "policy-engine/tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_admitted_recovery_emits_two_sessions_once_with_original_lineage"
+      ],
+      "unrun_reason": "B-owned legacy key fixture awaits its B-owned decoder-only correction; C did not edit it.",
+      "historical_runs_not_counted_in_C4_wave": [
+        {
+          "candidate": "46656d88103f8cb289da78d92411f2d58f01df4a",
+          "result": "1 PASS / 1 FAIL",
+          "source_limit": "old 0915 stream and pre-current CAS; not current B+C"
+        },
+        {
+          "candidate": "a6ddddc114e195c7f1686042cf7c63ad99b9d5af",
+          "runtime": "f131958a71413154785823abeb0765d40499bad2",
+          "result": "7 PASS / 1 FAIL",
+          "source_limit": "four module fingerprints include old 0915 stream; separate prior run, not the C4 ten-case wave or G execution"
+        }
+      ]
+    },
+    "prior_C3_receipt": "C3 receipt is separately retained at policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3; its 16-case composition run had 14 PASS and 2 B oracle setup failures before target assertions and was not repeated here.",
+    "G_admission": "not established; no G write or admission event in C4."
+  },
+  "capability_state_or_finding_state": "Test-only behavioral evidence supplement for the C-owned streaming consumer cleanup-owner path. No production mechanism changed and no new capability claim is made. B87 remains B-owned NET-01 partial/not_adjudicated.",
+  "admission_receipts": {
+    "worktree_snapshot": {
+      "branch": "codex/e02-C-net-ing-20261007",
+      "head": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+      "tree": "267fef2e1a46aee7a7b2c1f6baaa00bf66e3cbd9",
+      "status": "clean at frozen implementation candidate before documentation authoring"
+    },
+    "scope": "Continuation of the already authorized existing NET lane; no new worktree, workspace registration, source change, or B/G admission was performed.",
+    "separate_admission_event": "none captured; existing C3 receipt records the root replay context."
+  },
+  "procedure_deviation": {
+    "state": "Documentation-only handoff over an already frozen test candidate.",
+    "commit_hooks": "Coordinator explicitly authorized task-scoped core.hooksPath=/dev/null for this receipt-only commit because the Lefthook executable is unavailable; all hooks are UNRUN, not PASS.",
+    "tests_or_source_changed_by_handoff": false
+  },
+  "limitations": [
+    "The default local EventStreamConnector disconnect implementation is a no-op; observed retry is registry owner/handle lifecycle evidence, not physical network socket/FD cleanup or a hard global physical-capacity claim.",
+    "Direct StreamingSourceSession instances without a registry remain caller-owned; the test only exercises the registry-backed consumer path.",
+    "This one test is related to B87/NET-01 but is not a B-owned provider acceptance, B87 closure, G admission, or C54 criterion closure.",
+    "B-owned pool-budget selectors remain UNRUN on the current selected provider until B supplies the decoder-only fixture correction; historical 1/1 and 7/1 runs have different source identities and are not added to the focused 10-pass count.",
+    "B81/B82/B84/B85 are narrow dependent evidence references only; the C4 test does not assign them fresh basis or prove complete criterion semantics.",
+    "No frozen/offline environment or installed-wheel execution of this new test. Offline uv sync failed on an uncached jaxlib CPython 3.14.3 wheel; focused author/reviewer runs used system Python 3.14.0 and checkout PYTHONPATH.",
+    "No full suite, Linux, external network source, production data, source-law authority, RSS, throughput, or global resource claim.",
+    "No JUnit XML was generated; Ruff was UNRUN. Task-scoped hooks are UNRUN."
+  ],
+  "next_owner": "B owner for the decoder-only current provider fixture and B87 source-side decision; C root for any selector-level C54 linkage; G for independent source admission only after complete exact receipts. Preserve existing verdicts until separate adjudication.",
+  "receipt": {
+    "evidence_index": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/evidence-index.json",
+      "sha256": "d6cd9a0cce7e11d3a37049cee6806adae5f547b79f05d01029afafe982846b5c"
+    },
+    "README": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/README.md",
+      "sha256": "a47c1db10813ca242ca8cc24ff098ddbdbd38d24a2597568fbb9867591f3bfa0"
+    },
+    "receipt_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4",
+    "captured_deciding_outputs_byte_exact": true
+  },
+  "publication_scope": "Local topic branch only. No push, main publication, B source acceptance, G write, other-chat message, or finding closure.",
+  "test_owner": "C owns the streaming consumer and this test-only witness; B owns NET-01 pool/registry supplier acceptance and its decoder-only test.",
+  "pull_request": null
+}

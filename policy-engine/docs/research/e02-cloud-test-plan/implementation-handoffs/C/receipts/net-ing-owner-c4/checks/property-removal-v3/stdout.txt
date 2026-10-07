@@ -1,0 +1,91 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________ test_fresh_stream_does_not_replace_older_pending_cleanup_owner ________
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-C4/raw/stream-replay/focused-v3/pytest-basetemp/test_fresh_stream_does_not_rep0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x11332de00>
+
+    @pytest.mark.asyncio
+    async def test_fresh_stream_does_not_replace_older_pending_cleanup_owner(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """A successful new session leaves the failed session's exact owner retryable."""
+        old_source = tmp_path / "old-events.jsonl"
+        old_source.write_text('{"_message_id":"old-event","value":1}\n', encoding="utf-8")
+        fresh_source = tmp_path / "fresh-events.jsonl"
+        fresh_row = {"_message_id": "fresh-event", "value": 2}
+        fresh_source.write_text(json.dumps(fresh_row) + "\n", encoding="utf-8")
+    
+        old_config = ConnectionConfig(
+            url=old_source.as_uri(),
+            headers={"X-Stream-ChunkSize": "1"},
+            max_connections=1,
+        )
+        fresh_config = ConnectionConfig(
+            url=fresh_source.as_uri(),
+            headers={"X-Stream-ChunkSize": "1"},
+            max_connections=1,
+        )
+        connector = _ObservedEventStream()
+        connector.disconnect_failures = 2
+        registry = ConnectorRegistry()
+        registry.register(EventStreamConnector, config=old_config, factory=lambda: connector)
+    
+        sessions: list[StreamingSourceSession] = []
+        original_create = StreamingSourceSession.create
+    
+        async def capture_session(
+            cls: type[StreamingSourceSession],
+            **kwargs: Any,
+        ) -> StreamingSourceSession:
+            del cls
+            session = await original_create(**kwargs)
+            sessions.append(session)
+            return session
+    
+        monkeypatch.setattr(
+            StreamingSourceSession,
+            "create",
+            classmethod(capture_session),
+        )
+    
+        primary_error = RuntimeError("primary sanitizer failure")
+    
+        def fail_sanitization(batch: Any, **kwargs: Any):
+            del batch, kwargs
+            raise primary_error
+    
+        cas_root = tmp_path / "cas"
+        try:
+            with pytest.raises(RuntimeError, match="primary sanitizer failure") as caught:
+                await process_stream_dataset(
+                    connector_id="stream.jsonl",
+                    dataset_id="old-owner",
+                    store=FileSystemCAS(cas_root),
+                    cursor_store=CursorStore(FileSystemCAS(cas_root)),
+                    sanitize_rows=fail_sanitization,
+                    runtime_options=StreamRuntimeOptions(batch_size=1),
+                    connection_config=old_config,
+                    registry=registry,
+                )
+    
+            assert caught.value is primary_error
+            assert len(sessions) == 1
+            old_session = sessions[0]
+            assert connector.stream_reads == 1
+            assert len(connector.connect_handles) == 1
+            old_handle = connector.connect_handles[0]
+            assert connector.disconnect_attempts == [old_handle]
+            assert connector.successful_disconnects == []
+    
+            owners_before_fresh = tuple(registry._pending_startup_cleanup.values())
+>           assert len(owners_before_fresh) == 1, "registry must retain the old cleanup obligation"
+E           AssertionError: registry must retain the old cleanup obligation
+E           assert 0 == 1
+E            +  where 0 = len(())
+
+tests/unit/fabric/data_plane/test_net_ing_registry_cleanup.py:147: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/fabric/data_plane/test_net_ing_registry_cleanup.py::test_fresh_stream_does_not_replace_older_pending_cleanup_owner
+1 failed in 0.08s

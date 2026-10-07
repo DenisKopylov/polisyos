@@ -1,0 +1,4 @@
+* -text !eol
+checks/property-removal-v3/stdout.txt whitespace=-blank-at-eol
+checks/docs-diff-check/initial-stdout.txt whitespace=-blank-at-eol
+checks/docs-diff-check/second-stdout.txt whitespace=-blank-at-eol

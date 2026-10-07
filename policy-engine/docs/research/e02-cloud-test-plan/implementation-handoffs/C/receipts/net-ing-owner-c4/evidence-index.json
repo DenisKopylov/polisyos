@@ -1,0 +1,194 @@
+{
+  "schema": "policyos.c4.receipt-evidence-index.v1",
+  "candidate_commit": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+  "candidate_tree": "267fef2e1a46aee7a7b2c1f6baaa00bf66e3cbd9",
+  "slice_base_commit": "13c0cde6bd8275d5b8d0deb73affa198325aa7c0",
+  "entries": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/focused-v4/run.json",
+      "bytes": 9487,
+      "sha256": "31d49f2d6568d948e2f6d450b1623a297475696d6c1942528808f4d6a89d00a4",
+      "source": ".tmp/e02-C4/raw/stream-replay/focused-v4/run.json",
+      "role": "Author focused 10-test current-source run; exact argv, source/environment hashes, and pre/post identities."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/focused-v4/run_focused.py",
+      "bytes": 5359,
+      "sha256": "a330024c20963b63437a5f71bd754894720fd6021a521465fa02f21addd72473",
+      "source": ".tmp/e02-C4/raw/stream-replay/focused-v4/run_focused.py",
+      "role": "Author focused 10-test current-source run; exact argv, source/environment hashes, and pre/post identities."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/focused-v4/stdout.txt",
+      "bytes": 99,
+      "sha256": "356d99006d4b9f81770b1d6a6712fe34bbbd8d467c94f3249add75c06a7c8d17",
+      "source": ".tmp/e02-C4/raw/stream-replay/focused-v4/pytest.stdout",
+      "role": "Author focused 10-test current-source run; exact argv, source/environment hashes, and pre/post identities."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/focused-v4/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C4/raw/stream-replay/focused-v4/pytest.stderr",
+      "role": "Author focused 10-test current-source run; exact argv, source/environment hashes, and pre/post identities."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/run.json",
+      "bytes": 2713,
+      "sha256": "46033b725b46660a5a87908ca314719d9a345d158a12f430fe1e1315824d78e1",
+      "source": ".tmp/e02-C4/raw/stream-replay/focused-v3/run.json",
+      "role": "Author-run remove-property-keep-test control; no-op cleanup-owner transfer fails the exact registry-retention assertion."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/run_remove_property.py",
+      "bytes": 3805,
+      "sha256": "d576f165b0e6264496b740bbace841223cfde55f7e87d9b8fe18186d5306d743",
+      "source": ".tmp/e02-C4/raw/stream-replay/focused-v3/run_remove_property.py",
+      "role": "Author-run remove-property-keep-test control; no-op cleanup-owner transfer fails the exact registry-retention assertion."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/stdout.txt",
+      "bytes": 4097,
+      "sha256": "4fcf71ac812548e51c82d53a00326db5eecc25e18ea945fa256b57c77c6b3081",
+      "source": ".tmp/e02-C4/raw/stream-replay/focused-v3/pytest.stdout",
+      "role": "Author-run remove-property-keep-test control; no-op cleanup-owner transfer fails the exact registry-retention assertion."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/property-removal-v3/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C4/raw/stream-replay/focused-v3/pytest.stderr",
+      "role": "Author-run remove-property-keep-test control; no-op cleanup-owner transfer fails the exact registry-retention assertion."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/review/independent-review.md",
+      "bytes": 4053,
+      "sha256": "af9f176d03c68ae22ef5b76f52bbc9ba76c82948e952afafd4633e1853b8e303",
+      "source": ".tmp/e02-C4/raw/net-independent/independent-review.md",
+      "role": "Independent bounded code/test review and independent one-test execution."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/review/run.json",
+      "bytes": 3638,
+      "sha256": "df326867323864ab57673cb7161b3ca7fd53405ce62fe3e31df58bcd13bf3875",
+      "source": ".tmp/e02-C4/raw/net-independent/run.json",
+      "role": "Independent bounded code/test review and independent one-test execution."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/review/stdout.txt",
+      "bytes": 80,
+      "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d",
+      "source": ".tmp/e02-C4/raw/net-independent/pytest.stdout",
+      "role": "Independent bounded code/test review and independent one-test execution."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/review/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C4/raw/net-independent/pytest.stderr",
+      "role": "Independent bounded code/test review and independent one-test execution."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/environment/uv-sync.json",
+      "bytes": 855,
+      "sha256": "96f2dc81b4ad5096676052b85647b027d7a40276aa3d7567a7c448120c4419c7",
+      "source": ".tmp/e02-C4/raw/stream-replay/provision/uv-sync.json",
+      "role": "Complete offline frozen environment provisioning attempt; environment error, not a product result."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/environment/uv-sync.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C4/raw/stream-replay/provision/uv-sync.stdout",
+      "role": "Complete offline frozen environment provisioning attempt; environment error, not a product result."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/environment/uv-sync.stderr",
+      "bytes": 468,
+      "sha256": "1a8d8ac37e7d78a1f4ce2890ada52e0381641c548c01153a7d245857878b6db8",
+      "source": ".tmp/e02-C4/raw/stream-replay/provision/uv-sync.stderr",
+      "role": "Complete offline frozen environment provisioning attempt; environment error, not a product result."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/initial-stdout.txt",
+      "bytes": 1521,
+      "sha256": "da3aca97ba2bd21771763e812679a92d794818ca8e6b7a37b922864187c4d8e0",
+      "source": "captured first ordinary git diff --check --cached run",
+      "role": "Complete initial whitespace diagnostic; exact captured traceback file was not edited."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/initial-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "captured first ordinary git diff --check --cached run",
+      "role": "Complete initial stderr output."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "captured final ordinary git diff --check --cached run",
+      "role": "Complete final stdout after path-specific whitespace attributes for three exact captured outputs."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "captured final ordinary git diff --check --cached run",
+      "role": "Complete final stderr output."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/.gitattributes",
+      "bytes": 209,
+      "sha256": "d697e2339094523ce8933c41dc3629ab33142e64513c733bf91c145b7de606e1",
+      "source": "authored in this handoff receipt",
+      "role": "Preserve receipt bytes; exempt blank-at-EOL only on three exact captured-output paths."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/README.md",
+      "bytes": 2990,
+      "sha256": "a47c1db10813ca242ca8cc24ff098ddbdbd38d24a2597568fbb9867591f3bfa0",
+      "source": "authored in this handoff receipt",
+      "role": "Scope and evidence guide, including the two failed checks and scoped byte-preserving exceptions."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/second-stdout.txt",
+      "bytes": 1562,
+      "sha256": "f3e462adc88fd3596a3c5020dfc0544ec39d8fbfbc742e47d187e912bf992673",
+      "source": ".tmp/e02-C4/raw capture of the second staged diff-check run",
+      "role": "Complete second staged whitespace diagnostic; it identified trailing spaces in the first preserved diagnostic."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-owner-c4/checks/docs-diff-check/second-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": ".tmp/e02-C4/raw capture of the second staged diff-check run",
+      "role": "Complete second stderr output."
+    }
+  ],
+  "excluded_ignored_artifacts": [
+    "pytest basetemp/cache; the generated test fixtures are derivable from the source test and were not retained",
+    "partial policy-engine/.venv from failed offline uv sync; unused and not a valid test environment",
+    "production data, source archives, wheels, and CAS data: none used/copied by this C4 test-only slice"
+  ],
+  "source_and_gate_refs": [
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "commit": "c694daaf888657ec261988fa2066df792fd77110",
+      "git_blob": "80af60d90e2eb6aeed0d335c4dbe5d80c8c24c7c",
+      "sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+      "commit": "c694daaf888657ec261988fa2066df792fd77110",
+      "git_blob": "1d3e5c36215cb4f4ccda86a9ac7f05908a81fc1c",
+      "sha256": "63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_net_ing_registry_cleanup.py",
+      "commit": "8580eb4a13cbd734e0a685069ea5bb16a1c5ee63",
+      "git_blob": "0fcd3ad009d7e66d49075c64d0a4b7fa1d73fdff",
+      "sha256": "e716a8b501dea4e88c805ff0b707e6bfe2084a735ee94d86d15c25e9691fc68c"
+    }
+  ]
+}

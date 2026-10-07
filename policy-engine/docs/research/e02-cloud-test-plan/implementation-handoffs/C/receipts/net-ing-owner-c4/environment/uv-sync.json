@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/opt/homebrew/bin/uv",
+    "sync",
+    "--frozen",
+    "--offline",
+    "--extra",
+    "test",
+    "--extra",
+    "runtime"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine",
+  "elapsed_seconds": 0.149803,
+  "environment": {
+    "UV_OFFLINE": null,
+    "UV_PROJECT_ENVIRONMENT": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/.venv"
+  },
+  "exit_code": 1,
+  "finished_unix_ns": 1791381428219344000,
+  "launcher_python": "/opt/homebrew/bin/python3",
+  "started_unix_ns": 1791381428069541000,
+  "stderr_bytes": 468,
+  "stderr_sha256": "1a8d8ac37e7d78a1f4ce2890ada52e0381641c548c01153a7d245857878b6db8",
+  "stdout_bytes": 0,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "uv_path": "/opt/homebrew/bin/uv"
+}

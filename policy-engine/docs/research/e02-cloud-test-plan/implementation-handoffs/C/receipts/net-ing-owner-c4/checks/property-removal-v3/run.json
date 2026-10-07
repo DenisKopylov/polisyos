@@ -1,0 +1,45 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-C4/raw/stream-replay/focused-v3/run_remove_property.py"
+  ],
+  "basetemp": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-C4/raw/stream-replay/focused-v3/pytest-basetemp",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine",
+  "elapsed_seconds": 0.38,
+  "environment": {
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/src"
+  },
+  "expected_failure_assertion": "AssertionError: registry must retain the old cleanup obligation",
+  "markers_or_source_files_changed": false,
+  "probe_verdict": "EXPECTED_PROPERTY_REMOVAL_RED",
+  "profile": "observed-system-python-3.14; pytest 9.0.2; not frozen/offline venv",
+  "pytest_args": [
+    "-ra",
+    "-q",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--benchmark-storage=file://./_cache/benchmarks",
+    "-p",
+    "pytest_asyncio.plugin",
+    "-p",
+    "pytest_benchmark.plugin",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-C4/raw/stream-replay/focused-v3/pytest-cache",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-C4/raw/stream-replay/focused-v3/pytest-basetemp",
+    "tests/unit/fabric/data_plane/test_net_ing_registry_cleanup.py::test_fresh_stream_does_not_replace_older_pending_cleanup_owner"
+  ],
+  "pytest_exit_code": 1,
+  "python_version": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+  "removed_property": "StreamingSourceSession._retain_cleanup_owner replaced with in-memory no-op",
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-C4/raw/stream-replay/focused-v3/pytest.stderr",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-C4/raw/stream-replay/focused-v3/pytest.stdout",
+  "stdout_sha256": "4fcf71ac812548e51c82d53a00326db5eecc25e18ea945fa256b57c77c6b3081",
+  "streaming_source_sha256_after": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119",
+  "streaming_source_sha256_before": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119",
+  "test_file_sha256_after": "e716a8b501dea4e88c805ff0b707e6bfe2084a735ee94d86d15c25e9691fc68c",
+  "test_file_sha256_before": "e716a8b501dea4e88c805ff0b707e6bfe2084a735ee94d86d15c25e9691fc68c"
+}

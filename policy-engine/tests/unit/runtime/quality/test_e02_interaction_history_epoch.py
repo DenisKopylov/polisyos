@@ -177,6 +177,7 @@ async def test_actual_default_n5_n8_interaction_history_is_versioned_and_replaya
         limited["source_custody_limitation"] = (
             generation.GenerationSourceCustodyLimitation().model_dump(mode="json")
         )
+        limited["source_preservation_receipt"] = None
         limited_run = generation.GenerationCycleRun.model_validate(limited)
         limited_wire = limited_run.model_dump(mode="json")
         limited_path = tmp_path / "generation-cycle-run-v6.json"

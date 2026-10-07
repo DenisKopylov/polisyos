@@ -2,7 +2,7 @@
   "schema": "policyos.e02.native_input_preparation.v1",
   "source_sha": "0bf788ac2e57533b08be9172d64c19705a3af30d",
   "source_tree_sha": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
-  "qualification": "Published source paths verified via read-only GitHub contents API. Full tree suffix, archive, projection, and runtime remain not_established here; no collection/native executed.",
+  "qualification": "Exact published Git source tree and all14 test path/blob/byte identities verified through Git API. Archive, projection, current interpreter profile and runtime remain not_established; no collection/native executed.",
   "inputs": [
     {
       "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
@@ -76,13 +76,13 @@
     }
   ],
   "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
-  "product_cwd": "${FULL_GIT_PROJECTION}/policy-engine",
+  "product_cwd": null,
   "argv": [
     "-m",
     "pytest",
     "-q",
-    "--basetemp=${OWN_TMP}/pytest",
-    "--junitxml=${OWN_TMP}/native.xml",
+    "--basetemp=/tmp/e02-B-tenth-wave-20261007/producer-native-final-0bf788ac2e57/pytest",
+    "--junitxml=/tmp/e02-B-tenth-wave-20261007/producer-native-final-0bf788ac2e57/native.xml",
     "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
     "tests/unit/scientist/orchestration/engine/test_state_branching.py",
     "tests/unit/scientist/orchestration/engine/test_state_merge.py",
@@ -99,10 +99,11 @@
     "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py"
   ],
   "environment": {
-    "PYTHONPATH": "${FULL_GIT_PROJECTION}/policy-engine/src:${FULL_GIT_PROJECTION}/policy-engine",
+    "PYTHONPATH": null,
     "POLISYOS_METRICS_PORT": "0",
     "compute_limits": "No new caps or process/thread/CPU quotas; enumerate and remove inherited artificial cap variables before launch; record original values and exact removed keys.",
-    "source_verification": "Full tracked repository Git blob/tree matches including architecture, product lock/python-version/config, tests/tools/apps. Root full archive untouched."
+    "source_verification": "Full tracked repository Git blob/tree matches including architecture, product lock/python-version/config, tests/tools/apps. Root full archive untouched.",
+    "PYTHONPATH_requirement": "Exact root-supplied full projection policy-engine/src:policy-engine. Actual backing Git blob checks and module origins required before/after."
   },
   "execution_state": "UNRUN",
   "case_denominator": {
@@ -138,5 +139,86 @@
     "spec_revision": "76",
     "failure": null,
     "network_policy_state": "unknown"
-  }
+  },
+  "output_namespace": "/tmp/e02-B-tenth-wave-20261007/producer-native-final-0bf788ac2e57",
+  "product_cwd_requirement": "Root-supplied FULL tracked Git archive projection of source_sha; actual path/archive hash absent, product gate UNRUN.",
+  "python_profile": {
+    "expected_version": "Python3.14.2",
+    "basis": "previous root194 profile; current interpreter/version/path accessibility has not been reobserved after environment outage."
+  },
+  "compute_environment_variables_to_census": [
+    "OMP_NUM_THREADS",
+    "OMP_THREAD_LIMIT",
+    "OMP_DYNAMIC",
+    "OPENBLAS_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "MKL_DOMAIN_NUM_THREADS",
+    "MKL_DYNAMIC",
+    "NUMEXPR_NUM_THREADS",
+    "NUMEXPR_MAX_THREADS",
+    "BLIS_NUM_THREADS",
+    "VECLIB_MAXIMUM_THREADS",
+    "JAX_NUM_CPU_DEVICES",
+    "JAX_NUM_THREADS",
+    "JAX_DEFAULT_DEVICE_COUNT",
+    "TF_NUM_INTRAOP_THREADS",
+    "TF_NUM_INTEROP_THREADS",
+    "NUMBA_NUM_THREADS",
+    "RAYON_NUM_THREADS",
+    "LOKY_MAX_CPU_COUNT",
+    "XLA_FLAGS"
+  ],
+  "compute_environment_handling": "Record observed inherited keys/values; remove artificial numeric caps before child spawn and record exact removal. Compound flags need actual interpretation rather than blind semantic changes. No new CPU/thread/process/worker limits.",
+  "input_observations": [
+    {
+      "tool": "mcp__codex_apps__github_fetch",
+      "url": "https://api.github.com/repos/DenisKopylov/polisyos/git/commits/0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "outcome": "PASS",
+      "scope": "exact Git commit tree/ordered parents; not runtime"
+    },
+    {
+      "tool": "mcp__codex_apps__github_fetch",
+      "url": "https://api.github.com/repos/DenisKopylov/polisyos/contents/policy-engine/tests/unit/scientist/orchestration/engine?ref=0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "outcome": "PASS",
+      "scope": "selected10 exact paths/blob IDs/sizes"
+    },
+    {
+      "tool": "mcp__codex_apps__github_fetch",
+      "url": "https://api.github.com/repos/DenisKopylov/polisyos/contents/policy-engine/tests/unit/scientist/orchestration/engine/runner?ref=0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "outcome": "PASS",
+      "scope": "selected4 exact paths/blob IDs/sizes"
+    },
+    {
+      "tool": "mcp__codex_apps__github_fetch_file",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+      "ref": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "outcome": "PASS",
+      "scope": "full literal parametrization15+18+8+18; no pytest import/collection"
+    }
+  ],
+  "retained_original_deciding_outputs": {
+    "source_sha": "2be5a49784403c875742588299d78639f5e8b6ef",
+    "source_tree_sha": "99f550431d93e2523aa4dea4451ed7f1053b5855",
+    "original_directory": "/tmp/e02-B-tenth-producer-model-scope-baseline",
+    "state": "not_established_for_portable_receiver",
+    "qualification": "Previously observed actual18PASS12FAIL30-case run; complete stdout/XML/15 realCAS observations/literal driver remain on currently inaccessible VM. This plan neither reconstructs nor substitutes them. Transfer exact original bytes first when the environment returns."
+  },
+  "prior_candidate_setup": {
+    "source_sha": "ec898674b0a062366af5e7134bf5d3416c0da726",
+    "archive_path": "/tmp/e02-B-tenth-wave-20261007/frozen-source-native.tar",
+    "archive_bytes": 105984000,
+    "archive_sha256": "2db11e4fd69cfcdb37dc2f49fd6d77690a43d3bb737d01e73aa8b9e72d11b197",
+    "capture_directory": "/tmp/e02-B-tenth-exe-ec898-capture",
+    "outcome": "ERROR",
+    "product_runtime": "UNRUN",
+    "qualification": "Previously observed child EXECUTED exit1 before pytest import/collection because projection omitted tracked input closure. Retain original archive/projection/output untouched; do not narrow guard/reuse projection.",
+    "native_xml": "absent in original observation; current filesystem inaccessible"
+  },
+  "closure_ids": [],
+  "negative_control_plan": [
+    "Selective _wrap_mutable_value BaseModel branch removal retaining class-profile preflight, original producer grants, ordinary containers, cache and completion: material readonly model mutation or lost real reopened current-state journal intent.",
+    "Existing generic container admission removal with true live alias distinguishes mutation before physical observation; hash-bound overlay must be rerun on final cut.",
+    "Existing _completed_producer_state removal with genuine local producer completion/public view records separate worker wire boundary.",
+    "Typed IR-ref normalization removal on genuine producer artifact consumer; no ArtifactRef.kind instance patch."
+  ]
 }

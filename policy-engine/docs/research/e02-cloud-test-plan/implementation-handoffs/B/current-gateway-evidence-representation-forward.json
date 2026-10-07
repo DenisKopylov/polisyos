@@ -1,0 +1,136 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "gateway-evidence-lossless-representation-forward",
+  "closure_ids": [],
+  "bundle_ids": [
+    "LLM-01",
+    "CTL-03"
+  ],
+  "finding_ids": [
+    "B66",
+    "B120"
+  ],
+  "slice_base_sha": "13767a65faac74f363058d8e57551bad54e5e740",
+  "implementation_commits": [
+    "3e42138acf4c33e19371f9be04b644c4b32ba222"
+  ],
+  "candidate_sha": "3e42138acf4c33e19371f9be04b644c4b32ba222",
+  "candidate_tree_sha": "09aed8677b2452e2e6da76c569abf03e564f4757",
+  "branch": "codex/e02-B-current-execution-state",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/54",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/initial-premises/premise.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/lossless-representation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/representation.py.source.txt"
+  ],
+  "source_changed_paths": [],
+  "test_changed_paths": [],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "-"
+      ],
+      "stdin": "import subprocess,json,hashlib\nref='3e42138acf4c33e19371f9be04b644c4b32ba222';prefix='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/'\ndef read(path): return subprocess.check_output(['git','show',ref+':'+path])\nx=json.loads(read(prefix+'index.json'));stored=0;decoded=0\nfor a in x['artifacts']:\n data=read(a['path']);assert len(data)==a['bytes'] and hashlib.sha256(data).hexdigest()==a['sha256'];stored+=1\n if a.get('representation'):\n  raw=json.loads(data)['text'].encode('utf-8');expected=subprocess.check_output(['git','show',a['raw_original']['commit']+':'+a['path']]);assert raw==expected;decoded+=1\nassert stored==276 and decoded==7\nassert not subprocess.check_output(['git','diff','--name-only','13767a65faac74f363058d8e57551bad54e5e740',ref,'--','policy-engine/src','policy-engine/tests'])\ncheck=subprocess.run(['git','diff','--check','f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1',ref],capture_output=True);assert check.returncode==0 and not check.stdout and not check.stderr\nprint(json.dumps({'target_sha':ref,'stored_objects':stored,'stored_hash_mismatches':0,'lossless_decoded_objects':decoded,'decoded_vs_original_Git_byte_mismatches':0,'production_test_delta':[],'git_diff_check_exit':check.returncode,'native_outcomes_changed':False,'native_rerun':False,'all_pass':True}))\n",
+      "target_sha": "3e42138acf4c33e19371f9be04b644c4b32ba222",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-execution-state",
+        "python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "python_version": "3.12.14",
+        "purpose": "stdlib/Git byte reconciliation only; not native package execution"
+      },
+      "input_closure": {
+        "index": {
+          "commit": "3e42138acf4c33e19371f9be04b644c4b32ba222",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/index.json",
+          "bytes": 128347,
+          "sha256": "e1b7fb6710e1fdeea71447ff64682a987e27d5328bd4e4b21802d7005d5932af"
+        },
+        "all_current_stored_payload_count": 276,
+        "original_raw_git": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "receipt_forward_base": "13767a65faac74f363058d8e57551bad54e5e740",
+        "net_diff_base": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+        "payload_bytes": 9410875
+      },
+      "outcome": "PASS",
+      "output": "{\"target_sha\": \"3e42138acf4c33e19371f9be04b644c4b32ba222\", \"stored_objects\": 276, \"stored_hash_mismatches\": 0, \"lossless_decoded_objects\": 7, \"decoded_vs_original_Git_byte_mismatches\": 0, \"production_test_delta\": [], \"git_diff_check_exit\": 0, \"native_outcomes_changed\": false, \"native_rerun\": false, \"all_pass\": true}",
+      "reconciliation": {
+        "commit": "3e42138acf4c33e19371f9be04b644c4b32ba222",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/lossless-representation.json",
+        "bytes": 6559,
+        "sha256": "4241149e4269198d7fddf8ec2b8870d6de333b6d8eb05d784b5ec9aee7baf3af"
+      }
+    }
+  ],
+  "property": {
+    "statement": "Evidence representation must retain exact original deciding UTF-8 bytes and explicit source refs while the current publication has no trailing-whitespace diagnostics.",
+    "runtime_path": [
+      "original immutable Gitb82 stdout/XML",
+      "lossless UTF-8 JSON envelope text",
+      "current index stored-hash plus decoded-raw identity",
+      "independent Git byte reconciliation"
+    ],
+    "proxy_divergence": "Trimming a log could make diff-check green while changing deciding bytes. These7 envelopes decode exactly to old Gitraw, without outcome or native execution change.",
+    "negative_controls": [
+      "Every7 decoded envelope equals exact original Gitb82 bytes (including whitespace/newlines), and raw SHA/bytes match; no whitespace removed from actualraw.",
+      "All276 current payloads have exact Gitstored hash/byte matches; other267 original runtime payloads remain raw byte-identical and2 representation companions are explicit.",
+      "Net git diff --check f796\u2192candidate returns0 with empty stdout/stderr; production/tests delta from prior137 is empty.",
+      "Prior raw immutable receipt290 and separate Dreader137 remain truthful exactsource/outcome pins; no rerun, scientific green restamp or closure implied."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "PASS metadata lossless representation only; prior B66LIMITED and D-owned B120OPEN preserved, formal closure_ids[]",
+  "finding_dispositions": [
+    {
+      "finding_id": "B66",
+      "state": "LIMITED",
+      "formal_state": "not_closed",
+      "technical_state": "unchanged exact290 independent upstream native verification"
+    },
+    {
+      "finding_id": "B120",
+      "state": "OPEN",
+      "formal_state": "not_closed",
+      "technical_state": "unchanged exact137 native Dcomponent projection countercase; no new production behavior"
+    }
+  ],
+  "source_and_evidence": {
+    "current_index": {
+      "commit": "3e42138acf4c33e19371f9be04b644c4b32ba222",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/index.json",
+      "bytes": 128347,
+      "sha256": "e1b7fb6710e1fdeea71447ff64682a987e27d5328bd4e4b21802d7005d5932af"
+    },
+    "representation_report": {
+      "commit": "3e42138acf4c33e19371f9be04b644c4b32ba222",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/lossless-representation.json",
+      "bytes": 6559,
+      "sha256": "4241149e4269198d7fddf8ec2b8870d6de333b6d8eb05d784b5ec9aee7baf3af"
+    },
+    "literal_transform_source": {
+      "commit": "3e42138acf4c33e19371f9be04b644c4b32ba222",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/representation.py.source.txt",
+      "bytes": 3346,
+      "sha256": "336929403c22d8f65e2384a7a7ddb9db7dfd6eb25015a55edc7094730492d4b1"
+    },
+    "original_raw_source": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+    "raw_receipt": "29024b9537b46376957350c9e12f648c0bfb2d63",
+    "D_component_implementation": "da184509c275fc5ba3068223d1056d09e20a0a51",
+    "D_component_receipt": "13767a65faac74f363058d8e57551bad54e5e740"
+  },
+  "limitations_and_next_owner": [
+    "For7 index entries markedlossless_utf8_json_text, parse current file as JSON and obtain text.encode(utf-8); verify decoded_raw_sha256/bytes. The historical .txt/.xml filenames do not imply currentraw representation.",
+    "Fetch exact original immutableb82 to read raw directly. Existing historical receipt hashes refer to that pinned Git object, not silently to latestfilesystem bytes.",
+    "No source/test/environment/schema mutation, provider call, native rerun, cleanup/Trash/delete/history rewrite or outcome relabeling performed. Representation alters currentdocument storage only.",
+    "Root/G may merge metadata-only forward; final source/consumer/cohort criterion still requires its own current adjudication."
+  ]
+}

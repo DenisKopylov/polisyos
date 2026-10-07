@@ -107,7 +107,7 @@ class _RowsConnection:
     def execute(self, statement: str, parameters: Any = None) -> _RowsCursor:
         self.calls.append((statement, tuple(parameters or ())))
         rows = self._rows
-        if "country_code = ?" in statement:
+        if "country_code = CAST(? AS VARCHAR)" in statement:
             selected_parameters = tuple(parameters or ())
             scope_region = (
                 selected_parameters[3]
@@ -188,7 +188,7 @@ def test_scope_is_bound_before_limit_and_ambiguous_units_fail_closed(
     assert connection.calls
     assert connection.calls[0][1][0] == "outcome"
     statement = connection.calls[0][0]
-    assert statement.index("country_code = ?") < statement.index("LIMIT")
+    assert statement.index("country_code = CAST(? AS VARCHAR)") < statement.index("LIMIT")
     assert connection.calls[0][1][3] == "UA"
 
 

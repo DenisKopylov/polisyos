@@ -32,12 +32,23 @@ nonlocals. The graph reads those members directly from module dictionaries,
 without running getters, and projects their supported Python helper graph;
 same-version member replacement therefore invalidates checkpoint reuse and
 compiler specialization. Unused module members are outside the selected graph.
-Module transport/aliasing, reflection, dynamic imports, class-held modules and
-paths through non-module objects are unsupported in the strict profile.
-Nested Python code uses the same referenced-global census. Local import
-bytecodes, namespace-producing/reflective builtins (including captured aliases)
-and function/class namespace introspection refuse strict admission; a Python
-version cannot stand in for the selected graph obtained through those paths.
+Module transport/aliasing, dynamic imports, class-held modules and paths through
+non-module objects are outside the supported static member graph. Nested Python
+code uses the same referenced-global census. Local import bytecodes, directly
+captured `__import__`, `compile`, `delattr`, `dir`, `eval`, `exec`, `getattr`,
+`globals`, `locals`, `setattr` and `vars` builtins (including aliases), and the
+checked function/class namespace attributes refuse strict admission. These
+checks do not establish universal reflection refusal.
+
+An opaque builtin can return a runtime namespace without exposing its selected
+members to this graph. The real `sys._getframe().f_globals["math"]` checkpoint
+counterexample retains the same source and Python version while a replaced
+helper runs in the remaining consumer: unchanged result 7 becomes 107 and the
+replacement writes a filesystem effect. This path is currently admitted; its
+native regression test deliberately remains FAIL. B74 is therefore LIMITED.
+The next B owner needs a generic declared dependency or typed refusal strategy
+for builtin-returned context capabilities, rather than another helper-specific
+patch. The static member and direct capability controls remain finite facts.
 
 Builtin implementations retain the Python/distribution version boundary.
 Installed external callables whose internals cannot be projected retain an

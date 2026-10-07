@@ -1,0 +1,21 @@
+{
+  "source_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+  "actual_git_head": "164d7267628f83866c3440df3128352b181fe313",
+  "actual_tree": "d473ccc81b8b76a3f005d9d3917f61808e50c3c7",
+  "fixture_dependency": {
+    "git_sha": "ed4fca3916562b56ff293fc93ccb3464b7a30e0b",
+    "path": "policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+    "actual_path": "/workspace/e02-B-current-cas-generation/policy-engine/tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+    "bytes": 11096,
+    "sha256": "1c22fd256f2038def925ed5467c5bc842d680bfa0669cee202a75ea881cc71f8",
+    "binding": "independently_reconciled"
+  },
+  "test_source": "frame-falsifier.py.source.txt",
+  "driver": "run-frame.py.source.txt",
+  "actual_selector": "frame-falsifier.py::test_returned_frame_namespace_is_not_closed_by_static_selected_module_graph",
+  "measurement": "frame-eb4/measurement.json",
+  "fixture_path": "/dev/shm/e02-B-module-frame-eb4-747353/test_returned_frame_namespace_0",
+  "full_fixture_preserved": true,
+  "scope": "real strict producer\u2192CAS/prefix pointer\u2192fresh load\u2192remaining consumer; not complete repository/resource/network readset",
+  "git_file_origins": "frame-eb4/module-origins.json"
+}

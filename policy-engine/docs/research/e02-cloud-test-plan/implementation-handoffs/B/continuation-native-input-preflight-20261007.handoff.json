@@ -1,0 +1,299 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "continuation-native-input-preflight-20261007",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "bf572fbab864ddb0f62a5151656d9c1febe29afc",
+  "implementation_commits": [
+    "ffab98b4e9d738594cc1313d784bad3c01a052a3"
+  ],
+  "candidate_sha": "ffab98b4e9d738594cc1313d784bad3c01a052a3",
+  "candidate_tree_sha": "cea75f75a96807f0936555696f9d05292a1b6345",
+  "branch": "codex/e02-B-current-durability",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/43",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "id": "tool-status-0",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-VV"
+      ],
+      "target_sha": "bf572fbab864ddb0f62a5151656d9c1febe29afc",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-durability",
+        "python_or_tool": "explicitbinary in argv",
+        "ICU_DATA": "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/share/icu/78.1",
+        "execution": "version/status only; no productionnative"
+      },
+      "input_closure": {
+        "source_scope": "Owningmetadata frame bf572, no productioncode execution; roottrackedinstruments read separately at8c3f checkpoint. External executable/library files exactidentities in observedoutput.",
+        "tool_identity": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#tool_identity",
+        "root_source_checkpoint": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#root_source_checkpoint",
+        "privatePGfile": "mode/UID/regular/nonempty only, no publicvalue/digest",
+        "no_start_or_SQL": true
+      },
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#commands/0",
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
+      "output_sha256": "f0fff4d6164970b24a958629e59da3f3886f76398c5e72eaa289c40058f4269c",
+      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS"
+    },
+    {
+      "id": "tool-status-1",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "--version"
+      ],
+      "target_sha": "bf572fbab864ddb0f62a5151656d9c1febe29afc",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-durability",
+        "python_or_tool": "explicitbinary in argv",
+        "ICU_DATA": "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/share/icu/78.1",
+        "execution": "version/status only; no productionnative"
+      },
+      "input_closure": {
+        "source_scope": "Owningmetadata frame bf572, no productioncode execution; roottrackedinstruments read separately at8c3f checkpoint. External executable/library files exactidentities in observedoutput.",
+        "tool_identity": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#tool_identity",
+        "root_source_checkpoint": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#root_source_checkpoint",
+        "privatePGfile": "mode/UID/regular/nonempty only, no publicvalue/digest",
+        "no_start_or_SQL": true
+      },
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#commands/1",
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
+      "output_sha256": "f0fff4d6164970b24a958629e59da3f3886f76398c5e72eaa289c40058f4269c",
+      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS"
+    },
+    {
+      "id": "tool-status-2",
+      "command": [
+        "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin/node",
+        "--version"
+      ],
+      "target_sha": "bf572fbab864ddb0f62a5151656d9c1febe29afc",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-durability",
+        "python_or_tool": "explicitbinary in argv",
+        "ICU_DATA": "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/share/icu/78.1",
+        "execution": "version/status only; no productionnative"
+      },
+      "input_closure": {
+        "source_scope": "Owningmetadata frame bf572, no productioncode execution; roottrackedinstruments read separately at8c3f checkpoint. External executable/library files exactidentities in observedoutput.",
+        "tool_identity": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#tool_identity",
+        "root_source_checkpoint": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#root_source_checkpoint",
+        "privatePGfile": "mode/UID/regular/nonempty only, no publicvalue/digest",
+        "no_start_or_SQL": true
+      },
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#commands/2",
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
+      "output_sha256": "f0fff4d6164970b24a958629e59da3f3886f76398c5e72eaa289c40058f4269c",
+      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS"
+    },
+    {
+      "id": "tool-status-3",
+      "command": [
+        "/tmp/e02-B-opa-latest-preparation-1db95544/bin/opa",
+        "version"
+      ],
+      "target_sha": "bf572fbab864ddb0f62a5151656d9c1febe29afc",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-durability",
+        "python_or_tool": "explicitbinary in argv",
+        "ICU_DATA": "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/share/icu/78.1",
+        "execution": "version/status only; no productionnative"
+      },
+      "input_closure": {
+        "source_scope": "Owningmetadata frame bf572, no productioncode execution; roottrackedinstruments read separately at8c3f checkpoint. External executable/library files exactidentities in observedoutput.",
+        "tool_identity": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#tool_identity",
+        "root_source_checkpoint": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#root_source_checkpoint",
+        "privatePGfile": "mode/UID/regular/nonempty only, no publicvalue/digest",
+        "no_start_or_SQL": true
+      },
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#commands/3",
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
+      "output_sha256": "f0fff4d6164970b24a958629e59da3f3886f76398c5e72eaa289c40058f4269c",
+      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS"
+    },
+    {
+      "id": "tool-status-4",
+      "command": [
+        "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/local/bin/postgres",
+        "--version"
+      ],
+      "target_sha": "bf572fbab864ddb0f62a5151656d9c1febe29afc",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-durability",
+        "python_or_tool": "explicitbinary in argv",
+        "ICU_DATA": "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/share/icu/78.1",
+        "execution": "version/status only; no productionnative"
+      },
+      "input_closure": {
+        "source_scope": "Owningmetadata frame bf572, no productioncode execution; roottrackedinstruments read separately at8c3f checkpoint. External executable/library files exactidentities in observedoutput.",
+        "tool_identity": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#tool_identity",
+        "root_source_checkpoint": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#root_source_checkpoint",
+        "privatePGfile": "mode/UID/regular/nonempty only, no publicvalue/digest",
+        "no_start_or_SQL": true
+      },
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#commands/4",
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
+      "output_sha256": "f0fff4d6164970b24a958629e59da3f3886f76398c5e72eaa289c40058f4269c",
+      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS"
+    },
+    {
+      "id": "tool-status-5",
+      "command": [
+        "/tmp/e02-B38-pg-evidence/oci/rootfs/lib/ld-musl-x86_64.so.1",
+        "--library-path",
+        "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/local/lib:/tmp/e02-B38-pg-evidence/oci/rootfs/usr/lib:/tmp/e02-B38-pg-evidence/oci/rootfs/lib",
+        "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/local/bin/pg_ctl",
+        "--version"
+      ],
+      "target_sha": "bf572fbab864ddb0f62a5151656d9c1febe29afc",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-durability",
+        "python_or_tool": "explicitbinary in argv",
+        "ICU_DATA": "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/share/icu/78.1",
+        "execution": "version/status only; no productionnative"
+      },
+      "input_closure": {
+        "source_scope": "Owningmetadata frame bf572, no productioncode execution; roottrackedinstruments read separately at8c3f checkpoint. External executable/library files exactidentities in observedoutput.",
+        "tool_identity": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#tool_identity",
+        "root_source_checkpoint": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#root_source_checkpoint",
+        "privatePGfile": "mode/UID/regular/nonempty only, no publicvalue/digest",
+        "no_start_or_SQL": true
+      },
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#commands/5",
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
+      "output_sha256": "f0fff4d6164970b24a958629e59da3f3886f76398c5e72eaa289c40058f4269c",
+      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS"
+    },
+    {
+      "id": "tool-status-6",
+      "command": [
+        "/tmp/e02-B38-pg-evidence/oci/rootfs/lib/ld-musl-x86_64.so.1",
+        "--library-path",
+        "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/local/lib:/tmp/e02-B38-pg-evidence/oci/rootfs/usr/lib:/tmp/e02-B38-pg-evidence/oci/rootfs/lib",
+        "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/local/bin/pg_ctl",
+        "status",
+        "-D",
+        "/tmp/e02-B38-pg-evidence/native-data-v2"
+      ],
+      "target_sha": "bf572fbab864ddb0f62a5151656d9c1febe29afc",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-durability",
+        "python_or_tool": "explicitbinary in argv",
+        "ICU_DATA": "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/share/icu/78.1",
+        "execution": "version/status only; no productionnative"
+      },
+      "input_closure": {
+        "source_scope": "Owningmetadata frame bf572, no productioncode execution; roottrackedinstruments read separately at8c3f checkpoint. External executable/library files exactidentities in observedoutput.",
+        "tool_identity": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#tool_identity",
+        "root_source_checkpoint": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#root_source_checkpoint",
+        "privatePGfile": "mode/UID/regular/nonempty only, no publicvalue/digest",
+        "no_start_or_SQL": true
+      },
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "exit_code": 3,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#commands/6",
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
+      "output_sha256": "f0fff4d6164970b24a958629e59da3f3886f76398c5e72eaa289c40058f4269c",
+      "outcome_details": "pg_ctl status3 is actualstoppedfixture, notproduct/gatefailure"
+    },
+    {
+      "id": "tool-status-7",
+      "command": [
+        "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin/node",
+        "/home/agent/.cache/node/corepack/v1/pnpm/10.33.2/bin/pnpm.cjs",
+        "--version"
+      ],
+      "target_sha": "bf572fbab864ddb0f62a5151656d9c1febe29afc",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-durability",
+        "python_or_tool": "explicitbinary in argv",
+        "ICU_DATA": "/tmp/e02-B38-pg-evidence/oci/rootfs/usr/share/icu/78.1",
+        "execution": "version/status only; no productionnative"
+      },
+      "input_closure": {
+        "source_scope": "Owningmetadata frame bf572, no productioncode execution; roottrackedinstruments read separately at8c3f checkpoint. External executable/library files exactidentities in observedoutput.",
+        "tool_identity": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#tool_identity",
+        "root_source_checkpoint": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#root_source_checkpoint",
+        "privatePGfile": "mode/UID/regular/nonempty only, no publicvalue/digest",
+        "no_start_or_SQL": true
+      },
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json#commands/7",
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
+      "output_sha256": "f0fff4d6164970b24a958629e59da3f3886f76398c5e72eaa289c40058f4269c",
+      "outcome_details": "Actualversionstatus stdout preserved; does not establishnative/gates PASS"
+    }
+  ],
+  "property": {
+    "statement": "Keep actual availabletool/filesystem/privateinput observations separate from readinessof a future immutable fullB source and runningPG/wheel/gates.",
+    "runtime_path": [
+      "read fulltrackedwheel/admission/capture/gate/projection andobserver source",
+      "actualeightversion/status childargv",
+      "opaqueprivateDSN metadata and preservedPGdata/endpoint observation",
+      "currentcgroup/FS snapshots",
+      "root exactnewfreeze/setup and actualwave stillUNRUN"
+    ],
+    "proxy_divergence": "A DSNfile/PGbinary does not mean serverrunning; an old successful1862 wheel does not admit a newSHA; an existingobserver module name does not provebyte-equivalence totracked journalversion; globalMemAvailable does not equal currentcgroupheadroom.",
+    "negative_controls": [
+      "pg_ctlstatus3 +no postmaster.pid +loopbackconnect111",
+      "actualignoredobserverbytes mismatch againsttrackedsource",
+      "oldwheelSOURCE_SHA1862 vsfuturefinalSHA sourceadmission requirement, source-only not executedbuildnegative",
+      "currentcgroupmemory/FS availability observed rather thanlabelledallready"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "read-only preflight complete; fullnative/wheel/gates/service startupUNRUN. Inputavailability is qualified; executioncapacity/setup notestablished and belongsroot.",
+  "proposal_output": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.json",
+    "sha256": "b8a06ee4da2279c10aff6ed7d254424e393cac234556cc82b97094cb475d9500",
+    "bytes": 7945
+  },
+  "observed_output": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-native-input-preflight-20261007.observed.json",
+    "sha256": "f0fff4d6164970b24a958629e59da3f3886f76398c5e72eaa289c40058f4269c",
+    "bytes": 14827
+  },
+  "source_snapshot_qualification": "RootHEAD advanced c722\u21928c3f0efe0a0ef72dab8c62ef4395daaafc39a327 through concurrent authorizedwork; six inspectedtrackedinstruments equal c722/currentdisk. No immutablewhole-sourceclaim during preflight.",
+  "limitations_and_next_owner": [
+    "Parentroot prepares source-specific namespace/selector, commits newcaller/source, binds freshwheel7fields, updates ignoredobserver toexacttrackedsource, admits ownedPGstart and captures actualreadiness. No service or fixture files modified byDUR.",
+    "Resource snapshot is measuredlocalreadiness, not a hardfit bound, causalOOM diagnosis or artificialCPU/processquota. No cleanup/Trash/deletion performed.",
+    "Externaltool/cache metadata does not proveofflinepackage or globalgate/import completeness. Hatchling taskinstall/build is futurephase; no baseenv changes.",
+    "Root fullwave/findingadjudication/Gcodeacceptance cannot borrow preflightversionPASS or historicalnative status as newcandidate evidence/P41 waiver."
+  ],
+  "unperformed": [
+    "build/install",
+    "tests/nativecollection/gates",
+    "start/stopSQL",
+    "rootcheckout edits",
+    "cleanup/resourcecap"
+  ],
+  "receiver_availability": "Ownmoderateobservedprofile14827B +proposal7945B are committed. ExistingprivateDSN/cache/toolbinaries remainlocal/root-supplied; no transitive portableenvironment claim."
+}
